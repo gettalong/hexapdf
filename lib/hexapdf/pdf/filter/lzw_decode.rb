@@ -61,7 +61,6 @@ module HexaPDF
                   # reset decoder state
                   code_length = 9
                   table = INITIAL_DECODER_TABLE.dup
-                  next_code_length_jump = 512
                 elsif last_code == CLEAR_TABLE
                   raise "Unknown code found" unless table.has_key?(code)
                   result << table[code]
@@ -111,8 +110,9 @@ module HexaPDF
                 end
 
                 case table.size
-                when 512, 1024, 2048
-                  code_length += 1
+                when 512 then code_length = 10
+                when 1024 then code_length = 11
+                when 2048 then code_length = 12
                 when 4096
                   result << stream.write(CLEAR_TABLE, code_length)
                   # reset encoder state
