@@ -2,7 +2,6 @@
 
 require 'hexapdf/error'
 require 'hexapdf/pdf/tokenizer'
-require 'hexapdf/pdf/indirect_object'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/xref_table'
 
@@ -11,24 +10,27 @@ module HexaPDF
 
     # Parses an IO stream according to PDF1.7 to get at the PDF objects.
     #
-    # This class is normally not directly used but indirectly via HexaPDF::Document.
+    # This class is normally not directly used but indirectly via ObjectStore.
     #
     # See: PDF1.7 s7
     class Parser
 
-      # Create a new parser for the given HexaPDF::Document and IO objects.
-      def initialize(document, io)
-        @document = document
+      # The object used to resolve references.
+      attr_accessor :resolver
+
+      # Create a new parser for the given IO object.
+      def initialize(io)
         @io = io
         @tokenizer = Tokenizer.new(io)
+        @resolver = nil
       end
 
       # Parse the indirect object at the specified offset.
       #
-      # This method is used by an XRefTable to load objects. It should **not** be used by any other
-      # object because invalid object positions lead to an error.
+      # This method is used by an ObjectStore to load objects. It should **not** be used by any
+      # other object because invalid object positions lead to an error.
       #
-      # Returns an IndirectObject (or a subclass).
+      # Returns an array containing [object, oid, gen, stream].
       #
       # See: PDF1.7 s7.3.10, s7.3.8
       def parse_indirect_object(offset = @tokenizer.pos)
@@ -42,12 +44,11 @@ module HexaPDF
         end
 
         object = parse_object
-        object = @document.wrap_object(object, oid, gen)
 
         tok = @tokenizer.next_token
 
         if tok.kind_of?(Tokenizer::Token) && tok == 'stream'
-          unless object.value.kind_of?(Hash)
+          unless object.kind_of?(Hash)
             raise HexaPDF::MalformedPDFError.new("A stream needs a dictionary, not a(n) #{object.class}", offset)
           end
           tok = @tokenizer.next_byte
@@ -58,7 +59,8 @@ module HexaPDF
 
           # Note that dereferencing :Length might move the IO pointer
           pos = @tokenizer.pos
-          length = object[:Length].kind_of?(Integer) ? object[:Length] : @document.deref(object[:Length])
+          length = (object[:Length].kind_of?(Integer) && object[:Length]) ||
+            (@resolver && @resolver.deref(object[:Length]) || 0)
           @tokenizer.pos = pos + length
 
           tok = @tokenizer.next_token
@@ -67,25 +69,67 @@ module HexaPDF
           end
           tok = @tokenizer.next_token
 
-          object.stream = Stream.new(@tokenizer.io, pos, length)
+          stream = Stream.new(@tokenizer.io, pos, length)
         end
 
         unless tok.kind_of?(Tokenizer::Token) && tok == 'endobj'
           raise HexaPDF::MalformedPDFError.new("Indirect object must be followed by keyword endobj", @tokenizer.pos)
         end
 
-        object
+        [object, oid, gen, stream]
       end
 
-      # Parse the cross-reference table/stream at the given offset.
-      def parse_xref(offset)
+      # Parse the cross-reference table at the given position.
+      #
+      # Note that this method can only parse cross-reference tables, not cross-reference streams!
+      #
+      # See: PDF1.7 s7.5.4
+      def parse_xref_table(offset)
+        @tokenizer.pos = offset
+        token = @tokenizer.next_token
+        unless token.kind_of?(Tokenizer::Token) && token == 'xref'
+          raise HexaPDF::MalformedPDFError.new("Xref table doesn't start with keyword xref", @tokenizer.pos)
+        end
+
+        xref = XRefTable.new
+        start = @tokenizer.next_token
+        while start.kind_of?(Integer)
+          number_of_entries = @tokenizer.next_token
+          unless number_of_entries.kind_of?(Integer)
+            raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection start", @tokenizer.pos)
+          end
+
+          @tokenizer.skip_whitespace
+          start.upto(start + number_of_entries - 1) do |oid|
+            pos, gen, type = @tokenizer.next_xref_entry
+            if type == 'n'
+              xref[oid, gen] = pos
+            else
+              xref[oid, gen] = XRefTable::FREE_ENTRY
+            end
+          end
+
+          start = @tokenizer.next_token
+        end
+
+        unless start.kind_of?(Tokenizer::Token) && start == 'trailer'
+          raise HexaPDF::MalformedPDFError.new("Trailer doesn't start with keyword trailer", @tokenizer.pos)
+        end
+
+        trailer = parse_object
+        unless trailer.kind_of?(Hash)
+          raise HexaPDF::MalformedPDFError.new("Trailer is not a dictionary, but a(n) #{trailer.class}", @tokenizer.pos)
+        end
+        xref.trailer = trailer
+
+        xref
+      end
+
+      # Look at the given offset and return +true+ if there is a cross-reference table at that position.
+      def xref_table?(offset)
         @tokenizer.pos = offset
         token = @tokenizer.peek_token
-        if token.kind_of?(Integer)
-          parse_xref_stream
-        else
-          parse_xref_table
-        end
+        token.kind_of?(Tokenizer::Token) && token == 'xref'
       end
 
       # Return the offset of the main cross-reference table/stream.
@@ -110,11 +154,11 @@ module HexaPDF
       # See: PDF1.7 s7.5.2
       def file_header_version
         @io.seek(0)
-        version = /%PDF-(\d\.\d)/.match(@io.read(8))[1]
-        unless version
+        version_match = /%PDF-(\d\.\d)/.match(@io.read(8))
+        unless version_match
           raise HexaPDF::MalformedPDFError.new("PDF file header is missing or corrupt", 0)
         end
-        version
+        version_match[1]
       end
 
       private
@@ -176,47 +220,6 @@ module HexaPDF
           result[key] = val
         end
         result
-      end
-
-      # See: PDF1.7 s7.5.4
-      def parse_xref_table
-        token = @tokenizer.next_token
-        unless token.kind_of?(Tokenizer::Token) && token == 'xref'
-          raise HexaPDF::MalformedPDFError.new("Xref table doesn't start with keyword xref", @tokenizer.pos)
-        end
-
-        xref = XRefTable.new(self)
-        start = @tokenizer.next_token
-        while start.kind_of?(Integer)
-          number_of_entries = @tokenizer.next_token
-          unless number_of_entries.kind_of?(Integer)
-            raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection start", @tokenizer.pos)
-          end
-
-          @tokenizer.skip_whitespace
-          start.upto(start + number_of_entries - 1) do |oid|
-            pos, gen, type = @tokenizer.next_xref_entry
-            if type == 'n'
-              xref[oid, gen] = pos
-            else
-              xref[oid, gen] = XRefTable::FREE_ENTRY
-            end
-          end
-
-          start = @tokenizer.next_token
-        end
-
-        unless start.kind_of?(Tokenizer::Token) && start == 'trailer'
-          raise HexaPDF::MalformedPDFError.new("Trailer doesn't start with keyword trailer", @tokenizer.pos)
-        end
-
-        trailer = parse_object
-        unless trailer.kind_of?(Hash)
-          raise HexaPDF::MalformedPDFError.new("Trailer is not a dictionary, but a(n) #{trailer.class}", @tokenizer.pos)
-        end
-        xref.trailer = trailer
-
-        xref
       end
 
     end

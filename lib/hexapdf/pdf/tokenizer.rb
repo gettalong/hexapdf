@@ -56,7 +56,6 @@ module HexaPDF
 
       # Return the token at the current position and advance the scan pointer.
       def next_token
-        prepare_string_scanner
         tok = parse_token
 
         if tok.kind_of?(Integer) # Handle object references, see PDF1.7 s7.3.10
@@ -92,6 +91,7 @@ module HexaPDF
       #
       # See: PDF1.7 7.5.4
       def next_xref_entry
+        prepare_string_scanner if @ss.rest_size < 20
         unless @ss.scan(/(\d{10}) (\d{5}) ([nf])( \r| \n|\r\n)/)
           raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection entry", pos)
         end
@@ -100,6 +100,7 @@ module HexaPDF
 
       # Skip all whitespace (see WHITESPACE) at the current position.
       def skip_whitespace
+        prepare_string_scanner
         @ss.skip(WHITESPACE_MULTI_RE)
       end
 
@@ -119,10 +120,10 @@ module HexaPDF
       # Comments and a run of whitespace characters are ignored. The value +NO_MORE_TOKENS+ is
       # returned if there are no more tokens available.
       def parse_token
+        prepare_string_scanner
         case byte = @ss.get_byte
         when WHITESPACE_SINGLE_RE
           @ss.skip(WHITESPACE_MULTI_RE)
-          prepare_string_scanner if @ss.eos?
           parse_token
         when '/'
           parse_name
@@ -143,14 +144,14 @@ module HexaPDF
         when '[', ']', '{', '}'
           Token.new(byte)
         when '%' # start of comment, until end of line
-          while !@ss.skip_until(/(?=[\r\n]|\z)/)
-            return nil if !prepare_string_scanner
+          while !@ss.skip_until(/(?=[\r\n])/)
+            return NO_MORE_TOKENS if !prepare_string_scanner
           end
           parse_token
         when nil # we reached the end of the file
           NO_MORE_TOKENS
         else # everything else consisting of regular characters
-          byte << (scan_until_with_eof_check(WHITESPACE_OR_DELIMITER_RE) rescue @ss.scan(/.*/))
+          byte << (scan_until_with_eof_check(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/))
           convert_keyword(byte)
         end
       end
@@ -196,7 +197,13 @@ module HexaPDF
         parentheses = 1
 
         while parentheses != 0
-          str << scan_until_with_eof_check(/([()\\\r])/)
+          data = scan_until_with_eof_check(/([()\\\r])/)
+          unless data
+            raise HexaPDF::MalformedPDFError.new("Unclosed literal string found", pos)
+          end
+
+          str << data
+          prepare_string_scanner if @ss.eos?
           case @ss[1]
           when '(' then parentheses += 1
           when ')' then parentheses -= 1
@@ -228,6 +235,10 @@ module HexaPDF
       # See: PDF1.7 s7.3.4.3
       def parse_hex_string
         data = scan_until_with_eof_check(/(?=>)/)
+        unless data
+          raise HexaPDF::MalformedPDFError.new("Unclosed hex string found", pos)
+        end
+
         @ss.pos += 1
         data.tr!(WHITESPACE, "")
         [data].pack('H*')
@@ -237,7 +248,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.3.5
       def parse_name
-        str = scan_until_with_eof_check(WHITESPACE_OR_DELIMITER_RE)
+        str = scan_until_with_eof_check(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
         str.gsub!(/#[A-Fa-f0-9]{2}/) {|m| m[1,2].hex.chr }
         str.to_sym
       end
@@ -264,14 +275,11 @@ module HexaPDF
       # found at first, the string of the underlying StringScanner is extended and then the regexp
       # is tried again. This is done as long as needed.
       #
-      # If the end of the file is reached in the process, an error is thrown.
-      #
-      # Returns the matched string.
+      # If the end of the file is reached in the process, +nil+ is returned. Otherwise the matched
+      # string is returned.
       def scan_until_with_eof_check(re)
         while !(data = @ss.scan_until(re))
-          unless prepare_string_scanner
-            raise HexaPDF::MalformedPDFError.new("EOF reached before token could be finished", pos)
-          end
+          return nil unless prepare_string_scanner
         end
         data
       end

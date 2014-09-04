@@ -29,6 +29,12 @@ class PDFTokenizerTest < Minitest::Test
     assert_equal(50016, @tokenizer.pos)
   end
 
+  def test_next_byte
+    @io.string = 'hallo'
+    assert_equal('h', @tokenizer.next_byte)
+    assert_equal('a', @tokenizer.next_byte)
+  end
+
   def test_peek_token
     2.times do
       @io.string = "hallo du"
@@ -46,8 +52,8 @@ true false
 34.5 -3.62 +123.6 4. -.002 .002 0.0
 
 % Literal string tests
-(parentheses ( ) and \\(
-special \\0053\\053\\53characters (*!&}^% and \\
+(parenthese\\s ( ) and \\(\r
+special \\0053\\053\\53characters\r (*!&}^% and \\
 so on).\\n)
 ()
 
@@ -79,12 +85,15 @@ so on).\\n)
 
 % Dictionaries
 <</Name 5>>
+
+% Test
 EOF
+    @io.string.chomp!
 
     expected_tokens = [true, false,
                        123, 17, -98, 0,
                        34.5, -3.62, 123.6, 4.0, -0.002, 0.002, 0.0,
-                       "parentheses ( ) and (\nspecial \0053++characters (*!&}^% and so on).\n", '',
+                       "parentheses ( ) and (\nspecial \0053++characters\n (*!&}^% and so on).\n", '',
                        "Nov shmoz ka pop.", "\x90\x1F\xA3", "\x90\x1F\xA0",
                        :Name1, :ASomewhatLongerName, :"A;Name_With-Various***Characters?",
                        :"1.2", :"$$", :"@pattern", :".notdef", :"lime Green", :"paired()parentheses",
@@ -102,6 +111,21 @@ EOF
     end
     assert_equal(0, expected_tokens.length)
     assert_equal(HexaPDF::PDF::Tokenizer::NO_MORE_TOKENS, @tokenizer.next_token)
+  end
+
+  def test_invalid_token
+    strings = [" >", "(href", "<ABAB"]
+    strings.each do |str|
+      @io.string = str
+      @tokenizer.pos = 0
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
+    end
+  end
+
+  def test_next_xref_entry
+    @io.string = "0000000001 00001 n \n0000000001 00001 g \n"
+    assert_equal([1, 1, 'n'], @tokenizer.next_xref_entry)
+    assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_xref_entry }
   end
 
 end
