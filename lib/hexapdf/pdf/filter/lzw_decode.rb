@@ -29,7 +29,6 @@ module HexaPDF
             # initialize decoder state
             code_length = 9
             table = INITIAL_DECODER_TABLE.dup
-            next_code_length_jump = 512
 
             stream = BitStreamReader.new
             result = ''.force_encoding('BINARY')
@@ -41,6 +40,19 @@ module HexaPDF
 
               while stream.read?(code_length)
                 code = stream.read(code_length)
+
+                # Decoder is one step behind => subtract 1!
+                # We check the table size before entering the next code into it => subtract 1, but
+                # there is one exception: After table entry 4095 is written, the clear table code
+                # also gets written with code length 12,
+                case table.size
+                when 510, 1022, 2046
+                  code_length += 1
+                when 4095
+                  if code != CLEAR_TABLE
+                    raise "Maximum of 12bit for codes exceeded"
+                  end
+                end
 
                 if code == EOD
                   finished = true
@@ -66,15 +78,6 @@ module HexaPDF
                   table[table.size] = last_str + str[0]
                 end
 
-                if table.size >= next_code_length_jump - 1 # decoder is one step behind => - 1 !
-                  code_length += 1
-                  if code_length > 12
-                    raise "Maximum of 12bit for codes exceeded"
-                  else
-                    next_code_length_jump <<= 1
-                  end
-                end
-
                 last_code = code
               end
 
@@ -90,7 +93,6 @@ module HexaPDF
             # initialize encoder state
             code_length = 9
             table = INITIAL_ENCODER_TABLE.dup
-            next_code_length_jump = 512
 
             # initialize the bit stream with the clear-table marker
             stream = BitStreamWriter.new
@@ -108,17 +110,14 @@ module HexaPDF
                   str = char
                 end
 
-                if table.size == next_code_length_jump
-                  if table.size == 4096
-                    result << stream.write(CLEAR_TABLE, code_length)
-                    # reset encoder state
-                    code_length = 9
-                    table = INITIAL_ENCODER_TABLE.dup
-                    next_code_length_jump = 512
-                  else
-                    code_length += 1
-                    next_code_length_jump <<= 1
-                  end
+                case table.size
+                when 512, 1024, 2048
+                  code_length += 1
+                when 4096
+                  result << stream.write(CLEAR_TABLE, code_length)
+                  # reset encoder state
+                  code_length = 9
+                  table = INITIAL_ENCODER_TABLE.dup
                 end
               end
 

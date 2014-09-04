@@ -39,7 +39,7 @@ class PDFFilterLZWDecodeTest < Minitest::Test
 
   def test_big_data
     str = ''.force_encoding('BINARY')
-    str << [rand(2**32)].pack('N') while str.length < 2**9
+    str << [rand(2**32)].pack('N') while str.length < 2**14
     assert_equal(str, collector(@obj.decoder(@obj.encoder(feeder(str.dup)))))
   end
 
