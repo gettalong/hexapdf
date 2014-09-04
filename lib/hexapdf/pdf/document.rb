@@ -28,11 +28,6 @@ module HexaPDF
         @store.deref(obj)
       end
 
-      # Wrap the given object inside an PDFObject class.
-      def wrap_object(obj, oid = 0, gen = 0, stream = nil)
-        PDFObject.new(self, obj, oid, gen, stream) #TODO: select subclass based on Type and possibly SubType
-      end
-
     end
 
   end
