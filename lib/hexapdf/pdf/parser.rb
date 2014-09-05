@@ -23,6 +23,7 @@ module HexaPDF
         @io = io
         @tokenizer = Tokenizer.new(io)
         @resolver = nil
+        retrieve_pdf_header_offset_and_version
       end
 
       # Parse the indirect object at the specified offset.
@@ -134,34 +135,51 @@ module HexaPDF
 
       # Return the offset of the main cross-reference table/stream.
       #
-      # See: PDF1.7 s7.5.5
+      # Implementation note: Normally, the %%EOF marker has to be on the last line, however, Adobe
+      # viewers relax this restriction and so do we.
+      #
+      # See: PDF1.7 s7.5.5, ADB1.7 sH.3-3.4.4
       def startxref_offset
-        @io.seek(-50, IO::SEEK_END)
-        lines = @io.read(50).split(/[\r\n]+/)
+        # 1024 for %%EOF + 30 for startxref and offset lines
+        @io.seek(-1054, IO::SEEK_END) rescue @io.seek(0)
+        lines = @io.read(1054).split(/[\r\n]+/)
 
-        unless lines[-1] == "%%EOF"
+        eof_index = lines.index {|l| l.strip == '%%EOF' }
+        unless eof_index
           raise HexaPDF::MalformedPDFError.new("PDF file trailer is missing end-of-file marker", @io.pos)
         end
-        unless lines[-3] == "startxref"
+
+        unless lines[eof_index - 2].strip == "startxref"
           raise HexaPDF::MalformedPDFError.new("PDF file trailer is missing startxref keyword", @io.pos)
         end
 
-        lines[-2].to_i
+        lines[eof_index - 1].to_i
       end
 
       # Return the PDF version number that is stored in the file header.
       #
       # See: PDF1.7 s7.5.2
       def file_header_version
-        @io.seek(0)
-        version_match = /%PDF-(\d\.\d)/.match(@io.read(8))
-        unless version_match
-          raise HexaPDF::MalformedPDFError.new("PDF file header is missing or corrupt", 0)
-        end
-        version_match[1]
+        @header_version
       end
 
       private
+
+      # Retrieve the offset of the PDF header and the PDF version number in it.
+      #
+      # The PDF header should normally appear on the first line. However, Adobe relaxes this
+      # restriction so that the header may appear in the first 1024 bytes. We follow the Adobe
+      # convention.
+      #
+      # See: PDF1.7 s7.5.2, ADB1.7 sH.3-3.4.1
+      def retrieve_pdf_header_offset_and_version
+        @io.seek(0)
+        @header_offset = @io.read(1024).index(/%PDF-(\d\.\d)/)
+        @header_version = $1
+        unless @header_version
+          raise HexaPDF::MalformedPDFError.new("PDF file header is missing or corrupt", 0)
+        end
+      end
 
       # Parse the PDF object at the current position.
       #
@@ -206,6 +224,8 @@ module HexaPDF
       def parse_dictionary
         result = {}
         loop do
+          # Use Tokenizer directly because we either need a Name or the '>>' token here, the latter
+          # would throw an error with #parse_object.
           key = @tokenizer.next_token
           break if key.kind_of?(Tokenizer::Token) && key == '>>'
           unless key.kind_of?(Symbol)
@@ -214,9 +234,7 @@ module HexaPDF
 
           val = parse_object
           next if val.nil?
-          if val.kind_of?(Tokenizer::Token) && val == '>>'
-            raise HexaPDF::MalformedPDFError.new("Dictionary key without associated value found", @tokenizer.pos)
-          end
+
           result[key] = val
         end
         result

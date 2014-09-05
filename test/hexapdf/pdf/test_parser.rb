@@ -2,7 +2,6 @@
 
 require 'test_helper'
 require 'hexapdf/pdf/parser'
-require 'hexapdf/pdf/document'
 require 'stringio'
 
 class PDFParserTest < Minitest::Test
@@ -62,10 +61,35 @@ EOF
     assert_equal(15, gen)
     assert_kind_of(HexaPDF::PDF::Stream, stream)
     assert_equal({Length: 10, Hallo: 6}, object)
+
+    # Test invalid objects
+    @io.string = "1 0 obj\n<< >>\nendobjd\n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
+    @io.string = "1 0 obj\n<< /name ] >>\nendobj\n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
+    @io.string = "1 0 obj\n<< /name other >>\nendobj\n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
+    @io.string = "1 0 obj\n<< (string) (key) >>\nendobj\n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
+    @io.string = "1 0 obj\n<< /NoValueForKey >>\nendobj\n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
+
+    # Test invalid object streams
+    @io.string = "1 0 obj\n(fail)\nstream\nendstream\nendobj\n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(15) }
+    @io.string = "1 0 obj\n(fail)\nstream\nendstream\nendobj\n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
+    @io.string = "1 0 obj\n<< >>\nstream endstream\nendobj\n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
+    @io.string = "1 0 obj\n<< >>\nstream\nendobj\n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
   end
 
-  def text_startxref_offset
-    assert_equal(174, @parser.startxref_offset)
+  def test_startxref_offset
+    assert_equal(184, @parser.startxref_offset)
+
+    @io.string = "startxref\n5\n%%EOF" + "\nhallo"*150
+    assert_equal(5, @parser.startxref_offset)
 
     @io.string = "startxref\n5"
     assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
@@ -76,8 +100,16 @@ EOF
 
   def test_file_header_version
     assert_equal('1.7', @parser.file_header_version)
+  end
+
+  def test_file_header_retrieval
     @io.string = "%PDF-1\n"
-    assert_raises(HexaPDF::MalformedPDFError) { @parser.file_header_version }
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.send(:retrieve_pdf_header_offset_and_version) }
+
+    @io.string = "junk" * 200 + "\n%PDF-1.4\n"
+    @parser.send(:retrieve_pdf_header_offset_and_version)
+    assert_equal('1.4', @parser.file_header_version)
+    assert_equal(801, @parser.instance_variable_get(:@header_offset))
   end
 
   def test_xref_table_q
@@ -91,6 +123,15 @@ EOF
     assert_equal(HexaPDF::PDF::XRefTable::FREE_ENTRY, table[0, 65535])
     assert_equal(HexaPDF::PDF::XRefTable::FREE_ENTRY, table[4, 65535])
     assert_equal(10, table[1])
+
+    # Test invalid xref table
+    @io.string = "xref\n0 d\n0000000000 00000 n \n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table(15) }
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table(0) }
+    @io.string = "xref\n0 1\n0000000000 00000 n \n"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table(0) }
+    @io.string = "xref\n0 1\n0000000000 00000 n \ntrailer\n(base)"
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table(0) }
   end
 
 end
