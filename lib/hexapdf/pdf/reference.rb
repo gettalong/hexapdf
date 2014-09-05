@@ -23,13 +23,13 @@ module HexaPDF
       def initialize(object_number, generation_number = 0)
         @object_number, @generation_number = object_number, generation_number
         unless @object_number.kind_of?(Integer) && @generation_number.kind_of?(Integer)
-          raise ArgumentError, "Method arguments need to be integers"
+          raise ArgumentError, "PDF reference oid,gen arguments need to be integers"
         end
       end
 
       # Return +true+ if the other object references the same PDF object as this reference object.
       def ==(other)
-        other.kind_of?(self.class) && @object_number == other.object_number &&
+        other.kind_of?(Reference) && @object_number == other.object_number &&
           @generation_number == other.generation_number
       end
       alias_method :eql?, :'=='
