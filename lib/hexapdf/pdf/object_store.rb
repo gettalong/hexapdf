@@ -126,10 +126,7 @@ module HexaPDF
 
       # Load an indirect object via the associated Parser.
       #
-      # The +data+ parameter can either be an integer pointing to the byte position of the object or
-      # an array [Reference, Integer] specifying the index of the object inside an object stream.
-      #
-      # See: XRefTable#[]
+      # For information about the +data+ parameter, have a look at XRefTable#[].
       def load_object(oid, gen, data)
         if data.kind_of?(Integer)
           wrap(*@parser.parse_indirect_object(data))

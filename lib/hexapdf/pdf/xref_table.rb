@@ -10,6 +10,8 @@ module HexaPDF
     # together. This allows later tables to override entries in prior ones. This is automatically
     # and transparently done.
     #
+    # Note that a cross-reference table may contain a single object number only once.
+    #
     # See: PDF1.7 s7.5.4, s7.5.8
     class XRefTable
 
@@ -25,6 +27,7 @@ module HexaPDF
       # Create a new cross-reference table.
       def initialize
         @table, @trailer = {}, {}
+        @oids = {}
       end
 
       # Return information for loading the object with the given object and generation numbers.
@@ -40,12 +43,28 @@ module HexaPDF
         @table.fetch([oid, gen], NOT_FOUND)
       end
 
-      # Assign the byte position where the object resides or +FREE_ENTRY+ for the object with the
-      # given object and generation numbers.
+      # Set the loading information for the object with the given object and generation numbers.
       #
-      # This should not be called by any class other than Parser!
+      # If an entry with a given object number already exists, another entry is not added as per
+      # Adobe's implementation notes.
+      #
+      # The +data+ parameter can either be an integer pointing to the byte position of the object,
+      # an array of type [Reference, Integer] specifying the index of the object inside an object
+      # stream, or +FREE_ENTRY+ for a free cross-reference entry.
+      #
+      # See: ADB1.7 sH.3-3.4.3
       def []=(oid, gen = 0, data)
-        @table[[oid, gen]] = data
+        unless has_entry?(oid)
+          @oids[oid] = true
+          @table[[oid, gen]] = data
+        end
+      end
+
+      # Return +true+ if the table has an entry for the given object number.
+      #
+      # Note: A single table may only contain information on objects with unique object numbers!
+      def has_entry?(oid)
+        @oids.has_key?(oid)
       end
 
     end

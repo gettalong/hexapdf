@@ -28,12 +28,13 @@ endstream
 endobj
 
 xref
-0 5
+0 4
 0000000000 65535 f 
 0000000010 00000 n 
 0000000028 00000 n 
-0000000104 00015 n 
 0000000000 65535 f 
+3 1
+0000000555 00000 n 
 trailer
 << /Test (now) >>
 startxref
@@ -100,12 +101,13 @@ EOF
 
   def test_file_header_version
     assert_equal('1.7', @parser.file_header_version)
+
+    @io.string = "%PDF-1\n"
+    @parser = HexaPDF::PDF::Parser.new(@io)
+    assert_raises(HexaPDF::MalformedPDFError) { @parser.file_header_version }
   end
 
   def test_file_header_retrieval
-    @io.string = "%PDF-1\n"
-    assert_raises(HexaPDF::MalformedPDFError) { @parser.send(:retrieve_pdf_header_offset_and_version) }
-
     @io.string = "junk" * 200 + "\n%PDF-1.4\n"
     @parser.send(:retrieve_pdf_header_offset_and_version)
     assert_equal('1.4', @parser.file_header_version)
@@ -121,7 +123,7 @@ EOF
     table = @parser.parse_xref_table(@parser.startxref_offset)
     assert_equal({Test: 'now'}, table.trailer)
     assert_equal(HexaPDF::PDF::XRefTable::FREE_ENTRY, table[0, 65535])
-    assert_equal(HexaPDF::PDF::XRefTable::FREE_ENTRY, table[4, 65535])
+    assert_equal(HexaPDF::PDF::XRefTable::FREE_ENTRY, table[3, 65535])
     assert_equal(10, table[1])
 
     # Test invalid xref table

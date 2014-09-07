@@ -10,12 +10,12 @@ module HexaPDF
 
     # Parses an IO stream according to PDF1.7 to get at the PDF objects.
     #
-    # This class is normally not directly used but indirectly via ObjectStore.
+    # This class is not directly used but indirectly via ObjectStore.
     #
     # See: PDF1.7 s7
     class Parser
 
-      # The object used to resolve references.
+      # The object used to resolve references. Should normally be an ObjectStore.
       attr_accessor :resolver
 
       # Create a new parser for the given IO object.
@@ -35,7 +35,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.3.10, s7.3.8
       def parse_indirect_object(offset = @tokenizer.pos)
-        @tokenizer.pos = offset if @tokenizer.pos != offset
+        @tokenizer.pos = offset + @header_offset
         oid = @tokenizer.next_token
         gen = @tokenizer.next_token
         tok = @tokenizer.next_token
@@ -80,13 +80,20 @@ module HexaPDF
         [object, oid, gen, stream]
       end
 
-      # Parse the cross-reference table at the given position.
+      # Look at the given offset and return +true+ if there is a cross-reference table at that position.
+      def xref_table?(offset)
+        @tokenizer.pos = offset + @header_offset
+        token = @tokenizer.peek_token
+        token.kind_of?(Tokenizer::Token) && token == 'xref'
+      end
+
+      # Parse the cross-reference table at the given position and return it as XRefTable instance.
       #
       # Note that this method can only parse cross-reference tables, not cross-reference streams!
       #
       # See: PDF1.7 s7.5.4
       def parse_xref_table(offset)
-        @tokenizer.pos = offset
+        @tokenizer.pos = offset + @header_offset
         token = @tokenizer.next_token
         unless token.kind_of?(Tokenizer::Token) && token == 'xref'
           raise HexaPDF::MalformedPDFError.new("Xref table doesn't start with keyword xref", @tokenizer.pos)
@@ -126,13 +133,6 @@ module HexaPDF
         xref
       end
 
-      # Look at the given offset and return +true+ if there is a cross-reference table at that position.
-      def xref_table?(offset)
-        @tokenizer.pos = offset
-        token = @tokenizer.peek_token
-        token.kind_of?(Tokenizer::Token) && token == 'xref'
-      end
-
       # Return the offset of the main cross-reference table/stream.
       #
       # Implementation note: Normally, the %%EOF marker has to be on the last line, however, Adobe
@@ -160,6 +160,9 @@ module HexaPDF
       #
       # See: PDF1.7 s7.5.2
       def file_header_version
+        unless @header_version
+          raise HexaPDF::MalformedPDFError.new("PDF file header is missing or corrupt", 0)
+        end
         @header_version
       end
 
@@ -174,11 +177,8 @@ module HexaPDF
       # See: PDF1.7 s7.5.2, ADB1.7 sH.3-3.4.1
       def retrieve_pdf_header_offset_and_version
         @io.seek(0)
-        @header_offset = @io.read(1024).index(/%PDF-(\d\.\d)/)
+        @header_offset = @io.read(1024).index(/%PDF-(\d\.\d)/) || 0
         @header_version = $1
-        unless @header_version
-          raise HexaPDF::MalformedPDFError.new("PDF file header is missing or corrupt", 0)
-        end
       end
 
       # Parse the PDF object at the current position.
