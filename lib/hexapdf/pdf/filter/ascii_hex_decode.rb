@@ -15,7 +15,7 @@ module HexaPDF
             rest = nil
             finished = false
 
-            while !finished && source.alive? && data = source.resume
+            while !finished && source.alive? && (data = source.resume)
               data.tr!(HexaPDF::PDF::Tokenizer::WHITESPACE, '')
               raise "malformed pdf" if data.index(/[^A-Fa-f0-9>]/)
 
@@ -36,7 +36,7 @@ module HexaPDF
 
         def self.encoder(source, _ = nil)
           Fiber.new do
-            while data = source.resume
+            while source.alive? && (data = source.resume)
               Fiber.yield(data.unpack('H*').first)
             end
             '>'

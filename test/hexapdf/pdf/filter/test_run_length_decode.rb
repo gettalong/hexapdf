@@ -25,7 +25,10 @@ class PDFFilterRunLengthDecodeTest < Minitest::Test
     str = TESTCASES[0][1]
     result = TESTCASES[0][0]
     assert_equal(result, collector(@obj.decoder(feeder(str.dup, 1))))
-    assert_equal(result, collector(@obj.decoder(feeder(str.chop))))
+
+    assert_raises(HexaPDF::MalformedPDFError) do
+      collector(@obj.decoder(feeder(str.dup.chop.chop)))
+    end
   end
 
   def test_encoder

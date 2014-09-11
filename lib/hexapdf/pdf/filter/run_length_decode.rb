@@ -2,6 +2,7 @@
 
 require 'fiber'
 require 'strscan'
+require 'hexapdf/error'
 
 module HexaPDF
   module PDF
@@ -26,7 +27,11 @@ module HexaPDF
                 i += 2
               elsif length != 128 # not enough bytes in data
                 Fiber.yield(result)
-                data = data[i..-1] << source.resume
+                if source.alive? && (new_data = source.resume)
+                  data = data[i..-1] << new_data
+                else
+                  raise MalformedPDFError.new("Missing data for run-length encoded stream", -1)
+                end
                 i, result = 0, ''
               else # EOD reached
                 break
@@ -43,7 +48,7 @@ module HexaPDF
 
         def self.encoder(source, _ = nil)
           Fiber.new do
-            while source.alive? && data = source.resume
+            while source.alive? && (data = source.resume)
               result = ''
               strscan = StringScanner.new(data)
               while !strscan.eos?

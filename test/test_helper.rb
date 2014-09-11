@@ -19,7 +19,7 @@ module TestHelper
   end
 
   def collector(source)
-    str = ''
+    str = ''.force_encoding('BINARY')
     while source.alive? && data = source.resume
       str << data
     end

@@ -29,7 +29,7 @@ module HexaPDF
             rest = nil
             finished = false
 
-            while !finished && source.alive? && data = source.resume
+            while !finished && source.alive? && (data = source.resume)
               data.tr!(HexaPDF::PDF::Tokenizer::WHITESPACE, '')
               raise "malformed pdf" if data.index(/[^!-uz~]/)
 
@@ -77,7 +77,7 @@ module HexaPDF
           Fiber.new do
             rest = nil
 
-            while source.alive? && data = source.resume
+            while source.alive? && (data = source.resume)
               data = rest << data if rest
 
               rlen = data.length % 4

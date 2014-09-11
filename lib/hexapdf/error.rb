@@ -30,4 +30,7 @@ module HexaPDF
 
   end
 
+  # Raised when a PDF object contains invalid data.
+  class InvalidPDFObjectError < Error; end
+
 end
