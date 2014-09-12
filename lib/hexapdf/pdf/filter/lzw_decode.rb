@@ -2,6 +2,7 @@
 
 require 'fiber'
 require 'hexapdf/pdf/utils/bit_stream'
+require 'hexapdf/pdf/filter/predictor'
 
 module HexaPDF
   module PDF
@@ -26,7 +27,7 @@ module HexaPDF
         #TODO: implement predictor for lzw/flate
 
         def self.decoder(source, options = nil)
-          Fiber.new do
+          fib = Fiber.new do
             # initialize decoder state
             code_length = 9
             table = INITIAL_DECODER_TABLE.dup
@@ -84,11 +85,20 @@ module HexaPDF
               Fiber.yield(result)
               result = ''.force_encoding('BINARY')
             end
+          end
 
+          if options && options[:Predictor]
+            Predictor.decoder(fib, options)
+          else
+            fib
           end
         end
 
         def self.encoder(source, options = nil)
+          if options && options[:Predictor]
+            source = Predictor.encoder(source, options)
+          end
+
           Fiber.new do
             # initialize encoder state
             code_length = 9
