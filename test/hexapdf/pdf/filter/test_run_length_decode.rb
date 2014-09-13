@@ -7,6 +7,7 @@ require 'stringio'
 class PDFFilterRunLengthDecodeTest < Minitest::Test
 
   include TestHelper
+  include FilterHelper
 
   def setup
     @obj = HexaPDF::PDF::Filter::RunLengthDecode

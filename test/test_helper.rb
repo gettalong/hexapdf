@@ -27,3 +27,16 @@ module TestHelper
   end
 
 end
+
+
+module FilterHelper
+
+  TEST_BIG_STR = ''.force_encoding('BINARY')
+  TEST_BIG_STR << [rand(2**32)].pack('N') while TEST_BIG_STR.length < 2**16
+  TEST_BIG_STR.freeze
+
+  def test_big_data
+    assert_equal(TEST_BIG_STR, collector(@obj.decoder(@obj.encoder(feeder(TEST_BIG_STR.dup)))))
+  end
+
+end

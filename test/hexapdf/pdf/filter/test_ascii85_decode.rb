@@ -7,6 +7,7 @@ require 'stringio'
 class PDFFilterAscii85DecodeTest < Minitest::Test
 
   include TestHelper
+  include FilterHelper
 
   def setup
     @obj = HexaPDF::PDF::Filter::ASCII85Decode

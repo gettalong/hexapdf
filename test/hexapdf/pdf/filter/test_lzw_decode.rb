@@ -6,6 +6,7 @@ require 'hexapdf/pdf/filter/lzw_decode'
 class PDFFilterLZWDecodeTest < Minitest::Test
 
   include TestHelper
+  include FilterHelper
 
   def setup
     @obj = HexaPDF::PDF::Filter::LZWDecode
@@ -35,12 +36,6 @@ class PDFFilterLZWDecodeTest < Minitest::Test
     str = TESTCASES[0][0]
     result = TESTCASES[0][1]
     assert_equal(result, collector(@obj.encoder(feeder(str.dup, 1))))
-  end
-
-  def test_big_data
-    str = ''.force_encoding('BINARY')
-    str << [rand(2**32)].pack('N') while str.length < 2**14
-    assert_equal(str, collector(@obj.decoder(@obj.encoder(feeder(str.dup)))))
   end
 
 end
