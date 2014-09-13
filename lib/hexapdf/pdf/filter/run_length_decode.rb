@@ -52,10 +52,10 @@ module HexaPDF
               result = ''
               strscan = StringScanner.new(data)
               while !strscan.eos?
-                if strscan.scan(/(.)\1{1,127}/) # a run of <= 128 same characters
+                if strscan.scan(/(.)\1{1,127}/m) # a run of <= 128 same characters
                   result << (257 - strscan.matched_size).chr << strscan[1]
                 else # a run of characters until two same characters or length > 128
-                  match = strscan.scan(/.{1,128}?(?=(.)\1|\z)/)
+                  match = strscan.scan(/.{1,128}?(?=(.)\1|\z)|.{128}/m)
                   result << (match.length - 1).chr << match
                 end
               end

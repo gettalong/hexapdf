@@ -20,7 +20,7 @@ module HexaPDF
               raise "malformed pdf" if data.index(/[^A-Fa-f0-9>]/)
 
               data = rest << data if rest
-              finished = true if data.gsub!(/>.*?\z/, '')
+              finished = true if data.gsub!(/>.*?\z/m, '')
 
               if data.bytesize.odd?
                 rest = data.slice!(-1, 1)
