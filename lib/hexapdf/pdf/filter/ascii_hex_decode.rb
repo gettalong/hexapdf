@@ -1,15 +1,20 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/pdf/tokenizer'
 require 'fiber'
+require 'hexapdf/pdf/tokenizer'
+require 'hexapdf/error'
 
 module HexaPDF
   module PDF
     module Filter
 
-      # See: PDF1.7 7.4.2
+      # This filter module implements the ASCII hex decode/encode filter which can encode arbitrary
+      # data into the two byte ASCII hex format that expands the original data by a factor of 1:2.
+      #
+      # See: HexaPDF::PDF::Filter, PDF1.7 s7.4.2
       module ASCIIHexDecode
 
+        # See HexaPDF::PDF::Filter
         def self.decoder(source, _ = nil)
           Fiber.new do
             rest = nil
@@ -17,7 +22,9 @@ module HexaPDF
 
             while !finished && source.alive? && (data = source.resume)
               data.tr!(HexaPDF::PDF::Tokenizer::WHITESPACE, '')
-              raise "malformed pdf" if data.index(/[^A-Fa-f0-9>]/)
+              if data.index(/[^A-Fa-f0-9>]/)
+                raise HexaPDF::MalformedPDFError, "Invalid characters in ASCII hex encoded stream found"
+              end
 
               data = rest << data if rest
               finished = true if data.gsub!(/>.*?\z/m, '')
@@ -34,6 +41,7 @@ module HexaPDF
           end
         end
 
+        # See HexaPDF::PDF::Filter
         def self.encoder(source, _ = nil)
           Fiber.new do
             while source.alive? && (data = source.resume)

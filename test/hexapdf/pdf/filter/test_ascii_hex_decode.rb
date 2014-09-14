@@ -26,7 +26,7 @@ class PDFFilterAsciiHexDecodeTest < Minitest::Test
     assert_equal(result, collector(@obj.decoder(feeder(str.dup))))
     assert_equal(result, collector(@obj.decoder(feeder(str.dup, 1))))
 
-    assert_raises(RuntimeError) { @obj.decoder(feeder('f0f0z')).resume }
+    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('f0f0z')).resume }
   end
 
   def test_encoder
