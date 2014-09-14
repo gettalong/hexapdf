@@ -32,8 +32,11 @@ class PDFFilterAscii85DecodeTest < Minitest::Test
     assert_equal(result, collector(@obj.decoder(feeder(str.dup.sub!(/~>/, '')))))
     assert_equal(result, collector(@obj.decoder(feeder(str.dup + "~>abcdefg"))))
 
-    assert_raises(RuntimeError) { @obj.decoder(feeder('uuuuu')).resume }
-    assert_raises(RuntimeError) { @obj.decoder(feeder('uuzuu')).resume }
+    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder(':2bwx!')).resume }
+    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('uuuuu')).resume }
+    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('uuzuu')).resume }
+    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('uuz')).resume }
+    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('t')).resume }
   end
 
   def test_encoder
