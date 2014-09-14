@@ -8,6 +8,11 @@ module HexaPDF
   module PDF
     module Filter
 
+      # Implements the predictor for the LZWDecode and FlateDecode filters.
+      #
+      # Although a predictor isn't a full PDF filter, it is implemented as one in HexaPDF terms to
+      # allow easy chaining of the predictor.
+      #
       # See: PDF1.7 s7.4.4.3, s7.4.4.4,
       #      https://partners.adobe.com/public/developer/en/tiff/TIFF6.pdf, p64f
       #      http://www.w3.org/TR/PNG-Filters.html
@@ -18,21 +23,22 @@ module HexaPDF
       # it is implemented is probably not the best but it avoids duplicate code.
       #
       # The situation is similar with PNG encoding and decoding.
-      #
       #++
       module Predictor
 
-        PREDICTOR_PNG_NONE = 0
-        PREDICTOR_PNG_SUB = 1
-        PREDICTOR_PNG_UP = 2
-        PREDICTOR_PNG_AVERAGE = 3
-        PREDICTOR_PNG_PAETH = 4
-        PREDICTOR_PNG_OPTIMUM = 5
+        PREDICTOR_PNG_NONE = 0    #:nodoc:
+        PREDICTOR_PNG_SUB = 1     #:nodoc:
+        PREDICTOR_PNG_UP = 2      #:nodoc:
+        PREDICTOR_PNG_AVERAGE = 3 #:nodoc:
+        PREDICTOR_PNG_PAETH = 4   #:nodoc:
+        PREDICTOR_PNG_OPTIMUM = 5 #:nodoc:
 
+        # See HexaPDF::PDF::Filter
         def self.decoder(source, options)
           execute(:decoder, source, options)
         end
 
+        # See HexaPDF::PDF::Filter
         def self.encoder(source, options)
           execute(:encoder, source, options)
         end
