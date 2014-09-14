@@ -8,11 +8,14 @@ module HexaPDF
   module PDF
     module Filter
 
-      # See: PDF1.7 7.4.5
+      # Implements the run length filter.
+      #
+      # See: HexaPDF::PDF::Filter, PDF1.7 s7.4.5
       module RunLengthDecode
 
-        EOD = 128.chr
+        EOD = 128.chr #:nodoc:
 
+        # See HexaPDF::PDF::Filter
         def self.decoder(source, _ = nil)
           Fiber.new do
             i, result = 0, ''
@@ -20,7 +23,7 @@ module HexaPDF
             while data && i < data.length
               length = data.getbyte(i)
               if length < 128 && i + length + 1 < data.length # no byte run and enough bytes
-                result << data[i+1, length + 1]
+                result << data[i + 1, length + 1]
                 i += length + 2
               elsif length > 128 && i + 1 < data.length # byte run and enough bytes
                 result << data[i + 1] * (257 - length)
@@ -30,7 +33,7 @@ module HexaPDF
                 if source.alive? && (new_data = source.resume)
                   data = data[i..-1] << new_data
                 else
-                  raise MalformedPDFError.new("Missing data for run-length encoded stream", -1)
+                  raise MalformedPDFError, "Missing data for run length encoded stream"
                 end
                 i, result = 0, ''
               else # EOD reached
@@ -46,6 +49,7 @@ module HexaPDF
           end
         end
 
+        # See HexaPDF::PDF::Filter
         def self.encoder(source, _ = nil)
           Fiber.new do
             while source.alive? && (data = source.resume)
