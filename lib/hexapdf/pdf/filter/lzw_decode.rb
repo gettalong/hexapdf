@@ -3,29 +3,35 @@
 require 'fiber'
 require 'hexapdf/pdf/utils/bit_stream'
 require 'hexapdf/pdf/filter/predictor'
+require 'hexapdf/error'
 
 module HexaPDF
   module PDF
     module Filter
 
-      # See: PDF1.7 7.4.4
+      # Implements the LZW filter.
+      #
+      # Since LZW uses a tightly packed bit stream in which codes are of varying bit lengths and are
+      # not aligned to byte boundaries, this filter is not as fast as the other filters. If speed is
+      # a concern, the FlateDecode filter should be used instead.
+      #
+      # See: HexaPDF::PDF::Filter, PDF1.7 s7.4.4
       module LZWDecode
 
-        CLEAR_TABLE = 256
-        EOD = 257
+        CLEAR_TABLE = 256 # :nodoc:
+        EOD = 257 # :nodoc:
 
-        INITIAL_ENCODER_TABLE = {}
+        INITIAL_ENCODER_TABLE = {} #:nodoc:
         0.upto(255) {|i| INITIAL_ENCODER_TABLE[i.chr] = i}
         INITIAL_ENCODER_TABLE[CLEAR_TABLE] = CLEAR_TABLE
         INITIAL_ENCODER_TABLE[EOD] = EOD
 
-        INITIAL_DECODER_TABLE = {}
+        INITIAL_DECODER_TABLE = {} #:nodoc:
         0.upto(255) {|i| INITIAL_DECODER_TABLE[i] = i.chr}
         INITIAL_DECODER_TABLE[CLEAR_TABLE] = CLEAR_TABLE
         INITIAL_DECODER_TABLE[EOD] = EOD
 
-        #TODO: implement predictor for lzw/flate
-
+        # See HexaPDF::PDF::Filter
         def self.decoder(source, options = nil)
           fib = Fiber.new do
             # initialize decoder state
@@ -52,7 +58,7 @@ module HexaPDF
                   code_length += 1
                 when 4095
                   if code != CLEAR_TABLE
-                    raise "Maximum of 12bit for codes exceeded"
+                    raise HexaPDF::MalformedPDFError, "Maximum of 12bit for codes in LZW encoded stream exceeded"
                   end
                 end
 
@@ -64,10 +70,14 @@ module HexaPDF
                   code_length = 9
                   table = INITIAL_DECODER_TABLE.dup
                 elsif last_code == CLEAR_TABLE
-                  raise "Unknown code found" unless table.has_key?(code)
+                  unless table.has_key?(code)
+                    raise HexaPDF::MalformedPDFError, "Unknown code in LZW encoded stream found"
+                  end
                   result << table[code]
                 else
-                  raise "Unknown code found" unless table.has_key?(last_code)
+                  unless table.has_key?(last_code)
+                    raise HexaPDF::MalformedPDFError, "Unknown code in LZW encoded stream found"
+                  end
                   last_str = table[last_code]
 
                   str = if table.has_key?(code)
@@ -94,6 +104,7 @@ module HexaPDF
           end
         end
 
+        # See HexaPDF::PDF::Filter
         def self.encoder(source, options = nil)
           if options && options[:Predictor]
             source = Predictor.encoder(source, options)

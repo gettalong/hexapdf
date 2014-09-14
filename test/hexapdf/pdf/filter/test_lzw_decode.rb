@@ -26,6 +26,9 @@ class PDFFilterLZWDecodeTest < Minitest::Test
     str = TESTCASES[0][1]
     result = TESTCASES[0][0]
     assert_equal(result, collector(@obj.decoder(feeder(str.dup, 1))))
+
+    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder("\xff\xff")).resume }
+    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder("\x00\x7f\xff\xf0")).resume }
   end
 
   def test_encoder
