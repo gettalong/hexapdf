@@ -14,7 +14,7 @@ module HexaPDF
     # Create a new malformed PDF error object for the given exception or exception message.
     #
     # The byte position where the error occured needs to be supplied in the +pos+ parameter.
-    def initialize(msg_or_error, pos)
+    def initialize(msg_or_error, pos = -1)
       if msg_or_error.kind_of?(String)
         super(msg_or_error)
       else
@@ -25,7 +25,8 @@ module HexaPDF
     end
 
     def message # :nodoc:
-      "PDF malformed around position #{pos}: #{super}"
+      pos_msg = @pos == -1 ? '' : " around position #{pos}"
+      "PDF malformed#{pos_msg}: #{super}"
     end
 
   end
