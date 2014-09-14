@@ -3,14 +3,18 @@
 require 'fiber'
 require 'zlib'
 require 'hexapdf/pdf/filter/predictor'
+require 'hexapdf/error'
 
 module HexaPDF
   module PDF
     module Filter
 
-      # See: PDF1.7 s7.4.4
+      # Implements the Deflate filter using the Zlib library.
+      #
+      # See: HexaPDF::PDF::Filter, PDF1.7 s7.4.4
       module FlateDecode
 
+        # See HexaPDF::PDF::Filter
         def self.decoder(source, options = nil)
           fib = Fiber.new do
             inflater = Zlib::Inflate.new
@@ -32,6 +36,7 @@ module HexaPDF
           end
         end
 
+        # See HexaPDF::PDF::Filter
         def self.encoder(source, options = nil)
           if options && options[:Predictor]
             source = Predictor.encoder(source, options)
