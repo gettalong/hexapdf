@@ -1,18 +1,21 @@
 # -*- encoding: utf-8 -*-
 
-require 'fiber'
-
 module HexaPDF
   module PDF
     module Filter
 
-      # See: PDF1.7 7.4.9
+      # The JPXDecode filter is currently only implemented as a pass-through filter, ie. the source
+      # gets passed on unmodified.
+      #
+      # See: HexaPDF::PDF::Filter, PDF1.7 s7.4.9
       module JPXDecode
 
+        # See HexaPDF::PDF::Filter
         def self.decoder(source, _ = nil)
           source
         end
 
+        # See HexaPDF::PDF::Filter
         def self.encoder(source, _ = nil)
           source
         end
