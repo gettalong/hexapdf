@@ -1,19 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-require 'fiber'
-require 'hexapdf/filter/ascii_hex_decode'
-require 'hexapdf/filter/ascii85_decode'
-require 'hexapdf/filter/lzw_decode'
-require 'hexapdf/filter/run_length_decode'
-require 'hexapdf/filter/dct_decode'
-require 'hexapdf/filter/jpx_decode'
-
 module HexaPDF
   module PDF
 
-    # This class manages implementations of supported filters.
-    #
-    #
     # == Overview
     #
     # A *stream filter* is used to compress a stream or to encode it in an ASCII compatible way; or
@@ -24,7 +13,7 @@ module HexaPDF
     # chunks or a whole stream at once, depending on the memory restrictions.
     #
     # It also allows the easy re-processing of a stream without first decoding and the encoding it.
-    # Such functionality is useful, for example, when a PDF file should decrypted and streams
+    # Such functionality is useful, for example, when a PDF file should be decrypted and streams
     # compressed in one step.
     #
     #
@@ -39,21 +28,18 @@ module HexaPDF
     # processed this chunk, it should yield the processed chunk as binary string. This should be
     # done as long as the source fiber is #alive? and doesn't return +nil+ when resumed.
     #
-    # See: PDF1.7 7.4
-    class Filter
+    # See: PDF1.7 s7.4
+    module Filter
 
-      def initialize(config)
-        @config = config
-      end
+      autoload(:ASCII85Decode, 'hexapdf/pdf/filter/ascii85_decode')
+      autoload(:ASCIIHexDecode, 'hexapdf/pdf/filter/ascii_hex_decode')
+      autoload(:DCTDecode, 'hexapdf/pdf/filter/dct_decode')
+      autoload(:FlateDecode, 'hexapdf/pdf/filter/flate_decode')
+      autoload(:JPXDecode, 'hexapdf/pdf/filter/jpx_decode')
+      autoload(:LZWDecode, 'hexapdf/pdf/filter/lzw_decode')
+      autoload(:RunLengthDecode, 'hexapdf/pdf/filter/run_length_decode')
 
-      def encoder(name, options)
-        filter = @config['hexapdf.filter.map'][name]
-        if filter
-          filter.encoder(
-      end
-
-      def decoder_chain
-      end
+      autoload(:Predictor, 'hexapdf/pdf/filter/predictor')
 
     end
 
