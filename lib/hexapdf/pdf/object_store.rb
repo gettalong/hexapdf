@@ -11,6 +11,8 @@ module HexaPDF
     # Handles loaded or added objects of one PDF file.
     class ObjectStore
 
+      attr_reader :next_oid
+
       # Create a new object store.
       #
       # If a Parser is provided, then this object store can read PDF objects from an existing PDF,
@@ -41,9 +43,9 @@ module HexaPDF
 
         if @objects.has_key?(ref)
           @objects[ref]
-        elsif (data = xref_entry(oid, gen))
+        elsif (data = xref_entry(ref.oid, ref.gen))
           if data != XRefTable::FREE_ENTRY && data != XRefTable::NOT_FOUND
-            @objects[ref] = load_object(oid, gen, data)
+            @objects[ref] = load_object(ref.oid, ref.gen, data)
           else
             nil
           end
@@ -54,7 +56,7 @@ module HexaPDF
 
       # Dereference the given object.
       #
-      # Return the object itself if it is a direct object, or the dereferenced indirect object.
+      # Return the object itself if it is not a reference, or the dereferenced indirect object.
       def deref(obj)
         obj.kind_of?(Reference) ? self[obj] : obj
       end
@@ -66,7 +68,7 @@ module HexaPDF
           @objects[Reference.new(obj.oid, obj.gen)] = obj
           @next_oid += 1
         elsif !obj.kind_of?(HexaPDF::PDF::Object)
-          obj = @document.wrap_object(obj, @next_oid)
+          obj = wrap_object(obj, @next_oid)
           @objects[Reference.new(obj.oid, obj.gen)] = obj
           @next_oid += 1
         end
@@ -95,7 +97,7 @@ module HexaPDF
         result = XRefTable::NOT_FOUND
         while i < @xref_tables.length
           result = @xref_tables[i][oid, gen]
-          break if result != NOT_FOUND
+          break if result != XRefTable::NOT_FOUND
 
           load_xref_tables(i) if !@loaded_xref_tables[@xref_tables[i]]
           i += 1
@@ -135,7 +137,7 @@ module HexaPDF
       # For information about the +data+ parameter, have a look at XRefTable#[].
       def load_object(oid, gen, data)
         if data.kind_of?(Integer)
-          wrap(*@parser.parse_indirect_object(data))
+          wrap_object(*@parser.parse_indirect_object(data))
         else
           raise "not implemented" #TODO: object streams!
         end
