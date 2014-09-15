@@ -2,7 +2,7 @@
 
 require 'hexapdf/error'
 require 'hexapdf/pdf/reference'
-require 'hexapdf/pdf/pdf_object'
+require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/xref_table'
 
 module HexaPDF
@@ -61,11 +61,11 @@ module HexaPDF
 
       # Create an indirect object from the given one.
       def ref(obj)
-        if obj.kind_of?(PDFObject) && obj.oid == 0
+        if obj.kind_of?(HexaPDF::PDF::Object) && obj.oid == 0
           obj.make_indirect(@next_oid, 0)
           @objects[Reference.new(obj.oid, obj.gen)] = obj
           @next_oid += 1
-        elsif !obj.kind_of?(PDFObject)
+        elsif !obj.kind_of?(HexaPDF::PDF::Object)
           obj = @document.wrap_object(obj, @next_oid)
           @objects[Reference.new(obj.oid, obj.gen)] = obj
           @next_oid += 1
@@ -77,7 +77,13 @@ module HexaPDF
       #
       # This allows one to use convenience functions to work with the object.
       def wrap_object(obj, oid = 0, gen = 0, stream = nil)
-        PDFObject.new(self, obj, oid, gen, stream) #TODO: select subclass based on Type and possibly SubType
+        obj = deref(obj)
+        if obj.kind_of?(HexaPDF::PDF::Object)
+          obj
+        else
+          #TODO: select subclass based on Type and SubType
+          HexaPDF::PDF::Object.new(self, obj, oid, gen, stream)
+        end
       end
 
       private

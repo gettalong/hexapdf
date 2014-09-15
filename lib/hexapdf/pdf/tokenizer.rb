@@ -19,7 +19,7 @@ module HexaPDF
       class Token < String; end
 
       # This object is returned when there are no more tokens to read.
-      NO_MORE_TOKENS = Object.new
+      NO_MORE_TOKENS = ::Object.new
 
       # Characters defined as whitespace.
       #

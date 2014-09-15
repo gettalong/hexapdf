@@ -1,124 +1,69 @@
 # -*- encoding: utf-8 -*-
 
-# TODO: probbly remove this file and put the information regarding the implementation of the PDF
-# objects into a comment somewhere
+require 'hexapdf/pdf/reference'
 
 module HexaPDF
   module PDF
 
-    # Contains the implementation of the PDF object system.
+    # Objects of the PDF object system.
     #
-    # PDF includes eight basic object types. For usability and performance reasons these objects are
-    # mapped to native Ruby objects where possible.
+    # == Overview
     #
-    # However, all eight object types have corresponding constants in this module to test for them
-    # if necessary.
+    # A PDF object is like a normal object but with an additional *object identifier* consisting of
+    # an object number and a generation number. If the object number is zero, then the PDF object
+    # represents a direct object. Otherwise the object identifier uniquely identifies this object as
+    # an indirect object and can be used for referencing it (from possibly multiple places).
     #
-    # See: PDF1.7 s7.3
-    module Object
+    # A PDF object is always connected to a PDF document, it cannot stand alone.
+    #
+    # Most PDF objects in a PDF document are represented by sub classes of this class that provide
+    # additional functionality.
+    #
+    # == Stream Objects
+    #
+    # In addition to the wrapped object itself (#value), a Stream may also be associated with a PDF
+    # object, but only if the value is a PDF dictionary (a Hash in the HexaPDF implementation). This
+    # associated dictionary further describes the stream, like its length or how it is encoded.
+    #
+    # Such a stream object in PDF contains string data but of possibly unlimited length. Therefore
+    # it is used for large amounts of data like images, page descriptions or embedded files.
+    #
+    # See: Reference, Document
+    # See: PDF1.7 s7.3.10, s7.3.8
+    class Object
 
-      # The "true" object of the PDF object system.
-      #
-      # There is only one "true" object in PDF and it is represented by +true+.
-      #
-      # See: False
-      # See: PDF1.7 s7.3.2
-      True = true
+      include ReferenceBehavior
 
-      # The "false" object of the PDF object system.
-      #
-      # There is only one "false" object in PDF and it is represented by +false+.
-      #
-      # See: True
-      # See: PDF1.7 s7.3.2
-      False = false
+      # The associated document.
+      attr_reader :document
 
-      # Numeric objects of the PDF object system.
-      #
-      # There are two types of numeric object: integers and real numbers. This constant represents
-      # objects of both types.
-      #
-      # Note that no objects of this type can be created by calling +Numeric.new+. Have a look at
-      # the documentation of Integer and Real for information on how to create such objects.
-      #
-      # See: Integer, Real
-      # See: PDF1.7 s7.3.3
-      Numeric = ::Numeric
+      # The wrapped object.
+      attr_reader :value
 
-      # Integer objects of the PDF object system.
-      #
-      # These objects are represented by objects of class +Integer+. This means that objects can be
-      # created via integer literals like +5+ or +-10+ or, for example, by the +.to_i+ method.
-      #
-      # Note that no objects of this type can be created by calling +Integer.new+!
-      #
-      # See: Numeric, Real
-      # See: PDF1.7 s7.3.3
-      Integer = ::Integer
+      # The associated stream, if any.
+      attr_accessor :stream
 
-      # Real objects of the PDF object system.
-      #
-      # These objects are represented by objects of class +Float+. This means that objects can be
-      # created via float literals like +5.3+ or +-10.1234+ or, for example, by the +.to_f+ method.
-      #
-      # Note that no objects of this type can be created by calling +Float.new+!
-      #
-      # See: Numeric, Real
-      # See: PDF1.7 s7.3.3
-      Real = ::Float
 
-      # String objects of the PDF object system.
-      #
-      # A string object in PDF is just a container for bytes, without a specific encoding or any
-      # other information. It is represented by objects of class +String+.
-      #
-      # TODO: reference parser/writer for more information on encodings and string object types.
-      #
-      # See: PDF1.7 s7.3.4
-      String = ::String
+      # Create a new PDF object for +value+ that is associated with the given document.
+      def initialize(document, value, oid = 0, gen = 0, stream = nil)
+        super(oid, gen)
+        @document = document
+        @value = value
+        @stream = stream
+      end
 
-      # Name objects of the PDF object system.
+      # Make this PDF object an indirect one by assigning it the given new object and generation
+      # numbers.
       #
-      # A name object is uniquely defined by the characters it consists of. Two name objects with
-      # exactly the same character sequence are the *same* object.
-      #
-      # Name objects are represented by objects of class +Symbol+ which have the same semantics.
-      # This means that such objects can be created via symbol literals like :Length or, for
-      # example, by the +.to_sym+ method.
-      #
-      # Note that no objects of this type can be created by calling +Symbol.new+!
-      #
-      # See: PDF1.7 s7.3.5
-      Name = ::Symbol
-
-      # Array objects of the PDF object system.
-      #
-      # An array object in PDF is a collection of sequentially ordered objects of any type. Such
-      # objects are represented by objects of class +Array+.
-      #
-      # See: PDF1.7. s7.3.6
-      Array = ::Array
-
-      # Dictionary objects of the PDF object system.
-      #
-      # A dictionary object in PDF is an unordered associative table containing object pairs where
-      # one element is the *key* and the other the *value*. Keys may only be Name objects whereas
-      # values can be of any type.
-      #
-      # Dictionary objects are represented by objects of class +Hash+.
-      #
-      # See: PDF1.7 s7.3.7
-      Dictionary = ::Hash
-
-      # The "null object" of the PDF object system.
-      #
-      # This object can only exist once and is represented by +nil+.
-      #
-      # See: PDF1.7 s7.3.9
-      Null = nil
+      # This method only works if the current object number is zero, i.e. if the object is not
+      # already an indirect object.
+      def make_indirect(new_oid, new_gen = 0)
+        raise "Can't change the object or generation numbers of an indirect object" if oid != 0 #TODO e.msg
+        @oid = new_oid
+        @gen = new_gen
+      end
 
     end
-
 
   end
 end

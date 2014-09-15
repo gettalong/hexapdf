@@ -16,10 +16,10 @@ module HexaPDF
     class XRefTable
 
       # The value if a requested object could not be found.
-      NOT_FOUND = Object.new
+      NOT_FOUND = ::Object.new
 
       # Represents a free entry in the cross-reference table.
-      FREE_ENTRY = Object.new
+      FREE_ENTRY = ::Object.new
 
       # The trailer dictionary associated with this cross-reference table.
       attr_accessor :trailer
