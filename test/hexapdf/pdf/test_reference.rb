@@ -10,9 +10,7 @@ class PDFReferenceTest < Minitest::Test
   def test_initialize_and_accessors
     r = Reference.new(5, 7)
     assert_equal(5, r.oid)
-    assert_equal(5, r.object_number)
     assert_equal(7, r.gen)
-    assert_equal(7, r.generation_number)
 
     assert_raises(ArgumentError) { Reference.new(5.0, 7) }
   end

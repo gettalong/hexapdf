@@ -3,6 +3,37 @@
 module HexaPDF
   module PDF
 
+    # Encapsulates functionality that is needed for Reference like classes.
+    #
+    # See: Reference, HexaPDF::PDF::Object
+    module ReferenceBehavior
+
+      # The object number of the referenced indirect object.
+      attr_reader :oid
+
+      # The generation number of the referenced indirect object.
+      attr_reader :gen
+
+      # Create a new reference for the given object and generation numbers.
+      def initialize(oid, gen = 0)
+        @oid, @gen = oid, gen
+        unless @oid.kind_of?(Integer) && @gen.kind_of?(Integer)
+          raise ArgumentError, "PDF reference oid,gen arguments need to be integers"
+        end
+      end
+
+      # Return +true+ if the other object references the same PDF object as this reference object.
+      def ==(other)
+        other.respond_to?(:oid) && @oid == other.oid && other.respond_to?(:gen) && @gen == other.gen
+      end
+      alias_method :eql?, :'=='
+
+      def hash #:nodoc:
+        [@oid, @gen].hash
+      end
+
+    end
+
     # A reference to an indirect object.
     #
     # The PDF syntax allows for references to existing and non-existing indirect objects. Such
@@ -10,34 +41,7 @@ module HexaPDF
     #
     # See: PDF1.7 s7.3.10
     class Reference
-
-      # The object number of the referenced indirect object.
-      attr_reader :object_number
-      alias_method :oid, :object_number
-
-      # The generation number of the referenced indirect object.
-      attr_reader :generation_number
-      alias_method :gen, :generation_number
-
-      # Create a new reference for the given object and generation numbers.
-      def initialize(object_number, generation_number = 0)
-        @object_number, @generation_number = object_number, generation_number
-        unless @object_number.kind_of?(Integer) && @generation_number.kind_of?(Integer)
-          raise ArgumentError, "PDF reference oid,gen arguments need to be integers"
-        end
-      end
-
-      # Return +true+ if the other object references the same PDF object as this reference object.
-      def ==(other)
-        other.kind_of?(Reference) && @object_number == other.object_number &&
-          @generation_number == other.generation_number
-      end
-      alias_method :eql?, :'=='
-
-      def hash #:nodoc:
-        [@object_number, @generation_number].hash
-      end
-
+      include ReferenceBehavior
     end
 
   end
