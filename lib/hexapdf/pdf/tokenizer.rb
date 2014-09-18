@@ -168,7 +168,7 @@ module HexaPDF
         when 'null'
           nil
         when /\A[+-]?\d+\z/
-          Integer(str)
+          str.to_i
         when /\A[+-]?(?:\d+\.?\d*|\.\d+)\z/
           str << '0' if str[-1] == '.'
           Float(str)

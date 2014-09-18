@@ -48,7 +48,7 @@ class PDFTokenizerTest < Minitest::Test
 % Regular tokens
   		
 true false
-123 +17 -98 0
+123 +17 -98 0 0059
 34.5 -3.62 +123.6 4. -.002 .002 0.0
 
 % Literal string tests
@@ -91,7 +91,7 @@ EOF
     @io.string.chomp!
 
     expected_tokens = [true, false,
-                       123, 17, -98, 0,
+                       123, 17, -98, 0, 59,
                        34.5, -3.62, 123.6, 4.0, -0.002, 0.002, 0.0,
                        "parentheses ( ) and (\nspecial \0053++characters\n (*!&}^% and so on).\n", '',
                        "Nov shmoz ka pop.", "\x90\x1F\xA3", "\x90\x1F\xA0",
