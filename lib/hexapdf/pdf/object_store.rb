@@ -13,6 +13,8 @@ module HexaPDF
 
       attr_reader :next_oid
 
+      attr_accessor :pdf_version
+
       # Create a new object store.
       #
       # If a Parser is provided, then this object store can read PDF objects from an existing PDF,
@@ -21,11 +23,13 @@ module HexaPDF
         @document = document
         @parser = parser
         @objects = {}
+        @pdf_version = '1.4'
 
         @xref_tables = []
         @loaded_xref_tables = {}
         if parser
           @xref_tables << load_xref_table(@parser.startxref_offset)
+          @pdf_version = parser.file_header_version
         end
 
         @next_oid = @xref_tables.first && @xref_tables.first.trailer[:Size] || 1
