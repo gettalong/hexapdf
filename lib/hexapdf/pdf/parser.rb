@@ -15,7 +15,8 @@ module HexaPDF
     # See: PDF1.7 s7
     class Parser
 
-      # The object used to resolve references. Should normally be an ObjectStore.
+      # The object used to resolve references (needs to respond to #deref!). Should normally be an
+      # ObjectStore.
       attr_accessor :resolver
 
       # Create a new parser for the given IO object.
@@ -61,7 +62,7 @@ module HexaPDF
           # Note that dereferencing :Length might move the IO pointer
           pos = @tokenizer.pos
           length = (object[:Length].kind_of?(Integer) && object[:Length]) ||
-            (@resolver && @resolver.deref(object[:Length]) || 0)
+            (@resolver && @resolver.deref!(object[:Length]) || 0)
           @tokenizer.pos = pos + length
 
           tok = @tokenizer.next_token
@@ -116,7 +117,6 @@ module HexaPDF
               xref[oid, gen] = XRefTable::FREE_ENTRY
             end
           end
-
           start = @tokenizer.next_token
         end
 
