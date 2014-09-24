@@ -63,6 +63,10 @@ module HexaPDF
         @gen = new_gen
       end
 
+      def inspect #:nodoc:
+        "#<#{self.class.name} [#{oid}, #{gen}] value=#{value.inspect} stream=#{stream.inspect}>"
+      end
+
     end
 
   end

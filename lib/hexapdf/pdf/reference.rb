@@ -42,6 +42,11 @@ module HexaPDF
     # See: PDF1.7 s7.3.10
     class Reference
       include ReferenceBehavior
+
+      def inspect #:nodoc:
+        "#<#{self.class.name} [#{oid}, #{gen}]>"
+      end
+
     end
 
   end
