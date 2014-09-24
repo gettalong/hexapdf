@@ -30,6 +30,7 @@ module HexaPDF
         if parser
           @xref_tables << load_xref_table(@parser.startxref_offset)
           @pdf_version = parser.file_header_version
+          parser.resolver = self
         end
 
         @next_oid = @xref_tables.first && @xref_tables.first.trailer[:Size] || 1
