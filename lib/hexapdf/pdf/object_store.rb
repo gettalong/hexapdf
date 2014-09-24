@@ -61,6 +61,24 @@ module HexaPDF
         obj.kind_of?(Reference) ? self[obj] : obj
       end
 
+      # Recursively dereference the given object.
+      #
+      # Return the object itself if it is not a reference, or the value of the dereferenced indirect
+      # object. If the object is a composite object (Hash, Array), each component is also
+      # recursively dereferenced.
+      def deref!(obj)
+        case obj = deref(obj)
+        when Hash
+          obj.inject({}) {|memo, (key,val)| memo[key] = deref!(val)}
+        when Array
+          obj.map {|o| deref!(o)}
+        when HexaPDF::PDF::Object
+          deref!(obj.value)
+        else
+          obj
+        end
+      end
+
       # Create an indirect object from the given one.
       def ref(obj)
         if obj.kind_of?(HexaPDF::PDF::Object) && obj.oid == 0
