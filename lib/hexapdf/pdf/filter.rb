@@ -41,6 +41,40 @@ module HexaPDF
 
       autoload(:Predictor, 'hexapdf/pdf/filter/predictor')
 
+
+      # Return a Fiber that can be used as a source for decoders/encoders and that reads chunks of
+      # data from an IO object.
+      #
+      # Note that each time a chunk is read, the position pointer of the IO is adjusted.
+      #
+      # Options:
+      #
+      # :pos:: The position from where the reading should start. A negative position is treated as
+      #        zero. Default: 0.
+      #
+      # :length:: The length indicating the number of bytes to read at most (less if EOF is
+      #           reached). A negative length means reading until the end of the IO stream. Default:
+      #           -1.
+      #
+      # :chunk_size:: The size of the chunks that should be returned in each iteration. A chunk size
+      #               of less than or equal to 0 means using the biggest chunk size available (can
+      #               change between versions!). Default: 0.
+      def self.source_from_io(io, pos: 0, length: -1, chunk_size: 0)
+        chunk_size = 2**32 if chunk_size <= 0
+        chunk_size = length if length >= 0 && chunk_size > length
+        length = 2**61 if length < 0
+        pos = 0 if pos < 0
+
+        Fiber.new do
+          while length > 0 && (io.pos = pos) && (data = io.read(chunk_size))
+            pos = io.pos
+            length -= data.size
+            chunk_size = length if chunk_size > length
+            Fiber.yield(data)
+          end
+        end
+      end
+
     end
 
   end
