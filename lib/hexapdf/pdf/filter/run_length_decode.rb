@@ -18,7 +18,8 @@ module HexaPDF
         # See HexaPDF::PDF::Filter
         def self.decoder(source, _ = nil)
           Fiber.new do
-            i, result = 0, ''
+            i = 0
+            result = ''
             data = source.resume
             while data && i < data.length
               length = data.getbyte(i)
@@ -35,14 +36,16 @@ module HexaPDF
                 else
                   raise MalformedPDFError, "Missing data for run length encoded stream"
                 end
-                i, result = 0, ''
+                i = 0
+                result = ''
               else # EOD reached
                 break
               end
 
               if i == data.length && source.alive? && data = source.resume
                 Fiber.yield(result)
-                i, result = 0, ''
+                i = 0
+                result = ''
               end
             end
             result unless result.empty?

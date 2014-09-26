@@ -16,7 +16,8 @@ module HexaPDF
 
       # Create a new reference for the given object and generation numbers.
       def initialize(oid, gen = 0)
-        @oid, @gen = oid, gen
+        @oid = oid
+        @gen = gen
         unless @oid.kind_of?(Integer) && @gen.kind_of?(Integer)
           raise ArgumentError, "PDF reference oid,gen arguments need to be integers"
         end

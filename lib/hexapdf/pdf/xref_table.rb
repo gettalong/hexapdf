@@ -26,7 +26,8 @@ module HexaPDF
 
       # Create a new cross-reference table.
       def initialize
-        @table, @trailer = {}, {}
+        @table = {}
+        @trailer = {}
         @oids = {}
       end
 
