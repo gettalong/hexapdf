@@ -28,4 +28,8 @@ class PDFReferenceTest < Minitest::Test
     refute(h.has_key?(Reference.new(5, 8)))
   end
 
+  def test_inspect
+    assert_match(/\[5, 7\]/, Reference.new(5, 7).inspect)
+  end
+
 end
