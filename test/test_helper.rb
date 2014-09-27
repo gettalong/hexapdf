@@ -7,6 +7,7 @@ end
 
 gem 'minitest'
 require 'minitest/autorun'
+require 'fiber'
 
 module TestHelper
 
