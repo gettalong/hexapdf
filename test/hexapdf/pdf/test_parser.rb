@@ -39,7 +39,6 @@ startxref
 %%EOF
 EOF
     @parser = HexaPDF::PDF::Parser.new(@io)
-    @parser.resolver = self
   end
 
   def deref!(obj)
@@ -49,6 +48,8 @@ EOF
 
 
   def test_parse_indirect_object
+    @parser.resolver = self
+
     object, oid, gen, stream = @parser.parse_indirect_object
     assert_equal(1, oid)
     assert_equal(0, gen)
@@ -66,6 +67,8 @@ EOF
     assert_equal(15, gen)
     assert_kind_of(HexaPDF::PDF::Stream, stream)
     assert_equal({Length: HexaPDF::PDF::Reference.new(1, 0), Hallo: 6}, object)
+
+    @parser.resolver = nil
 
     # Test invalid objects
     @io.string = "1 0 obj\n<< >>\nendobjd\n"
