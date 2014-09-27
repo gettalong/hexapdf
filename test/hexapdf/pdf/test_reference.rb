@@ -12,7 +12,7 @@ class PDFReferenceTest < Minitest::Test
     assert_equal(5, r.oid)
     assert_equal(7, r.gen)
 
-    assert_raises(ArgumentError) { Reference.new(5.0, 7) }
+    assert_raises(HexaPDF::Error) { Reference.new(5.0, 7) }
   end
 
   def test_equality

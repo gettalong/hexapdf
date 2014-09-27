@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+require 'hexapdf/error'
+
 module HexaPDF
   module PDF
 
@@ -19,7 +21,7 @@ module HexaPDF
         @oid = oid
         @gen = gen
         unless @oid.kind_of?(Integer) && @gen.kind_of?(Integer)
-          raise ArgumentError, "PDF reference oid,gen arguments need to be integers"
+          raise HexaPDF::Error, "PDF reference oid,gen arguments need to be integers"
         end
       end
 
