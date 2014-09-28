@@ -30,6 +30,8 @@ module HexaPDF
     # processed this chunk, it should yield the processed chunk as binary string. This should be
     # done as long as the source fiber is #alive? and doesn't return +nil+ when resumed.
     #
+    # Such a fiber should *not* return +nil+ unless this signifies that no more data is coming!
+    #
     # See: PDF1.7 s7.4
     module Filter
 
