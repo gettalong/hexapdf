@@ -41,4 +41,9 @@ class PDFFilterTest < Minitest::Test
     assert_equal(@str[20...40], collector(HexaPDF::PDF::Filter.source_from_io(io, pos: 20, length: 20, chunk_size: 5)))
   end
 
+  def test_string_from_source
+    io = StringIO.new(@str.dup)
+    assert_equal(@str, HexaPDF::PDF::Filter.string_from_source(HexaPDF::PDF::Filter.source_from_io(io, chunk_size: 50)))
+  end
+
 end

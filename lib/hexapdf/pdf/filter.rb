@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+require 'fiber'
+
 module HexaPDF
   module PDF
 
@@ -78,6 +80,18 @@ module HexaPDF
             Fiber.yield(data)
           end
         end
+      end
+
+      # Return the concatenated string chunks retrieved by resuming the given source Fiber until it
+      # is dead.
+      #
+      # The returned string is always a string with +BINARY+ (= +ASCII-8BIT+) encoding.
+      def self.string_from_source(source)
+        str = ''.force_encoding('BINARY')
+        while source.alive? && data = source.resume
+          str << data.force_encoding('BINARY')
+        end
+        str
       end
 
     end
