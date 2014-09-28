@@ -41,7 +41,8 @@ module HexaPDF
           if options && options[:Predictor]
             source = Predictor.encoder(source, options)
           end
-          fib = Fiber.new do
+
+          Fiber.new do
             deflater = Zlib::Deflate.new(Zlib::BEST_COMPRESSION)
             while source.alive? && (data = source.resume)
               begin
