@@ -19,16 +19,7 @@ module HexaPDF
     # Most PDF objects in a PDF document are represented by sub classes of this class that provide
     # additional functionality.
     #
-    # == Stream Objects
-    #
-    # In addition to the wrapped object itself (#value), a Stream may also be associated with a PDF
-    # object, but only if the value is a PDF dictionary (a Hash in the HexaPDF implementation). This
-    # associated dictionary further describes the stream, like its length or how it is encoded.
-    #
-    # Such a stream object in PDF contains string data but of possibly unlimited length. Therefore
-    # it is used for large amounts of data like images, page descriptions or embedded files.
-    #
-    # See: Reference, Document
+    # See: Stream, Reference, Document
     # See: PDF1.7 s7.3.10, s7.3.8
     class Object
 
@@ -40,16 +31,12 @@ module HexaPDF
       # The wrapped object.
       attr_reader :value
 
-      # The associated stream, if any.
-      attr_accessor :stream
-
 
       # Create a new PDF object for +value+ that is associated with the given document.
-      def initialize(document, value, oid = 0, gen = 0, stream = nil)
+      def initialize(document, value, oid: 0, gen: 0)
         super(oid, gen)
         @document = document
         @value = value
-        @stream = stream
       end
 
       # Make this PDF object an indirect one by assigning it the given new object and generation
