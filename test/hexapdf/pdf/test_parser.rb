@@ -20,7 +20,7 @@ endobj
 6F702E>]
 endobj
 
-3 15 obj<< /Length 1 0 R/Hallo 6 >>stream
+3 15 obj<< /Length 1 0 R/Hallo 6/Filter /Fl/DecodeParms<<>> >>stream
 Hallo PDF!endstream
 endobj
 
@@ -35,21 +35,20 @@ xref
 trailer
 << /Test (now) >>
 startxref
-185
+212
 %%EOF
 EOF
-    @parser = HexaPDF::PDF::Parser.new(@io)
+    @parser = HexaPDF::PDF::Parser.new(@io, self)
   end
 
-  def deref!(obj)
+  def unwrap(obj)
+    return obj unless obj.kind_of?(HexaPDF::PDF::Reference)
     table = @parser.parse_xref_table(@parser.startxref_offset)
     @parser.parse_indirect_object(table[obj.oid, obj.gen]).first
   end
 
 
   def test_parse_indirect_object
-    @parser.resolver = self
-
     object, oid, gen, stream = @parser.parse_indirect_object
     assert_equal(1, oid)
     assert_equal(0, gen)
@@ -65,10 +64,10 @@ EOF
     object, oid, gen, stream = @parser.parse_indirect_object
     assert_equal(3, oid)
     assert_equal(15, gen)
-    assert_kind_of(HexaPDF::PDF::Stream, stream)
-    assert_equal({Length: HexaPDF::PDF::Reference.new(1, 0), Hallo: 6}, object)
-
-    @parser.resolver = nil
+    assert_kind_of(HexaPDF::PDF::StreamData, stream)
+    assert_equal([:Fl], stream.filter)
+    assert_equal([{}], stream.decode_parms)
+    assert_equal({Length: HexaPDF::PDF::Reference.new(1, 0), Hallo: 6, Filter: :Fl, DecodeParms: {}}, object)
 
     # Test invalid objects
     @io.string = "1 0 obj\n<< >>\nendobjd\n"
@@ -96,7 +95,7 @@ EOF
   end
 
   def test_startxref_offset
-    assert_equal(185, @parser.startxref_offset)
+    assert_equal(212, @parser.startxref_offset)
 
     @io.string = "startxref\n5\n%%EOF" + "\nhallo"*150
     assert_equal(5, @parser.startxref_offset)
@@ -112,7 +111,7 @@ EOF
     assert_equal('1.7', @parser.file_header_version)
 
     @io.string = "%PDF-1\n"
-    @parser = HexaPDF::PDF::Parser.new(@io)
+    @parser = HexaPDF::PDF::Parser.new(@io, self)
     assert_raises(HexaPDF::MalformedPDFError) { @parser.file_header_version }
   end
 

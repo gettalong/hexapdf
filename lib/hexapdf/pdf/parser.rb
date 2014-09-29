@@ -10,27 +10,25 @@ module HexaPDF
 
     # Parses an IO stream according to PDF1.7 to get at the PDF objects.
     #
-    # This class is not directly used but indirectly via ObjectStore.
+    # This class is not directly used but indirectly via HexaPDF::PDF::Document.
     #
     # See: PDF1.7 s7
     class Parser
 
-      # The object used to resolve references (needs to respond to #deref!). Should normally be an
-      # ObjectStore.
-      attr_accessor :resolver
-
       # Create a new parser for the given IO object.
-      def initialize(io)
+      #
+      # PDF references are resolved using the +resolver+ object which needs to respond to +unwrap+.
+      def initialize(io, resolver)
         @io = io
         @tokenizer = Tokenizer.new(io)
-        @resolver = nil
+        @resolver = resolver
         retrieve_pdf_header_offset_and_version
       end
 
       # Parse the indirect object at the specified offset.
       #
-      # This method is used by an ObjectStore to load objects. It should **not** be used by any
-      # other object because invalid object positions lead to an error.
+      # This method is used by a PDF Document to load objects. It should **not** be used by any
+      # other object because invalid object positions lead to errors.
       #
       # Returns an array containing [object, oid, gen, stream].
       #
@@ -59,10 +57,9 @@ module HexaPDF
             raise HexaPDF::MalformedPDFError.new("Keyword stream must be followed by EOL", @tokenizer.pos - 1)
           end
 
-          # Note that dereferencing :Length might move the IO pointer
+          # Note that getting :Length might move the IO pointer (when references need to be resolved)
           pos = @tokenizer.pos
-          length = (object[:Length].kind_of?(Integer) && object[:Length]) ||
-            (@resolver && @resolver.deref!(object[:Length]) || 0)
+          length = @resolver.unwrap(object[:Length]) || 0
           @tokenizer.pos = pos + length
 
           tok = @tokenizer.next_token
@@ -71,7 +68,9 @@ module HexaPDF
           end
           tok = @tokenizer.next_token
 
-          stream = Stream.new(@tokenizer.io, pos, length)
+          stream = StreamData.new(@tokenizer.io, offset: pos, length: length,
+                                  filter: @resolver.unwrap(object[:Filter]),
+                                  decode_parms: @resolver.unwrap(object[:DecodeParms]))
         end
 
         unless tok.kind_of?(Tokenizer::Token) && tok == 'endobj'
