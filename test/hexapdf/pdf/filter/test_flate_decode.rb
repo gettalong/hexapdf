@@ -16,6 +16,11 @@ class PDFFilterFlateDecodeTest < Minitest::Test
     assert_raises(HexaPDF::Error) do
       collector(@obj.decoder(feeder("some test")))
     end
+
+    assert_raises(HexaPDF::Error) do
+      collector(@obj.decoder(Fiber.new {}))
+    end
+
   end
 
 end

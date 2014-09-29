@@ -22,11 +22,15 @@ module HexaPDF
               begin
                 data = inflater.inflate(data)
               rescue
-                raise HexaPDF::Error, $!
+                raise HexaPDF::Error, "Problem while decoding Flate encoded stream: #{$!}"
               end
               Fiber.yield(data)
             end
-            inflater.finish
+            begin
+              inflater.finish
+            rescue
+              raise HexaPDF::Error, "Problem while decoding Flate encoded stream: #{$!}"
+            end
           end
 
           if options && options[:Predictor]
@@ -48,7 +52,7 @@ module HexaPDF
               begin
                 data = deflater.deflate(data)
               rescue
-                raise HexaPDF::Error, $!
+                raise HexaPDF::Error, "Problem while encoding stream with Flate encoding: #{$!}"
               end
               Fiber.yield(data)
             end
