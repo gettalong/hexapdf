@@ -33,6 +33,7 @@ module HexaPDF
       def initialize(io)
         @io = io
         @ss = StringScanner.new(''.force_encoding('BINARY'))
+        @original_pos = -1
         self.pos = 0
       end
 
@@ -48,10 +49,14 @@ module HexaPDF
       #
       # Note that this does **not** set +io.pos+ directly (at the moment of invocation)!
       def pos=(pos)
-        @original_pos = pos
-        @next_read_pos = pos
-        @ss.string.clear
-        @ss.reset
+        if pos >= @original_pos && pos <= @original_pos + @ss.string.size
+          @ss.pos = pos - @original_pos
+        else
+          @original_pos = pos
+          @next_read_pos = pos
+          @ss.string.clear
+          @ss.reset
+        end
       end
 
       # Return the token at the current position and advance the scan pointer.
@@ -59,13 +64,12 @@ module HexaPDF
         tok = parse_token
 
         if tok.kind_of?(Integer) # Handle object references, see PDF1.7 s7.3.10
-          prepare_string_scanner
-          save_pos = @ss.pos
+          save_pos = self.pos
           if (tok2 = parse_token) && tok2.kind_of?(Integer) &&
               (tok3 = parse_token) && tok3.kind_of?(Token) && tok3 == 'R'
             tok = Reference.new(tok, tok2)
           else
-            @ss.pos = save_pos
+            self.pos = save_pos
           end
         end
 
@@ -74,15 +78,15 @@ module HexaPDF
 
       # Return the next token but do not advance the scan pointer.
       def peek_token
-        pos = @ss.pos
+        pos = self.pos
         tok = next_token
-        @ss.pos = pos
+        self.pos = pos
         tok
       end
 
       # Read the byte at the current position and advance the scan pointer.
       def next_byte
-        prepare_string_scanner if @ss.eos?
+        prepare_string_scanner(1)
         @ss.get_byte
       end
 
@@ -91,7 +95,7 @@ module HexaPDF
       #
       # See: PDF1.7 7.5.4
       def next_xref_entry
-        prepare_string_scanner if @ss.rest_size < 20
+        prepare_string_scanner(20)
         unless @ss.scan(/(\d{10}) (\d{5}) ([nf])( \r| \n|\r\n)/)
           raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection entry", pos)
         end
@@ -101,7 +105,7 @@ module HexaPDF
       # Skip all whitespace (see WHITESPACE) at the current position.
       def skip_whitespace
         prepare_string_scanner
-        @ss.skip(WHITESPACE_MULTI_RE)
+        prepare_string_scanner while @ss.skip(WHITESPACE_MULTI_RE)
       end
 
       private
@@ -111,7 +115,7 @@ module HexaPDF
       DELIMITER = "()<>{}/[]%"
 
       WHITESPACE_SINGLE_RE = /[#{WHITESPACE}]/
-      WHITESPACE_MULTI_RE = /[#{WHITESPACE}]*/
+      WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/
       WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
 
 
@@ -120,7 +124,7 @@ module HexaPDF
       # Comments and a run of whitespace characters are ignored. The value +NO_MORE_TOKENS+ is
       # returned if there are no more tokens available.
       def parse_token
-        prepare_string_scanner
+        prepare_string_scanner(20)
         case byte = @ss.get_byte
         when WHITESPACE_SINGLE_RE
           @ss.skip(WHITESPACE_MULTI_RE)
@@ -256,16 +260,19 @@ module HexaPDF
 
       # Prepare the StringScanner by filling its string instance with enough bytes.
       #
+      # The number of needed bytes can be specified via the +needed_bytes+ parameters.
+      #
       # Returns +true+ if the end of the underlying IO stream has not been reached, yet.
-      def prepare_string_scanner
+      def prepare_string_scanner(needed_bytes = nil)
+        return if needed_bytes && @ss.rest_size >= needed_bytes
         @io.seek(@next_read_pos)
         return false if @io.eof?
 
         @ss << @io.read(1024)
-        if @ss.pos > 1024 && @ss.string.length > 20480
-          @ss.string.slice!(0, 1024)
-          @ss.pos -= 1024
-          @original_pos += 1024
+        if @ss.pos > 10240 && @ss.string.length > 20480
+          @ss.string.slice!(0, 10240)
+          @ss.pos -= 10240
+          @original_pos += 10240
         end
         @next_read_pos = @io.pos
         true

@@ -6,13 +6,12 @@ require 'stringio'
 
 class PDFTokenizerTest < Minitest::Test
 
-  def setup
-    @io = StringIO.new
-    @tokenizer = HexaPDF::PDF::Tokenizer.new(@io)
+  def set_string(str)
+    @tokenizer = HexaPDF::PDF::Tokenizer.new(StringIO.new(str))
   end
 
   def test_pos
-    @io.string = "hallo du" + " "*50000 + "hallo du"
+    set_string("hallo du" + " "*50000 + "hallo du")
     @tokenizer.next_token
     assert_equal(5, @tokenizer.pos)
 
@@ -30,21 +29,21 @@ class PDFTokenizerTest < Minitest::Test
   end
 
   def test_next_byte
-    @io.string = 'hallo'
+    set_string('hallo')
     assert_equal('h', @tokenizer.next_byte)
     assert_equal('a', @tokenizer.next_byte)
   end
 
   def test_peek_token
+    set_string("hallo du")
     2.times do
-      @io.string = "hallo du"
       assert_equal('hallo', @tokenizer.peek_token)
       assert_equal(0, @tokenizer.pos)
     end
   end
 
   def test_next_token
-    @io.string = <<EOF
+    set_string(<<EOF.chomp)
 % Regular tokens
   		
 true false
@@ -88,7 +87,6 @@ so on).\\n)
 
 % Test
 EOF
-    @io.string.chomp!
 
     expected_tokens = [true, false,
                        123, 17, -98, 0, 59,
@@ -113,17 +111,23 @@ EOF
     assert_equal(HexaPDF::PDF::Tokenizer::NO_MORE_TOKENS, @tokenizer.next_token)
   end
 
+  def test_position_reset_bug
+    set_string("0 1 2 3 4 " * 4000)
+    4000.times do
+      5.times {|i| assert_equal(i, @tokenizer.next_token)}
+    end
+  end
+
   def test_invalid_token
     strings = [" >", "(href", "<ABAB"]
     strings.each do |str|
-      @io.string = str
-      @tokenizer.pos = 0
+      set_string(str)
       assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
     end
   end
 
   def test_next_xref_entry
-    @io.string = "0000000001 00001 n \n0000000001 00001 g \n"
+    set_string("0000000001 00001 n \n0000000001 00001 g \n")
     assert_equal([1, 1, 'n'], @tokenizer.next_xref_entry)
     assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_xref_entry }
   end
