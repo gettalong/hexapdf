@@ -53,7 +53,7 @@ module HexaPDF
                          CHAR_TO_VALUE[m[2]] * POW85_2 + CHAR_TO_VALUE[m[3]] * POW85_1 +
                          CHAR_TO_VALUE[m[4]])
                   if num > MAX_VALUE
-                    raise HexaPDF::MalformedPDFError, "Invalid characters in ASCII85 encoded stream found"
+                    raise HexaPDF::MalformedPDFError, "Value outside base-85 range in ASCII85 encoded stream found"
                   end
                   result << num
                 elsif scanner.scan(/z/)
@@ -64,24 +64,25 @@ module HexaPDF
                   break
                 else
                   rest = scanner.scan(/.+/)
-                  if rest.index('z') || rest.length > 4
-                    raise HexaPDF::MalformedPDFError, "End of ASCII85 encoded stream is invalid"
-                  end
                 end
               end
               Fiber.yield(result.pack('N*')) unless result.empty?
             end
 
             if rest
+              if rest.index('z') || rest.index('~')
+                raise HexaPDF::MalformedPDFError, "End of ASCII85 encoded stream is invalid"
+              end
+
               rlen = rest.length
-              rest << "u"*(5-rlen)
+              rest << "u" * (5 - rlen)
               num = (CHAR_TO_VALUE[rest[0]] * POW85_4 + CHAR_TO_VALUE[rest[1]] * POW85_3 +
                      CHAR_TO_VALUE[rest[2]] * POW85_2 + CHAR_TO_VALUE[rest[3]] * POW85_1 +
                      CHAR_TO_VALUE[rest[4]])
               if num > MAX_VALUE
-                raise HexaPDF::MalformedPDFError, "Invalid characters in ASCII85 encoded stream found"
+                raise HexaPDF::MalformedPDFError, "Value outside base-85 range in ASCII85 encoded stream found"
               end
-              [num].pack('N')[0,rlen-1]
+              [num].pack('N')[0, rlen - 1]
             end
           end
         end
@@ -113,7 +114,7 @@ module HexaPDF
 
             if rest
               rlen = rest.length
-              num = (rest + "\0"*(4-rlen)).unpack('N').first
+              num = (rest + "\0" * (4 - rlen)).unpack('N').first
               (VALUE_TO_CHAR[num / POW85_4 % 85] + VALUE_TO_CHAR[num / POW85_3 % 85] <<
                VALUE_TO_CHAR[num / POW85_2 % 85] << VALUE_TO_CHAR[num / POW85_1 % 85] <<
                VALUE_TO_CHAR[num % 85])[0, rlen + 1] << "~>"
