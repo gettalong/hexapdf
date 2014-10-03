@@ -22,12 +22,12 @@ module HexaPDF
 
             while !finished && source.alive? && (data = source.resume)
               data.tr!(HexaPDF::PDF::Tokenizer::WHITESPACE, '')
-              if data.index(/[^A-Fa-f0-9>]/)
+              finished = true if data.gsub!(/>.*?\z/m, '')
+              if data.index(/[^A-Fa-f0-9]/)
                 raise HexaPDF::MalformedPDFError, "Invalid characters in ASCII hex encoded stream found"
               end
 
               data = rest << data if rest
-              finished = true if data.gsub!(/>.*?\z/m, '')
 
               if data.bytesize.odd?
                 rest = data.slice!(-1, 1)
