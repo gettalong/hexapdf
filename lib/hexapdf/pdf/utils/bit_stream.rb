@@ -24,7 +24,6 @@ module HexaPDF
         # Append some data to the string from where bits are read.
         def append_data(str)
           @data = @data[@pos, @data.length - @pos] << str
-          @data.force_encoding('BINARY')
           @pos = 0
         end
 
