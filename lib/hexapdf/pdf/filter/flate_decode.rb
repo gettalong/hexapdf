@@ -49,11 +49,7 @@ module HexaPDF
           Fiber.new do
             deflater = Zlib::Deflate.new(Zlib::BEST_COMPRESSION)
             while source.alive? && (data = source.resume)
-              begin
-                data = deflater.deflate(data)
-              rescue
-                raise HexaPDF::Error, "Problem while encoding stream with Flate encoding: #{$!}"
-              end
+              data = deflater.deflate(data)
               Fiber.yield(data)
             end
             deflater.finish
