@@ -15,7 +15,7 @@ module HexaPDF
 
         # Create a new object, optionally providing the string from where the bits should be read.
         def initialize(data = '')
-          @data = data.force_encoding('BINARY')
+          @data = data.force_encoding(Encoding::BINARY)
           @pos = 0
           @bit_cache = 0
           @available_bits = 0
@@ -85,7 +85,8 @@ module HexaPDF
 
         # Write the integer +int+ with a width of +bits+ to the bit stream.
         #
-        # Returns a 16bit string if enough bits are available or an empty string otherwise.
+        # Returns a 16bit binary string if enough bits are available or an empty binary string
+        # otherwise.
         def write(int, bits)
           @available_bits += bits
           @bit_cache |= int << (32 - @available_bits)
@@ -95,7 +96,7 @@ module HexaPDF
             @bit_cache = (@bit_cache & 0xFFFF) << 16
             result
           else
-            ''
+            ''.force_encoding(Encoding::BINARY)
           end
         end
 
