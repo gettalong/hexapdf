@@ -2,42 +2,33 @@
 
 require 'test_helper'
 require 'hexapdf/pdf/filter/run_length_decode'
-require 'stringio'
 
-class PDFFilterRunLengthDecodeTest < Minitest::Test
+describe HexaPDF::PDF::Filter::RunLengthDecode do
 
-  include TestHelper
-  include FilterHelper
+  include StandardFilterTests
 
-  def setup
+  before do
     @obj = HexaPDF::PDF::Filter::RunLengthDecode
+    @all_test_cases ||= [['abcabcaaaabbbcdeffffffagggggg', "\x05abcabc\xFDa\xFEb\x02cde\xFBf\x00a\xFBg\x80"]].
+      each {|a,b| a.force_encoding(Encoding::BINARY); b.force_encoding(Encoding::BINARY)}
+    @decoded = @all_test_cases[0][0]
+    @encoded = @all_test_cases[0][1]
   end
 
-  # the first test case was not encoded by hexapdf
-  TESTCASES = [['abcabcaaaabbbcdeffffffagggggg', "\x06abcabca\xFEa\xFEb\x03cdef\xFCf\x01ag\xFCg\x80"],
-               ['abcabcaaaabbbcdeffffffagggggg', "\x05abcabc\xFDa\xFEb\x02cde\xFBf\x00a\xFBg\x80"]]
-  TESTCASES.each {|a,b| a.force_encoding('BINARY'); b.force_encoding('BINARY')}
-
-  def test_decoder
-    TESTCASES.each_with_index do |(result, str), index|
-      assert_equal(result, collector(@obj.decoder(feeder(str.dup))), "testcase #{index}")
-    end
-
-    str = TESTCASES[0][1]
-    result = TESTCASES[0][0]
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup, 1))))
-
-    assert_raises(HexaPDF::MalformedPDFError) do
-      collector(@obj.decoder(feeder(str.dup.chop.chop)))
+  describe "decoder" do
+    it "fails if data is missing from the source stream" do
+      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder(@encoded.chop.chop))) }
     end
   end
 
-  def test_encoder
-    str = TESTCASES[1][0]
-    result = TESTCASES[1][1]
-    assert_equal(result, collector(@obj.encoder(feeder(str.dup))))
-    assert_equal((str.chars.map {|a| "\0#{a}"}.join << "\x80").force_encoding('BINARY'),
-                 collector(@obj.encoder(feeder(str.dup, 1))))
+  # Won't work because the encoding is dependent on the length of the data that is passed in
+  undef_method :test_encoder_works_with_single_byte_input
+
+  describe "encoder" do
+    it "works with single byte input" do
+      assert_equal(@encoded.chars.map {|a| "\0#{a}"}.join << "\x80".force_encoding(Encoding::BINARY),
+                   collector(@obj.encoder(feeder(@encoded.dup, 1))))
+    end
   end
 
 end

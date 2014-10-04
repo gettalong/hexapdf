@@ -3,33 +3,33 @@
 require 'test_helper'
 require 'hexapdf/pdf/reference'
 
-class PDFReferenceTest < Minitest::Test
+describe HexaPDF::PDF::Reference do
 
-  include HexaPDF::PDF
-
-  def test_initialize_and_accessors
-    r = Reference.new(5, 7)
+  it "correctly assigns oid and gen on initialization" do
+    r = HexaPDF::PDF::Reference.new(5, 7)
     assert_equal(5, r.oid)
     assert_equal(7, r.gen)
-
-    assert_raises(HexaPDF::Error) { Reference.new(5.0, 7) }
   end
 
-  def test_equality
-    assert_equal(Reference.new(5, 7), Reference.new(5, 7))
-    refute_equal(Reference.new(5, 7), Reference.new(5, 8))
-    refute_equal(Reference.new(5, 7), Reference.new(4, 7))
+  it "raises an error when invalid objects are supplied on initialization" do
+    assert_raises(HexaPDF::Error) { HexaPDF::PDF::Reference.new(5.0, 7) }
   end
 
-  def test_hash
+  it "is comparable to itself" do
+    assert_equal(HexaPDF::PDF::Reference.new(5, 7), HexaPDF::PDF::Reference.new(5, 7))
+    refute_equal(HexaPDF::PDF::Reference.new(5, 7), HexaPDF::PDF::Reference.new(5, 8))
+    refute_equal(HexaPDF::PDF::Reference.new(5, 7), HexaPDF::PDF::Reference.new(4, 7))
+  end
+
+  it "behaves correctly as hash key" do
     h = {}
-    h[Reference.new(5, 7)] = true
-    assert(h.has_key?(Reference.new(5, 7)))
-    refute(h.has_key?(Reference.new(5, 8)))
+    h[HexaPDF::PDF::Reference.new(5, 7)] = true
+    assert(h.has_key?(HexaPDF::PDF::Reference.new(5, 7)))
+    refute(h.has_key?(HexaPDF::PDF::Reference.new(5, 8)))
   end
 
-  def test_inspect
-    assert_match(/\[5, 7\]/, Reference.new(5, 7).inspect)
+  it "shows oid and gen on inspection" do
+    assert_match(/\[5, 7\]/, HexaPDF::PDF::Reference.new(5, 7).inspect)
   end
 
 end

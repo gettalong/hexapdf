@@ -4,20 +4,30 @@ require 'test_helper'
 require 'hexapdf/pdf/filter'
 require 'stringio'
 
-class PDFFilterTest < Minitest::Test
+describe HexaPDF::PDF::Filter do
 
   include TestHelper
 
-  def setup
+  before do
     @str = ''
     40.times { @str << [rand(2**32)].pack('N') }
   end
 
-  def test_source_from_string
-    assert_equal(@str, collector(HexaPDF::PDF::Filter.source_from_string(@str)))
+  describe "source_from_string" do
+
+    it "doesn't modify the given string" do
+      str = @str.dup
+      HexaPDF::PDF::Filter.source_from_string(@str).resume.slice!(0, 10)
+      assert_equal(str, @str)
+    end
+
+    it "returns the whole string" do
+      assert_equal(@str, collector(HexaPDF::PDF::Filter.source_from_string(@str)))
+    end
+
   end
 
-  def test_source_from_io
+  it "converts an IO into a source via #source_from_io" do
     io = StringIO.new(@str.dup)
 
     assert_equal(@str, collector(HexaPDF::PDF::Filter.source_from_io(io)))
@@ -41,9 +51,10 @@ class PDFFilterTest < Minitest::Test
     assert_equal(@str[20...40], collector(HexaPDF::PDF::Filter.source_from_io(io, pos: 20, length: 20, chunk_size: 5)))
   end
 
-  def test_string_from_source
-    io = StringIO.new(@str.dup)
-    assert_equal(@str, HexaPDF::PDF::Filter.string_from_source(HexaPDF::PDF::Filter.source_from_io(io, chunk_size: 50)))
+  it "collects the binary string from a source via #string_from_source" do
+    result = HexaPDF::PDF::Filter.string_from_source(HexaPDF::PDF::Filter.source_from_io(StringIO.new(@str), chunk_size: 50))
+    assert_equal(@str, result)
+    assert_equal(Encoding::BINARY, result.encoding)
   end
 
 end

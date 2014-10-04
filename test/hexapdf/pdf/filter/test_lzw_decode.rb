@@ -3,42 +3,52 @@
 require 'test_helper'
 require 'hexapdf/pdf/filter/lzw_decode'
 
-class PDFFilterLZWDecodeTest < Minitest::Test
+describe HexaPDF::PDF::Filter::LZWDecode do
 
-  include TestHelper
-  include FilterHelper
+  include StandardFilterTests
 
-  def setup
+  before do
     @obj = HexaPDF::PDF::Filter::LZWDecode
+    @all_test_cases ||= [["-----A---B", "\x80\x0b\x60\x50\x22\x0c\x0c\x85\x01"],
+                         ['abcabcaaaabbbcdeffffffagggggg', "\x80\x18LF8\x14\x10\xC3\a1BLfC)\x9A\x1D\x0F0\x99\xE2Q8\b"],
+                        ].each {|a,b| a.force_encoding(Encoding::BINARY); b.force_encoding(Encoding::BINARY)}
+    @decoded = @all_test_cases[0][0]
+    @encoded = @all_test_cases[0][1]
+    @encoded_predictor = "\x80\x00\x85\xA0 \x04\x12\r\x05\n\x00\x9D\x90p\x10V\x02".force_encoding(Encoding::BINARY)
+    @predictor_opts = {Predictor: 12}
   end
 
-  # the first test case was not encoded by hexapdf
-  TESTCASES = [["-----A---B", "\x80\x0b\x60\x50\x22\x0c\x0c\x85\x01"],
-               ['abcabcaaaabbbcdeffffffagggggg', "\x80\x18LF8\x14\x10\xC3\a1BLfC)\x9A\x1D\x0F0\x99\xE2Q8\b"],
-               ]
-  TESTCASES.each {|a,b| a.force_encoding('BINARY'); b.force_encoding('BINARY')}
-
-  def test_decoder
-    TESTCASES.each_with_index do |(result, str), index|
-      assert_equal(result, collector(@obj.decoder(feeder(str.dup))), "testcase #{index}")
+  describe "decoder" do
+    it "applies the Predictor after decoding" do
+      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded_predictor.dup), @predictor_opts)))
     end
 
-    str = TESTCASES[0][1]
-    result = TESTCASES[0][0]
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup, 1))))
+    it "fails if an unknown code is found after CLEAR_TABLE" do
+      assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder("\xff\xff")).resume }
+    end
 
-    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder("\xff\xff")).resume }
-    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder("\x00\x7f\xff\xf0")).resume }
+    it "fails if an unknown code is found elsewhere" do
+      assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder("\x00\x7f\xff\xf0")).resume }
+    end
+
+    it "fails if the code size would be more than 12bit" do
+      stream = HexaPDF::PDF::Utils::BitStreamWriter.new
+      result = stream.write(256, 9)
+      result << stream.write(65, 9)
+      258.upto(510) {|i| result << stream.write(i, 9)}
+      511.upto(1022) {|i| result << stream.write(i, 10)}
+      1023.upto(2046) {|i| result << stream.write(i, 11)}
+      2047.upto(4095) {|i| result << stream.write(i, 12)}
+      result << stream.write(96, 12)
+      result << stream.finalize
+      assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder(result)).resume }
+    end
   end
 
-  def test_encoder
-    TESTCASES.each_with_index do |(str, result), index|
-      assert_equal(result, collector(@obj.encoder(feeder(str.dup))), "testcase #{index}")
+  describe "encoder" do
+    it "applies the Predictor before encoding" do
+      assert_equal(@encoded_predictor, collector(@obj.encoder(feeder(@decoded.dup), @predictor_opts)))
     end
-
-    str = TESTCASES[0][0]
-    result = TESTCASES[0][1]
-    assert_equal(result, collector(@obj.encoder(feeder(str.dup, 1))))
   end
 
 end

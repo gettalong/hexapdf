@@ -6,94 +6,172 @@ require 'stringio'
 require 'hexapdf/document'
 require 'hexapdf/pdf/stream'
 
-class PDFStreamTest < Minitest::Test
+
+describe HexaPDF::PDF::StreamData do
+
+  it "sets the attributes correctly on initialization" do
+    s = HexaPDF::PDF::StreamData.new(:source, offset: 5, length: 10, filter: :a, decode_parms: [:b])
+    assert_equal(:source, s.source)
+    assert_equal(5, s.offset)
+    assert_equal(10, s.length)
+    assert_equal([:a], s.filter)
+    assert_equal([:b], s.decode_parms)
+  end
+
+  it "normalizes the filter value" do
+    s = HexaPDF::PDF::StreamData.new(:source)
+    s.filter = :test
+    assert_equal([:test], s.filter)
+    s.filter = [:a, nil, :b]
+    assert_equal([:a, :b], s.filter)
+    s.filter = nil
+    assert_equal([], s.filter)
+  end
+
+  it "normalizes the decode_parms value" do
+    s = HexaPDF::PDF::StreamData.new(:source)
+    s.decode_parms = :test
+    assert_equal([:test], s.decode_parms)
+    s.decode_parms = [:a, nil, :b]
+    assert_equal([:a, :b], s.decode_parms)
+    s.decode_parms = nil
+    assert_equal([], s.decode_parms)
+  end
+
+end
+
+
+describe HexaPDF::PDF::Stream do
 
   include TestHelper
 
-  def setup
+  before do
     @document = OpenStruct.new
     @document.config = HexaPDF::Document.initial_config
     @document.store = Object.new
     def (@document.store).deref!(obj); obj; end
+
+    @stm = HexaPDF::PDF::Stream.new(@document, {})
   end
 
-  def test_stream_data
-    s = HexaPDF::PDF::StreamData.new(:source, offset: 5, length: 10)
-    assert_equal(:source, s.source)
-    assert_equal(5, s.offset)
-    assert_equal(10, s.length)
-    assert_equal([], s.filter)
-    assert_equal([], s.decode_parms)
+  describe "initialization" do
+    it "accepts the stream keyword" do
+      stm = HexaPDF::PDF::Stream.new(@document, {}, stream: 'other')
+      assert_equal('other', stm.stream)
+    end
 
-    s.source = :other
-    s.filter = :test
-    s.decode_parms = [:test, :test2]
-    assert_equal(:other, s.source)
-    assert_equal([:test], s.filter)
-    assert_equal([:test, :test2], s.decode_parms)
+    it "fails if the value is not a PDF dictionary" do
+      assert_raises(HexaPDF::Error) { HexaPDF::PDF::Stream.new(@document, :Name) }
+    end
   end
 
-  def test_initialize
-    assert_raises(HexaPDF::Error) { HexaPDF::PDF::Stream.new(@document, :Name) }
+  describe "stream=" do
+    it "allows assigning nil" do
+      @stm.stream = nil
+      assert_equal('', @stm.stream)
+      assert_equal(Encoding::BINARY, @stm.stream.encoding)
+    end
 
-    stm = HexaPDF::PDF::Stream.new(@document, {}, stream: 'other')
-    assert_equal('other', stm.stream)
+    it "allows assigning a string" do
+      @stm.stream = 'hallo'
+      assert_equal('hallo', @stm.stream)
+    end
+
+    it "retains the encoding if a String is assigned" do
+      @stm.stream = 'hallo'
+      assert_equal(Encoding::UTF_8, @stm.stream.encoding)
+      @stm.stream = 'hallo'.encode('ISO-8859-1')
+      assert_equal(Encoding::ISO_8859_1, @stm.stream.encoding)
+    end
+
+    it "allows assigning a StreamData object" do
+      @stmdata = HexaPDF::PDF::StreamData.new(StringIO.new('testing'))
+      @stm.stream = @stmdata
+      assert_equal('testing', @stm.stream)
+      assert_equal(Encoding::BINARY, @stm.stream.encoding)
+    end
+
+    it "fails on any object class other than String, StreamData, NilClass" do
+      assert_raises(HexaPDF::Error) { @stm.stream = 5 }
+    end
   end
 
-  def test_stream_and_stream_assignment
-    stm = HexaPDF::PDF::Stream.new(@document, {})
-
-    stm.stream = nil
-    assert_equal('', stm.stream)
-
-    stm.stream = 'hallo'
-    assert_equal('hallo', stm.stream)
-    assert_equal(Encoding::UTF_8, stm.stream.encoding)
-
-    stmdata = HexaPDF::PDF::StreamData.new(StringIO.new('testing'))
-    stm.stream = stmdata
-    assert_equal('testing', stm.stream)
-    assert_equal(Encoding::BINARY, stm.stream.encoding)
-
-    assert_raises(HexaPDF::Error) { stm.stream = 5 }
-  end
-
-  def decoder_data(str)
+  def encoded_data(str, encoders = [])
+    map = HexaPDF::Document.initial_config['filter.map']
     tmp = feeder(str)
-    tmp = HexaPDF::PDF::Filter::ASCII85Decode.encoder(tmp)
-    HexaPDF::PDF::Filter::ASCIIHexDecode.encoder(tmp)
+    encoders.each {|e| tmp = ::Object.const_get(map[e]).encoder(tmp)}
+    tmp
   end
 
-  def test_stream_decoder
-    stm = HexaPDF::PDF::Stream.new(@document, {})
+  describe "stream_decoder" do
+    it "works with a string stream" do
+      @stm.stream = 'testing'
+      result = collector(@stm.stream_decoder)
+      assert_equal('testing', result)
+      assert_equal(Encoding::BINARY, result.encoding)
+    end
 
-    stm.stream = 'testing'
-    assert_equal('testing', collector(stm.stream_decoder))
+    it "works with an IO object inside StreamData" do
+      io = StringIO.new(collector(encoded_data('testing', [:A85, :AHx])))
+      @stm.stream = HexaPDF::PDF::StreamData.new(io, filter: [:AHx, :A85])
+      assert_equal('testing', collector(@stm.stream_decoder))
+    end
 
-    stm.stream = HexaPDF::PDF::StreamData.new(StringIO.new(collector(decoder_data('testing'))), filter: [:AHx, :A85])
-    assert_equal('testing', collector(stm.stream_decoder))
+    it "works with a Fiber object inside StreamData" do
+      @stm.stream = HexaPDF::PDF::StreamData.new(encoded_data('testing', [:A85, :AHx]), filter: [:AHx, :A85])
+      assert_equal('testing', collector(@stm.stream_decoder))
+    end
 
-    stm.stream = HexaPDF::PDF::StreamData.new(decoder_data('testing'), filter: [:AHx, :A85])
-    assert_equal('testing', collector(stm.stream_decoder))
-
-    stm.stream = HexaPDF::PDF::StreamData.new(feeder('testing'), filter: [:Unknown])
-    assert_raises(HexaPDF::Error) { stm.stream_decoder }
+    it "fails if an unknown filter name is used" do
+      @stm.stream = HexaPDF::PDF::StreamData.new(feeder('testing'), filter: [:Unknown])
+      assert_raises(HexaPDF::Error) { @stm.stream_decoder }
+    end
   end
 
-  def test_stream_encoder
-    stm = HexaPDF::PDF::Stream.new(@document, {Filter: [:AHx]})
-    stm.stream = 'test'
-    assert_equal('74657374>', collector(stm.stream_encoder))
+  describe "stream_encoder" do
+    it "uses the :Filter and :DecodeParms entries of the value attribute correctly" do
+      @stm.value[:Filter] = nil
+      @stm.stream = 'test'
+      assert_equal('test', collector(@stm.stream_encoder))
 
-    stm = HexaPDF::PDF::Stream.new(@document, {Filter: [:AHx]})
-    stm.stream = HexaPDF::PDF::StreamData.new(decoder_data('test'), filter: [:AHx, :A85])
-    assert_equal('74657374>', collector(stm.stream_encoder))
+      @stm.value[:Filter] = :AHx
+      @stm.stream = 'test'
+      assert_equal('74657374>', collector(@stm.stream_encoder))
 
-    @document.config['filter.map'][:A85] = self.class.name
-    stm = HexaPDF::PDF::Stream.new(@document, {Filter: [:A85]})
-    stm.stream = HexaPDF::PDF::StreamData.new(decoder_data('test'), filter: [:AHx, :A85])
-    assert_equal(collector(HexaPDF::PDF::Filter::ASCII85Decode.encoder(feeder('test'))),
-                 collector(stm.stream_encoder))
+      @stm.value[:Filter] = [:AHx, :Fl]
+      @stm.value[:DecodeParms] = nil
+      @stm.stream = 'abcdefg'
+      assert_equal("78da4b4c4a4e494d4b07000adb02bd>", collector(@stm.stream_encoder))
+
+      @stm.value[:Filter] = [:AHx, :Fl]
+      @stm.value[:DecodeParms] = [nil, {Predictor: 12}]
+      @stm.stream = 'abcdefg'
+      assert_equal("78da634a6462444000058f0076>", collector(@stm.stream_encoder))
+
+      @stm.value[:Filter] = [:AHx, :Fl]
+      @stm.value[:DecodeParms] = [nil, {Predictor: 10}]
+      @stm.stream = 'abcdefg'
+      assert_equal("78da6348644862486648614865486348070012fa02bd>", collector(@stm.stream_encoder))
+    end
+
+    it "decodes a StreamData stream before encoding" do
+      @stm.value[:Filter] = :AHx
+      @stm.stream = HexaPDF::PDF::StreamData.new(encoded_data('test', [:A85, :AHx]), filter: [:AHx, :A85])
+      assert_equal('74657374>', collector(@stm.stream_encoder))
+    end
+
+    it "decodes only what is necessary of a StreamData stream on encoding" do
+      @document.config['filter.map'][:AHx] = nil
+
+      @stm.value[:Filter] = :AHx
+      @stm.stream = HexaPDF::PDF::StreamData.new(encoded_data('test', [:AHx, :A85]), filter: [:A85, :AHx])
+      assert_equal('74657374>', collector(@stm.stream_encoder))
+
+      @stm.value[:Filter] = [:AHx, :AHx]
+      fiber = encoded_data('test', [:AHx, :AHx])
+      @stm.stream = HexaPDF::PDF::StreamData.new(fiber, filter: [:AHx, :AHx])
+      assert_equal(fiber, @stm.stream_encoder)
+    end
   end
 
 end

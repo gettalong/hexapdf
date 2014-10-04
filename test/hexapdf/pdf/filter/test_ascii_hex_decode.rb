@@ -2,38 +2,34 @@
 
 require 'test_helper'
 require 'hexapdf/pdf/filter/ascii_hex_decode'
-require 'stringio'
 
-class PDFFilterAsciiHexDecodeTest < Minitest::Test
+describe HexaPDF::PDF::Filter::ASCIIHexDecode do
 
-  include TestHelper
-  include FilterHelper
+  include StandardFilterTests
 
-  def setup
+  before do
     @obj = HexaPDF::PDF::Filter::ASCIIHexDecode
+    @all_test_cases = [['Nov shmoz ka pop.', '4e6f762073686d6f7a206b6120706f702e>']]
+    @decoded = @all_test_cases[0][0]
+    @encoded = @all_test_cases[0][1]
   end
 
-  def test_decoder
-    str = '4E6F762073 686D6F7A20	6B612070 6F702E'
-    result = 'Nov shmoz ka pop.'
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup))))
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup, 1))))
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup + '>', 5))))
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup + '>4e6f76', 5))))
+  describe "decoder" do
+    it "ignores whitespace in the input" do
+      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded.scan(/./).map {|a| "#{a} \r\t"}.join("\n"), 1))))
+    end
 
-    str = '4E6F762073 686D6F7A20	6B612070 6F702E7'
-    result = 'Nov shmoz ka pop.p'
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup))))
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup, 1))))
+    it "works without the EOD marker" do
+      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded.chop, 5))))
+    end
 
-    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('f0f0z')).resume }
-  end
+    it "ignores data after the EOD marker" do
+      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded + '4e6f7gzz'))))
+    end
 
-  def test_encoder
-    str = 'Nov shmoz ka pop.'
-    result = '4e6f762073686d6f7a206b6120706f702e>'
-    assert_equal(result, collector(@obj.encoder(feeder(str.dup))))
-    assert_equal(result, collector(@obj.encoder(feeder(str.dup, 1))))
+    it "fails on invalid characters" do
+      assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('f0f0z')).resume }
+    end
   end
 
 end

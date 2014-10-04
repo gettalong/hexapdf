@@ -2,52 +2,60 @@
 
 require 'test_helper'
 require 'hexapdf/pdf/filter/ascii85_decode'
-require 'stringio'
 
-class PDFFilterAscii85DecodeTest < Minitest::Test
+describe HexaPDF::PDF::Filter::ASCII85Decode do
 
-  include TestHelper
-  include FilterHelper
+  include StandardFilterTests
 
-  def setup
+  before do
     @obj = HexaPDF::PDF::Filter::ASCII85Decode
+    @all_test_cases ||= [['Nov shmoz ka pop.', ':2b:uF(fE/H6@!3+E27</c~>'],
+     ['Nov shmoz ka pop.1', ':2b:uF(fE/H6@!3+E27</hm~>'],
+     ['Nov shmoz ka pop.12', ':2b:uF(fE/H6@!3+E27</ho*~>'],
+     ['Nov shmoz ka pop.123', ':2b:uF(fE/H6@!3+E27</ho+;~>'],
+     ["\0\0\0\0Nov shmoz ka pop.", 'z:2b:uF(fE/H6@!3+E27</c~>'],
+     ["Nov \x0\x0\x0\x0shmoz ka pop.", ':2b:uzF(fE/H6@!3+E27</c~>']
+    ]
+    @decoded = @all_test_cases[0][0]
+    @encoded = @all_test_cases[0][1]
   end
 
-  TESTCASES = [['Nov shmoz ka pop.', ':2b:uF(fE/H6@!3+E27</c~>'],
-               ['Nov shmoz ka pop.1', ':2b:uF(fE/H6@!3+E27</hm~>'],
-               ['Nov shmoz ka pop.12', ':2b:uF(fE/H6@!3+E27</ho*~>'],
-               ['Nov shmoz ka pop.123', ':2b:uF(fE/H6@!3+E27</ho+;~>'],
-               ["\0\0\0\0Nov shmoz ka pop.", 'z:2b:uF(fE/H6@!3+E27</c~>'],
-               ["Nov \x0\x0\x0\x0shmoz ka pop.", ':2b:uzF(fE/H6@!3+E27</c~>']
-               ]
-
-  def test_decoder
-    TESTCASES.each_with_index do |(result, str), index|
-      assert_equal(result, collector(@obj.decoder(feeder(str.dup))), "testcase #{index}")
+  describe "decoder" do
+    it "works with single byte input on specially crated input" do
+      assert_equal("Nov \0\0\0", collector(@obj.decoder(feeder(':2b:u!!!!~>', 1))))
     end
 
-    str = TESTCASES[0][1]
-    result = TESTCASES[0][0]
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup, 1))))
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup.sub!(/~>/, '')))))
-    assert_equal(result, collector(@obj.decoder(feeder(str.dup + "~>abcdefg"))))
-
-    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder(':2bwx!')).resume }
-    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('uuuuu')).resume }
-    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('uuzuu')).resume }
-    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('uuz')).resume }
-    assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('t')).resume }
-  end
-
-  def test_encoder
-    TESTCASES.each do |str, result|
-      assert_equal(result, collector(@obj.encoder(feeder(str.dup))))
+    it "ignores whitespace in the input" do
+      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded.dup.scan(/./).map {|a| "#{a} \r\t"}.join("\n")))))
     end
 
-    str = TESTCASES[0][0]
-    result = TESTCASES[0][1]
-    assert_equal(result, collector(@obj.encoder(feeder(str.dup))))
-    assert_equal(result, collector(@obj.encoder(feeder(str.dup, 1))))
+    it "works without the EOD marker" do
+      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded.sub(/~>/, '')))))
+    end
+
+    it "ignores data after the EOD marker" do
+      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded.dup + "~>abcdefg"))))
+    end
+
+    it "fails if the input contains invalid characters" do
+      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder(':2bwx!'))) }
+    end
+
+    it "fails if the input contains values outside the BASE85 range" do
+      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder('uuuuu'))) }
+    end
+
+    it "fails if the last rest contains a 'z' character" do
+      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder('uuz'))) }
+    end
+
+    it "fails if the last rest contains a '~' character" do
+      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder('uu~'))) }
+    end
+
+    it "fails if the last rest contains values outside the BASE85 range" do
+      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder('uuu>', 1))) }
+    end
   end
 
 end
