@@ -99,7 +99,7 @@ module HexaPDF
               rest = (rlen != 0 ? data.slice!(-rlen, rlen) : nil)
               next if data.length < 4
 
-              data = data.unpack('N*').inject('') do |memo, num|
+              data = data.unpack('N*').inject(''.force_encoding(Encoding::BINARY)) do |memo, num|
                 memo << if num == 0
                           'z'
                         else
@@ -115,11 +115,11 @@ module HexaPDF
             if rest
               rlen = rest.length
               num = (rest + "\0" * (4 - rlen)).unpack('N').first
-              (VALUE_TO_CHAR[num / POW85_4 % 85] + VALUE_TO_CHAR[num / POW85_3 % 85] <<
+              ((VALUE_TO_CHAR[num / POW85_4 % 85] + VALUE_TO_CHAR[num / POW85_3 % 85] <<
                VALUE_TO_CHAR[num / POW85_2 % 85] << VALUE_TO_CHAR[num / POW85_1 % 85] <<
-               VALUE_TO_CHAR[num % 85])[0, rlen + 1] << "~>"
+               VALUE_TO_CHAR[num % 85])[0, rlen + 1] << "~>").force_encoding(Encoding::BINARY)
             else
-              "~>"
+              "~>".force_encoding(Encoding::BINARY)
             end
           end
         end

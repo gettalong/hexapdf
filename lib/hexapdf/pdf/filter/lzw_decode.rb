@@ -27,7 +27,7 @@ module HexaPDF
         INITIAL_ENCODER_TABLE[EOD] = EOD
 
         INITIAL_DECODER_TABLE = {} #:nodoc:
-        0.upto(255) {|i| INITIAL_DECODER_TABLE[i] = i.chr}
+        0.upto(255) {|i| INITIAL_DECODER_TABLE[i] = i.chr.force_encoding(Encoding::BINARY)}
         INITIAL_DECODER_TABLE[CLEAR_TABLE] = CLEAR_TABLE
         INITIAL_DECODER_TABLE[EOD] = EOD
 

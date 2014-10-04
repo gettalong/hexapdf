@@ -169,7 +169,7 @@ module HexaPDF
             end
 
             encode_row = lambda do |result|
-              line = predictor.chr << data[pos, bytes_per_row]
+              line = predictor.chr.force_encoding(Encoding::BINARY) << data[pos, bytes_per_row]
               next_last_line = line.dup
 
               case predictor

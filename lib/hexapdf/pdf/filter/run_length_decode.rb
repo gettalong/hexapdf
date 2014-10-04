@@ -19,7 +19,7 @@ module HexaPDF
         def self.decoder(source, _ = nil)
           Fiber.new do
             i = 0
-            result = ''
+            result = ''.force_encoding(Encoding::BINARY)
             data = source.resume
             while data && i < data.length
               length = data.getbyte(i)
@@ -37,7 +37,7 @@ module HexaPDF
                   raise MalformedPDFError, "Missing data for run length encoded stream"
                 end
                 i = 0
-                result = ''
+                result = ''.force_encoding(Encoding::BINARY)
               else # EOD reached
                 break
               end
@@ -45,7 +45,7 @@ module HexaPDF
               if i == data.length && source.alive? && data = source.resume
                 Fiber.yield(result)
                 i = 0
-                result = ''
+                result = ''.force_encoding(Encoding::BINARY)
               end
             end
             result unless result.empty?
@@ -56,7 +56,7 @@ module HexaPDF
         def self.encoder(source, _ = nil)
           Fiber.new do
             while source.alive? && (data = source.resume)
-              result = ''
+              result = ''.force_encoding(Encoding::BINARY)
               strscan = StringScanner.new(data)
               while !strscan.eos?
                 if strscan.scan(/(.)\1{1,127}/m) # a run of <= 128 same characters
