@@ -29,7 +29,7 @@ module HexaPDF
 
               data = rest << data if rest
 
-              if data.bytesize.odd?
+              if data.size.odd?
                 rest = data.slice!(-1, 1)
               else
                 rest = nil
