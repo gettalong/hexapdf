@@ -33,8 +33,8 @@ module HexaPDF
       # Returns an array containing [object, oid, gen, stream].
       #
       # See: PDF1.7 s7.3.10, s7.3.8
-      def parse_indirect_object(offset = @tokenizer.pos)
-        @tokenizer.pos = offset + @header_offset
+      def parse_indirect_object(offset = nil)
+        @tokenizer.pos = offset + @header_offset if offset
         oid = @tokenizer.next_token
         gen = @tokenizer.next_token
         tok = @tokenizer.next_token
