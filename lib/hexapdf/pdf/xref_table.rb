@@ -55,7 +55,7 @@ module HexaPDF
       #
       # See: ADB1.7 sH.3-3.4.3
       def []=(oid, gen = 0, data)
-        unless has_entry?(oid)
+        unless entry?(oid)
           @oids[oid] = true
           @table[[oid, gen]] = data
         end
@@ -64,8 +64,8 @@ module HexaPDF
       # Return +true+ if the table has an entry for the given object number.
       #
       # Note: A single table may only contain information on objects with unique object numbers!
-      def has_entry?(oid)
-        @oids.has_key?(oid)
+      def entry?(oid)
+        @oids.key?(oid)
       end
 
     end

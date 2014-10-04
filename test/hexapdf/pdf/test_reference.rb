@@ -24,8 +24,8 @@ describe HexaPDF::PDF::Reference do
   it "behaves correctly as hash key" do
     h = {}
     h[HexaPDF::PDF::Reference.new(5, 7)] = true
-    assert(h.has_key?(HexaPDF::PDF::Reference.new(5, 7)))
-    refute(h.has_key?(HexaPDF::PDF::Reference.new(5, 8)))
+    assert(h.key?(HexaPDF::PDF::Reference.new(5, 7)))
+    refute(h.key?(HexaPDF::PDF::Reference.new(5, 8)))
   end
 
   it "shows oid and gen on inspection" do

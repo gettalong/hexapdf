@@ -46,7 +46,7 @@ module HexaPDF
       def [](ref, gen = 0)
         ref = Reference.new(ref, gen) if !ref.kind_of?(Reference)
 
-        if @objects.has_key?(ref)
+        if @objects.key?(ref)
           @objects[ref]
         elsif (data = xref_entry(ref.oid, ref.gen))
           if data != XRefTable::FREE_ENTRY && data != XRefTable::NOT_FOUND

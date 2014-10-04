@@ -70,17 +70,17 @@ module HexaPDF
                   code_length = 9
                   table = INITIAL_DECODER_TABLE.dup
                 elsif last_code == CLEAR_TABLE
-                  unless table.has_key?(code)
+                  unless table.key?(code)
                     raise HexaPDF::MalformedPDFError, "Unknown code in LZW encoded stream found"
                   end
                   result << table[code]
                 else
-                  unless table.has_key?(last_code)
+                  unless table.key?(last_code)
                     raise HexaPDF::MalformedPDFError, "Unknown code in LZW encoded stream found"
                   end
                   last_str = table[last_code]
 
-                  str = if table.has_key?(code)
+                  str = if table.key?(code)
                           table[code]
                         else
                           last_str + last_str[0]
@@ -123,7 +123,7 @@ module HexaPDF
             while source.alive? && (data = source.resume)
               data.each_char do |char|
                 newstr = str + char
-                if table.has_key?(newstr)
+                if table.key?(newstr)
                   str = newstr
                 else
                   result << stream.write(table[str], code_length)
