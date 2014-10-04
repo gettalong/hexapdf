@@ -112,8 +112,9 @@ module HexaPDF
 
       # Return the encoder Fiber for the stream data.
       def stream_encoder
-        encoder_data = [document.store.deref!(value[:Filter])].flatten.compact.
-          zip([document.store.deref!(value[:DecodeParms])].flatten.compact)
+        encoder_data = [document.store.deref!(value[:Filter])].flatten.
+          zip([document.store.deref!(value[:DecodeParms])].flatten).
+          delete_if {|f, d| f.nil? && d.nil?}
         source = stream_source
 
         if @stream.kind_of?(StreamData)
