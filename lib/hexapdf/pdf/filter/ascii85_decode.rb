@@ -47,8 +47,8 @@ module HexaPDF
 
               result = []
               scanner = StringScanner.new(data)
-              while !scanner.eos?
-                if m = scanner.scan(/[!-u]{5}/)
+              until scanner.eos?
+                if (m = scanner.scan(/[!-u]{5}/))
                   num = (CHAR_TO_VALUE[m[0]] * POW85_4 + CHAR_TO_VALUE[m[1]] * POW85_3 +
                          CHAR_TO_VALUE[m[2]] * POW85_2 + CHAR_TO_VALUE[m[3]] * POW85_1 +
                          CHAR_TO_VALUE[m[4]])

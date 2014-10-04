@@ -69,7 +69,7 @@ module HexaPDF
             pos = 0
 
             decode_row = lambda do |result, reader|
-              last_components = [0]*colors
+              last_components = [0] * colors
               (columns * colors).times do |i|
                 i %= colors
                 tmp = (reader.read(bits_per_component) + last_components[i]) & mask
@@ -80,7 +80,7 @@ module HexaPDF
             end
 
             encode_row = lambda do |result, reader|
-              last_components = [0]*colors
+              last_components = [0] * colors
               (columns * colors).times do |i|
                 i %= colors
                 tmp = reader.read(bits_per_component)

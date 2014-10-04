@@ -54,16 +54,16 @@ module HexaPDF
 
         # Fill the bit cache so that at least 16bit are available (if possible).
         def fill_bit_cache
-          if @pos != @data.size && @available_bits <= 16
-            l = case @data.size - @pos
-                when FOUR_TO_INFINITY then 4
-                when 2, 3 then 2
-                else 1
-                end
-            @bit_cache = (@bit_cache << 8*l ) | @data[@pos, l].unpack(LENGTH_TO_TYPE[l]).first
-            @pos += l
-            @available_bits += 8*l
-          end
+          return unless @pos != @data.size && @available_bits <= 16
+
+          l = case @data.size - @pos
+              when FOUR_TO_INFINITY then 4
+              when 2, 3 then 2
+              else 1
+              end
+          @bit_cache = (@bit_cache << 8 * l) | @data[@pos, l].unpack(LENGTH_TO_TYPE[l]).first
+          @pos += l
+          @available_bits += 8 * l
         end
 
       end

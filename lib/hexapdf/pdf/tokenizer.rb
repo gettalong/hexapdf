@@ -148,8 +148,8 @@ module HexaPDF
         when '[', ']', '{', '}'
           Token.new(byte)
         when '%' # start of comment, until end of line
-          while !@ss.skip_until(/(?=[\r\n])/)
-            return NO_MORE_TOKENS if !prepare_string_scanner
+          until @ss.skip_until(/(?=[\r\n])/)
+            return NO_MORE_TOKENS unless prepare_string_scanner
           end
           parse_token
         when nil # we reached the end of the file
@@ -217,7 +217,7 @@ module HexaPDF
           when '\\'
             str.slice!(-1, 1)
             byte = @ss.get_byte
-            if data = LITERAL_STRING_ESCAPE_MAP[byte]
+            if (data = LITERAL_STRING_ESCAPE_MAP[byte])
               str << data
             elsif byte == "\r" || byte == "\n"
               @ss.pos += 1 if byte == "\r" && @ss.peek(1) == "\n"
@@ -253,7 +253,7 @@ module HexaPDF
       # See: PDF1.7 s7.3.5
       def parse_name
         str = scan_until_with_eof_check(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
-        str.gsub!(/#[A-Fa-f0-9]{2}/) {|m| m[1,2].hex.chr }
+        str.gsub!(/#[A-Fa-f0-9]{2}/) {|m| m[1, 2].hex.chr }
         str.to_sym
       end
 
@@ -285,7 +285,7 @@ module HexaPDF
       # If the end of the file is reached in the process, +nil+ is returned. Otherwise the matched
       # string is returned.
       def scan_until_with_eof_check(re)
-        while !(data = @ss.scan_until(re))
+        until (data = @ss.scan_until(re))
           return nil unless prepare_string_scanner
         end
         data

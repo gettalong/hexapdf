@@ -42,7 +42,7 @@ module HexaPDF
                 break
               end
 
-              if i == data.length && source.alive? && data = source.resume
+              if i == data.length && source.alive? && (data = source.resume)
                 Fiber.yield(result)
                 i = 0
                 result = ''.force_encoding(Encoding::BINARY)
@@ -58,7 +58,7 @@ module HexaPDF
             while source.alive? && (data = source.resume)
               result = ''.force_encoding(Encoding::BINARY)
               strscan = StringScanner.new(data)
-              while !strscan.eos?
+              until strscan.eos?
                 if strscan.scan(/(.)\1{1,127}/m) # a run of <= 128 same characters
                   result << (257 - strscan.matched_size).chr << strscan[1]
                 else # a run of characters until two same characters or length > 128

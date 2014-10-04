@@ -44,7 +44,7 @@ module HexaPDF
       # See: Reference, IndirectObject
       # See: PDF1.7 s7.3.9
       def [](ref, gen = 0)
-        ref = Reference.new(ref, gen) if !ref.kind_of?(Reference)
+        ref = Reference.new(ref, gen) unless ref.kind_of?(Reference)
 
         if @objects.key?(ref)
           @objects[ref]
@@ -74,7 +74,7 @@ module HexaPDF
       def deref!(obj)
         case obj = deref(obj)
         when Hash
-          obj.inject({}) {|memo, (key,val)| memo[key] = deref!(val)}
+          obj.inject({}) {|memo, (key, val)| memo[key] = deref!(val)}
         when Array
           obj.map {|o| deref!(o)}
         when HexaPDF::PDF::Object
@@ -122,7 +122,7 @@ module HexaPDF
           result = @xref_tables[i][oid, gen]
           break if result != XRefTable::NOT_FOUND
 
-          load_xref_tables(i) if !@loaded_xref_tables[@xref_tables[i]]
+          load_xref_tables(i) unless @loaded_xref_tables.key?(@xref_tables[i])
           i += 1
         end
 
