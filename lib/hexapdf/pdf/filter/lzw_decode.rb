@@ -39,7 +39,7 @@ module HexaPDF
             table = INITIAL_DECODER_TABLE.dup
 
             stream = HexaPDF::PDF::Utils::BitStreamReader.new
-            result = ''.force_encoding('BINARY')
+            result = ''.force_encoding(Encoding::BINARY)
             finished = false
             last_code = CLEAR_TABLE
 
@@ -93,7 +93,7 @@ module HexaPDF
               end
 
               Fiber.yield(result)
-              result = ''.force_encoding('BINARY')
+              result = ''.force_encoding(Encoding::BINARY)
             end
           end
 
@@ -118,7 +118,7 @@ module HexaPDF
             # initialize the bit stream with the clear-table marker
             stream = HexaPDF::PDF::Utils::BitStreamWriter.new
             result = stream.write(CLEAR_TABLE, 9)
-            str = ''.force_encoding('BINARY')
+            str = ''.force_encoding(Encoding::BINARY)
 
             while source.alive? && (data = source.resume)
               data.each_char do |char|
@@ -144,7 +144,7 @@ module HexaPDF
               end
 
               Fiber.yield(result)
-              result = ''.force_encoding('BINARY')
+              result = ''.force_encoding(Encoding::BINARY)
             end
 
             result = stream.write(table[str], code_length)

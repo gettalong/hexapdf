@@ -32,7 +32,7 @@ module HexaPDF
       # Create a new tokenizer.
       def initialize(io)
         @io = io
-        @ss = StringScanner.new(''.force_encoding('BINARY'))
+        @ss = StringScanner.new(''.force_encoding(Encoding::BINARY))
         @original_pos = -1
         self.pos = 0
       end
@@ -138,13 +138,13 @@ module HexaPDF
             parse_hex_string
           else
             @ss.pos += 1
-            Token.new('<<'.force_encoding('BINARY'))
+            Token.new('<<'.force_encoding(Encoding::BINARY))
           end
         when '>'
           unless @ss.get_byte == '>'
             raise HexaPDF::MalformedPDFError.new("Delimiter '>' found at invalid position", pos)
           end
-          Token.new('>>'.force_encoding('BINARY'))
+          Token.new('>>'.force_encoding(Encoding::BINARY))
         when '[', ']', '{', '}'
           Token.new(byte)
         when '%' # start of comment, until end of line
@@ -197,7 +197,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.3.4.2
       def parse_literal_string
-        str = "".force_encoding('BINARY')
+        str = "".force_encoding(Encoding::BINARY)
         parentheses = 1
 
         while parentheses != 0

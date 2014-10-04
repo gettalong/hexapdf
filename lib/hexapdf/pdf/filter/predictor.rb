@@ -64,7 +64,7 @@ module HexaPDF
             bytes_per_row = (columns * bits_per_component * colors + 7) / 8
             mask = (1 << bits_per_component) - 1
 
-            data = ''.force_encoding('BINARY')
+            data = ''.force_encoding(Encoding::BINARY)
             writer = HexaPDF::PDF::Utils::BitStreamWriter.new
             pos = 0
 
@@ -96,7 +96,7 @@ module HexaPDF
               data.slice!(0...pos)
               data << new_data
 
-              result = ''.force_encoding('BINARY')
+              result = ''.force_encoding(Encoding::BINARY)
               pos = 0
 
               while pos + bytes_per_row <= data.length
@@ -124,8 +124,8 @@ module HexaPDF
             # Only on encoding: Arbitrarily choose a predictor if we should choose the optimum
             predictor = predictor == 15 ? PREDICTOR_PNG_PAETH : predictor - 10
 
-            data = ''.force_encoding('BINARY')
-            last_line = "\0".force_encoding('BINARY') * (bytes_per_row + 1)
+            data = ''.force_encoding(Encoding::BINARY)
+            last_line = "\0".force_encoding(Encoding::BINARY) * (bytes_per_row + 1)
             pos = 0
 
             decode_row = lambda do |result|
@@ -215,7 +215,7 @@ module HexaPDF
               data.slice!(0...pos)
               data << new_data
 
-              result = ''.force_encoding('BINARY')
+              result = ''.force_encoding(Encoding::BINARY)
               pos = 0
 
               while pos + bytes_per_row <= data.length
