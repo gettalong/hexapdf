@@ -45,8 +45,8 @@ EOF
 
   def unwrap(obj)
     return obj unless obj.kind_of?(HexaPDF::PDF::Reference)
-    table = @parser.parse_xref_table(@parser.startxref_offset)
-    @parser.parse_indirect_object(table[obj.oid, obj.gen]).first
+    table, _ = @parser.parse_xref_table_and_trailer(@parser.startxref_offset)
+    @parser.parse_indirect_object(table[obj.oid, obj.gen].pos).first
   end
 
   describe "parse_indirect_object" do
@@ -163,39 +163,39 @@ EOF
     refute(@parser.xref_table?(53))
   end
 
-  describe "parse_xref_table" do
-    it "works on a with multiple sub sections" do
-      table = @parser.parse_xref_table(@parser.startxref_offset)
-      assert_equal({Test: 'now'}, table.trailer)
+  describe "parse_xref_table_and_trailer" do
+    it "works on a table with multiple sub sections" do
+      table, trailer = @parser.parse_xref_table_and_trailer(@parser.startxref_offset)
+      assert_equal({Test: 'now'}, trailer)
       assert_equal(HexaPDF::PDF::XRefTable::FREE_ENTRY, table[0, 65535])
       assert_equal(HexaPDF::PDF::XRefTable::FREE_ENTRY, table[3, 65535])
-      assert_equal(10, table[1])
+      assert_equal(HexaPDF::PDF::XRefTable::Entry.new(:used, 10), table[1])
     end
 
     it "works for an empty table" do
       set_string("xref\n0 0\ntrailer\n<</Name /Value >>\n")
-      table = @parser.parse_xref_table(0)
-      assert_equal({Name: :Value}, table.trailer)
+      _, trailer = @parser.parse_xref_table_and_trailer(0)
+      assert_equal({Name: :Value}, trailer)
     end
 
     it "fails if the xref keyword is missing/mangled" do
       set_string("xTEf\n0 d\n0000000000 00000 n \ntrailer\n<< >>\n")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table(0) }
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table_and_trailer(0) }
     end
 
     it "fails if a sub section header is mangled" do
       set_string("xref\n0 d\n0000000000 00000 n \ntrailer\n<< >>\n")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table(0) }
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table_and_trailer(0) }
     end
 
     it "fails if there is no trailer" do
       set_string("xref\n0 1\n0000000000 00000 n \n")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table(0) }
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table_and_trailer(0) }
     end
 
     it "fails if the trailer is not a PDF dictionary" do
       set_string("xref\n0 1\n0000000000 00000 n \ntrailer\n(base)")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table(0) }
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table_and_trailer(0) }
     end
   end
 

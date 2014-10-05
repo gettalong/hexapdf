@@ -1,70 +1,52 @@
 # -*- encoding: utf-8 -*-
 
+require 'hexapdf/pdf/utils/object_hash'
+
 module HexaPDF
   module PDF
 
-    # Manages the indirect objects of one cross-reference table or stream as well as the associated
-    # trailer.
+    # Manages the indirect objects of one cross-reference table or stream.
     #
     # A PDF file can have more than one cross-reference table or stream which are all daisy-chained
     # together. This allows later tables to override entries in prior ones. This is automatically
-    # and transparently done.
+    # and transparently done by HexaPDF.
     #
     # Note that a cross-reference table may contain a single object number only once.
     #
+    # See: Revision
     # See: PDF1.7 s7.5.4, s7.5.8
-    class XRefTable
+    class XRefTable < Utils::ObjectHash
 
-      # The value if a requested object could not be found.
-      NOT_FOUND = ::Object.new
+      # One entry of a cross-reference table or stream.
+      #
+      # An entry has the attributes +type+, +pos+ and +objstm+ and can be created like this:
+      #
+      #   Entry.new(type, pos, objstm)   -> entry
+      #
+      # The +type+ attribute can be:
+      #
+      # :free:: Denotes a free entry.
+      #
+      # :used:: A used entry that resides in the body of the PDF file. The +pos+ attribute defines
+      #         the position in the file at which the object can be found.
+      #
+      # :compressed:: A used entry that resides in an object stream. The +objstm+ attribute contains
+      #               the object stream in which the object can be found and the +pos+ attribute
+      #               contains the index into the object stream.
+      #
+      # See: PDF1.7 s7.5.4, s7.5.8
+      Entry = Struct.new(:type, :pos, :objstm)
 
       # Represents a free entry in the cross-reference table.
-      FREE_ENTRY = ::Object.new
+      FREE_ENTRY = Entry.new(:free)
 
-      # The trailer dictionary associated with this cross-reference table.
-      attr_accessor :trailer
-
-      # Create a new cross-reference table.
-      def initialize
-        @table = {}
-        @trailer = {}
-        @oids = {}
-      end
-
-      # Return information for loading the object with the given object and generation numbers.
-      #
-      # The returned data is either an integer specifying the byte position in the PDF file where
-      # the indirect object resides or an array of type [Reference, Integer] specifying the index
-      # into the object stream.
-      #
-      # If an object could not be found in this table, +NOT_FOUND+ is returned. If +FREE_ENTRY+ is
-      # returned, it means that the object is currently not associated with any value and free for
-      # possible re-use (but which shouldn't be done anymore).
-      def [](oid, gen = 0)
-        @table.fetch([oid, gen], NOT_FOUND)
-      end
-
-      # Set the loading information for the object with the given object and generation numbers.
-      #
-      # If an entry with a given object number already exists, another entry is not added as per
-      # Adobe's implementation notes.
-      #
-      # The +data+ parameter can either be an integer pointing to the byte position of the object,
-      # an array of type [Reference, Integer] specifying the index of the object inside an object
-      # stream, or +FREE_ENTRY+ for a free cross-reference entry.
-      #
-      # See: ADB1.7 sH.3-3.4.3
-      def []=(oid, gen = 0, data)
-        return if entry?(oid)
-        @oids[oid] = true
-        @table[[oid, gen]] = data
-      end
-
-      # Return +true+ if the table has an entry for the given object number.
-      #
-      # Note: A single table may only contain information on objects with unique object numbers!
-      def entry?(oid)
-        @oids.key?(oid)
+      # Create a cross-reference entry. See Entry for details on the parameters.
+      def self.entry(type, pos: nil, objstm: nil)
+        if type == :free
+          FREE_ENTRY
+        else
+          Entry.new(type, pos, objstm)
+        end
       end
 
     end

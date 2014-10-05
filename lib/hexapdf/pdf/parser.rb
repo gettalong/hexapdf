@@ -87,12 +87,13 @@ module HexaPDF
         token.kind_of?(Tokenizer::Token) && token == 'xref'
       end
 
-      # Parse the cross-reference table at the given position and return it as XRefTable instance.
+      # Parse the cross-reference table at the given position and the following trailer and return
+      # them as an array consisting of an XRefTable instance and a hash.
       #
       # Note that this method can only parse cross-reference tables, not cross-reference streams!
       #
-      # See: PDF1.7 s7.5.4
-      def parse_xref_table(offset)
+      # See: PDF1.7 s7.5.4, s7.5.5; ADB1.7 sH.3-3.4.3
+      def parse_xref_table_and_trailer(offset)
         @tokenizer.pos = offset + @header_offset
         token = @tokenizer.next_token
         unless token.kind_of?(Tokenizer::Token) && token == 'xref'
@@ -110,10 +111,12 @@ module HexaPDF
           @tokenizer.skip_whitespace
           start.upto(start + number_of_entries - 1) do |oid|
             pos, gen, type = @tokenizer.next_xref_entry
-            if type == 'n'
-              xref[oid, gen] = pos
+            if xref.entry?(oid)
+              next
+            elsif type == 'n'
+              xref[oid, gen] = XRefTable.entry(:used, pos: pos)
             else
-              xref[oid, gen] = XRefTable::FREE_ENTRY
+              xref[oid, gen] = XRefTable.entry(:free)
             end
           end
           start = @tokenizer.next_token
@@ -127,9 +130,8 @@ module HexaPDF
         unless trailer.kind_of?(Hash)
           raise HexaPDF::MalformedPDFError.new("Trailer is not a dictionary, but a(n) #{trailer.class}", @tokenizer.pos)
         end
-        xref.trailer = trailer
 
-        xref
+        [xref, trailer]
       end
 
       # Return the offset of the main cross-reference table/stream.
