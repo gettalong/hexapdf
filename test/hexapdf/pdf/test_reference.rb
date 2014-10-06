@@ -13,6 +13,7 @@ describe HexaPDF::PDF::Reference do
 
   it "raises an error when invalid objects are supplied on initialization" do
     assert_raises(HexaPDF::Error) { HexaPDF::PDF::Reference.new(5.0, 7) }
+    assert_raises(HexaPDF::Error) { HexaPDF::PDF::Reference.new(5, 7.0) }
   end
 
   it "is comparable to itself" do

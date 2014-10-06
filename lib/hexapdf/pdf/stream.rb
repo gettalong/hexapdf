@@ -59,8 +59,12 @@ module HexaPDF
     # See: PDF1.7 s7.3.8
     class Stream < HexaPDF::PDF::Object
 
-      def initialize(document, value, stream: '', **kwargs) # :nodoc:
-        super(document, value, **kwargs)
+      # Create a new Stream object.
+      #
+      # The +stream+ keyword may be used to assign a stream to this stream object on creation (see
+      # #stream=).
+      def initialize(value, stream: nil, **kwargs)
+        super(value, **kwargs)
         unless value.kind_of?(Hash)
           raise HexaPDF::Error, "A PDF stream object needs a Dictionary value, not a #{value.class}"
         end
@@ -112,8 +116,8 @@ module HexaPDF
 
       # Return the encoder Fiber for the stream data.
       def stream_encoder
-        encoder_data = [document.store.deref!(value[:Filter])].flatten.
-          zip([document.store.deref!(value[:DecodeParms])].flatten).
+        encoder_data = [document.unwrap(value[:Filter])].flatten.
+          zip([document.unwrap(value[:DecodeParms])].flatten).
           delete_if {|f, d| f.nil? && d.nil?}
         source = stream_source
 
@@ -160,7 +164,7 @@ module HexaPDF
       #
       # See: HexaPDF::PDF::Filter
       def filter_for_name(filter_name)
-        filter_const_name = document.config['filter.map'][filter_name]
+        filter_const_name = config['filter.map'][filter_name]
         unless filter_const_name
           raise HexaPDF::Error, "Unknown stream filter '#{filter_name}' encountered"
         end

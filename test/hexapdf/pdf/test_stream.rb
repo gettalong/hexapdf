@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'ostruct'
 require 'stringio'
-require 'hexapdf/document'
+require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/stream'
 
 
@@ -47,21 +47,20 @@ describe HexaPDF::PDF::Stream do
 
   before do
     @document = OpenStruct.new
-    @document.config = HexaPDF::Document.initial_config
-    @document.store = Object.new
-    def (@document.store).deref!(obj); obj; end
+    @document.config = HexaPDF::PDF::Document.default_config
+    def (@document).unwrap(obj); obj; end
 
-    @stm = HexaPDF::PDF::Stream.new(@document, {})
+    @stm = HexaPDF::PDF::Stream.new({}, document: @document)
   end
 
   describe "initialization" do
     it "accepts the stream keyword" do
-      stm = HexaPDF::PDF::Stream.new(@document, {}, stream: 'other')
+      stm = HexaPDF::PDF::Stream.new({}, document: @document, stream: 'other')
       assert_equal('other', stm.stream)
     end
 
     it "fails if the value is not a PDF dictionary" do
-      assert_raises(HexaPDF::Error) { HexaPDF::PDF::Stream.new(@document, :Name) }
+      assert_raises(HexaPDF::Error) { HexaPDF::PDF::Stream.new(:Name) }
     end
   end
 
@@ -97,7 +96,7 @@ describe HexaPDF::PDF::Stream do
   end
 
   def encoded_data(str, encoders = [])
-    map = HexaPDF::Document.initial_config['filter.map']
+    map = HexaPDF::PDF::Document.default_config['filter.map']
     tmp = feeder(str)
     encoders.each {|e| tmp = ::Object.const_get(map[e]).encoder(tmp)}
     tmp

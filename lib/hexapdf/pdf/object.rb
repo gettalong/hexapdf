@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/pdf/reference'
+require 'hexapdf/error'
 
 module HexaPDF
   module PDF
@@ -14,7 +15,7 @@ module HexaPDF
     # represents a direct object. Otherwise the object identifier uniquely identifies this object as
     # an indirect object and can be used for referencing it (from possibly multiple places).
     #
-    # A PDF object is always connected to a PDF document, it cannot stand alone.
+    # A PDF object *should* be connected to a PDF document, otherwise some methods may not work.
     #
     # Most PDF objects in a PDF document are represented by sub classes of this class that provide
     # additional functionality.
@@ -25,33 +26,41 @@ module HexaPDF
 
       include ReferenceBehavior
 
-      # The associated document.
-      attr_reader :document
-
       # The wrapped object.
       attr_reader :value
 
+      # Set the associated PDF document.
+      attr_writer :document
 
-      # Create a new PDF object for +value+ that is associated with the given document.
-      def initialize(document, value, oid: 0, gen: 0)
-        super(oid, gen)
-        @document = document
+      # Create a new PDF object for +value+.
+      def initialize(value, document: nil, oid: 0, gen: 0)
         @value = value
+        @document = document
+        self.oid = oid
+        self.gen = gen
       end
 
-      # Make this PDF object an indirect one by assigning it the given new object and generation
-      # numbers.
+      # Return the associated PDF document.
       #
-      # This method only works if the current object number is zero, i.e. if the object is not
-      # already an indirect object.
-      def make_indirect(new_oid, new_gen = 0)
-        raise "Can't change the object or generation numbers of an indirect object" if oid != 0 #TODO e.msg
-        @oid = new_oid
-        @gen = new_gen
+      # If no document is associated, an error is raised.
+      def document
+        @document || raise(HexaPDF::Error, "No document is associated with this object (#{inspect})")
+      end
+
+      # Return +true+ if a PDF document is associated.
+      def document?
+        !@document.nil?
       end
 
       def inspect #:nodoc:
-        "#<#{self.class.name} [#{oid}, #{gen}] value=#{value.inspect} stream=#{stream.inspect}>"
+        "#<#{self.class.name} [#{oid}, #{gen}] value=#{value.inspect}>"
+      end
+
+      private
+
+      # Return the configuration object of the PDF document.
+      def config
+        document.config
       end
 
     end
