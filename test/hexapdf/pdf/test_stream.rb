@@ -67,12 +67,14 @@ describe HexaPDF::PDF::Stream do
   describe "stream=" do
     it "allows assigning nil" do
       @stm.stream = nil
+      assert_equal('', @stm.raw_stream)
       assert_equal('', @stm.stream)
       assert_equal(Encoding::BINARY, @stm.stream.encoding)
     end
 
     it "allows assigning a string" do
       @stm.stream = 'hallo'
+      assert_equal('hallo', @stm.raw_stream)
       assert_equal('hallo', @stm.stream)
     end
 
@@ -86,6 +88,7 @@ describe HexaPDF::PDF::Stream do
     it "allows assigning a StreamData object" do
       @stmdata = HexaPDF::PDF::StreamData.new(StringIO.new('testing'))
       @stm.stream = @stmdata
+      assert_equal(@stmdata, @stm.raw_stream)
       assert_equal('testing', @stm.stream)
       assert_equal(Encoding::BINARY, @stm.stream.encoding)
     end

@@ -101,6 +101,11 @@ module HexaPDF
         @stream
       end
 
+      # Return the raw stream object.
+      def raw_stream
+        @stream
+      end
+
       # Return the decoder Fiber for the stream data.
       def stream_decoder
         source = stream_source
