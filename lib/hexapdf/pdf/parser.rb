@@ -145,7 +145,7 @@ module HexaPDF
         @io.seek(-1054, IO::SEEK_END) rescue @io.seek(0)
         lines = @io.read(1054).split(/[\r\n]+/)
 
-        eof_index = lines.index {|l| l.strip == '%%EOF' }
+        eof_index = lines.rindex {|l| l.strip == '%%EOF' }
         unless eof_index
           raise HexaPDF::MalformedPDFError.new("PDF file trailer is missing end-of-file marker", @io.pos)
         end

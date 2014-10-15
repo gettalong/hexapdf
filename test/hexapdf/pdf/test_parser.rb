@@ -130,6 +130,11 @@ EOF
       assert_equal(5, @parser.startxref_offset)
     end
 
+    it "uses the last startxref if there are more than one in the last ~1000 byte" do
+      set_string("startxref\n5\n%%EOF\n\nsome garbage\n\nstartxref\n555\n%%EOF\n")
+      assert_equal(555, @parser.startxref_offset)
+    end
+
     it "fails if the %%EOF marker is missing" do
       set_string("startxref\n5")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
