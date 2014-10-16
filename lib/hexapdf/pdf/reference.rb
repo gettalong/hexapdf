@@ -10,6 +10,8 @@ module HexaPDF
     # See: Reference, HexaPDF::PDF::Object
     module ReferenceBehavior
 
+      include Comparable
+
       # Return the object number of the referenced indirect object.
       def oid
         @_oid ||= 0
@@ -34,6 +36,15 @@ module HexaPDF
           raise HexaPDF::Error, "PDF reference gen needs to be an Integer"
         end
         @_gen = gen
+      end
+
+      # Compare the Reference to the other object.
+      #
+      # If the other object is not the same kind, returns +nil+. Otherwise references are ordered
+      # first by object number and then by generation number.
+      def <=>(other)
+        return nil unless other.kind_of?(ReferenceBehavior)
+        (oid == other.oid ? gen <=> other.gen : oid <=> other.oid)
       end
 
       # Return +true+ if the other object references the same PDF object as this reference object.
