@@ -21,7 +21,7 @@ module HexaPDF
 
       attr_accessor :source, :offset, :length, :filter, :decode_parms
 
-      # Create a new StreamData object for the given +source+ and with the optional parameters.
+      # Creates a new StreamData object for the given +source+ and with the optional parameters.
       def initialize(source, offset: nil, length: nil, filter: nil, decode_parms: nil)
         @source = source
         @offset = offset
@@ -59,7 +59,7 @@ module HexaPDF
     # See: PDF1.7 s7.3.8
     class Stream < HexaPDF::PDF::Object
 
-      # Create a new Stream object.
+      # Creates a new Stream object.
       #
       # The +stream+ keyword may be used to assign a stream to this stream object on creation (see
       # #stream=).
@@ -72,13 +72,9 @@ module HexaPDF
         self.stream = stream # reassign for checking
       end
 
-      # Assign a new stream object.
+      # Assigns a new stream data object.
       #
-      # The given stream can be a StreamData object, a String object or +nil+.
-      #
-      # If +stream+ is a StreamData object and if the +stream.filter+ and +stream.decode_parms+
-      # attributes are not already set, they are automatically set to the correct values from this
-      # PDF object.
+      # The given parameter +stream+ can be a StreamData object, a String object or +nil+.
       #
       # If +stream+ is +nil+, an empty binary string is used instead.
       def stream=(stream)
@@ -90,7 +86,7 @@ module HexaPDF
         @stream = stream
       end
 
-      # Return the (possibly decoded) stream data as string.
+      # Returns the (possibly decoded) stream data as string.
       #
       # Note that after this method has been called, the original, possibly encoded stream data is
       # not available anymore!
@@ -101,12 +97,12 @@ module HexaPDF
         @stream
       end
 
-      # Return the raw stream object.
+      # Returns the raw stream object.
       def raw_stream
         @stream
       end
 
-      # Return the decoder Fiber for the stream data.
+      # Returns the decoder Fiber for the stream data.
       def stream_decoder
         source = stream_source
 
@@ -119,7 +115,7 @@ module HexaPDF
         source
       end
 
-      # Return the encoder Fiber for the stream data.
+      # Returns the encoder Fiber for the stream data.
       def stream_encoder
         encoder_data = [document.unwrap(value[:Filter])].flatten.
           zip([document.unwrap(value[:DecodeParms])].flatten).
@@ -154,7 +150,7 @@ module HexaPDF
 
       private
 
-      # Return the Fiber representing the unprocessed content of the stream.
+      # Returns the Fiber representing the unprocessed content of the stream.
       def stream_source
         if @stream.kind_of?(String)
           HexaPDF::PDF::Filter.source_from_string(@stream)
@@ -165,7 +161,7 @@ module HexaPDF
         end
       end
 
-      # Return the filter object that corresponds to the given filter name.
+      # Returns the filter object that corresponds to the given filter name.
       #
       # See: HexaPDF::PDF::Filter
       def filter_for_name(filter_name)

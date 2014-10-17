@@ -13,7 +13,7 @@ module HexaPDF
       # intialization and additional data can later be appended.
       class BitStreamReader
 
-        # Create a new object, optionally providing the string from where the bits should be read.
+        # Creates a new object, optionally providing the string from where the bits should be read.
         def initialize(data = '')
           @data = data.force_encoding(Encoding::BINARY)
           @pos = 0
@@ -21,19 +21,19 @@ module HexaPDF
           @available_bits = 0
         end
 
-        # Append some data to the string from where bits are read.
+        # Appends some data to the string from where bits are read.
         def append_data(str)
           @data = @data[@pos, @data.length - @pos] << str
           @pos = 0
         end
 
-        # Return +true+ if +bits+ number of bits can be read.
+        # Returns +true+ if +bits+ number of bits can be read.
         def read?(bits)
           fill_bit_cache
           @available_bits >= bits
         end
 
-        # Read +bits+ number of bits.
+        # Reads +bits+ number of bits.
         #
         # Raises an exception if not enough bits are available for reading.
         def read(bits)
@@ -52,7 +52,7 @@ module HexaPDF
         LENGTH_TO_TYPE = {4 => 'N', 2 => 'n', 1 => 'C'} # :nodoc:
         FOUR_TO_INFINITY = 4..Float::INFINITY # :nodoc:
 
-        # Fill the bit cache so that at least 16bit are available (if possible).
+        # Fills the bit cache so that at least 16bit are available (if possible).
         def fill_bit_cache
           return unless @pos != @data.size && @available_bits <= 16
 
@@ -83,7 +83,7 @@ module HexaPDF
           @available_bits = 0
         end
 
-        # Write the integer +int+ with a width of +bits+ to the bit stream.
+        # Writes the integer +int+ with a width of +bits+ to the bit stream.
         #
         # Returns a 16bit binary string if enough bits are available or an empty binary string
         # otherwise.
@@ -100,7 +100,7 @@ module HexaPDF
           end
         end
 
-        # Retrieve the final (zero padded) bits as a string.
+        # Retrieves the final (zero padded) bits as a string.
         def finalize
           result = [@bit_cache].pack('N')[0...(@available_bits / 8.0).ceil]
           initialize

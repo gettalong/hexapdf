@@ -27,7 +27,7 @@ module HexaPDF
       # The trailer dictionary
       attr_reader :trailer
 
-      # Create a new Revision object for the given PDF document.
+      # Creates a new Revision object for the given PDF document.
       #
       # Note that if +xref_table+ is supplied, then +trailer+ should probably also be supplied
       # because a cross-reference table/stream is always accompanied by a trailer.
@@ -42,7 +42,7 @@ module HexaPDF
       #   revision.object(ref)    -> obj or nil
       #   revision.object(oid)    -> obj or nil
       #
-      # Return the object for the given reference or object number if such an object is available in
+      # Returns the object for the given reference or object number if such an object is available in
       # this revision, or +nil+ otherwise.
       #
       # If the revision has an entry but one that is pointing to a free entry in the cross-reference
@@ -67,7 +67,7 @@ module HexaPDF
       #   revision.object?(ref)    -> true or false
       #   revision.object?(oid)    -> true or false
       #
-      # Return +true+ if the revision contains an object
+      # Returns +true+ if the revision contains an object
       #
       # * for the exact reference if the parameter is a ReferenceBehaviour object, or else
       # * for the given object number.
@@ -82,7 +82,7 @@ module HexaPDF
       # :call-seq:
       #   revision.add(obj)   -> obj
       #
-      # Add the given object (needs to be a HexaPDF::PDF::Object) to this revision and return it.
+      # Adds the given object (needs to be a HexaPDF::PDF::Object) to this revision and returns it.
       def add(obj)
         if object?(obj.oid)
           raise HexaPDF::Error, "A revision can only contain one object with a given object number"
@@ -96,7 +96,7 @@ module HexaPDF
       #   revision.delete(ref)
       #   revision.delete(oid)
       #
-      # Delete the object specified either by reference or by object number from this revision.
+      # Deletes the object specified either by reference or by object number from this revision.
       #
       # Note that this is *not* the same as marking an object with a certain object number as
       # "free"!
@@ -111,7 +111,7 @@ module HexaPDF
       #   revision.each {|obj| block }   -> revision
       #   revision.each                  -> Enumerator
       #
-      # Call the given block once for every object of the revision.
+      # Calls the given block once for every object of the revision.
       #
       # Objects that are loadable via an associated cross-reference table but are currently not, are
       # loaded automatically.
@@ -124,7 +124,7 @@ module HexaPDF
       #   revision.each_available {|obj| block }   -> revision
       #   revision.each_available                  -> Enumerator
       #
-      # Call the given block once for every available object of the revision.
+      # Calls the given block once for every available object of the revision.
       #
       # Objects that could be loaded from an associated cross-reference but which are currently not
       # loaded, are not included.
@@ -136,7 +136,7 @@ module HexaPDF
 
       private
 
-      # Load all objects from the associated cross-reference table.
+      # Loads all objects from the associated cross-reference table.
       def load_all_objects
         @xref_table && @xref_table.each do |(oid, gen), data|
           next if @objects.entry?(oid)
@@ -144,7 +144,7 @@ module HexaPDF
         end
       end
 
-      # Add the object to the available objects of this revision and return it.
+      # Adds the object to the available objects of this revision and returns it.
       def add_without_check(obj)
         @objects[obj.oid, obj.gen] = obj
       end

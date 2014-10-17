@@ -29,10 +29,10 @@ module HexaPDF
       # The wrapped object.
       attr_reader :value
 
-      # Set the associated PDF document.
+      # Sets the associated PDF document.
       attr_writer :document
 
-      # Create a new PDF object for +value+.
+      # Creates a new PDF object for +value+.
       def initialize(value, document: nil, oid: 0, gen: 0)
         @value = value
         @document = document
@@ -40,14 +40,14 @@ module HexaPDF
         self.gen = gen
       end
 
-      # Return the associated PDF document.
+      # Returns the associated PDF document.
       #
       # If no document is associated, an error is raised.
       def document
         @document || raise(HexaPDF::Error, "No document is associated with this object (#{inspect})")
       end
 
-      # Return +true+ if a PDF document is associated.
+      # Returns +true+ if a PDF document is associated.
       def document?
         !@document.nil?
       end
@@ -58,7 +58,7 @@ module HexaPDF
 
       private
 
-      # Return the configuration object of the PDF document.
+      # Returns the configuration object of the PDF document.
       def config
         document.config
       end

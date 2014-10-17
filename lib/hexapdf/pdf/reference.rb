@@ -12,12 +12,12 @@ module HexaPDF
 
       include Comparable
 
-      # Return the object number of the referenced indirect object.
+      # Returns the object number of the referenced indirect object.
       def oid
         @_oid ||= 0
       end
 
-      # Set the object number.
+      # Sets the object number.
       def oid=(oid)
         unless oid.kind_of?(Integer)
           raise HexaPDF::Error, "PDF reference oid needs to be an Integer"
@@ -25,12 +25,12 @@ module HexaPDF
         @_oid = oid
       end
 
-      # The generation number of the referenced indirect object.
+      # Returns the generation number of the referenced indirect object.
       def gen
         @_gen ||= 0
       end
 
-      # Set the generation number.
+      # Sets the generation number.
       def gen=(gen)
         unless gen.kind_of?(Integer)
           raise HexaPDF::Error, "PDF reference gen needs to be an Integer"
@@ -38,7 +38,7 @@ module HexaPDF
         @_gen = gen
       end
 
-      # Compare the Reference to the other object.
+      # Compares the ReferenceBehavior object to the other object.
       #
       # If the other object is not the same kind, returns +nil+. Otherwise references are ordered
       # first by object number and then by generation number.
@@ -47,7 +47,7 @@ module HexaPDF
         (oid == other.oid ? gen <=> other.gen : oid <=> other.oid)
       end
 
-      # Return +true+ if the other object references the same PDF object as this reference object.
+      # Returns +true+ if the other object references the same PDF object as this reference object.
       def ==(other)
         other.respond_to?(:oid) && oid == other.oid && other.respond_to?(:gen) && gen == other.gen
       end
@@ -73,7 +73,7 @@ module HexaPDF
       include ReferenceBehavior
       private(:oid=, :gen=)
 
-      # Create a new Reference with the given object and, optionally, generation numbers.
+      # Creates a new Reference with the given object number and, optionally, generation number.
       def initialize(oid, gen = 0)
         self.oid = oid
         self.gen = gen

@@ -67,7 +67,7 @@ module HexaPDF
       # The configuration for the document.
       attr_reader :config
 
-      # Create a new PDF document.
+      # Creates a new PDF document.
       #
       # Parameters:
       #
@@ -98,7 +98,7 @@ module HexaPDF
       #   doc.object(ref)           -> obj or nil
       #   doc.object(oid, gen=0)    -> obj or nil
       #
-      # Return the current version of the indirect object for the given reference or for the given
+      # Returns the current version of the indirect object for the given reference or for the given
       # object and generation numbers.
       #
       # For references to unknown objects, +nil+ is returned.
@@ -120,7 +120,7 @@ module HexaPDF
         obj
       end
 
-      # Dereference the given object.
+      # Dereferences the given object.
       #
       # Return the object itself if it is not a reference, or the indirect object specified by the
       # reference.
@@ -132,7 +132,7 @@ module HexaPDF
       #   doc.object?(ref)           -> true or false
       #   doc.object?(oid, gen=0)    -> true or false
       #
-      # Return +true+ if the the document contains an indirect object for the given reference or for
+      # Returns +true+ if the the document contains an indirect object for the given reference or for
       # the given object and generation numbers.
       #
       # *Note* that even though this method might return +true+ for some references, #object may
@@ -146,7 +146,7 @@ module HexaPDF
       # :call-seq:
       #   doc.add(obj, revision: :current)     -> indirect_object
       #
-      # Add the object to the specified revision of the document and return the wrapped indirect
+      # Adds the object to the specified revision of the document and returns the wrapped indirect
       # object.
       #
       # If +revision+ is +:current+, the current revision is used. Otherwise +revision+ should be a
@@ -188,7 +188,7 @@ module HexaPDF
       #   doc.delete(ref, revision: :all)
       #   doc.delete(oid, gen=0, revision: :all)
       #
-      # Delete the indirect object specified via a reference or object and generation numbers from
+      # Deletes the indirect object specified via a reference or object and generation numbers from
       # the document.
       #
       # The parameter +revision+ specifies from which revisions the object should be deleted:
@@ -207,7 +207,7 @@ module HexaPDF
         end
       end
 
-      # Wrap the given object inside a HexaPDF::PDF::Object class which allows one to use
+      # Wraps the given object inside a HexaPDF::PDF::Object class which allows one to use
       # convenience functions to work with the object.
       #
       # Note that the +obj+ parameter can also be a HexaPDF::PDF::Object object so that it can be
@@ -257,7 +257,7 @@ module HexaPDF
         obj
       end
 
-      # Recursively unwrap the object to get native Ruby objects (i.e. Hash, Array, Integer, ...
+      # Recursively unwraps the object to get native Ruby objects (i.e. Hash, Array, Integer, ...
       # instead of HexaPDF::PDF::Reference and HexaPDF::PDF::Object).
       def unwrap(obj)
         recurse = lambda do |object, seen|
@@ -287,7 +287,7 @@ module HexaPDF
       #   doc.each(current: true) {|obj| block }   -> doc
       #   doc.each(current: true)                  -> Enumerator
       #
-      # Call the given block once for every object in the PDF document.
+      # Calls the given block once for every object in the PDF document.
       #
       # By default, only the current version of each object is returned which implies that each
       # object number is yielded exactly once. If +current+ is +false+, all stored objects from
@@ -316,7 +316,7 @@ module HexaPDF
         self
       end
 
-      # Load the indirect object, specified by the reference using the given cross-reference entry,
+      # Loads the indirect object, specified by the reference using the given cross-reference entry,
       # from the underlying IO object. The returned object is already correctly wrapped.
       #
       # For information about the +xref_entry+ parameter, have a look at XRefTable::Entry.
@@ -346,7 +346,7 @@ module HexaPDF
 
       # :category: Revision Management
       #
-      # Add a new empty revision to the document and return it.
+      # Adds a new empty revision to the document and returns it.
       def add_revision
         if @revisions.empty?
           trailer = {}
@@ -363,7 +363,7 @@ module HexaPDF
 
       # :category: Revision Management
       #
-      # Delete a revision from the document, either by index or by specifying the revision object
+      # Deletes a revision from the document, either by index or by specifying the revision object
       # itself.
       #
       # Note that the oldest revision has index 0 and the current revision the highest index!
@@ -392,14 +392,14 @@ module HexaPDF
 
       # :category: Revision Management
       #
-      # Return the current revision.
+      # Returns the current revision.
       def current_revision
         @revisions.last
       end
 
       # :category: Revision Management
       #
-      # Iterate over all revisions from current to oldest one, potentially loading revisions for
+      # Iterates over all revisions from current to oldest one, potentially loading revisions for
       # cross-reference tables/streams of an underlying PDF file.
       def each_revision
         return to_enum(__method__) unless block_given?
@@ -415,7 +415,7 @@ module HexaPDF
 
       # :category: Revision Management
       #
-      # Load all available revisions of the document.
+      # Loads all available revisions of the document.
       def load_all_revisions
         each_revision {}
       end
@@ -425,8 +425,8 @@ module HexaPDF
       # :call-seq:
       #   doc.load_previous_revisions(i)     -> int
       #
-      # Load the directly previous revisions for the already loaded revision at position +i+ and
-      # return the number of newly added revisions (0, 1 or 2).
+      # Loads the directly previous revisions for the already loaded revision at position +i+ and
+      # returns the number of newly added revisions (0, 1 or 2).
       #
       # Previous revisions are denoted by the :Prev and :XRefStm keys of the trailer.
       def load_previous_revisions(i)
@@ -448,7 +448,7 @@ module HexaPDF
 
       # :category: Revision Management
       #
-      # Load a single Revision whose cross-reference table/stream is located at the given position.
+      # Loads a single Revision whose cross-reference table/stream is located at the given position.
       def load_revision(pos)
         raise_on_missing_parser
         xref_table, trailer = if @parser.xref_table?(pos)

@@ -40,7 +40,7 @@ module HexaPDF
       # Represents a free entry in the cross-reference table.
       FREE_ENTRY = Entry.new(:free)
 
-      # Create a cross-reference entry. See Entry for details on the parameters.
+      # Creates a cross-reference entry. See Entry for details on the parameters.
       def self.entry(type, pos: nil, objstm: nil)
         if type == :free
           FREE_ENTRY

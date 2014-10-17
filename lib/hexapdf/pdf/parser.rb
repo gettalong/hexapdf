@@ -15,7 +15,7 @@ module HexaPDF
     # See: PDF1.7 s7
     class Parser
 
-      # Create a new parser for the given IO object.
+      # Creates a new parser for the given IO object.
       #
       # PDF references are resolved using the +resolver+ object which needs to respond to +unwrap+.
       def initialize(io, resolver)
@@ -25,7 +25,7 @@ module HexaPDF
         retrieve_pdf_header_offset_and_version
       end
 
-      # Parse the indirect object at the specified offset.
+      # Parses the indirect object at the specified offset.
       #
       # This method is used by a PDF Document to load objects. It should **not** be used by any
       # other object because invalid object positions lead to errors.
@@ -80,14 +80,14 @@ module HexaPDF
         [object, oid, gen, stream]
       end
 
-      # Look at the given offset and return +true+ if there is a cross-reference table at that position.
+      # Looks at the given offset and returns +true+ if there is a cross-reference table at that position.
       def xref_table?(offset)
         @tokenizer.pos = offset + @header_offset
         token = @tokenizer.peek_token
         token.kind_of?(Tokenizer::Token) && token == 'xref'
       end
 
-      # Parse the cross-reference table at the given position and the following trailer and return
+      # Parses the cross-reference table at the given position and the following trailer and returns
       # them as an array consisting of an XRefTable instance and a hash.
       #
       # Note that this method can only parse cross-reference tables, not cross-reference streams!
@@ -134,7 +134,7 @@ module HexaPDF
         [xref, trailer]
       end
 
-      # Return the offset of the main cross-reference table/stream.
+      # Returns the offset of the main cross-reference table/stream.
       #
       # Implementation note: Normally, the %%EOF marker has to be on the last line, however, Adobe
       # viewers relax this restriction and so do we.
@@ -157,7 +157,7 @@ module HexaPDF
         lines[eof_index - 1].to_i
       end
 
-      # Return the PDF version number that is stored in the file header.
+      # Returns the PDF version number that is stored in the file header.
       #
       # See: PDF1.7 s7.5.2
       def file_header_version
@@ -169,7 +169,7 @@ module HexaPDF
 
       private
 
-      # Retrieve the offset of the PDF header and the PDF version number in it.
+      # Retrieves the offset of the PDF header and the PDF version number in it.
       #
       # The PDF header should normally appear on the first line. However, Adobe relaxes this
       # restriction so that the header may appear in the first 1024 bytes. We follow the Adobe
@@ -182,7 +182,7 @@ module HexaPDF
         @header_version = $1
       end
 
-      # Parse the PDF object at the current position.
+      # Parses the PDF object at the current position.
       #
       # If +allow_end_array_token+ is +true+, the ']' token is permitted to facilitate the use of
       # this method during array parsing.

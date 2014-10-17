@@ -46,13 +46,13 @@ module HexaPDF
 
       autoload(:Predictor, 'hexapdf/pdf/filter/predictor')
 
-      # Return a Fiber that can be used as a source for decoders/encoders and that is based on a
+      # Returns a Fiber that can be used as a source for decoders/encoders and that is based on a
       # String object.
       def self.source_from_string(str)
         Fiber.new { str.dup }
       end
 
-      # Return a Fiber that can be used as a source for decoders/encoders and that reads chunks of
+      # Returns a Fiber that can be used as a source for decoders/encoders and that reads chunks of
       # data from an IO object.
       #
       # Note that each time a chunk is read, the position pointer of the IO is adjusted.
@@ -85,7 +85,7 @@ module HexaPDF
         end
       end
 
-      # Return the concatenated string chunks retrieved by resuming the given source Fiber until it
+      # Returns the concatenated string chunks retrieved by resuming the given source Fiber until it
       # is dead.
       #
       # The returned string is always a string with +BINARY+ (= +ASCII-8BIT+) encoding.

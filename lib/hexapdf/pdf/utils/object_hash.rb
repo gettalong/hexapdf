@@ -14,7 +14,7 @@ module HexaPDF
 
         include Enumerable
 
-        # Create a new object hash.
+        # Creates a new object hash.
         def initialize
           @table = {}
           @oids = {}
@@ -23,7 +23,7 @@ module HexaPDF
         # :call-seq:
         #   objhash[oid, gen] = data
         #
-        # Set the data for the given object and generation numbers.
+        # Sets the data for the given object and generation numbers.
         #
         # If there is already an entry for the given object number (even if the generation number is
         # different), this entry will be removed.
@@ -37,7 +37,7 @@ module HexaPDF
         #   objhash[oid]        -> data or nil
         #   objhash[oid, gen]   -> data or nil
         #
-        # Return the data for the given object number, or for the given object and generation
+        # Returns the data for the given object number, or for the given object and generation
         # numbers.
         #
         # If there is no such data, +nil+ is returned.
@@ -48,7 +48,7 @@ module HexaPDF
         # :call-seq:
         #   objhash.gen_for_oid(oid)    -> Integer or nil
         #
-        # Return the generation number that is stored along the given object number, or +nil+ if the
+        # Returns the generation number that is stored along the given object number, or +nil+ if the
         # object number is not used.
         def gen_for_oid(oid)
           @oids[oid]
@@ -58,13 +58,13 @@ module HexaPDF
         #   objhash.entry?(oid)        -> true or false
         #   objhash.entry?(oid, gen)   -> true or false
         #
-        # Return +true+ if the table has an entry for the given object number, or for the given
+        # Returns +true+ if the table has an entry for the given object number, or for the given
         # object and generation numbers.
         def entry?(oid, gen = nil)
           (gen ? gen_for_oid(oid) == gen : @oids.key?(oid))
         end
 
-        # Delete the entry for the given object number.
+        # Deletes the entry for the given object number.
         def delete(oid)
           @table.delete([oid, gen_for_oid(oid)])
           @oids.delete(oid)
@@ -74,7 +74,7 @@ module HexaPDF
         #   objhash.each {|(oid, gen), data| block }   -> objhash
         #   objhash.each                               -> Enumerator
         #
-        # Call the given block once for every entry, passing an array consisting of the object and
+        # Calls the given block once for every entry, passing an array consisting of the object and
         # generation number and the associated data as parameters.
         def each(&block)
           @table.each(&block)

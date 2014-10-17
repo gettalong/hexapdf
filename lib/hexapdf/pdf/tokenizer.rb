@@ -29,7 +29,7 @@ module HexaPDF
       # The IO object from the tokens are read.
       attr_reader :io
 
-      # Create a new tokenizer.
+      # Creates a new tokenizer.
       def initialize(io)
         @io = io
         @ss = StringScanner.new(''.force_encoding(Encoding::BINARY))
@@ -37,7 +37,7 @@ module HexaPDF
         self.pos = 0
       end
 
-      # The current position of the tokenizer inside in the IO object.
+      # Returns the current position of the tokenizer inside in the IO object.
       #
       # Note that this position might be different from +io.pos+ since the latter could have been
       # changed somewhere else.
@@ -45,7 +45,7 @@ module HexaPDF
         @original_pos + @ss.pos
       end
 
-      # Set the position at which the next token should be read.
+      # Sets the position at which the next token should be read.
       #
       # Note that this does **not** set +io.pos+ directly (at the moment of invocation)!
       def pos=(pos)
@@ -59,7 +59,7 @@ module HexaPDF
         end
       end
 
-      # Return the token at the current position and advance the scan pointer.
+      # Returns the token at the current position and advances the scan pointer.
       def next_token
         tok = parse_token
 
@@ -76,7 +76,7 @@ module HexaPDF
         tok
       end
 
-      # Return the next token but do not advance the scan pointer.
+      # Returns the next token but does not advance the scan pointer.
       def peek_token
         pos = self.pos
         tok = next_token
@@ -84,13 +84,13 @@ module HexaPDF
         tok
       end
 
-      # Read the byte at the current position and advance the scan pointer.
+      # Reads the byte at the current position and advances the scan pointer.
       def next_byte
         prepare_string_scanner(1)
         @ss.get_byte
       end
 
-      # Read the cross-reference subsection entry at the current position and advance the scan
+      # Reads the cross-reference subsection entry at the current position and advances the scan
       # pointer.
       #
       # See: PDF1.7 7.5.4
@@ -102,7 +102,7 @@ module HexaPDF
         [@ss[1].to_i, @ss[2].to_i, @ss[3]]
       end
 
-      # Skip all whitespace (see WHITESPACE) at the current position.
+      # Skips all whitespace (see WHITESPACE) at the current position.
       def skip_whitespace
         prepare_string_scanner
         prepare_string_scanner while @ss.skip(WHITESPACE_MULTI_RE)
@@ -119,7 +119,7 @@ module HexaPDF
       WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
 
 
-      # Parse the single token at the current position.
+      # Parses a single token at the current position.
       #
       # Comments and a run of whitespace characters are ignored. The value +NO_MORE_TOKENS+ is
       # returned if there are no more tokens available.
@@ -160,7 +160,7 @@ module HexaPDF
         end
       end
 
-      # Convert the give keyword to a PDF boolean, integer or float object, if possible.
+      # Converts the give keyword to a PDF boolean, integer or float object, if possible.
       #
       # See: PDF1.7 s7.3.2, s7.3.3, s7.3.9
       def convert_keyword(str)
@@ -192,7 +192,7 @@ module HexaPDF
         '\\' => "\\"
       }
 
-      # Parse the literal string at the current position. The initial '(' needs to be scanned
+      # Parses the literal string at the current position. The initial '(' needs to be scanned
       # already.
       #
       # See: PDF1.7 s7.3.4.2
@@ -234,7 +234,7 @@ module HexaPDF
         str
       end
 
-      # Parse the hex string at the current position. The initial '#' needs to be scanned already.
+      # Parses the hex string at the current position. The initial '#' needs to be scanned already.
       #
       # See: PDF1.7 s7.3.4.3
       def parse_hex_string
@@ -248,7 +248,7 @@ module HexaPDF
         [data].pack('H*')
       end
 
-      # Parse the name at the current position. The initial '/' needs to be scanned already.
+      # Parses the name at the current position. The initial '/' needs to be scanned already.
       #
       # See: PDF1.7 s7.3.5
       def parse_name
@@ -258,7 +258,7 @@ module HexaPDF
       end
 
 
-      # Prepare the StringScanner by filling its string instance with enough bytes.
+      # Prepares the StringScanner by filling its string instance with enough bytes.
       #
       # The number of needed bytes can be specified via the +needed_bytes+ parameters.
       #
