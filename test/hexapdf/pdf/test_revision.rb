@@ -10,17 +10,17 @@ describe HexaPDF::PDF::Revision do
 
   before do
     @xref_table = HexaPDF::PDF::XRefTable.new
-    @xref_table[2, 0] = HexaPDF::PDF::XRefTable.entry(:used, pos: 5000)
-    @xref_table[3, 0] = HexaPDF::PDF::XRefTable.entry(:free)
+    @xref_table.add_in_use_entry(2, 0, 5000)
+    @xref_table.add_free_entry(3, 0)
     @obj = HexaPDF::PDF::Object.new(:val, oid: 1, gen: 0)
     @ref = HexaPDF::PDF::Reference.new(1, 0)
 
     @loader = Object.new
-    def @loader.load_object_from_io(ref, entry)
+    def @loader.load_object_from_io(entry)
       if entry.type == :free
-        HexaPDF::PDF::Object.new(nil, oid: ref.oid, gen: ref.gen)
+        HexaPDF::PDF::Object.new(nil, oid: entry.oid, gen: entry.gen)
       else
-        HexaPDF::PDF::Object.new(:Test, oid: ref.oid, gen: ref.gen)
+        HexaPDF::PDF::Object.new(:Test, oid: entry.oid, gen: entry.gen)
       end
     end
     @rev = HexaPDF::PDF::Revision.new(@loader, xref_table: @xref_table)

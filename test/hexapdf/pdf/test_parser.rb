@@ -172,9 +172,9 @@ EOF
     it "works on a table with multiple sub sections" do
       table, trailer = @parser.parse_xref_table_and_trailer(@parser.startxref_offset)
       assert_equal({Test: 'now'}, trailer)
-      assert_equal(HexaPDF::PDF::XRefTable::FREE_ENTRY, table[0, 65535])
-      assert_equal(HexaPDF::PDF::XRefTable::FREE_ENTRY, table[3, 65535])
-      assert_equal(HexaPDF::PDF::XRefTable::Entry.new(:used, 10), table[1])
+      assert_equal(HexaPDF::PDF::XRefTable.free_entry(0, 65535), table[0, 65535])
+      assert_equal(HexaPDF::PDF::XRefTable.free_entry(3, 65535), table[3, 65535])
+      assert_equal(HexaPDF::PDF::XRefTable.in_use_entry(1, 0, 10), table[1])
     end
 
     it "works for an empty table" do

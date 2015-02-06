@@ -114,9 +114,9 @@ module HexaPDF
             if xref.entry?(oid)
               next
             elsif type == 'n'
-              xref[oid, gen] = XRefTable.entry(:used, pos: pos)
+              xref.add_in_use_entry(oid, gen, pos)
             else
-              xref[oid, gen] = XRefTable.entry(:free)
+              xref.add_free_entry(oid, gen)
             end
           end
           start = @tokenizer.next_token

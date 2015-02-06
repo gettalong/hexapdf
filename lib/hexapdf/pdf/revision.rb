@@ -57,7 +57,7 @@ module HexaPDF
         if @objects.entry?(oid, gen)
           @objects[oid, gen]
         elsif @xref_table && (xref_entry = @xref_table[oid, gen])
-          add_without_check(@document.load_object_from_io(Reference.new(oid, gen), xref_entry))
+          add_without_check(@document.load_object_from_io(xref_entry))
         else
           nil
         end
@@ -140,7 +140,7 @@ module HexaPDF
       def load_all_objects
         @xref_table && @xref_table.each do |(oid, gen), data|
           next if @objects.entry?(oid)
-          add_without_check(@document.load_object_from_io(Reference.new(oid, gen), data))
+          add_without_check(@document.load_object_from_io(data))
         end
       end
 

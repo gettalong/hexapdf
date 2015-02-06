@@ -322,23 +322,23 @@ module HexaPDF
       # For information about the +xref_entry+ parameter, have a look at XRefTable::Entry.
       #
       # *Note*: This method should in most cases *not* be used directly!
-      def load_object_from_io(ref, xref_entry)
+      def load_object_from_io(xref_entry)
         raise_on_missing_parser
 
-        obj, oid, gen, stream = case xref_entry[:type]
-                                when :used
-                                  @parser.parse_indirect_object(xref_entry[:pos])
+        obj, oid, gen, stream = case xref_entry.type
+                                when :in_use
+                                  @parser.parse_indirect_object(xref_entry.pos)
                                 when :free
-                                  [nil, ref.oid, ref.gen, nil]
+                                  [nil, xref_entry.oid, xref_entry.gen, nil]
                                 when :compressed
                                   raise "Object streams are not implemented yet"
                                 else
-                                  raise HexaPDF::Error, "Invalid cross-reference type '#{xref_entry[:type]}' encountered"
+                                  raise HexaPDF::Error, "Invalid cross-reference type '#{xref_entry.type}' encountered"
                                 end
 
-        if ref.oid != 0 && (oid != ref.oid || gen != ref.gen)
+        if xref_entry.oid != 0 && (oid != xref_entry.oid || gen != xref_entry.gen)
           raise HexaPDF::MalformedPDFError.new("The oid,gen (#{oid},#{gen}) values of the indirect object don't " +
-                                               "match the values (#{ref.oid}, #{ref.gen}) from the xref table")
+                                               "match the values (#{xref_entry.oid}, #{xref_entry.gen}) from the xref table")
         end
 
         wrap(obj, oid: oid, gen: gen, stream: stream)
@@ -454,7 +454,7 @@ module HexaPDF
         xref_table, trailer = if @parser.xref_table?(pos)
                                 @parser.parse_xref_table_and_trailer(pos)
                               else
-                                obj = load_object(Reference.new(0, 0), {type: :used, pos: pos})
+                                obj = load_object_from_io(XRefTable.in_use_entry(0, 0, pos))
                                 if !obj.value.kind_of?(Hash) || obj.value[:Type] != :XRef
                                   raise HexaPDF::MalformedPDFError.new("Object is not a cross-reference stream", pos)
                                 end

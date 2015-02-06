@@ -304,8 +304,13 @@ EOF
   end
 
   describe "load_object_from_io" do
+
+    before do
+      @entry = HexaPDF::PDF::XRefTable.in_use_entry(2, 0, 158)
+    end
+
     it "returns a wrapped object with correct data" do
-      obj = @io_doc.load_object_from_io(HexaPDF::PDF::Reference.new(2, 0), {type: :used, pos: 158})
+      obj = @io_doc.load_object_from_io(@entry)
       assert_kind_of(HexaPDF::PDF::Object, obj)
       assert_equal(200, obj.value)
       assert_equal(2, obj.oid)
@@ -313,20 +318,21 @@ EOF
     end
 
     it "fails if no parser is associated" do
-      assert_raises(HexaPDF::Error) { @doc.load_object_from_io(HexaPDF::PDF::Reference.new(1, 0), {}) }
+      assert_raises(HexaPDF::Error) { @doc.load_object_from_io(@entry) }
     end
 
     it "fails if the xref entry type is invalid" do
-      assert_raises(HexaPDF::Error) { @io_doc.load_object_from_io(HexaPDF::PDF::Reference.new(1, 0), {type: :invalid}) }
+      assert_raises(HexaPDF::Error) { @io_doc.load_object_from_io(HexaPDF::PDF::XRefTable::Entry.new(:invalid)) }
     end
 
     it "fails if the xref entry type is :compressed because this is not yet implemented" do
-      assert_raises(RuntimeError) { @io_doc.load_object_from_io(HexaPDF::PDF::Reference.new(1, 0), {type: :compressed}) }
+      assert_raises(RuntimeError) { @io_doc.load_object_from_io(HexaPDF::PDF::XRefTable::Entry.new(:compressed)) }
     end
 
     it "fails if the object/generation numbers don't match" do
       assert_raises(HexaPDF::MalformedPDFError) do
-        @io_doc.load_object_from_io(HexaPDF::PDF::Reference.new(2, 2), {type: :used, pos: 158})
+        @entry.gen = 2
+        @io_doc.load_object_from_io(@entry)
       end
     end
   end
