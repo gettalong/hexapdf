@@ -136,8 +136,8 @@ EOF
     end
 
     it "allows specifying a revision to which the object should be added" do
-      @doc.add_revision
-      @doc.add_revision
+      @doc.revisions.add
+      @doc.revisions.add
 
       @doc.add(@doc.wrap(5, oid: 1), revision: 0)
       assert_equal(5, @doc.object(1).value)
@@ -186,7 +186,7 @@ EOF
       before do
         @ref = HexaPDF::PDF::Reference.new(2, 3)
         obj = @doc.wrap(5, oid: @ref.oid, gen: @ref.gen)
-        @doc.add_revision
+        @doc.revisions.add
         @doc.add(obj, revision: 0)
         @doc.add(obj, revision: 1)
       end
@@ -300,62 +300,6 @@ EOF
 
     it "iterates over all objects" do
       assert_equal([nil, 10, 200, 20], @io_doc.each(current: false).sort.map(&:value))
-    end
-  end
-
-  describe "load_object_from_io" do
-
-    before do
-      @entry = HexaPDF::PDF::XRefTable.in_use_entry(2, 0, 158)
-    end
-
-    it "returns a wrapped object with correct data" do
-      obj = @io_doc.load_object_from_io(@entry)
-      assert_kind_of(HexaPDF::PDF::Object, obj)
-      assert_equal(200, obj.value)
-      assert_equal(2, obj.oid)
-      assert_equal(0, obj.gen)
-    end
-
-    it "fails if no parser is associated" do
-      assert_raises(HexaPDF::Error) { @doc.load_object_from_io(@entry) }
-    end
-
-    it "fails if the xref entry type is invalid" do
-      assert_raises(HexaPDF::Error) { @io_doc.load_object_from_io(HexaPDF::PDF::XRefTable::Entry.new(:invalid)) }
-    end
-
-    it "fails if the xref entry type is :compressed because this is not yet implemented" do
-      assert_raises(RuntimeError) { @io_doc.load_object_from_io(HexaPDF::PDF::XRefTable::Entry.new(:compressed)) }
-    end
-
-    it "fails if the object/generation numbers don't match" do
-      assert_raises(HexaPDF::MalformedPDFError) do
-        @entry.gen = 2
-        @io_doc.load_object_from_io(@entry)
-      end
-    end
-  end
-
-  describe "revision management" do
-    describe "delete_revision" do
-      it "allows deleting a revision by index" do
-        @io_doc.delete_revision(0)
-        refute(@io_doc.object?(1))
-      end
-
-      it "allows deleting a revision by specifying a revision" do
-        rev = @doc.add_revision
-        @doc.add(@doc.wrap(5, oid: 10))
-
-        assert(@doc.object?(10))
-        @doc.delete_revision(rev)
-        refute(@doc.object?(10))
-      end
-
-      it "fails when trying to delete the only existing revision" do
-        assert_raises(HexaPDF::Error) { @doc.delete_revision(0) }
-      end
     end
   end
 

@@ -21,20 +21,17 @@ module HexaPDF
 
       include Enumerable
 
-      # The associated cross-reference table, if any.
-      attr_reader :xref_table
-
       # The trailer dictionary
       attr_reader :trailer
 
-      # Creates a new Revision object for the given PDF document.
+      # Creates a new Revision object.
       #
-      # Note that if +xref_table+ is supplied, then +trailer+ should probably also be supplied
-      # because a cross-reference table/stream is always accompanied by a trailer.
-      def initialize(document, xref_table: nil, trailer: {})
-        @document = document
-        @xref_table = xref_table
+      # The trailer object needs to be supplied. If an +xref_table+ is supplied, then +parser+
+      # also needs to be supplied!
+      def initialize(trailer, xref_table: nil, parser: nil)
         @trailer = trailer
+        @parser = parser
+        @xref_table = xref_table || XRefTable.new
         @objects = Utils::ObjectHash.new
       end
 
@@ -51,13 +48,13 @@ module HexaPDF
         oid, gen = if ref.kind_of?(ReferenceBehavior)
                      [ref.oid, ref.gen]
                    else
-                     [ref, @objects.gen_for_oid(ref) || (@xref_table && @xref_table.gen_for_oid(ref))]
+                     [ref, @objects.gen_for_oid(ref) || @xref_table.gen_for_oid(ref)]
                    end
 
         if @objects.entry?(oid, gen)
           @objects[oid, gen]
-        elsif @xref_table && (xref_entry = @xref_table[oid, gen])
-          add_without_check(@document.load_object_from_io(xref_entry))
+        elsif (xref_entry = @xref_table[oid, gen])
+          add_without_check(@parser.load_object(xref_entry))
         else
           nil
         end
@@ -73,9 +70,9 @@ module HexaPDF
       # * for the given object number.
       def object?(ref)
         if ref.kind_of?(ReferenceBehavior)
-          @objects.entry?(ref.oid, ref.gen) || (@xref_table && @xref_table.entry?(ref.oid, ref.gen))
+          @objects.entry?(ref.oid, ref.gen) || @xref_table.entry?(ref.oid, ref.gen)
         else
-          @objects.entry?(ref) || (@xref_table && @xref_table.entry?(ref))
+          @objects.entry?(ref) || @xref_table.entry?(ref)
         end
       end
 
@@ -103,7 +100,7 @@ module HexaPDF
       def delete(ref_or_oid)
         return unless object?(ref_or_oid)
         ref_or_oid = ref_or_oid.oid if ref_or_oid.kind_of?(ReferenceBehavior)
-        @xref_table.delete(ref_or_oid) if @xref_table
+        @xref_table.delete(ref_or_oid)
         @objects.delete(ref_or_oid)
       end
 
@@ -138,9 +135,12 @@ module HexaPDF
 
       # Loads all objects from the associated cross-reference table.
       def load_all_objects
-        @xref_table && @xref_table.each do |(oid, gen), data|
+        return if defined?(@all_objects_loaded)
+        @all_objects_loaded = true
+
+        @xref_table.each do |(oid, gen), data|
           next if @objects.entry?(oid)
-          add_without_check(@document.load_object_from_io(data))
+          add_without_check(@parser.load_object(data))
         end
       end
 

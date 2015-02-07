@@ -5,7 +5,7 @@ require 'hexapdf/pdf/parser'
 require 'hexapdf/pdf/reference'
 require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/stream'
-require 'hexapdf/pdf/revision'
+require 'hexapdf/pdf/revisions'
 
 module HexaPDF
   module PDF
@@ -67,6 +67,12 @@ module HexaPDF
       # The configuration for the document.
       attr_reader :config
 
+      # The revisions of the document.
+      attr_reader :revisions
+
+      # The associated parser if any.
+      attr_reader :parser
+
       # Creates a new PDF document.
       #
       # Parameters:
@@ -81,17 +87,16 @@ module HexaPDF
         @config = self.class.default_config.merge(config) do |k, old, new|
           old.kind_of?(Hash) && new.kind_of?(Hash) ? old.merge(new) : new
         end
-        @revisions = []
 
         if io
-          @parser = HexaPDF::PDF::Parser.new(io, self)
-          @revisions << load_revision(@parser.startxref_offset)
+          @parser = Parser.new(io, self)
+          @revisions = Revisions.new(self, initial_revision: @parser.load_revision(@parser.startxref_offset))
         else
-          @parser = nil
-          add_revision
+          @parser = :no_parser_available
+          @revisions = Revisions.new(self)
         end
 
-        @next_oid = @revisions.first.trailer.value[:Size] || 1
+        @next_oid = @revisions.current.trailer.value[:Size] || 1
       end
 
       # :call-seq:
@@ -110,7 +115,7 @@ module HexaPDF
         ref = Reference.new(ref, gen) unless ref.kind_of?(Reference)
 
         obj = nil
-        each_revision do |rev|
+        @revisions.each do |rev|
           # Check uses oid because we are only interested in the current version of an object with a
           # given object number!
           next unless rev.object?(ref.oid)
@@ -140,7 +145,7 @@ module HexaPDF
       # on #each for more information.
       def object?(ref, gen = 0)
         ref = Reference.new(ref, gen) unless ref.kind_of?(Reference)
-        each_revision.any? {|rev| rev.object?(ref)}
+        @revisions.each.any? {|rev| rev.object?(ref)}
       end
 
       # :call-seq:
@@ -157,7 +162,7 @@ module HexaPDF
       def add(obj, revision: :current)
         obj = wrap(obj) unless obj.kind_of?(HexaPDF::PDF::Object)
 
-        revision = (revision == :current ? current_revision : @revisions[revision])
+        revision = (revision == :current ? @revisions.current : @revisions.revision(revision))
         if revision.nil?
           raise HexaPDF::Error, "Invalid revision index specified"
         end
@@ -199,9 +204,9 @@ module HexaPDF
         ref = Reference.new(ref, gen) unless ref.kind_of?(Reference)
         case revision
         when :current
-          current_revision.delete(ref)
+          @revisions.current.delete(ref)
         when :all
-          each_revision {|rev| rev.delete(ref)}
+          @revisions.each {|rev| rev.delete(ref)}
         else
           raise HexaPDF::Error, "Unsupported parameter revision=#{revision}"
         end
@@ -306,7 +311,7 @@ module HexaPDF
         return to_enum(__method__, current: current) unless block_given?
 
         oids = {}
-        each_revision do |rev|
+        @revisions.each do |rev|
           rev.each do |obj|
             next if current && oids.include?(obj.oid)
             yield(obj)
@@ -314,153 +319,6 @@ module HexaPDF
           end
         end
         self
-      end
-
-      # Loads the indirect object, specified by the reference using the given cross-reference entry,
-      # from the underlying IO object. The returned object is already correctly wrapped.
-      #
-      # For information about the +xref_entry+ parameter, have a look at XRefTable::Entry.
-      #
-      # *Note*: This method should in most cases *not* be used directly!
-      def load_object_from_io(xref_entry)
-        raise_on_missing_parser
-
-        obj, oid, gen, stream = case xref_entry.type
-                                when :in_use
-                                  @parser.parse_indirect_object(xref_entry.pos)
-                                when :free
-                                  [nil, xref_entry.oid, xref_entry.gen, nil]
-                                when :compressed
-                                  raise "Object streams are not implemented yet"
-                                else
-                                  raise HexaPDF::Error, "Invalid cross-reference type '#{xref_entry.type}' encountered"
-                                end
-
-        if xref_entry.oid != 0 && (oid != xref_entry.oid || gen != xref_entry.gen)
-          raise HexaPDF::MalformedPDFError.new("The oid,gen (#{oid},#{gen}) values of the indirect object don't " +
-                                               "match the values (#{xref_entry.oid}, #{xref_entry.gen}) from the xref table")
-        end
-
-        wrap(obj, oid: oid, gen: gen, stream: stream)
-      end
-
-      # :category: Revision Management
-      #
-      # Adds a new empty revision to the document and returns it.
-      def add_revision
-        if @revisions.empty?
-          trailer = {}
-        else
-          trailer = current_revision.trailer.value.dup
-          trailer.delete(:Prev)
-          trailer.delete(:XRefStm)
-        end
-
-        rev = Revision.new(self, trailer: wrap(trailer, type: :Trailer))
-        @revisions.push(rev)
-        rev
-      end
-
-      # :category: Revision Management
-      #
-      # Deletes a revision from the document, either by index or by specifying the revision object
-      # itself.
-      #
-      # Note that the oldest revision has index 0 and the current revision the highest index!
-      #
-      # Returns the deleted revision object, or +nil+ if the index was out of range or no matching
-      # revision was found.
-      def delete_revision(index_or_rev)
-        load_all_revisions
-        if @revisions.length == 1
-          raise HexaPDF::Error, "A document must have a least one revision, can't delete last one"
-        elsif index_or_rev.kind_of?(Integer)
-          @revisions.delete_at(index_or_rev)
-        else
-          @revisions.delete(index_or_rev)
-        end
-      end
-
-      private
-
-      # Raises an error if no parser is associated with the document.
-      def raise_on_missing_parser
-        unless @parser
-          raise HexaPDF::Error, "No underlying IO object, can't load indirect object!"
-        end
-      end
-
-      # :category: Revision Management
-      #
-      # Returns the current revision.
-      def current_revision
-        @revisions.last
-      end
-
-      # :category: Revision Management
-      #
-      # Iterates over all revisions from current to oldest one, potentially loading revisions for
-      # cross-reference tables/streams of an underlying PDF file.
-      def each_revision
-        return to_enum(__method__) unless block_given?
-
-        i = @revisions.length - 1
-        while i >= 0
-          yield(@revisions[i])
-          i += load_previous_revisions(i)
-          i -= 1
-        end
-        self
-      end
-
-      # :category: Revision Management
-      #
-      # Loads all available revisions of the document.
-      def load_all_revisions
-        each_revision {}
-      end
-
-      # :category: Revision Management
-      #
-      # :call-seq:
-      #   doc.load_previous_revisions(i)     -> int
-      #
-      # Loads the directly previous revisions for the already loaded revision at position +i+ and
-      # returns the number of newly added revisions (0, 1 or 2).
-      #
-      # Previous revisions are denoted by the :Prev and :XRefStm keys of the trailer.
-      def load_previous_revisions(i)
-        i = @revisions.length + i if i < 0
-        rev = @revisions[i]
-        @loaded_revisions ||= {}
-        return 0 if @loaded_revisions.key?(rev)
-
-        # PDF1.7 s7.5.5 states that :Prev needs to be indirect, Adobe's reference 3.4.4 says it
-        # should be direct. Adobe's POV is followed here. Same with :XRefStm.
-        xrefstm = @revisions[i].trailer.value[:XRefStm]
-        prev = @revisions[i].trailer.value[:Prev]
-        revisions = [(load_revision(prev) if prev), (load_revision(xrefstm) if xrefstm)].compact
-        @revisions.insert(i, *revisions)
-        @loaded_revisions[rev] = true
-
-        revisions.length
-      end
-
-      # :category: Revision Management
-      #
-      # Loads a single Revision whose cross-reference table/stream is located at the given position.
-      def load_revision(pos)
-        raise_on_missing_parser
-        xref_table, trailer = if @parser.xref_table?(pos)
-                                @parser.parse_xref_table_and_trailer(pos)
-                              else
-                                obj = load_object_from_io(XRefTable.in_use_entry(0, 0, pos))
-                                if !obj.value.kind_of?(Hash) || obj.value[:Type] != :XRef
-                                  raise HexaPDF::MalformedPDFError.new("Object is not a cross-reference stream", pos)
-                                end
-                                [obj.xref_table, obj.value]
-                              end
-        Revision.new(self, xref_table: xref_table, trailer: wrap(trailer, type: :Trailer))
       end
 
     end

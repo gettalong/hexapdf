@@ -49,6 +49,14 @@ EOF
     @parser.parse_indirect_object(table[obj.oid, obj.gen].pos).first
   end
 
+  def wrap(obj, type: nil, subtype: nil, oid: nil, gen: nil, stream: nil)
+    klass = stream.nil? ? HexaPDF::PDF::Object : HexaPDF::PDF::Stream
+    wrapped = klass.new(obj)
+    wrapped.oid = oid if oid
+    wrapped.gen = gen if gen
+    wrapped
+  end
+
   describe "parse_indirect_object" do
     it "reads indirect objects sequentially" do
       object, oid, gen, stream = @parser.parse_indirect_object
@@ -117,6 +125,42 @@ EOF
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
       set_string("1 0 obj << /NoValueForKey >> endobj")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
+    end
+  end
+
+  describe "load_object" do
+
+    before do
+      @entry = HexaPDF::PDF::XRefTable.in_use_entry(2, 0, 29)
+    end
+
+    it "can load an indirect object" do
+      obj = @parser.load_object(@entry)
+      assert_kind_of(HexaPDF::PDF::Object, obj)
+      assert_equal(5, obj.value[0])
+      assert_equal(2, obj.oid)
+      assert_equal(0, obj.gen)
+    end
+
+    it "can load a free object" do
+      obj = @parser.load_object(HexaPDF::PDF::XRefTable.free_entry(0, 0))
+      assert_kind_of(HexaPDF::PDF::Object, obj)
+      assert_nil(obj.value)
+    end
+
+    it "fails if the xref entry type is invalid" do
+      assert_raises(HexaPDF::Error) { @parser.load_object(HexaPDF::PDF::XRefTable::Entry.new(:invalid)) }
+    end
+
+    it "fails if the xref entry type is :compressed because this is not yet implemented" do
+      assert_raises(RuntimeError) { @parser.load_object(HexaPDF::PDF::XRefTable::Entry.new(:compressed)) }
+    end
+
+    it "fails if the object/generation numbers don't match" do
+      assert_raises(HexaPDF::MalformedPDFError) do
+        @entry.gen = 2
+        @parser.load_object(@entry)
+      end
     end
   end
 
@@ -201,6 +245,14 @@ EOF
     it "fails if the trailer is not a PDF dictionary" do
       set_string("xref\n0 1\n0000000000 00000 n \ntrailer\n(base)")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_table_and_trailer(0) }
+    end
+  end
+
+  describe "load_revision" do
+    it "works for a simple cross-reference table" do
+      revision = @parser.load_revision(@parser.startxref_offset)
+      assert_equal({Test: 'now'}, revision.trailer.value)
+      assert_equal(10, revision.object(1).value)
     end
   end
 

@@ -16,26 +16,24 @@ describe HexaPDF::PDF::Revision do
     @ref = HexaPDF::PDF::Reference.new(1, 0)
 
     @loader = Object.new
-    def @loader.load_object_from_io(entry)
+    def @loader.load_object(entry)
       if entry.type == :free
         HexaPDF::PDF::Object.new(nil, oid: entry.oid, gen: entry.gen)
       else
         HexaPDF::PDF::Object.new(:Test, oid: entry.oid, gen: entry.gen)
       end
     end
-    @rev = HexaPDF::PDF::Revision.new(@loader, xref_table: @xref_table)
+    @rev = HexaPDF::PDF::Revision.new({}, parser: @loader, xref_table: @xref_table)
   end
 
-  it "needs store as first parameter on initialization" do
-    rev = HexaPDF::PDF::Revision.new(nil)
+  it "needs the trailer as first parameter on initialization" do
+    rev = HexaPDF::PDF::Revision.new({})
     assert_equal({}, rev.trailer)
-    assert_equal(nil, rev.xref_table)
   end
 
-  it "takes an xref table and/or a trailer on initialization" do
-    rev = HexaPDF::PDF::Revision.new(nil, trailer: {hello: 'you'}, xref_table: @xref_table)
-    assert_equal({hello: 'you'}, rev.trailer)
-    assert_equal(@xref_table, rev.xref_table)
+  it "takes an xref table and/or a parser on initialization" do
+    rev = HexaPDF::PDF::Revision.new({}, parser: @loader, xref_table: @xref_table)
+    assert_equal(:Test, rev.object(2).value)
   end
 
   describe "add" do
@@ -120,7 +118,7 @@ describe HexaPDF::PDF::Revision do
   end
 
   it "works without a cross-reference table" do
-    rev = HexaPDF::PDF::Revision.new(@loader)
+    rev = HexaPDF::PDF::Revision.new({})
     rev.add(@obj)
     assert_equal(@obj, rev.object(@ref))
     assert(rev.object?(@ref))

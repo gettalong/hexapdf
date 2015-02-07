@@ -4,25 +4,51 @@ require 'hexapdf/error'
 require 'hexapdf/pdf/tokenizer'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/xref_table'
+require 'hexapdf/pdf/revision'
 
 module HexaPDF
   module PDF
 
-    # Parses an IO stream according to PDF1.7 to get at the PDF objects.
+    # Parses an IO stream according to PDF1.7 to get at the contained objects.
     #
-    # This class is not directly used but indirectly via HexaPDF::PDF::Document.
+    # This class also contains higher-level methods for getting indirect objects and revisions.
     #
     # See: PDF1.7 s7
     class Parser
 
       # Creates a new parser for the given IO object.
       #
-      # PDF references are resolved using the +resolver+ object which needs to respond to +unwrap+.
-      def initialize(io, resolver)
+      # PDF references are resolved using the associated Document object.
+      def initialize(io, document)
         @io = io
         @tokenizer = Tokenizer.new(io)
-        @resolver = resolver
+        @document = document
         retrieve_pdf_header_offset_and_version
+      end
+
+      # Loads the indirect (potentially compressed) object specified by the given cross-reference
+      # entry.
+      #
+      # For information about the +xref_entry+ parameter, have a look at XRefTable and
+      # XRefTable::Entry.
+      def load_object(xref_entry)
+        obj, oid, gen, stream = case xref_entry.type
+                                when :in_use
+                                  parse_indirect_object(xref_entry.pos)
+                                when :free
+                                  [nil, xref_entry.oid, xref_entry.gen, nil]
+                                when :compressed
+                                  raise "Object streams are not implemented yet"
+                                else
+                                  raise HexaPDF::Error, "Invalid cross-reference type '#{xref_entry.type}' encountered"
+                                end
+
+        if xref_entry.oid != 0 && (oid != xref_entry.oid || gen != xref_entry.gen)
+          raise HexaPDF::MalformedPDFError.new("The oid,gen (#{oid},#{gen}) values of the indirect object don't " +
+                                               "match the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref table")
+        end
+
+        @document.wrap(obj, oid: oid, gen: gen, stream: stream)
       end
 
       # Parses the indirect object at the specified offset.
@@ -59,7 +85,7 @@ module HexaPDF
 
           # Note that getting :Length might move the IO pointer (when references need to be resolved)
           pos = @tokenizer.pos
-          length = @resolver.unwrap(object[:Length]) || 0
+          length = @document.unwrap(object[:Length]) || 0
           @tokenizer.pos = pos + length
 
           tok = @tokenizer.next_token
@@ -69,8 +95,8 @@ module HexaPDF
           tok = @tokenizer.next_token
 
           stream = StreamData.new(@tokenizer.io, offset: pos, length: length,
-                                  filter: @resolver.unwrap(object[:Filter]),
-                                  decode_parms: @resolver.unwrap(object[:DecodeParms]))
+                                  filter: @document.unwrap(object[:Filter]),
+                                  decode_parms: @document.unwrap(object[:DecodeParms]))
         end
 
         unless tok.kind_of?(Tokenizer::Token) && tok == 'endobj'
@@ -78,6 +104,20 @@ module HexaPDF
         end
 
         [object, oid, gen, stream]
+      end
+
+      # Loads a single Revision whose cross-reference table/stream is located at the given position.
+      def load_revision(pos)
+        xref_table, trailer = if xref_table?(pos)
+                                parse_xref_table_and_trailer(pos)
+                              else
+                                obj = load_object(XRefTable.in_use_entry(0, 0, pos))
+                                if !obj.value.kind_of?(Hash) || obj.value[:Type] != :XRef
+                                  raise HexaPDF::MalformedPDFError.new("Object is not a cross-reference stream", pos)
+                                end
+                                [obj.xref_table, obj.value]
+                              end
+        Revision.new(@document.wrap(trailer, type: :Trailer), xref_table: xref_table, parser: self)
       end
 
       # Looks at the given offset and returns +true+ if there is a cross-reference table at that position.
