@@ -93,15 +93,21 @@ module HexaPDF
       #   revision.delete(ref)
       #   revision.delete(oid)
       #
-      # Deletes the object specified either by reference or by object number from this revision.
+      # Deletes the object specified either by reference or by object number from this revision by
+      # marking it as free.
       #
-      # Note that this is *not* the same as marking an object with a certain object number as
-      # "free"!
-      def delete(ref_or_oid)
+      # If the option +mark_as_free+ is set to +false+, the object is really deleted.
+      def delete(ref_or_oid, mark_as_free: true)
         return unless object?(ref_or_oid)
         ref_or_oid = ref_or_oid.oid if ref_or_oid.kind_of?(ReferenceBehavior)
-        @xref_table.delete(ref_or_oid)
-        @objects.delete(ref_or_oid)
+
+        if mark_as_free
+          obj = object(ref_or_oid)
+          add_without_check(HexaPDF::PDF::Object.new(nil, oid: obj.oid, gen: obj.gen))
+        else
+          @xref_table.delete(ref_or_oid)
+          @objects.delete(ref_or_oid)
+        end
       end
 
       # :call-seq:

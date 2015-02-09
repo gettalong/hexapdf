@@ -87,17 +87,23 @@ describe HexaPDF::PDF::Revision do
     end
   end
 
-  it "deletes objects via delete" do
-    @rev.add(@obj)
-    @rev.delete(HexaPDF::PDF::Reference.new(1, 1))
-    assert(@rev.object?(@ref))
-    @rev.delete(@ref)
-    refute(@rev.object?(@ref))
+  describe "delete" do
+    it "deletes objects specified by reference" do
+      ref = HexaPDF::PDF::Reference.new(3, 0)
+      @rev.delete(ref, mark_as_free: false)
+      refute(@rev.object?(ref))
+    end
 
-    ref = HexaPDF::PDF::Reference.new(3, 0)
-    assert(@rev.object?(ref))
-    @rev.delete(3)
-    refute(@rev.object?(ref))
+    it "deletes objects specified by object number" do
+      @rev.delete(3, mark_as_free: false)
+      refute(@rev.object?(3))
+    end
+
+    it "marks the object as PDF null object when using mark_as_free=true" do
+      assert(5000, @rev.object(2).value)
+      @rev.delete(2)
+      assert(@rev.object(2).null?)
+    end
   end
 
   describe "object iteration" do
@@ -123,7 +129,7 @@ describe HexaPDF::PDF::Revision do
     assert_equal(@obj, rev.object(@ref))
     assert(rev.object?(@ref))
     assert_equal([@obj], rev.each.to_a)
-    rev.delete(@ref)
+    rev.delete(@ref, mark_as_free: false)
     refute(rev.object?(@ref))
   end
 

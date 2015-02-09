@@ -196,17 +196,22 @@ module HexaPDF
       # Deletes the indirect object specified via a reference or object and generation numbers from
       # the document.
       #
-      # The parameter +revision+ specifies from which revisions the object should be deleted:
+      # Parameters:
       #
-      # :all:: Delete the object from all revisions.
-      # :current:: Delete the object only from the current revision.
-      def delete(ref, gen = 0, revision: :all)
+      # revision:: Specifies from which revisions the object should be deleted:
+      #
+      #            :all:: Delete the object from all revisions.
+      #            :current:: Delete the object only from the current revision.
+      #
+      # mark_as_free:: If +true+, objects are only marked as free objects instead of being actually
+      #                deleted.
+      def delete(ref, gen = 0, revision: :all, mark_as_free: true)
         ref = Reference.new(ref, gen) unless ref.kind_of?(Reference)
         case revision
         when :current
-          @revisions.current.delete(ref)
+          @revisions.current.delete(ref, mark_as_free: mark_as_free)
         when :all
-          @revisions.each {|rev| rev.delete(ref)}
+          @revisions.each {|rev| rev.delete(ref, mark_as_free: mark_as_free)}
         else
           raise HexaPDF::Error, "Unsupported parameter revision=#{revision}"
         end

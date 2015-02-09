@@ -168,17 +168,17 @@ EOF
   describe "delete" do
     it "works with a Reference object as parameter" do
       @doc.add(5)
-      @doc.delete(HexaPDF::PDF::Reference.new(1, 0))
+      @doc.delete(HexaPDF::PDF::Reference.new(1, 0), mark_as_free: false)
       refute(@doc.object?(1, 0))
     end
 
     it "works with an object number and an optional generation number as parameters" do
       @doc.add(5)
-      @doc.delete(1)
+      @doc.delete(1, mark_as_free: false)
       refute(@doc.object?(1))
 
       @doc.add(5)
-      @doc.delete(1, 0)
+      @doc.delete(1, 0, mark_as_free: false)
       refute(@doc.object?(1, 0))
     end
 
@@ -192,13 +192,18 @@ EOF
       end
 
       it "deletes an object for all revisions when revision = :all" do
-        @doc.delete(@ref, revision: :all)
+        @doc.delete(@ref, revision: :all, mark_as_free: false)
         refute(@doc.object?(@ref))
       end
 
       it "deletes an object only in the current revision when revision = :current" do
-        @doc.delete(@ref, revision: :current)
+        @doc.delete(@ref, revision: :current, mark_as_free: false)
         assert(@doc.object?(@ref))
+      end
+
+      it "marks the object as PDF null object when using mark_as_free=true" do
+        @doc.delete(@ref, revision: :current)
+        assert(@doc.object(@ref).null?)
       end
     end
 
