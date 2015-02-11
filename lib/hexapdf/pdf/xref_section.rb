@@ -5,17 +5,17 @@ require 'hexapdf/pdf/utils/object_hash'
 module HexaPDF
   module PDF
 
-    # Manages the indirect objects of one cross-reference table or stream.
+    # Manages the indirect objects of one cross-reference section or stream.
     #
-    # A PDF file can have more than one cross-reference table or stream which are all daisy-chained
-    # together. This allows later tables to override entries in prior ones. This is automatically
+    # A PDF file can have more than one cross-reference section or stream which are all daisy-chained
+    # together. This allows later sections to override entries in prior ones. This is automatically
     # and transparently done by HexaPDF.
     #
-    # Note that a cross-reference table may contain a single object number only once.
+    # Note that a cross-reference section may contain a single object number only once.
     #
     # See: Revision
     # See: PDF1.7 s7.5.4, s7.5.8
-    class XRefTable < Utils::ObjectHash
+    class XRefSection < Utils::ObjectHash
 
       # One entry of a cross-reference section or stream.
       #
@@ -73,12 +73,12 @@ module HexaPDF
       # used.
       private :"[]="
 
-      # Adds an in-use entry to the cross-reference table.
+      # Adds an in-use entry to the cross-reference section.
       def add_in_use_entry(oid, gen, pos)
         self[oid, gen] = self.class.in_use_entry(oid, gen, pos)
       end
 
-      # Adds a free entry to the cross-reference table.
+      # Adds a free entry to the cross-reference section.
       def add_free_entry(oid, gen)
         self[oid, gen] = self.class.free_entry(oid, gen)
       end

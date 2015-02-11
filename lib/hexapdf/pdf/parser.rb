@@ -3,7 +3,7 @@
 require 'hexapdf/error'
 require 'hexapdf/pdf/tokenizer'
 require 'hexapdf/pdf/stream'
-require 'hexapdf/pdf/xref_table'
+require 'hexapdf/pdf/xref_section'
 require 'hexapdf/pdf/revision'
 
 module HexaPDF
@@ -29,8 +29,8 @@ module HexaPDF
       # Loads the indirect (potentially compressed) object specified by the given cross-reference
       # entry.
       #
-      # For information about the +xref_entry+ parameter, have a look at XRefTable and
-      # XRefTable::Entry.
+      # For information about the +xref_entry+ parameter, have a look at XRefSection and
+      # XRefSection::Entry.
       def load_object(xref_entry)
         obj, oid, gen, stream = case xref_entry.type
                                 when :in_use
@@ -45,7 +45,7 @@ module HexaPDF
 
         if xref_entry.oid != 0 && (oid != xref_entry.oid || gen != xref_entry.gen)
           raise HexaPDF::MalformedPDFError.new("The oid,gen (#{oid},#{gen}) values of the indirect object don't " +
-                                               "match the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref table")
+                                               "match the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref section")
         end
 
         @document.wrap(obj, oid: oid, gen: gen, stream: stream)
@@ -106,41 +106,41 @@ module HexaPDF
         [object, oid, gen, stream]
       end
 
-      # Loads a single Revision whose cross-reference table/stream is located at the given position.
+      # Loads a single Revision whose cross-reference section/stream is located at the given position.
       def load_revision(pos)
-        xref_table, trailer = if xref_table?(pos)
-                                parse_xref_table_and_trailer(pos)
-                              else
-                                obj = load_object(XRefTable.in_use_entry(0, 0, pos))
-                                if !obj.value.kind_of?(Hash) || obj.value[:Type] != :XRef
-                                  raise HexaPDF::MalformedPDFError.new("Object is not a cross-reference stream", pos)
+        xref_section, trailer = if xref_section?(pos)
+                                  parse_xref_section_and_trailer(pos)
+                                else
+                                  obj = load_object(XRefSection.in_use_entry(0, 0, pos))
+                                  if !obj.value.kind_of?(Hash) || obj.value[:Type] != :XRef
+                                    raise HexaPDF::MalformedPDFError.new("Object is not a cross-reference stream", pos)
+                                  end
+                                  [obj.xref_section, obj.value]
                                 end
-                                [obj.xref_table, obj.value]
-                              end
-        Revision.new(@document.wrap(trailer, type: :Trailer), xref_table: xref_table, parser: self)
+        Revision.new(@document.wrap(trailer, type: :Trailer), xref_section: xref_section, parser: self)
       end
 
-      # Looks at the given offset and returns +true+ if there is a cross-reference table at that position.
-      def xref_table?(offset)
+      # Looks at the given offset and returns +true+ if there is a cross-reference section at that position.
+      def xref_section?(offset)
         @tokenizer.pos = offset + @header_offset
         token = @tokenizer.peek_token
         token.kind_of?(Tokenizer::Token) && token == 'xref'
       end
 
-      # Parses the cross-reference table at the given position and the following trailer and returns
-      # them as an array consisting of an XRefTable instance and a hash.
+      # Parses the cross-reference section at the given position and the following trailer and returns
+      # them as an array consisting of an XRefSection instance and a hash.
       #
-      # Note that this method can only parse cross-reference tables, not cross-reference streams!
+      # Note that this method can only parse cross-reference sections, not cross-reference streams!
       #
       # See: PDF1.7 s7.5.4, s7.5.5; ADB1.7 sH.3-3.4.3
-      def parse_xref_table_and_trailer(offset)
+      def parse_xref_section_and_trailer(offset)
         @tokenizer.pos = offset + @header_offset
         token = @tokenizer.next_token
         unless token.kind_of?(Tokenizer::Token) && token == 'xref'
-          raise HexaPDF::MalformedPDFError.new("Xref table doesn't start with keyword xref", @tokenizer.pos)
+          raise HexaPDF::MalformedPDFError.new("Xref section doesn't start with keyword xref", @tokenizer.pos)
         end
 
-        xref = XRefTable.new
+        xref = XRefSection.new
         start = @tokenizer.next_token
         while start.kind_of?(Integer)
           number_of_entries = @tokenizer.next_token
@@ -174,7 +174,7 @@ module HexaPDF
         [xref, trailer]
       end
 
-      # Returns the offset of the main cross-reference table/stream.
+      # Returns the offset of the main cross-reference section/stream.
       #
       # Implementation note: Normally, the %%EOF marker has to be on the last line, however, Adobe
       # viewers relax this restriction and so do we.

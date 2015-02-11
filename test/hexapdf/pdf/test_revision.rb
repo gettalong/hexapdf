@@ -3,15 +3,15 @@
 require 'test_helper'
 require 'hexapdf/pdf/revision'
 require 'hexapdf/pdf/object'
-require 'hexapdf/pdf/xref_table'
+require 'hexapdf/pdf/xref_section'
 require 'stringio'
 
 describe HexaPDF::PDF::Revision do
 
   before do
-    @xref_table = HexaPDF::PDF::XRefTable.new
-    @xref_table.add_in_use_entry(2, 0, 5000)
-    @xref_table.add_free_entry(3, 0)
+    @xref_section = HexaPDF::PDF::XRefSection.new
+    @xref_section.add_in_use_entry(2, 0, 5000)
+    @xref_section.add_free_entry(3, 0)
     @obj = HexaPDF::PDF::Object.new(:val, oid: 1, gen: 0)
     @ref = HexaPDF::PDF::Reference.new(1, 0)
 
@@ -23,7 +23,7 @@ describe HexaPDF::PDF::Revision do
         HexaPDF::PDF::Object.new(:Test, oid: entry.oid, gen: entry.gen)
       end
     end
-    @rev = HexaPDF::PDF::Revision.new({}, parser: @loader, xref_table: @xref_table)
+    @rev = HexaPDF::PDF::Revision.new({}, parser: @loader, xref_section: @xref_section)
   end
 
   it "needs the trailer as first parameter on initialization" do
@@ -31,8 +31,8 @@ describe HexaPDF::PDF::Revision do
     assert_equal({}, rev.trailer)
   end
 
-  it "takes an xref table and/or a parser on initialization" do
-    rev = HexaPDF::PDF::Revision.new({}, parser: @loader, xref_table: @xref_table)
+  it "takes an xref section and/or a parser on initialization" do
+    rev = HexaPDF::PDF::Revision.new({}, parser: @loader, xref_section: @xref_section)
     assert_equal(:Test, rev.object(2).value)
   end
 
@@ -69,19 +69,19 @@ describe HexaPDF::PDF::Revision do
       assert_equal(@obj, @rev.object(1))
     end
 
-    it "loads an object that is defined in the cross-reference table" do
+    it "loads an object that is defined in the cross-reference section" do
       obj = @rev.object(HexaPDF::PDF::Reference.new(2, 0))
       assert_equal(:Test, obj.value)
       assert_equal(2, obj.oid)
       assert_equal(0, obj.gen)
     end
 
-    it "loads an object that is defined in the cross-reference table by using only the object number" do
+    it "loads an object that is defined in the cross-reference section by using only the object number" do
       obj = @rev.object(2)
       refute_nil(obj)
     end
 
-    it "loads free entries in the cross-reference table as special PDF null objects" do
+    it "loads free entries in the cross-reference section as special PDF null objects" do
       obj = @rev.object(HexaPDF::PDF::Reference.new(3, 0))
       assert_nil(obj.value)
     end
@@ -123,7 +123,7 @@ describe HexaPDF::PDF::Revision do
     end
   end
 
-  it "works without a cross-reference table" do
+  it "works without a cross-reference section" do
     rev = HexaPDF::PDF::Revision.new({})
     rev.add(@obj)
     assert_equal(@obj, rev.object(@ref))

@@ -67,7 +67,7 @@ module HexaPDF
       end
 
       # Iterates over all revisions from current to oldest one, potentially loading revisions for
-      # cross-reference tables/streams of the underlying PDF document.
+      # cross-reference sections/streams of the underlying PDF document.
       def each
         return to_enum(__method__) unless block_given?
 

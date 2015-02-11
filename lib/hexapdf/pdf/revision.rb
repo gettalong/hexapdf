@@ -10,10 +10,10 @@ module HexaPDF
     # Embodies one revision of a PDF file, either the initial version or an incremental update.
     #
     # The purpose of a Revision object is to manage the objects and the trailer of one revision.
-    # These objects can either be added manually or loaded from a cross-reference table or stream.
+    # These objects can either be added manually or loaded from a cross-reference section or stream.
     # Since a PDF file can be incrementally updated, it can have multiple revisions.
     #
-    # If a revision doesn't have an associated cross-reference table or stream, then it wasn't
+    # If a revision doesn't have an associated cross-reference section or stream, then it wasn't
     # created from a file.
     #
     # See: PDF1.7 s7.5.6
@@ -26,12 +26,12 @@ module HexaPDF
 
       # Creates a new Revision object.
       #
-      # The trailer object needs to be supplied. If an +xref_table+ is supplied, then +parser+
+      # The trailer object needs to be supplied. If an +xref_section+ is supplied, then +parser+
       # also needs to be supplied!
-      def initialize(trailer, xref_table: nil, parser: nil)
+      def initialize(trailer, xref_section: nil, parser: nil)
         @trailer = trailer
         @parser = parser
-        @xref_table = xref_table || XRefTable.new
+        @xref_section = xref_section || XRefSection.new
         @objects = Utils::ObjectHash.new
       end
 
@@ -43,17 +43,17 @@ module HexaPDF
       # this revision, or +nil+ otherwise.
       #
       # If the revision has an entry but one that is pointing to a free entry in the cross-reference
-      # table, an object representing PDF null is returned.
+      # section, an object representing PDF null is returned.
       def object(ref)
         oid, gen = if ref.kind_of?(ReferenceBehavior)
                      [ref.oid, ref.gen]
                    else
-                     [ref, @objects.gen_for_oid(ref) || @xref_table.gen_for_oid(ref)]
+                     [ref, @objects.gen_for_oid(ref) || @xref_section.gen_for_oid(ref)]
                    end
 
         if @objects.entry?(oid, gen)
           @objects[oid, gen]
-        elsif (xref_entry = @xref_table[oid, gen])
+        elsif (xref_entry = @xref_section[oid, gen])
           add_without_check(@parser.load_object(xref_entry))
         else
           nil
@@ -70,9 +70,9 @@ module HexaPDF
       # * for the given object number.
       def object?(ref)
         if ref.kind_of?(ReferenceBehavior)
-          @objects.entry?(ref.oid, ref.gen) || @xref_table.entry?(ref.oid, ref.gen)
+          @objects.entry?(ref.oid, ref.gen) || @xref_section.entry?(ref.oid, ref.gen)
         else
-          @objects.entry?(ref) || @xref_table.entry?(ref)
+          @objects.entry?(ref) || @xref_section.entry?(ref)
         end
       end
 
@@ -105,7 +105,7 @@ module HexaPDF
           obj = object(ref_or_oid)
           add_without_check(HexaPDF::PDF::Object.new(nil, oid: obj.oid, gen: obj.gen))
         else
-          @xref_table.delete(ref_or_oid)
+          @xref_section.delete(ref_or_oid)
           @objects.delete(ref_or_oid)
         end
       end
@@ -116,7 +116,7 @@ module HexaPDF
       #
       # Calls the given block once for every object of the revision.
       #
-      # Objects that are loadable via an associated cross-reference table but are currently not, are
+      # Objects that are loadable via an associated cross-reference section but are currently not, are
       # loaded automatically.
       def each(&block)
         load_all_objects
@@ -139,12 +139,12 @@ module HexaPDF
 
       private
 
-      # Loads all objects from the associated cross-reference table.
+      # Loads all objects from the associated cross-reference section.
       def load_all_objects
         return if defined?(@all_objects_loaded)
         @all_objects_loaded = true
 
-        @xref_table.each do |(oid, gen), data|
+        @xref_section.each do |(oid, _gen), data|
           next if @objects.entry?(oid)
           add_without_check(@parser.load_object(data))
         end
