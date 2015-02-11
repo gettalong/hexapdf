@@ -58,8 +58,8 @@ module HexaPDF
         #   objhash.entry?(oid)        -> true or false
         #   objhash.entry?(oid, gen)   -> true or false
         #
-        # Returns +true+ if the table has an entry for the given object number, or for the given
-        # object and generation numbers.
+        # Returns +true+ if there is an entry for the given object number, or for the given object
+        # and generation numbers.
         def entry?(oid, gen = nil)
           (gen ? gen_for_oid(oid) == gen : @oids.key?(oid))
         end
