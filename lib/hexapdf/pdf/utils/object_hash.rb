@@ -80,6 +80,12 @@ module HexaPDF
           @table.each(&block)
         end
 
+        # Return all used object numbers as an array.
+        def oids
+          @oids.keys
+        end
+        private :oids
+
       end
 
     end
