@@ -88,6 +88,32 @@ module HexaPDF
         self[oid, 0] = self.class.compressed_entry(oid, objstm, pos)
       end
 
+      # :call-seq:
+      #   xref_section.each_subsection {|sub| block }   -> xref_section
+      #   xref_section.each_subsection                  -> Enumerator
+      #
+      # Calls the given block once for every subsection of this cross-reference section. Each
+      # yielded subsection is a sorted array of cross-reference entries.
+      #
+      # If this section contains no objects, a single empty array is yielded (corresponding to a
+      # subsection with zero elements).
+      #
+      # The subsections are dynamically generated based on the object numbers in this section.
+      def each_subsection
+        return to_enum(__method__) unless block_given?
+
+        temp = []
+        oids.sort.each do |oid|
+          if !temp.empty? && temp[-1].oid + 1 != oid
+            yield(temp)
+            temp = []
+          end
+          temp << self[oid]
+        end
+        yield(temp)
+        self
+      end
+
     end
 
   end
