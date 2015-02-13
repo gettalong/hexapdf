@@ -52,6 +52,11 @@ module HexaPDF
         !@document.nil?
       end
 
+      # Returns +true+ if the object represents a PDF null object.
+      def null?
+        @value.nil?
+      end
+
       def inspect #:nodoc:
         "#<#{self.class.name} [#{oid}, #{gen}] value=#{value.inspect}>"
       end
