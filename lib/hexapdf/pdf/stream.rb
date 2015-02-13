@@ -13,7 +13,8 @@ module HexaPDF
     # PDF.
     #
     # The +source+ can either be an IO stream which is read starting from a specific +offset+ for a
-    # specific +length+, or a Fiber (in which case the +offset+ and +length+ values are ignored).
+    # specific +length+, or a Fiber (see Filter) in which case the +offset+ and +length+ values are
+    # ignored.
     #
     # The +filter+ and +decode_parms+ are automatically normalized to arrays on assignment to ease
     # further processing.
@@ -53,8 +54,8 @@ module HexaPDF
     # Such a stream object in PDF contains string data but of possibly unlimited length. Therefore
     # it is used for large amounts of data like images, page descriptions or embedded files.
     #
-    # Note that the basic Object class cannot hold stream data, only the sub class Stream contains
-    # the necessary methods to conveniently work with the stream data!
+    # The basic Object class cannot hold stream data, only the sub class Stream contains the
+    # necessary methods to conveniently work with the stream data!
     #
     # See: PDF1.7 s7.3.8
     class Stream < HexaPDF::PDF::Object
@@ -88,8 +89,8 @@ module HexaPDF
 
       # Returns the (possibly decoded) stream data as string.
       #
-      # Note that after this method has been called, the original, possibly encoded stream data is
-      # not available anymore!
+      # After this method has been called, the original, possibly encoded stream data is not
+      # available anymore!
       def stream
         unless @stream.kind_of?(String)
           @stream = HexaPDF::PDF::Filter.string_from_source(stream_decoder)
@@ -98,11 +99,16 @@ module HexaPDF
       end
 
       # Returns the raw stream object.
+      #
+      # The returned value can be of many different types (see #stream=). For working with the
+      # decoded stream contents use #stream.
       def raw_stream
         @stream
       end
 
       # Returns the decoder Fiber for the stream data.
+      #
+      # See the Filter module for more information on how to work with the fiber.
       def stream_decoder
         source = stream_source
 
@@ -116,6 +122,8 @@ module HexaPDF
       end
 
       # Returns the encoder Fiber for the stream data.
+      #
+      # See the Filter module for more information on how to work with the fiber.
       def stream_encoder
         encoder_data = [document.unwrap(value[:Filter])].flatten.
           zip([document.unwrap(value[:DecodeParms])].flatten).
