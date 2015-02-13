@@ -21,11 +21,6 @@ module HexaPDF
       # This object is returned when there are no more tokens to read.
       NO_MORE_TOKENS = ::Object.new
 
-      # Characters defined as whitespace.
-      #
-      # See: PDF1.7 s7.2.2
-      WHITESPACE = "\0\t\n\f\r "
-
       # The IO object from the tokens are read.
       attr_reader :io
 
@@ -110,11 +105,15 @@ module HexaPDF
 
       private
 
+      # Characters defined as whitespace.
+      #
+      # See: PDF1.7 s7.2.2
+      WHITESPACE = "\0\t\n\f\r "
+
       # Characters defined as delimiters.
       # See: PDF1.7 s7.2.2
       DELIMITER = "()<>{}/[]%"
 
-      WHITESPACE_SINGLE_RE = /[#{WHITESPACE}]/
       WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/
       WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
 
@@ -126,7 +125,7 @@ module HexaPDF
       def parse_token
         prepare_string_scanner(20)
         case byte = @ss.get_byte
-        when WHITESPACE_SINGLE_RE
+        when WHITESPACE_MULTI_RE
           @ss.skip(WHITESPACE_MULTI_RE)
           parse_token
         when '/'
