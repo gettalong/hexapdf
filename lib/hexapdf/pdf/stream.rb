@@ -157,7 +157,9 @@ module HexaPDF
         elsif @stream.source.kind_of?(Fiber)
           @stream.source
         else
-          HexaPDF::PDF::Filter.source_from_io(@stream.source, pos: @stream.offset || 0, length: @stream.length || -1)
+          HexaPDF::PDF::Filter.source_from_io(@stream.source, pos: @stream.offset || 0,
+                                              length: @stream.length || -1,
+                                              chunk_size: config['io.chunk_size'])
         end
       end
 

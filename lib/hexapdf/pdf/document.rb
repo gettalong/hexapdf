@@ -37,6 +37,12 @@ module HexaPDF
       #    it should contain the name of a constant that contains a PDF object class.
       #
       #    This mapping is used to provide automatic wrapping of objects in the #wrap method.
+      #
+      # io.chunk_size::
+      #    The size of the chunks that are used when reading IO data.
+      #
+      #    This can be used to limit the memory needed for reading or writing PDF files with huge
+      #    stream objects.
       def self.default_config
         {
           # See PDF1.7 s7.4.1, ADB sH.3 3.3
@@ -61,6 +67,7 @@ module HexaPDF
           },
           'object.map' => {
           },
+          'io.chunk_size' => 2**16,
         }
       end
 
