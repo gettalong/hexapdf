@@ -115,17 +115,6 @@ EOF
       set_string("1 0 obj\n<< >>\nstream\nendstream\ntest\nendobj\n")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
     end
-
-    it "fails if the value is not a correct object" do
-      set_string("1 0 obj << /name ] >> endobj")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
-      set_string("1 0 obj << /name other >> endobj")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
-      set_string("1 0 obj << (string) (key) >> endobj")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
-      set_string("1 0 obj << /NoValueForKey >> endobj")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
-    end
   end
 
   describe "load_object" do

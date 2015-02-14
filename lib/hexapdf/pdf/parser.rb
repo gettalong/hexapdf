@@ -69,7 +69,7 @@ module HexaPDF
           raise HexaPDF::MalformedPDFError.new("No valid object found", offset)
         end
 
-        object = parse_object
+        object = @tokenizer.parse_object
 
         tok = @tokenizer.next_token
 
@@ -166,7 +166,7 @@ module HexaPDF
           raise HexaPDF::MalformedPDFError.new("Trailer doesn't start with keyword trailer", @tokenizer.pos)
         end
 
-        trailer = parse_object
+        trailer = @tokenizer.parse_object
         unless trailer.kind_of?(Hash)
           raise HexaPDF::MalformedPDFError.new("Trailer is not a dictionary, but a(n) #{trailer.class}", @tokenizer.pos)
         end
@@ -220,65 +220,6 @@ module HexaPDF
         @io.seek(0)
         @header_offset = @io.read(1024).index(/%PDF-(\d\.\d)/) || 0
         @header_version = $1
-      end
-
-      # Parses the PDF object at the current position.
-      #
-      # If +allow_end_array_token+ is +true+, the ']' token is permitted to facilitate the use of
-      # this method during array parsing.
-      #
-      # See: PDF1.7 s7.3
-      def parse_object(allow_end_array_token = false)
-        token = @tokenizer.next_token
-        if token.kind_of?(Tokenizer::Token)
-          case token
-          when '['
-            parse_array
-          when '<<'
-            parse_dictionary
-          when ']'
-            if allow_end_array_token
-              token
-            else
-              raise HexaPDF::MalformedPDFError.new("Found invalid end array token ']'", @tokenizer.pos)
-            end
-          else
-            raise HexaPDF::MalformedPDFError.new("Invalid object, got token #{token}", @tokenizer.pos)
-          end
-        else
-          token
-        end
-      end
-
-      # See: PDF1.7 s7.3.6
-      def parse_array
-        result = []
-        loop do
-          obj = parse_object(true)
-          break if obj.kind_of?(Tokenizer::Token) && obj == ']'
-          result << obj
-        end
-        result
-      end
-
-      # See: PDF1.7 s7.3.7
-      def parse_dictionary
-        result = {}
-        loop do
-          # Use Tokenizer directly because we either need a Name or the '>>' token here, the latter
-          # would throw an error with #parse_object.
-          key = @tokenizer.next_token
-          break if key.kind_of?(Tokenizer::Token) && key == '>>'
-          unless key.kind_of?(Symbol)
-            raise HexaPDF::MalformedPDFError.new("Dictionary keys must be PDF name objects", @tokenizer.pos)
-          end
-
-          val = parse_object
-          next if val.nil?
-
-          result[key] = val
-        end
-        result
       end
 
     end

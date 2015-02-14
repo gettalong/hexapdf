@@ -79,6 +79,35 @@ module HexaPDF
         tok
       end
 
+      # Parses the PDF object at the current position. This is different from #next_token because
+      # arrays and dictionaries consist of multiple tokens.
+      #
+      # If +allow_end_array_token+ is +true+, the ']' token is permitted to facilitate the use of
+      # this method during array parsing.
+      #
+      # See: PDF1.7 s7.3
+      def parse_object(allow_end_array_token = false)
+        token = next_token
+        if token.kind_of?(Token)
+          case token
+          when '['
+            parse_array
+          when '<<'
+            parse_dictionary
+          when ']'
+            if allow_end_array_token
+              token
+            else
+              raise HexaPDF::MalformedPDFError.new("Found invalid end array token ']'", pos)
+            end
+          else
+            raise HexaPDF::MalformedPDFError.new("Invalid object, got token #{token}", pos)
+          end
+        else
+          token
+        end
+      end
+
       # Reads the byte at the current position and advances the scan pointer.
       def next_byte
         prepare_string_scanner(1)
@@ -254,6 +283,41 @@ module HexaPDF
         str = scan_until_with_eof_check(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
         str.gsub!(/#[A-Fa-f0-9]{2}/) {|m| m[1, 2].hex.chr }
         str.to_sym
+      end
+
+      # Parses the array at the current position.
+      #
+      # See: PDF1.7 s7.3.6
+      def parse_array
+        result = []
+        loop do
+          obj = parse_object(true)
+          break if obj.kind_of?(Tokenizer::Token) && obj == ']'
+          result << obj
+        end
+        result
+      end
+
+      # Parses the dictionary at the current position.
+      #
+      # See: PDF1.7 s7.3.7
+      def parse_dictionary
+        result = {}
+        loop do
+          # Use #next_token because we either need a Name or the '>>' token here, the latter would
+          # throw an error with #parse_object.
+          key = next_token
+          break if key.kind_of?(Tokenizer::Token) && key == '>>'
+          unless key.kind_of?(Symbol)
+            raise HexaPDF::MalformedPDFError.new("Dictionary keys must be PDF name objects", pos)
+          end
+
+          val = parse_object
+          next if val.nil?
+
+          result[key] = val
+        end
+        result
       end
 
 

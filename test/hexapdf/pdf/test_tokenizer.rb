@@ -158,4 +158,35 @@ describe HexaPDF::PDF::Tokenizer do
     end
   end
 
+  describe "parse_object" do
+    it "works for all PDF object types, including array and dictionary" do
+      set_string(<<-EOF.chomp.gsub(/^ {8}/, ''))
+        true false null 123 34.5 (string) <4E6F76> /Name 1 0 R
+        [5 6 /Name] <</Name 5>>
+        EOF
+      assert_equal(true, @tokenizer.parse_object)
+      assert_equal(false, @tokenizer.parse_object)
+      assert_nil(@tokenizer.parse_object)
+      assert_equal(123, @tokenizer.parse_object)
+      assert_equal(34.5, @tokenizer.parse_object)
+      assert_equal("string".b, @tokenizer.parse_object)
+      assert_equal("Nov".b, @tokenizer.parse_object)
+      assert_equal(:Name, @tokenizer.parse_object)
+      assert_equal(HexaPDF::PDF::Reference.new(1, 0), @tokenizer.parse_object)
+      assert_equal([5, 6, :Name], @tokenizer.parse_object)
+      assert_equal({Name: 5}, @tokenizer.parse_object)
+    end
+
+    it "fails if the value is not a correct object" do
+      set_string("<< /name ] >>")
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_object }
+      set_string("other")
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_object }
+      set_string("<< (string) (key) >>")
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_object }
+      set_string("<< /NoValueForKey >>")
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_object }
+    end
+  end
+
 end
