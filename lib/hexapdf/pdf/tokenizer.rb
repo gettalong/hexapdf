@@ -153,34 +153,35 @@ module HexaPDF
       # returned if there are no more tokens available.
       def parse_token
         prepare_string_scanner(20)
-        case byte = @ss.get_byte
-        when WHITESPACE_MULTI_RE
+        byte = @ss.get_byte
+        case (byte ? byte.ord : -1)
+        when 0, 9, 10, 12, 13, 32  # \0 \t \n \f \r \s
           @ss.skip(WHITESPACE_MULTI_RE)
           parse_token
-        when '/'
+        when 47 # /
           parse_name
-        when '('
+        when 40 # (
           parse_literal_string
-        when '<'
+        when 60 # <
           if @ss.peek(1) != '<'
             parse_hex_string
           else
             @ss.pos += 1
             Token.new('<<'.force_encoding(Encoding::BINARY))
           end
-        when '>'
+        when 62 # >
           unless @ss.get_byte == '>'
             raise HexaPDF::MalformedPDFError.new("Delimiter '>' found at invalid position", pos)
           end
           Token.new('>>'.force_encoding(Encoding::BINARY))
-        when '[', ']', '{', '}'
+        when 91, 93, 123, 125 # [ ] { }
           Token.new(byte)
-        when '%' # start of comment, until end of line
+        when 37 # %
           until @ss.skip_until(/(?=[\r\n])/)
             return NO_MORE_TOKENS unless prepare_string_scanner
           end
           parse_token
-        when nil # we reached the end of the file
+        when -1 # we reached the end of the file
           NO_MORE_TOKENS
         else # everything else consisting of regular characters
           byte << (scan_until_with_eof_check(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/))
@@ -193,17 +194,17 @@ module HexaPDF
       # See: PDF1.7 s7.3.2, s7.3.3, s7.3.9
       def convert_keyword(str)
         case str
+        when /\A[+-]?\d+\z/
+          str.to_i
+        when /\A[+-]?(?:\d+\.?\d*|\.\d+)\z/
+          str << '0' if str[-1] == '.'
+          Float(str)
         when 'true'
           true
         when 'false'
           false
         when 'null'
           nil
-        when /\A[+-]?\d+\z/
-          str.to_i
-        when /\A[+-]?(?:\d+\.?\d*|\.\d+)\z/
-          str << '0' if str[-1] == '.'
-          Float(str)
         else
           Token.new(str)
         end
