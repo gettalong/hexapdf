@@ -156,6 +156,18 @@ module HexaPDF
         source
       end
 
+      # Sets the filters that should be used for encoding the stream.
+      #
+      # The arguments +filter+ as well as +decode_parms+ can either be a single items or arrays.
+      #
+      # The filters have to be specified in the *decoding order*! For example, if the filters would
+      # be [:A85, :Fl], the stream would first be encoded with the Flate and then with the ASCII85
+      # filter.
+      def set_filter(filter, decode_parms = nil)
+        value[:Filter] = filter
+        value[:DecodeParms] = decode_parms
+      end
+
       private
 
       # Returns the Fiber representing the unprocessed content of the stream.

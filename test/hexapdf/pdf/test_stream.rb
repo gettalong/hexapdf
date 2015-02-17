@@ -176,4 +176,18 @@ describe HexaPDF::PDF::Stream do
     end
   end
 
+  describe "set_filter" do
+    it "sets correct filter values without decode parameters" do
+      @stm.set_filter(:Test)
+      assert_equal(:Test, @stm.value[:Filter])
+      assert_nil(@stm.value[:DecodeParms])
+    end
+
+    it "sets correct filter/decode parameter values" do
+      @stm.set_filter([:Test, :Test], :Other)
+      assert_equal([:Test, :Test], @stm.value[:Filter])
+      assert_equal(:Other, @stm.value[:DecodeParms])
+    end
+  end
+
 end
