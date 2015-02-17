@@ -27,7 +27,7 @@ module HexaPDF
       include ReferenceBehavior
 
       # The wrapped object.
-      attr_reader :value
+      attr_accessor :value
 
       # Sets the associated PDF document.
       attr_writer :document
