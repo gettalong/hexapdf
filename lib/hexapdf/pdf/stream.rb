@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
-require 'hexapdf/pdf/object'
+require 'hexapdf/pdf/dictionary'
 require 'hexapdf/pdf/filter'
 
 module HexaPDF
@@ -9,8 +9,8 @@ module HexaPDF
 
     # Container for stream data from an existing PDF.
     #
-    # This helper class wraps all information necessary to read the stream data from an existing
-    # PDF.
+    # This helper class wraps all information necessary to read the stream data from an existing IO
+    # object.
     #
     # The +source+ can either be an IO stream which is read starting from a specific +offset+ for a
     # specific +length+, or a Fiber (see Filter) in which case the +offset+ and +length+ values are
@@ -58,7 +58,17 @@ module HexaPDF
     # necessary methods to conveniently work with the stream data!
     #
     # See: PDF1.7 s7.3.8
-    class Stream < HexaPDF::PDF::Object
+    class Stream < Dictionary
+
+      define_field :Length, type: Integer, required: true
+      define_field :Filter, type: [Symbol, Array]
+      define_field :DecodeParms, type: [Dictionary, Array]
+
+      define_field :F, type: Dictionary, version: '1.2' #TODO: File specification
+      define_field :FFilter, type: [Symbol, Array], version: '1.2'
+      define_field :FDecodeParms, type: [Dictionary, Array], version: '1.2'
+
+      define_field :DL, type: Integer
 
       # Creates a new Stream object.
       #
@@ -66,11 +76,7 @@ module HexaPDF
       # #stream=).
       def initialize(value, stream: nil, **kwargs)
         super(value, **kwargs)
-        unless value.kind_of?(Hash)
-          raise HexaPDF::Error, "A PDF stream object needs a Dictionary value, not a #{value.class}"
-        end
-
-        self.stream = stream # reassign for checking
+        self.stream = stream
       end
 
       # Assigns a new stream data object.
@@ -125,23 +131,17 @@ module HexaPDF
       #
       # See the Filter module for more information on how to work with the fiber.
       def stream_encoder
-        encoder_data = [document.unwrap(value[:Filter])].flatten.
-          zip([document.unwrap(value[:DecodeParms])].flatten).
-          delete_if {|f, d| f.nil? && d.nil?}
+        encoder_data = [document.unwrap(self[:Filter])].flatten.
+          zip([document.unwrap(self[:DecodeParms])].flatten).
+          delete_if {|f, d| f.nil?}
         source = stream_source
 
         if @stream.kind_of?(StreamData)
           decoder_data = @stream.filter.zip(@stream.decode_parms)
 
-          until decoder_data.empty? || encoder_data.empty?
-            i = decoder_data.length - 1
-            j = encoder_data.length - 1
-            if decoder_data[i] == encoder_data[j]
-              decoder_data.delete_at(i)
-              encoder_data.delete_at(j)
-            else
-              break
-            end
+          while !decoder_data.empty? && !encoder_data.empty? && decoder_data.last == encoder_data.last
+            decoder_data.pop
+            encoder_data.pop
           end
 
           decoder_data.each do |filter, decode_parms|
@@ -164,8 +164,8 @@ module HexaPDF
       # be [:A85, :Fl], the stream would first be encoded with the Flate and then with the ASCII85
       # filter.
       def set_filter(filter, decode_parms = nil)
-        value[:Filter] = filter
-        value[:DecodeParms] = decode_parms
+        self[:Filter] = filter
+        self[:DecodeParms] = decode_parms
       end
 
       private

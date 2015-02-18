@@ -49,19 +49,14 @@ describe HexaPDF::PDF::Stream do
     @document = OpenStruct.new
     @document.config = HexaPDF::PDF::Document.default_config
     def (@document).unwrap(obj); obj; end
+    def (@document).deref(obj); obj; end
 
     @stm = HexaPDF::PDF::Stream.new({}, document: @document)
   end
 
-  describe "initialization" do
-    it "accepts the stream keyword" do
-      stm = HexaPDF::PDF::Stream.new({}, document: @document, stream: 'other')
-      assert_equal('other', stm.stream)
-    end
-
-    it "fails if the value is not a PDF dictionary" do
-      assert_raises(HexaPDF::Error) { HexaPDF::PDF::Stream.new(:Name) }
-    end
+  it "#initialize accepts the stream keyword" do
+    stm = HexaPDF::PDF::Stream.new({}, document: @document, stream: 'other')
+    assert_equal('other', stm.stream)
   end
 
   describe "stream=" do
