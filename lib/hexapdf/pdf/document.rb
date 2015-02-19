@@ -119,7 +119,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.3.9
       def object(ref, gen = 0)
-        ref = Reference.new(ref, gen) unless ref.kind_of?(Reference)
+        ref = Reference.new(ref, gen) unless ref.kind_of?(ReferenceBehavior)
 
         obj = nil
         @revisions.each do |rev|
@@ -151,7 +151,7 @@ module HexaPDF
       # return +nil+ because this method takes *all* revisions into account. Also see the discussion
       # on #each for more information.
       def object?(ref, gen = 0)
-        ref = Reference.new(ref, gen) unless ref.kind_of?(Reference)
+        ref = Reference.new(ref, gen) unless ref.kind_of?(ReferenceBehavior)
         @revisions.each.any? {|rev| rev.object?(ref)}
       end
 
@@ -213,7 +213,7 @@ module HexaPDF
       # mark_as_free:: If +true+, objects are only marked as free objects instead of being actually
       #                deleted.
       def delete(ref, gen = 0, revision: :all, mark_as_free: true)
-        ref = Reference.new(ref, gen) unless ref.kind_of?(Reference)
+        ref = Reference.new(ref, gen) unless ref.kind_of?(ReferenceBehavior)
         case revision
         when :current
           @revisions.current.delete(ref, mark_as_free: mark_as_free)
