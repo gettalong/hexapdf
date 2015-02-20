@@ -72,9 +72,8 @@ EOF
     end
   end
 
-  describe "load_all" do
-    it "loads all revisions from the underlying IO object" do
-      @revisions.load_all
+  describe "initialize" do
+    it "automatically loads all revisions from the underlying IO object" do
       assert_equal(20, @revisions.revision(0).object(2).value)
       assert_equal(200, @revisions.revision(1).object(2).value)
     end

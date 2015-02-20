@@ -12,6 +12,8 @@ module HexaPDF
       include Enumerable
 
       # Creates a new revisions object for the given PDF document.
+      #
+      # If an initial revision is provided, all referenced revisions are also automatically added.
       def initialize(document, initial_revision: nil)
         @document = document
         @revisions = []
@@ -20,11 +22,11 @@ module HexaPDF
         else
           add
         end
+        load_all
       end
 
       # Returns the revision at the specified index.
       def revision(index)
-        load_all
         @revisions[index]
       end
 
@@ -56,7 +58,6 @@ module HexaPDF
       # Returns the deleted revision object, or +nil+ if the index was out of range or no matching
       # revision was found.
       def delete(index_or_rev)
-        load_all
         if @revisions.length == 1
           raise HexaPDF::Error, "A document must have a least one revision, can't delete last one"
         elsif index_or_rev.kind_of?(Integer)
@@ -66,29 +67,30 @@ module HexaPDF
         end
       end
 
-      # Iterates over all revisions from current to oldest one, potentially loading revisions for
-      # cross-reference sections/streams of the underlying PDF document.
-      def each
+      # :call-seq:
+      #   revisions.each {|rev| block }   -> revisions
+      #   revisions.each                  -> Enumerator
+      #
+      # Iterates over all revisions from current to oldest one.
+      #
+      # Changes in the number of revisions (i.e. if revisions are added or deleted) are *not*
+      # reflected while iterating!
+      def each(&block)
         return to_enum(__method__) unless block_given?
-
-        i = @revisions.length - 1
-        while i >= 0
-          yield(@revisions[i])
-          i += load_previous_revisions(i)
-          i -= 1
-        end
+        Array.new(@revisions).reverse_each(&block)
         self
       end
 
+      private
+
       # Loads all available revisions.
       def load_all
-        return if defined?(@all_revisions_loaded)
-        @all_revisions_loaded = true
-
-        each {}
+        i = @revisions.length - 1
+        while i >= 0
+          i += load_previous_revisions(i)
+          i -= 1
+        end
       end
-
-      private
 
       # :call-seq:
       #   doc.load_previous_revisions(i)     -> int
