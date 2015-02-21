@@ -5,6 +5,8 @@ require 'hexapdf/pdf/tokenizer'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/xref_section'
 require 'hexapdf/pdf/revision'
+require 'hexapdf/pdf/type/xref_stream'
+require 'hexapdf/pdf/type/object_stream'
 
 module HexaPDF
   module PDF
@@ -23,6 +25,7 @@ module HexaPDF
         @io = io
         @tokenizer = Tokenizer.new(io)
         @document = document
+        @object_stream_data = {}
         retrieve_pdf_header_offset_and_version
       end
 
@@ -38,7 +41,7 @@ module HexaPDF
                                 when :free
                                   [nil, xref_entry.oid, xref_entry.gen, nil]
                                 when :compressed
-                                  raise "Object streams are not implemented yet"
+                                  load_compressed_object(xref_entry)
                                 else
                                   raise HexaPDF::Error, "Invalid cross-reference type '#{xref_entry.type}' encountered"
                                 end
@@ -106,13 +109,26 @@ module HexaPDF
         [object, oid, gen, stream]
       end
 
+      # Loads the compressed object identified by the cross-reference entry.
+      def load_compressed_object(xref_entry)
+        unless @object_stream_data.key?(xref_entry.objstm)
+          obj = @document.object(xref_entry.objstm)
+          if !obj.respond_to?(:parse_stream)
+            raise HexaPDF::MalformedPDFError.new("Object with oid=#{xref_entry.objstm} is not an object stream")
+          end
+          @object_stream_data[xref_entry.objstm] = obj.parse_stream
+        end
+
+        [*@object_stream_data[xref_entry.objstm].object_by_index(xref_entry.pos), xref_entry.gen, nil]
+      end
+
       # Loads a single Revision whose cross-reference section/stream is located at the given position.
       def load_revision(pos)
         xref_section, trailer = if xref_section?(pos)
                                   parse_xref_section_and_trailer(pos)
                                 else
                                   obj = load_object(XRefSection.in_use_entry(0, 0, pos))
-                                  if !obj.value.kind_of?(Hash) || obj.value[:Type] != :XRef
+                                  if !obj.respond_to?(:xref_section)
                                     raise HexaPDF::MalformedPDFError.new("Object is not a cross-reference stream", pos)
                                   end
                                   [obj.xref_section, obj.value]
@@ -204,7 +220,7 @@ module HexaPDF
         unless @header_version
           raise HexaPDF::MalformedPDFError.new("PDF file header is missing or corrupt", 0)
         end
-        @header_version
+        @header_version.to_sym
       end
 
       private

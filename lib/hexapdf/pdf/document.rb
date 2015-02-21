@@ -6,6 +6,7 @@ require 'hexapdf/pdf/reference'
 require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/revisions'
+require 'hexapdf/pdf/type'
 
 module HexaPDF
   module PDF
@@ -66,6 +67,8 @@ module HexaPDF
             Crypt: nil
           },
           'object.map' => {
+            [:XRef, nil] => 'HexaPDF::PDF::Type::XRefStream',
+            [:ObjStm, nil] => 'HexaPDF::PDF::Type::ObjectStream',
           },
           'io.chunk_size' => 2**16,
         }

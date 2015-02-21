@@ -7,6 +7,31 @@ require 'stringio'
 describe HexaPDF::PDF::Parser do
 
   before do
+    @document = Object.new
+    def (@document).unwrap(obj)
+      obj.kind_of?(HexaPDF::PDF::Reference) ? 10 : obj
+    end
+    def (@document).deref(obj)
+      obj
+    end
+    def (@document).wrap(obj, type: nil, subtype: nil, oid: nil, gen: nil, stream: nil)
+      klass = if obj.kind_of?(Hash) && obj[:Type] == :XRef
+                HexaPDF::PDF::Type::XRefStream
+              elsif stream.nil?
+                HexaPDF::PDF::Object
+              else
+                HexaPDF::PDF::Stream
+              end
+      wrapped = klass.new(obj, document: self)
+      wrapped.oid = oid if oid
+      wrapped.gen = gen if gen
+      if stream
+        stream.source.seek(stream.offset)
+        wrapped.stream = stream.source.read(stream.length)
+      end
+      wrapped
+    end
+
     set_string(<<EOF)
 %PDF-1.7
 
@@ -23,6 +48,12 @@ endobj
 Hallo PDF!endstream
 endobj
 
+4 0 obj
+<</Type /XRef /Length 3 /W [1 1 1] /Index [1 1] /Size 2 >> stream
+\x01\x0A\x00
+endstream
+endobj
+
 xref
 0 4
 0000000000 65535 f 
@@ -34,27 +65,13 @@ xref
 trailer
 << /Test (now) >>
 startxref
-212
+308
 %%EOF
 EOF
   end
 
   def set_string(str)
-    @parser = HexaPDF::PDF::Parser.new(StringIO.new(str), self)
-  end
-
-  def unwrap(obj)
-    return obj unless obj.kind_of?(HexaPDF::PDF::Reference)
-    section, _ = @parser.parse_xref_section_and_trailer(@parser.startxref_offset)
-    @parser.parse_indirect_object(section[obj.oid, obj.gen].pos).first
-  end
-
-  def wrap(obj, type: nil, subtype: nil, oid: nil, gen: nil, stream: nil)
-    klass = stream.nil? ? HexaPDF::PDF::Object : HexaPDF::PDF::Stream
-    wrapped = klass.new(obj)
-    wrapped.oid = oid if oid
-    wrapped.gen = gen if gen
-    wrapped
+    @parser = HexaPDF::PDF::Parser.new(StringIO.new(str), @document)
   end
 
   describe "parse_indirect_object" do
@@ -137,12 +154,31 @@ EOF
       assert_nil(obj.value)
     end
 
-    it "fails if the xref entry type is invalid" do
-      assert_raises(HexaPDF::Error) { @parser.load_object(HexaPDF::PDF::XRefSection::Entry.new(:invalid)) }
+    it "can load a compressed object" do
+      def (@document).object(oid)
+        obj = Object.new
+        def obj.parse_stream
+          HexaPDF::PDF::Type::ObjectStream::Data.new("5 [1 2]", [1, 2], [0, 2])
+        end
+        obj
+      end
+
+      obj = @parser.load_object(HexaPDF::PDF::XRefSection.compressed_entry(2, 3, 1))
+      assert_kind_of(HexaPDF::PDF::Object, obj)
+      assert_equal([1, 2], obj.value)
     end
 
-    it "fails if the xref entry type is :compressed because this is not yet implemented" do
-      assert_raises(RuntimeError) { @parser.load_object(HexaPDF::PDF::XRefSection::Entry.new(:compressed)) }
+    it "fails if another object is found instead of an object stream" do
+      def (@document).object(oid)
+        :invalid
+      end
+      assert_raises(HexaPDF::MalformedPDFError) do
+        @parser.load_object(HexaPDF::PDF::XRefSection.compressed_entry(2, 1, 1))
+      end
+    end
+
+    it "fails if the xref entry type is invalid" do
+      assert_raises(HexaPDF::Error) { @parser.load_object(HexaPDF::PDF::XRefSection::Entry.new(:invalid)) }
     end
 
     it "fails if the object/generation numbers don't match" do
@@ -155,7 +191,7 @@ EOF
 
   describe "startxref_offset" do
     it "returns the correct offset" do
-      assert_equal(212, @parser.startxref_offset)
+      assert_equal(308, @parser.startxref_offset)
     end
 
     it "ignores garbage at the end of the file" do
@@ -181,7 +217,7 @@ EOF
 
   describe "file_header_version" do
     it "returns the correct version" do
-      assert_equal('1.7', @parser.file_header_version)
+      assert_equal(:'1.7', @parser.file_header_version)
     end
 
     it "fails if the header is mangled" do
@@ -191,7 +227,7 @@ EOF
 
     it "ignores junk at the beginning of the file and correctly calculates offset" do
       set_string("junk" * 200 + "\n%PDF-1.4\n")
-      assert_equal('1.4', @parser.file_header_version)
+      assert_equal(:'1.4', @parser.file_header_version)
       assert_equal(801, @parser.instance_variable_get(:@header_offset))
     end
   end
@@ -242,6 +278,16 @@ EOF
       revision = @parser.load_revision(@parser.startxref_offset)
       assert_equal({Test: 'now'}, revision.trailer.value)
       assert_equal(10, revision.object(1).value)
+    end
+
+    it "works for a cross-reference stream" do
+      revision = @parser.load_revision(212)
+      assert_equal({Type: :XRef, Length: 3, W: [1, 1, 1], Index: [1, 1], Size: 2}, revision.trailer.value)
+      assert_equal(10, revision.object(1).value)
+    end
+
+    it "fails if another object is found instead of a cross-reference stream" do
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.load_revision(10) }
     end
   end
 

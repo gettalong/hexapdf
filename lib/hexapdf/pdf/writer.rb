@@ -3,6 +3,8 @@
 require 'hexapdf/error'
 require 'hexapdf/pdf/serializer'
 require 'hexapdf/pdf/xref_section'
+require 'hexapdf/pdf/type/xref_stream'
+require 'hexapdf/pdf/type/object_stream'
 
 module HexaPDF
   module PDF
@@ -37,19 +39,20 @@ module HexaPDF
       end
 
       def write_revision(rev, previous_xref_pos = nil)
-        xref_section = XRefSection.new
+        xref_stream, object_streams = xref_and_object_streams(rev)
+        object_streams.each {|stm| stm.write_objects(rev)}
 
+        xref_section = XRefSection.new
         rev.each do |obj|
           if obj.null?
             xref_section.add_free_entry(obj.oid, obj.gen)
-          else
+          elsif (objstm = object_streams.find {|stm| stm.object_index(obj)})
+            xref_section.add_compressed_entry(obj.oid, objstm.oid, objstm.object_index(obj))
+          elsif !obj.kind_of?(Type::XRefStream)
             xref_section.add_in_use_entry(obj.oid, obj.gen, @io.pos)
             write_indirect_object(obj)
           end
         end
-
-        start_xref = @io.pos
-        write_xref_section(xref_section)
 
         trailer = rev.trailer.value.dup
         if previous_xref_pos
@@ -57,30 +60,63 @@ module HexaPDF
         else
           trailer.delete(:Prev)
         end
-        write_trailer(trailer, start_xref)
 
-        start_xref
+        startxref = @io.pos
+        if xref_stream
+          xref_section.add_in_use_entry(xref_stream.oid, xref_stream.gen, startxref)
+          xref_stream.update_with_xref_section_and_trailer(xref_section, trailer)
+          write_indirect_object(xref_stream)
+        else
+          write_xref_section(xref_section)
+          write_trailer(trailer)
+        end
+
+        write_startxref(startxref)
+
+        startxref
+      end
+
+      def xref_and_object_streams(rev)
+        xref_stream = nil
+        object_streams = []
+
+        rev.each do |obj|
+          if obj.kind_of?(Type::ObjectStream)
+            object_streams << obj
+          elsif obj.kind_of?(Type::XRefStream)
+            unless xref_stream.nil?
+              raise HexaPDF::Error, "A revision can only have one xref stream, at least two detected"
+            end
+            xref_stream = obj
+          end
+        end
+
+        if object_streams.size > 0 && xref_stream.nil?
+          raise HexaPDF::Error, "Cannot use object streams when there is no xref stream"
+        end
+
+        [xref_stream, object_streams]
       end
 
       def write_indirect_object(obj)
         @io << "#{obj.oid} #{obj.gen} obj\n"
-        write_object(obj)
+        obj.kind_of?(Stream) ? write_stream_object(obj) : write_object(obj)
         @io << "\nendobj\n"
       end
 
+      def write_stream_object(obj)
+        data = Filter.string_from_source(obj.stream_encoder)
+        obj.value[:Length] = data.size
+
+        write_object(obj)
+
+        @io << "stream\n"
+        @io << data
+        @io << "\nendstream"
+      end
+
       def write_object(obj)
-        if obj.kind_of?(HexaPDF::PDF::Stream)
-          data = Filter.string_from_source(obj.stream_encoder)
-          obj.value[:Length] = data.size
-        end
-
         @io << @serializer.serialize(obj)
-
-        if obj.kind_of?(HexaPDF::PDF::Stream)
-          @io << "stream\n"
-          @io << data
-          @io << "\nendstream"
-        end
       end
 
       def write_xref_section(xref_section)
@@ -93,15 +129,19 @@ module HexaPDF
             elsif entry.free?
               @io << "0000000000 65535 f \n"
             else
+              # Should never occur since we create the xref section!
               raise HexaPDF::Error, "Cannot use xref type #{entry.type} in cross-reference section"
             end
           end
         end
       end
 
-      def write_trailer(trailer, start_xref)
+      def write_trailer(trailer)
         @io << "trailer\n#{@serializer.serialize(trailer)}\n"
-        @io << "startxref\n#{start_xref}\n%%EOF\n"
+      end
+
+      def write_startxref(startxref)
+        @io << "startxref\n#{startxref}\n%%EOF\n"
       end
 
     end
