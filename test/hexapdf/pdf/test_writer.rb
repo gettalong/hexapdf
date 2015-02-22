@@ -23,26 +23,22 @@ xref
 0000000018 00000 n 
 0000000036 00000 n 
 trailer
-<</Size 3
->>
+<</Size 3>>
 startxref
 54
 %%EOF
 2 0 obj
-<</Length 10
->>stream
+<</Length 10>>stream
 Some data!
 endstream
 endobj
 xref
 2 1
-0000000163 00000 n 
+0000000162 00000 n 
 trailer
-<</Size 3
-/Prev 54
->>
+<</Size 3/Prev 54>>
 startxref
-221
+219
 %%EOF
 xref
 0 0
@@ -57,13 +53,7 @@ EOF
 %PDF-1.7
 %\xCF\xEC\xFF\xE8\xD7\xCB\xCD
 5 0 obj
-<</Type /ObjStm
-/N 1
-/First 4
-/Filter /FlateDecode
-/Length 15
-/DecodeParms null
->>stream
+<</Type/ObjStm/N 1/First 4/Filter/FlateDecode/Length 15/DecodeParms null>>stream
 x\xDA3T0P04P\x00\x00\x04\xA1\x01#
 endstream
 endobj
@@ -71,45 +61,25 @@ endobj
 20
 endobj
 3 0 obj
-<</Size 3
-/Type /XRef
-/W [1 1 2]
-/Index [0 4 5 1]
-/Filter /FlateDecode
-/DecodeParms <</Columns 4
-/Predictor 12
->>
-/Length 31
->>stream
-x\xDAcb`\xF8\xFF\x9F\x89\x89\x95\x91\x91\xE9\x7F?\x03\x03\x13\x83\x10\x88\xC8a`\x00\x00C.\x04\x1E
+<</Size 3/Type/XRef/W[1 1 2]/Index[0 4 5 1]/Filter/FlateDecode/DecodeParms<</Columns 4/Predictor 12>>/Length 31>>stream
+x\xDAcb`\xF8\xFF\x9F\x89\x89\x95\x91\x91\xE9\x7F;\x03\x03\x13\x83\x10\x88(a`\x00\x00B\xDE\x04\x1E
 endstream
 endobj
 startxref
-166
+158
 %%EOF
 2 0 obj
-<</Length 10
->>stream
+<</Length 10>>stream
 Some data!
 endstream
 endobj
 4 0 obj
-<</Size 3
-/Prev 166
-/Type /XRef
-/W [1 2 2]
-/Index [2 1 4 1]
-/Filter /FlateDecode
-/DecodeParms <</Columns 5
-/Predictor 12
->>
-/Length 20
->>stream
-x\xDAcbd\xACd``b`\xB0b`\x00\x00\x054\x00\xBA
+<</Size 3/Prev 158/Type/XRef/W[1 2 2]/Index[2 1 4 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 20>>stream
+x\xDAcbdLf``b`\xB0d`\x00\x00\x04k\x00\xA3
 endstream
 endobj
 startxref
-435
+412
 %%EOF
 EOF
   end

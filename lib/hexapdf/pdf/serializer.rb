@@ -22,7 +22,7 @@ module HexaPDF
       end
 
       def serialize(obj)
-        send(@dispatcher[obj.class], obj)
+        send(@dispatcher[obj.class], obj).force_encoding(Encoding::BINARY)
       end
 
       private
@@ -69,18 +69,30 @@ module HexaPDF
         "/#{str}"
       end
 
+      BYTE_IS_STARTING_DELIMITER = {40 => true, 47 => true, 60 => true, 91 => true} #:nodoc:
+
       # See: PDF1.7 s7.3.6
       def serialize_array(obj)
         str = "["
-        obj.each {|o| str << serialize(o) << " "}
-        str.chop! unless obj.empty?
+        index = 0
+        while index < obj.size
+          tmp = serialize(obj[index])
+          str << " " unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)] || index == 0
+          str << tmp
+          index += 1
+        end
         str << "]"
       end
 
       # See: PDF1.7 s7.3.7
       def serialize_hash(obj)
         str = "<<"
-        obj.each {|k, v| str << serialize(k) << " " << serialize(v) << "\n"}
+        obj.each do |k, v|
+          str << serialize(k)
+          tmp = serialize(v)
+          str << " " unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)]
+          str << tmp
+        end
         str << ">>"
       end
 
