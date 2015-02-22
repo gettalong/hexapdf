@@ -283,7 +283,7 @@ module HexaPDF
       def parse_name
         str = scan_until_with_eof_check(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
         str.gsub!(/#[A-Fa-f0-9]{2}/) {|m| m[1, 2].hex.chr }
-        str.to_sym
+        str.force_encoding(Encoding::UTF_8).to_sym
       end
 
       # Parses the array at the current position.

@@ -7,7 +7,7 @@ require 'stringio'
 describe HexaPDF::PDF::Tokenizer do
 
   def set_string(str)
-    @tokenizer = HexaPDF::PDF::Tokenizer.new(StringIO.new(str))
+    @tokenizer = HexaPDF::PDF::Tokenizer.new(StringIO.new(str.b))
   end
 
   it "returns the correct position on operations" do
@@ -120,6 +120,23 @@ describe HexaPDF::PDF::Tokenizer do
       end
       assert_equal(0, expected_tokens.length)
       assert_equal(HexaPDF::PDF::Tokenizer::NO_MORE_TOKENS, @tokenizer.next_token)
+    end
+
+    it "should return name tokens in US-ASCII/UTF-8 encoding" do
+      set_string("/ASomewhatLongerName")
+      token = @tokenizer.next_token
+      assert_equal(:ASomewhatLongerName, token)
+      assert_equal(Encoding::US_ASCII, token.encoding)
+
+      set_string("/Hößgang")
+      token = @tokenizer.next_token
+      assert_equal(:"Hößgang", token)
+      assert_equal(Encoding::UTF_8, token.encoding)
+
+      set_string('/H#c3#b6#c3#9fgang')
+      token = @tokenizer.next_token
+      assert_equal(:"Hößgang", token)
+      assert_equal(Encoding::UTF_8, token.encoding)
     end
 
     it "fails on a greater than sign that is not part of a hex string" do
