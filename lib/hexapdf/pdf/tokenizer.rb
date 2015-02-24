@@ -9,9 +9,6 @@ module HexaPDF
 
     # Tokenizes the content of an IO object following the PDF rules.
     #
-    # This class is used by Parser to do the low-level work and it is not intended to be used
-    # otherwise.
-    #
     # See: PDF1.7 s7.2
     class Tokenizer
 
@@ -189,7 +186,8 @@ module HexaPDF
         end
       end
 
-      # Converts the give keyword to a PDF boolean, integer or float object, if possible.
+      # Converts the given keyword to a boolean, nil, integer or float object, if possible.
+      # Otherwise a Token object representing +str+ is returned.
       #
       # See: PDF1.7 s7.3.2, s7.3.3, s7.3.9
       def convert_keyword(str)
@@ -210,6 +208,7 @@ module HexaPDF
         end
       end
 
+      # :nodoc:
       LITERAL_STRING_ESCAPE_MAP = {
         'n' => "\n",
         'r' => "\r",
@@ -221,8 +220,9 @@ module HexaPDF
         '\\' => "\\"
       }
 
-      # Parses the literal string at the current position. The initial '(' needs to be scanned
-      # already.
+      # Parses the literal string at the current position.
+      #
+      # It is assumed that the initial '(' has already been scanned.
       #
       # See: PDF1.7 s7.3.4.2
       def parse_literal_string
@@ -263,7 +263,9 @@ module HexaPDF
         str
       end
 
-      # Parses the hex string at the current position. The initial '#' needs to be scanned already.
+      # Parses the hex string at the current position.
+      #
+      # It is assumed that the initial '#'  has already been scanned.
       #
       # See: PDF1.7 s7.3.4.3
       def parse_hex_string
@@ -277,7 +279,9 @@ module HexaPDF
         [data].pack('H*')
       end
 
-      # Parses the name at the current position. The initial '/' needs to be scanned already.
+      # Parses the name at the current position.
+      #
+      # It is assumed that the initial '/' has already been scanned.
       #
       # See: PDF1.7 s7.3.5
       def parse_name
@@ -287,6 +291,8 @@ module HexaPDF
       end
 
       # Parses the array at the current position.
+      #
+      # It is assumed that the initial '[' has already been scanned.
       #
       # See: PDF1.7 s7.3.6
       def parse_array
@@ -300,6 +306,8 @@ module HexaPDF
       end
 
       # Parses the dictionary at the current position.
+      #
+      # It is assumed that the initial '<<' has already been scanned.
       #
       # See: PDF1.7 s7.3.7
       def parse_dictionary

@@ -20,7 +20,21 @@ module HexaPDF
     # further processing.
     class StreamData
 
-      attr_accessor :source, :offset, :length, :filter, :decode_parms
+      # The source of the stream, either an IO object or a Fiber.
+      attr_accessor :source
+
+      # The offset into the IO object where reading should start. Ignored if +source+ is a Fiber.
+      attr_accessor :offset
+
+      # The length of the stream data that should be read from the IO object. Ignored if +source+ is
+      # a Fiber.
+      attr_accessor :length
+
+      # The filter(s) that need to be applied for getting the decoded stream data.
+      attr_accessor :filter
+
+      # The decoding parameters associated with the +filter+(s).
+      attr_accessor :decode_parms
 
       # Creates a new StreamData object for the given +source+ and with the optional parameters.
       def initialize(source, offset: nil, length: nil, filter: nil, decode_parms: nil)
@@ -47,17 +61,16 @@ module HexaPDF
     #
     # == Stream Objects
     #
-    # A stream may also be associated with a PDF object but only if the value is a PDF dictionary (a
-    # Hash in the HexaPDF implementation). This associated dictionary further describes the stream,
-    # like its length or how it is encoded.
+    # A stream may also be associated with a PDF object but only if the value is a PDF dictionary.
+    # This associated dictionary further describes the stream, like its length or how it is encoded.
     #
     # Such a stream object in PDF contains string data but of possibly unlimited length. Therefore
     # it is used for large amounts of data like images, page descriptions or embedded files.
     #
-    # The basic Object class cannot hold stream data, only the sub class Stream contains the
-    # necessary methods to conveniently work with the stream data!
+    # The basic Object class cannot hold stream data, only this subclass contains the necessary
+    # methods to conveniently work with the stream data!
     #
-    # See: PDF1.7 s7.3.8
+    # See: PDF1.7 s7.3.8, Dictionary
     class Stream < Dictionary
 
       define_field :Length, type: Integer, required: true

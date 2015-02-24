@@ -13,10 +13,10 @@ module HexaPDF
     # These objects can either be added manually or loaded from a cross-reference section or stream.
     # Since a PDF file can be incrementally updated, it can have multiple revisions.
     #
-    # If a revision doesn't have an associated cross-reference section or stream, then it wasn't
-    # created from a file.
+    # If a revision doesn't have an associated cross-reference section, then it wasn't created from
+    # a file.
     #
-    # See: PDF1.7 s7.5.6
+    # See: PDF1.7 s7.5.6, Revisions
     class Revision
 
       include Enumerable

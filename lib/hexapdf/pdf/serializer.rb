@@ -5,11 +5,14 @@ require 'hexapdf/pdf/tokenizer'
 module HexaPDF
   module PDF
 
-    # Knows how to serialize native Ruby objects for a PDF file.
+    # Knows how to serialize Ruby objects for a PDF file.
+    #
+    # The stream of stream objects is not serialized by this class but every other object is!
     #
     # See: PDF1.7 s7.3
     class Serializer
 
+      # Creates a new Serializer object.
       def initialize
         @dispatcher = Hash.new do |h, klass|
           method = nil
@@ -21,6 +24,7 @@ module HexaPDF
         end
       end
 
+      # Returns the serialized form of the given object.
       def serialize(obj)
         send(@dispatcher[obj.class], obj).force_encoding(Encoding::BINARY)
       end
@@ -105,10 +109,12 @@ module HexaPDF
         "(" << obj.gsub(/[\(\)\\]/n) {|m| "\\#{m}"} << ")"
       end
 
+      # Just serializes the objects value.
       def serialize_hexapdf_pdf_object(obj)
         serialize(obj.value)
       end
 
+      # See: PDF1.7 s7.3.10
       def serialize_hexapdf_pdf_reference(obj)
         "#{obj.oid} #{obj.gen} R"
       end

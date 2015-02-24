@@ -12,6 +12,8 @@ module HexaPDF
     # Writes the contents of a PDF document to an IO stream.
     class Writer
 
+      # Creates a new writer object for the given HexaPDF document that gets written to the IO
+      # object.
       def initialize(document, io)
         @document = document
         @io = io
@@ -22,6 +24,7 @@ module HexaPDF
         @serializer = Serializer.new
       end
 
+      # Writes the document to the IO object.
       def write
         write_file_header
 
@@ -33,11 +36,18 @@ module HexaPDF
 
       private
 
+      # Writes the PDF file header.
+      #
+      # See: PDF1.7 s7.5.2
       def write_file_header
         #TODO: Need some method to calculate pdf version
         @io << "%PDF-1.7\n%\xCF\xEC\xFF\xE8\xD7\xCB\xCD\n"
       end
 
+      # Writes the given revision.
+      #
+      # The +previous_xref_pos+ argument needs to contain the byte position of the previous
+      # cross-reference section or stream if applicable.
       def write_revision(rev, previous_xref_pos = nil)
         xref_stream, object_streams = xref_and_object_streams(rev)
         object_streams.each {|stm| stm.write_objects(rev)}
@@ -76,6 +86,13 @@ module HexaPDF
         startxref
       end
 
+      # :call-seq:
+      #    writer.xref_and_object_streams    -> [xref_stream, object_streams]
+      #
+      # Returns the cross-reference and object streams of the given revision.
+      #
+      # An error is raised if the revision contains object streams and no cross-reference stream, or
+      # if it contains multiple cross-reference streams.
       def xref_and_object_streams(rev)
         xref_stream = nil
         object_streams = []
@@ -98,12 +115,16 @@ module HexaPDF
         [xref_stream, object_streams]
       end
 
+      # Writes the single indirect object which may be a stream object or another object.
       def write_indirect_object(obj)
         @io << "#{obj.oid} #{obj.gen} obj\n"
         obj.kind_of?(Stream) ? write_stream_object(obj) : write_object(obj)
         @io << "\nendobj\n"
       end
 
+      # Writes the stream object.
+      #
+      # See: PDF1.7 s7.3.8
       def write_stream_object(obj)
         data = Filter.string_from_source(obj.stream_encoder)
         obj.value[:Length] = data.size
@@ -115,10 +136,14 @@ module HexaPDF
         @io << "\nendstream"
       end
 
+      # Writes the object.
       def write_object(obj)
         @io << @serializer.serialize(obj)
       end
 
+      # Writes the cross-reference section.
+      #
+      # See: PDF1.7 s7.5.4
       def write_xref_section(xref_section)
         @io << "xref\n"
         xref_section.each_subsection do |entries|
@@ -136,10 +161,16 @@ module HexaPDF
         end
       end
 
+      # Writes the trailer dictionary.
+      #
+      # See: PDF1.7 s7.5.5
       def write_trailer(trailer)
         @io << "trailer\n#{@serializer.serialize(trailer)}\n"
       end
 
+      # Writes the startxref line needed for cross-reference sections and cross-reference streams.
+      #
+      # See: PDF1.7 s7.5.5, s7.5.8
       def write_startxref(startxref)
         @io << "startxref\n#{startxref}\n%%EOF\n"
       end

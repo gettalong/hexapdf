@@ -14,14 +14,25 @@ module HexaPDF
 
       # Represents PDF type ObjStm, object streams.
       #
-      # When a stream is assigned to an ObjectStream (either on creation or via #stream=), the
-      # internal state in respect to the ObjectStream data is reset and then the offsets are read
-      # and cached for later use. After that only the objects themselves are read from the stream.
+      # An object stream is a stream that can hold multiple indirect objects. Since the objects are
+      # stored inside the stream, filters can be used to compress the stream content and therefore
+      # represent the indirect objects more compactly than would be possible otherwise.
       #
-      # This means that all information about added objects is lost after assigning a stream!
+      # == How are Object Streams Used?
       #
-      # Objects that should be contained in this object stream when it is written, can be managed
-      # with the various object methods.
+      # When an indirect object that resides in an object stream needs to be loaded, the object
+      # stream itself is parsed and loaded and #parse_stream is invoked to get a Data object
+      # representing the stored indirect objects. After that the requested indirect object itself is
+      # loaded and returned using this Data object. From a user's perspective nothing changes when
+      # an object is located inside an object stream instead of directly in a PDF file.
+      #
+      # The indirect objects initially stored in the object stream are automatically added to the
+      # list of to-be-stored objects when #parse_stream is invoked. Additional objects can be
+      # assigned to the object stream via #add_object or deleted from it via #delete_object.
+      #
+      # Before an object stream is written, it is necessary to invoke #write_objects so that the
+      # to-be-stored objects are serialized to the stream. This is automatically done by the Writer.
+      # A user thus only has to define which objects should reside in the object stream.
       #
       # See PDF1.7 s7.5.7
       class ObjectStream < HexaPDF::PDF::Stream
@@ -106,7 +117,7 @@ module HexaPDF
         # * It is a stream object.
         # * It doesn't reside in the given Revision object.
         #
-        # Such objects are also deleted from the list of to-be-stored objects.
+        # Such objects are additionally deleted from the list of to-be-stored objects.
         def write_objects(revision)
           index = 0
           object_info = ''.force_encoding(Encoding::BINARY)

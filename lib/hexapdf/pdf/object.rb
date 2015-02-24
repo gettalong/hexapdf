@@ -17,10 +17,10 @@ module HexaPDF
     #
     # A PDF object *should* be connected to a PDF document, otherwise some methods may not work.
     #
-    # Most PDF objects in a PDF document are represented by sub classes of this class that provide
+    # Most PDF objects in a PDF document are represented by subclasses of this class that provide
     # additional functionality.
     #
-    # See: Stream, Reference, Document
+    # See: Dictionary, Stream, Reference, Document
     # See: PDF1.7 s7.3.10, s7.3.8
     class Object
 

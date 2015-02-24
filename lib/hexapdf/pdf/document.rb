@@ -92,7 +92,7 @@ module HexaPDF
       #
       # config:: A hash with configuration options that is deep-merged into the default
       #          configuration options hash (see ::default_config), meaning that direct sub-hashes
-      #          are merge instead of overwritten.
+      #          are merged instead of overwritten.
       def initialize(config: {}, io: nil)
         @config = self.class.default_config.merge(config) do |k, old, new|
           old.kind_of?(Hash) && new.kind_of?(Hash) ? old.merge(new) : new

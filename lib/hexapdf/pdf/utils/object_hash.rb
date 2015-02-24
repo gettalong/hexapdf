@@ -84,7 +84,7 @@ module HexaPDF
           self
         end
 
-        # Return all used object numbers as an array.
+        # Returns all used object numbers as an array.
         def oids
           @oids.keys
         end

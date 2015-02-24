@@ -7,13 +7,24 @@ module HexaPDF
   module PDF
 
     # Manages the revisions of a PDF document.
+    #
+    # A PDF document has one revision when it is created. Later new revisions are added when changes
+    # are made. This allows for adding information/content to a PDF file without changing the
+    # original content.
+    #
+    # The order of the revisions is important. In HexaPDF the oldest revision always has index 0 and
+    # the newest revision the highest index. This is also the order in which the revisions get
+    # written.
+    #
+    # See: PDF1.7 s7.5.6, Revision
     class Revisions
 
       include Enumerable
 
       # Creates a new revisions object for the given PDF document.
       #
-      # If an initial revision is provided, all referenced revisions are also automatically added.
+      # If an initial revision is provided (normally the case when a PDF file is parsed), all
+      # referenced revisions are also automatically added.
       def initialize(document, initial_revision: nil)
         @document = document
         @revisions = []
