@@ -75,7 +75,7 @@ EOF
   describe "initialize" do
     it "automatically loads all revisions from the underlying IO object" do
       assert_equal(20, @revisions.revision(0).object(2).value)
-      assert_equal(200, @revisions.revision(1).object(2).value)
+      assert_equal(200, @revisions[1].object(2).value)
     end
   end
 

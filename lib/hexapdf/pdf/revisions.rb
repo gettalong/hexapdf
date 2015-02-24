@@ -40,6 +40,7 @@ module HexaPDF
       def revision(index)
         @revisions[index]
       end
+      alias :[] :revision
 
       # Returns the current revision.
       def current
