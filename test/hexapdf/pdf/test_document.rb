@@ -46,29 +46,29 @@ EOF
   end
 
   describe "initialize" do
-    it "doesn't need any parameters" do
+    it "doesn't need any arguments" do
       doc = HexaPDF::PDF::Document.new
       assert_equal('HexaPDF::PDF::Filter::ASCIIHexDecode', doc.config['filter.map'][:AHx])
     end
 
-    it "takes a configuration hash as argument" do
+    it "takes a configuration hash as option" do
       doc = HexaPDF::PDF::Document.new(config: {'filter.map' => {AHx: 'Something'}})
       assert_equal('Something', doc.config['filter.map'][:AHx])
       assert_equal('HexaPDF::PDF::Filter::ASCII85Decode', doc.config['filter.map'][:A85])
     end
 
-    it "takes an IO object as parameter" do
+    it "takes an IO object as option" do
       doc = HexaPDF::PDF::Document.new(io: @io)
       assert_equal(10, doc.object(1).value)
     end
   end
 
   describe "object" do
-    it "accepts a Reference object as parameter" do
+    it "accepts a Reference object as argument" do
       assert_equal(10, @io_doc.object(HexaPDF::PDF::Reference.new(1, 0)).value)
     end
 
-    it "accepts an object number as parameters" do
+    it "accepts an object number as arguments" do
       assert_equal(10, @io_doc.object(1).value)
     end
 
@@ -87,11 +87,11 @@ EOF
   end
 
   describe "object?" do
-    it "works with a Reference object as parameter" do
+    it "works with a Reference object as argument" do
       assert(@io_doc.object?(HexaPDF::PDF::Reference.new(1, 0)))
     end
 
-    it "works with an object number as parameters" do
+    it "works with an object number as arguments" do
       assert(@io_doc.object?(1))
     end
   end
@@ -164,13 +164,13 @@ EOF
   end
 
   describe "delete" do
-    it "works with a Reference object as parameter" do
+    it "works with a Reference object as argument" do
       obj = @doc.add(5)
       @doc.delete(obj, mark_as_free: false)
       refute(@doc.object?(obj))
     end
 
-    it "works with an object number as parameters" do
+    it "works with an object number as arguments" do
       @doc.add(5)
       @doc.delete(1, mark_as_free: false)
       refute(@doc.object?(1))
@@ -201,7 +201,7 @@ EOF
       end
     end
 
-    it "fails if the revision parameter is invalid" do
+    it "fails if the revision argument is invalid" do
       assert_raises(HexaPDF::Error) { @doc.delete(1, revision: :invalid) }
     end
   end
@@ -255,7 +255,7 @@ EOF
       assert_kind_of(@myclass2, @doc.wrap({Type: :MyClass, Subtype: :TheSecond}))
     end
 
-    it "respects the given type/subtype parameters" do
+    it "respects the given type/subtype arguments" do
       assert_kind_of(@myclass, @doc.wrap(5, type: :MyClass))
       assert_kind_of(@myclass2, @doc.wrap(5, type: :MyClass, subtype: :TheSecond))
     end

@@ -85,7 +85,7 @@ module HexaPDF
 
       # Creates a new PDF document.
       #
-      # Parameters:
+      # Options:
       #
       # io:: If an IO object is provided, then this document can read PDF objects from this IO
       #      object, otherwise it can only contain created PDF objects.
@@ -93,7 +93,7 @@ module HexaPDF
       # config:: A hash with configuration options that is deep-merged into the default
       #          configuration options hash (see ::default_config), meaning that direct sub-hashes
       #          are merged instead of overwritten.
-      def initialize(config: {}, io: nil)
+      def initialize(io: nil, config: {})
         @config = self.class.default_config.merge(config) do |k, old, new|
           old.kind_of?(Hash) && new.kind_of?(Hash) ? old.merge(new) : new
         end
@@ -116,9 +116,8 @@ module HexaPDF
       # Returns the current version of the indirect object for the given exact reference or for the
       # given object number.
       #
-      # For references to unknown objects, +nil+ is returned.
-      #
-      # Free objects are represented by a PDF Null object, not by +nil+!
+      # For references to unknown objects, +nil+ is returned but free objects are represented by a
+      # PDF Null object, not by +nil+!
       #
       # See: PDF1.7 s7.3.9
       def object(ref)
@@ -150,9 +149,9 @@ module HexaPDF
       # Returns +true+ if the the document contains an indirect object for the given exact reference
       # or for the given object number.
       #
-      # *Note* that even though this method might return +true+ for some references, #object may
-      # return +nil+ because this method takes *all* revisions into account. Also see the discussion
-      # on #each for more information.
+      # Even though this method might return +true+ for some references, #object may return +nil+
+      # because this method takes *all* revisions into account. Also see the discussion on #each for
+      # more information.
       def object?(ref)
         @revisions.any? {|rev| rev.object?(ref)}
       end
@@ -163,8 +162,8 @@ module HexaPDF
       # Adds the object to the specified revision of the document and returns the wrapped indirect
       # object.
       #
-      # If +revision+ is +:current+, the current revision is used. Otherwise +revision+ should be a
-      # revision index.
+      # If the +revision+ option is +:current+, the current revision is used. Otherwise +revision+
+      # should be a revision index.
       #
       # The object can either be a native Ruby object (Hash, Array, Integer, ...) or a
       # HexaPDF::PDF::Object.
@@ -205,7 +204,7 @@ module HexaPDF
       # Deletes the indirect object specified by an exact reference or by an object number from the
       # document.
       #
-      # Parameters:
+      # Options:
       #
       # revision:: Specifies from which revisions the object should be deleted:
       #
@@ -221,21 +220,21 @@ module HexaPDF
         when :all
           @revisions.each {|rev| rev.delete(ref, mark_as_free: mark_as_free)}
         else
-          raise HexaPDF::Error, "Unsupported parameter revision=#{revision}"
+          raise HexaPDF::Error, "Unsupported option revision=#{revision}"
         end
       end
 
       # Wraps the given object inside a HexaPDF::PDF::Object class which allows one to use
       # convenience functions to work with the object.
       #
-      # Note that the +obj+ parameter can also be a HexaPDF::PDF::Object object so that it can be
-      # re-wrapped if needed.
+      # The +obj+ argument can also be a HexaPDF::PDF::Object object so that it can be re-wrapped if
+      # needed.
       #
       # The class of the returned object is always a subclass of HexaPDF::PDF::Object (or of
       # HexaPDF::PDF::Stream if a +stream+ is given). Which subclass is used, depends on the values
-      # of the +type+ and +subtype+ parameters and the 'object.map' configuration option.
+      # of the +type+ and +subtype+ options and the 'object.map' configuration option.
       #
-      # Parameters:
+      # Options:
       #
       # :type:: (Symbol) The type of a PDF object that should be used for wrapping. This could be,
       #         for example, :Pages.
@@ -308,10 +307,10 @@ module HexaPDF
       # Calls the given block once for every object in the PDF document.
       #
       # By default, only the current version of each object is returned which implies that each
-      # object number is yielded exactly once. If +current+ is +false+, all stored objects from
-      # newest to oldest are returned, not only the current version of each object.
+      # object number is yielded exactly once. If the +current+ option is +false+, all stored
+      # objects from newest to oldest are returned, not only the current version of each object.
       #
-      # The +current+ parameter can make a difference because the document can contain multiple
+      # The +current+ option can make a difference because the document can contain multiple
       # revisions:
       #
       # * Multiple revisions may contain objects with the same object and generation numbers, e.g.

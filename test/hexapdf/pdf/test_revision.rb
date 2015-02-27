@@ -26,7 +26,7 @@ describe HexaPDF::PDF::Revision do
     @rev = HexaPDF::PDF::Revision.new({}, parser: @loader, xref_section: @xref_section)
   end
 
-  it "needs the trailer as first parameter on initialization" do
+  it "needs the trailer as first argument on initialization" do
     rev = HexaPDF::PDF::Revision.new({})
     assert_equal({}, rev.trailer)
   end

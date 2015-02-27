@@ -79,8 +79,8 @@ module HexaPDF
       # Parses the PDF object at the current position. This is different from #next_token because
       # arrays and dictionaries consist of multiple tokens.
       #
-      # If +allow_end_array_token+ is +true+, the ']' token is permitted to facilitate the use of
-      # this method during array parsing.
+      # If the +allow_end_array_token+ argument is +true+, the ']' token is permitted to facilitate
+      # the use of this method during array parsing.
       #
       # See: PDF1.7 s7.3
       def parse_object(allow_end_array_token = false)
@@ -123,7 +123,9 @@ module HexaPDF
         [@ss[1].to_i, @ss[2].to_i, @ss[3]]
       end
 
-      # Skips all whitespace (see WHITESPACE) at the current position.
+      # Skips all whitespace at the current position.
+      #
+      # See: PDF1.7 s7.2.2
       def skip_whitespace
         prepare_string_scanner
         prepare_string_scanner while @ss.skip(WHITESPACE_MULTI_RE)
@@ -137,10 +139,14 @@ module HexaPDF
       WHITESPACE = "\0\t\n\f\r "
 
       # Characters defined as delimiters.
+      #
       # See: PDF1.7 s7.2.2
       DELIMITER = "()<>{}/[]%"
 
+      # :nodoc:
       WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/
+
+      # :nodoc:
       WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
 
 
@@ -265,7 +271,7 @@ module HexaPDF
 
       # Parses the hex string at the current position.
       #
-      # It is assumed that the initial '#'  has already been scanned.
+      # It is assumed that the initial '#' has already been scanned.
       #
       # See: PDF1.7 s7.3.4.3
       def parse_hex_string
@@ -332,7 +338,7 @@ module HexaPDF
 
       # Prepares the StringScanner by filling its string instance with enough bytes.
       #
-      # The number of needed bytes can be specified via the +needed_bytes+ parameters.
+      # The number of needed bytes can be specified via the optional +needed_bytes+ argument.
       #
       # Returns +true+ if the end of the underlying IO stream has not been reached, yet.
       def prepare_string_scanner(needed_bytes = nil)

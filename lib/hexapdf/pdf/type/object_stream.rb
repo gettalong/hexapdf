@@ -82,7 +82,7 @@ module HexaPDF
 
         # Adds the given object to the list of objects that should be stored in this object stream.
         #
-        # The parameter +ref+ can either be a reference or any PDF object.
+        # The +ref+ argument can either be a reference or any PDF object.
         def add_object(ref)
           return if object_index(ref)
 
@@ -92,6 +92,8 @@ module HexaPDF
         end
 
         # Deletes the given object from the list of objects that should be stored in this object stream.
+        #
+        # The +ref+ argument can either be a reference or a PDF object.
         def delete_object(ref)
           index = objects[ref]
           return unless index
@@ -104,7 +106,8 @@ module HexaPDF
           objects.delete(move_index)
         end
 
-        # Returns the index into the array containing the to-be-stored objects for the given object.
+        # Returns the index into the array containing the to-be-stored objects for the given
+        # reference/PDF object.
         def object_index(obj)
           objects[obj]
         end

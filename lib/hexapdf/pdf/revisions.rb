@@ -23,8 +23,10 @@ module HexaPDF
 
       # Creates a new revisions object for the given PDF document.
       #
-      # If an initial revision is provided (normally the case when a PDF file is parsed), all
-      # referenced revisions are also automatically added.
+      # Options:
+      #
+      # initial_revision:: If an initial revision is provided (normally the case when a PDF file is
+      #                    parsed), all referenced revisions are also automatically added.
       def initialize(document, initial_revision: nil)
         @document = document
         @revisions = []
@@ -62,13 +64,18 @@ module HexaPDF
         rev
       end
 
+      # :call-seq:
+      #   revisions.delete(index)    -> rev or nil
+      #   revisions.delete(oid)      -> rev or nil
+      #
       # Deletes a revision from the document, either by index or by specifying the revision object
       # itself.
       #
-      # Note that the oldest revision has index 0 and the current revision the highest index!
-      #
       # Returns the deleted revision object, or +nil+ if the index was out of range or no matching
       # revision was found.
+      #
+      # Regarding the index: The oldest revision has index 0 and the current revision the highest
+      # index!
       def delete(index_or_rev)
         if @revisions.length == 1
           raise HexaPDF::Error, "A document must have a least one revision, can't delete last one"

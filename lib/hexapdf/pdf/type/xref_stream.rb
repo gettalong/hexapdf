@@ -67,7 +67,7 @@ module HexaPDF
 
         private
 
-        # Parse the stream and return the resulting XRefSection object.
+        # Parses the stream and returns the resulting XRefSection object.
         def parse_xref_section(index, w)
           xref = XRefSection.new
 

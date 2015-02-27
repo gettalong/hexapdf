@@ -32,7 +32,7 @@ module HexaPDF
       # Loads the indirect (potentially compressed) object specified by the given cross-reference
       # entry.
       #
-      # For information about the +xref_entry+ parameter, have a look at XRefSection and
+      # For information about the +xref_entry+ argument, have a look at XRefSection and
       # XRefSection::Entry.
       def load_object(xref_entry)
         obj, oid, gen, stream = case xref_entry.type
@@ -146,7 +146,7 @@ module HexaPDF
       # Parses the cross-reference section at the given position and the following trailer and returns
       # them as an array consisting of an XRefSection instance and a hash.
       #
-      # Note that this method can only parse cross-reference sections, not cross-reference streams!
+      # This method can only parse cross-reference sections, not cross-reference streams!
       #
       # See: PDF1.7 s7.5.4, s7.5.5; ADB1.7 sH.3-3.4.3
       def parse_xref_section_and_trailer(offset)

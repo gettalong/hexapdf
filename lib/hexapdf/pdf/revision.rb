@@ -25,11 +25,16 @@ module HexaPDF
 
       # Creates a new Revision object.
       #
-      # The trailer object needs to be supplied. If an +xref_section+ is supplied, then +parser+
-      # also needs to be supplied!
+      # Options:
+      #
+      # xref_section:: An XRefSection object that contains information on how to load objects. If
+      #                this option is supplied, then the +parser+ option also needs to be supplied!
+      #
+      # parser:: The Parser object from which to load objects referenced by +xref_section+. If not
+      #          +xref_section+ is supplied, this value is not used.
       def initialize(trailer, xref_section: nil, parser: nil)
         @trailer = trailer
-        @parser = parser
+        @parser = xref_section && parser
         @xref_section = xref_section || XRefSection.new
         @objects = Utils::ObjectHash.new
       end
@@ -65,7 +70,7 @@ module HexaPDF
       #
       # Returns +true+ if the revision contains an object
       #
-      # * for the exact reference if the parameter is a ReferenceBehaviour object, or else
+      # * for the exact reference if the argument responds to :oid, or else
       # * for the given object number.
       def object?(ref)
         if ref.respond_to?(:oid)
@@ -89,13 +94,13 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   revision.delete(ref)
-      #   revision.delete(oid)
+      #   revision.delete(ref, mark_as_free: true)
+      #   revision.delete(oid, mark_as_free: true)
       #
       # Deletes the object specified either by reference or by object number from this revision by
       # marking it as free.
       #
-      # If the option +mark_as_free+ is set to +false+, the object is really deleted.
+      # If the +mark_as_free+ option is set to +false+, the object is really deleted.
       def delete(ref_or_oid, mark_as_free: true)
         return unless object?(ref_or_oid)
         ref_or_oid = ref_or_oid.oid if ref_or_oid.respond_to?(:oid)

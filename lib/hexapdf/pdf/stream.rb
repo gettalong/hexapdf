@@ -36,7 +36,7 @@ module HexaPDF
       # The decoding parameters associated with the +filter+(s).
       attr_accessor :decode_parms
 
-      # Creates a new StreamData object for the given +source+ and with the optional parameters.
+      # Creates a new StreamData object for the given +source+ and with the given options.
       def initialize(source, offset: nil, length: nil, filter: nil, decode_parms: nil)
         @source = source
         @offset = offset
@@ -85,7 +85,7 @@ module HexaPDF
 
       # Creates a new Stream object.
       #
-      # The +stream+ keyword may be used to assign a stream to this stream object on creation (see
+      # The +stream+ option may be used to assign a stream to this stream object on creation (see
       # #stream=).
       def initialize(value, stream: nil, **kwargs)
         super(value, **kwargs)
@@ -94,7 +94,7 @@ module HexaPDF
 
       # Assigns a new stream data object.
       #
-      # The given parameter +stream+ can be a StreamData object, a String object or +nil+.
+      # The +stream+ argument can be a StreamData object, a String object or +nil+.
       #
       # If +stream+ is +nil+, an empty binary string is used instead.
       def stream=(stream)

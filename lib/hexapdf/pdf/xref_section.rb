@@ -54,17 +54,17 @@ module HexaPDF
 
       end
 
-      # Creates an in-use cross-reference entry. See Entry for details on the parameters.
+      # Creates an in-use cross-reference entry. See Entry for details on the arguments.
       def self.in_use_entry(oid, gen, pos)
         Entry.new(:in_use, oid, gen, pos)
       end
 
-      # Creates a free cross-reference entry. See Entry for details on the parameters.
+      # Creates a free cross-reference entry. See Entry for details on the arguments.
       def self.free_entry(oid, gen)
         Entry.new(:free, oid, gen)
       end
 
-      # Creates a compressed cross-reference entry. See Entry for details on the parameters.
+      # Creates a compressed cross-reference entry. See Entry for details on the arguments.
       def self.compressed_entry(oid, objstm, pos)
         Entry.new(:compressed, oid, 0, pos, objstm)
       end
@@ -74,16 +74,22 @@ module HexaPDF
       private :"[]="
 
       # Adds an in-use entry to the cross-reference section.
+      #
+      # See: ::in_use_entry
       def add_in_use_entry(oid, gen, pos)
         self[oid, gen] = self.class.in_use_entry(oid, gen, pos)
       end
 
       # Adds a free entry to the cross-reference section.
+      #
+      # See: ::free_entry
       def add_free_entry(oid, gen)
         self[oid, gen] = self.class.free_entry(oid, gen)
       end
 
       # Adds a compressed entry to the cross-reference section.
+      #
+      # See: ::compressed_entry
       def add_compressed_entry(oid, objstm, pos)
         self[oid, 0] = self.class.compressed_entry(oid, objstm, pos)
       end

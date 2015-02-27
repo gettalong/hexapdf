@@ -75,7 +75,7 @@ module HexaPDF
         #   objhash.each                               -> Enumerator
         #
         # Calls the given block once for every entry, passing an array consisting of the object and
-        # generation number and the associated data as parameters.
+        # generation number and the associated data as arguments.
         #
         # New keys inserted during the iteration are *not* reflected!
         def each

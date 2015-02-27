@@ -46,7 +46,7 @@ module HexaPDF
 
       # Writes the given revision.
       #
-      # The +previous_xref_pos+ argument needs to contain the byte position of the previous
+      # The optional +previous_xref_pos+ argument needs to contain the byte position of the previous
       # cross-reference section or stream if applicable.
       def write_revision(rev, previous_xref_pos = nil)
         xref_stream, object_streams = xref_and_object_streams(rev)

@@ -87,7 +87,7 @@ module HexaPDF
 
       # Defines an entry for the field +name+.
       #
-      # Parameters:
+      # Options:
       #
       # type:: The class (or an array of classes) that a value of this field must have. Here is a
       #        mapping from PDF object types to classes:
@@ -106,7 +106,7 @@ module HexaPDF
       #        classes.
       #
       #        For the automatic mapping of a raw value to a specific Dictionary subclass, this
-      #        subclass must be the only or first item in the array.
+      #        subclass must be the only item or the first item in an array.
       #
       #        If a String object is provided, the class is looked up when necessary to support lazy
       #        loading.
@@ -125,9 +125,10 @@ module HexaPDF
         @fields[name] = Field.new([type].flatten, required, default, indirect, version)
       end
 
-      # Return the field entry for the given field name.
+      # Returns the field entry for the given field name.
       #
-      # Searches the ancestors for field entries if no field entry is found.
+      # The ancestor classes are also searched for such a field entry if none is found for the
+      # current class.
       def self.field(name)
         if defined?(@fields) && @fields.key?(name)
           @fields[name]

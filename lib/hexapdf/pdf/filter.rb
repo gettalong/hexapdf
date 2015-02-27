@@ -55,7 +55,8 @@ module HexaPDF
       # Returns a Fiber that can be used as a source for decoders/encoders and that reads chunks of
       # data from an IO object.
       #
-      # Note that each time a chunk is read, the position pointer of the IO is adjusted.
+      # Each time a chunk is read, the position pointer of the IO is adjusted. This should be taken
+      # into account when working with the IO object.
       #
       # Options:
       #

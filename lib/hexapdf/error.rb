@@ -13,7 +13,7 @@ module HexaPDF
 
     # Creates a new malformed PDF error object for the given exception or exception message.
     #
-    # The byte position where the error occured needs to be supplied in the +pos+ parameter.
+    # The byte position where the error occured can be given via the optional +pos+ argument.
     def initialize(msg_or_error, pos = -1)
       if msg_or_error.kind_of?(String)
         super(msg_or_error)
