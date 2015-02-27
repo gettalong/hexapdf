@@ -110,25 +110,25 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   doc.object(ref)           -> obj or nil
-      #   doc.object(oid, gen=0)    -> obj or nil
+      #   doc.object(ref)    -> obj or nil
+      #   doc.object(oid)    -> obj or nil
       #
-      # Returns the current version of the indirect object for the given reference or for the given
-      # object and generation numbers.
+      # Returns the current version of the indirect object for the given exact reference or for the
+      # given object number.
       #
       # For references to unknown objects, +nil+ is returned.
       #
-      # Note that free objects are represented by a PDF Null object, not +nil+!
+      # Free objects are represented by a PDF Null object, not by +nil+!
       #
       # See: PDF1.7 s7.3.9
-      def object(ref, gen = 0)
-        ref = Reference.new(ref, gen) unless ref.kind_of?(ReferenceBehavior)
+      def object(ref)
+        oid = (ref.respond_to?(:oid) ? ref.oid : ref)
 
         obj = nil
         @revisions.each do |rev|
           # Check uses oid because we are only interested in the current version of an object with a
           # given object number!
-          next unless rev.object?(ref.oid)
+          next unless rev.object?(oid)
           obj = rev.object(ref)
           break
         end
@@ -144,18 +144,17 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   doc.object?(ref)           -> true or false
-      #   doc.object?(oid, gen=0)    -> true or false
+      #   doc.object?(ref)    -> true or false
+      #   doc.object?(oid)    -> true or false
       #
-      # Returns +true+ if the the document contains an indirect object for the given reference or for
-      # the given object and generation numbers.
+      # Returns +true+ if the the document contains an indirect object for the given exact reference
+      # or for the given object number.
       #
       # *Note* that even though this method might return +true+ for some references, #object may
       # return +nil+ because this method takes *all* revisions into account. Also see the discussion
       # on #each for more information.
-      def object?(ref, gen = 0)
-        ref = Reference.new(ref, gen) unless ref.kind_of?(ReferenceBehavior)
-        @revisions.each.any? {|rev| rev.object?(ref)}
+      def object?(ref)
+        @revisions.any? {|rev| rev.object?(ref)}
       end
 
       # :call-seq:
@@ -201,10 +200,10 @@ module HexaPDF
 
       # :call-seq:
       #   doc.delete(ref, revision: :all)
-      #   doc.delete(oid, gen=0, revision: :all)
+      #   doc.delete(oid, revision: :all)
       #
-      # Deletes the indirect object specified via a reference or object and generation numbers from
-      # the document.
+      # Deletes the indirect object specified by an exact reference or by an object number from the
+      # document.
       #
       # Parameters:
       #
@@ -215,8 +214,7 @@ module HexaPDF
       #
       # mark_as_free:: If +true+, objects are only marked as free objects instead of being actually
       #                deleted.
-      def delete(ref, gen = 0, revision: :all, mark_as_free: true)
-        ref = Reference.new(ref, gen) unless ref.kind_of?(ReferenceBehavior)
+      def delete(ref, revision: :all, mark_as_free: true)
         case revision
         when :current
           @revisions.current.delete(ref, mark_as_free: mark_as_free)

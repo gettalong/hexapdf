@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
-require 'hexapdf/pdf/reference'
 require 'hexapdf/pdf/utils/object_hash'
 
 module HexaPDF
@@ -13,8 +12,8 @@ module HexaPDF
     # These objects can either be added manually or loaded from a cross-reference section or stream.
     # Since a PDF file can be incrementally updated, it can have multiple revisions.
     #
-    # If a revision doesn't have an associated cross-reference section, then it wasn't created from
-    # a file.
+    # If a revision doesn't have an associated cross-reference section, it wasn't created from a PDF
+    # file.
     #
     # See: PDF1.7 s7.5.6, Revisions
     class Revision
@@ -45,7 +44,7 @@ module HexaPDF
       # If the revision has an entry but one that is pointing to a free entry in the cross-reference
       # section, an object representing PDF null is returned.
       def object(ref)
-        oid, gen = if ref.kind_of?(ReferenceBehavior)
+        oid, gen = if ref.respond_to?(:oid)
                      [ref.oid, ref.gen]
                    else
                      [ref, @objects.gen_for_oid(ref) || @xref_section.gen_for_oid(ref)]
@@ -69,7 +68,7 @@ module HexaPDF
       # * for the exact reference if the parameter is a ReferenceBehaviour object, or else
       # * for the given object number.
       def object?(ref)
-        if ref.kind_of?(ReferenceBehavior)
+        if ref.respond_to?(:oid)
           @objects.entry?(ref.oid, ref.gen) || @xref_section.entry?(ref.oid, ref.gen)
         else
           @objects.entry?(ref) || @xref_section.entry?(ref)
@@ -99,7 +98,7 @@ module HexaPDF
       # If the option +mark_as_free+ is set to +false+, the object is really deleted.
       def delete(ref_or_oid, mark_as_free: true)
         return unless object?(ref_or_oid)
-        ref_or_oid = ref_or_oid.oid if ref_or_oid.kind_of?(ReferenceBehavior)
+        ref_or_oid = ref_or_oid.oid if ref_or_oid.respond_to?(:oid)
 
         if mark_as_free
           obj = object(ref_or_oid)

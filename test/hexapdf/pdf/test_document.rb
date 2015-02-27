@@ -68,8 +68,7 @@ EOF
       assert_equal(10, @io_doc.object(HexaPDF::PDF::Reference.new(1, 0)).value)
     end
 
-    it "accepts an object number and an optional generation number as parameters" do
-      assert_equal(10, @io_doc.object(1, 0).value)
+    it "accepts an object number as parameters" do
       assert_equal(10, @io_doc.object(1).value)
     end
 
@@ -92,9 +91,8 @@ EOF
       assert(@io_doc.object?(HexaPDF::PDF::Reference.new(1, 0)))
     end
 
-    it "works with an object number and an optional generation number as parameters" do
+    it "works with an object number as parameters" do
       assert(@io_doc.object?(1))
-      assert(@io_doc.object?(1, 0))
     end
   end
 
@@ -167,19 +165,15 @@ EOF
 
   describe "delete" do
     it "works with a Reference object as parameter" do
-      @doc.add(5)
-      @doc.delete(HexaPDF::PDF::Reference.new(1, 0), mark_as_free: false)
-      refute(@doc.object?(1, 0))
+      obj = @doc.add(5)
+      @doc.delete(obj, mark_as_free: false)
+      refute(@doc.object?(obj))
     end
 
-    it "works with an object number and an optional generation number as parameters" do
+    it "works with an object number as parameters" do
       @doc.add(5)
       @doc.delete(1, mark_as_free: false)
       refute(@doc.object?(1))
-
-      @doc.add(5)
-      @doc.delete(1, 0, mark_as_free: false)
-      refute(@doc.object?(1, 0))
     end
 
     describe "with an object in multiple revisions" do

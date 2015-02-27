@@ -7,6 +7,10 @@ module HexaPDF
 
     # Encapsulates functionality that is needed for Reference like classes.
     #
+    # Anywhere where the functionality of this mix-in module is needed, i.e. anywhere where a
+    # ReferenceBehavior can be passed, a custom class can be used provided it responds to +oid+ and
+    # conforms to the mix-in spec.
+    #
     # See: Reference, HexaPDF::PDF::Object
     module ReferenceBehavior
 
@@ -40,10 +44,10 @@ module HexaPDF
 
       # Compares the ReferenceBehavior object to the other object.
       #
-      # If the other object is not the same kind, returns +nil+. Otherwise references are ordered
-      # first by object number and then by generation number.
+      # If the other object does not respond to +oid+ or +gen+, +nil+ is returned. Otherwise
+      # references are ordered first by object number and then by generation number.
       def <=>(other)
-        return nil unless other.kind_of?(ReferenceBehavior)
+        return nil unless other.respond_to?(:oid) && other.respond_to?(:gen)
         (oid == other.oid ? gen <=> other.gen : oid <=> other.oid)
       end
 
@@ -53,7 +57,8 @@ module HexaPDF
       end
       alias_method :eql?, :'=='
 
-      def hash #:nodoc:
+      # Computes the hash value based on the object and generation numbers.
+      def hash
         [oid, gen].hash
       end
 
