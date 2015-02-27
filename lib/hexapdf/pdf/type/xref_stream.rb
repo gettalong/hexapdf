@@ -67,6 +67,10 @@ module HexaPDF
 
         private
 
+        TYPE_FREE       = 0 #:nodoc:
+        TYPE_IN_USE     = 1 #:nodoc:
+        TYPE_COMPRESSED = 2 #:nodoc:
+
         # Parses the stream and returns the resulting XRefSection object.
         def parse_xref_section(index, w)
           xref = XRefSection.new
@@ -80,18 +84,18 @@ module HexaPDF
               entry = stream[pos_in_stream, entry_size]
 
               # Default for first field: type 1
-              type_field = (w[0] == 0 ? 1 : bytes_to_int(entry[0, w[0]]))
+              type_field = (w[0] == 0 ? TYPE_IN_USE : bytes_to_int(entry[0, w[0]]))
               # No default available for second field
               field2 = bytes_to_int(entry[w[0], w[1]])
               # Default for third field is 0 for type 1, otherwise it needs to be specified!
               field3 = bytes_to_int(entry[w[0] + w[1], w[2]])
 
               case type_field
-              when 1
+              when TYPE_IN_USE
                 xref.add_in_use_entry(oid, field3, field2)
-              when 0
+              when TYPE_FREE
                 xref.add_free_entry(oid, field3)
-              when 2
+              when TYPE_COMPRESSED
                 xref.add_compressed_entry(oid, field2, field3)
               else
                 # Ignore entry as per PDF1.7 s7.5.8.3
@@ -122,11 +126,11 @@ module HexaPDF
             value[:Index] << entries.first.oid << entries.length
             entries.each do |entry|
               data = if entry.in_use?
-                       [1, entry.pos, entry.gen]
+                       [TYPE_IN_USE, entry.pos, entry.gen]
                      elsif entry.free?
-                       [0, 0, 65535]
+                       [TYPE_FREE, 0, 65535]
                      elsif entry.compressed?
-                       [2, entry.objstm, entry.pos]
+                       [TYPE_COMPRESSED, entry.objstm, entry.pos]
                      else
                        raise HexaPDF::Error, "Unsupported cross-reference entry #{entry}"
                      end
