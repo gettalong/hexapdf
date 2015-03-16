@@ -64,9 +64,9 @@ module HexaPDF
       # See: PDF1.7 s7.3.10, s7.3.8
       def parse_indirect_object(offset = nil)
         @tokenizer.pos = offset + @header_offset if offset
-        oid = @tokenizer.next_token
-        gen = @tokenizer.next_token
-        tok = @tokenizer.next_token
+        oid = @tokenizer.parse_token
+        gen = @tokenizer.parse_token
+        tok = @tokenizer.parse_token
         unless oid.kind_of?(Integer) && gen.kind_of?(Integer) &&
             tok.kind_of?(Tokenizer::Token) && tok == 'obj'
           raise HexaPDF::MalformedPDFError.new("No valid object found", offset)
@@ -74,7 +74,7 @@ module HexaPDF
 
         object = @tokenizer.parse_object
 
-        tok = @tokenizer.next_token
+        tok = @tokenizer.parse_token
 
         if tok.kind_of?(Tokenizer::Token) && tok == 'stream'
           unless object.kind_of?(Hash)
@@ -91,11 +91,11 @@ module HexaPDF
           length = @document.unwrap(object[:Length]) || 0
           @tokenizer.pos = pos + length
 
-          tok = @tokenizer.next_token
+          tok = @tokenizer.parse_token
           unless tok.kind_of?(Tokenizer::Token) && tok == 'endstream'
             raise HexaPDF::MalformedPDFError.new("Stream content must be followed by keyword endstream", @tokenizer.pos)
           end
-          tok = @tokenizer.next_token
+          tok = @tokenizer.parse_token
 
           stream = StreamData.new(@tokenizer.io, offset: pos, length: length,
                                   filter: @document.unwrap(object[:Filter]),
@@ -151,15 +151,15 @@ module HexaPDF
       # See: PDF1.7 s7.5.4, s7.5.5; ADB1.7 sH.3-3.4.3
       def parse_xref_section_and_trailer(offset)
         @tokenizer.pos = offset + @header_offset
-        token = @tokenizer.next_token
+        token = @tokenizer.parse_token
         unless token.kind_of?(Tokenizer::Token) && token == 'xref'
           raise HexaPDF::MalformedPDFError.new("Xref section doesn't start with keyword xref", @tokenizer.pos)
         end
 
         xref = XRefSection.new
-        start = @tokenizer.next_token
+        start = @tokenizer.parse_token
         while start.kind_of?(Integer)
-          number_of_entries = @tokenizer.next_token
+          number_of_entries = @tokenizer.parse_token
           unless number_of_entries.kind_of?(Integer)
             raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection start", @tokenizer.pos)
           end
@@ -175,7 +175,7 @@ module HexaPDF
               xref.add_free_entry(oid, gen)
             end
           end
-          start = @tokenizer.next_token
+          start = @tokenizer.parse_token
         end
 
         unless start.kind_of?(Tokenizer::Token) && start == 'trailer'

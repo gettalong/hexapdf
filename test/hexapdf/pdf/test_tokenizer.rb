@@ -12,7 +12,7 @@ describe HexaPDF::PDF::Tokenizer do
 
   it "returns the correct position on operations" do
     set_string("hallo du" + " "*50000 + "hallo du")
-    @tokenizer.next_token
+    @tokenizer.parse_token
     assert_equal(5, @tokenizer.pos)
 
     @tokenizer.skip_whitespace
@@ -24,16 +24,16 @@ describe HexaPDF::PDF::Tokenizer do
     @tokenizer.peek_token
     assert_equal(7, @tokenizer.pos)
 
-    @tokenizer.next_token
+    @tokenizer.parse_token
     assert_equal(8, @tokenizer.pos)
 
-    @tokenizer.next_token
+    @tokenizer.parse_token
     assert_equal(50013, @tokenizer.pos)
 
-    @tokenizer.next_token
+    @tokenizer.parse_token
     assert_equal(50016, @tokenizer.pos)
 
-    @tokenizer.next_token
+    @tokenizer.parse_token
     assert_equal(50016, @tokenizer.pos)
   end
 
@@ -51,8 +51,8 @@ describe HexaPDF::PDF::Tokenizer do
     end
   end
 
-  describe "next_token" do
-    it "returns all available kinds of tokens on next_token" do
+  describe "parse_token" do
+    it "returns all available kinds of tokens on parse_token" do
       set_string(<<-EOF.chomp.gsub(/^ {8}/, ''))
         % Regular tokens
           		
@@ -114,50 +114,50 @@ describe HexaPDF::PDF::Tokenizer do
 
       while expected_tokens.length > 0
         expected_token = expected_tokens.shift
-        token = @tokenizer.next_token
+        token = @tokenizer.parse_token
         assert_equal(expected_token, token)
         assert_equal(Encoding::BINARY, token.encoding) if token.kind_of?(String)
       end
       assert_equal(0, expected_tokens.length)
-      assert_equal(HexaPDF::PDF::Tokenizer::NO_MORE_TOKENS, @tokenizer.next_token)
+      assert_equal(HexaPDF::PDF::Tokenizer::NO_MORE_TOKENS, @tokenizer.parse_token)
     end
 
     it "should return name tokens in US-ASCII/UTF-8 encoding" do
       set_string("/ASomewhatLongerName")
-      token = @tokenizer.next_token
+      token = @tokenizer.parse_token
       assert_equal(:ASomewhatLongerName, token)
       assert_equal(Encoding::US_ASCII, token.encoding)
 
       set_string("/Hößgang")
-      token = @tokenizer.next_token
+      token = @tokenizer.parse_token
       assert_equal(:"Hößgang", token)
       assert_equal(Encoding::UTF_8, token.encoding)
 
       set_string('/H#c3#b6#c3#9fgang')
-      token = @tokenizer.next_token
+      token = @tokenizer.parse_token
       assert_equal(:"Hößgang", token)
       assert_equal(Encoding::UTF_8, token.encoding)
     end
 
     it "fails on a greater than sign that is not part of a hex string" do
       set_string(" >")
-      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_token }
     end
 
     it "fails on a missing greater than sign in a hex string" do
       set_string("<ABCD")
-      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_token }
     end
 
     it "fails on unbalanced parentheses in a literal string" do
       set_string("(href(test)")
-      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_token }
     end
 
     it "should not fail when resetting the position (due to the use of the internal StringScanner buffer)" do
       set_string("0 1 2 3 4 " * 4000)
       4000.times do
-        5.times {|i| assert_equal(i, @tokenizer.next_token)}
+        5.times {|i| assert_equal(i, @tokenizer.parse_token)}
       end
     end
   end
@@ -176,9 +176,9 @@ describe HexaPDF::PDF::Tokenizer do
   end
 
   describe "parse_object" do
-    it "works for all PDF object types, including array and dictionary" do
+    it "works for all PDF object types, including reference, array and dictionary" do
       set_string(<<-EOF.chomp.gsub(/^ {8}/, ''))
-        true false null 123 34.5 (string) <4E6F76> /Name 1 0 R
+        true false null 123 34.5 (string) <4E6F76> /Name 1 0 R 2 15 R
         [5 6 /Name] <</Name 5>>
         EOF
       assert_equal(true, @tokenizer.parse_object)
@@ -190,6 +190,7 @@ describe HexaPDF::PDF::Tokenizer do
       assert_equal("Nov".b, @tokenizer.parse_object)
       assert_equal(:Name, @tokenizer.parse_object)
       assert_equal(HexaPDF::PDF::Reference.new(1, 0), @tokenizer.parse_object)
+      assert_equal(HexaPDF::PDF::Reference.new(2, 15), @tokenizer.parse_object)
       assert_equal([5, 6, :Name], @tokenizer.parse_object)
       assert_equal({Name: 5}, @tokenizer.parse_object)
     end

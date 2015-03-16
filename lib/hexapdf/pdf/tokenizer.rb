@@ -18,6 +18,23 @@ module HexaPDF
       # This object is returned when there are no more tokens to read.
       NO_MORE_TOKENS = ::Object.new
 
+      # Characters defined as whitespace.
+      #
+      # See: PDF1.7 s7.2.2
+      WHITESPACE = "\0\t\n\f\r "
+
+      # Characters defined as delimiters.
+      #
+      # See: PDF1.7 s7.2.2
+      DELIMITER = "()<>{}/[]%"
+
+      # :nodoc:
+      WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/
+
+      # :nodoc:
+      WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
+
+
       # The IO object from the tokens are read.
       attr_reader :io
 
@@ -51,106 +68,7 @@ module HexaPDF
         end
       end
 
-      # Returns the token at the current position and advances the scan pointer.
-      def next_token
-        tok = parse_token
-
-        if tok.kind_of?(Integer) # Handle object references, see PDF1.7 s7.3.10
-          save_pos = self.pos
-          if (tok2 = parse_token) && tok2.kind_of?(Integer) &&
-              (tok3 = parse_token) && tok3.kind_of?(Token) && tok3 == 'R'
-            tok = Reference.new(tok, tok2)
-          else
-            self.pos = save_pos
-          end
-        end
-
-        tok
-      end
-
-      # Returns the next token but does not advance the scan pointer.
-      def peek_token
-        pos = self.pos
-        tok = next_token
-        self.pos = pos
-        tok
-      end
-
-      # Parses the PDF object at the current position. This is different from #next_token because
-      # arrays and dictionaries consist of multiple tokens.
-      #
-      # If the +allow_end_array_token+ argument is +true+, the ']' token is permitted to facilitate
-      # the use of this method during array parsing.
-      #
-      # See: PDF1.7 s7.3
-      def parse_object(allow_end_array_token = false)
-        token = next_token
-        if token.kind_of?(Token)
-          case token
-          when '['
-            parse_array
-          when '<<'
-            parse_dictionary
-          when ']'
-            if allow_end_array_token
-              token
-            else
-              raise HexaPDF::MalformedPDFError.new("Found invalid end array token ']'", pos)
-            end
-          else
-            raise HexaPDF::MalformedPDFError.new("Invalid object, got token #{token}", pos)
-          end
-        else
-          token
-        end
-      end
-
-      # Reads the byte at the current position and advances the scan pointer.
-      def next_byte
-        prepare_string_scanner(1)
-        @ss.get_byte
-      end
-
-      # Reads the cross-reference subsection entry at the current position and advances the scan
-      # pointer.
-      #
-      # See: PDF1.7 7.5.4
-      def next_xref_entry
-        prepare_string_scanner(20)
-        unless @ss.scan(/(\d{10}) (\d{5}) ([nf])( \r| \n|\r\n)/)
-          raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection entry", pos)
-        end
-        [@ss[1].to_i, @ss[2].to_i, @ss[3]]
-      end
-
-      # Skips all whitespace at the current position.
-      #
-      # See: PDF1.7 s7.2.2
-      def skip_whitespace
-        prepare_string_scanner
-        prepare_string_scanner while @ss.skip(WHITESPACE_MULTI_RE)
-      end
-
-      private
-
-      # Characters defined as whitespace.
-      #
-      # See: PDF1.7 s7.2.2
-      WHITESPACE = "\0\t\n\f\r "
-
-      # Characters defined as delimiters.
-      #
-      # See: PDF1.7 s7.2.2
-      DELIMITER = "()<>{}/[]%"
-
-      # :nodoc:
-      WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/
-
-      # :nodoc:
-      WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
-
-
-      # Parses a single token at the current position.
+      # Parses a single token at the current position and advances the scan pointer.
       #
       # Comments and a run of whitespace characters are ignored. The value +NO_MORE_TOKENS+ is
       # returned if there are no more tokens available.
@@ -192,6 +110,73 @@ module HexaPDF
         end
       end
 
+      # Returns the next token but does not advance the scan pointer.
+      def peek_token
+        pos = self.pos
+        tok = parse_token
+        self.pos = pos
+        tok
+      end
+
+      # Parses the PDF object at the current position. This is different from #parse_token because
+      # references, arrays and dictionaries consist of multiple tokens.
+      #
+      # If the +allow_end_array_token+ argument is +true+, the ']' token is permitted to facilitate
+      # the use of this method during array parsing.
+      #
+      # See: PDF1.7 s7.3
+      def parse_object(allow_end_array_token = false)
+        token = parse_token
+
+        if token.kind_of?(Token)
+          case token
+          when '['
+            token = parse_array
+          when '<<'
+            token = parse_dictionary
+          when ']'
+            unless allow_end_array_token
+              raise HexaPDF::MalformedPDFError.new("Found invalid end array token ']'", pos)
+            end
+          else
+            raise HexaPDF::MalformedPDFError.new("Invalid object, got token #{token}", pos)
+          end
+        end
+
+        token
+      end
+
+      # Reads the byte at the current position and advances the scan pointer.
+      def next_byte
+        prepare_string_scanner(1)
+        @ss.get_byte
+      end
+
+      # Reads the cross-reference subsection entry at the current position and advances the scan
+      # pointer.
+      #
+      # See: PDF1.7 7.5.4
+      def next_xref_entry
+        prepare_string_scanner(20)
+        unless @ss.scan(/(\d{10}) (\d{5}) ([nf])( \r| \n|\r\n)/)
+          raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection entry", pos)
+        end
+        [@ss[1].to_i, @ss[2].to_i, @ss[3]]
+      end
+
+      # Skips all whitespace at the current position.
+      #
+      # See: PDF1.7 s7.2.2
+      def skip_whitespace
+        prepare_string_scanner
+        prepare_string_scanner while @ss.skip(WHITESPACE_MULTI_RE)
+      end
+
+      private
+
+      # :nodoc:
+      REFERENCE_RE = /[#{WHITESPACE}]+([+-]?\d+)[#{WHITESPACE}]+R(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
+
       # Converts the given keyword to a boolean, nil, integer or float object, if possible.
       # Otherwise a Token object representing +str+ is returned.
       #
@@ -199,7 +184,11 @@ module HexaPDF
       def convert_keyword(str)
         case str
         when /\A[+-]?\d+\z/
-          str.to_i
+          tmp = str.to_i
+          # Handle object references, see PDF1.7 s7.3.10
+          prepare_string_scanner(10)
+          tmp = Reference.new(tmp, @ss[1].to_i) if @ss.scan(REFERENCE_RE)
+          tmp
         when /\A[+-]?(?:\d+\.?\d*|\.\d+)\z/
           str << '0' if str[-1] == '.'
           Float(str)
@@ -319,9 +308,9 @@ module HexaPDF
       def parse_dictionary
         result = {}
         loop do
-          # Use #next_token because we either need a Name or the '>>' token here, the latter would
+          # Use #parse_token because we either need a Name or the '>>' token here, the latter would
           # throw an error with #parse_object.
-          key = next_token
+          key = parse_token
           break if key.kind_of?(Tokenizer::Token) && key == '>>'
           unless key.kind_of?(Symbol)
             raise HexaPDF::MalformedPDFError.new("Dictionary keys must be PDF name objects", pos)
