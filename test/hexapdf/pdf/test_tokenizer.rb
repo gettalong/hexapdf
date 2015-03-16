@@ -122,7 +122,7 @@ describe HexaPDF::PDF::Tokenizer do
       assert_equal(HexaPDF::PDF::Tokenizer::NO_MORE_TOKENS, @tokenizer.parse_token)
     end
 
-    it "should return name tokens in US-ASCII/UTF-8 encoding" do
+    it "should return name tokens in US-ASCII/UTF-8 or binary encoding" do
       set_string("/ASomewhatLongerName")
       token = @tokenizer.parse_token
       assert_equal(:ASomewhatLongerName, token)
@@ -137,6 +137,11 @@ describe HexaPDF::PDF::Tokenizer do
       token = @tokenizer.parse_token
       assert_equal(:"Hößgang", token)
       assert_equal(Encoding::UTF_8, token.encoding)
+
+      set_string('/H#E8lp')
+      token = @tokenizer.parse_token
+      assert_equal("H\xE8lp".b.intern, token)
+      assert_equal(Encoding::BINARY, token.encoding)
     end
 
     it "fails on a greater than sign that is not part of a hex string" do

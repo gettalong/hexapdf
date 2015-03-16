@@ -54,6 +54,7 @@ describe HexaPDF::PDF::Serializer do
     assert_serialized('/The_Key_of_F#23_Minor', 'The_Key_of_F#_Minor'.intern)
     assert_serialized('/', ''.intern)
     assert_serialized('/H#c3#b6#c3#9fgang', "Hößgang".intern)
+    assert_serialized('/H#e8lp', "H\xE8lp".force_encoding('BINARY').intern)
   end
 
   it "serializes arrays" do
