@@ -265,6 +265,18 @@ EOF
       assert_equal({Name: :Value}, trailer)
     end
 
+    it "handles xref type=n with offset=0" do
+      set_string("xref\n0 2\n0000000000 00000 n \n0000000000 00000 n \ntrailer\n<<>>\n")
+      section, _ = @parser.parse_xref_section_and_trailer(0)
+      assert_equal(HexaPDF::PDF::XRefSection.free_entry(1, 0), section[1])
+    end
+
+    it "handles xref type=n with gen>65535" do
+      set_string("xref\n0 2\n0000000000 00000 n \n0000000000 65536 n \ntrailer\n<<>>\n")
+      section, _ = @parser.parse_xref_section_and_trailer(0)
+      assert_equal(HexaPDF::PDF::XRefSection.free_entry(1, 65536), section[1])
+    end
+
     it "fails if the xref keyword is missing/mangled" do
       set_string("xTEf\n0 d\n0000000000 00000 n \ntrailer\n<< >>\n")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
@@ -312,6 +324,16 @@ EOF
     it "startxref_offset fails if the startxref is not in the last part of the file" do
       set_string("startxref\n5\n%%EOF" + "\nhallo"*5000)
       assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
+    end
+
+    it "parse_xref_section_and_trailer fails if xref type=n with offset=0" do
+      set_string("xref\n0 2\n0000000000 00000 n \n0000000000 00000 n \ntrailer\n<<>>\n")
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
+    end
+
+    it "parse_xref_section_and_trailer fails xref type=n with gen>65535" do
+      set_string("xref\n0 2\n0000000000 00000 n \n0000000000 65536 n \ntrailer\n<<>>\n")
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
     end
 
   end

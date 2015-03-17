@@ -170,7 +170,12 @@ module HexaPDF
             if xref.entry?(oid)
               next
             elsif type == 'n'
-              xref.add_in_use_entry(oid, gen, pos)
+              if pos == 0 || gen > 65535
+                maybe_raise("Invalid in use cross-reference entry in cross-reference section", pos: @tokenizer.pos)
+                xref.add_free_entry(oid, gen)
+              else
+                xref.add_in_use_entry(oid, gen, pos)
+              end
             else
               xref.add_free_entry(oid, gen)
             end
