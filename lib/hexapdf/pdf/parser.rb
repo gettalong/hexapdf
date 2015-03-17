@@ -195,19 +195,32 @@ module HexaPDF
       # Implementation note: Normally, the %%EOF marker has to be on the last line, however, Adobe
       # viewers relax this restriction and so do we.
       #
+      # If strict parsing is disabled, the whole file is searched for the offset.
+      #
       # See: PDF1.7 s7.5.5, ADB1.7 sH.3-3.4.4
       def startxref_offset
-        # 1024 for %%EOF + 30 for startxref and offset lines
-        @io.seek(-1054, IO::SEEK_END) rescue @io.seek(0)
-        lines = @io.read(1054).split(/[\r\n]+/)
+        @io.seek(0, IO::SEEK_END)
+        step_size = 1024
+        pos = @io.pos
+        eof_not_found = startxref_missing = false
 
-        eof_index = lines.rindex {|l| l.strip == '%%EOF' }
-        unless eof_index
-          raise HexaPDF::MalformedPDFError.new("PDF file trailer is missing end-of-file marker", @io.pos)
+        while pos != 0
+          @io.pos = [pos - step_size, 0].max
+          pos = @io.pos
+          lines = @io.read(step_size + 40).split(/[\r\n]+/)
+
+          eof_index = lines.rindex {|l| l.strip == '%%EOF' }
+          (eof_not_found = true; next) unless eof_index
+          (startxref_missing = true; next) unless eof_index >= 2 && lines[eof_index - 2].strip == "startxref"
+
+          break # we found the startxref offset
         end
 
-        unless lines[eof_index - 2].strip == "startxref"
-          raise HexaPDF::MalformedPDFError.new("PDF file trailer is missing startxref keyword", @io.pos)
+        if eof_not_found
+          maybe_raise("PDF file trailer with end-of-file marker not found", pos: pos, force: !eof_index)
+        elsif startxref_missing
+          maybe_raise("PDF file trailer is missing startxref keyword", pos: pos,
+                      force: eof_index < 2 || lines[eof_index - 2].strip != "startxref")
         end
 
         lines[eof_index - 1].to_i
@@ -236,6 +249,20 @@ module HexaPDF
         @io.seek(0)
         @header_offset = @io.read(1024).index(/%PDF-(\d\.\d)/) || 0
         @header_version = $1
+      end
+
+      # Depending on the value of the config option +parser.strict+ raises a
+      # HexaPDF::MalformedPDFError with the given message or yields to the block if one is given.
+      #
+      # If the options +force+ is used, an error is always raised.
+      def maybe_raise(msg, pos: nil, force: false)
+        if force || @document.config['parser.strict']
+          error = HexaPDF::MalformedPDFError.new(msg, pos)
+          error.set_backtrace(caller(1))
+          raise error
+        elsif block_given?
+          yield
+        end
       end
 
     end

@@ -71,6 +71,7 @@ module HexaPDF
             [:ObjStm, nil] => 'HexaPDF::PDF::Type::ObjectStream',
           },
           'io.chunk_size' => 2**16,
+          'parser.strict' => false,
         }
       end
 

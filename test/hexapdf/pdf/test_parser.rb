@@ -8,6 +8,7 @@ describe HexaPDF::PDF::Parser do
 
   before do
     @document = Object.new
+    def (@document).config; @config ||= {'parser.strict' => false}; end
     def (@document).unwrap(obj)
       obj.kind_of?(HexaPDF::PDF::Reference) ? 10 : obj
     end
@@ -199,9 +200,21 @@ EOF
       assert_equal(5, @parser.startxref_offset)
     end
 
-    it "uses the last startxref if there are more than one in the last ~1000 byte" do
+    it "uses the last startxref if there are more than one" do
       set_string("startxref\n5\n%%EOF\n\nsome garbage\n\nstartxref\n555\n%%EOF\n")
       assert_equal(555, @parser.startxref_offset)
+    end
+
+    it "finds the startxref anywhere in file" do
+      set_string("startxref\n5\n%%EOF" + "\nhallo"*5000)
+      assert_equal(5, @parser.startxref_offset)
+      set_string("startxref\n5\n%%EOF\n" + "h"*1017)
+      assert_equal(5, @parser.startxref_offset)
+    end
+
+    it "fails even in big files when nothing is found" do
+      set_string("\nhallo"*5000)
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
     end
 
     it "fails if the %%EOF marker is missing" do
@@ -289,6 +302,18 @@ EOF
     it "fails if another object is found instead of a cross-reference stream" do
       assert_raises(HexaPDF::MalformedPDFError) { @parser.load_revision(10) }
     end
+  end
+
+  describe "with strict parsing enabled" do
+    before do
+      @document.config['parser.strict'] = true
+    end
+
+    it "startxref_offset fails if the startxref is not in the last part of the file" do
+      set_string("startxref\n5\n%%EOF" + "\nhallo"*5000)
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
+    end
+
   end
 
 end
