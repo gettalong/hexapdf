@@ -152,6 +152,14 @@ module HexaPDF
         @ss.get_byte
       end
 
+      # Reads the byte at the current position but does not advance the scan pointer.
+      def peek_byte
+        prepare_string_scanner(1)
+        byte = @ss.get_byte
+        @ss.pos -= 1
+        byte
+      end
+
       # Reads the cross-reference subsection entry at the current position and advances the scan
       # pointer.
       #
