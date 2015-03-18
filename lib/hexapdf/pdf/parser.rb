@@ -85,10 +85,13 @@ module HexaPDF
           unless object.kind_of?(Hash)
             raise HexaPDF::MalformedPDFError.new("A stream needs a dictionary, not a(n) #{object.class}", offset)
           end
-          tok = @tokenizer.next_byte
-          tok = @tokenizer.next_byte if tok == "\r"
-          unless tok == "\n"
-            raise HexaPDF::MalformedPDFError.new("Keyword stream must be followed by EOL", @tokenizer.pos - 1)
+          tok1 = @tokenizer.next_byte
+          tok2 = @tokenizer.next_byte if tok1 == "\r"
+          if tok1 != "\n"  && tok1 != "\r"
+            raise HexaPDF::MalformedPDFError.new("Keyword stream must be followed by LF or CR/LF", @tokenizer.pos)
+          elsif tok1 == "\r" && tok2 != "\n"
+            maybe_raise("Keyword stream must be followed by CR or CR/LF, not CR alone", pos: @tokenizer.pos)
+            @tokenizer.pos -= 1
           end
 
           # Note that getting :Length might move the IO pointer (when references need to be resolved)
