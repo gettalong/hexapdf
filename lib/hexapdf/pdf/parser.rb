@@ -72,7 +72,12 @@ module HexaPDF
           raise HexaPDF::MalformedPDFError.new("No valid object found", offset)
         end
 
-        object = @tokenizer.parse_object
+        if (tok = @tokenizer.peek_token) && tok.kind_of?(Tokenizer::Token) && tok == 'endobj'
+          maybe_raise("No indirect object value exists between 'obj' and 'endobj'", pos: @tokenizer.pos)
+          object = nil
+        else
+          object = @tokenizer.parse_object
+        end
 
         tok = @tokenizer.parse_token
 

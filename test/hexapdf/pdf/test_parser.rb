@@ -98,6 +98,12 @@ EOF
       assert_equal({Length: HexaPDF::PDF::Reference.new(1, 0), Hallo: 6, Filter: :Fl, DecodeParms: {}}, object)
     end
 
+    it "handles empty indirect objects by using PDF null for them" do
+      set_string("1 0 obj\nendobj")
+      object, _, _, _ = @parser.parse_indirect_object
+      assert_nil(object)
+    end
+
     it "fails if the oid, gen or 'obj' keyword is invalid" do
       set_string("a 0 obj\n5\nendobj")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
@@ -334,6 +340,11 @@ EOF
     it "parse_xref_section_and_trailer fails xref type=n with gen>65535" do
       set_string("xref\n0 2\n0000000000 00000 n \n0000000000 65536 n \ntrailer\n<<>>\n")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
+    end
+
+    it "parse_indirect_object fails if an empty indirect object is found" do
+      set_string("1 0 obj\nendobj")
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
     end
 
   end
