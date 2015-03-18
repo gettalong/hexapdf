@@ -111,6 +111,13 @@ EOF
       assert_equal(28, stream.offset)
     end
 
+    it "recovers from an invalid stream length value" do
+      set_string("1 0 obj<</Length 4>> stream\n12endstream endobj")
+      _, _, _, stream = @parser.parse_indirect_object
+      assert_equal(2, stream.length)
+      assert_equal(28, stream.offset)
+    end
+
     it "fails if the oid, gen or 'obj' keyword is invalid" do
       set_string("a 0 obj\n5\nendobj")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
@@ -356,6 +363,11 @@ EOF
 
     it "parse_indirect_object fails if keyword stream is followed only by CR without LF" do
       set_string("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+    end
+
+    it "parse_indirect_object fails if the stream length value is invalid" do
+      set_string("1 0 obj<</Length 4>> stream\n12endstream endobj")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
     end
 

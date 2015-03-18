@@ -101,7 +101,14 @@ module HexaPDF
 
           tok = @tokenizer.parse_token
           unless tok.kind_of?(Tokenizer::Token) && tok == 'endstream'
-            raise HexaPDF::MalformedPDFError.new("Stream content must be followed by keyword endstream", @tokenizer.pos)
+            maybe_raise("Invalid stream length, keyword endstream not found", pos: @tokenizer.pos)
+            @tokenizer.pos = pos
+            if @tokenizer.scan_until(/(?=\n?endstream)/)
+              length = @tokenizer.pos - pos
+              tok = @tokenizer.parse_token
+            else
+              raise HexaPDF::MalformedPDFError.new("Stream content must be followed by keyword endstream", @tokenizer.pos)
+            end
           end
           tok = @tokenizer.parse_token
 
