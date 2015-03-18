@@ -118,19 +118,21 @@ EOF
       assert_equal(28, stream.offset)
     end
 
+    it "works even if the keyword endobj is missing or mangled" do
+      set_string("1 0 obj<</Length 4>>5")
+      object, _, _, _ = @parser.parse_indirect_object
+      assert_equal({Length: 4}, object)
+      set_string("1 0 obj<</Length 4>>endobjk")
+      object, _, _, _ = @parser.parse_indirect_object
+      assert_equal({Length: 4}, object)
+    end
+
     it "fails if the oid, gen or 'obj' keyword is invalid" do
       set_string("a 0 obj\n5\nendobj")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       set_string("1 a obj\n5\nendobj")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       set_string("1 0 dobj\n5\nendobj")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
-    end
-
-    it "fails if endobj is missing or mangled" do
-      set_string("1 0 obj\n<< >>\nendobjd\n")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
-      set_string("1 0 obj\n<< >>")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
     end
 
@@ -146,11 +148,6 @@ EOF
 
     it "fails if the 'endstream' keyword is missing" do
       set_string("1 0 obj\n<< >>\nstream\nendobj\n")
-      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
-    end
-
-    it "fails if there is data between 'endstream' and 'endobj'" do
-      set_string("1 0 obj\n<< >>\nstream\nendstream\ntest\nendobj\n")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
     end
   end
@@ -369,6 +366,18 @@ EOF
     it "parse_indirect_object fails if the stream length value is invalid" do
       set_string("1 0 obj<</Length 4>> stream\n12endstream endobj")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+    end
+
+    it "parse_indirect_object fails if the keyword endobj is missing or mangled" do
+      set_string("1 0 obj\n<< >>\nendobjd\n")
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+      set_string("1 0 obj\n<< >>")
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+    end
+
+    it "parse_indirect_object fails if there is data between 'endstream' and 'endobj'" do
+      set_string("1 0 obj\n<< >>\nstream\nendstream\ntest\nendobj\n")
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
     end
 
   end

@@ -118,7 +118,7 @@ module HexaPDF
         end
 
         unless tok.kind_of?(Tokenizer::Token) && tok == 'endobj'
-          raise HexaPDF::MalformedPDFError.new("Indirect object must be followed by keyword endobj", @tokenizer.pos)
+          maybe_raise("Indirect object must be followed by keyword endobj", pos: @tokenizer.pos)
         end
 
         [object, oid, gen, stream]
