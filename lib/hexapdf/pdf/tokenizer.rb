@@ -105,7 +105,7 @@ module HexaPDF
         when -1 # we reached the end of the file
           NO_MORE_TOKENS
         else # everything else consisting of regular characters
-          byte << (scan_until_with_eof_check(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/))
+          byte << (scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/))
           convert_keyword(byte)
         end
       end
@@ -180,6 +180,17 @@ module HexaPDF
         prepare_string_scanner while @ss.skip(WHITESPACE_MULTI_RE)
       end
 
+      # Utility method for scanning until the given regular expression matches.
+      #
+      # If the end of the file is reached in the process, +nil+ is returned. Otherwise the matched
+      # string is returned.
+      def scan_until(re)
+        until (data = @ss.scan_until(re))
+          return nil unless prepare_string_scanner
+        end
+        data
+      end
+
       private
 
       # :nodoc:
@@ -233,7 +244,7 @@ module HexaPDF
         parentheses = 1
 
         while parentheses != 0
-          data = scan_until_with_eof_check(/([()\\\r])/)
+          data = scan_until(/([()\\\r])/)
           unless data
             raise HexaPDF::MalformedPDFError.new("Unclosed literal string found", pos)
           end
@@ -272,7 +283,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.3.4.3
       def parse_hex_string
-        data = scan_until_with_eof_check(/(?=>)/)
+        data = scan_until(/(?=>)/)
         unless data
           raise HexaPDF::MalformedPDFError.new("Unclosed hex string found", pos)
         end
@@ -288,7 +299,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.3.5
       def parse_name
-        str = scan_until_with_eof_check(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
+        str = scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
         str.gsub!(/#[A-Fa-f0-9]{2}/) {|m| m[1, 2].hex.chr }
         if str.force_encoding(Encoding::UTF_8).valid_encoding?
           str.to_sym
@@ -355,19 +366,6 @@ module HexaPDF
         end
         @next_read_pos = @io.pos
         true
-      end
-
-      # Utility method for scanning until the given regular expression matches. If the match cannot
-      # found at first, the string of the underlying StringScanner is extended and then the regexp
-      # is tried again. This is done as long as needed.
-      #
-      # If the end of the file is reached in the process, +nil+ is returned. Otherwise the matched
-      # string is returned.
-      def scan_until_with_eof_check(re)
-        until (data = @ss.scan_until(re))
-          return nil unless prepare_string_scanner
-        end
-        data
       end
 
     end
