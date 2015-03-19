@@ -57,7 +57,7 @@ module HexaPDF
             end
 
             @tokenizer.pos = @offsets[index]
-            [@tokenizer.parse_object, @oids[index]]
+            [@tokenizer.next_object, @oids[index]]
           end
 
         end
@@ -156,8 +156,8 @@ module HexaPDF
 
           stream_tokenizer = Tokenizer.new(StringIO.new(stream))
           stream.size > 0 && value[:N].to_i.times do
-            oids << stream_tokenizer.parse_object
-            offsets << first + stream_tokenizer.parse_object
+            oids << stream_tokenizer.next_object
+            offsets << first + stream_tokenizer.next_object
           end
 
           [oids, offsets]

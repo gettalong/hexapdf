@@ -68,17 +68,17 @@ module HexaPDF
         end
       end
 
-      # Parses a single token at the current position and advances the scan pointer.
+      # Returns a single token read from the current position and advances the scan pointer.
       #
       # Comments and a run of whitespace characters are ignored. The value +NO_MORE_TOKENS+ is
       # returned if there are no more tokens available.
-      def parse_token
+      def next_token
         prepare_string_scanner(20)
         byte = @ss.get_byte
         case (byte ? byte.ord : -1)
         when 0, 9, 10, 12, 13, 32  # \0 \t \n \f \r \s
           @ss.skip(WHITESPACE_MULTI_RE)
-          parse_token
+          next_token
         when 47 # /
           parse_name
         when 40 # (
@@ -101,7 +101,7 @@ module HexaPDF
           until @ss.skip_until(/(?=[\r\n])/)
             return NO_MORE_TOKENS unless prepare_string_scanner
           end
-          parse_token
+          next_token
         when -1 # we reached the end of the file
           NO_MORE_TOKENS
         else # everything else consisting of regular characters
@@ -113,20 +113,20 @@ module HexaPDF
       # Returns the next token but does not advance the scan pointer.
       def peek_token
         pos = self.pos
-        tok = parse_token
+        tok = next_token
         self.pos = pos
         tok
       end
 
-      # Parses the PDF object at the current position. This is different from #parse_token because
+      # Returns the PDF object at the current position. This is different from #next_token because
       # references, arrays and dictionaries consist of multiple tokens.
       #
       # If the +allow_end_array_token+ argument is +true+, the ']' token is permitted to facilitate
       # the use of this method during array parsing.
       #
       # See: PDF1.7 s7.3
-      def parse_object(allow_end_array_token = false)
-        token = parse_token
+      def next_object(allow_end_array_token = false)
+        token = next_token
 
         if token.kind_of?(Token)
           case token
@@ -316,7 +316,7 @@ module HexaPDF
       def parse_array
         result = []
         loop do
-          obj = parse_object(true)
+          obj = next_object(true)
           break if obj.kind_of?(Tokenizer::Token) && obj == ']'
           result << obj
         end
@@ -331,15 +331,15 @@ module HexaPDF
       def parse_dictionary
         result = {}
         loop do
-          # Use #parse_token because we either need a Name or the '>>' token here, the latter would
-          # throw an error with #parse_object.
-          key = parse_token
+          # Use #next_token because we either need a Name or the '>>' token here, the latter would
+          # throw an error with #next_object.
+          key = next_token
           break if key.kind_of?(Tokenizer::Token) && key == '>>'
           unless key.kind_of?(Symbol)
             raise HexaPDF::MalformedPDFError.new("Dictionary keys must be PDF name objects", pos)
           end
 
-          val = parse_object
+          val = next_object
           next if val.nil?
 
           result[key] = val

@@ -12,7 +12,7 @@ describe HexaPDF::PDF::Tokenizer do
 
   it "returns the correct position on operations" do
     set_string("hallo du" + " "*50000 + "hallo du")
-    @tokenizer.parse_token
+    @tokenizer.next_token
     assert_equal(5, @tokenizer.pos)
 
     @tokenizer.skip_whitespace
@@ -27,16 +27,16 @@ describe HexaPDF::PDF::Tokenizer do
     @tokenizer.peek_token
     assert_equal(7, @tokenizer.pos)
 
-    @tokenizer.parse_token
+    @tokenizer.next_token
     assert_equal(8, @tokenizer.pos)
 
-    @tokenizer.parse_token
+    @tokenizer.next_token
     assert_equal(50013, @tokenizer.pos)
 
-    @tokenizer.parse_token
+    @tokenizer.next_token
     assert_equal(50016, @tokenizer.pos)
 
-    @tokenizer.parse_token
+    @tokenizer.next_token
     assert_equal(50016, @tokenizer.pos)
   end
 
@@ -60,8 +60,8 @@ describe HexaPDF::PDF::Tokenizer do
     end
   end
 
-  describe "parse_token" do
-    it "returns all available kinds of tokens on parse_token" do
+  describe "next_token" do
+    it "returns all available kinds of tokens on next_token" do
       set_string(<<-EOF.chomp.gsub(/^ {8}/, ''))
         % Regular tokens
           		
@@ -123,55 +123,55 @@ describe HexaPDF::PDF::Tokenizer do
 
       while expected_tokens.length > 0
         expected_token = expected_tokens.shift
-        token = @tokenizer.parse_token
+        token = @tokenizer.next_token
         assert_equal(expected_token, token)
         assert_equal(Encoding::BINARY, token.encoding) if token.kind_of?(String)
       end
       assert_equal(0, expected_tokens.length)
-      assert_equal(HexaPDF::PDF::Tokenizer::NO_MORE_TOKENS, @tokenizer.parse_token)
+      assert_equal(HexaPDF::PDF::Tokenizer::NO_MORE_TOKENS, @tokenizer.next_token)
     end
 
     it "should return name tokens in US-ASCII/UTF-8 or binary encoding" do
       set_string("/ASomewhatLongerName")
-      token = @tokenizer.parse_token
+      token = @tokenizer.next_token
       assert_equal(:ASomewhatLongerName, token)
       assert_equal(Encoding::US_ASCII, token.encoding)
 
       set_string("/Hößgang")
-      token = @tokenizer.parse_token
+      token = @tokenizer.next_token
       assert_equal(:"Hößgang", token)
       assert_equal(Encoding::UTF_8, token.encoding)
 
       set_string('/H#c3#b6#c3#9fgang')
-      token = @tokenizer.parse_token
+      token = @tokenizer.next_token
       assert_equal(:"Hößgang", token)
       assert_equal(Encoding::UTF_8, token.encoding)
 
       set_string('/H#E8lp')
-      token = @tokenizer.parse_token
+      token = @tokenizer.next_token
       assert_equal("H\xE8lp".b.intern, token)
       assert_equal(Encoding::BINARY, token.encoding)
     end
 
     it "fails on a greater than sign that is not part of a hex string" do
       set_string(" >")
-      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_token }
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
     end
 
     it "fails on a missing greater than sign in a hex string" do
       set_string("<ABCD")
-      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_token }
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
     end
 
     it "fails on unbalanced parentheses in a literal string" do
       set_string("(href(test)")
-      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_token }
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
     end
 
     it "should not fail when resetting the position (due to the use of the internal StringScanner buffer)" do
       set_string("0 1 2 3 4 " * 4000)
       4000.times do
-        5.times {|i| assert_equal(i, @tokenizer.parse_token)}
+        5.times {|i| assert_equal(i, @tokenizer.next_token)}
       end
     end
   end
@@ -189,35 +189,35 @@ describe HexaPDF::PDF::Tokenizer do
     end
   end
 
-  describe "parse_object" do
+  describe "next_object" do
     it "works for all PDF object types, including reference, array and dictionary" do
       set_string(<<-EOF.chomp.gsub(/^ {8}/, ''))
         true false null 123 34.5 (string) <4E6F76> /Name 1 0 R 2 15 R
         [5 6 /Name] <</Name 5>>
         EOF
-      assert_equal(true, @tokenizer.parse_object)
-      assert_equal(false, @tokenizer.parse_object)
-      assert_nil(@tokenizer.parse_object)
-      assert_equal(123, @tokenizer.parse_object)
-      assert_equal(34.5, @tokenizer.parse_object)
-      assert_equal("string".b, @tokenizer.parse_object)
-      assert_equal("Nov".b, @tokenizer.parse_object)
-      assert_equal(:Name, @tokenizer.parse_object)
-      assert_equal(HexaPDF::PDF::Reference.new(1, 0), @tokenizer.parse_object)
-      assert_equal(HexaPDF::PDF::Reference.new(2, 15), @tokenizer.parse_object)
-      assert_equal([5, 6, :Name], @tokenizer.parse_object)
-      assert_equal({Name: 5}, @tokenizer.parse_object)
+      assert_equal(true, @tokenizer.next_object)
+      assert_equal(false, @tokenizer.next_object)
+      assert_nil(@tokenizer.next_object)
+      assert_equal(123, @tokenizer.next_object)
+      assert_equal(34.5, @tokenizer.next_object)
+      assert_equal("string".b, @tokenizer.next_object)
+      assert_equal("Nov".b, @tokenizer.next_object)
+      assert_equal(:Name, @tokenizer.next_object)
+      assert_equal(HexaPDF::PDF::Reference.new(1, 0), @tokenizer.next_object)
+      assert_equal(HexaPDF::PDF::Reference.new(2, 15), @tokenizer.next_object)
+      assert_equal([5, 6, :Name], @tokenizer.next_object)
+      assert_equal({Name: 5}, @tokenizer.next_object)
     end
 
     it "fails if the value is not a correct object" do
       set_string("<< /name ] >>")
-      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_object }
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_object }
       set_string("other")
-      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_object }
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_object }
       set_string("<< (string) (key) >>")
-      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_object }
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_object }
       set_string("<< /NoValueForKey >>")
-      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.parse_object }
+      assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_object }
     end
   end
 
