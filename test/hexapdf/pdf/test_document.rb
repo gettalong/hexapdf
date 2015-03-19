@@ -267,14 +267,16 @@ EOF
     end
 
     it "recursively unwraps arrays" do
-      assert_equal([5, 10, [200]],
-                   @io_doc.unwrap([5, HexaPDF::PDF::Reference.new(1, 0), [HexaPDF::PDF::Reference.new(2, 0)]]))
+      assert_equal([5, 10, [200], [200]],
+                   @io_doc.unwrap([5, HexaPDF::PDF::Reference.new(1, 0), [HexaPDF::PDF::Reference.new(2, 0)],
+                                  [HexaPDF::PDF::Reference.new(2, 0)]]))
     end
 
     it "recursively unwraps hashes" do
-      assert_equal({a: 5, b: 10, c: [200]},
+      assert_equal({a: 5, b: 10, c: [200], d: [200]},
                    @io_doc.unwrap({a: 5, b: HexaPDF::PDF::Reference.new(1, 0),
-                                    c: [HexaPDF::PDF::Reference.new(2, 0)]}))
+                                    c: [HexaPDF::PDF::Reference.new(2, 0)],
+                                    d: [HexaPDF::PDF::Reference.new(2, 0)]}))
     end
 
     it "recursively unwraps PDF objects" do
@@ -286,9 +288,7 @@ EOF
       obj2 = @doc.add({})
       obj1.value[2] = obj2
       obj2.value[1] = obj1
-      assert_raises(HexaPDF::Error) do
-        @doc.unwrap(@doc.wrap({a: obj1}))
-      end
+      assert_raises(HexaPDF::Error) { @doc.unwrap({a: obj1}) }
     end
   end
 

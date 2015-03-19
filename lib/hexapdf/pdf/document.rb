@@ -287,13 +287,13 @@ module HexaPDF
           case object
           when Hash
             seen[object] = true
-            object.each_with_object({}) {|(key, val), memo| memo[key] = recurse.call(val, seen)}
+            object.each_with_object({}) {|(key, val), memo| memo[key] = recurse.call(val, seen.dup)}
           when Array
             seen[object] = true
-            object.map {|inner_o| recurse.call(inner_o, seen)}
+            object.map {|inner_o| recurse.call(inner_o, seen.dup)}
           when HexaPDF::PDF::Object
             seen[object] = true
-            recurse.call(object.value, seen)
+            recurse.call(object.value, seen.dup)
           else
             object
           end
