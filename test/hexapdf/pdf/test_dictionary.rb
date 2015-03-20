@@ -9,6 +9,13 @@ describe HexaPDF::PDF::Dictionary do
     obj
   end
 
+  def add(obj)
+    HexaPDF::PDF::Object.new(obj, oid: 1)
+  end
+
+  def delete(obj)
+  end
+
   before do
     @test_class = Class.new(HexaPDF::PDF::Dictionary)
     @test_class.define_field(:Boolean, type: [TrueClass, FalseClass], default: false, version: '1.3')
@@ -111,6 +118,53 @@ describe HexaPDF::PDF::Dictionary do
 
     it "raises an error if the key is not a symbol object" do
       assert_raises(HexaPDF::Error) { @dict[5] = 6 }
+    end
+  end
+
+  describe "validate_fields" do
+    before do
+      @test_class.define_field(:Inherited, type: [Array, Symbol], required: true, indirect: false)
+      @obj = @test_class.new({Array: [], Inherited: :symbol}, document: self)
+    end
+
+    it "checks for the required fields w/wo auto_correct" do
+      assert(@obj.validate(auto_correct: false))
+      assert_equal({Array: [], Inherited: :symbol}, @obj.value)
+
+      @obj.value.delete(:Array)
+      refute(@obj.validate(auto_correct: false))
+      assert(@obj.validate(auto_correct: true))
+      assert_equal({Array: [], Inherited: :symbol}, @obj.value)
+
+      @obj.value.delete(:Inherited)
+      refute(@obj.validate(auto_correct: true))
+    end
+
+    it "checks for the correct type of a set field" do
+      @obj.value[:Inherited] = 'string'
+      refute(@obj.validate(auto_correct: false))
+
+      @obj.value[:Inherited] = HexaPDF::PDF::Object.new(:symbol)
+      assert(@obj.validate(auto_correct: false))
+
+      @obj.value[:Inherited] = Class.new(Array).new([5])
+      assert(@obj.validate(auto_correct: false))
+    end
+
+    it "checks whether a field needs to be indirect w/wo auto_correct" do
+      @obj.value[:Inherited] = HexaPDF::PDF::Object.new(:test, oid: 1)
+      refute(@obj.validate(auto_correct: false))
+      assert(@obj.validate(auto_correct: true))
+      assert_equal(:test, @obj.value[:Inherited])
+
+      @obj.value[:TestClass] = {}
+      refute(@obj.validate(auto_correct: false))
+      assert(@obj.validate(auto_correct: true))
+      assert_equal(1, @obj.value[:TestClass].oid)
+
+      @obj.value[:TestClass] = HexaPDF::PDF::Object.new({})
+      assert(@obj.validate(auto_correct: true))
+      assert_equal(1, @obj.value[:TestClass].oid)
     end
   end
 

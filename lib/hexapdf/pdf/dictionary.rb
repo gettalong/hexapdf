@@ -151,6 +151,9 @@ module HexaPDF
         @fields.each(&block) if defined?(@fields)
       end
 
+
+      define_validator(:validate_fields)
+
       # Creates a new Dictionary object.
       def initialize(value, **kwargs)
         value ||= {}
@@ -207,6 +210,41 @@ module HexaPDF
         else
           value[name] = data
         end
+      end
+
+      # Performs validation tasks based on the defined fields.
+      #
+      # See: Object#validate for information on the available arguments.
+      def validate_fields
+        self.class.each_field do |name, field|
+          obj = value.key?(name) && document.deref(value[name]) || nil
+
+          # Check that required fields are set
+          if field.required? && obj.nil?
+            yield("Required field #{name} is not set", field.default?)
+            self[name] = obj = field.dupped_default
+          end
+
+          # Check the type of the field
+          if !obj.nil? && !field.type.any? {|t| obj.kind_of?(t)} &&
+              (!obj.kind_of?(HexaPDF::PDF::Object) || !field.type.any? {|t| obj.value.kind_of?(t)})
+            yield("Type of field #{name} is invalid", false)
+          end
+
+          # Check if field value needs to be (in)direct
+          if !obj.nil? && !field.indirect.nil?
+            if field.indirect && (!obj.kind_of?(HexaPDF::PDF::Object) || obj.oid == 0)
+              yield("Field #{name} needs to be an indirect object", true)
+              value[name] = obj = document.add(obj)
+            elsif !field.indirect && obj.kind_of?(HexaPDF::PDF::Object) && obj.oid != 0
+              yield("Field #{name} needs to be an direct object", true)
+              document.delete(obj)
+              value[name] = obj = obj.value
+            end
+          end
+        end
+
+        true
       end
 
       # Returns a dup of the underlying hash.
