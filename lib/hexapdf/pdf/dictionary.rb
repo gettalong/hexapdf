@@ -44,6 +44,8 @@ module HexaPDF
           return @type if @types_mapped
           @types_mapped = true
           @type.map! {|type| type.kind_of?(String) ? ::Object.const_get(type) : type}
+          @type << Hash if @type.any? {|type| type.ancestors.include?(Dictionary)}
+          @type
         end
 
         # Returns +true+ if this field is required.
@@ -73,7 +75,7 @@ module HexaPDF
         # Returns +true+ if the given data value should be wrapped in the PDF specific type class of
         # this field entry.
         def wrap_data_with_type?(data)
-          @cached_wrapable ||= (type.size == 1 && type.first.ancestors[1..-1].include?(HexaPDF::PDF::Dictionary))
+          @cached_wrapable ||= (type.size == 2 && type[1] == Hash && type[0].ancestors.include?(HexaPDF::PDF::Dictionary))
           @cached_wrapable && (data.nil? || data.kind_of?(Hash))
         end
 

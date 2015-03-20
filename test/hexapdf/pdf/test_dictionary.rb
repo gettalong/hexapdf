@@ -12,8 +12,8 @@ describe HexaPDF::PDF::Dictionary do
   before do
     @test_class = Class.new(HexaPDF::PDF::Dictionary)
     @test_class.define_field(:Boolean, type: [TrueClass, FalseClass], default: false, version: '1.3')
-    @test_class.define_field(:Array, type: 'Array', required: true, default: [], indirect: true)
-    @test_class.define_field(:TestClass, type: @test_class)
+    @test_class.define_field(:Array, type: 'Array', required: true, default: [])
+    @test_class.define_field(:TestClass, type: @test_class, indirect: true)
 
     @dict = @test_class.new({:Array => [3, 4], :Other => 5, :Object => HexaPDF::PDF::Object.new(:obj)},
                             document: self)
@@ -30,7 +30,10 @@ describe HexaPDF::PDF::Dictionary do
       assert(@test_class.field(:Array).required?)
       assert_equal([Array], @test_class.field(:Array).type)
       assert_equal([], @test_class.field(:Array).dupped_default)
-      assert(@test_class.field(:Array).indirect)
+
+      assert(@test_class.field(:TestClass).indirect)
+      assert_equal([@test_class, Hash], @test_class.field(:TestClass).type)
+      assert(@test_class.field(:TestClass).wrap_data_with_type?({}))
     end
 
     it "can retrieve fields from parent classes" do
