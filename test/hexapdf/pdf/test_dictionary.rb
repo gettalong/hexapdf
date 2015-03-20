@@ -39,6 +39,12 @@ describe HexaPDF::PDF::Dictionary do
       assert(@inherited_class.field(:Boolean))
       refute(@inherited_class.field(:Unknown))
     end
+
+    it "can iterate over all fields" do
+      @inherited_class = Class.new(@test_class)
+      @inherited_class.define_field(:Inherited, type: [Array, Symbol])
+      assert_equal([:Boolean, :Array, :TestClass, :Inherited], @inherited_class.each_field.map {|k,v| k})
+    end
   end
 
   it "fails initialization if the value is not a hash" do

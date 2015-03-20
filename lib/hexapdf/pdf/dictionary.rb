@@ -137,6 +137,17 @@ module HexaPDF
         end
       end
 
+      # :call-seq:
+      #   class.each_field {|name, data| block }   -> class
+      #   class.each_field                         -> Enumerator
+      #
+      # Calls the block once for each field defined either in this class or in one of the ancestor
+      # classes.
+      def self.each_field(&block) # :yields: name, data
+        return to_enum(__method__) unless block_given?
+        superclass.each_field(&block) if superclass != Dictionary
+        @fields.each(&block) if defined?(@fields)
+      end
 
       # Creates a new Dictionary object.
       def initialize(value, **kwargs)
