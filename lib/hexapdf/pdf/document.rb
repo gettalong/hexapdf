@@ -44,6 +44,12 @@ module HexaPDF
       #
       #    This can be used to limit the memory needed for reading or writing PDF files with huge
       #    stream objects.
+      #
+      # parser.on_correctable_error::
+      #    Callback hook when the parser encounters an error that is potentially correctable.
+      #
+      #    The value needs to be an object that responds to \#call(document, message, position) and
+      #    returns +true+ if an error should be raised.
       def self.default_config
         {
           # See PDF1.7 s7.4.1, ADB sH.3 3.3
@@ -71,7 +77,7 @@ module HexaPDF
             [:ObjStm, nil] => 'HexaPDF::PDF::Type::ObjectStream',
           },
           'io.chunk_size' => 2**16,
-          'parser.strict' => false,
+          'parser.on_correctable_error' => proc { false },
         }
       end
 

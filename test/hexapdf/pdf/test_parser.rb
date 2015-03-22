@@ -8,7 +8,7 @@ describe HexaPDF::PDF::Parser do
 
   before do
     @document = Object.new
-    def (@document).config; @config ||= {'parser.strict' => false}; end
+    def (@document).config; @config ||= {'parser.on_correctable_error' => proc { false }}; end
     def (@document).unwrap(obj)
       obj.kind_of?(HexaPDF::PDF::Reference) ? 10 : obj
     end
@@ -335,7 +335,7 @@ EOF
 
   describe "with strict parsing enabled" do
     before do
-      @document.config['parser.strict'] = true
+      @document.config['parser.on_correctable_error'] = proc { true }
     end
 
     it "startxref_offset fails if the startxref is not in the last part of the file" do

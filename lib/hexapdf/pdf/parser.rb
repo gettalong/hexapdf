@@ -271,17 +271,16 @@ module HexaPDF
         @header_version = $1
       end
 
-      # Depending on the value of the config option +parser.strict+ raises a
-      # HexaPDF::MalformedPDFError with the given message or yields to the block if one is given.
+      # Calls the block stored in the config option +parser.on_correctable_error+ with the document,
+      # the given message and the position. If the returned value is +true+, raises a
+      # HexaPDF::MalformedPDFError. Otherwise the error is corrected and parsing continues.
       #
-      # If the options +force+ is used, an error is always raised.
+      # If the option +force+ is used, the block is not called and the error is raised immediately.
       def maybe_raise(msg, pos: nil, force: false)
-        if force || @document.config['parser.strict']
+        if force || @document.config['parser.on_correctable_error'].call(@document, msg, pos)
           error = HexaPDF::MalformedPDFError.new(msg, pos)
           error.set_backtrace(caller(1))
           raise error
-        elsif block_given?
-          yield
         end
       end
 
