@@ -128,17 +128,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.3.9
       def object(ref)
-        oid = (ref.respond_to?(:oid) ? ref.oid : ref)
-
-        obj = nil
-        @revisions.each do |rev|
-          # Check uses oid because we are only interested in the current version of an object with a
-          # given object number!
-          next unless rev.object?(oid)
-          obj = rev.object(ref)
-          break
-        end
-        obj
+        (rev = @revisions.find {|r| r.object?(ref)}) && rev.object(ref)
       end
 
       # Dereferences the given object.

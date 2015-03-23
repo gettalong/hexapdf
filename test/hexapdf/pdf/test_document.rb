@@ -17,15 +17,20 @@ endobj
 20
 endobj
 
+3 0 obj
+30
+endobj
+
 xref
-0 3
+0 4
 0000000000 65535 f 
 0000000009 00000 n 
 0000000028 00000 n 
+0000000047 00000 n 
 trailer
-<< /Size 3 >>
+<< /Size 4 >>
 startxref
-47
+66
 %%EOF
 
 2 0 obj
@@ -33,12 +38,13 @@ startxref
 endobj
 
 xref
-2 1
-0000000158 00000 n 
+2 2
+0000000197 00000 n 
+0000000000 00001 f 
 trailer
-<< /Size 3 /Prev 47 >>
+<< /Size 4 /Prev 66 >>
 startxref
-178
+217
 %%EOF
 EOF
     @io_doc = HexaPDF::PDF::Document.new(io: @io)
@@ -83,6 +89,10 @@ EOF
 
     it "returns only the newest version of an object" do
       assert_equal(200, @io_doc.object(2).value)
+      assert_equal(200, @io_doc.object(HexaPDF::PDF::Reference.new(2, 0)).value)
+      assert_nil(@io_doc.object(3).value)
+      assert_nil(@io_doc.object(HexaPDF::PDF::Reference.new(3, 1)).value)
+      assert_equal(30, @io_doc.object(HexaPDF::PDF::Reference.new(3, 0)).value)
     end
   end
 
@@ -294,11 +304,11 @@ EOF
 
   describe "each" do
     it "iterates over the current objects" do
-      assert_equal([nil, 10, 200], @io_doc.each(current: true).sort.map(&:value))
+      assert_equal([nil, 10, 200, nil], @io_doc.each(current: true).sort.map(&:value))
     end
 
     it "iterates over all objects" do
-      assert_equal([nil, 10, 200, 20], @io_doc.each(current: false).sort.map(&:value))
+      assert_equal([nil, 10, 200, 20, 30, nil], @io_doc.each(current: false).sort.map(&:value))
     end
   end
 
