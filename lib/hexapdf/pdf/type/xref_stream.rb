@@ -39,7 +39,9 @@ module HexaPDF
         define_field :Size, type: Integer, required: true, indirect: false
         define_field :Index, type: Array, indirect: false
         define_field :Prev, type: Integer, indirect: false
-        define_field :W, type: Array, required: true, indirect: false
+        # W is not required because it will be auto-filled on #update_with_xref_section_and_trailer
+        define_field :W, type: Array, indirect: false
+
 
         # Returns an XRefSection that represents the content of this cross-reference stream.
         #
