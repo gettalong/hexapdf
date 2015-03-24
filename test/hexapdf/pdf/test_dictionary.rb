@@ -127,6 +127,12 @@ describe HexaPDF::PDF::Dictionary do
       @obj = @test_class.new({Array: [], Inherited: :symbol}, document: self)
     end
 
+    it "uses the default value for a required :Type field that has one" do
+      @test_class.define_field(:Type, type: Symbol, required: true, default: :MyType)
+      assert(@obj.validate(auto_correct: false))
+      assert_equal(:MyType, @obj.value[:Type])
+    end
+
     it "checks for the required fields w/wo auto_correct" do
       assert(@obj.validate(auto_correct: false))
       assert_equal({Array: [], Inherited: :symbol}, @obj.value)

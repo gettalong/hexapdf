@@ -216,6 +216,10 @@ module HexaPDF
       #
       # See: Object#validate for information on the available arguments.
       def validate_fields
+        if (type_field = self.class.field(:Type)) && type_field.required? && type_field.default?
+          self[:Type] = type_field.dupped_default
+        end
+
         self.class.each_field do |name, field|
           obj = value.key?(name) && document.deref(value[name]) || nil
 
