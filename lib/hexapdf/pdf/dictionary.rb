@@ -212,6 +212,16 @@ module HexaPDF
         end
       end
 
+      # Returns a dup of the underlying hash.
+      def to_hash
+        value.dup
+      end
+      alias :to_h :to_hash
+
+
+      private
+
+
       # Performs validation tasks based on the defined fields.
       #
       # See: Object#validate for information on the available arguments.
@@ -250,12 +260,6 @@ module HexaPDF
 
         true
       end
-
-      # Returns a dup of the underlying hash.
-      def to_hash
-        value.dup
-      end
-      alias :to_h :to_hash
 
     end
 
