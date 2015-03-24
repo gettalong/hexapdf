@@ -67,10 +67,11 @@ module HexaPDF
 
 
         define_field :Type, type: Symbol, required: true, default: :ObjStm, version: '1.5'
-        define_field :N, type: Integer, required: true
-        define_field :First, type: Integer, required: true
+        define_field :N, type: Integer     # not required because it will be auto-filled on #write_objects
+        define_field :First, type: Integer # not required because it will be auto-filled on #write_objects
         define_field :Extends, type: HexaPDF::PDF::Stream
 
+        define_validator(:validate_gen_number)
 
         # Parses the stream and returns a Data object that can be used for retrieving the objects
         # defined by this object stream.
@@ -170,6 +171,11 @@ module HexaPDF
         # Returns the container with the to-be-stored objects.
         def objects
           @objects ||= {}
+        end
+
+        # Validates that the generation number of the object stream is zero.
+        def validate_gen_number
+          yield("Object stream has invalid generation number > 0", false) if self.gen != 0
         end
 
       end

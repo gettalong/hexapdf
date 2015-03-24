@@ -70,4 +70,13 @@ describe HexaPDF::PDF::Type::ObjectStream do
     assert_equal("1 0 5 2 5 [1 2] ", @obj.stream)
   end
 
+  it "fails validation if gen != 0" do
+    invocations = 0
+    @obj.send(:validate_gen_number) {|msg, correctable| invocations += 1}
+    assert_equal(0, invocations)
+
+    @obj.gen = 1
+    @obj.send(:validate_gen_number) {|msg, correctable| refute(correctable); invocations += 1}
+    assert_equal(1, invocations)
+  end
 end
