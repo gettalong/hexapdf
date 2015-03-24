@@ -30,7 +30,7 @@ module HexaPDF
       # xref_section:: An XRefSection object that contains information on how to load objects. If
       #                this option is supplied, then the +parser+ option also needs to be supplied!
       #
-      # parser:: The Parser object from which to load objects referenced by +xref_section+. If not
+      # parser:: The Parser object from which to load objects referenced by +xref_section+. If no
       #          +xref_section+ is supplied, this value is not used.
       def initialize(trailer, xref_section: nil, parser: nil)
         @trailer = trailer

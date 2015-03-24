@@ -34,6 +34,9 @@ module HexaPDF
       # to-be-stored objects are serialized to the stream. This is automatically done by the Writer.
       # A user thus only has to define which objects should reside in the object stream.
       #
+      # However, only objects that can be written to the object stream are actually written. The
+      # other objects are deleted from the object stream (#delete_object) and written normally.
+      #
       # See PDF1.7 s7.5.7
       class ObjectStream < HexaPDF::PDF::Stream
 
@@ -120,7 +123,8 @@ module HexaPDF
         # * It is a stream object.
         # * It doesn't reside in the given Revision object.
         #
-        # Such objects are additionally deleted from the list of to-be-stored objects.
+        # Such objects are additionally deleted from the list of to-be-stored objects and are later
+        # written as indirect objects.
         def write_objects(revision)
           index = 0
           object_info = ''.force_encoding(Encoding::BINARY)
