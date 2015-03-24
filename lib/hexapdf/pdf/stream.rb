@@ -73,7 +73,7 @@ module HexaPDF
     # See: PDF1.7 s7.3.8, Dictionary
     class Stream < Dictionary
 
-      define_field :Length, type: Integer, required: true
+      define_field :Length, type: Integer # not required because it will be auto-filled when writing
       define_field :Filter, type: [Symbol, Array]
       define_field :DecodeParms, type: [Dictionary, Array]
 
