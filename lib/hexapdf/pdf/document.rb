@@ -107,7 +107,7 @@ module HexaPDF
 
         if io
           @parser = Parser.new(io, self)
-          @revisions = Revisions.new(self, initial_revision: @parser.load_revision(@parser.startxref_offset))
+          @revisions = Revisions.from_io_using_parser(self, @parser)
         else
           @parser = :no_parser_available
           @revisions = Revisions.new(self)
