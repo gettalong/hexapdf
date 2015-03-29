@@ -2,6 +2,7 @@
 
 require 'openssl'
 require 'hexapdf/error'
+require 'hexapdf/pdf/encryption/aes'
 
 module HexaPDF
   module PDF
@@ -17,18 +18,12 @@ module HexaPDF
       # See: PDF1.7 s7.6.2
       class FastAES
 
-        VALID_KEY_LENGTH = [16, 24, 32] #:nodoc:
+        prepend AES
 
         # Creates a new FastAES object using the given encryption key and initialization vector.
         #
         # The mode must either be :encrypt or :decrypt.
         def initialize(key, iv, mode)
-          unless VALID_KEY_LENGTH.include?(key.length)
-            raise HexaPDF::Error, "AES key length must be 128, 192 or 256 bit"
-          end
-          unless iv.length == 16
-            raise HexaPDF::Error, "AES initialization vector length must be 128 bit"
-          end
           @cipher = OpenSSL::Cipher.new("AES-#{key.length << 3}-CBC")
           @cipher.send(mode)
           @cipher.key = key

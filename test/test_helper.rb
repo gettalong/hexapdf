@@ -104,37 +104,3 @@ module CommonARC4EncryptionTests
   end
 
 end
-
-
-module CommonAESEncryptionTests
-
-  TEST_VECTOR_FILES = Dir[File.join(__dir__, 'data', 'aes-test-vectors', '*')]
-
-  def test_processes_the_AES_test_vectors
-    TEST_VECTOR_FILES.each do |filename|
-      name, size, mode = File.basename(filename, '.data.gz').split('-')
-      size = size.to_i / 8
-      data = Zlib::GzipReader.open(filename) {|io| io.read}.force_encoding(Encoding::BINARY)
-      data.scan(/(.{#{size}})(.{16})(.{16})(.{16})/m).each_with_index do |(key, iv, plain, cipher), index|
-        aes = @algorithm_klass.new(key, iv, mode.intern)
-        assert_equal(cipher, aes.process(plain), "name: #{name}, size: #{size*8}, mode: #{mode}, index: #{index}")
-      end
-    end
-  end
-
-  def test_can_accept_one_big_chunk_or_multiple_smaller_ones
-    big = @algorithm_klass.new('t'*16, '0'*16, :encrypt)
-    small = @algorithm_klass.new('t'*16, '0'*16, :encrypt)
-    assert_equal(big.process('some'*16),
-                 small.process('some'*8) << small.process('some'*4) << small.process('some'*4))
-  end
-
-  def test_raises_error_on_invalid_key_length
-    assert_raises(HexaPDF::Error) { @algorithm_klass.new('t'*15, '0'*16, :encrypt) }
-  end
-
-  def test_raises_error_on_invalid_iv_length
-    assert_raises(HexaPDF::Error) { @algorithm_klass.new('t'*16, '0'*15, :encrypt) }
-  end
-
-end
