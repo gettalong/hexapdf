@@ -51,7 +51,7 @@ describe HexaPDF::PDF::Encryption::AES do
       end
 
       def process(data)
-        [mode, data]
+        data
       end
 
     end
@@ -62,9 +62,38 @@ describe HexaPDF::PDF::Encryption::AES do
     assert_respond_to(@test_class, :decrypt)
   end
 
-  it "correctly invokes encryption/decryption via klass methods" do
-    assert_equal([:encrypt, '5'], @test_class.encrypt('some key'*2, 'some  iv'*2, '5'))
-    assert_equal([:decrypt, '5'], @test_class.decrypt('some key'*2, 'some  iv'*2, '5'))
+  describe "padding and IV on klass.encrypt/.decrypt" do
+
+    before do
+      @data = (0..15).map do |length|
+        {plain: '5'*length, cipher_padding: '5'*length + (16-length).chr * (16-length), length: 32}
+      end
+      @data << {plain: '5'*16, cipher_padding: '5'*16 + 16.chr * 16, length: 48}
+    end
+
+    it "returns the padded result with IV on klass.encrypt" do
+      @data.each do |data|
+        result = @test_class.encrypt('some key'*2, data[:plain])
+        assert_equal(data[:length], result.length)
+        assert_equal(data[:cipher_padding][-16, 16], result[-16, 16])
+      end
+    end
+
+    it "returns the decrypted result without padding and with IV removed on klass.decrypt" do
+      @data.each do |data|
+        result = @test_class.decrypt('some key'*2, 'iv'*8 + data[:cipher_padding])
+        assert_equal(data[:plain], result)
+      end
+    end
+
+    it "fails on decryption if the padding is invalid" do
+      assert_raises(HexaPDF::Error) { @test_class.decrypt('some'*4, 'iv'*8 + 'somedata'*4) }
+    end
+
+    it "fails on decryption if not enough bytes are provided" do
+      assert_raises(HexaPDF::Error) { @test_class.decrypt('some'*4, 'no iv') }
+    end
+
   end
 
   it "does basic validation on initialization" do

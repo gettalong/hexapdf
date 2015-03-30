@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-require 'openssl'
+require 'securerandom'
 require 'hexapdf/error'
 
 module HexaPDF
@@ -24,14 +24,45 @@ module HexaPDF
         # These methods will be available on the class object that prepends the AES module.
         module ClassMethods
 
-          # Encrypts the given +data+ using the +key+ and the initialization vector +iv+.
-          def encrypt(key, iv, data)
-            new(key, iv, :encrypt).process(data)
+          # Encrypts the given +data+ using the +key+ and a randomly generated initialization
+          # vector.
+          #
+          # The data is padded using the PKCS#5 padding scheme and the initialization vector is
+          # prepended to the encrypted data,
+          #
+          # See: PDF1.7 s7.6.2.
+          def encrypt(key, data)
+            iv = random_bytes(BLOCK_SIZE)
+            padding_length = BLOCK_SIZE - data.size % BLOCK_SIZE
+            data << padding_length.chr * padding_length
+            iv << new(key, iv, :encrypt).process(data)
           end
 
-          # Decrypts the given +data+ using the +key+ and the initialization vector +iv+.
-          def decrypt(key, iv, data)
-            new(key, iv, :decrypt).process(data)
+          # Decrypts the given +data+ using the +key+.
+          #
+          # It is assumed that the initialization vector is included in the first BLOCK_SIZE bytes
+          # of the data. After the decryption the PKCS#5 padding is removed.
+          #
+          # See: PDF1.7 s7.6.2.
+          def decrypt(key, data)
+            if data.length % 16 != 0 || data.length < 32
+              raise HexaPDF::Error, "Invalid data for decryption, need 32 + 16*n bytes"
+            end
+            result = new(key, data.slice!(0, BLOCK_SIZE), :decrypt).process(data)
+            padding_length = result.getbyte(-1)
+            if padding_length > 16 || padding_length == 0
+              raise HexaPDF::Error, "Invalid AES padding length #{padding_length}"
+            end
+            result.slice!(-padding_length, padding_length)
+            result
+          end
+
+          # Returns a string of n random bytes.
+          #
+          # The specific AES algorithm class can override this class method to provide another
+          # method for generating random bytes.
+          def random_bytes(n)
+            SecureRandom.random_bytes(n)
           end
 
         end

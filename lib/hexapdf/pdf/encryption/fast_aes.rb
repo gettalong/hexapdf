@@ -20,6 +20,13 @@ module HexaPDF
 
         prepend AES
 
+        # Uses OpenSSL to generate the requested random bytes.
+        #
+        # See AES::ClassMethods#random_bytes for more information.
+        def self.random_bytes(n)
+          OpenSSL::Random.random_bytes(n)
+        end
+
         # Creates a new FastAES object using the given encryption key and initialization vector.
         #
         # The mode must either be :encrypt or :decrypt.
