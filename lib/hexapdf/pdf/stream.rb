@@ -45,6 +45,16 @@ module HexaPDF
         self.decode_parms = decode_parms
       end
 
+      # Returns a Fiber for getting at the data of the underlying IO object.
+      def fiber(chunk_size = 0)
+        if source.kind_of?(Fiber)
+          source
+        else
+          HexaPDF::PDF::Filter.source_from_io(source, pos: offset || 0, length: length || -1,
+                                              chunk_size: chunk_size)
+        end
+      end
+
       remove_method :filter=
       def filter=(filter) #:nodoc:
         @filter = [filter].flatten.compact
@@ -187,12 +197,8 @@ module HexaPDF
       def stream_source
         if @stream.kind_of?(String)
           HexaPDF::PDF::Filter.source_from_string(@stream)
-        elsif @stream.source.kind_of?(Fiber)
-          @stream.source
         else
-          HexaPDF::PDF::Filter.source_from_io(@stream.source, pos: @stream.offset || 0,
-                                              length: @stream.length || -1,
-                                              chunk_size: config['io.chunk_size'])
+          @stream.fiber(config['io.chunk_size'])
         end
       end
 
