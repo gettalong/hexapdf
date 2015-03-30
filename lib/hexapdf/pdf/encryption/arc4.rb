@@ -4,56 +4,36 @@ module HexaPDF
   module PDF
     module Encryption
 
-      # Pure Ruby implementation of the general encryption algorithm ARC4.
+      # Common interface for ARC4 algorithms
       #
-      # Since this algorithm is implemented in pure Ruby, it is not very fast. Therefore the
-      # FastARC4 class based on OpenSSL should be used when possible.
-      #
-      # For reference: This implementation is about 250 times slower than the FastARC4 version.
-      #
-      # See: PDF1.7 s7.6.2
-      class ARC4
+      # This module defines the common interface that is used by the security handlers to encrypt or
+      # decrypt data with ARC4. It has to be **prepended** by any ARC4 algorithm class.
+      module ARC4
 
-        # Creates a new ARC4 object using the given encryption key.
-        def initialize(key)
-          initialize_state(key)
-          @i = @j = 0
-        end
-
-        # Processes the given data.
+        # Convenience methods for decryption and encryption.
         #
-        # Since this is a symmetric algorithm, the same method can be used for encryption and
-        # decryption.
-        def process(data)
-          result = data.dup.force_encoding(Encoding::BINARY)
-          di = 0
-          while di < result.length
-            @i = (@i + 1) % 256
-            @j = (@j + @state[@i]) % 256
-            @state[@i], @state[@j] = @state[@j], @state[@i]
-            result.setbyte(di, result.getbyte(di) ^ @state[(@state[@i] + @state[@j]) % 256])
-            di += 1
+        # These methods will be available on the class object that prepends the ARC4 module.
+        module ClassMethods
+
+          # Encrypts the given +data+ with the +key+.
+          #
+          # See: PDF1.7 s7.6.2.
+          def encrypt(key, data)
+            new(key).encrypt(data)
           end
-          result
+
+          # Decrypts the given +data+ with the +key+.
+          #
+          # See: PDF1.7 s7.6.2.
+          def decrypt(key, data)
+            new(key).decrypt(data)
+          end
+
         end
-        alias :decrypt :process
-        alias :encrypt :process
 
-        private
-
-        # The initial state which is then modified by the key-scheduling algorithm
-        INITIAL_STATE = (0..255).to_a
-
-        # Performs the key-scheduling algorithm to initialize the state.
-        def initialize_state(key)
-          i = j = 0
-          @state = INITIAL_STATE.dup
-          key_length = key.length
-          while i < 256
-            j = (j + @state[i] + key.getbyte(i % key_length)) % 256
-            @state[i], @state[j] = @state[j], @state[i]
-            i += 1
-          end
+        # Automatically extends the klass with the necessary class level methods.
+        def self.prepended(klass) # :nodoc:
+          klass.extend(ClassMethods)
         end
 
       end

@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'openssl'
+require 'hexapdf/pdf/encryption/arc4'
 
 module HexaPDF
   module PDF
@@ -10,6 +11,8 @@ module HexaPDF
       #
       # See: PDF1.7 s7.6.2
       class FastARC4
+
+        prepend ARC4
 
         # Creates a new FastARC4 object using the given encryption key.
         def initialize(key)
