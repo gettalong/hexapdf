@@ -10,6 +10,16 @@ describe HexaPDF::PDF::Serializer do
     @serializer = HexaPDF::PDF::Serializer.new
   end
 
+  it "allows access to the top serialized object" do
+    object = nil
+    @serializer.singleton_class.send(:define_method, :serialize_nilclass) do |obj|
+      object = @object
+      'null'
+    end
+    @serializer.serialize({this: :is, null: nil})
+    assert_equal({this: :is, null: nil}, object)
+  end
+
   def assert_serialized(result, object)
     assert_equal(result, @serializer.serialize(object))
   end

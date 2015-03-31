@@ -9,6 +9,30 @@ module HexaPDF
     #
     # The stream of stream objects is not serialized by this class but every other object is!
     #
+    # == How This Class Works
+    #
+    # The public interface consists of the #serialize method which accepts an object and returns its
+    # serialized form. During serialization of this object it is accessible by individual
+    # serialization methods via the @object instance variable (useful if the object is a composed
+    # object).
+    #
+    # Internally, the #__serialize method is used for invoking the correct serialization method
+    # based on the class of a given object. It is also used for serializing individual parts of a
+    # composed object.
+    #
+    # Therefore the serializer contains one serialization method for each class it needs to
+    # serialize. The naming scheme of these methods is based on the class name: The full class name
+    # is converted to lowercase, the namespace separator '::' is replaced with a single underscore
+    # and the string "serialize_" is then prepended.
+    #
+    # Examples:
+    #
+    #   NilClass                 => serialize_nilclass
+    #   TrueClass                => serialize_trueclass
+    #   HexaPDF::PDF::Object     => serialize_hexapdf_pdf_object
+    #
+    # If no serialization method for a specific class is found, the ancestors classes are tried.
+    #
     # See: PDF1.7 s7.3
     class Serializer
 
@@ -25,11 +49,22 @@ module HexaPDF
       end
 
       # Returns the serialized form of the given object.
+      #
+      # For developers: While the object is serialized, methods can use the instance variable
+      # @object to obtain information about or use the object in case it is a composed object.
       def serialize(obj)
-        send(@dispatcher[obj.class], obj).force_encoding(Encoding::BINARY)
+        @object = obj
+        __serialize(obj)
+      ensure
+        @object = nil
       end
 
       private
+
+      # Invokes the correct serialization method for the object.
+      def __serialize(obj)
+        send(@dispatcher[obj.class], obj).force_encoding(Encoding::BINARY)
+      end
 
       # See: PDF1.7 s7.3.9
       def serialize_nilclass(obj)
@@ -80,7 +115,7 @@ module HexaPDF
         str = "["
         index = 0
         while index < obj.size
-          tmp = serialize(obj[index])
+          tmp = __serialize(obj[index])
           str << " " unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)] || index == 0
           str << tmp
           index += 1
@@ -92,8 +127,8 @@ module HexaPDF
       def serialize_hash(obj)
         str = "<<"
         obj.each do |k, v|
-          str << serialize(k)
-          tmp = serialize(v)
+          str << __serialize(k)
+          tmp = __serialize(v)
           str << " " unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)]
           str << tmp
         end
@@ -111,7 +146,7 @@ module HexaPDF
 
       # Just serializes the objects value.
       def serialize_hexapdf_pdf_object(obj)
-        serialize(obj.value)
+        __serialize(obj.value)
       end
 
       # See: PDF1.7 s7.3.10
