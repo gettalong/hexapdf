@@ -7,6 +7,7 @@ require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/revisions'
 require 'hexapdf/pdf/type'
+require 'hexapdf/pdf/encryption'
 
 module HexaPDF
   module PDF
@@ -78,6 +79,8 @@ module HexaPDF
           },
           'io.chunk_size' => 2**16,
           'parser.on_correctable_error' => proc { false },
+          'encryption.arc4' => 'HexaPDF::PDF::Encryption::FastARC4',
+          'encryption.aes' => 'HexaPDF::PDF::Encryption::FastAES',
         }
       end
 
