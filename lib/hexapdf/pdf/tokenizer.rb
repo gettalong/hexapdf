@@ -92,7 +92,7 @@ module HexaPDF
           end
         when 62 # >
           unless @ss.get_byte == '>'
-            raise HexaPDF::MalformedPDFError.new("Delimiter '>' found at invalid position", pos)
+            raise HexaPDF::MalformedPDFError.new("Delimiter '>' found at invalid position", pos: pos)
           end
           Token.new('>>'.force_encoding(Encoding::BINARY))
         when 91, 93, 123, 125 # [ ] { }
@@ -136,10 +136,10 @@ module HexaPDF
             token = parse_dictionary
           when ']'
             unless allow_end_array_token
-              raise HexaPDF::MalformedPDFError.new("Found invalid end array token ']'", pos)
+              raise HexaPDF::MalformedPDFError.new("Found invalid end array token ']'", pos: pos)
             end
           else
-            raise HexaPDF::MalformedPDFError.new("Invalid object, got token #{token}", pos)
+            raise HexaPDF::MalformedPDFError.new("Invalid object, got token #{token}", pos: pos)
           end
         end
 
@@ -167,7 +167,7 @@ module HexaPDF
       def next_xref_entry
         prepare_string_scanner(20)
         unless @ss.scan(/(\d{10}) (\d{5}) ([nf])( \r| \n|\r\n)/)
-          raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection entry", pos)
+          raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection entry", pos: pos)
         end
         [@ss[1].to_i, @ss[2].to_i, @ss[3]]
       end
@@ -246,7 +246,7 @@ module HexaPDF
         while parentheses != 0
           data = scan_until(/([()\\\r])/)
           unless data
-            raise HexaPDF::MalformedPDFError.new("Unclosed literal string found", pos)
+            raise HexaPDF::MalformedPDFError.new("Unclosed literal string found", pos: pos)
           end
 
           str << data
@@ -285,7 +285,7 @@ module HexaPDF
       def parse_hex_string
         data = scan_until(/(?=>)/)
         unless data
-          raise HexaPDF::MalformedPDFError.new("Unclosed hex string found", pos)
+          raise HexaPDF::MalformedPDFError.new("Unclosed hex string found", pos: pos)
         end
 
         @ss.pos += 1
@@ -336,7 +336,7 @@ module HexaPDF
           key = next_token
           break if key.kind_of?(Tokenizer::Token) && key == '>>'
           unless key.kind_of?(Symbol)
-            raise HexaPDF::MalformedPDFError.new("Dictionary keys must be PDF name objects", pos)
+            raise HexaPDF::MalformedPDFError.new("Dictionary keys must be PDF name objects", pos: pos)
           end
 
           val = next_object

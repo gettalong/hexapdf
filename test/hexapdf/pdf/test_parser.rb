@@ -196,7 +196,9 @@ EOF
     end
 
     it "fails if the xref entry type is invalid" do
-      assert_raises(HexaPDF::Error) { @parser.load_object(HexaPDF::PDF::XRefSection::Entry.new(:invalid)) }
+      assert_raises(HexaPDF::MalformedPDFError) do
+        @parser.load_object(HexaPDF::PDF::XRefSection::Entry.new(:invalid))
+      end
     end
 
     it "fails if the object/generation numbers don't match" do

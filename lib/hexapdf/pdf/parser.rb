@@ -43,12 +43,12 @@ module HexaPDF
                                 when :compressed
                                   load_compressed_object(xref_entry)
                                 else
-                                  raise HexaPDF::Error, "Invalid cross-reference type '#{xref_entry.type}' encountered"
+                                  raise_malformed("Invalid cross-reference type '#{xref_entry.type}' encountered")
                                 end
 
         if xref_entry.oid != 0 && (oid != xref_entry.oid || gen != xref_entry.gen)
-          raise HexaPDF::MalformedPDFError.new("The oid,gen (#{oid},#{gen}) values of the indirect object don't " +
-                                               "match the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref section")
+          raise_malformed("The oid,gen (#{oid},#{gen}) values of the indirect object don't match " +
+                          "the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref")
         end
 
         @document.wrap(obj, oid: oid, gen: gen, stream: stream)
@@ -69,7 +69,7 @@ module HexaPDF
         tok = @tokenizer.next_token
         unless oid.kind_of?(Integer) && gen.kind_of?(Integer) &&
             tok.kind_of?(Tokenizer::Token) && tok == 'obj'
-          raise HexaPDF::MalformedPDFError.new("No valid object found", offset)
+          raise_malformed("No valid object found", pos: offset)
         end
 
         if (tok = @tokenizer.peek_token) && tok.kind_of?(Tokenizer::Token) && tok == 'endobj'
@@ -83,12 +83,12 @@ module HexaPDF
 
         if tok.kind_of?(Tokenizer::Token) && tok == 'stream'
           unless object.kind_of?(Hash)
-            raise HexaPDF::MalformedPDFError.new("A stream needs a dictionary, not a(n) #{object.class}", offset)
+            raise_malformed("A stream needs a dictionary, not a(n) #{object.class}", pos: offset)
           end
           tok1 = @tokenizer.next_byte
           tok2 = @tokenizer.next_byte if tok1 == "\r"
           if tok1 != "\n"  && tok1 != "\r"
-            raise HexaPDF::MalformedPDFError.new("Keyword stream must be followed by LF or CR/LF", @tokenizer.pos)
+            raise_malformed("Keyword stream must be followed by LF or CR/LF", pos: @tokenizer.pos)
           elsif tok1 == "\r" && tok2 != "\n"
             maybe_raise("Keyword stream must be followed by CR or CR/LF, not CR alone", pos: @tokenizer.pos)
             @tokenizer.pos -= 1
@@ -107,7 +107,8 @@ module HexaPDF
               length = @tokenizer.pos - pos
               tok = @tokenizer.next_token
             else
-              raise HexaPDF::MalformedPDFError.new("Stream content must be followed by keyword endstream", @tokenizer.pos)
+              raise_malformed("Stream content must be followed by keyword endstream",
+                              pos: @tokenizer.pos)
             end
           end
           tok = @tokenizer.next_token
@@ -129,7 +130,7 @@ module HexaPDF
         unless @object_stream_data.key?(xref_entry.objstm)
           obj = @document.object(xref_entry.objstm)
           if !obj.respond_to?(:parse_stream)
-            raise HexaPDF::MalformedPDFError.new("Object with oid=#{xref_entry.objstm} is not an object stream")
+            raise_malformed("Object with oid=#{xref_entry.objstm} is not an object stream")
           end
           @object_stream_data[xref_entry.objstm] = obj.parse_stream
         end
@@ -144,7 +145,7 @@ module HexaPDF
                                 else
                                   obj = load_object(XRefSection.in_use_entry(0, 0, pos))
                                   if !obj.respond_to?(:xref_section)
-                                    raise HexaPDF::MalformedPDFError.new("Object is not a cross-reference stream", pos)
+                                    raise_malformed("Object is not a cross-reference stream", pos: pos)
                                   end
                                   [obj.xref_section, obj.value]
                                 end
@@ -168,7 +169,7 @@ module HexaPDF
         @tokenizer.pos = offset + @header_offset
         token = @tokenizer.next_token
         unless token.kind_of?(Tokenizer::Token) && token == 'xref'
-          raise HexaPDF::MalformedPDFError.new("Xref section doesn't start with keyword xref", @tokenizer.pos)
+          raise_malformed("Xref section doesn't start with keyword xref", pos: @tokenizer.pos)
         end
 
         xref = XRefSection.new
@@ -176,7 +177,7 @@ module HexaPDF
         while start.kind_of?(Integer)
           number_of_entries = @tokenizer.next_token
           unless number_of_entries.kind_of?(Integer)
-            raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection start", @tokenizer.pos)
+            raise_malformed("Invalid cross-reference subsection start", pos: @tokenizer.pos)
           end
 
           @tokenizer.skip_whitespace
@@ -199,12 +200,12 @@ module HexaPDF
         end
 
         unless start.kind_of?(Tokenizer::Token) && start == 'trailer'
-          raise HexaPDF::MalformedPDFError.new("Trailer doesn't start with keyword trailer", @tokenizer.pos)
+          raise_malformed("Trailer doesn't start with keyword trailer", pos: @tokenizer.pos)
         end
 
         trailer = @tokenizer.next_object
         unless trailer.kind_of?(Hash)
-          raise HexaPDF::MalformedPDFError.new("Trailer is not a dictionary, but a(n) #{trailer.class}", @tokenizer.pos)
+          raise_malformed("Trailer is a #{trailer.class} instead of a dictionary ", pos: @tokenizer.pos)
         end
 
         [xref, trailer]
@@ -251,7 +252,7 @@ module HexaPDF
       # See: PDF1.7 s7.5.2
       def file_header_version
         unless @header_version
-          raise HexaPDF::MalformedPDFError.new("PDF file header is missing or corrupt", 0)
+          raise_malformed("PDF file header is missing or corrupt", pos: 0)
         end
         @header_version.to_sym
       end
@@ -271,6 +272,11 @@ module HexaPDF
         @header_version = $1
       end
 
+      # Raises a HexaPDF::MalformedPDFError with the given message and source position.
+      def raise_malformed(msg, pos: nil)
+        raise HexaPDF::MalformedPDFError.new(msg, pos: pos)
+      end
+
       # Calls the block stored in the config option +parser.on_correctable_error+ with the document,
       # the given message and the position. If the returned value is +true+, raises a
       # HexaPDF::MalformedPDFError. Otherwise the error is corrected and parsing continues.
@@ -278,7 +284,7 @@ module HexaPDF
       # If the option +force+ is used, the block is not called and the error is raised immediately.
       def maybe_raise(msg, pos: nil, force: false)
         if force || @document.config['parser.on_correctable_error'].call(@document, msg, pos)
-          error = HexaPDF::MalformedPDFError.new(msg, pos)
+          error = HexaPDF::MalformedPDFError.new(msg, pos: pos)
           error.set_backtrace(caller(1))
           raise error
         end
