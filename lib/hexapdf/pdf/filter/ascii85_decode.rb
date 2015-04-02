@@ -37,7 +37,7 @@ module HexaPDF
             while !finished && source.alive? && (data = source.resume)
               data.tr!(HexaPDF::PDF::Tokenizer::WHITESPACE, '')
               if data.index(/[^!-uz~]/)
-                raise HexaPDF::MalformedPDFError, "Invalid characters in ASCII85 encoded stream found"
+                raise HexaPDF::MalformedPDFError, "Invalid characters in ASCII85 stream"
               end
 
               if rest
@@ -53,7 +53,7 @@ module HexaPDF
                          CHAR_TO_VALUE[m[2]] * POW85_2 + CHAR_TO_VALUE[m[3]] * POW85_1 +
                          CHAR_TO_VALUE[m[4]])
                   if num > MAX_VALUE
-                    raise HexaPDF::MalformedPDFError, "Value outside base-85 range in ASCII85 encoded stream found"
+                    raise HexaPDF::MalformedPDFError, "Value outside base-85 range in ASCII85 stream"
                   end
                   result << num
                 elsif scanner.scan(/z/)
@@ -80,7 +80,7 @@ module HexaPDF
                      CHAR_TO_VALUE[rest[2]] * POW85_2 + CHAR_TO_VALUE[rest[3]] * POW85_1 +
                      CHAR_TO_VALUE[rest[4]])
               if num > MAX_VALUE
-                raise HexaPDF::MalformedPDFError, "Value outside base-85 range in ASCII85 encoded stream found"
+                raise HexaPDF::MalformedPDFError, "Value outside base-85 range in ASCII85 stream"
               end
               [num].pack('N')[0, rlen - 1]
             end

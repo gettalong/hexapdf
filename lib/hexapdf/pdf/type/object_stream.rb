@@ -67,8 +67,8 @@ module HexaPDF
 
 
         define_field :Type, type: Symbol, required: true, default: :ObjStm, version: '1.5'
-        define_field :N, type: Integer     # not required because it will be auto-filled on #write_objects
-        define_field :First, type: Integer # not required because it will be auto-filled on #write_objects
+        define_field :N, type: Integer     # not required, it will be auto-filled on #write_objects
+        define_field :First, type: Integer # not required, it will be auto-filled on #write_objects
         define_field :Extends, type: HexaPDF::PDF::Stream
 
         define_validator(:validate_gen_number)
@@ -95,7 +95,8 @@ module HexaPDF
           objects[ref] = index
         end
 
-        # Deletes the given object from the list of objects that should be stored in this object stream.
+        # Deletes the given object from the list of objects that should be stored in this object
+        # stream.
         #
         # The +ref+ argument can either be a reference or a PDF object.
         def delete_object(ref)

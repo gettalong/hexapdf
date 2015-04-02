@@ -64,9 +64,12 @@ module HexaPDF
           duplicatable_default? ? @default.dup : @default
         end
 
+        # A list of classes whose objects cannot be duplicated
+        NOT_DUPLICATABLE_CLASSES = [NilClass, FalseClass, TrueClass, Symbol, Integer, Fixnum, Float]
+
         # Returns +true+ if the default value can safely be duplicated with #dup.
         def duplicatable_default?
-          @cached_dupdefault ||= [NilClass, FalseClass, TrueClass, Symbol, Integer, Fixnum, Float].none? do |klass|
+          @cached_dupdefault ||= NOT_DUPLICATABLE_CLASSES.none? do |klass|
             @default.kind_of?(klass)
           end
         end
@@ -75,7 +78,8 @@ module HexaPDF
         # Returns +true+ if the given data value should be wrapped in the PDF specific type class of
         # this field entry.
         def wrap_data_with_type?(data)
-          @cached_wrapable ||= (type.size == 2 && type[1] == Hash && type[0].ancestors.include?(HexaPDF::PDF::Dictionary))
+          @cached_wrapable ||= (type.size == 2 && type[1] == Hash &&
+                                type[0].ancestors.include?(HexaPDF::PDF::Dictionary))
           @cached_wrapable && (data.nil? || data.kind_of?(Hash))
         end
 
@@ -122,7 +126,8 @@ module HexaPDF
       #            matter (unspecified or +nil+).
       #
       # version:: Specifies the minimum version of the PDF specification needed for this value.
-      def self.define_field(name, type:, required: false, default: nil, indirect: nil, version: '1.2')
+      def self.define_field(name, type:, required: false, default: nil, indirect: nil,
+                            version: '1.2')
         @fields ||= {}
         @fields[name] = Field.new([type].flatten, required, default, indirect, version)
       end

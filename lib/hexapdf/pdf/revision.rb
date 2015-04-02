@@ -43,8 +43,8 @@ module HexaPDF
       #   revision.object(ref)    -> obj or nil
       #   revision.object(oid)    -> obj or nil
       #
-      # Returns the object for the given reference or object number if such an object is available in
-      # this revision, or +nil+ otherwise.
+      # Returns the object for the given reference or object number if such an object is available
+      # in this revision, or +nil+ otherwise.
       #
       # If the revision has an entry but one that is pointing to a free entry in the cross-reference
       # section, an object representing PDF null is returned.
@@ -120,8 +120,8 @@ module HexaPDF
       #
       # Calls the given block once for every object of the revision.
       #
-      # Objects that are loadable via an associated cross-reference section but are currently not, are
-      # loaded automatically.
+      # Objects that are loadable via an associated cross-reference section but are currently not,
+      # are loaded automatically.
       def each(&block)
         load_all_objects
         each_available(&block)

@@ -58,7 +58,7 @@ module HexaPDF
                   code_length += 1
                 when 4095
                   if code != CLEAR_TABLE
-                    raise HexaPDF::MalformedPDFError, "Maximum of 12bit for codes in LZW encoded stream exceeded"
+                    raise HexaPDF::MalformedPDFError, "Maximum of 12bit for codes in LZW stream exceeded"
                   end
                 end
 

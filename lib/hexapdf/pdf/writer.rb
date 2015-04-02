@@ -102,7 +102,7 @@ module HexaPDF
             object_streams << obj
           elsif obj.kind_of?(Type::XRefStream)
             unless xref_stream.nil?
-              raise HexaPDF::Error, "A revision can only have one xref stream, at least two detected"
+              raise HexaPDF::Error, "A revision can only have one xref stream, at least two found"
             end
             xref_stream = obj
           end

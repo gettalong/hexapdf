@@ -35,16 +35,17 @@ module HexaPDF
       # For information about the +xref_entry+ argument, have a look at XRefSection and
       # XRefSection::Entry.
       def load_object(xref_entry)
-        obj, oid, gen, stream = case xref_entry.type
-                                when :in_use
-                                  parse_indirect_object(xref_entry.pos)
-                                when :free
-                                  [nil, xref_entry.oid, xref_entry.gen, nil]
-                                when :compressed
-                                  load_compressed_object(xref_entry)
-                                else
-                                  raise_malformed("Invalid cross-reference type '#{xref_entry.type}' encountered")
-                                end
+        obj, oid, gen, stream =
+          case xref_entry.type
+          when :in_use
+            parse_indirect_object(xref_entry.pos)
+          when :free
+            [nil, xref_entry.oid, xref_entry.gen, nil]
+          when :compressed
+            load_compressed_object(xref_entry)
+          else
+            raise_malformed("Invalid cross-reference type '#{xref_entry.type}' encountered")
+          end
 
         if xref_entry.oid != 0 && (oid != xref_entry.oid || gen != xref_entry.gen)
           raise_malformed("The oid,gen (#{oid},#{gen}) values of the indirect object don't match " +
@@ -73,7 +74,7 @@ module HexaPDF
         end
 
         if (tok = @tokenizer.peek_token) && tok.kind_of?(Tokenizer::Token) && tok == 'endobj'
-          maybe_raise("No indirect object value exists between 'obj' and 'endobj'", pos: @tokenizer.pos)
+          maybe_raise("No indirect object value between 'obj' and 'endobj'", pos: @tokenizer.pos)
           object = nil
         else
           object = @tokenizer.next_object
@@ -90,11 +91,12 @@ module HexaPDF
           if tok1 != "\n"  && tok1 != "\r"
             raise_malformed("Keyword stream must be followed by LF or CR/LF", pos: @tokenizer.pos)
           elsif tok1 == "\r" && tok2 != "\n"
-            maybe_raise("Keyword stream must be followed by CR or CR/LF, not CR alone", pos: @tokenizer.pos)
+            maybe_raise("Keyword stream must be followed by LF or CR/LF, not CR alone",
+                        pos: @tokenizer.pos)
             @tokenizer.pos -= 1
           end
 
-          # Note that getting :Length might move the IO pointer (when references need to be resolved)
+          # Note that getting :Length might move the IO pointer (when resolving references)
           pos = @tokenizer.pos
           length = @document.unwrap(object[:Length]) || 0
           @tokenizer.pos = pos + length
@@ -138,29 +140,33 @@ module HexaPDF
         [*@object_stream_data[xref_entry.objstm].object_by_index(xref_entry.pos), xref_entry.gen, nil]
       end
 
-      # Loads a single Revision whose cross-reference section/stream is located at the given position.
+      # Loads a single Revision whose cross-reference section/stream is located at the given
+      # position.
       def load_revision(pos)
-        xref_section, trailer = if xref_section?(pos)
-                                  parse_xref_section_and_trailer(pos)
-                                else
-                                  obj = load_object(XRefSection.in_use_entry(0, 0, pos))
-                                  if !obj.respond_to?(:xref_section)
-                                    raise_malformed("Object is not a cross-reference stream", pos: pos)
-                                  end
-                                  [obj.xref_section, obj.value]
-                                end
-        Revision.new(@document.wrap(trailer, type: :Trailer), xref_section: xref_section, parser: self)
+        xref_section, trailer =
+          if xref_section?(pos)
+            parse_xref_section_and_trailer(pos)
+          else
+            obj = load_object(XRefSection.in_use_entry(0, 0, pos))
+            if !obj.respond_to?(:xref_section)
+              raise_malformed("Object is not a cross-reference stream", pos: pos)
+            end
+            [obj.xref_section, obj.value]
+          end
+        Revision.new(@document.wrap(trailer, type: :Trailer), xref_section: xref_section,
+                     parser: self)
       end
 
-      # Looks at the given offset and returns +true+ if there is a cross-reference section at that position.
+      # Looks at the given offset and returns +true+ if there is a cross-reference section at that
+      # position.
       def xref_section?(offset)
         @tokenizer.pos = offset + @header_offset
         token = @tokenizer.peek_token
         token.kind_of?(Tokenizer::Token) && token == 'xref'
       end
 
-      # Parses the cross-reference section at the given position and the following trailer and returns
-      # them as an array consisting of an XRefSection instance and a hash.
+      # Parses the cross-reference section at the given position and the following trailer and
+      # returns them as an array consisting of an XRefSection instance and a hash.
       #
       # This method can only parse cross-reference sections, not cross-reference streams!
       #
@@ -187,7 +193,8 @@ module HexaPDF
               next
             elsif type == 'n'
               if pos == 0 || gen > 65535
-                maybe_raise("Invalid in use cross-reference entry in cross-reference section", pos: @tokenizer.pos)
+                maybe_raise("Invalid in use cross-reference entry in cross-reference section",
+                            pos: @tokenizer.pos)
                 xref.add_free_entry(oid, gen)
               else
                 xref.add_in_use_entry(oid, gen, pos)
@@ -231,14 +238,21 @@ module HexaPDF
           lines = @io.read(step_size + 40).split(/[\r\n]+/)
 
           eof_index = lines.rindex {|l| l.strip == '%%EOF' }
-          (eof_not_found = true; next) unless eof_index
-          (startxref_missing = true; next) unless eof_index >= 2 && lines[eof_index - 2].strip == "startxref"
+          unless eof_index
+            eof_not_found = true
+            next
+          end
+          unless eof_index >= 2 && lines[eof_index - 2].strip == "startxref"
+            startxref_missing = true
+            next
+          end
 
           break # we found the startxref offset
         end
 
         if eof_not_found
-          maybe_raise("PDF file trailer with end-of-file marker not found", pos: pos, force: !eof_index)
+          maybe_raise("PDF file trailer with end-of-file marker not found", pos: pos,
+                      force: !eof_index)
         elsif startxref_missing
           maybe_raise("PDF file trailer is missing startxref keyword", pos: pos,
                       force: eof_index < 2 || lines[eof_index - 2].strip != "startxref")

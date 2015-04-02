@@ -54,7 +54,7 @@ describe HexaPDF::PDF::Serializer do
 
   it "serializes symbols" do
     assert_serialized("/Name", :Name)
-    assert_serialized("/A;Name_With-Various***Characters?", 'A;Name_With-Various***Characters?'.intern)
+    assert_serialized("/A;Name_With-Various***Chars?", 'A;Name_With-Various***Chars?'.intern)
     assert_serialized("/1.2", '1.2'.intern)
     assert_serialized("/$$", '$$'.intern)
     assert_serialized("/@pattern", '@pattern'.intern)
@@ -80,7 +80,8 @@ describe HexaPDF::PDF::Serializer do
   it "serializes strings" do
     assert_serialized("(Hallo)", "Hallo")
     assert_serialized("(Hallo\r\n\t\\(\\)\\\\)", "Hallo\r\n\t()\\")
-    assert_serialized("(\xFE\xFF\x00H\x00a\x00l\x00\f\x00\b\x00\\()".force_encoding('BINARY'), "Hal\f\b(")
+    assert_serialized("(\xFE\xFF\x00H\x00a\x00l\x00\f\x00\b\x00\\()".force_encoding('BINARY'),
+                      "Hal\f\b(")
   end
 
   it "serializes HexaPDF objects" do

@@ -97,7 +97,7 @@ module HexaPDF
       #
       # If no document is associated, an error is raised.
       def document
-        @document || raise(HexaPDF::Error, "No document is associated with this object (#{inspect})")
+        @document || raise(HexaPDF::Error, "No document associated with this object (#{inspect})")
       end
 
       # Returns +true+ if a PDF document is associated.

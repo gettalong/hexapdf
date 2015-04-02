@@ -7,9 +7,9 @@ module HexaPDF
 
     # Manages the indirect objects of one cross-reference section or stream.
     #
-    # A PDF file can have more than one cross-reference section or stream which are all daisy-chained
-    # together. This allows later sections to override entries in prior ones. This is automatically
-    # and transparently done by HexaPDF.
+    # A PDF file can have more than one cross-reference section or stream which are all
+    # daisy-chained together. This allows later sections to override entries in prior ones. This is
+    # automatically and transparently done by HexaPDF.
     #
     # Note that a cross-reference section may contain a single object number only once.
     #

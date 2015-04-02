@@ -184,8 +184,8 @@ module HexaPDF
           if rev_obj.equal?(obj)
             return obj
           else
-            raise HexaPDF::Error, "Can't add object because the specified revision already has an object " +
-              "with object number #{obj.oid}"
+            raise HexaPDF::Error, "Can't add object because the specified revision already has " +
+              "an object with object number #{obj.oid}"
           end
         end
 

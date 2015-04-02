@@ -24,7 +24,7 @@ module HexaPDF
               data.tr!(HexaPDF::PDF::Tokenizer::WHITESPACE, '')
               finished = true if data.gsub!(/>.*?\z/m, '')
               if data.index(/[^A-Fa-f0-9]/)
-                raise HexaPDF::MalformedPDFError, "Invalid characters in ASCII hex encoded stream found"
+                raise HexaPDF::MalformedPDFError, "Invalid characters in ASCII hex stream"
               end
 
               data = rest << data if rest

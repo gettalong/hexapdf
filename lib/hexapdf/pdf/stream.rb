@@ -110,7 +110,7 @@ module HexaPDF
       def stream=(stream)
         stream ||= ''.force_encoding(Encoding::BINARY)
         unless stream.kind_of?(StreamData) || stream.kind_of?(String)
-          raise HexaPDF::Error, "An object of the given class #{stream.class} cannot be used as stream value"
+          raise HexaPDF::Error, "Object of class #{stream.class} cannot be used as stream value"
         end
 
         @stream = stream

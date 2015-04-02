@@ -120,7 +120,7 @@ module HexaPDF
         # Writes the given cross-reference section to the stream and sets the correct /W and /Index
         # entries for the written data.
         def write_xref_section_to_stream(xref_section)
-          value[:W], pack_string = calculate_w_entry_and_pack_string(xref_section[self.oid, self.gen].pos)
+          value[:W], pack_string = calculate_w_entry_and_pack_string(xref_section[oid, gen].pos)
           value[:Index] = []
 
           self.stream = ''

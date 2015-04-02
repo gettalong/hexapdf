@@ -48,8 +48,8 @@ module HexaPDF
         # :call-seq:
         #   objhash.gen_for_oid(oid)    -> Integer or nil
         #
-        # Returns the generation number that is stored along the given object number, or +nil+ if the
-        # object number is not used.
+        # Returns the generation number that is stored along the given object number, or +nil+ if
+        # the object number is not used.
         def gen_for_oid(oid)
           @oids[oid]
         end
