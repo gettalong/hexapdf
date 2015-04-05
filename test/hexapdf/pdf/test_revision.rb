@@ -15,15 +15,14 @@ describe HexaPDF::PDF::Revision do
     @obj = HexaPDF::PDF::Object.new(:val, oid: 1, gen: 0)
     @ref = HexaPDF::PDF::Reference.new(1, 0)
 
-    @loader = Object.new
-    def @loader.load_object(entry)
+    @loader = lambda do |entry|
       if entry.type == :free
         HexaPDF::PDF::Object.new(nil, oid: entry.oid, gen: entry.gen)
       else
         HexaPDF::PDF::Object.new(:Test, oid: entry.oid, gen: entry.gen)
       end
     end
-    @rev = HexaPDF::PDF::Revision.new({}, parser: @loader, xref_section: @xref_section)
+    @rev = HexaPDF::PDF::Revision.new({}, xref_section: @xref_section, loader: @loader)
   end
 
   it "needs the trailer as first argument on initialization" do
@@ -32,7 +31,7 @@ describe HexaPDF::PDF::Revision do
   end
 
   it "takes an xref section and/or a parser on initialization" do
-    rev = HexaPDF::PDF::Revision.new({}, parser: @loader, xref_section: @xref_section)
+    rev = HexaPDF::PDF::Revision.new({}, loader: @loader, xref_section: @xref_section)
     assert_equal(:Test, rev.object(2).value)
   end
 

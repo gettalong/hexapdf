@@ -23,18 +23,27 @@ module HexaPDF
       # The trailer dictionary
       attr_reader :trailer
 
+      # :call-seq:
+      #   Revision.new(trailer)                                           -> revision
+      #   Revision.new(trailer, xref_section: section, loader: loader)    -> revision
+      #   Revision.new(trailer, xref_section: section) {|entry| block }   -> revision
+      #
       # Creates a new Revision object.
       #
       # Options:
       #
-      # xref_section:: An XRefSection object that contains information on how to load objects. If
-      #                this option is supplied, then the +parser+ option also needs to be supplied!
+      # xref_section::
+      #   An XRefSection object that contains information on how to load objects. If this option is
+      #   specified, then a +loader+ or a block also needs to be specified!
       #
-      # parser:: The Parser object from which to load objects referenced by +xref_section+. If no
-      #          +xref_section+ is supplied, this value is not used.
-      def initialize(trailer, xref_section: nil, parser: nil)
+      # loader::
+      #   The loader object needs to respond to +call+ taking a cross-reference entry and returning
+      #   the loaded object. If no +xref_section+ is supplied, this value is not used.
+      #
+      #   If a block is given, it is used instead of the loader object.
+      def initialize(trailer, xref_section: nil, loader: nil, &block)
         @trailer = trailer
-        @parser = xref_section && parser
+        @loader = xref_section && (block || loader)
         @xref_section = xref_section || XRefSection.new
         @objects = Utils::ObjectHash.new
       end
@@ -58,7 +67,7 @@ module HexaPDF
         if @objects.entry?(oid, gen)
           @objects[oid, gen]
         elsif (xref_entry = @xref_section[oid, gen])
-          add_without_check(@parser.load_object(xref_entry))
+          load_object(xref_entry)
         else
           nil
         end
@@ -150,8 +159,13 @@ module HexaPDF
 
         @xref_section.each do |(oid, _gen), data|
           next if @objects.entry?(oid)
-          add_without_check(@parser.load_object(data))
+          load_object(data)
         end
+      end
+
+      # Loads a single object from the associated cross-reference section.
+      def load_object(xref_entry)
+        add_without_check(@loader.call(xref_entry))
       end
 
       # Adds the object to the available objects of this revision and returns it.

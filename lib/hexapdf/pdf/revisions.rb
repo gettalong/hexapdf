@@ -25,12 +25,19 @@ module HexaPDF
         # Loads all revisions for the document from the given IO and returns the created Revisions
         # object.
         #
-        # If the IO object is +nil+, an empty Revisions object is returned.
+        # If the +io+ object is +nil+, an empty Revisions object is returned.
         def from_io(document, io)
           return self.new(document) if io.nil?
 
           parser = Parser.new(io, document)
-          revisions = [load_revision(document, parser, parser.startxref_offset)]
+          object_loader = lambda {|xref_entry| parser.load_object(xref_entry)}
+          revision_loader = lambda do |offset|
+            xref_section, trailer = parser.load_revision(offset)
+            Revision.new(document.wrap(trailer, type: :Trailer), xref_section: xref_section,
+                         loader: object_loader)
+          end
+
+          revisions = [revision_loader.call(parser.startxref_offset)]
 
           i = revisions.length - 1
           while i >= 0
@@ -38,22 +45,13 @@ module HexaPDF
             # should be direct. Adobe's POV is followed here. Same with :XRefStm.
             xrefstm = revisions[i].trailer.value[:XRefStm]
             prev = revisions[i].trailer.value[:Prev]
-            new_revisions = [(load_revision(document, parser, prev) if prev),
-                             (load_revision(document, parser, xrefstm) if xrefstm)].compact
+            new_revisions = [(revision_loader.call(prev) if prev),
+                             (revision_loader.call(xrefstm) if xrefstm)].compact
             revisions.insert(i, *new_revisions)
             i += new_revisions.length - 1
           end
 
           self.new(document, initial_revisions: revisions)
-        end
-
-        private
-
-        # Loads a single revision from the parser using the given offset position.
-        def load_revision(document, parser, offset)
-          xref_section, trailer = parser.load_revision(offset)
-          Revision.new(document.wrap(trailer, type: :Trailer), xref_section: xref_section,
-                       parser: parser)
         end
 
       end
