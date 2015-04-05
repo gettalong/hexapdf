@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
+require 'hexapdf/pdf/parser'
 require 'hexapdf/pdf/revision'
 
 module HexaPDF
@@ -19,25 +20,43 @@ module HexaPDF
     # See: PDF1.7 s7.5.6, Revision
     class Revisions
 
-      # Loads all revisions from the IO underlying the given parser.
-      def self.from_io_using_parser(document, parser)
-        revisions = [parser.load_revision(parser.startxref_offset)]
+      class << self
 
-        i = revisions.length - 1
-        while i >= 0
-          # PDF1.7 s7.5.5 states that :Prev needs to be indirect, Adobe's reference 3.4.4 says it
-          # should be direct. Adobe's POV is followed here. Same with :XRefStm.
-          xrefstm = revisions[i].trailer.value[:XRefStm]
-          prev = revisions[i].trailer.value[:Prev]
-          new_revisions = [(parser.load_revision(prev) if prev),
-                           (parser.load_revision(xrefstm) if xrefstm)].compact
-          revisions.insert(i, *new_revisions)
-          i += new_revisions.length - 1
+        # Loads all revisions for the document from the given IO and returns the created Revisions
+        # object.
+        #
+        # If the IO object is +nil+, an empty Revisions object is returned.
+        def from_io(document, io)
+          return self.new(document) if io.nil?
+
+          parser = Parser.new(io, document)
+          revisions = [load_revision(document, parser, parser.startxref_offset)]
+
+          i = revisions.length - 1
+          while i >= 0
+            # PDF1.7 s7.5.5 states that :Prev needs to be indirect, Adobe's reference 3.4.4 says it
+            # should be direct. Adobe's POV is followed here. Same with :XRefStm.
+            xrefstm = revisions[i].trailer.value[:XRefStm]
+            prev = revisions[i].trailer.value[:Prev]
+            new_revisions = [(load_revision(document, parser, prev) if prev),
+                             (load_revision(document, parser, xrefstm) if xrefstm)].compact
+            revisions.insert(i, *new_revisions)
+            i += new_revisions.length - 1
+          end
+
+          self.new(document, initial_revisions: revisions)
         end
 
-        self.new(document, initial_revisions: revisions)
-      end
+        private
 
+        # Loads a single revision from the parser using the given offset position.
+        def load_revision(document, parser, offset)
+          xref_section, trailer = parser.load_revision(offset)
+          Revision.new(document.wrap(trailer, type: :Trailer), xref_section: xref_section,
+                       parser: parser)
+        end
+
+      end
 
       include Enumerable
 

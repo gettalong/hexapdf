@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
-require 'hexapdf/pdf/parser'
 require 'hexapdf/pdf/reference'
 require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/stream'
@@ -90,9 +89,6 @@ module HexaPDF
       # The revisions of the document.
       attr_reader :revisions
 
-      # The associated parser if any.
-      attr_reader :parser
-
       # Creates a new PDF document.
       #
       # Options:
@@ -108,13 +104,7 @@ module HexaPDF
           old.kind_of?(Hash) && new.kind_of?(Hash) ? old.merge(new) : new
         end
 
-        if io
-          @parser = Parser.new(io, self)
-          @revisions = Revisions.from_io_using_parser(self, @parser)
-        else
-          @parser = :no_parser_available
-          @revisions = Revisions.new(self)
-        end
+        @revisions = Revisions.from_io(self, io)
 
         @next_oid = @revisions.current.trailer.value[:Size] || 1
       end
