@@ -5,6 +5,12 @@ require 'hexapdf/pdf/object'
 
 describe HexaPDF::PDF::Object do
 
+  it "uses the value of a HexaPDF::PDF::Object when setting the value" do
+    obj = HexaPDF::PDF::Object.new(5)
+    assert_equal(5, obj.value)
+    assert_equal(5, HexaPDF::PDF::Object.new(obj).value)
+  end
+
   describe "validation" do
     it "allows adding and retrieving class level validators for instance methods" do
       klass = Class.new(HexaPDF::PDF::Object)

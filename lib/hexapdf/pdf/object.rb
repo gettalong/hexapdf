@@ -80,17 +80,25 @@ module HexaPDF
       end
 
       # The wrapped object.
-      attr_accessor :value
+      attr_reader :value
 
       # Sets the associated PDF document.
       attr_writer :document
 
       # Creates a new PDF object for +value+.
       def initialize(value, document: nil, oid: 0, gen: 0)
-        @value = value
-        @document = document
+        self.value = value
+        self.document = document
         self.oid = oid
         self.gen = gen
+      end
+
+      # Sets the value for this PDF object.
+      #
+      # If the value is a PDF object itself, uses the value of the PDF object instead of the PDF
+      # object.
+      def value=(value)
+        @value = (value.kind_of?(Object) ? value.value : value)
       end
 
       # Returns the associated PDF document.

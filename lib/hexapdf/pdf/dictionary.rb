@@ -159,13 +159,13 @@ module HexaPDF
 
       define_validator(:validate_fields)
 
-      # Creates a new Dictionary object.
-      def initialize(value, **kwargs)
-        value ||= {}
-        unless value.kind_of?(Hash)
+
+      # Sets the value and makes sure that it is a Hash.
+      def value=(value) # :nodoc:
+        super(value || {})
+        unless self.value.kind_of?(Hash)
           raise HexaPDF::Error, "A PDF dictionary object needs a hash value, not a #{value.class}"
         end
-        super
       end
 
       # Returns the value for the given dictionary entry.
