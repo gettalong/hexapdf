@@ -4,7 +4,6 @@ require 'hexapdf/error'
 require 'hexapdf/pdf/tokenizer'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/xref_section'
-require 'hexapdf/pdf/revision'
 require 'hexapdf/pdf/type/xref_stream'
 require 'hexapdf/pdf/type/object_stream'
 
@@ -140,21 +139,20 @@ module HexaPDF
         [*@object_stream_data[xref_entry.objstm].object_by_index(xref_entry.pos), xref_entry.gen, nil]
       end
 
-      # Loads a single Revision whose cross-reference section/stream is located at the given
+      # Loads a single revision whose cross-reference section/stream is located at the given
       # position.
+      #
+      # Returns an XRefSection object and the accompanying trailer dictionary.
       def load_revision(pos)
-        xref_section, trailer =
-          if xref_section?(pos)
-            parse_xref_section_and_trailer(pos)
-          else
-            obj = load_object(XRefSection.in_use_entry(0, 0, pos))
-            if !obj.respond_to?(:xref_section)
-              raise_malformed("Object is not a cross-reference stream", pos: pos)
-            end
-            [obj.xref_section, obj.value]
+        if xref_section?(pos)
+          parse_xref_section_and_trailer(pos)
+        else
+          obj = load_object(XRefSection.in_use_entry(0, 0, pos))
+          if !obj.respond_to?(:xref_section)
+            raise_malformed("Object is not a cross-reference stream", pos: pos)
           end
-        Revision.new(@document.wrap(trailer, type: :Trailer), xref_section: xref_section,
-                     parser: self)
+          [obj.xref_section, obj.value]
+        end
       end
 
       # Looks at the given offset and returns +true+ if there is a cross-reference section at that

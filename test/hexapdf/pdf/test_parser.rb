@@ -319,15 +319,15 @@ EOF
 
   describe "load_revision" do
     it "works for a simple cross-reference section" do
-      revision = @parser.load_revision(@parser.startxref_offset)
-      assert_equal({Test: 'now'}, revision.trailer.value)
-      assert_equal(10, revision.object(1).value)
+      xref_section, trailer = @parser.load_revision(@parser.startxref_offset)
+      assert_equal({Test: 'now'}, trailer)
+      assert(xref_section[1].in_use?)
     end
 
     it "works for a cross-reference stream" do
-      revision = @parser.load_revision(212)
-      assert_equal({Type: :XRef, Length: 3, W: [1, 1, 1], Index: [1, 1], Size: 2}, revision.trailer.value)
-      assert_equal(10, revision.object(1).value)
+      xref_section, trailer = @parser.load_revision(212)
+      assert_equal({Type: :XRef, Length: 3, W: [1, 1, 1], Index: [1, 1], Size: 2}, trailer)
+      assert(xref_section[1].in_use?)
     end
 
     it "fails if another object is found instead of a cross-reference stream" do
