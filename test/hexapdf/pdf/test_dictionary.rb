@@ -55,6 +55,12 @@ describe HexaPDF::PDF::Dictionary do
       @inherited_class.define_field(:Inherited, type: [Array, Symbol])
       assert_equal([:Boolean, :Array, :TestClass, :Inherited], @inherited_class.each_field.map {|k,v| k})
     end
+
+    it "allows field access without subclassing" do
+      refute(HexaPDF::PDF::Dictionary.field(:Test))
+      assert_equal([], HexaPDF::PDF::Dictionary.each_field.to_a)
+    end
+
   end
 
   it "fails initialization if the value is not a hash" do

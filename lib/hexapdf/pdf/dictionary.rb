@@ -139,7 +139,7 @@ module HexaPDF
       def self.field(name)
         if defined?(@fields) && @fields.key?(name)
           @fields[name]
-        elsif superclass != Dictionary
+        elsif superclass.respond_to?(:field)
           superclass.field(name)
         end
       end
@@ -152,7 +152,7 @@ module HexaPDF
       # classes.
       def self.each_field(&block) # :yields: name, data
         return to_enum(__method__) unless block_given?
-        superclass.each_field(&block) if superclass != Dictionary
+        superclass.each_field(&block) if superclass.respond_to?(:each_field)
         @fields.each(&block) if defined?(@fields)
       end
 
