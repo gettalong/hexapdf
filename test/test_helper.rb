@@ -80,3 +80,17 @@ module StandardFilterTests
   end
 
 end
+
+
+# Contains tests that validate that an encryption algorithm's class conforms to the general
+# interface.
+module EncryptionAlgorithmInterfaceTests
+
+  def test_responds_to_necessary_methods
+    [:encrypt, :decrypt, :encryption_fiber, :decryption_fiber].each do |method|
+      assert_respond_to(@algorithm_class, method)
+      assert_equal(2, @algorithm_class.method(method).arity)
+    end
+  end
+
+end

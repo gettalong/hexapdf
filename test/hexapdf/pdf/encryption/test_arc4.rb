@@ -5,6 +5,8 @@ require 'hexapdf/pdf/encryption/arc4'
 
 module ARC4EncryptionTests
 
+  include EncryptionAlgorithmInterfaceTests
+
   def setup
     super
     @encrypted = ['BBF316E8D940AF0AD3', '1021BF0420', '45A01F645FC35B383552544B9BF5'].
@@ -30,8 +32,10 @@ end
 
 describe HexaPDF::PDF::Encryption::ARC4 do
 
+  include EncryptionAlgorithmInterfaceTests
+
   before do
-    @test_class = Class.new do
+    @algorithm_class = Class.new do
       prepend HexaPDF::PDF::Encryption::ARC4
 
       def initialize(key)
@@ -48,21 +52,18 @@ describe HexaPDF::PDF::Encryption::ARC4 do
     end
   end
 
-  it "extends the class object with the necessary methods" do
-    assert_respond_to(@test_class, :encrypt)
-    assert_respond_to(@test_class, :decrypt)
-  end
-
   it "correctly uses klass.encrypt and klass.decrypt" do
-    assert_equal('mykeydata', @test_class.encrypt('mykey', 'data'))
-    assert_equal('mykeydata', @test_class.decrypt('mykey', 'data'))
+    assert_equal('mykeydata', @algorithm_class.encrypt('mykey', 'data'))
+    assert_equal('mykeydata', @algorithm_class.decrypt('mykey', 'data'))
   end
 
   it "correctly uses klass.encryption_fiber and klass.decryption_fiber" do
     f = Fiber.new { Fiber.yield('first'); Fiber.yield(''); 'second' }
-    assert_equal('mykeyfirstsecond', TestHelper.collector(@test_class.encryption_fiber('mykey', f)))
+    assert_equal('mykeyfirstsecond',
+                 TestHelper.collector(@algorithm_class.encryption_fiber('mykey', f)))
     f = Fiber.new { Fiber.yield('first'); 'second' }
-    assert_equal('mykeyfirstsecond', TestHelper.collector(@test_class.decryption_fiber('mykey', f)))
+    assert_equal('mykeyfirstsecond',
+                 TestHelper.collector(@algorithm_class.decryption_fiber('mykey', f)))
   end
 
 end
