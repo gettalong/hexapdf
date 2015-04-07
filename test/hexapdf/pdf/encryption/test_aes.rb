@@ -55,6 +55,11 @@ describe HexaPDF::PDF::Encryption::AES do
       end
 
     end
+
+    @padding_data = (0..15).map do |length|
+      {plain: '5'*length, cipher_padding: '5'*length + (16-length).chr * (16-length), length: 32}
+    end
+    @padding_data << {plain: '5'*16, cipher_padding: '5'*16 + 16.chr * 16, length: 48}
   end
 
   it "extends the class object with the necessary methods" do
@@ -62,17 +67,10 @@ describe HexaPDF::PDF::Encryption::AES do
     assert_respond_to(@test_class, :decrypt)
   end
 
-  describe "padding and IV on klass.encrypt/.decrypt" do
-
-    before do
-      @data = (0..15).map do |length|
-        {plain: '5'*length, cipher_padding: '5'*length + (16-length).chr * (16-length), length: 32}
-      end
-      @data << {plain: '5'*16, cipher_padding: '5'*16 + 16.chr * 16, length: 48}
-    end
+  describe "klass.encrypt/.decrypt" do
 
     it "returns the padded result with IV on klass.encrypt" do
-      @data.each do |data|
+      @padding_data.each do |data|
         result = @test_class.encrypt('some key'*2, data[:plain])
         assert_equal(data[:length], result.length)
         assert_equal(data[:cipher_padding][-16, 16], result[-16, 16])
@@ -80,7 +78,7 @@ describe HexaPDF::PDF::Encryption::AES do
     end
 
     it "returns the decrypted result without padding and with IV removed on klass.decrypt" do
-      @data.each do |data|
+      @padding_data.each do |data|
         result = @test_class.decrypt('some key'*2, 'iv'*8 + data[:cipher_padding])
         assert_equal(data[:plain], result)
       end
@@ -92,6 +90,63 @@ describe HexaPDF::PDF::Encryption::AES do
 
     it "fails on decryption if not enough bytes are provided" do
       assert_raises(HexaPDF::Error) { @test_class.decrypt('some'*4, 'no iv') }
+    end
+
+  end
+
+  describe "klass.encryption_fiber/.decryption_fiber" do
+
+    before do
+      @fiber = Fiber.new { Fiber.yield('first'); 'second' }
+    end
+
+    it "returns the padded result with IV on encryption_fiber" do
+      @padding_data.each do |data|
+        result = @test_class.encryption_fiber('some key'*2, Fiber.new { data[:plain] })
+        result = TestHelper.collector(result)
+        assert_equal(data[:length], result.length)
+        assert_equal(data[:cipher_padding][-16, 16], result[-16, 16])
+      end
+    end
+
+    it "returns the decrypted result without padding and with IV removed on decryption_fiber" do
+      @padding_data.each do |data|
+        result = @test_class.decryption_fiber('some key'*2, Fiber.new {'iv'*8 + data[:cipher_padding]})
+        result = TestHelper.collector(result)
+        assert_equal(data[:plain], result)
+      end
+    end
+
+    it "encryption works with multiple yielded strings" do
+      f = Fiber.new { Fiber.yield('a'*40); Fiber.yield('test'); "b"*20 }
+      result = TestHelper.collector(@test_class.encryption_fiber('some key'*2, f))
+      assert_equal('a'*40 << 'test' << 'b'*20, result[16..-17])
+    end
+
+    it "decryption works with multiple yielded strings" do
+      f = Fiber.new do
+        Fiber.yield('iv'*4)
+        Fiber.yield('iv'*4)
+        Fiber.yield('a'*20)
+        Fiber.yield('a'*20)
+        8.chr*8
+      end
+      result = TestHelper.collector(@test_class.decryption_fiber('some key'*2, f))
+      assert_equal('a'*40, result)
+    end
+
+    it "fails on decryption if the padding is invalid" do
+      assert_raises(HexaPDF::Error) do
+        TestHelper.collector(@test_class.decryption_fiber('some'*4, Fiber.new { 'a'*32 }))
+      end
+    end
+
+    it "fails on decryption if not enough bytes are provided" do
+      [4, 20, 40].each do |length|
+        assert_raises(HexaPDF::Error) do
+          TestHelper.collector(@test_class.decryption_fiber('some'*4, Fiber.new { 'a'*length }))
+        end
+      end
     end
 
   end
