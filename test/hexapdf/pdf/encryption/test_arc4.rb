@@ -34,17 +34,16 @@ describe HexaPDF::PDF::Encryption::ARC4 do
     @test_class = Class.new do
       prepend HexaPDF::PDF::Encryption::ARC4
 
-      attr_reader :key
-
       def initialize(key)
-        @key = key
+        @data = key
       end
 
       def process(data)
-        data
+        raise if data.empty?
+        result = @data << data
+        @data = ''
+        result
       end
-      alias :encrypt :process
-      alias :decrypt :process
 
     end
   end
@@ -55,8 +54,15 @@ describe HexaPDF::PDF::Encryption::ARC4 do
   end
 
   it "correctly uses klass.encrypt and klass.decrypt" do
-    assert_equal('data', @test_class.encrypt('mykey', 'data'))
-    assert_equal('data', @test_class.decrypt('mykey', 'data'))
+    assert_equal('mykeydata', @test_class.encrypt('mykey', 'data'))
+    assert_equal('mykeydata', @test_class.decrypt('mykey', 'data'))
+  end
+
+  it "correctly uses klass.encryption_fiber and klass.decryption_fiber" do
+    f = Fiber.new { Fiber.yield('first'); Fiber.yield(''); 'second' }
+    assert_equal('mykeyfirstsecond', TestHelper.collector(@test_class.encryption_fiber('mykey', f)))
+    f = Fiber.new { Fiber.yield('first'); 'second' }
+    assert_equal('mykeyfirstsecond', TestHelper.collector(@test_class.decryption_fiber('mykey', f)))
   end
 
 end
