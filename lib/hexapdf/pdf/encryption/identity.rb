@@ -12,14 +12,19 @@ module HexaPDF
       # See: PDF1.7 s7.6.5
       module Identity
 
-        # Just returns the given +data+.
-        def self.encrypt(key, data)
-          data
-        end
+        class << self
 
-        # Just returns the given +data+.
-        def self.decrypt(key, data)
-          data
+          # Just returns the given +data+.
+          def encrypt(key, data)
+            data
+          end
+          alias :decrypt :encrypt
+
+          # Just returns the given +source+ fiber.
+          def encryption_fiber(key, source)
+            source
+          end
+          alias :decryption_fiber :encryption_fiber
         end
 
       end
