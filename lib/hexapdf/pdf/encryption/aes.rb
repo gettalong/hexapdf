@@ -81,7 +81,7 @@ module HexaPDF
           # See: PDF1.7 s7.6.2.
           def decrypt(key, data)
             if data.length % 16 != 0 || data.length < 32
-              raise HexaPDF::Error, "Invalid data for decryption, need 32 + 16*n bytes"
+              raise HexaPDF::EncryptionError, "Invalid data for decryption, need 32 + 16*n bytes"
             end
             unpad(new(key, data.slice!(0, BLOCK_SIZE), :decrypt).process(data))
           end
@@ -106,7 +106,7 @@ module HexaPDF
               end
 
               if data.length < 16 || data.length % 16 != 0
-                raise HexaPDF::Error, "Invalid data for decryption, need 32 + 16*n bytes"
+                raise HexaPDF::EncryptionError, "Invalid data for decryption, need 32 + 16*n bytes"
               end
 
               unpad(algorithm.process(data))
@@ -139,7 +139,7 @@ module HexaPDF
           def unpad(data)
             padding_length = data.getbyte(-1)
             if padding_length > 16 || padding_length == 0
-              raise HexaPDF::Error, "Invalid AES padding length #{padding_length}"
+              raise HexaPDF::EncryptionError, "Invalid AES padding length #{padding_length}"
             end
             data[0...-padding_length]
           end
@@ -159,10 +159,10 @@ module HexaPDF
         # just performs basic checks.
         def initialize(key, iv, mode)
           unless VALID_KEY_LENGTH.include?(key.length)
-            raise HexaPDF::Error, "AES key length must be 128, 192 or 256 bit"
+            raise HexaPDF::EncryptionError, "AES key length must be 128, 192 or 256 bit"
           end
           unless iv.length == BLOCK_SIZE
-            raise HexaPDF::Error, "AES initialization vector length must be 128 bit"
+            raise HexaPDF::EncryptionError, "AES initialization vector length must be 128 bit"
           end
           mode = mode.intern
           super

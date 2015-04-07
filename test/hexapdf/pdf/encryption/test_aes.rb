@@ -30,11 +30,11 @@ module AESEncryptionTests
   end
 
   def test_raises_error_on_invalid_key_length
-    assert_raises(HexaPDF::Error) { @algorithm_class.new('t'*7, '0'*16, :encrypt) }
+    assert_raises(HexaPDF::EncryptionError) { @algorithm_class.new('t'*7, '0'*16, :encrypt) }
   end
 
   def test_raises_error_on_invalid_iv_length
-    assert_raises(HexaPDF::Error) { @algorithm_class.new('t'*16, '0'*7, :encrypt) }
+    assert_raises(HexaPDF::EncryptionError) { @algorithm_class.new('t'*16, '0'*7, :encrypt) }
   end
 
 end
@@ -84,11 +84,15 @@ describe HexaPDF::PDF::Encryption::AES do
     end
 
     it "fails on decryption if the padding is invalid" do
-      assert_raises(HexaPDF::Error) { @algorithm_class.decrypt('some'*4, 'iv'*8 + 'somedata'*4) }
+      assert_raises(HexaPDF::EncryptionError) do
+        @algorithm_class.decrypt('some'*4, 'iv'*8 + 'somedata'*4)
+      end
     end
 
     it "fails on decryption if not enough bytes are provided" do
-      assert_raises(HexaPDF::Error) { @algorithm_class.decrypt('some'*4, 'no iv') }
+      assert_raises(HexaPDF::EncryptionError) do
+        @algorithm_class.decrypt('some'*4, 'no iv')
+      end
     end
 
   end
@@ -135,14 +139,14 @@ describe HexaPDF::PDF::Encryption::AES do
     end
 
     it "fails on decryption if the padding is invalid" do
-      assert_raises(HexaPDF::Error) do
+      assert_raises(HexaPDF::EncryptionError) do
         TestHelper.collector(@algorithm_class.decryption_fiber('some'*4, Fiber.new { 'a'*32 }))
       end
     end
 
     it "fails on decryption if not enough bytes are provided" do
       [4, 20, 40].each do |length|
-        assert_raises(HexaPDF::Error) do
+        assert_raises(HexaPDF::EncryptionError) do
           TestHelper.collector(@algorithm_class.decryption_fiber('some'*4, Fiber.new { 'a'*length }))
         end
       end
@@ -151,8 +155,8 @@ describe HexaPDF::PDF::Encryption::AES do
   end
 
   it "does basic validation on initialization" do
-    assert_raises(HexaPDF::Error) { @algorithm_class.new('t'*7, '0'*16, :encrypt) }
-    assert_raises(HexaPDF::Error) { @algorithm_class.new('t'*16, '0'*7, :encrypt) }
+    assert_raises(HexaPDF::EncryptionError) { @algorithm_class.new('t'*7, '0'*16, :encrypt) }
+    assert_raises(HexaPDF::EncryptionError) { @algorithm_class.new('t'*16, '0'*7, :encrypt) }
     obj = @algorithm_class.new('t'*16, 'i'*16, 'encrypt')
     assert_equal(:encrypt, obj.mode)
   end

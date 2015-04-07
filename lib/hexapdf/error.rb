@@ -34,4 +34,7 @@ module HexaPDF
   # Raised when a PDF object contains invalid data.
   class InvalidPDFObjectError < Error; end
 
+  # Raised when there are problems while encrypting or decrypting a document.
+  class EncryptionError < Error; end
+
 end
