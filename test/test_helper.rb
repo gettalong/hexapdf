@@ -12,6 +12,8 @@ require 'zlib'
 
 module TestHelper
 
+  module_function
+
   def feeder(string, len = string.length)
     Fiber.new do
       while string.length > 0
