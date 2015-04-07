@@ -224,6 +224,12 @@ EOF
       @doc.config['object.map'][[:MyClass, :TheSecond]] = @myclass2
     end
 
+    it "uses a suitable default type if no special type is specified" do
+      assert_instance_of(HexaPDF::PDF::Object, @doc.wrap(5))
+      assert_instance_of(HexaPDF::PDF::Stream, @doc.wrap({a: 5}, stream: ''))
+      assert_instance_of(HexaPDF::PDF::Dictionary, @doc.wrap({a: 5}))
+    end
+
     it "returns an object of type HexaPDF::PDF::Object" do
       assert_kind_of(HexaPDF::PDF::Object, @doc.wrap(5))
       assert_kind_of(HexaPDF::PDF::Object, @doc.wrap({}, stream: ''))

@@ -248,7 +248,13 @@ module HexaPDF
           obj = obj.value
         end
 
-        default = (stream ? HexaPDF::PDF::Stream : HexaPDF::PDF::Object)
+        default = if stream
+                    HexaPDF::PDF::Stream
+                  elsif obj.kind_of?(Hash)
+                    HexaPDF::PDF::Dictionary
+                  else
+                    HexaPDF::PDF::Object
+                  end
         if obj.kind_of?(Hash)
           type ||= obj[:Type]
           subtype ||= obj[:Subtype]
