@@ -18,28 +18,22 @@ module HexaPDF
 
       # Returns the object number of the referenced indirect object.
       def oid
-        @_oid ||= 0
+        @oid
       end
 
       # Sets the object number.
       def oid=(oid)
-        unless oid.kind_of?(Integer)
-          raise HexaPDF::Error, "PDF reference oid needs to be an Integer"
-        end
-        @_oid = oid
+        @oid = Integer(oid)
       end
 
       # Returns the generation number of the referenced indirect object.
       def gen
-        @_gen ||= 0
+        @gen
       end
 
       # Sets the generation number.
       def gen=(gen)
-        unless gen.kind_of?(Integer)
-          raise HexaPDF::Error, "PDF reference gen needs to be an Integer"
-        end
-        @_gen = gen
+        @gen = Integer(gen)
       end
 
       # Compares the ReferenceBehavior object to the other object.
@@ -59,7 +53,7 @@ module HexaPDF
 
       # Computes the hash value based on the object and generation numbers.
       def hash
-        [oid, gen].hash
+        @oid.hash ^ @gen.hash
       end
 
     end
