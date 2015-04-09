@@ -79,7 +79,7 @@ describe HexaPDF::PDF::Serializer do
 
   it "serializes strings" do
     assert_serialized("(Hallo)", "Hallo")
-    assert_serialized("(Hallo\r\n\t\\(\\)\\\\)", "Hallo\r\n\t()\\")
+    assert_serialized("(Hallo\\r\n\t\\(\\)\\\\)", "Hallo\r\n\t()\\")
     assert_serialized("(\xFE\xFF\x00H\x00a\x00l\x00\f\x00\b\x00\\()".force_encoding('BINARY'),
                       "Hal\f\b(")
   end

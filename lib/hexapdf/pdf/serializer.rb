@@ -135,13 +135,16 @@ module HexaPDF
         str << ">>"
       end
 
+      # :nodoc:
+      STRING_ESCAPE_MAP = {"(" => "\\(", ")" => "\\)", "\\" => "\\\\", "\r" => "\\r"}
+
       # See: PDF1.7 s7.3.4
       def serialize_string(obj)
         if obj.encoding != Encoding::BINARY && obj =~ /[^ -~\t\r\n]/
           obj = "\xFE\xFF".force_encoding(Encoding::UTF_16BE) << obj.encode(Encoding::UTF_16BE)
           obj.force_encoding(Encoding::BINARY)
         end
-        "(" << obj.gsub(/[\(\)\\]/n) {|m| "\\#{m}"} << ")"
+        "(" << obj.gsub(/[\(\)\\\r]/n) {|m| STRING_ESCAPE_MAP[m]} << ")"
       end
 
       # Just serializes the objects value.

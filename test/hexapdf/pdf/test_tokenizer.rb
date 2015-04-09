@@ -72,7 +72,8 @@ describe HexaPDF::PDF::Tokenizer do
         % Literal string tests
         (parenthese\\s ( ) and \\(\r
         special \\0053\\053\\53characters\r (*!&}^% and \\
-        so on).\\n)
+        so \\\r
+        on).\\n)
         ()
 
         % Hex strings
