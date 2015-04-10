@@ -21,9 +21,6 @@ describe HexaPDF::PDF::Tokenizer do
     @tokenizer.next_byte
     assert_equal(7, @tokenizer.pos)
 
-    @tokenizer.peek_byte
-    assert_equal(7, @tokenizer.pos)
-
     @tokenizer.peek_token
     assert_equal(7, @tokenizer.pos)
 
@@ -42,14 +39,8 @@ describe HexaPDF::PDF::Tokenizer do
 
   it "returns the next byte" do
     set_string('hallo')
-    assert_equal('h', @tokenizer.next_byte)
-    assert_equal('a', @tokenizer.next_byte)
-  end
-
-  it "peeks at the next byte" do
-    set_string('hallo')
-    assert_equal('h', @tokenizer.peek_byte)
-    assert_equal('h', @tokenizer.peek_byte)
+    assert_equal('h'.ord, @tokenizer.next_byte)
+    assert_equal('a'.ord, @tokenizer.next_byte)
   end
 
   it "returns the next token but doesn't advance the position on peek_token" do

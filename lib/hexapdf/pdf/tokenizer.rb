@@ -15,6 +15,15 @@ module HexaPDF
       # Represents a keyword in a PDF file.
       class Token < String; end
 
+      # :nodoc:
+      TOKEN_DICT_START = Token.new('<<'.b)
+      # :nodoc:
+      TOKEN_DICT_END = Token.new('>>'.b)
+      # :nodoc:
+      TOKEN_ARRAY_START = Token.new('['.b)
+      # :nodoc:
+      TOKEN_ARRAY_END = Token.new(']'.b)
+
       # This object is returned when there are no more tokens to read.
       NO_MORE_TOKENS = ::Object.new
 
@@ -74,29 +83,38 @@ module HexaPDF
       # returned if there are no more tokens available.
       def next_token
         prepare_string_scanner(20)
-        byte = @ss.get_byte
-        case (byte ? byte.ord : -1)
+        case (@ss.eos? ? -1 : @ss.string.getbyte(@ss.pos))
         when 0, 9, 10, 12, 13, 32  # \0 \t \n \f \r \s
           @ss.skip(WHITESPACE_MULTI_RE)
           next_token
         when 47 # /
+          @ss.pos += 1
           parse_name
         when 40 # (
+          @ss.pos += 1
           parse_literal_string
         when 60 # <
-          if @ss.peek(1) != '<'
+          @ss.pos += 1
+          if @ss.string.getbyte(@ss.pos) != 60
             parse_hex_string
           else
             @ss.pos += 1
-            Token.new('<<'.force_encoding(Encoding::BINARY))
+            TOKEN_DICT_START
           end
         when 62 # >
-          unless @ss.get_byte == '>'
+          unless @ss.string.getbyte(@ss.pos + 1) == 62
             raise HexaPDF::MalformedPDFError.new("Delimiter '>' found at invalid position", pos: pos)
           end
-          Token.new('>>'.force_encoding(Encoding::BINARY))
-        when 91, 93, 123, 125 # [ ] { }
-          Token.new(byte)
+          @ss.pos += 2
+          TOKEN_DICT_END
+        when 91 # [
+          @ss.pos += 1
+          TOKEN_ARRAY_START
+        when 93 # ]
+          @ss.pos += 1
+          TOKEN_ARRAY_END
+        when 123, 125 # { }
+          Token.new(@ss.get_byte)
         when 37 # %
           until @ss.skip_until(/(?=[\r\n])/)
             return NO_MORE_TOKENS unless prepare_string_scanner
@@ -105,7 +123,7 @@ module HexaPDF
         when -1 # we reached the end of the file
           NO_MORE_TOKENS
         else # everything else consisting of regular characters
-          byte << (scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/))
+          byte = (scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/))
           convert_keyword(byte)
         end
       end
@@ -130,11 +148,11 @@ module HexaPDF
 
         if token.kind_of?(Token)
           case token
-          when '['
-            token = parse_array
-          when '<<'
+          when TOKEN_DICT_START
             token = parse_dictionary
-          when ']'
+          when TOKEN_ARRAY_START
+            token = parse_array
+          when TOKEN_ARRAY_END
             unless allow_end_array_token
               raise HexaPDF::MalformedPDFError.new("Found invalid end array token ']'", pos: pos)
             end
@@ -146,18 +164,11 @@ module HexaPDF
         token
       end
 
-      # Reads the byte at the current position and advances the scan pointer.
+      # Reads the byte (an integer) at the current position and advances the scan pointer.
       def next_byte
         prepare_string_scanner(1)
-        @ss.get_byte
-      end
-
-      # Reads the byte at the current position but does not advance the scan pointer.
-      def peek_byte
-        prepare_string_scanner(1)
-        byte = @ss.get_byte
-        @ss.pos -= 1
-        byte
+        @ss.pos += 1
+        @ss.string.getbyte(@ss.pos - 1)
       end
 
       # Reads the cross-reference subsection entry at the current position and advances the scan
@@ -166,7 +177,7 @@ module HexaPDF
       # See: PDF1.7 7.5.4
       def next_xref_entry
         prepare_string_scanner(20)
-        unless @ss.scan(/(\d{10}) (\d{5}) ([nf])( \r| \n|\r\n)/)
+        unless @ss.skip(/(\d{10}) (\d{5}) ([nf])(?: \r| \n|\r\n)/)
           raise HexaPDF::MalformedPDFError.new("Invalid cross-reference subsection entry", pos: pos)
         end
         [@ss[1].to_i, @ss[2].to_i, @ss[3]]
@@ -317,7 +328,7 @@ module HexaPDF
         result = []
         loop do
           obj = next_object(true)
-          break if obj.kind_of?(Tokenizer::Token) && obj == ']'
+          break if obj.equal?(TOKEN_ARRAY_END)
           result << obj
         end
         result
@@ -334,7 +345,7 @@ module HexaPDF
           # Use #next_token because we either need a Name or the '>>' token here, the latter would
           # throw an error with #next_object.
           key = next_token
-          break if key.kind_of?(Tokenizer::Token) && key == '>>'
+          break if key.equal?(TOKEN_DICT_END)
           unless key.kind_of?(Symbol)
             raise HexaPDF::MalformedPDFError.new("Dictionary keys must be PDF name objects", pos: pos)
           end

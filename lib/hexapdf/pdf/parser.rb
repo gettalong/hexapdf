@@ -86,10 +86,10 @@ module HexaPDF
             raise_malformed("A stream needs a dictionary, not a(n) #{object.class}", pos: offset)
           end
           tok1 = @tokenizer.next_byte
-          tok2 = @tokenizer.next_byte if tok1 == "\r"
-          if tok1 != "\n"  && tok1 != "\r"
+          tok2 = @tokenizer.next_byte if tok1 == 13 # 13=CR, 10=LF
+          if tok1 != 10  && tok1 != 13
             raise_malformed("Keyword stream must be followed by LF or CR/LF", pos: @tokenizer.pos)
-          elsif tok1 == "\r" && tok2 != "\n"
+          elsif tok1 == 13 && tok2 != 10
             maybe_raise("Keyword stream must be followed by LF or CR/LF, not CR alone",
                         pos: @tokenizer.pos)
             @tokenizer.pos -= 1
