@@ -279,11 +279,11 @@ module HexaPDF
         klass = config['object.map'][[type, subtype]] || default
         klass = ::Object.const_get(klass) if klass.kind_of?(String)
 
-        obj = klass.new(obj, document: self)
-        obj.oid = oid if oid
-        obj.gen = gen if gen
-        obj.stream = stream if stream
-        obj
+        opts = {document: self}
+        opts[:stream] = stream if stream
+        opts[:oid] = oid if oid
+        opts[:gen] = gen if gen
+        klass.new(obj, opts)
       end
 
       # Recursively unwraps the object to get native Ruby objects (i.e. Hash, Array, Integer, ...
