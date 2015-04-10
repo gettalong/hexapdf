@@ -98,7 +98,7 @@ module HexaPDF
       # The +stream+ option may be used to assign a stream to this stream object on creation (see
       # #stream=).
       def initialize(value, stream: nil, **kwargs)
-        super(value, **kwargs)
+        super(value, kwargs)
         self.stream = stream
       end
 
