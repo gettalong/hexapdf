@@ -97,7 +97,13 @@ module HexaPDF
 
           # Note that getting :Length might move the IO pointer (when resolving references)
           pos = @tokenizer.pos
-          length = @document.unwrap(object[:Length]) || 0
+          length = if object[:Length].kind_of?(Integer)
+                     object[:Length]
+                   elsif object[:Length].kind_of?(Reference)
+                     @document.deref(object[:Length]).value
+                   else
+                     0
+                   end
           @tokenizer.pos = pos + length
 
           tok = @tokenizer.next_token

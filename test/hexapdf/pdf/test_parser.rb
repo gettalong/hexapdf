@@ -13,7 +13,7 @@ describe HexaPDF::PDF::Parser do
       obj.kind_of?(HexaPDF::PDF::Reference) ? 10 : obj
     end
     def (@document).deref(obj)
-      obj
+      obj.kind_of?(HexaPDF::PDF::Reference) ? HexaPDF::PDF::Object.new(10) : obj
     end
     def (@document).wrap(obj, type: nil, subtype: nil, oid: nil, gen: nil, stream: nil)
       klass = if obj.kind_of?(Hash) && obj[:Type] == :XRef
