@@ -29,7 +29,7 @@ module HexaPDF
         # different), this entry will be removed.
         def []=(oid, gen, data)
           delete(oid) if entry?(oid)
-          @table[[oid, gen]] = data
+          @table[oid] = data
           @oids[oid] = gen
         end
 
@@ -42,7 +42,7 @@ module HexaPDF
         #
         # If there is no such data, +nil+ is returned.
         def [](oid, gen = nil)
-          @table[[oid, gen || gen_for_oid(oid)]]
+          (gen.nil? || gen_for_oid(oid) == gen || nil) && @table[oid]
         end
 
         # :call-seq:
@@ -66,13 +66,13 @@ module HexaPDF
 
         # Deletes the entry for the given object number.
         def delete(oid)
-          @table.delete([oid, gen_for_oid(oid)])
+          @table.delete(oid)
           @oids.delete(oid)
         end
 
         # :call-seq:
-        #   objhash.each {|(oid, gen), data| block }   -> objhash
-        #   objhash.each                               -> Enumerator
+        #   objhash.each {|oid, gen, data| block }   -> objhash
+        #   objhash.each                             -> Enumerator
         #
         # Calls the given block once for every entry, passing an array consisting of the object and
         # generation number and the associated data as arguments.
@@ -80,7 +80,7 @@ module HexaPDF
         # New keys inserted during the iteration are *not* reflected!
         def each
           return to_enum(__method__) unless block_given?
-          @table.keys.each {|key| yield(key, @table[key]) if @table.key?(key)}
+          @oids.keys.each {|oid| yield(oid, @oids[oid], @table[oid]) if @table.key?(oid)}
           self
         end
 

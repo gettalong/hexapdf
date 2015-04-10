@@ -149,7 +149,7 @@ module HexaPDF
       # loaded, are not included.
       def each_available
         return to_enum(__method__) unless block_given?
-        @objects.each {|(_oid, _gen), data| yield(data)}
+        @objects.each {|_oid, _gen, data| yield(data)}
         self
       end
 
@@ -160,7 +160,7 @@ module HexaPDF
         return if defined?(@all_objects_loaded)
         @all_objects_loaded = true
 
-        @xref_section.each do |(oid, _gen), data|
+        @xref_section.each do |oid, _gen, data|
           next if @objects.entry?(oid)
           load_object(data)
         end

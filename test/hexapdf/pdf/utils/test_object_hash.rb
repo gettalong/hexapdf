@@ -72,9 +72,9 @@ describe HexaPDF::PDF::Utils::ObjectHash do
     @hash[1, 0] = 5
     @hash[2, 3] = 6
     @hash[3, 2] = 7
-    assert_equal([[[1, 0], 5], [[2, 3], 6], [[3, 2], 7]], @hash.each.to_a)
+    assert_equal([[1, 0, 5], [2, 3, 6], [3, 2, 7]], @hash.each.to_a)
 
-    @hash.each do |(oid, gen), data|
+    @hash.each do |oid, gen, data|
       assert_equal(data, @hash[oid, gen])
     end
   end
