@@ -61,11 +61,13 @@ module HexaPDF
       # If the revision has an entry but one that is pointing to a free entry in the cross-reference
       # section, an object representing PDF null is returned.
       def object(ref)
-        oid, gen = if ref.respond_to?(:oid)
-                     [ref.oid, ref.gen]
-                   else
-                     [ref, @objects.gen_for_oid(ref) || @xref_section.gen_for_oid(ref)]
-                   end
+        if ref.respond_to?(:oid)
+          oid = ref.oid
+          gen = ref.gen
+        else
+          oid = ref
+          gen = @objects.gen_for_oid(ref) || @xref_section.gen_for_oid(ref)
+        end
 
         if @objects.entry?(oid, gen)
           @objects[oid, gen]
