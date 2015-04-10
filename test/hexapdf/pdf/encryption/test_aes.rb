@@ -7,7 +7,7 @@ module AESEncryptionTests
 
   include EncryptionAlgorithmInterfaceTests
 
-  TEST_VECTOR_FILES = Dir[File.join(__dir__, '..', '..', '..', 'data', 'aes-test-vectors', '*')]
+  TEST_VECTOR_FILES = Dir[File.join(TEST_DATA_DIR, 'aes-test-vectors', '*')]
 
   def test_processes_the_AES_test_vectors
     TEST_VECTOR_FILES.each do |filename|

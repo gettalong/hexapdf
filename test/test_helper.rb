@@ -10,6 +10,9 @@ require 'minitest/autorun'
 require 'fiber'
 require 'zlib'
 
+
+TEST_DATA_DIR = File.join(__dir__, 'data')
+
 module TestHelper
 
   module_function
