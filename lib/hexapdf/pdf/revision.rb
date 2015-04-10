@@ -23,6 +23,9 @@ module HexaPDF
       # The trailer dictionary
       attr_reader :trailer
 
+      # The callable object responsible for loading objects.
+      attr_accessor :loader
+
       # :call-seq:
       #   Revision.new(trailer)                                           -> revision
       #   Revision.new(trailer, xref_section: section, loader: loader)    -> revision

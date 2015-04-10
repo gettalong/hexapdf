@@ -3,6 +3,7 @@
 require 'test_helper'
 require 'hexapdf/pdf/serializer'
 require 'hexapdf/pdf/object'
+require 'hexapdf/pdf/stream'
 
 describe HexaPDF::PDF::Serializer do
 
@@ -90,6 +91,14 @@ describe HexaPDF::PDF::Serializer do
 
   it "serializes HexaPDF reference objects" do
     assert_serialized("5 3 R", HexaPDF::PDF::Reference.new(5, 3))
+  end
+
+  it "serializes streams" do
+    doc = Object.new
+    def doc.unwrap(obj); obj; end
+    assert_serialized("<</Key(value)/Length 8>>stream\nsomedata\nendstream",
+                      HexaPDF::PDF::Stream.new({Key: "value", Length: 5}, stream: "somedata",
+                                               document: doc))
   end
 
 end

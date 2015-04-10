@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/pdf/tokenizer'
+require 'hexapdf/pdf/filter'
 
 module HexaPDF
   module PDF
@@ -36,6 +37,9 @@ module HexaPDF
     # See: PDF1.7 s7.3
     class Serializer
 
+      # Specifies whether the serializer object should encrypt strings and streams. Default: false.
+      attr_accessor :encrypt
+
       # Creates a new Serializer object.
       def initialize
         @dispatcher = Hash.new do |h, klass|
@@ -46,6 +50,7 @@ module HexaPDF
           end
           method
         end
+        @encrypt = false
       end
 
       # Returns the serialized form of the given object.
@@ -140,9 +145,13 @@ module HexaPDF
 
       # See: PDF1.7 s7.3.4
       def serialize_string(obj)
-        if obj.encoding != Encoding::BINARY && obj =~ /[^ -~\t\r\n]/
-          obj = "\xFE\xFF".force_encoding(Encoding::UTF_16BE) << obj.encode(Encoding::UTF_16BE)
-          obj.force_encoding(Encoding::BINARY)
+        if @encrypt && @object.kind_of?(HexaPDF::PDF::Object) && @object.oid != 0
+          obj = @object.document.security_handler.encrypt_string(obj, @object)
+        elsif obj.encoding != Encoding::BINARY && obj =~ /[^ -~\t\r\n]/
+          obj = ("\xFE\xFF".force_encoding(Encoding::UTF_16BE) << obj.encode(Encoding::UTF_16BE)).
+            force_encoding(Encoding::BINARY)
+        elsif obj.encoding != Encoding::BINARY
+          obj = obj.b
         end
         "(" << obj.gsub(/[\(\)\\\r]/n) {|m| STRING_ESCAPE_MAP[m]} << ")"
       end
@@ -155,6 +164,24 @@ module HexaPDF
       # See: PDF1.7 s7.3.10
       def serialize_hexapdf_pdf_reference(obj)
         "#{obj.oid} #{obj.gen} R"
+      end
+
+      # Serializes the streams dictionary and its stream.
+      #
+      # See: PDF1.7 s7.3.8
+      def serialize_hexapdf_pdf_stream(obj)
+        fiber = if @encrypt
+                  @object.document.security_handler.encrypt_stream(obj)
+                else
+                  obj.stream_encoder
+                end
+        data = Filter.string_from_source(fiber)
+        obj.value[:Length] = data.size
+
+        str = __serialize(obj.value)
+        str << "stream\n"
+        str << data
+        str << "\nendstream"
       end
 
     end

@@ -26,6 +26,11 @@ module HexaPDF
 
       # Writes the document to the IO object.
       def write
+        if @document.encrypted? && !@document.security_handler.encryption_key_valid?
+          raise HexaPDF::EncryptionError, "Encryption key doesn't match encryption dictionary"
+        end
+        @serializer.encrypt = @document.encrypted?
+
         write_file_header
 
         pos = nil
@@ -118,22 +123,8 @@ module HexaPDF
       # Writes the single indirect object which may be a stream object or another object.
       def write_indirect_object(obj)
         @io << "#{obj.oid} #{obj.gen} obj\n"
-        obj.kind_of?(Stream) ? write_stream_object(obj) : write_object(obj)
-        @io << "\nendobj\n"
-      end
-
-      # Writes the stream object.
-      #
-      # See: PDF1.7 s7.3.8
-      def write_stream_object(obj)
-        data = Filter.string_from_source(obj.stream_encoder)
-        obj.value[:Length] = data.size
-
         write_object(obj)
-
-        @io << "stream\n"
-        @io << data
-        @io << "\nendstream"
+        @io << "\nendobj\n"
       end
 
       # Writes the object.

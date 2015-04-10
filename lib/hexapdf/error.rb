@@ -37,4 +37,7 @@ module HexaPDF
   # Raised when there are problems while encrypting or decrypting a document.
   class EncryptionError < Error; end
 
+  # Raised when the encryption method is not supported.
+  class UnsupportedEncryptionError < EncryptionError; end
+
 end

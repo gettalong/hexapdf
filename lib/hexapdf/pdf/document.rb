@@ -80,6 +80,11 @@ module HexaPDF
           'parser.on_correctable_error' => proc { false },
           'encryption.arc4' => 'HexaPDF::PDF::Encryption::FastARC4',
           'encryption.aes' => 'HexaPDF::PDF::Encryption::FastAES',
+          'encryption.filter_map' => {
+            Standard: 'HexaPDF::PDF::Encryption::StandardSecurityHandler',
+          },
+          'encryption.sub_filter_map' => {
+          },
         }
       end
 
@@ -91,20 +96,31 @@ module HexaPDF
 
       # Creates a new PDF document.
       #
+      # When an IO object is provided and it contains an encrypted PDF file, it is automatically
+      # decrypted behind the scenes.
+      #
       # Options:
       #
       # io:: If an IO object is provided, then this document can read PDF objects from this IO
       #      object, otherwise it can only contain created PDF objects.
       #
+      # decryption_opts:: A hash with options for decrypting the PDF objects loaded from the IO.
+      #
       # config:: A hash with configuration options that is deep-merged into the default
       #          configuration options hash (see ::default_config), meaning that direct sub-hashes
       #          are merged instead of overwritten.
-      def initialize(io: nil, config: {})
+      def initialize(io: nil, decryption_opts: {}, config: {})
         @config = self.class.default_config.merge(config) do |k, old, new|
           old.kind_of?(Hash) && new.kind_of?(Hash) ? old.merge(new) : new
         end
 
         @revisions = Revisions.from_io(self, io)
+        if encrypted?
+          handler = Encryption::SecurityHandler.set_up_decryption(self, decryption_opts)
+          self.security_handler = handler
+        else
+          self.security_handler = nil
+        end
 
         @next_oid = @revisions.current.trailer.value[:Size] || 1
       end
@@ -327,6 +343,50 @@ module HexaPDF
           end
         end
         self
+      end
+
+      # Returns the trailer dictionary for the document.
+      def trailer
+        @revisions.current.trailer
+      end
+
+      # Returns +true+ if the document is encrypted.
+      #
+      # Note that a security handler might be set but that the document might not (yet) be
+      # encrypted!
+      def encrypted?
+        !trailer[:Encrypt].nil?
+      end
+
+      # Returns the security handler that is used for decrypting or encrypting the document.
+      #
+      # Retrieving or setting a security handler does not automatically make a document encrypted!
+      # Only when the security handler is used to set up the encryption will the document be
+      # encrypted.
+      #
+      # If the option +use_standard_handler+ is +true+ and if no security handler has yet been set,
+      # the standard security handler (i.e. the handler set as :Standard for the the configuration
+      # option 'encryption.filter_map') is automatically set and used.
+      def security_handler(use_standard_handler: true)
+        if @security_handler.nil? && use_standard_handler
+          handler = config['encryption.filter_map'][:Standard]
+          handler = ::Object.const_get(handler) if handler.kind_of?(String)
+          @security_handler = handler.new(self)
+        end
+        @security_handler
+      end
+
+      # Sets the security handler that is used for encrypting the document.
+      #
+      # If the document should not be encrypted, +nil+ has to be assigned. This removes the security
+      # handler and deletes the trailer's Encrypt dictionary.
+      #
+      # The +handler+ object has to be a subclass of Encryption::SecurityHandler.
+      #
+      # See: #security_handler
+      def security_handler=(handler)
+        @security_handler = handler
+        trailer.value.delete(:Encrypt) if handler.nil?
       end
 
     end

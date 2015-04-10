@@ -135,6 +135,15 @@ module HexaPDF
         @stream
       end
 
+      # Returns the Fiber representing the unprocessed content of the stream.
+      def stream_source
+        if @stream.kind_of?(String)
+          HexaPDF::PDF::Filter.source_from_string(@stream)
+        else
+          @stream.fiber(config['io.chunk_size'])
+        end
+      end
+
       # Returns the decoder Fiber for the stream data.
       #
       # See the Filter module for more information on how to work with the fiber.
@@ -192,15 +201,6 @@ module HexaPDF
       end
 
       private
-
-      # Returns the Fiber representing the unprocessed content of the stream.
-      def stream_source
-        if @stream.kind_of?(String)
-          HexaPDF::PDF::Filter.source_from_string(@stream)
-        else
-          @stream.fiber(config['io.chunk_size'])
-        end
-      end
 
       # Returns the filter object that corresponds to the given filter name.
       #

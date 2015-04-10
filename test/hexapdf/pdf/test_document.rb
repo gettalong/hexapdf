@@ -318,4 +318,33 @@ EOF
     end
   end
 
+  describe "encryption" do
+    it "checks for encryption based on the existence of the trailer's /Encrypt dictionary" do
+      refute(@doc.encrypted?)
+      @doc.trailer[:Encrypt] = {Filter: :Standard}
+      assert(@doc.encrypted?)
+    end
+
+    it "automatically creates a security handler if specified" do
+      assert_nil(@doc.security_handler(use_standard_handler: false))
+      assert_kind_of(HexaPDF::PDF::Encryption::SecurityHandler,
+                     @doc.security_handler)
+      refute(@doc.encrypted?)
+    end
+
+    it "can set or delete a security handler via security_handler=" do
+      @doc.security_handler.set_up_encryption
+      refute_nil(@doc.security_handler(use_standard_handler: false))
+      assert(@doc.encrypted?)
+
+      @doc.security_handler = nil
+      assert_nil(@doc.security_handler(use_standard_handler: false))
+      refute(@doc.encrypted?)
+
+      @doc.security_handler = HexaPDF::PDF::Encryption::StandardSecurityHandler.new(@doc)
+      refute_nil(@doc.security_handler(use_standard_handler: false))
+      refute(@doc.encrypted?)
+    end
+  end
+
 end

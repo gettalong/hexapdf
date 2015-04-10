@@ -110,4 +110,14 @@ EOF
     assert_raises(HexaPDF::Error) { HexaPDF::PDF::Writer.new(document, StringIO.new).write }
   end
 
+  it "fails if the encryption key does not match the trailer's Encrypt dictionary anymore" do
+    document = HexaPDF::PDF::Document.new()
+    document.security_handler.set_up_encryption
+    document.trailer[:Encrypt][:U] = 'a'*4
+    exp = assert_raises(HexaPDF::EncryptionError) do
+      HexaPDF::PDF::Writer.new(document, StringIO.new).write
+    end
+    assert_match(/Encryption key/, exp.message)
+  end
+
 end
