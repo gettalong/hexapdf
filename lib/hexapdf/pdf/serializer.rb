@@ -2,6 +2,7 @@
 
 require 'hexapdf/pdf/tokenizer'
 require 'hexapdf/pdf/filter'
+require 'hexapdf/pdf/utils/lru_cache'
 
 module HexaPDF
   module PDF
@@ -104,16 +105,23 @@ module HexaPDF
       [0..32, 127..255, Tokenizer::DELIMITER.bytes, Tokenizer::WHITESPACE.bytes, [35]].each do |a|
         a.each {|c| NAME_SUBSTS[c.chr] = "##{c.to_s(16).rjust(2, "0")}"}
       end
+      # :nodoc:
       NAME_REGEXP = /[^!-~&&[^##{Regexp.escape(Tokenizer::DELIMITER)}#{Regexp.escape(Tokenizer::WHITESPACE)}]]/
+      # :nodoc:
+      NAME_CACHE = HexaPDF::PDF::Utils::LRUCache.new(1000)
 
       # See: PDF1.7 s7.3.5
       def serialize_symbol(obj)
-        str = obj.to_s.force_encoding(Encoding::BINARY)
-        str.gsub!(NAME_REGEXP) {|m| NAME_SUBSTS[m]}
-        "/#{str}"
+        NAME_CACHE[obj] ||=
+          begin
+            str = obj.to_s.force_encoding(Encoding::BINARY)
+            str.gsub!(NAME_REGEXP) {|m| NAME_SUBSTS[m]}
+            "/#{str}"
+          end
       end
 
-      BYTE_IS_STARTING_DELIMITER = {40 => true, 47 => true, 60 => true, 91 => true} #:nodoc:
+      # :nodoc:
+      BYTE_IS_STARTING_DELIMITER = {40 => true, 47 => true, 60 => true, 91 => true}
 
       # See: PDF1.7 s7.3.6
       def serialize_array(obj)
