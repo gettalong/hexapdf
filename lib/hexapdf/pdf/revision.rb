@@ -137,20 +137,8 @@ module HexaPDF
       # Objects that are loadable via an associated cross-reference section but are currently not,
       # are loaded automatically.
       def each(&block)
-        load_all_objects
-        each_available(&block)
-      end
-
-      # :call-seq:
-      #   revision.each_available {|obj| block }   -> revision
-      #   revision.each_available                  -> Enumerator
-      #
-      # Calls the given block once for every available object of the revision.
-      #
-      # Objects that could be loaded from an associated cross-reference but which are currently not
-      # loaded, are not included.
-      def each_available
         return to_enum(__method__) unless block_given?
+        load_all_objects
         @objects.each {|_oid, _gen, data| yield(data)}
         self
       end
