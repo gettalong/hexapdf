@@ -62,7 +62,7 @@ module HexaPDF
 
       remove_method :decode_parms=
       def decode_parms=(parms) #:nodoc:
-        @decode_parms = [parms].flatten.compact
+        @decode_parms = [parms].flatten
       end
 
     end
@@ -163,7 +163,7 @@ module HexaPDF
       #
       # See the Filter module for more information on how to work with the fiber.
       def stream_encoder
-        encoder_data = [document.unwrap(self[:Filter])].flatten.
+        encoder_data = [document.unwrap(self[:Filter])].flatten.compact.
           zip([document.unwrap(self[:DecodeParms])].flatten).
           delete_if {|f, d| f.nil?}
         source = stream_source
@@ -196,8 +196,17 @@ module HexaPDF
       # be [:A85, :Fl], the stream would first be encoded with the Flate and then with the ASCII85
       # filter.
       def set_filter(filter, decode_parms = nil)
-        self[:Filter] = filter
-        self[:DecodeParms] = decode_parms
+        if filter.nil? || (filter.kind_of?(Array) && filter.empty?)
+          value.delete(:Filter)
+        else
+          self[:Filter] = filter
+        end
+        if decode_parms.nil? || (decode_parms.kind_of?(Array) && decode_parms.empty?) ||
+            !value.key?(:Filter)
+          value.delete(:DecodeParms)
+        else
+          self[:DecodeParms] = decode_parms
+        end
       end
 
       private

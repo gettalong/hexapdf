@@ -33,9 +33,9 @@ describe HexaPDF::PDF::StreamData do
     s.decode_parms = :test
     assert_equal([:test], s.decode_parms)
     s.decode_parms = [:a, nil, :b]
-    assert_equal([:a, :b], s.decode_parms)
+    assert_equal([:a, nil, :b], s.decode_parms)
     s.decode_parms = nil
-    assert_equal([], s.decode_parms)
+    assert_equal([nil], s.decode_parms)
   end
 
 end
@@ -145,7 +145,7 @@ describe HexaPDF::PDF::Stream do
       @stm.stream = 'abcdefg'
       assert_equal("78da634a6462444000058f0076>", collector(@stm.stream_encoder))
 
-      @stm.value[:Filter] = [:AHx, :Fl]
+      @stm.value[:Filter] = [:AHx, nil, :Fl]
       @stm.value[:DecodeParms] = [nil, {Predictor: 10}]
       @stm.stream = 'abcdefg'
       assert_equal("78da6348644862486648614865486348070012fa02bd>", collector(@stm.stream_encoder))
@@ -175,13 +175,33 @@ describe HexaPDF::PDF::Stream do
     it "sets correct filter values without decode parameters" do
       @stm.set_filter(:Test)
       assert_equal(:Test, @stm.value[:Filter])
-      assert_nil(@stm.value[:DecodeParms])
+      refute(@stm.value.key?(:DecodeParms))
+
+      @stm.set_filter([:Test, :Test1])
+      assert_equal([:Test, :Test1], @stm.value[:Filter])
+      refute(@stm.value.key?(:DecodeParms))
     end
 
     it "sets correct filter/decode parameter values" do
       @stm.set_filter([:Test, :Test], :Other)
       assert_equal([:Test, :Test], @stm.value[:Filter])
       assert_equal(:Other, @stm.value[:DecodeParms])
+
+      @stm.set_filter([:Test, :Test], [:Other, :Other])
+      assert_equal([:Test, :Test], @stm.value[:Filter])
+      assert_equal([:Other, :Other], @stm.value[:DecodeParms])
+    end
+
+    it "deletes the /Filter and/or decode parameters values when arguments are nil" do
+      @stm.set_filter(:Test, :Other)
+      @stm.set_filter(nil, :Other)
+      refute(@stm.value.key?(:Filter))
+      refute(@stm.value.key?(:DecodeParms))
+
+      @stm.set_filter(:Test, :Other)
+      @stm.set_filter(:Test, nil)
+      assert_equal(:Test, @stm[:Filter])
+      refute(@stm.value.key?(:DecodeParms))
     end
   end
 
