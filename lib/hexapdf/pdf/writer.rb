@@ -123,13 +123,8 @@ module HexaPDF
       # Writes the single indirect object which may be a stream object or another object.
       def write_indirect_object(obj)
         @io << "#{obj.oid} #{obj.gen} obj\n"
-        write_object(obj)
-        @io << "\nendobj\n"
-      end
-
-      # Writes the object.
-      def write_object(obj)
         @io << @serializer.serialize(obj)
+        @io << "\nendobj\n".freeze
       end
 
       # Writes the cross-reference section.
@@ -141,9 +136,9 @@ module HexaPDF
           @io << "#{entries.empty? ? 0 : entries.first.oid} #{entries.size}\n"
           entries.each do |entry|
             if entry.in_use?
-              @io << "%010d %05d n \n" % [entry.pos, entry.gen]
+              @io << sprintf("%010d %05d n \n".freeze, entry.pos, entry.gen)
             elsif entry.free?
-              @io << "0000000000 65535 f \n"
+              @io << "0000000000 65535 f \n".freeze
             else
               # Should never occur since we create the xref section!
               raise HexaPDF::Error, "Cannot use xref type #{entry.type} in cross-reference section"

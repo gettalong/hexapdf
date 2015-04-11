@@ -121,11 +121,11 @@ module HexaPDF
         index = 0
         while index < obj.size
           tmp = __serialize(obj[index])
-          str << " " unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)] || index == 0
+          str << " ".freeze unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)] || index == 0
           str << tmp
           index += 1
         end
-        str << "]"
+        str << "]".freeze
       end
 
       # See: PDF1.7 s7.3.7
@@ -134,10 +134,10 @@ module HexaPDF
         obj.each do |k, v|
           str << __serialize(k)
           tmp = __serialize(v)
-          str << " " unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)]
+          str << " ".freeze unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)]
           str << tmp
         end
-        str << ">>"
+        str << ">>".freeze
       end
 
       # :nodoc:
@@ -153,7 +153,7 @@ module HexaPDF
         elsif obj.encoding != Encoding::BINARY
           obj = obj.b
         end
-        "(" << obj.gsub(/[\(\)\\\r]/n) {|m| STRING_ESCAPE_MAP[m]} << ")"
+        "(" << obj.gsub(/[\(\)\\\r]/n) {|m| STRING_ESCAPE_MAP[m]} << ")".freeze
       end
 
       # Just serializes the objects value.
@@ -179,9 +179,9 @@ module HexaPDF
         obj.value[:Length] = data.size
 
         str = __serialize(obj.value)
-        str << "stream\n"
+        str << "stream\n".freeze
         str << data
-        str << "\nendstream"
+        str << "\nendstream".freeze
       end
 
     end
