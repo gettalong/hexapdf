@@ -3,6 +3,7 @@
 require 'strscan'
 require 'hexapdf/error'
 require 'hexapdf/pdf/reference'
+require 'hexapdf/pdf/utils/lru_cache'
 
 module HexaPDF
   module PDF
@@ -207,6 +208,7 @@ module HexaPDF
       private
 
       # :nodoc:
+      TOKEN_CACHE = HexaPDF::PDF::Utils::LRUCache.new(200)
 
       # Converts the given keyword to a boolean or nil if possible. Otherwise a Token object
       # representing +str+ is returned.
@@ -221,7 +223,7 @@ module HexaPDF
         when 'null'
           nil
         else
-          Token.new(str)
+          TOKEN_CACHE[str] ||= Token.new(str)
         end
       end
 
