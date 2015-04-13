@@ -87,6 +87,8 @@ module HexaPDF
         when 0, 9, 10, 12, 13, 32  # \0 \t \n \f \r \s
           @ss.skip(WHITESPACE_MULTI_RE)
           next_token
+        when 43, 45, 46, 48..57 # + - . 0..9
+          parse_number
         when 47 # /
           @ss.pos += 1
           parse_name
@@ -205,23 +207,13 @@ module HexaPDF
       private
 
       # :nodoc:
-      REFERENCE_RE = /[#{WHITESPACE}]+([+-]?\d+)[#{WHITESPACE}]+R(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
 
-      # Converts the given keyword to a boolean, nil, integer or float object, if possible.
-      # Otherwise a Token object representing +str+ is returned.
+      # Converts the given keyword to a boolean or nil if possible. Otherwise a Token object
+      # representing +str+ is returned.
       #
-      # See: PDF1.7 s7.3.2, s7.3.3, s7.3.9
+      # See: PDF1.7 s7.3.2, s7.3.9
       def convert_keyword(str)
         case str
-        when /\A[+-]?\d+\z/
-          tmp = str.to_i
-          # Handle object references, see PDF1.7 s7.3.10
-          prepare_string_scanner(10)
-          tmp = Reference.new(tmp, @ss[1].to_i) if @ss.scan(REFERENCE_RE)
-          tmp
-        when /\A[+-]?(?:\d+\.?\d*|\.\d+)\z/
-          str << '0' if str[-1] == '.'
-          Float(str)
         when 'true'
           true
         when 'false'
@@ -230,6 +222,26 @@ module HexaPDF
           nil
         else
           Token.new(str)
+        end
+      end
+
+      # :nodoc:
+      REFERENCE_RE = /[#{WHITESPACE}]+([+-]?\d+)[#{WHITESPACE}]+R(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
+
+      # Parses the number (integer or real) at the current position.
+      #
+      # See: PDF1.7 s7.3.3
+      def parse_number
+        if (val = @ss.scan(/[+-]?\d++(?!\.)/))
+          tmp = val.to_i
+          # Handle object references, see PDF1.7 s7.3.10
+          prepare_string_scanner(10)
+          tmp = Reference.new(tmp, @ss[1].to_i) if @ss.scan(REFERENCE_RE)
+          tmp
+        else
+          val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/)
+          val << '0' if val[-1] == '.'
+          Float(val)
         end
       end
 
