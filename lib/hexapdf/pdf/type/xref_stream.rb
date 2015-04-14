@@ -146,7 +146,7 @@ module HexaPDF
         def calculate_w_entry_and_pack_string(max_number)
           middle = Math.log(max_number, 255).ceil
           middle = 4 if middle == 3
-          pack_string = "C#{middle == 1 ? 'C' : '??SLL'[middle] << '>'}S>"
+          pack_string = "C#{'-CnNN'[middle]}n"
           [[1, middle, 2], pack_string]
         end
 
