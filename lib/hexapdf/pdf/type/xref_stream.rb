@@ -3,6 +3,7 @@
 require 'hexapdf/error'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/xref_section'
+require 'hexapdf/pdf/type/trailer'
 
 module HexaPDF
   module PDF
@@ -45,11 +46,21 @@ module HexaPDF
 
         # Returns an XRefSection that represents the content of this cross-reference stream.
         #
-        # Each invocation returns a new XRefSection object based on the current data in the associated
-        # stream and dictionary.
+        # Each invocation returns a new XRefSection object based on the current data in the
+        # associated stream and dictionary.
         def xref_section
           index = self[:Index] || [0, self[:Size]]
           parse_xref_section(index, self[:W])
+        end
+
+        # Returns a hash with the entries that represent the file trailer part of the
+        # cross-reference stream's dictionary.
+        #
+        # See: Trailer
+        def trailer
+          Trailer.each_field.with_object({}) do |(name, _data), hash|
+            hash[name] = value[name] if value.key?(name)
+          end
         end
 
         # Makes this cross-reference stream represent the data in the given XRefSection and Trailer.

@@ -326,7 +326,7 @@ EOF
 
     it "works for a cross-reference stream" do
       xref_section, trailer = @parser.load_revision(212)
-      assert_equal({Type: :XRef, Length: 3, W: [1, 1, 1], Index: [1, 1], Size: 2}, trailer)
+      assert_equal({Size: 2}, trailer)
       assert(xref_section[1].in_use?)
     end
 

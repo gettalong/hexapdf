@@ -73,6 +73,21 @@ describe HexaPDF::PDF::Type::XRefStream do
     end
   end
 
+  describe "trailer" do
+    it "returns a dictionary without xref stream specific values" do
+      @obj[:Size] = 5
+      @obj[:ID] = ["a", "b"]
+      @obj[:Root] = 'x'
+      @obj[:Index] = [0, 5]
+      @obj[:W] = [1, 2, 2]
+      dict = @obj.trailer
+      assert_equal(3, dict.length)
+      assert_equal(5, dict[:Size])
+      assert_equal(["a", "b"], dict[:ID])
+      assert_equal('x', dict[:Root])
+    end
+  end
+
   describe "update_with_xref_section_and_trailer" do
     before do
       @section = HexaPDF::PDF::XRefSection.new

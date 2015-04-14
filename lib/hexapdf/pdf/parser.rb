@@ -157,7 +157,7 @@ module HexaPDF
           if !obj.respond_to?(:xref_section)
             raise_malformed("Object is not a cross-reference stream", pos: pos)
           end
-          [obj.xref_section, obj.value]
+          [obj.xref_section, obj.trailer]
         end
       end
 

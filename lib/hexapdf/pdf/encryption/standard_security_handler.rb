@@ -158,7 +158,7 @@ module HexaPDF
           end
 
           if dict[:R] <= 4 && !document.trailer[:ID].kind_of?(Array)
-            document.trailer[:ID] = [Digest::MD5.digest(rand.to_s), Digest::MD5.digest(rand.to_s)]
+            document.trailer.set_random_id
           end
 
           options.user_password = prepare_password(options.user_password)
