@@ -33,12 +33,12 @@ module HexaPDF
         class StandardEncryptionDictionary < EncryptionDictionary
 
           define_field :R, type: Integer, required: true
-          define_field :O, type: String, required: true
-          define_field :OE, type: String, required: true, version: '2.0'
-          define_field :U, type: String, required: true
-          define_field :UE, type: String, required: true, version: '2.0'
+          define_field :O, type: PDFByteString, required: true
+          define_field :OE, type: PDFByteString, required: true, version: '2.0'
+          define_field :U, type: PDFByteString, required: true
+          define_field :UE, type: PDFByteString, required: true, version: '2.0'
           define_field :P, type: Integer, required: true
-          define_field :Perms, type: String, required: true, version: '2.0'
+          define_field :Perms, type: PDFByteString, required: true, version: '2.0'
           define_field :EncryptMetadata, type: Boolean, default: true, version: '1.5'
 
         end

@@ -1,7 +1,10 @@
 # -*- encoding: utf-8 -*-
 
+require 'time'
+require 'date'
 require 'hexapdf/error'
 require 'hexapdf/pdf/object'
+require 'hexapdf/pdf/utils/pdf_doc_encoding'
 
 module HexaPDF
   module PDF
@@ -21,6 +24,12 @@ module HexaPDF
       # For easier defining boolean fields.
       Boolean = [TrueClass, FalseClass]
 
+      # PDFByteString is used for defining fields with strings in binary encoding.
+      PDFByteString = Class.new
+
+      # PDFDate is used for defining fields which store a date object as a string.
+      PDFDate = Class.new
+
       # A dictionary field entry. For information on the available accessor fields see
       # Dictionary.define_field.
       class Field
@@ -35,16 +44,15 @@ module HexaPDF
         # Create a new Field object.
         def initialize(type, required, default, indirect, version)
           @type = [type].flatten
-          @types_mapped = false
+          @type_mapped = false
           @required, @default, @indirect, @version = required, default, indirect, version.to_sym
         end
 
-        # Returns the array with possible types for this field.
+        # Returns the array with valid types for this field.
         def type
-          return @type if @types_mapped
-          @types_mapped = true
+          return @type if @type_mapped
+          @type_mapped = true
           @type.map! {|type| type.kind_of?(String) ? ::Object.const_get(type) : type}
-          @type << Hash if @type.any? {|type| type.ancestors.include?(Dictionary)}
           @type
         end
 
@@ -53,14 +61,14 @@ module HexaPDF
           @required
         end
 
-        # Returns +true+ if a default value is set.
+        # Returns +true+ if a default value is available.
         def default?
           !@default.nil?
         end
 
-        # Returns the duplicated default value, automatically taking unduplicatable classes into
+        # Returns a duplicated default value, automatically taking unduplicatable classes into
         # account.
-        def dupped_default
+        def default
           duplicatable_default? ? @default.dup : @default
         end
 
@@ -75,21 +83,114 @@ module HexaPDF
         end
         private :duplicatable_default?
 
-        # Returns +true+ if the given data value should be wrapped in the PDF specific type class of
-        # this field entry.
-        def wrap_data_with_type?(data)
-          @cached_wrapable ||= (type.size == 2 && type[1] == Hash &&
-                                type[0].ancestors.include?(HexaPDF::PDF::Dictionary))
-          @cached_wrapable && (data.nil? || data.kind_of?(Hash))
+        # Returns +true+ if the given object is valid for this field.
+        def valid_object?(obj)
+          type.any? {|t| obj.kind_of?(t)} ||
+            (obj.kind_of?(HexaPDF::PDF::Object) && type.any? {|t| obj.value.kind_of?(t)})
         end
 
-        # Wraps the given data value in the PDF specific type class of this field entry.
-        def wrap_data_with_type(data, document)
-          type.first.new(data, document: document)
+        # Always returns +false+.
+        #
+        # Can be used by subclasses to specify if the data value can be converted to a more specific
+        # object.
+        #
+        # See: #convert
+        def convert?(data)
+          false
+        end
+
+        # Noop - just returns the data.
+        #
+        # Can be used by subclasses to convert the data to a more specific object.
+        #
+        # See: #convert?
+        def convert(data, document)
+          data
         end
 
       end
 
+      # Special handling of fields of type Dictionary and its subclasses.
+      class DictionaryField < Field
+
+        # :nodoc:
+        def initialize(*args)
+          super
+          @type << Hash
+        end
+
+        # Returns +true+ if the given data value can be converted to the Dictionary subclass
+        # specified as the type of this field.
+        def convert?(data)
+          !data.kind_of?(type.first) && (data.nil? || data.kind_of?(Hash) ||
+                                         data.kind_of?(HexaPDF::PDF::Dictionary))
+        end
+
+        # Wraps the given data value in the PDF specific type class of this field.
+        def convert(data, document)
+          document.wrap(data, type: type.first)
+        end
+
+      end
+
+      # Special handling for string fields to automatically convert a string into UTF-8 encoding on
+      # access.
+      class StringField < Field
+
+        # :nodoc:
+        def initialize(*args)
+          super
+          @type << String unless @type.include?(String)
+        end
+
+        # Returns +true+ if the given data should be converted to a UTF-8 encoded string.
+        def convert?(data)
+          data.kind_of?(String) && data.encoding == Encoding::BINARY && type[0] != PDFByteString
+        end
+
+        # Converts the string into UTF-8 encoding, assuming it is currently a binary string.
+        def convert(str, document)
+          if str.getbyte(0) == 254 && str.getbyte(1) == 255
+            str[2..-1].force_encoding(Encoding::UTF_16BE).encode(Encoding::UTF_8)
+          else
+            Utils::PDFDocEncoding.convert_to_utf8(str)
+          end
+        end
+
+      end
+
+      # Special handling for PDF date fields since they are stored as strings.
+      #
+      # The ISO PDF specification differs in respect to the supported date format. When converting
+      # from a date string to a Time object, this is taken into account.
+      #
+      # See: PDF1.7 s7.9.4, ADB1.7 3.8.3
+      class DateField < Field
+
+        # :nodoc:
+        def initialize(*args)
+          super
+          @type << String << Time << Date << DateTime
+        end
+
+        # :nodoc:
+        DATE_RE = /\AD:(\d{4})(\d\d)?(\d\d)?(\d\d)?(\d\d)?(\d\d)?([Z+-])?(?:(\d\d)')?(\d\d)?'?\z/n
+
+        # Returns +true+ if the given data should be converted to a Time object.
+        def convert?(data)
+          data.kind_of?(String) && data.encoding == Encoding::BINARY &&
+            data =~ DATE_RE
+        end
+
+        # Converts the string into a Time object.
+        def convert(str, document)
+          match = DATE_RE.match(str)
+          utc_offset = (match[7].nil? || match[7] == 'Z' ? 0 : "#{match[7]}#{match[8]}:#{match[9]}")
+          Time.new(match[1].to_i, (match[2] ? match[2].to_i : 1), (match[3] ? match[3].to_i : 1),
+                   match[4].to_i, match[5].to_i, match[6].to_i, utc_offset)
+        end
+
+      end
 
       # Defines an entry for the field +name+.
       #
@@ -101,21 +202,20 @@ module HexaPDF
       #        Boolean::    [TrueClass, FalseClass] (or use the Boolean constant)
       #        Integer::    Integer
       #        Real::       Float
-      #        String::     String
+      #        String::     String (for text strings), PDFByteString (for binary strings)
+      #        Date::       PDFDate
       #        Name::       Symbol
       #        Array::      Array
-      #        Dictionary:: Dictionary (or any subclass)
+      #        Dictionary:: Dictionary (or any subclass) or Hash
       #        Stream::     Stream (or any subclass)
       #        Null::       NilClass
       #
       #        If an array of classes is provided, the value can be an instance of any of these
       #        classes.
       #
-      #        For the automatic mapping of a raw value to a specific Dictionary subclass, this
-      #        subclass must be the only item or the first item in an array.
-      #
-      #        If a String object is provided, the class is looked up when necessary to support lazy
-      #        loading.
+      #        If a String object instead of a class is provided, the class is looked up when
+      #        necessary to support lazy loading. This should only be done for Dictionary
+      #        subclasses.
       #
       # required:: Specifies whether this field is required.
       #
@@ -129,7 +229,17 @@ module HexaPDF
       def self.define_field(name, type:, required: false, default: nil, indirect: nil,
                             version: '1.2')
         @fields ||= {}
-        @fields[name] = Field.new([type].flatten, required, default, indirect, version)
+        klass = if type.kind_of?(String) ||
+                    (type.respond_to?(:ancestors) && type.ancestors.include?(HexaPDF::PDF::Dictionary))
+                  DictionaryField
+                elsif type == String || type == PDFByteString
+                  StringField
+                elsif type == PDFDate
+                  DateField
+                else
+                  Field
+                end
+        @fields[name] = klass.new(type, required, default, indirect, version)
       end
 
       # Returns the field entry for the given field name.
@@ -152,7 +262,7 @@ module HexaPDF
       # classes.
       def self.each_field(&block) # :yields: name, data
         return to_enum(__method__) unless block_given?
-        superclass.each_field(&block) if superclass.respond_to?(:each_field)
+        superclass.each_field(&block) if self != Dictionary && superclass != Dictionary
         @fields.each(&block) if defined?(@fields)
       end
 
@@ -188,11 +298,11 @@ module HexaPDF
         data = if value.key?(name)
                  document.deref(value[name])
                elsif field && field.default?
-                 value[name] = field.dupped_default
+                 value[name] = field.default
                end
 
-        if field && field.wrap_data_with_type?(data)
-          value[name] = data = field.wrap_data_with_type(data, document)
+        if field && field.convert?(data)
+          value[name] = data = field.convert(data, document)
         elsif data.class == HexaPDF::PDF::Object
           data = data.value
         end
@@ -232,7 +342,7 @@ module HexaPDF
       # See: Object#validate for information on the available arguments.
       def validate_fields
         if (type_field = self.class.field(:Type)) && type_field.required? && type_field.default?
-          self[:Type] = type_field.dupped_default
+          self[:Type] = type_field.default
         end
 
         self.class.each_field do |name, field|
@@ -241,12 +351,11 @@ module HexaPDF
           # Check that required fields are set
           if field.required? && obj.nil?
             yield("Required field #{name} is not set", field.default?)
-            self[name] = obj = field.dupped_default
+            self[name] = obj = field.default
           end
 
           # Check the type of the field
-          if !obj.nil? && !field.type.any? {|t| obj.kind_of?(t)} &&
-              (!obj.kind_of?(HexaPDF::PDF::Object) || !field.type.any? {|t| obj.value.kind_of?(t)})
+          if !obj.nil? && !field.valid_object?(obj)
             yield("Type of field #{name} is invalid", false)
           end
 
