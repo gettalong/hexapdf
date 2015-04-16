@@ -214,8 +214,7 @@ module HexaPDF
             subtype ||= obj[:Subtype]
           end
 
-          klass = config['object.map'][[type, subtype]] || default
-          klass = ::Object.const_get(klass) if klass.kind_of?(String)
+          klass = config.constantize('object.map', [type, subtype]) || default
         end
 
         opts = {document: self}
@@ -308,9 +307,8 @@ module HexaPDF
       # option 'encryption.filter_map') is automatically set and used.
       def security_handler(use_standard_handler: true)
         if @security_handler.nil? && use_standard_handler
-          handler = config['encryption.filter_map'][:Standard]
-          handler = ::Object.const_get(handler) if handler.kind_of?(String)
-          @security_handler = handler.new(self)
+          handler = config.constantize('encryption.filter_map', :Standard)
+          @security_handler = handler.new(self) if handler
         end
         @security_handler
       end

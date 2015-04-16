@@ -69,9 +69,10 @@ module HexaPDF
         # used by the PDF file.
         def self.set_up_decryption(document, **decryption_opts)
           dict = document.unwrap(document.trailer[:Encrypt])
-          handler = document.config['encryption.filter_map'][dict[:Filter]]
-          handler = document.config['encryption.sub_filter_map'][dict[:SubFilter]] unless handler
-          handler = ::Object.const_get(handler) if handler.kind_of?(String)
+          handler = document.config.constantize('encryption.filter_map', dict[:Filter])
+          unless handler
+            handler = document.config.constantize('encryption.sub_filter_map', dict[:SubFilter])
+          end
 
           handler = handler.new(document)
           handler.set_up_decryption(dict, **decryption_opts)
@@ -286,12 +287,12 @@ module HexaPDF
 
         # Returns the class that is used for ARC4 encryption.
         def arc4_algorithm
-          @arc4_algorithm ||= ::Object.const_get(document.config['encryption.arc4'])
+          @arc4_algorithm ||= document.config.constantize('encryption.arc4')
         end
 
         # Returns the class that is used for AES encryption.
         def aes_algorithm
-          @aes_algorithm ||= ::Object.const_get(document.config['encryption.aes'])
+          @aes_algorithm ||= document.config.constantize('encryption.aes')
         end
 
         # Returns the class that is used for the identity algorithm which passes back the data as is

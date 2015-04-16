@@ -140,12 +140,12 @@ module HexaPDF
 
       # Returns the value for the configuration option +name+.
       def [](name)
-        @options[name]
+        options[name]
       end
 
       # Uses +value+ as the value for the configuration option +name+.
       def []=(name, value)
-        @options[name] = value
+        options[name] = value
       end
 
       # Returns a new Configuration object containing the options from the given configuration
@@ -158,6 +158,26 @@ module HexaPDF
         self.class.new(options.merge(config) do |k, old, new|
                          old.kind_of?(Hash) && new.kind_of?(Hash) ? old.merge(new) : new
                        end)
+      end
+
+      # :call-seq:
+      #   config.constantize(name, key = nil)                  -> constant or nil
+      #   config.constantize(name, key = nil) {|name| block}   -> obj
+      #
+      # Returns the constant the option +name+ is referring to. If +key+ is provided and the value
+      # of the option +name+ is a Hash, the constant to which +key+ refers is returned.
+      #
+      # If no constant can be found and no block is provided, +nil+ is returned. If a block is
+      # provided it is called with the option name and its result will be returned.
+      #
+      #   config.constantize('encryption.aes')      #=> HexaPDF::PDF::Encryption::FastAES
+      #   config.constantize('filter.map', :Fl)     #=> HexaPDF::PDF::Filter::FlateDecode
+      def constantize(name, key = nil)
+        data = self[name]
+        data = data[key] if key && data.kind_of?(Hash)
+        (data = ::Object.const_get(data) rescue nil) if data.kind_of?(String)
+        data = yield(name) if block_given? && data.nil?
+        data
       end
 
       protected

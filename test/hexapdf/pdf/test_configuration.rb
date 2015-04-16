@@ -38,4 +38,35 @@ describe HexaPDF::PDF::Configuration do
     assert_equal('HexaPDF::PDF::Filter::FlateDecode', config['filter.map'][:Fl])
   end
 
+  describe "constantize" do
+    it "returns a constant for an option with a string value" do
+      @default['test'] = 'HexaPDF'
+      assert_equal(HexaPDF, @default.constantize('test'))
+    end
+
+    it "returns a constant for an option with a constant as value" do
+      @default['test'] = HexaPDF
+      assert_equal(HexaPDF, @default.constantize('test'))
+    end
+
+    it "returns a constant for a nested option" do
+      @default['test'] = {'test' => 'HexaPDF', 'const' => HexaPDF}
+      assert_equal(HexaPDF, @default.constantize('test', 'test'))
+      assert_equal(HexaPDF, @default.constantize('test', 'const'))
+    end
+
+    it "returns nil for an unknown option" do
+      assert_nil(@default.constantize('unknown'))
+    end
+
+    it "returns nil for an unknown constant" do
+      @default['test'] = 'SomeUnknownConstant'
+      assert_nil(@default.constantize('test'))
+    end
+
+    it "returns the result of the given block when no constant is found" do
+      assert_equal(:test, @default.constantize('unk') {|name| assert_equal('unk', name); :test})
+    end
+  end
+
 end
