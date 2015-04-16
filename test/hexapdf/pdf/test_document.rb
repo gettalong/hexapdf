@@ -279,6 +279,15 @@ EOF
       assert_kind_of(@myclass, @doc.wrap(5, type: :MyClass))
       assert_kind_of(@myclass2, @doc.wrap(5, type: :MyClass, subtype: :TheSecond))
     end
+
+    it "directly uses a class given via the type argument" do
+      obj = @doc.wrap({a: :b}, type: @myclass, oid: 5)
+      assert_kind_of(@myclass, obj)
+      obj = @doc.wrap(obj, type: @myclass2)
+      assert_kind_of(@myclass2, obj)
+      assert_equal(:b, obj.value[:a])
+      assert_equal(5, obj.oid)
+    end
   end
 
   describe "unwrap" do

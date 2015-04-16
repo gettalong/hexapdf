@@ -243,8 +243,9 @@ module HexaPDF
       #
       # Options:
       #
-      # :type:: (Symbol) The type of a PDF object that should be used for wrapping. This could be,
-      #         for example, :Pages.
+      # :type:: (Symbol or Class) The type of a PDF object that should be used for wrapping. This
+      #         could be, for example, :Pages. If a class object is provided, it is used directly
+      #         instead of the type detection system.
       #
       # :sub_type:: (Symbol) The subtype of a PDF object which further qualifies a type. For
       #             example, image objects in PDF have a type of :XObject and a subtype of :Image.
@@ -265,20 +266,24 @@ module HexaPDF
           obj = obj.value
         end
 
-        default = if stream
-                    HexaPDF::PDF::Stream
-                  elsif obj.kind_of?(Hash)
-                    HexaPDF::PDF::Dictionary
-                  else
-                    HexaPDF::PDF::Object
-                  end
-        if obj.kind_of?(Hash)
-          type ||= obj[:Type]
-          subtype ||= obj[:Subtype]
-        end
+        if type.kind_of?(Class)
+          klass = type
+        else
+          default = if stream
+                      HexaPDF::PDF::Stream
+                    elsif obj.kind_of?(Hash)
+                      HexaPDF::PDF::Dictionary
+                    else
+                      HexaPDF::PDF::Object
+                    end
+          if obj.kind_of?(Hash)
+            type ||= obj[:Type]
+            subtype ||= obj[:Subtype]
+          end
 
-        klass = config['object.map'][[type, subtype]] || default
-        klass = ::Object.const_get(klass) if klass.kind_of?(String)
+          klass = config['object.map'][[type, subtype]] || default
+          klass = ::Object.const_get(klass) if klass.kind_of?(String)
+        end
 
         opts = {document: self}
         opts[:stream] = stream if stream
