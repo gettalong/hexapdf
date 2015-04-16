@@ -251,6 +251,10 @@ EOF
       assert_equal(10, new_obj.oid)
       assert_equal(20, new_obj.gen)
       refute_same(obj, new_obj)
+
+      obj = @doc.wrap({a: :b}, oid: 10, gen: 20)
+      new_obj = @doc.wrap(obj)
+      refute_same(obj, new_obj)
     end
 
     it "allows overrding the data of the given PDF object" do

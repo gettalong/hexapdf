@@ -261,7 +261,7 @@ module HexaPDF
         if obj.kind_of?(HexaPDF::PDF::Object)
           oid ||= obj.oid
           gen ||= obj.gen
-          stream ||= obj.raw_stream
+          stream ||= obj.raw_stream if obj.respond_to?(:raw_stream)
           obj = obj.value
         end
 
