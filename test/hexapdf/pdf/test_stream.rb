@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'ostruct'
 require 'stringio'
-require 'hexapdf/pdf/document'
+require 'hexapdf/pdf/configuration'
 require 'hexapdf/pdf/stream'
 
 
@@ -47,7 +47,7 @@ describe HexaPDF::PDF::Stream do
 
   before do
     @document = OpenStruct.new
-    @document.config = HexaPDF::PDF::Document.default_config
+    @document.config = HexaPDF::PDF::Configuration.default
     def (@document).unwrap(obj); obj; end
     def (@document).deref(obj); obj; end
 
@@ -94,7 +94,7 @@ describe HexaPDF::PDF::Stream do
   end
 
   def encoded_data(str, encoders = [])
-    map = HexaPDF::PDF::Document.default_config['filter.map']
+    map = HexaPDF::PDF::Configuration.default['filter.map']
     tmp = feeder(str)
     encoders.each {|e| tmp = ::Object.const_get(map[e]).encoder(tmp)}
     tmp

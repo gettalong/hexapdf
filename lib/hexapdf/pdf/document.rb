@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
+require 'hexapdf/pdf/configuration'
 require 'hexapdf/pdf/reference'
 require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/stream'
@@ -22,72 +23,6 @@ module HexaPDF
     # Note: This class provides everything to work on PDF documents on a low-level basis. This means
     # that there are no convenience methods for higher PDF functionality whatsoever.
     class Document
-
-      # The default configuration for a PDF document.
-      #
-      # The configuration contains options that can change the built-in behavior of the base classes
-      # on which a document is built or which are used to read or write it.
-      #
-      # Available configuration keys:
-      #
-      # filter.map::
-      #    A mapping from a PDF name (a Symbol) to a filter object (see Filter). If the value is a
-      #    String, it should contain the name of a constant that contains a filter object.
-      #
-      # object.map::
-      #    A mapping from [Type, Subtype] entries to PDF object classes. If the value is a String,
-      #    it should contain the name of a constant that contains a PDF object class.
-      #
-      #    This mapping is used to provide automatic wrapping of objects in the #wrap method.
-      #
-      # io.chunk_size::
-      #    The size of the chunks that are used when reading IO data.
-      #
-      #    This can be used to limit the memory needed for reading or writing PDF files with huge
-      #    stream objects.
-      #
-      # parser.on_correctable_error::
-      #    Callback hook when the parser encounters an error that is potentially correctable.
-      #
-      #    The value needs to be an object that responds to \#call(document, message, position) and
-      #    returns +true+ if an error should be raised.
-      def self.default_config
-        {
-          # See PDF1.7 s7.4.1, ADB sH.3 3.3
-          'filter.map' => {
-            ASCIIHexDecode: 'HexaPDF::PDF::Filter::ASCIIHexDecode',
-            AHx: 'HexaPDF::PDF::Filter::ASCIIHexDecode',
-            ASCII85Decode: 'HexaPDF::PDF::Filter::ASCII85Decode',
-            A85: 'HexaPDF::PDF::Filter::ASCII85Decode',
-            LZWDecode: 'HexaPDF::PDF::Filter::LZWDecode',
-            LZW: 'HexaPDF::PDF::Filter::LZWDecode',
-            FlateDecode: 'HexaPDF::PDF::Filter::FlateDecode',
-            Fl: 'HexaPDF::PDF::Filter::FlateDecode',
-            RunLengthDecode: 'HexaPDF::PDF::Filter::RunLengthDecode',
-            RL: 'HexaPDF::PDF::Filter::RunLengthDecode',
-            CCITTFaxDecode: nil,
-            CCF: nil,
-            JBIG2Decode: nil,
-            DCTDecode: 'HexaPDF::PDF::Filter::DCTDecode',
-            DCT: 'HexaPDF::PDF::Filter::DCTDecode',
-            JPXDecode: 'HexaPDF::PDF::Filter::JPXDecode',
-            Crypt: nil
-          },
-          'object.map' => {
-            [:XRef, nil] => 'HexaPDF::PDF::Type::XRefStream',
-            [:ObjStm, nil] => 'HexaPDF::PDF::Type::ObjectStream',
-          },
-          'io.chunk_size' => 2**16,
-          'parser.on_correctable_error' => proc { false },
-          'encryption.arc4' => 'HexaPDF::PDF::Encryption::FastARC4',
-          'encryption.aes' => 'HexaPDF::PDF::Encryption::FastAES',
-          'encryption.filter_map' => {
-            Standard: 'HexaPDF::PDF::Encryption::StandardSecurityHandler',
-          },
-          'encryption.sub_filter_map' => {
-          },
-        }
-      end
 
       # The configuration for the document.
       attr_reader :config
@@ -111,9 +46,7 @@ module HexaPDF
       #          configuration options hash (see ::default_config), meaning that direct sub-hashes
       #          are merged instead of overwritten.
       def initialize(io: nil, decryption_opts: {}, config: {})
-        @config = self.class.default_config.merge(config) do |k, old, new|
-          old.kind_of?(Hash) && new.kind_of?(Hash) ? old.merge(new) : new
-        end
+        @config = Configuration.with_defaults(config)
 
         @revisions = Revisions.from_io(self, io)
         if encrypted?
