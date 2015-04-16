@@ -87,8 +87,7 @@ EOF
   def assert_document_conversion(input_io)
     document = HexaPDF::PDF::Document.new(io: input_io)
     output_io = StringIO.new(''.force_encoding(Encoding::BINARY))
-    writer = HexaPDF::PDF::Writer.new(document, output_io)
-    writer.write
+    HexaPDF::PDF::Writer.write(document, output_io)
     assert_equal(input_io.string, output_io.string)
   end
 

@@ -360,4 +360,12 @@ EOF
     end
   end
 
+  describe "write" do
+    it "writes the document to an IO object" do
+      io = StringIO.new(''.b)
+      @doc.write(io)
+      refute(io.string.empty?)
+    end
+  end
+
 end

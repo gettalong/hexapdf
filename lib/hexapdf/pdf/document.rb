@@ -7,6 +7,7 @@ require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/revisions'
 require 'hexapdf/pdf/type'
 require 'hexapdf/pdf/encryption'
+require 'hexapdf/pdf/writer'
 
 module HexaPDF
   module PDF
@@ -392,6 +393,11 @@ module HexaPDF
       def security_handler=(handler)
         @security_handler = handler
         trailer.value.delete(:Encrypt) if handler.nil?
+      end
+
+      # Writes the document to the IO stream.
+      def write(io)
+        Writer.write(self, io)
       end
 
     end

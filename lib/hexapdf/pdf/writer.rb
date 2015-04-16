@@ -12,6 +12,11 @@ module HexaPDF
     # Writes the contents of a PDF document to an IO stream.
     class Writer
 
+      # Writes the document to the IO object.
+      def self.write(document, io)
+        new(document, io).write
+      end
+
       # Creates a new writer object for the given HexaPDF document that gets written to the IO
       # object.
       def initialize(document, io)
