@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+require 'time'
 require 'hexapdf/pdf/tokenizer'
 require 'hexapdf/pdf/filter'
 require 'hexapdf/pdf/utils/lru_cache'
@@ -162,6 +163,30 @@ module HexaPDF
           obj = obj.b
         end
         "(" << obj.gsub(/[\(\)\\\r]/n) {|m| STRING_ESCAPE_MAP[m]} << ")".freeze
+      end
+
+      # The ISO PDF specification differs in respect to the supported date format. When converting
+      # to a date string, a format suitable for both is output.
+      #
+      # See: PDF1.7 s7.9.4, ADB1.7 3.8.3
+      def serialize_time(obj)
+        zone = obj.strftime("%z'")
+        if zone == "+0000'"
+          zone = ''
+        else
+          zone[3, 0] = "'"
+        end
+        serialize_string(obj.strftime("D:%Y%m%d%H%M%S#{zone}"))
+      end
+
+      # See: #serialize_time
+      def serialize_date(obj)
+        serialize_time(obj.to_time)
+      end
+
+      # See: #serialize_time
+      def serialize_datetime(obj)
+        serialize_time(obj.to_time)
       end
 
       # Just serializes the objects value.

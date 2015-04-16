@@ -85,6 +85,14 @@ describe HexaPDF::PDF::Serializer do
                       "Hal\f\b(")
   end
 
+  it "serializes time like objects" do
+    assert_serialized("(D:20150416094100)", Time.new(2015, 04, 16, 9, 41, 0, 0))
+    assert_serialized("(D:20150416094100+01'00')", Time.new(2015, 04, 16, 9, 41, 0, 3600))
+    assert_serialized("(D:20150416094100-01'20')", Time.new(2015, 04, 16, 9, 41, 0, -4800))
+    assert_serialized("(D:20150416000000+02'00')", Date.parse("2015-04-16 9:41:00 +02:00"))
+    assert_serialized("(D:20150416094100+02'00')", DateTime.parse("2015-04-16 9:41:00 +02:00"))
+  end
+
   it "serializes HexaPDF objects" do
     assert_serialized("/Name", HexaPDF::PDF::Object.new(:Name))
   end
