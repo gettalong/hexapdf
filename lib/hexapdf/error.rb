@@ -15,12 +15,8 @@ module HexaPDF
     #
     # The byte position where the error occured can be given via the optional +pos+ argument.
     def initialize(msg_or_error, pos: nil)
-      if msg_or_error.kind_of?(String)
-        super(msg_or_error)
-      else
-        super(msg_or_error.message)
-        set_backtrace(msg_or_error.backtrace)
-      end
+      super(msg_or_error)
+      set_backtrace(msg_or_error.backtrace) if msg_or_error.kind_of?(Exception)
       @pos = pos
     end
 
