@@ -75,7 +75,6 @@ module HexaPDF
           'object.map' => {
             [:XRef, nil] => 'HexaPDF::PDF::Type::XRefStream',
             [:ObjStm, nil] => 'HexaPDF::PDF::Type::ObjectStream',
-            [:Trailer, nil] => 'HexaPDF::PDF::Type::Trailer',
           },
           'io.chunk_size' => 2**16,
           'parser.on_correctable_error' => proc { false },
