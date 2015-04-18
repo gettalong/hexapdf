@@ -200,7 +200,7 @@ module HexaPDF
         # See: PDF1.7 s7.6.2
         def decrypt(obj)
           return obj if obj == document.trailer[:Encrypt] ||
-            (obj.value.kind_of?(Hash) && obj.value[:Type] == :XRef)
+            (obj.kind_of?(Dictionary) && obj[:Type] == :XRef)
 
           key = object_key(obj.oid, obj.gen, string_algorithm)
           each_string_in_object(obj.value) do |str|
@@ -223,7 +223,7 @@ module HexaPDF
         # See: PDF1.7 s7.6.2
         def encrypt_string(str, obj)
           return str if str.empty? || obj == document.trailer[:Encrypt] ||
-            (obj.value.kind_of?(Hash) && obj.value[:Type] == :XRef)
+            (obj.kind_of?(Dictionary) && obj[:Type] == :XRef)
 
           key = object_key(obj.oid, obj.gen, string_algorithm)
           string_algorithm.encrypt(key, str)
