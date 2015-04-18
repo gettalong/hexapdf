@@ -52,6 +52,7 @@ module HexaPDF
             i += new_revisions.length - 1
           end
 
+          document.version = parser.file_header_version
           self.new(document, initial_revisions: revisions)
         end
 

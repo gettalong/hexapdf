@@ -48,8 +48,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.5.2
       def write_file_header
-        #TODO: Need some method to calculate pdf version
-        @io << "%PDF-1.7\n%\xCF\xEC\xFF\xE8\xD7\xCB\xCD\n"
+        @io << "%PDF-#{@document.version}\n%\xCF\xEC\xFF\xE8\xD7\xCB\xCD\n"
       end
 
       # Writes the given revision.

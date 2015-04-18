@@ -368,4 +368,28 @@ EOF
     end
   end
 
+  describe "version" do
+    it "uses the file header version of a loaded document" do
+      assert_equal('1.7', @io_doc.version)
+    end
+
+    it "uses the default version for a new document" do
+      assert_equal('1.2', @doc.version)
+    end
+
+    it "uses the catalog's /Version entry if it points to a later version" do
+      @doc.trailer[:Root][:Version] = '1.4'
+      assert_equal('1.4', @doc.version)
+    end
+
+    it "allows setting the version" do
+      @doc.version = '1.4'
+      assert_equal('1.4', @doc.version)
+    end
+
+    it "fails setting a version with an invalid format" do
+      assert_raises(HexaPDF::Error) { @doc.version = 'bla' }
+    end
+  end
+
 end

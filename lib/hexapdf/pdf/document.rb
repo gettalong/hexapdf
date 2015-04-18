@@ -47,6 +47,7 @@ module HexaPDF
       #          are merged instead of overwritten.
       def initialize(io: nil, decryption_opts: {}, config: {})
         @config = Configuration.with_defaults(config)
+        @version = '1.2'
 
         @revisions = Revisions.from_io(self, io)
         if encrypted?
@@ -286,6 +287,25 @@ module HexaPDF
       # Returns the trailer dictionary for the document.
       def trailer
         @revisions.current.trailer
+      end
+
+      # Returns the PDF documents version as string (e.g. '1.4').
+      #
+      # This method takes the file header version and the catalog's /Version key into account. If a
+      # version has been set manually and the catalog's /Version key refers to a later version, the
+      # later version is used.
+      #
+      # See: PDF1.7 s7.2.2
+      def version
+        catalog_version = (trailer[:Root][:Version] || '1.0'.freeze).to_s
+        (@version < catalog_version ? catalog_version : @version)
+      end
+
+      # Sets the version of the PDF document. The argument must be a string in the format 'M.N'
+      # where M is the major version and N the minor version (e.g. '1.4' or '2.0').
+      def version=(value)
+        raise HexaPDF::Error, "PDF version must follow format M.N" unless value.to_s =~ /\A\d\.\d\z/
+        @version = value.to_s
       end
 
       # Returns +true+ if the document is encrypted.

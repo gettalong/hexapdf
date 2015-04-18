@@ -261,7 +261,7 @@ EOF
 
   describe "file_header_version" do
     it "returns the correct version" do
-      assert_equal(:'1.7', @parser.file_header_version)
+      assert_equal('1.7', @parser.file_header_version)
     end
 
     it "fails if the header is mangled" do
@@ -272,7 +272,7 @@ EOF
 
     it "ignores junk at the beginning of the file and correctly calculates offset" do
       set_string("junk" * 200 + "\n%PDF-1.4\n")
-      assert_equal(:'1.4', @parser.file_header_version)
+      assert_equal('1.4', @parser.file_header_version)
       assert_equal(801, @parser.instance_variable_get(:@header_offset))
     end
   end

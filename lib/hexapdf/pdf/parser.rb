@@ -270,7 +270,7 @@ module HexaPDF
         unless @header_version
           raise_malformed("PDF file header is missing or corrupt", pos: 0)
         end
-        @header_version.to_sym
+        @header_version
       end
 
       private
