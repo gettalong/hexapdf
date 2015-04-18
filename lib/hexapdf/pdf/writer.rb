@@ -3,8 +3,6 @@
 require 'hexapdf/error'
 require 'hexapdf/pdf/serializer'
 require 'hexapdf/pdf/xref_section'
-require 'hexapdf/pdf/type/xref_stream'
-require 'hexapdf/pdf/type/object_stream'
 
 module HexaPDF
   module PDF
@@ -68,7 +66,7 @@ module HexaPDF
             xref_section.add_free_entry(obj.oid, obj.gen)
           elsif (objstm = object_streams.find {|stm| stm.object_index(obj)})
             xref_section.add_compressed_entry(obj.oid, objstm.oid, objstm.object_index(obj))
-          elsif !obj.kind_of?(Type::XRefStream)
+          elsif !obj.kind_of?(Dictionary) || obj[:Type] != :XRef
             xref_section.add_in_use_entry(obj.oid, obj.gen, @io.pos)
             write_indirect_object(obj)
           end
@@ -108,9 +106,9 @@ module HexaPDF
         object_streams = []
 
         rev.each do |obj|
-          if obj.kind_of?(Type::ObjectStream)
+          if obj.kind_of?(Dictionary) && obj[:Type] == :ObjStm
             object_streams << obj
-          elsif obj.kind_of?(Type::XRefStream)
+          elsif obj.kind_of?(Dictionary) && obj[:Type] == :XRef
             unless xref_stream.nil?
               raise HexaPDF::Error, "A revision can only have one xref stream, at least two found"
             end

@@ -4,8 +4,6 @@ require 'hexapdf/error'
 require 'hexapdf/pdf/tokenizer'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/xref_section'
-require 'hexapdf/pdf/type/xref_stream'
-require 'hexapdf/pdf/type/object_stream'
 
 module HexaPDF
   module PDF
