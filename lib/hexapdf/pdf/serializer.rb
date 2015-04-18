@@ -189,9 +189,14 @@ module HexaPDF
         serialize_time(obj.to_time)
       end
 
-      # Just serializes the objects value.
+      # Uses #serialize_hexapdf_pdf_reference if it is an indirect object, otherwise just serializes
+      # the objects value.
       def serialize_hexapdf_pdf_object(obj)
-        __serialize(obj.value)
+        if obj.oid != 0 && obj != @object
+          serialize_hexapdf_pdf_reference(obj)
+        else
+          __serialize(obj.value)
+        end
       end
 
       # See: PDF1.7 s7.3.10

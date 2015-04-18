@@ -95,6 +95,9 @@ describe HexaPDF::PDF::Serializer do
 
   it "serializes HexaPDF objects" do
     assert_serialized("/Name", HexaPDF::PDF::Object.new(:Name))
+    assert_serialized("/Name", HexaPDF::PDF::Object.new(:Name, oid: 1))
+    assert_serialized("<</Name 2 0 R>>",
+                      HexaPDF::PDF::Object.new({Name: HexaPDF::PDF::Object.new(5, oid: 2)}, oid: 1))
   end
 
   it "serializes HexaPDF reference objects" do
