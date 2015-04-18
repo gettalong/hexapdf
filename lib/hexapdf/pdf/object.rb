@@ -140,7 +140,7 @@ module HexaPDF
       def validate(auto_correct: true, &block)
         validator_block = lambda do |msg, correctable|
           block.call(msg, correctable) if block
-          throw(:not_correctable) unless auto_correct && correctable
+          throw(:not_correctable, false) unless auto_correct && correctable
         end
         catch(:not_correctable) do
           self.class.each_validator do |validator|
