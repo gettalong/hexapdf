@@ -197,13 +197,13 @@ module HexaPDF
       # filter.
       def set_filter(filter, decode_parms = nil)
         if filter.nil? || (filter.kind_of?(Array) && filter.empty?)
-          value.delete(:Filter)
+          delete(:Filter)
         else
           self[:Filter] = filter
         end
         if decode_parms.nil? || (decode_parms.kind_of?(Array) && decode_parms.empty?) ||
             !value.key?(:Filter)
-          value.delete(:DecodeParms)
+          delete(:DecodeParms)
         else
           self[:DecodeParms] = decode_parms
         end

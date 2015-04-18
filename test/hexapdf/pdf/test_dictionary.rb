@@ -308,6 +308,17 @@ describe HexaPDF::PDF::Dictionary do
     end
   end
 
+  describe "delete" do
+    it "deletes an entry from the underlying hash value and returns its value" do
+      assert_equal(5, @dict.delete(:Other))
+      refute(@dict.value.key?(:Other))
+    end
+
+    it "returns nil if no entry with the given name exists" do
+      assert_nil(@dict.delete(:SomethingUnknown))
+    end
+  end
+
   describe "to_hash" do
     it "returns a shallow copy of the value" do
       obj = @dict.to_hash

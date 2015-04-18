@@ -327,6 +327,12 @@ module HexaPDF
         end
       end
 
+      # Deletes the name-value pair from the dictionary and returns the value. If such a pair does
+      # not exist, +nil+ is returned.
+      def delete(name)
+        value.delete(name) { nil }
+      end
+
       # Returns a dup of the underlying hash.
       def to_hash
         value.dup

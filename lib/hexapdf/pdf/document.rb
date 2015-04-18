@@ -323,7 +323,7 @@ module HexaPDF
       # See: #security_handler
       def security_handler=(handler)
         @security_handler = handler
-        trailer.value.delete(:Encrypt) if handler.nil?
+        trailer.delete(:Encrypt) if handler.nil?
       end
 
       # Writes the document to the IO stream.
