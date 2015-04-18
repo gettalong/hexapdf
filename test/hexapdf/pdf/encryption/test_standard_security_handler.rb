@@ -52,6 +52,51 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
   end
 
 
+  describe "StandardEncryptionDictionary" do
+    before do
+      @dict = @handler.class::StandardEncryptionDictionary.new({}, document: @document)
+      @dict[:Filter] = :Standard
+      @dict[:V] = 1
+      @dict[:R] = 2
+      @dict[:U] = 'test'*8
+      @dict[:O] = 'test'*8
+      @dict[:P] = -5
+      @dict[:UE] = 'test'*8
+      @dict[:OE] = 'test'*8
+      @dict[:Perms] = 'test'*8
+    end
+
+    it "validates the /R value" do
+      @dict[:R] = 2
+      assert(@dict.validate)
+      @dict[:R] = 5
+      refute(@dict.validate)
+    end
+
+    [:U, :O].each do |field|
+      it "validates the length of /#{field} field for R <= 4" do
+        @dict[field] = 'test'
+        refute(@dict.validate)
+      end
+    end
+
+    [:U, :O, :UE, :OE, :Perms].each do |field|
+      it "validates the length of /#{field} field for R=6" do
+        @dict[:R] = 6
+        @dict[field] = 'test'
+        refute(@dict.validate)
+      end
+    end
+
+    [:UE, :OE, :Perms].each do |field|
+      it "validates the existence of the /#{field} field for R=6" do
+        @dict[:R] = 6
+        @dict.delete(field)
+        refute(@dict.validate)
+      end
+    end
+  end
+
   describe "prepare_encrypt_dict" do
 
     ALIAS = HexaPDF::PDF::Encryption::StandardSecurityHandler

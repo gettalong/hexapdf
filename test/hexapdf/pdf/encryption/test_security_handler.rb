@@ -40,6 +40,36 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
   end
 
 
+  describe "EncryptionDictionary" do
+    before do
+      @dict = @handler.class::EncryptionDictionary.new({}, document: @document)
+      @dict[:Filter] = :Standard
+      @dict[:V] = 1
+    end
+
+    it "validates the /V value" do
+      @dict[:V] = 1
+      assert(@dict.validate)
+      @dict[:V] = 3
+      refute(@dict.validate)
+    end
+
+    it "validates the /Length field when /V=2" do
+      @dict[:V] = 2
+      refute(@dict.validate)
+
+      @dict[:Length] = 32
+      refute(@dict.validate)
+      @dict[:Length] = 136
+      refute(@dict.validate)
+      @dict[:Length] = 55
+      refute(@dict.validate)
+
+      @dict[:Length] = 120
+      assert(@dict.validate)
+    end
+  end
+
   describe "set_up_encryption" do
 
     it "sets the trailer's /Encrypt entry to an encryption dictionary with a custom class" do

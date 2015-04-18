@@ -34,12 +34,36 @@ module HexaPDF
 
           define_field :R, type: Integer, required: true
           define_field :O, type: PDFByteString, required: true
-          define_field :OE, type: PDFByteString, required: true, version: '2.0'
+          define_field :OE, type: PDFByteString, version: '2.0'
           define_field :U, type: PDFByteString, required: true
-          define_field :UE, type: PDFByteString, required: true, version: '2.0'
+          define_field :UE, type: PDFByteString, version: '2.0'
           define_field :P, type: Integer, required: true
-          define_field :Perms, type: PDFByteString, required: true, version: '2.0'
+          define_field :Perms, type: PDFByteString, version: '2.0'
           define_field :EncryptMetadata, type: Boolean, default: true, version: '1.5'
+
+          define_validator(:validate_standard_encrypt_dict)
+
+          private
+
+          # Validates the fields special for this encryption dictionary.
+          def validate_standard_encrypt_dict
+            case value[:R]
+            when 2, 3, 4
+              if value[:U].length != 32 || value[:O].length != 32
+                yield("Invalid size for /U or /O values for revisions <= 4", false)
+              end
+            when 6
+              if !value.key?(:OE) || !value.key?(:UE) || !value.key?(:Perms)
+                yield("Value of /OE, /UE or /Perms is missing for dictionary revision 6", false)
+              end
+              if value[:U].length != 48 || value[:O].length != 48 || value[:UE].length == 32 ||
+                  value[:OE].length != 32 || value[:Perms].length != 16
+                yield("Invalid size for /U, /O, /UE, /OE or /Perms values for revisions 6", false)
+              end
+            else
+              yield("Value of /R is not one of 2, 3, 4 or 6", false)
+            end
+          end
 
         end
 
