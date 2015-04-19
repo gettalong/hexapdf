@@ -473,7 +473,7 @@ module HexaPDF
           if dict[:R] <= 4
             password.to_s[0, 32].ljust(32, PASSWORD_PADDING).force_encoding(Encoding::BINARY)
           elsif dict[:R] == 6
-            password.to_s.encode(Encoding::UTF_8)[0, 127].force_encoding(Encoding::BINARY)
+            password.to_s.encode(Encoding::UTF_8).force_encoding(Encoding::BINARY)[0, 127]
           end
         end
 
