@@ -268,4 +268,17 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
 
   end
 
+
+  it "works correctly with different decryption and encryption handlers" do
+    test_file = File.join(TEST_DATA_DIR, 'standard-security-handler', 'nopwd-arc4-40bit-V1.pdf')
+    doc = HexaPDF::PDF::Document.new(io: StringIO.new(File.read(test_file)))
+    doc.security_handler.set_up_encryption(algorithm: :aes, password: 'test')
+    out = StringIO.new(''.b)
+    doc.write(out)
+
+    assert_raises(HexaPDF::EncryptionError) { HexaPDF::PDF::Document.new(io: out) }
+    doc = HexaPDF::PDF::Document.new(io: out, decryption_opts: {password: 'test'})
+    assert_equal('D:20150409164600', doc.trailer[:Info].value[:ModDate])
+  end
+
 end
