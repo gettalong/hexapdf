@@ -133,9 +133,10 @@ module HexaPDF
           data = ''.force_encoding(Encoding::BINARY)
           serializer = Serializer.new
 
+          encrypt_dict = document.trailer[:Encrypt]
           while index < objects.size / 2
             obj = revision.object(objects[index])
-            if obj.nil? || obj.null? || obj.gen != 0 || obj.kind_of?(Stream)
+            if obj.nil? || obj.null? || obj.gen != 0 || obj.kind_of?(Stream) || obj == encrypt_dict
               delete_object(objects[index])
               next
             end
