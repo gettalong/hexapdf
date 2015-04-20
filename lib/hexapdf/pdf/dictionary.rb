@@ -346,11 +346,7 @@ module HexaPDF
       # Performs validation tasks based on the defined fields.
       #
       # See: Object#validate for information on the available arguments.
-      def validate_fields
-        if (type_field = self.class.field(:Type)) && type_field.required? && type_field.default?
-          self[:Type] = type_field.default
-        end
-
+      def validate_fields(&block)
         self.class.each_field do |name, field|
           obj = value.key?(name) && document.deref(value[name]) || nil
 
