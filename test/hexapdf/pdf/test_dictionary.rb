@@ -68,7 +68,6 @@ describe HexaPDF::PDF::Dictionary do
       obj = @field.convert(nil, self)
       assert_kind_of(@test_class, obj)
       assert_equal(self, obj.document)
-      assert_equal(0, obj.value.length)
     end
 
     it "allows conversion from a hash" do
@@ -191,8 +190,16 @@ describe HexaPDF::PDF::Dictionary do
 
   end
 
-  it "fails initialization if the value is not a hash" do
-    assert_raises(HexaPDF::Error) { HexaPDF::PDF::Dictionary.new(:Name) }
+  describe "value=" do
+    it "fails if the value is not a hash" do
+      assert_raises(HexaPDF::Error) { HexaPDF::PDF::Dictionary.new(:Name) }
+    end
+
+    it "sets the default value for a required field that has one" do
+      @test_class.define_field(:Type, type: Symbol, required: true, default: :MyType)
+      obj = @test_class.new(nil)
+      assert_equal(:MyType, obj.value[:Type])
+    end
   end
 
   describe "[]" do
