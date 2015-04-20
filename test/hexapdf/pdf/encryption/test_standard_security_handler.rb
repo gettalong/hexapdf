@@ -98,12 +98,9 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
   end
 
   describe "prepare_encrypt_dict" do
-
-    ALIAS = HexaPDF::PDF::Encryption::StandardSecurityHandler
-
     it "sets the trailer's /Encrypt entry to an encryption dictionary with a custom class" do
       @handler.set_up_encryption
-      assert_kind_of(ALIAS::StandardEncryptionDictionary, @document.trailer[:Encrypt])
+      assert_kind_of(@handler.class::StandardEncryptionDictionary, @document.trailer[:Encrypt])
     end
 
     it "sets the correct revision independent /Filter value" do
@@ -113,14 +110,15 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
 
     it "sets the correct revision independent /P value" do
       @handler.set_up_encryption
-      assert_equal(ALIAS::Permissions::ALL|ALIAS::Permissions::RESERVED,
+      assert_equal(@handler.class::Permissions::ALL|@handler.class::Permissions::RESERVED,
                    @document.trailer[:Encrypt][:P])
-      @handler.set_up_encryption(permissions: ALIAS::Permissions::MODIFY_CONTENT)
-      assert_equal(ALIAS::Permissions::MODIFY_CONTENT|ALIAS::Permissions::RESERVED,
+      @handler.set_up_encryption(permissions: @handler.class::Permissions::COPY_CONTENT)
+      assert_equal(@handler.class::Permissions::COPY_CONTENT|@handler.class::Permissions::RESERVED,
                    @document.trailer[:Encrypt][:P])
       @handler.set_up_encryption(permissions: [:modify_content, :modify_annotation])
-      assert_equal(ALIAS::Permissions::MODIFY_CONTENT|ALIAS::Permissions::MODIFY_ANNOTATION|
-                   ALIAS::Permissions::RESERVED,
+      assert_equal(@handler.class::Permissions::MODIFY_CONTENT|
+                   @handler.class::Permissions::MODIFY_ANNOTATION|
+                   @handler.class::Permissions::RESERVED,
                    @document.trailer[:Encrypt][:P])
     end
 
@@ -203,12 +201,10 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
     it "fails for unknown keywords" do
       assert_raises(HexaPDF::Error) { @handler.set_up_encryption(unknown: 'test') }
     end
-
   end
 
 
   describe "prepare_decryption" do
-
     it "fails if the /Filter value is incorrect" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
         @handler.set_up_decryption({Filter: :NonStandard, V: 2})
@@ -271,7 +267,12 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
         assert_equal('test', @handler.decrypt(obj).value)
       end
     end
+  end
 
+  it "returns an array of permission symbols" do
+    perms = @handler.class::Permissions::MODIFY_CONTENT|@handler.class::Permissions::COPY_CONTENT
+    @handler.set_up_encryption(permissions: perms)
+    assert_equal([:copy_content, :modify_content], @handler.permissions.sort)
   end
 
 end

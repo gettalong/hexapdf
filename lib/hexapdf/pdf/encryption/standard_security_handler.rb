@@ -121,6 +121,18 @@ module HexaPDF
             :high_quality_print => HIGH_QUALITY_PRINT
           }
 
+          # Maps a permission value to its symbol
+          PERMISSON_TO_SYMBOL = {
+            PRINT => :print,
+            MODIFY_CONTENT => :modify_content,
+            COPY_CONTENT => :copy_content,
+            MODIFY_ANNOTATION => :modify_annotation,
+            FILL_IN_FORMS => :fill_in_forms,
+            EXTRACT_CONTENT => :extract_content,
+            ASSEMBLE_DOCUMENT => :assemble_document,
+            HIGH_QUALITY_PRINT => :high_quality_print
+          }
+
         end
 
         # Defines all possible options that can be passed to a StandardSecurityHandler when setting
@@ -270,6 +282,15 @@ module HexaPDF
           check_perms_field(encryption_key) if check_permissions && dict[:R] == 6
 
           encryption_key
+        end
+
+        # Returns the permissions of the managed dictionary as array of symbol values.
+        #
+        # See: Permissions
+        def permissions
+          Permissions::PERMISSON_TO_SYMBOL.each_with_object([]) do |(perm, sym), result|
+            result << sym if dict[:P] & perm == perm
+          end
         end
 
         private
