@@ -307,6 +307,14 @@ describe HexaPDF::PDF::Dictionary do
       assert(@obj.validate(auto_correct: true))
       assert_equal(1, @obj.value[:TestClass].oid)
     end
+
+    it "validates values that are PDF objects" do
+      @test_class.field(:TestClass).instance_variable_set(:@indirect, nil)
+      @obj.value[:TestClass] = @test_class.new(nil, document: self)
+      refute(@obj.validate)
+      @obj.value[:TestClass][:Inherited] = :symbol
+      assert(@obj.validate)
+    end
   end
 
   describe "delete" do

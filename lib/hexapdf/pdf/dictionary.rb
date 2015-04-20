@@ -382,9 +382,14 @@ module HexaPDF
               value[name] = obj = obj.value
             end
           end
-        end
 
-        true
+          # Validate the field values if they are direct PDF objects
+          if obj.kind_of?(HexaPDF::PDF::Object) && obj.oid == 0
+            obj.validate do |msg, correctable|
+              yield("Field #{name}: #{msg}", correctable)
+            end
+          end
+        end
       end
 
     end
