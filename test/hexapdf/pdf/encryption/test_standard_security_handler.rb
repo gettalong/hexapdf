@@ -186,6 +186,10 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
       crypt_filter.call(dict, 6, :AESV3, 32)
     end
 
+    it "fails for unknown keywords" do
+      assert_raises(HexaPDF::Error) { @handler.set_up_encryption(unknown: 'test') }
+    end
+
   end
 
 

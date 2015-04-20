@@ -147,11 +147,14 @@ module HexaPDF
 
           # :nodoc:
           def initialize(data = {})
-            @user_password = data.fetch(:user_password, '')
-            @owner_password = data.fetch(:owner_password, '')
-            @permissions = process_permissions(data.fetch(:permissions, Permissions::ALL))
-            @algorithm = data.fetch(:algorithm, :arc4)
-            @encrypt_metadata = data.fetch(:encrypt_metadata, true)
+            @user_password = data.delete(:user_password) { '' }
+            @owner_password = data.delete(:owner_password) { ''}
+            @permissions = process_permissions(data.delete(:permissions) { Permissions::ALL })
+            @algorithm = data.delete(:algorithm) { :arc4 }
+            @encrypt_metadata = data.delete(:encrypt_metadata) { true }
+            if data.size > 0
+              raise HexaPDF::Error, "Invalid encryption options: #{data.keys.join(', ')}"
+            end
           end
 
           private
