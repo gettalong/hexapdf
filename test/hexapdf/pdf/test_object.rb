@@ -12,6 +12,24 @@ describe HexaPDF::PDF::Object do
   end
 
   describe "validation" do
+    it "allows nesting validate calls" do
+      nested_klass = Class.new(HexaPDF::PDF::Object)
+      nested_klass.define_validator do |obj, &block|
+        block.call("error", false)
+      end
+      klass = Class.new(HexaPDF::PDF::Object)
+      klass.define_validator do |obj, &block|
+        nested_klass.new(5).validate do |msg, correctable|
+          block.call("nested:#{msg}", correctable)
+        end
+      end
+      obj = klass.new(5)
+      obj.validate do |msg, correctable|
+        assert_equal("nested:error", msg)
+        refute(correctable)
+      end
+    end
+
     it "allows adding and retrieving class level validators for instance methods" do
       klass = Class.new(HexaPDF::PDF::Object)
       klass.define_validator(:validate_me)

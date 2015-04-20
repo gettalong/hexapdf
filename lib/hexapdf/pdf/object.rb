@@ -138,11 +138,12 @@ module HexaPDF
       # doesn't currently implement the full PDF spec. However, if the return value is +false+,
       # there is certainly a problem!
       def validate(auto_correct: true, &block)
+        catch_tag = ::Object.new
         validator_block = lambda do |msg, correctable|
           block.call(msg, correctable) if block
-          throw(:not_correctable, false) unless auto_correct && correctable
+          throw(catch_tag, false) unless auto_correct && correctable
         end
-        catch(:not_correctable) do
+        catch(catch_tag) do
           self.class.each_validator do |validator|
             if validator.respond_to?(:call)
               validator.call(self, &validator_block)
