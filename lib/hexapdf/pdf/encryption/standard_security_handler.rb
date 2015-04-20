@@ -69,6 +69,10 @@ module HexaPDF
 
         # Defines all permissions that can be specified.
         #
+        # It is possible to use an array of permission symbols instead of an integer to describe the
+        # permission set. The used symbols are the lower case versions of the constants, i.e. the
+        # symbol for MODIFY_CONSTANT would be :modify_constant.
+        #
         # See: PDF1.7 s7.6.3.2
         module Permissions
 
@@ -129,7 +133,10 @@ module HexaPDF
           # The owner password.
           attr_accessor :owner_password
 
-          # The permissions.
+          # The permissions. Either an integer with the needed permission bits set or an array of
+          # permission symbols.
+          #
+          # See: Permissions
           attr_accessor :permissions
 
           # The encryption algorithm.
@@ -138,19 +145,32 @@ module HexaPDF
           # Specifies whether metadata should be encrypted.
           attr_accessor :encrypt_metadata
 
+          # :nodoc:
           def initialize(data = {})
-            self.user_password = data.fetch(:user_password, '')
-            self.owner_password = data.fetch(:owner_password, '')
-            self.permissions = Permissions::RESERVED | data.fetch(:permissions, Permissions::ALL)
-            self.algorithm = data.fetch(:algorithm, :arc4)
-            self.encrypt_metadata = data.fetch(:encrypt_metadata, true)
+            @user_password = data.fetch(:user_password, '')
+            @owner_password = data.fetch(:owner_password, '')
+            @permissions = process_permissions(data.fetch(:permissions, Permissions::ALL))
+            @algorithm = data.fetch(:algorithm, :arc4)
+            @encrypt_metadata = data.fetch(:encrypt_metadata, true)
+          end
+
+          private
+
+          # Maps the permissions to an integer for use by the standard security handler.
+          def process_permissions(perms)
+            if perms.kind_of?(Array)
+              perms = perms.inject(0) do |result, perm|
+                result | Permissions::SYMBOL_TO_PERMISSON.fetch(perm, 0)
+              end
+            end
+            Permissions::RESERVED | perms
           end
 
         end
 
         # Prepares the encryption dictionary for use in encrypting the document.
         #
-        # See the EncryptionOptions class for all possible arguments.
+        # See the attributes of the EncryptionOptions class for all possible arguments.
         def prepare_encrypt_dict(**kwoptions)
           options = EncryptionOptions.new(kwoptions)
 

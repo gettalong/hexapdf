@@ -118,6 +118,10 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
       @handler.set_up_encryption(permissions: ALIAS::Permissions::MODIFY_CONTENT)
       assert_equal(ALIAS::Permissions::MODIFY_CONTENT|ALIAS::Permissions::RESERVED,
                    @document.trailer[:Encrypt][:P])
+      @handler.set_up_encryption(permissions: [:modify_content, :modify_annotation])
+      assert_equal(ALIAS::Permissions::MODIFY_CONTENT|ALIAS::Permissions::MODIFY_ANNOTATION|
+                   ALIAS::Permissions::RESERVED,
+                   @document.trailer[:Encrypt][:P])
     end
 
     it "sets the correct revision independent /EncryptMetadata value" do
