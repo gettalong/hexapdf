@@ -174,6 +174,13 @@ module HexaPDF
 
         end
 
+        # Additionally checks that the document trailer's ID has not changed.
+        #
+        # See: SecurityHandler#encryption_key_valid?
+        def encryption_key_valid?
+          super && trailer_id_hash  == @trailer_id_hash
+        end
+
         # Prepares the encryption dictionary for use in encrypting the document.
         #
         # See the attributes of the EncryptionOptions class for all possible arguments.
@@ -226,6 +233,7 @@ module HexaPDF
             dict[:Perms] = compute_perms_field(encryption_key)
           end
 
+          @trailer_id_hash = trailer_id_hash
           [encryption_key, options.algorithm, options.algorithm, options.algorithm]
         end
 
@@ -241,6 +249,7 @@ module HexaPDF
             raise(HexaPDF::EncryptionError,
                   "Document ID for needed for decryption")
           end
+          @trailer_id_hash = trailer_id_hash
 
           password = prepare_password(password)
 
@@ -258,6 +267,11 @@ module HexaPDF
         end
 
         private
+
+        # Computes the hash value for the trailer ID array.
+        def trailer_id_hash # :nodoc:
+          document.unwrap(document.trailer[:ID]).hash
+        end
 
         # See SecurityHandler#encryption_dictionary_class
         def encryption_dictionary_class
