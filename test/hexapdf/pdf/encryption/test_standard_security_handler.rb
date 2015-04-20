@@ -238,6 +238,40 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
       assert_match(/Invalid password/i, exp.message)
     end
 
+    describe "/Perms field checking" do
+      before do
+        @handler.set_up_encryption(key_length: 256, algorithm: :aes)
+        @dict = @document.unwrap(@document.trailer[:Encrypt])
+      end
+
+      it "fails if the field cannot be decrypted" do
+        @dict[:Perms][9] = 'Z'
+        exp = assert_raises(HexaPDF::EncryptionError) { @handler.set_up_decryption(@dict) }
+        assert_match(/cannot be decrypted/, exp.message)
+      end
+
+      it "fails if the /P field doesn't match" do
+        @dict[:P] = 500
+        exp = assert_raises(HexaPDF::EncryptionError) { @handler.set_up_decryption(@dict) }
+        assert_match(/\/P/, exp.message)
+      end
+
+      it "fails if the /EncryptMetadata field doesn't match" do
+        @dict[:EncryptMetadata] = false
+        exp = assert_raises(HexaPDF::EncryptionError) { @handler.set_up_decryption(@dict) }
+        assert_match(/\/EncryptMetadata/, exp.message)
+      end
+
+      it "ignores the /Perms when requested" do
+        obj = HexaPDF::PDF::Object.new(nil, oid: 1)
+        obj.value = @handler.encrypt_string('test', obj)
+
+        @dict[:P] = 500
+        @handler.set_up_decryption(@dict, check_permissions: false)
+        assert_equal('test', @handler.decrypt(obj).value)
+      end
+    end
+
   end
 
 end

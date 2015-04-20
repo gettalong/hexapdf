@@ -237,8 +237,12 @@ module HexaPDF
           [encryption_key, options.algorithm, options.algorithm, options.algorithm]
         end
 
-        # Uses the given password to retrieve the encryption key.
-        def prepare_decryption(password: '')
+        # Uses the given password (or the default password if none given) to retrieve the encryption
+        # key.
+        #
+        # If the optional +check_permissions+ argument is +true+, the permissions for files
+        # encrypted with revision 6 are checked. Otherwise, permission changes are ignored.
+        def prepare_decryption(password: '', check_permissions: true)
           if dict[:Filter] != :Standard
             raise(HexaPDF::UnsupportedEncryptionError,
                   "Invalid /Filter value for standard security handler")
@@ -262,6 +266,8 @@ module HexaPDF
           else
             raise HexaPDF::EncryptionError, "Invalid password specified"
           end
+
+          check_perms_field(encryption_key) if check_permissions && dict[:R] == 6
 
           encryption_key
         end
@@ -449,6 +455,22 @@ module HexaPDF
             user_password_valid?(user_password_from_owner_password(password))
           elsif dict[:R] == 6
             compute_hash(password, dict[:O][32, 8], dict[:U]) == dict[:O][0, 32]
+          end
+        end
+
+        # Checks if the decrypted /Perms entry matches the /P and /EncryptMetadata entries.
+        #
+        # This method can only be used for revision 6.
+        #
+        # See: PDF2.0 s7.6.3.4.11 (algorithm 13)
+        def check_perms_field(encryption_key)
+          decrypted = aes_algorithm.new(encryption_key, "\0" * 16, :decrypt).process(dict[:Perms])
+          if decrypted[9, 3] != "adb"
+            raise HexaPDF::EncryptionError, "/Perms field cannot be decrypted"
+          elsif (dict[:P] & 0xFFFFFFFF) != (decrypted[0, 4].unpack('V').first & 0xFFFFFFFF)
+            raise HexaPDF::EncryptionError, "Decrypted permissions don't match /P"
+          elsif decrypted[8] != (dict[:EncryptMetadata] ? 'T' : 'F')
+            raise HexaPDF::EncryptionError, "Decrypted /Perms field doesn't match /EncryptMetadata"
           end
         end
 
