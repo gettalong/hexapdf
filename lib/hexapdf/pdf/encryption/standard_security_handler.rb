@@ -127,10 +127,12 @@ module HexaPDF
         # up encryption.
         class EncryptionOptions
 
-          # The user password.
+          # The user password. If this attribute is not specified but the virtual +password+
+          # attribute is, then the latter is used.
           attr_accessor :user_password
 
-          # The owner password.
+          # The owner password. If this attribute is not specified but the virtual +password+
+          # attribute is, then the latter is used.
           attr_accessor :owner_password
 
           # The permissions. Either an integer with the needed permission bits set or an array of
@@ -147,8 +149,9 @@ module HexaPDF
 
           # :nodoc:
           def initialize(data = {})
-            @user_password = data.delete(:user_password) { '' }
-            @owner_password = data.delete(:owner_password) { ''}
+            fallback_pwd = data.delete(:password) { '' }
+            @user_password = data.delete(:user_password) { fallback_pwd }
+            @owner_password = data.delete(:owner_password) { fallback_pwd }
             @permissions = process_permissions(data.delete(:permissions) { Permissions::ALL })
             @algorithm = data.delete(:algorithm) { :arc4 }
             @encrypt_metadata = data.delete(:encrypt_metadata) { true }

@@ -186,6 +186,20 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
       crypt_filter.call(dict, 6, :AESV3, 32)
     end
 
+    it "uses the password keyword as fallback for the user and owner passwords" do
+      @handler.set_up_encryption(password: 'user', owner_password: 'owner')
+      dict1 = @document.unwrap(@document.trailer[:Encrypt])
+      @handler.set_up_encryption(password: 'owner', user_password: 'user')
+      dict2 = @document.unwrap(@document.trailer[:Encrypt])
+      @handler.set_up_encryption(user_password: 'user', owner_password: 'owner')
+      dict3 = @document.unwrap(@document.trailer[:Encrypt])
+
+      assert_equal(dict1[:U], dict2[:U])
+      assert_equal(dict2[:U], dict3[:U])
+      assert_equal(dict1[:O], dict2[:O])
+      assert_equal(dict2[:O], dict3[:O])
+    end
+
     it "fails for unknown keywords" do
       assert_raises(HexaPDF::Error) { @handler.set_up_encryption(unknown: 'test') }
     end
