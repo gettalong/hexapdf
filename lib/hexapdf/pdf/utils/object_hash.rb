@@ -33,7 +33,6 @@ module HexaPDF
         # If there is already an entry for the given object number (even if the generation number is
         # different), this entry will be removed.
         def []=(oid, gen, data)
-          delete(oid) if entry?(oid)
           @table[oid] = data
           @oids[oid] = gen
           @max_oid = oid if oid > @max_oid
