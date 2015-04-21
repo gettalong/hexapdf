@@ -24,7 +24,7 @@ module HexaPDF
       #      XRefStream
       class Trailer < Dictionary
 
-        define_field :Size, type: Integer, required: true, indirect: false
+        define_field :Size, type: Integer, indirect: false # will be auto-set when written
         define_field :Prev, type: Integer
         define_field :Root, type: Dictionary, indirect: true
         define_field :Encrypt, type: Hash   # type Hash to avoid automatic creation on access

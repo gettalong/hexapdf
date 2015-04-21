@@ -25,6 +25,7 @@ module HexaPDF
         @io.seek(0, IO::SEEK_SET) #TODO: incremental update!
 
         @serializer = Serializer.new
+        @rev_size = 0
       end
 
       # Writes the document to the IO object.
@@ -77,6 +78,8 @@ module HexaPDF
         else
           trailer.delete(:Prev)
         end
+        @rev_size = rev.next_free_oid if rev.next_free_oid > @rev_size
+        trailer[:Size] = @rev_size
 
         startxref = @io.pos
         if xref_stream
