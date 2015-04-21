@@ -35,6 +35,13 @@ describe HexaPDF::PDF::Revision do
     assert_equal(:Test, rev.object(2).value)
   end
 
+  it "returns the next free object number" do
+    assert_equal(4, @rev.next_free_oid)
+    @obj.oid = 4
+    @rev.add(@obj)
+    assert_equal(5, @rev.next_free_oid)
+  end
+
   describe "add" do
     it "works correctly" do
       @rev.add(@obj)

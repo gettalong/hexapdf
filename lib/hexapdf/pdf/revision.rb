@@ -51,6 +51,11 @@ module HexaPDF
         @objects = Utils::ObjectHash.new
       end
 
+      # Returns the next free object number for adding an object to this revision.
+      def next_free_oid
+        ((a = @xref_section.max_oid) < (b = @objects.max_oid) ? b : a ) + 1
+      end
+
       # :call-seq:
       #   revision.object(ref)    -> obj or nil
       #   revision.object(oid)    -> obj or nil
