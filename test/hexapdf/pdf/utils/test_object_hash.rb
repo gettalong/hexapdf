@@ -79,4 +79,29 @@ describe HexaPDF::PDF::Utils::ObjectHash do
     end
   end
 
+  describe "max_oid" do
+    it "is zero when no objects are stored" do
+      assert_equal(0, @hash.max_oid)
+      @hash[1, 0] = 5
+      @hash.delete(1)
+      assert_equal(0, @hash.max_oid)
+    end
+
+    it "changes accordingly when data is inserted" do
+      @hash[1, 0] = 5
+      assert_equal(1, @hash.max_oid)
+      @hash[5, 0] = 5
+      assert_equal(5, @hash.max_oid)
+      @hash[3, 0] = 5
+      assert_equal(5, @hash.max_oid)
+    end
+
+    it "changes accordingly when data is deleted" do
+      @hash[1, 0] = @hash[3, 0] = @hash[5, 0] = 5
+      @hash.delete(1)
+      assert_equal(5, @hash.max_oid)
+      @hash.delete(5)
+      assert_equal(3, @hash.max_oid)
+    end
+  end
 end

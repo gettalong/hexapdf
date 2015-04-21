@@ -14,10 +14,15 @@ module HexaPDF
 
         include Enumerable
 
+        # The biggest object number that is stored in the object hash or zero if no objects are
+        # stored.
+        attr_reader :max_oid
+
         # Creates a new object hash.
         def initialize
           @table = {}
           @oids = {}
+          @max_oid = 0
         end
 
         # :call-seq:
@@ -31,6 +36,7 @@ module HexaPDF
           delete(oid) if entry?(oid)
           @table[oid] = data
           @oids[oid] = gen
+          @max_oid = oid if oid > @max_oid
         end
 
         # :call-seq:
@@ -68,6 +74,7 @@ module HexaPDF
         def delete(oid)
           @table.delete(oid)
           @oids.delete(oid)
+          @max_oid = oids.max || 0 if oid == @max_oid
         end
 
         # :call-seq:
