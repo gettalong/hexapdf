@@ -56,8 +56,6 @@ module HexaPDF
         else
           self.security_handler = nil
         end
-
-        @next_oid = @revisions.current.trailer.value[:Size] || 1
       end
 
       # :call-seq:
@@ -130,10 +128,7 @@ module HexaPDF
           end
         end
 
-        if obj.oid == 0
-          obj.oid = @next_oid
-          @next_oid += 1
-        end
+        obj.oid = @revisions.map {|rev| rev.next_free_oid}.max if obj.oid == 0
 
         revision.add(obj)
       end

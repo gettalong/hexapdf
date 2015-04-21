@@ -120,6 +120,7 @@ EOF
     it "automatically assigns free object numbers" do
       assert_equal(1, @doc.add(5).oid)
       assert_equal(2, @doc.add(5).oid)
+      @doc.revisions.add
       assert_equal(3, @doc.add(5).oid)
     end
 
