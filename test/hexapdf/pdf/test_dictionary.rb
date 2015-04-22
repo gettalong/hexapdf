@@ -159,7 +159,7 @@ describe HexaPDF::PDF::Dictionary do
     it "allows defining fields and retrieving their info" do
       field = @test_class.field(:Boolean)
       refute_nil(field)
-      assert_equal(:'1.3', field.version)
+      assert_equal('1.3', field.version)
       assert_equal(false, field.default)
       refute(field.required?)
 

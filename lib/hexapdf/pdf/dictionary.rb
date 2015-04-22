@@ -45,7 +45,7 @@ module HexaPDF
         def initialize(type, required, default, indirect, version)
           @type = [type].flatten
           @type_mapped = false
-          @required, @default, @indirect, @version = required, default, indirect, version.to_sym
+          @required, @default, @indirect, @version = required, default, indirect, version
         end
 
         # Returns the array with valid types for this field.
