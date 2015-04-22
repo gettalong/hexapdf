@@ -121,6 +121,7 @@ module HexaPDF
             'parser.on_correctable_error' => proc { false },
             'task.map' => {
               set_min_pdf_version: 'HexaPDF::PDF::Task::SetMinPDFVersion',
+              optimize: 'HexaPDF::PDF::Task::Optimize',
             },
             ).freeze
       end

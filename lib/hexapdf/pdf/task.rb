@@ -30,6 +30,7 @@ module HexaPDF
     module Task
 
       autoload(:SetMinPDFVersion, 'hexapdf/pdf/task/set_min_pdf_version')
+      autoload(:Optimize, 'hexapdf/pdf/task/optimize')
 
     end
 
