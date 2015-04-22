@@ -334,6 +334,19 @@ module HexaPDF
         value.delete(name) { nil }
       end
 
+      # :call-seq:
+      #   dict.each {|name, value| block}    -> dict
+      #   dict.each                          -> Enumerator
+      #
+      # Calls the given block once for every name-value entry that is stored in the dictionary.
+      #
+      # Note that the yielded value is alreayd preprocessed like in #[].
+      def each
+        return to_enum(__method__) unless block_given?
+        value.each_key {|name| yield(name, self[name])}
+        self
+      end
+
       # Returns a dup of the underlying hash.
       def to_hash
         value.dup

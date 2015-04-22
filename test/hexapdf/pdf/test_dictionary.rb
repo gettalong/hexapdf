@@ -335,6 +335,17 @@ describe HexaPDF::PDF::Dictionary do
     end
   end
 
+  describe "each" do
+    it "iterates over all name-value pairs in the dictionary" do
+      @dict[:TestClass] = {}
+      data = [:Array, [3, 4], :Other, 5, :Object, :obj, :TestClass, @test_class.new({})]
+      @dict.each do |name, value|
+        assert_equal(data.shift, name)
+        assert_equal(data.shift, value)
+      end
+    end
+  end
+
   describe "to_hash" do
     it "returns a shallow copy of the value" do
       obj = @dict.to_hash
