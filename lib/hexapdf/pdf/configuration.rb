@@ -120,6 +120,7 @@ module HexaPDF
             'io.chunk_size' => 2**16,
             'parser.on_correctable_error' => proc { false },
             'task.map' => {
+              set_min_pdf_version: 'HexaPDF::PDF::Task::SetMinPDFVersion',
             },
             ).freeze
       end

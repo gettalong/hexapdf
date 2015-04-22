@@ -28,6 +28,9 @@ module HexaPDF
     #     doc.each(current: false) {|obj| obj.validate || raise "Invalid object #{obj}"}
     #   end
     module Task
+
+      autoload(:SetMinPDFVersion, 'hexapdf/pdf/task/set_min_pdf_version')
+
     end
 
   end
