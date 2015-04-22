@@ -330,6 +330,15 @@ EOF
     it "iterates over all objects" do
       assert_equal([nil, 10, 200, 20, 30, nil], @io_doc.each(current: false).sort.map(&:value))
     end
+
+    it "yields the revision as second argument if the block accepts exactly two arguments" do
+      objs = [[200, nil], [nil, 10, 20, 30]]
+      data = @io_doc.revisions.map.with_index {|rev, i| objs[i].map {|o| [o, rev]}}.flatten
+      @io_doc.each(current: false) do |obj, rev|
+        assert_equal(data.shift, obj.value)
+        assert_equal(data.shift, rev)
+      end
+    end
   end
 
   describe "encryption" do

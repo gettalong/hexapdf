@@ -248,10 +248,12 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   doc.each(current: true) {|obj| block }   -> doc
-      #   doc.each(current: true)                  -> Enumerator
+      #   doc.each(current: true) {|obj| block }        -> doc
+      #   doc.each(current: true) {|obj, rev| block }   -> doc
+      #   doc.each(current: true)                       -> Enumerator
       #
-      # Calls the given block once for every object in the PDF document.
+      # Calls the given block once for every object in the PDF document. The block may either accept
+      # only the object or the object and the revision it is in.
       #
       # By default, only the current version of each object is returned which implies that each
       # object number is yielded exactly once. If the +current+ option is +false+, all stored
@@ -266,14 +268,15 @@ module HexaPDF
       # * Additionally, there may also be objects with the same object number but different
       #   generation numbers in different revisions, e.g. one object with oid/gen [3,0] and one with
       #   oid/gen [3,1].
-      def each(current: true)
+      def each(current: true, &block)
         return to_enum(__method__, current: current) unless block_given?
 
+        yield_rev = (block.arity == 2)
         oids = {}
         @revisions.each do |rev|
           rev.each do |obj|
             next if current && oids.include?(obj.oid)
-            yield(obj)
+            (yield_rev ? yield(obj, rev) : yield(obj))
             oids[obj.oid] = true
           end
         end
