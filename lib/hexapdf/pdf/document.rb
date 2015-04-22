@@ -7,6 +7,7 @@ require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/revisions'
 require 'hexapdf/pdf/type'
+require 'hexapdf/pdf/task'
 require 'hexapdf/pdf/encryption'
 require 'hexapdf/pdf/writer'
 
@@ -277,6 +278,19 @@ module HexaPDF
           end
         end
         self
+      end
+
+      # Executes the given task and returns its result.
+      #
+      # Tasks provide an extensible way for performing operations on a PDF document without
+      # cluttering the Document interface.
+      #
+      # See Task for more information.
+      def task(name, **opts)
+        task = config.constantize('task.map', name) do
+          raise HexaPDF::Error, "No task named '#{name}' is available"
+        end
+        task.call(self, **opts)
       end
 
       # Returns the trailer dictionary for the document.

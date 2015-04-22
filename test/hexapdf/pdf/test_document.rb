@@ -393,4 +393,17 @@ EOF
     end
   end
 
+  describe "task" do
+    it "executes the given task name with options" do
+      @doc.config['task.map'][:test] = lambda do |doc, arg1:|
+        assert_equal(doc, @doc)
+        assert_equal(:arg1, arg1)
+      end
+      @doc.task(:test, arg1: :arg1)
+    end
+
+    it "fails if the given task is not available" do
+      assert_raises(HexaPDF::Error) { @doc.task(:unknown) }
+    end
+  end
 end

@@ -76,6 +76,8 @@ module HexaPDF
     #    The value needs to be an object that responds to \#call(document, message, position) and
     #    returns +true+ if an error should be raised.
     #
+    # task.map::
+    #    A mapping from task names to callable task objects. See Task for more information.
     class Configuration
 
       # Returns the default configuration object.
@@ -117,6 +119,8 @@ module HexaPDF
             },
             'io.chunk_size' => 2**16,
             'parser.on_correctable_error' => proc { false },
+            'task.map' => {
+            },
             ).freeze
       end
 
