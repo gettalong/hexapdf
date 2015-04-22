@@ -315,6 +315,13 @@ describe HexaPDF::PDF::Dictionary do
       @obj.value[:TestClass][:Inherited] = :symbol
       assert(@obj.validate)
     end
+
+    it "checks that a PDFByteString field has a binary string" do
+      @test_class.define_field(:ByteString, type: HexaPDF::PDF::Dictionary::PDFByteString)
+      @obj[:ByteString] = 'some text'
+      refute(@obj.validate(auto_correct: false))
+      assert(@obj.validate)
+    end
   end
 
   describe "delete" do

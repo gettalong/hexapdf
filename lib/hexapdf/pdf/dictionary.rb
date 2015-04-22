@@ -366,13 +366,16 @@ module HexaPDF
             self[name] = obj = field.default
           end
 
+          # The checks below assume that the field has a value
+          next if obj.nil?
+
           # Check the type of the field
-          if !obj.nil? && !field.valid_object?(obj)
+          if !field.valid_object?(obj)
             yield("Type of field #{name} is invalid", false)
           end
 
           # Check if field value needs to be (in)direct
-          if !obj.nil? && !field.indirect.nil?
+          if !field.indirect.nil?
             if field.indirect && (!obj.kind_of?(HexaPDF::PDF::Object) || obj.oid == 0)
               yield("Field #{name} needs to be an indirect object", true)
               value[name] = obj = document.add(obj)
@@ -388,6 +391,12 @@ module HexaPDF
             obj.validate do |msg, correctable|
               yield("Field #{name}: #{msg}", correctable)
             end
+          end
+
+          # Check that a PDFByteString field has a string with binary encoding
+          if field.type.include?(PDFByteString) && obj.encoding != Encoding::BINARY
+            yield("Field #{name} doesn't contain a binary string", true)
+            obj.force_encoding(Encoding::BINARY)
           end
         end
       end
