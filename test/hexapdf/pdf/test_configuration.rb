@@ -64,6 +64,12 @@ describe HexaPDF::PDF::Configuration do
       assert_nil(@default.constantize('test'))
     end
 
+    it "returns nil for an unknown constant using a nested option" do
+      @default['test'] = {}
+      assert_nil(@default.constantize('test', 'test'))
+      assert_nil(@default.constantize('test', nil))
+    end
+
     it "returns the result of the given block when no constant is found" do
       assert_equal(:test, @default.constantize('unk') {|name| assert_equal('unk', name); :test})
     end

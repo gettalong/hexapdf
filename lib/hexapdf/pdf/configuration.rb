@@ -178,9 +178,9 @@ module HexaPDF
       #
       #   config.constantize('encryption.aes')      #=> HexaPDF::PDF::Encryption::FastAES
       #   config.constantize('filter.map', :Fl)     #=> HexaPDF::PDF::Filter::FlateDecode
-      def constantize(name, key = nil)
+      def constantize(name, key = :__unset)
         data = self[name]
-        data = data[key] if key && data.kind_of?(Hash)
+        data = data[key] if key != :__unset && data.kind_of?(Hash)
         (data = ::Object.const_get(data) rescue nil) if data.kind_of?(String)
         data = yield(name) if block_given? && data.nil?
         data
