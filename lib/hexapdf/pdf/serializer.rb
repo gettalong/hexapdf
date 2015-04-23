@@ -141,6 +141,7 @@ module HexaPDF
       def serialize_hash(obj)
         str = "<<"
         obj.each do |k, v|
+          next if v.nil? || (v.respond_to?(:empty?) && v.empty?)
           str << __serialize(k)
           tmp = __serialize(v)
           str << " ".freeze unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)]

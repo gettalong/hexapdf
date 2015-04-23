@@ -13,9 +13,9 @@ describe HexaPDF::PDF::Serializer do
 
   it "allows access to the top serialized object" do
     object = nil
-    @serializer.singleton_class.send(:define_method, :serialize_nilclass) do |obj|
+    @serializer.singleton_class.send(:define_method, :serialize_symbol) do |obj|
       object = @object
-      'null'
+      "/#{obj.to_s}"
     end
     @serializer.serialize({this: :is, null: nil})
     assert_equal({this: :is, null: nil}, object)
