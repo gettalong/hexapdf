@@ -126,6 +126,24 @@ module HexaPDF
       end
 
       # :call-seq:
+      #   revisions.merge(range = 0..-1)    -> revisions
+      #
+      # Merges the revisions specified by the given range into one. Objects from newer revisions
+      # overwrite those from older ones.
+      def merge(range = 0..-1)
+        @revisions[range].reverse.each_cons(2) do |rev, prev_rev|
+          prev_rev.trailer.value.replace(rev.trailer.value)
+          rev.each do |obj|
+            prev_rev.delete(obj.oid, mark_as_free: false)
+            prev_rev.add(obj)
+          end
+        end
+        _first, *other = *@revisions[range]
+        other.each {|rev| @revisions.delete(rev)}
+        self
+      end
+
+      # :call-seq:
       #   revisions.each {|rev| block }   -> revisions
       #   revisions.each                  -> Enumerator
       #

@@ -72,6 +72,19 @@ EOF
     end
   end
 
+  describe "merge" do
+    it "does nothing when only one revision is specified" do
+      @revisions.merge(1..1)
+      assert_equal(2, @revisions.each.to_a.size)
+    end
+
+    it "merges the higher into the the lower revision" do
+      @revisions.merge
+      assert_equal(1, @revisions.each.to_a.size)
+      assert_equal([10, 200], @revisions.current.each.to_a.sort.map(&:value))
+    end
+  end
+
   describe "initialize" do
     it "automatically loads all revisions from the underlying IO object" do
       assert_equal(20, @revisions.revision(0).object(2).value)
