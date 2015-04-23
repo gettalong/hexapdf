@@ -107,9 +107,10 @@ describe HexaPDF::PDF::Serializer do
   it "serializes streams" do
     doc = Object.new
     def doc.unwrap(obj); obj; end
-    assert_serialized("<</Key(value)/Length 8>>stream\nsomedata\nendstream",
-                      HexaPDF::PDF::Stream.new({Key: "value", Length: 5}, stream: "somedata",
-                                               document: doc))
+    stream = HexaPDF::PDF::Stream.new({Key: "value", Length: 5}, stream: "somedata", document: doc)
+    assert_serialized("<</Key(value)/Length 8>>stream\nsomedata\nendstream", stream)
+    stream.oid = 2
+    assert_serialized("<</Name 2 0 R>>", HexaPDF::PDF::Object.new({Name: stream}))
   end
 
 end
