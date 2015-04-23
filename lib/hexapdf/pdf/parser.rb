@@ -149,14 +149,17 @@ module HexaPDF
       # Returns an XRefSection object and the accompanying trailer dictionary.
       def load_revision(pos)
         if xref_section?(pos)
-          parse_xref_section_and_trailer(pos)
+          xref_section, trailer = parse_xref_section_and_trailer(pos)
         else
           obj = load_object(XRefSection.in_use_entry(0, 0, pos))
           if !obj.respond_to?(:xref_section)
             raise_malformed("Object is not a cross-reference stream", pos: pos)
           end
-          [obj.xref_section, obj.trailer]
+          xref_section = obj.xref_section
+          trailer = obj.trailer
         end
+        xref_section.delete(0)
+        [xref_section, trailer]
       end
 
       # Looks at the given offset and returns +true+ if there is a cross-reference section at that
