@@ -94,4 +94,8 @@ describe HexaPDF::PDF::Object do
     end
   end
 
+  it "can represent itself during inspection" do
+    obj = HexaPDF::PDF::Object.new(5, oid: 5)
+    assert_match(/\[5, 0\].*value=5/, obj.inspect)
+  end
 end
