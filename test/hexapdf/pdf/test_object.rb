@@ -11,6 +11,19 @@ describe HexaPDF::PDF::Object do
     assert_equal(5, HexaPDF::PDF::Object.new(obj).value)
   end
 
+  describe "empty" do
+    it "works for nil values" do
+      assert(HexaPDF::PDF::Object.new(nil).empty?)
+    end
+
+    it "works for empty values" do
+      assert(HexaPDF::PDF::Object.new("").empty?)
+      assert(HexaPDF::PDF::Object.new(:"").empty?)
+      assert(HexaPDF::PDF::Object.new([]).empty?)
+      assert(HexaPDF::PDF::Object.new({}).empty?)
+    end
+  end
+
   describe "validation" do
     it "allows nesting validate calls" do
       nested_klass = Class.new(HexaPDF::PDF::Object)

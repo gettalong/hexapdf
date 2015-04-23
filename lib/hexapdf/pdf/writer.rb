@@ -63,7 +63,7 @@ module HexaPDF
         xref_section = XRefSection.new
         xref_section.add_free_entry(0, 65535) if previous_xref_pos.nil?
         rev.each do |obj|
-          if obj.null?
+          if obj.empty?
             xref_section.add_free_entry(obj.oid, obj.gen)
           elsif (objstm = object_streams.find {|stm| stm.object_index(obj)})
             xref_section.add_compressed_entry(obj.oid, objstm.oid, objstm.object_index(obj))

@@ -347,6 +347,11 @@ module HexaPDF
         self
       end
 
+      # See Object#empty?.
+      def empty?
+        value.empty?
+      end
+
       # Returns a dup of the underlying hash.
       def to_hash
         value.dup

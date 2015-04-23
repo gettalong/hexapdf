@@ -108,7 +108,7 @@ describe HexaPDF::PDF::Revision do
     it "marks the object as PDF null object when using mark_as_free=true" do
       assert(5000, @rev.object(2).value)
       @rev.delete(2)
-      assert(@rev.object(2).null?)
+      assert(@rev.object(2).empty?)
     end
   end
 
