@@ -96,13 +96,6 @@ EOF
     assert_document_conversion(@compressed_input_io)
   end
 
-  it "raises an error if two xref streams are in one revision" do
-    document = HexaPDF::PDF::Document.new()
-    document.add(Type: :XRef)
-    document.add(Type: :XRef)
-    assert_raises(HexaPDF::Error) { HexaPDF::PDF::Writer.new(document, StringIO.new).write }
-  end
-
   it "raises an error if no xref stream is in a revision but object streams are" do
     document = HexaPDF::PDF::Document.new()
     document.add(Type: :ObjStm)

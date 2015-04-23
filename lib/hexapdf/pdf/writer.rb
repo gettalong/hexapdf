@@ -67,7 +67,7 @@ module HexaPDF
             xref_section.add_free_entry(obj.oid, obj.gen)
           elsif (objstm = object_streams.find {|stm| stm.object_index(obj)})
             xref_section.add_compressed_entry(obj.oid, objstm.oid, objstm.object_index(obj))
-          elsif !obj.kind_of?(Dictionary) || obj[:Type] != :XRef
+          elsif obj != xref_stream
             xref_section.add_in_use_entry(obj.oid, obj.gen, @io.pos)
             write_indirect_object(obj)
           end
@@ -102,19 +102,18 @@ module HexaPDF
       #
       # Returns the cross-reference and object streams of the given revision.
       #
-      # An error is raised if the revision contains object streams and no cross-reference stream, or
-      # if it contains multiple cross-reference streams.
+      # An error is raised if the revision contains object streams and no cross-reference stream. If
+      # it contains multiple cross-reference streams only the first one is used, the rest are
+      # ignored.
       def xref_and_object_streams(rev)
         xref_stream = nil
         object_streams = []
 
         rev.each do |obj|
-          if obj.kind_of?(Dictionary) && obj[:Type] == :ObjStm
+          next unless obj.kind_of?(Dictionary)
+          if obj[:Type] == :ObjStm
             object_streams << obj
-          elsif obj.kind_of?(Dictionary) && obj[:Type] == :XRef
-            unless xref_stream.nil?
-              raise HexaPDF::Error, "A revision can only have one xref stream, at least two found"
-            end
+          elsif !xref_stream && obj[:Type] == :XRef
             xref_stream = obj
           end
         end
