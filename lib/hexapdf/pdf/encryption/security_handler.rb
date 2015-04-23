@@ -85,8 +85,11 @@ module HexaPDF
         def self.set_up_decryption(document, **decryption_opts)
           dict = document.unwrap(document.trailer[:Encrypt])
           handler = document.config.constantize('encryption.filter_map', dict[:Filter])
-          unless handler
+          if handler.nil?
             handler = document.config.constantize('encryption.sub_filter_map', dict[:SubFilter])
+          end
+          if handler.nil?
+            raise HexaPDF::EncryptionError, "Could not find a suitable security handler"
           end
 
           handler = handler.new(document)

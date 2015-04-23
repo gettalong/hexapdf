@@ -70,6 +70,15 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
     end
   end
 
+  describe "class set_up_decryption" do
+    it "fails if the requested security handler cannot be found" do
+      @document.trailer[:Encrypt] = {Filter: :NonStandard}
+      assert_raises(HexaPDF::EncryptionError) do
+        HexaPDF::PDF::Encryption::SecurityHandler.set_up_decryption(@document)
+      end
+    end
+  end
+
   describe "set_up_encryption" do
 
     it "sets the trailer's /Encrypt entry to an encryption dictionary with a custom class" do
