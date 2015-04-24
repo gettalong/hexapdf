@@ -110,10 +110,9 @@ module HexaPDF
         object_streams = []
 
         rev.each do |obj|
-          next unless obj.kind_of?(Dictionary)
-          if obj[:Type] == :ObjStm
+          if obj.type == :ObjStm
             object_streams << obj
-          elsif !xref_stream && obj[:Type] == :XRef
+          elsif !xref_stream && obj.type == :XRef
             xref_stream = obj
           end
         end

@@ -113,6 +113,17 @@ module HexaPDF
         !@document.nil?
       end
 
+      # Returns the type (symbol) of the object.
+      #
+      # Since the type system is implemented in such a way as to allow exchanging implementations of
+      # specific types, the class of an object can't be reliably used for determining the actual
+      # type. However, the Type field can easily be used for this.
+      #
+      # For basic objects this always returns :Unknown.
+      def type
+        :Unknown
+      end
+
       # Returns +true+ if the object represents an empty object, i.e. a PDF null object or an empty
       # value.
       def empty?

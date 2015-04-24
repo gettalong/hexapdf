@@ -217,8 +217,7 @@ module HexaPDF
         #
         # See: PDF1.7 s7.6.2
         def decrypt(obj)
-          return obj if obj == document.trailer[:Encrypt] ||
-            (obj.kind_of?(Dictionary) && obj[:Type] == :XRef)
+          return obj if obj == document.trailer[:Encrypt] || obj.type == :XRef
 
           key = object_key(obj.oid, obj.gen, string_algorithm)
           each_string_in_object(obj.value) do |str|
@@ -240,8 +239,7 @@ module HexaPDF
         #
         # See: PDF1.7 s7.6.2
         def encrypt_string(str, obj)
-          return str if str.empty? || obj == document.trailer[:Encrypt] ||
-            (obj.kind_of?(Dictionary) && obj[:Type] == :XRef)
+          return str if str.empty? || obj == document.trailer[:Encrypt] || obj.type == :XRef
 
           key = object_key(obj.oid, obj.gen, string_algorithm)
           string_algorithm.encrypt(key, str)
@@ -249,7 +247,7 @@ module HexaPDF
 
         # Returns a Fiber that encrypts the contents of the given stream object.
         def encrypt_stream(obj)
-          return obj.stream_encoder if obj.value[:Type] == :XRef
+          return obj.stream_encoder if obj.type == :XRef
 
           key = object_key(obj.oid, obj.gen, stream_algorithm)
           stream_algorithm.encryption_fiber(key, obj.stream_encoder)
