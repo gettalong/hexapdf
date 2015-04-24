@@ -38,7 +38,7 @@ module HexaPDF
         write_file_header
 
         pos = nil
-        @document.revisions.reverse_each do |rev|
+        @document.revisions.each do |rev|
           pos = write_revision(rev, pos)
         end
       end

@@ -71,7 +71,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.3.9
       def object(ref)
-        (rev = @revisions.find {|r| r.object?(ref)}) && rev.object(ref)
+        (rev = @revisions.reverse_each.find {|r| r.object?(ref)}) && rev.object(ref)
       end
 
       # Dereferences the given object.
@@ -273,7 +273,7 @@ module HexaPDF
 
         yield_rev = (block.arity == 2)
         oids = {}
-        @revisions.each do |rev|
+        @revisions.reverse_each do |rev|
           rev.each do |obj|
             next if current && oids.include?(obj.oid)
             (yield_rev ? yield(obj, rev) : yield(obj))
