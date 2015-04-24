@@ -122,6 +122,7 @@ module HexaPDF
             'task.map' => {
               set_min_pdf_version: 'HexaPDF::PDF::Task::SetMinPDFVersion',
               optimize: 'HexaPDF::PDF::Task::Optimize',
+              dereference: 'HexaPDF::PDF::Task::Dereference',
             },
             ).freeze
       end
