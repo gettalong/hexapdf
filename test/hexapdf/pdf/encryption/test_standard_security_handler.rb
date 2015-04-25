@@ -12,8 +12,7 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
   USER_PASSWORD = 'uhexapdf'
   OWNER_PASSWORD = 'ohexapdf'
 
-  MINIMAL_PDF = File.join(TEST_DATA_DIR, 'minimal.pdf')
-  MINIMAL_DOC = HexaPDF::PDF::Document.new(io: StringIO.new(File.read(MINIMAL_PDF)))
+  MINIMAL_DOC = HexaPDF::PDF::Document.new(io: StringIO.new(MINIMAL_PDF))
 
   TEST_FILES.each do |file|
     basename = File.basename(file)

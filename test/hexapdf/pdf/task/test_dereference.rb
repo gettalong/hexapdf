@@ -6,10 +6,8 @@ require 'hexapdf/pdf/task/dereference'
 
 describe HexaPDF::PDF::Task::Dereference do
 
-  DATA = File.read(File.join(TEST_DATA_DIR, 'minimal.pdf'))
-
   before do
-    @doc = HexaPDF::PDF::Document.new(io: StringIO.new(DATA))
+    @doc = HexaPDF::PDF::Document.new(io: StringIO.new(MINIMAL_PDF))
   end
 
   it "dereferences all references to objects" do
