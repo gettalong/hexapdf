@@ -167,6 +167,11 @@ module HexaPDF
         end
       end
 
+      # Returns +true+ if the other object has the same oid, gen and value.
+      def ==(other)
+        super && value == other.value
+      end
+
       def inspect #:nodoc:
         "#<#{self.class.name} [#{oid}, #{gen}] value=#{value.inspect}>"
       end
