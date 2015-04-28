@@ -205,4 +205,22 @@ describe HexaPDF::PDF::Stream do
     end
   end
 
+  describe "validation" do
+    it "validates the /Filter entry" do
+      assert(@stm.validate)
+
+      @stm.set_filter(:FlateDecode)
+      assert(@stm.validate(auto_correct: false))
+      assert_equal(:FlateDecode, @stm[:Filter])
+
+      @stm.set_filter(:AHx)
+      assert(@stm.validate(auto_correct: true))
+      assert_equal(:ASCIIHexDecode, @stm[:Filter])
+
+      @stm.set_filter([:FlateDecode, :AHx])
+      assert(@stm.validate(auto_correct: true))
+      assert_equal([:FlateDecode, :ASCIIHexDecode], @stm[:Filter])
+    end
+  end
+
 end

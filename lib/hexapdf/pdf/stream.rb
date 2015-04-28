@@ -93,6 +93,8 @@ module HexaPDF
 
       define_field :DL, type: Integer
 
+      define_validator(:validate_stream_filter)
+
       # Creates a new Stream object.
       #
       # The +stream+ option may be used to assign a stream to this stream object on creation (see
@@ -217,6 +219,25 @@ module HexaPDF
       def filter_for_name(filter_name)
         config.constantize('filter.map', filter_name) do
           raise HexaPDF::Error, "Unknown stream filter '#{filter_name}' encountered"
+        end
+      end
+
+      # :nodoc:
+      # A mapping from short name to long name for filters.
+      FILTER_MAP = {AHx: :ASCIIHexDecode, A85: :ASCII85Decode, LZW: :LZWDecode,
+        Fl: :FlateDecode, RL: :RunLengthDecode, CCF: :CCITTFaxDecode, DCT: :DCTDecode}
+
+      # Validates the /Filter entry so that it contains only long-name filter names.
+      def validate_stream_filter
+        if value[:Filter].kind_of?(Symbol) && FILTER_MAP.key?(value[:Filter])
+          yield("A stream's /Filter entry may only use long-form filter names", true)
+          value[:Filter] = FILTER_MAP[value[:Filter]]
+        elsif value[:Filter].kind_of?(Array)
+          value[:Filter].map! do |filter|
+            next filter unless FILTER_MAP.key?(filter)
+            yield("A stream's /Filter entry may only use long-form filter names", true)
+            FILTER_MAP[filter]
+          end
         end
       end
 
