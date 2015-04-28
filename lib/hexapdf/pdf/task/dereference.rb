@@ -12,7 +12,8 @@ module HexaPDF
       module Dereference
 
         # Recursively dereferences the reachable parts of the document and returns an array of
-        # objects that are never referenced.
+        # objects that are never referenced. This includes indirect objects that are used as values
+        # for the /Length entry of a stream.
         #
         # If the optional argument +object+ is provided, only the given object is dereferenced and
         # nothing is returned.
@@ -21,10 +22,15 @@ module HexaPDF
             dereference(doc, object)
             nil
           else
-            done = {}
-            dereference(doc, doc.trailer, done)
+            visited = {}
+            dereference(doc, doc.trailer, visited)
             doc.each(current: false).with_object([]) do |obj, unused|
-              unused << obj unless done.key?(obj) || obj.type == :ObjStm || obj.type == :XRef
+              if !visited.key?(obj) && obj.type != :ObjStm && obj.type != :XRef
+                unused << obj
+              elsif obj.kind_of?(HexaPDF::PDF::Stream) && (val = obj.value[:Length]) &&
+                  val.kind_of?(HexaPDF::PDF::Object) && val.oid != 0
+                unused << val
+              end
             end
           end
         end

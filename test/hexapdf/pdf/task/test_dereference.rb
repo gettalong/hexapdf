@@ -12,6 +12,9 @@ describe HexaPDF::PDF::Task::Dereference do
 
   it "dereferences all references to objects" do
     obj = @doc.add(:test)
+    len = @doc.add(5)
+    str = @doc.add(@doc.wrap({Length: len}, stream: ''))
+    @doc.trailer[:Test] = str
     checker = lambda do |val, done = {}|
       case val
       when Array then val.all? {|v| checker.call(v, done)}
@@ -30,9 +33,9 @@ describe HexaPDF::PDF::Task::Dereference do
       end
     end
     refute(checker.call(@doc.trailer))
-    assert_equal([obj], @doc.task(:dereference))
+    assert_equal([obj, len], @doc.task(:dereference))
     assert(checker.call(@doc.trailer))
-    assert_equal([obj], @doc.task(:dereference))
+    assert_equal([obj, len], @doc.task(:dereference))
     assert(checker.call(@doc.trailer))
   end
 
