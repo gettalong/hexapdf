@@ -82,11 +82,9 @@ module HexaPDF
         #
         # Calls the given block once for every entry, passing an array consisting of the object and
         # generation number and the associated data as arguments.
-        #
-        # New keys inserted during the iteration are *not* reflected!
         def each
           return to_enum(__method__) unless block_given?
-          @oids.keys.each {|oid| yield(oid, @oids[oid], @table[oid]) if @table.key?(oid)}
+          @oids.each {|oid, gen| yield(oid, gen, @table[oid]) if @table.key?(oid)}
           self
         end
 

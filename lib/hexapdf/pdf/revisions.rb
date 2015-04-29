@@ -153,12 +153,9 @@ module HexaPDF
       #   revisions.each                  -> Enumerator
       #
       # Iterates over all revisions from oldest to current one.
-      #
-      # Changes in the number of revisions (i.e. if revisions are added or deleted) are *not*
-      # reflected while iterating!
       def each(&block)
         return to_enum(__method__) unless block_given?
-        Array.new(@revisions).each(&block)
+        @revisions.each(&block)
         self
       end
 
