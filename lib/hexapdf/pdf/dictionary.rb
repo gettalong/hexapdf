@@ -405,7 +405,7 @@ module HexaPDF
               yield("Field #{name} needs to be an indirect object", true)
               value[name] = obj = document.add(obj)
             elsif !field.indirect && obj.kind_of?(HexaPDF::PDF::Object) && obj.oid != 0
-              yield("Field #{name} needs to be an direct object", true)
+              yield("Field #{name} needs to be a direct object", true)
               document.delete(obj)
               value[name] = obj = obj.value
             end
