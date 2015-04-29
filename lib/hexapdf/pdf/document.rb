@@ -211,7 +211,7 @@ module HexaPDF
             subtype ||= obj[:Subtype]
           end
 
-          klass = config.constantize('object.map', [type, subtype]) || default
+          klass = config.constantize('object.map'.freeze, [type, subtype]) || default
         end
 
         opts = {document: self}
@@ -290,7 +290,7 @@ module HexaPDF
       #
       # See Task for more information.
       def task(name, **opts)
-        task = config.constantize('task.map', name) do
+        task = config.constantize('task.map'.freeze, name) do
           raise HexaPDF::Error, "No task named '#{name}' is available"
         end
         task.call(self, **opts)

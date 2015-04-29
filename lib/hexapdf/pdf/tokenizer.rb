@@ -223,7 +223,7 @@ module HexaPDF
         when 'null'
           nil
         else
-          TOKEN_CACHE[str] ||= Token.new(str)
+          TOKEN_CACHE[str.freeze] ||= Token.new(str)
         end
       end
 
