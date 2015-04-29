@@ -64,9 +64,17 @@ module HexaPDF
     #    This can be used to limit the memory needed for reading or writing PDF files with huge
     #    stream objects.
     #
-    # object.map::
-    #    A mapping from [Type, Subtype] entries to PDF object classes. If the value is a String,
-    #    it should contain the name of a constant that contains a PDF object class.
+    # object.type_map::
+    #    A mapping from a PDF name (a Symbol) to PDF object classes which is based on the /Type
+    #    field. If the value is a String, it should contain the name of a constant that contains a
+    #    PDF object class.
+    #
+    #    This mapping is used to provide automatic wrapping of objects in the Document#wrap method.
+    #
+    # object.subtype_map::
+    #    A mapping from a PDF name (a Symbol) to PDF object classes which is based on the /Subtype
+    #    field. If the value is a String, it should contain the name of a constant that contains a
+    #    PDF object class.
     #
     #    This mapping is used to provide automatic wrapping of objects in the Document#wrap method.
     #
@@ -113,9 +121,11 @@ module HexaPDF
               JPXDecode: 'HexaPDF::PDF::Filter::JPXDecode',
               Crypt: nil
             },
-            'object.map' => {
-              [:XRef, nil] => 'HexaPDF::PDF::Type::XRefStream',
-              [:ObjStm, nil] => 'HexaPDF::PDF::Type::ObjectStream',
+            'object.type_map' => {
+              :XRef => 'HexaPDF::PDF::Type::XRefStream',
+              :ObjStm => 'HexaPDF::PDF::Type::ObjectStream',
+            },
+            'object.subtype_map' => {
             },
             'io.chunk_size' => 2**16,
             'parser.on_correctable_error' => proc { false },

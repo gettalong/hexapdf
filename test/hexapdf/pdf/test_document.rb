@@ -221,8 +221,8 @@ EOF
     before do
       @myclass = Class.new(HexaPDF::PDF::Object)
       @myclass2 = Class.new(HexaPDF::PDF::Object)
-      @doc.config['object.map'][[:MyClass, nil]] = @myclass
-      @doc.config['object.map'][[:MyClass, :TheSecond]] = @myclass2
+      @doc.config['object.type_map'][:MyClass] = @myclass
+      @doc.config['object.subtype_map'][:TheSecond] = @myclass2
     end
 
     it "uses a suitable default type if no special type is specified" do
@@ -273,12 +273,16 @@ EOF
     end
 
     it "uses the type/subtype information in the hash that should be wrapped" do
+      assert_kind_of(@myclass, @doc.wrap({Type: :MyClass}))
+      assert_kind_of(@myclass2, @doc.wrap({Subtype: :TheSecond}))
       assert_kind_of(@myclass2, @doc.wrap({Type: :MyClass, Subtype: :TheSecond}))
     end
 
     it "respects the given type/subtype arguments" do
-      assert_kind_of(@myclass, @doc.wrap(5, type: :MyClass))
-      assert_kind_of(@myclass2, @doc.wrap(5, type: :MyClass, subtype: :TheSecond))
+      assert_kind_of(@myclass, @doc.wrap({Type: :Other}, type: :MyClass))
+      assert_kind_of(@myclass2, @doc.wrap({Subtype: :Other}, subtype: :TheSecond))
+      assert_kind_of(@myclass2, @doc.wrap({Type: :Other, Subtype: :Other},
+                                          type: :MyClass, subtype: :TheSecond))
     end
 
     it "directly uses a class given via the type argument" do

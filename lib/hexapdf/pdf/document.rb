@@ -171,7 +171,12 @@ module HexaPDF
       #
       # The class of the returned object is always a subclass of HexaPDF::PDF::Object (or of
       # HexaPDF::PDF::Stream if a +stream+ is given). Which subclass is used, depends on the values
-      # of the +type+ and +subtype+ options and the 'object.map' configuration option.
+      # of the +type+ and +subtype+ options as well as on the 'object.type_map' and
+      # 'object.subtype_map' configuration options:
+      #
+      # * If *only* +type+ is provided and a mapping is found, the resulting class object is used.
+      # * Otherwise if only +subtype+ or both arguments are provided and a mapping for +subtype+ is
+      #   found, the resulting class object is used.
       #
       # Options:
       #
@@ -179,8 +184,8 @@ module HexaPDF
       #         could be, for example, :Pages. If a class object is provided, it is used directly
       #         instead of the type detection system.
       #
-      # :sub_type:: (Symbol) The subtype of a PDF object which further qualifies a type. For
-      #             example, image objects in PDF have a type of :XObject and a subtype of :Image.
+      # :subtype:: (Symbol) The subtype of a PDF object which further qualifies a type. For
+      #            example, image objects in PDF have a type of :XObject and a subtype of :Image.
       #
       # :oid:: (Integer) The object number that should be set on the wrapped object. Defaults to 0
       #        or the value of the given object's object number.
@@ -213,7 +218,12 @@ module HexaPDF
             subtype ||= obj[:Subtype]
           end
 
-          klass = config.constantize('object.map'.freeze, [type, subtype]) || default
+          if subtype
+            klass = config.constantize('object.subtype_map'.freeze, subtype)
+          else
+            klass = config.constantize('object.type_map'.freeze, type)
+          end
+          klass ||= default
         end
 
         opts = {document: self}
