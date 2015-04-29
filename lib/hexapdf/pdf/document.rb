@@ -71,7 +71,9 @@ module HexaPDF
       #
       # See: PDF1.7 s7.3.9
       def object(ref)
-        (rev = @revisions.reverse_each.find {|r| r.object?(ref)}) && rev.object(ref)
+        i = @revisions.size - 1
+        (return @revisions[i].object(ref) if @revisions[i].object?(ref); i -= 1) while i >= 0
+        nil
       end
 
       # Dereferences the given object.

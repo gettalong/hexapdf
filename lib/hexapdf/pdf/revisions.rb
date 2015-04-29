@@ -88,6 +88,11 @@ module HexaPDF
         @revisions.last
       end
 
+      # Returns the number of Revision objects managed by this object.
+      def size
+        @revisions.size
+      end
+
       # Adds a new empty revision to the document and returns it.
       def add
         if @revisions.empty?
