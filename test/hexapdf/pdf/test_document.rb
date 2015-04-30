@@ -380,6 +380,11 @@ EOF
       @doc.write(io)
       refute(io.string.empty?)
     end
+
+    it "fails if the document is not valid" do
+      @doc.trailer[:Size] = :Symbol
+      assert_raises(HexaPDF::Error) { @doc.write(StringIO.new(''.b)) }
+    end
   end
 
   describe "version" do

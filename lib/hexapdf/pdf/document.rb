@@ -371,7 +371,20 @@ module HexaPDF
       end
 
       # Writes the document to the IO stream.
-      def write(io)
+      #
+      # Before the document is written, it is validated using the 'validate' task, and an error is
+      # raised if the document is not valid. However, this step can be skipped if needed.
+      #
+      # Options:
+      #
+      # validate:: Validates the document and raises an error if an uncorrectable problem is found.
+      def write(io, validate: true)
+        if validate
+          task(:validate) do |msg, correctable|
+            next if correctable
+            raise HexaPDF::Error, "Validation error: #{msg}"
+          end
+        end
         Writer.write(self, io)
       end
 
