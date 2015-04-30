@@ -32,13 +32,13 @@ module HexaPDF
         # the encryption key.
         class StandardEncryptionDictionary < EncryptionDictionary
 
-          define_field :R, type: Integer, required: true
-          define_field :O, type: PDFByteString, required: true
-          define_field :OE, type: PDFByteString, version: '2.0'
-          define_field :U, type: PDFByteString, required: true
-          define_field :UE, type: PDFByteString, version: '2.0'
-          define_field :P, type: Integer, required: true
-          define_field :Perms, type: PDFByteString, version: '2.0'
+          define_field :R,               type: Integer, required: true
+          define_field :O,               type: PDFByteString, required: true
+          define_field :OE,              type: PDFByteString, version: '2.0'
+          define_field :U,               type: PDFByteString, required: true
+          define_field :UE,              type: PDFByteString, version: '2.0'
+          define_field :P,               type: Integer, required: true
+          define_field :Perms,           type: PDFByteString, version: '2.0'
           define_field :EncryptMetadata, type: Boolean, default: true, version: '1.5'
 
           define_validator(:validate_standard_encrypt_dict)

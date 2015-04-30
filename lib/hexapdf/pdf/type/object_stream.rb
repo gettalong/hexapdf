@@ -66,10 +66,10 @@ module HexaPDF
         end
 
 
-        define_field :Type, type: Symbol, required: true, default: :ObjStm, version: '1.5'
-        define_field :N, type: Integer     # not required, it will be auto-filled on #write_objects
-        define_field :First, type: Integer # not required, it will be auto-filled on #write_objects
-        define_field :Extends, type: HexaPDF::PDF::Stream
+        define_field :Type,    type: Symbol, required: true, default: :ObjStm, version: '1.5'
+        define_field :N,       type: Integer # not required, will be auto-filled on #write_objects
+        define_field :First,   type: Integer # not required, will be auto-filled on #write_objects
+        define_field :Extends, type: Stream
 
         define_validator(:validate_gen_number)
 
