@@ -19,7 +19,7 @@ module HexaPDF
     # == Implementing a Task
     #
     # A task is simply a callable object that takes the document as first mandatory argument and can
-    # optionally take keyword arguments. This means that a block suffices.
+    # optionally take keyword arguments and/or a block. This means that a block suffices.
     #
     # Here is a simple example:
     #

@@ -407,12 +407,20 @@ EOF
   end
 
   describe "task" do
-    it "executes the given task name with options" do
+    it "executes the given task with options" do
       @doc.config['task.map'][:test] = lambda do |doc, arg1:|
         assert_equal(doc, @doc)
         assert_equal(:arg1, arg1)
       end
       @doc.task(:test, arg1: :arg1)
+    end
+
+    it "executes the given task with a block" do
+      @doc.config['task.map'][:test] = lambda do |doc, **, &block|
+        assert_equal(doc, @doc)
+        block.call('inside')
+      end
+      assert_equal(:done, @doc.task(:test) {|msg| assert_equal('inside', msg); :done})
     end
 
     it "fails if the given task is not available" do

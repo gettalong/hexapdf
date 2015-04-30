@@ -301,11 +301,11 @@ module HexaPDF
       # cluttering the Document interface.
       #
       # See Task for more information.
-      def task(name, **opts)
+      def task(name, **opts, &block)
         task = config.constantize('task.map'.freeze, name) do
           raise HexaPDF::Error, "No task named '#{name}' is available"
         end
-        task.call(self, **opts)
+        task.call(self, **opts, &block)
       end
 
       # Returns the trailer dictionary for the document.
