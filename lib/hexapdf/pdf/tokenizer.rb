@@ -84,10 +84,8 @@ module HexaPDF
       # returned if there are no more tokens available.
       def next_token
         prepare_string_scanner(20)
+        prepare_string_scanner(20) while @ss.skip(WHITESPACE_MULTI_RE)
         case (@ss.eos? ? -1 : @ss.string.getbyte(@ss.pos))
-        when 0, 9, 10, 12, 13, 32  # \0 \t \n \f \r \s
-          @ss.skip(WHITESPACE_MULTI_RE)
-          next_token
         when 43, 45, 46, 48..57 # + - . 0..9
           parse_number
         when 47 # /
@@ -383,11 +381,11 @@ module HexaPDF
         @io.seek(@next_read_pos)
         return false if @io.eof?
 
-        @ss << @io.read(1024)
-        if @ss.pos > 10240 && @ss.string.length > 20480
-          @ss.string.slice!(0, 10240)
-          @ss.pos -= 10240
-          @original_pos += 10240
+        @ss << @io.read(8192)
+        if @ss.pos > 8192 && @ss.string.length > 16384
+          @ss.string.slice!(0, 8192)
+          @ss.pos -= 8192
+          @original_pos += 8192
         end
         @next_read_pos = @io.pos
         true
