@@ -30,9 +30,6 @@ module HexaPDF
 
       # Writes the document to the IO object.
       def write
-        if @document.encrypted? && !@document.security_handler.encryption_key_valid?
-          raise HexaPDF::EncryptionError, "Encryption key doesn't match encryption dictionary"
-        end
         @serializer.encrypt = @document.encrypted?
 
         write_file_header
