@@ -15,6 +15,7 @@ module HexaPDF
       autoload(:ObjectStream, 'hexapdf/pdf/type/object_stream')
       autoload(:Trailer, 'hexapdf/pdf/type/trailer')
       autoload(:Info, 'hexapdf/pdf/type/info')
+      autoload(:Catalog, 'hexapdf/pdf/type/catalog')
 
     end
 

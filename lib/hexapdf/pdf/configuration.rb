@@ -122,8 +122,9 @@ module HexaPDF
               Crypt: nil
             },
             'object.type_map' => {
-              :XRef => 'HexaPDF::PDF::Type::XRefStream',
-              :ObjStm => 'HexaPDF::PDF::Type::ObjectStream',
+              XRef: 'HexaPDF::PDF::Type::XRefStream',
+              ObjStm: 'HexaPDF::PDF::Type::ObjectStream',
+              Catalog: 'HexaPDF::PDF::Type::Catalog',
             },
             'object.subtype_map' => {
             },

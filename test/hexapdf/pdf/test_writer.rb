@@ -43,7 +43,7 @@ startxref
 xref
 0 0
 trailer
-<</Prev 219/Size 3>>
+<</Prev 219/Size 3/Root<</Type/Catalog>>>>
 startxref
 296
 %%EOF
@@ -74,7 +74,7 @@ Some data!
 endstream
 endobj
 4 0 obj
-<</Size 6/Prev 141/Type/XRef/W[1 2 2]/Index[2 1 4 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 20>>stream
+<</Size 6/Prev 141/Root<</Type/Catalog>>/Type/XRef/W[1 2 2]/Index[2 1 4 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 20>>stream
 x\xDAcbd\fb``b`\xB0d`\x00\x00\x03\xD2\x00\x92
 endstream
 endobj
