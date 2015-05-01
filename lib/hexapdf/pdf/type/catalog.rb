@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/pdf/dictionary'
+require 'hexapdf/pdf/number_tree_node'
 
 module HexaPDF
   module PDF
@@ -18,7 +19,7 @@ module HexaPDF
         define_field :Version,           type: Symbol,     version: '1.4'
         define_field :Extensions,        type: Dictionary, version: '1.7'
         define_field :Pages,             type: Dictionary, indirect: true
-        # define_field :PageLabels, type: NumberTree, version: '1.3' TODO: NumberTree
+        define_field :PageLabels,        type: NumberTreeNode, version: '1.3'
         define_field :Names,             type: Dictionary, version: '1.2'
         define_field :Dests,             type: Dictionary, version: '1.1'
         define_field :ViewerPreferences, type: 'HexaPDF::PDF::Type::ViewerPreferences', version: '1.2'
