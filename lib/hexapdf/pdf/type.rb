@@ -16,6 +16,7 @@ module HexaPDF
       autoload(:Trailer, 'hexapdf/pdf/type/trailer')
       autoload(:Info, 'hexapdf/pdf/type/info')
       autoload(:Catalog, 'hexapdf/pdf/type/catalog')
+      autoload(:ViewerPreferences, 'hexapdf/pdf/type/viewer_preferences')
 
     end
 

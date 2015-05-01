@@ -125,6 +125,7 @@ module HexaPDF
               XRef: 'HexaPDF::PDF::Type::XRefStream',
               ObjStm: 'HexaPDF::PDF::Type::ObjectStream',
               Catalog: 'HexaPDF::PDF::Type::Catalog',
+              ViewerPreferences: 'HexaPDF::PDF::Type::ViewerPreferences',
             },
             'object.subtype_map' => {
             },

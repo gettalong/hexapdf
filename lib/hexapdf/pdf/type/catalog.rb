@@ -21,7 +21,7 @@ module HexaPDF
         # define_field :PageLabels, type: NumberTree, version: '1.3' TODO: NumberTree
         define_field :Names,             type: Dictionary, version: '1.2'
         define_field :Dests,             type: Dictionary, version: '1.1'
-        define_field :ViewerPreferences, type: Dictionary, version: '1.2'
+        define_field :ViewerPreferences, type: 'HexaPDF::PDF::Type::ViewerPreferences', version: '1.2'
         define_field :PageLayout,        type: Symbol,     default: :SinglePage
         define_field :PageMode,          type: Symbol,     default: :UseNone
         define_field :Outlines,          type: Dictionary, indirect: true
