@@ -32,14 +32,7 @@ module HexaPDF
             split_if_needed(self, self)
           else
             stack = []
-            iterate_kids = lambda do |obj|
-              return unless obj.value.key?(:Kids)
-              index = find_in_intermediate_node(obj[:Kids], key)
-              stack << document.deref(obj[:Kids][index])
-              iterate_kids.call(stack.last)
-            end
-
-            iterate_kids.call(self)
+            path_to_key(self, key, stack)
 
             insert_pair(stack.last[container_name], key, data)
             stack.last[:Limits] = stack.last[container_name].values_at(0, -2)
@@ -58,6 +51,42 @@ module HexaPDF
           end
         end
 
+        # Deletes the key-data pair from the tree.
+        #
+        # This method has to be invoked on the root node of the tree!
+        def delete_from_tree(key)
+          if value.key?(:Limits)
+            raise HexaPDF::Error, "Deleting a tree entry is only allowed via the root node"
+          end
+
+          stack = [self]
+          path_to_key(self, key, stack)
+          container_name = leaf_node_container_name
+
+          index = find_in_leaf_node(stack.last[container_name], key)
+          return unless stack.last[container_name][index] == key
+
+          value = stack.last[container_name].delete_at(index)
+          document.delete(value) if value.kind_of?(HexaPDF::PDF::Object)
+          value = stack.last[container_name].delete_at(index)
+          document.delete(value) if value.kind_of?(HexaPDF::PDF::Object)
+
+          stack.last[:Limits] = stack.last[container_name].values_at(0, -2) if stack.last[:Limits]
+
+          stack.reverse_each.inject do |nested_node, node|
+            if (!nested_node[container_name] || nested_node[container_name].empty?) &&
+                (!nested_node[:Kids] || nested_node[:Kids].empty?)
+              node[:Kids].delete_at(node[:Kids].index {|n| document.deref(n) == nested_node})
+              document.delete(nested_node)
+            end
+            if node[:Kids].size > 0 && node[:Limits]
+              node[:Limits][0] = document.deref(node[:Kids][0])[:Limits][0]
+              node[:Limits][1] = document.deref(node[:Kids][-1])[:Limits][1]
+            end
+            node
+          end
+        end
+
         # Finds and returns the associated data for the key, or returns +nil+ if no such key is
         # found.
         def find_in_tree(key)
@@ -73,6 +102,15 @@ module HexaPDF
         end
 
         private
+
+        # Starting from node traverses the tree to the node where the key is located or, if not
+        # present, where it would be located and adds the nodes to the stack.
+        def path_to_key(node, key, stack)
+          return unless node.value.key?(:Kids)
+          index = find_in_intermediate_node(node[:Kids], key)
+          stack << document.deref(node[:Kids][index])
+          path_to_key(stack.last, key, stack)
+        end
 
         # Returns the index into the /Kids array where the entry for +key+ is located or, if not
         # present, where it would be located.

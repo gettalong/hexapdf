@@ -120,6 +120,29 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
     end
   end
 
+  describe "delete" do
+    it "works with only the root node" do
+      %w[a b c d e f].each {|name| @root.add_name(name, 1)}
+      %w[f b a unknown e d c].each {|name| @root.delete_name(name)}
+      refute(@root.value.key?(:Kids))
+      refute(@root.value.key?(:Limits))
+      assert(@root[:Names].empty?)
+    end
+
+    it "works with multiple levels of intermediate nodes" do
+      add_multilevel_entries
+      %w[c f i m unknown o q s u].each {|name| @root.delete_name(name)}
+      refute(@root.value.key?(:Names))
+      refute(@root.value.key?(:Limits))
+      assert(@root[:Kids].empty?)
+    end
+
+    it "fails if not called on the root node" do
+      @root[:Limits] = ['a', 'c']
+      assert_raises(HexaPDF::Error) { @root.delete_name('b') }
+    end
+  end
+
   it "works equally well with a NumberTreeNode" do
     root = HexaPDF::PDF::NumberTreeNode.new({}, document: @doc)
     root.add_number(2, 1)

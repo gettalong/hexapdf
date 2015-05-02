@@ -27,8 +27,9 @@ module HexaPDF
       define_field :Limits, type: Array
 
       alias_method :add_number, :add_to_tree
+      alias_method :delete_number, :delete_from_tree
       alias_method :find_number, :find_in_tree
-      public :add_number, :find_number
+      public :add_number, :delete_number, :find_number
 
       private
 
