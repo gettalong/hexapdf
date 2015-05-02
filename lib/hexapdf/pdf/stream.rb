@@ -102,6 +102,11 @@ module HexaPDF
         self.stream = stream
       end
 
+      # Stream objects must always be indirect.
+      def must_be_indirect?
+        true
+      end
+
       # Assigns a new stream data object.
       #
       # The +stream+ argument can be a StreamData object, a String object or +nil+.

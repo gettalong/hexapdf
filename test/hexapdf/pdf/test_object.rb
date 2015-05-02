@@ -46,14 +46,14 @@ describe HexaPDF::PDF::Object do
     it "allows adding and retrieving class level validators for instance methods" do
       klass = Class.new(HexaPDF::PDF::Object)
       klass.define_validator(:validate_me)
-      assert_equal([:validate_me], klass.each_validator.to_a)
+      assert_equal([:validate_must_be_indirect, :validate_me], klass.each_validator.to_a)
     end
 
     it "allows adding and retrieving arbitrary class level validators" do
       klass = Class.new(HexaPDF::PDF::Object)
       validate_me = lambda {|obj, auto_correct:|}
       klass.define_validator(&validate_me)
-      assert_equal([validate_me], klass.each_validator.to_a)
+      assert_equal([:validate_must_be_indirect, validate_me], klass.each_validator.to_a)
     end
 
     it "uses validators defined for the class or one of its superclasses" do
@@ -61,7 +61,8 @@ describe HexaPDF::PDF::Object do
       klass.define_validator(:validate_me)
       subklass = Class.new(klass)
       subklass.define_validator(:validate_me_too)
-      assert_equal([:validate_me, :validate_me_too], subklass.each_validator.to_a)
+      assert_equal([:validate_must_be_indirect, :validate_me, :validate_me_too],
+                   subklass.each_validator.to_a)
     end
 
     it "invokes the validators correctly via #validate" do
@@ -113,5 +114,18 @@ describe HexaPDF::PDF::Object do
 
     obj1 = HexaPDF::PDF::Object.new(6, oid: 5)
     refute_equal(obj, obj1)
+  end
+
+  it "validates that the object is indirect if it must be indirect" do
+    doc = Object.new
+    def doc.add(obj) obj.oid = 1 end
+    obj = HexaPDF::PDF::Object.new(6, document: doc)
+
+    obj.validate
+    assert_equal(0, obj.oid)
+
+    obj.must_be_indirect = true
+    obj.validate
+    assert_equal(1, obj.oid)
   end
 end

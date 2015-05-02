@@ -51,12 +51,17 @@ describe HexaPDF::PDF::Stream do
     def (@document).unwrap(obj); obj; end
     def (@document).deref(obj); obj; end
 
-    @stm = HexaPDF::PDF::Stream.new({}, document: @document)
+    @stm = HexaPDF::PDF::Stream.new({}, oid: 1, document: @document)
   end
 
   it "#initialize accepts the stream keyword" do
     stm = HexaPDF::PDF::Stream.new({}, document: @document, stream: 'other')
     assert_equal('other', stm.stream)
+  end
+
+  it "must always be indirect" do
+    @stm.must_be_indirect = false
+    assert(@stm.must_be_indirect?)
   end
 
   describe "stream=" do

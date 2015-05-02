@@ -79,11 +79,16 @@ module HexaPDF
         @validators.each(&block) if defined?(@validators)
       end
 
+      define_validator(:validate_must_be_indirect)
+
       # The wrapped object.
       attr_reader :value
 
       # Sets the associated PDF document.
       attr_writer :document
+
+      # Sets whether the object has to be an indirect object once it is written.
+      attr_writer :must_be_indirect
 
       # Creates a new PDF object for +value+.
       def initialize(value, document: nil, oid: 0, gen: 0)
@@ -91,6 +96,7 @@ module HexaPDF
         self.document = document
         self.oid = oid
         self.gen = gen
+        self.must_be_indirect = false
       end
 
       # Sets the value for this PDF object.
@@ -117,6 +123,11 @@ module HexaPDF
       # zero).
       def indirect?
         oid != 0
+      end
+
+      # Returns +true+ if the object must be an indirect object once it is written.
+      def must_be_indirect?
+        @must_be_indirect
       end
 
       # Returns the type (symbol) of the object.
@@ -187,6 +198,14 @@ module HexaPDF
       # Returns the configuration object of the PDF document.
       def config
         document.config
+      end
+
+      # Validates that the object is indirect if #must_be_indirect? is +true+.
+      def validate_must_be_indirect
+        if must_be_indirect? && !indirect?
+          yield("Object must be an indirect object", true)
+          document.add(self)
+        end
       end
 
     end
