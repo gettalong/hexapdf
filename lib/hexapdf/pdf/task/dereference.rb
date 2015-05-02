@@ -28,7 +28,7 @@ module HexaPDF
               if !visited.key?(obj) && obj.type != :ObjStm && obj.type != :XRef
                 unused << obj
               elsif obj.kind_of?(HexaPDF::PDF::Stream) && (val = obj.value[:Length]) &&
-                  val.kind_of?(HexaPDF::PDF::Object) && val.oid != 0
+                  val.kind_of?(HexaPDF::PDF::Object) && val.indirect?
                 unused << val
               end
             end
@@ -51,7 +51,7 @@ module HexaPDF
             when HexaPDF::PDF::Reference
               dereference(doc, doc.object(val), done)
             when HexaPDF::PDF::Object
-              (val.oid == 0 ? recurse.call(val.value) : dereference(doc, val, done))
+              (val.indirect? ? dereference(doc, val, done) : recurse.call(val.value))
             else
               val
             end

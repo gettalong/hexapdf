@@ -106,8 +106,8 @@ module HexaPDF
       def add(obj)
         if object?(obj.oid)
           raise HexaPDF::Error, "A revision can only contain one object with a given object number"
-        elsif obj.oid == 0
-          raise HexaPDF::Error, "A revision can only contain objects with non-zero object numbers"
+        elsif !obj.indirect?
+          raise HexaPDF::Error, "A revision can only contain indirect objects"
         end
         add_without_check(obj)
       end

@@ -155,7 +155,7 @@ module HexaPDF
 
       # See: PDF1.7 s7.3.4
       def serialize_string(obj)
-        if @encrypt && @object.kind_of?(HexaPDF::PDF::Object) && @object.oid != 0
+        if @encrypt && @object.kind_of?(HexaPDF::PDF::Object) && @object.indirect?
           obj = @object.document.security_handler.encrypt_string(obj, @object)
         elsif obj.encoding != Encoding::BINARY && obj =~ /[^ -~\t\r\n]/
           obj = ("\xFE\xFF".force_encoding(Encoding::UTF_16BE) << obj.encode(Encoding::UTF_16BE)).
@@ -193,7 +193,7 @@ module HexaPDF
       # Uses #serialize_hexapdf_pdf_reference if it is an indirect object, otherwise just serializes
       # the objects value.
       def serialize_hexapdf_pdf_object(obj)
-        if obj.oid != 0 && obj != @object
+        if obj.indirect? && obj != @object
           serialize_hexapdf_pdf_reference(obj)
         else
           __serialize(obj.value)

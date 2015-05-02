@@ -401,10 +401,10 @@ module HexaPDF
 
           # Check if field value needs to be (in)direct
           if !field.indirect.nil?
-            if field.indirect && (!obj.kind_of?(HexaPDF::PDF::Object) || obj.oid == 0)
+            if field.indirect && (!obj.kind_of?(HexaPDF::PDF::Object) || !obj.indirect?)
               yield("Field #{name} needs to be an indirect object", true)
               value[name] = obj = document.add(obj)
-            elsif !field.indirect && obj.kind_of?(HexaPDF::PDF::Object) && obj.oid != 0
+            elsif !field.indirect && obj.kind_of?(HexaPDF::PDF::Object) && obj.indirect?
               yield("Field #{name} needs to be a direct object", true)
               document.delete(obj)
               value[name] = obj = obj.value
@@ -412,7 +412,7 @@ module HexaPDF
           end
 
           # Validate the field values if they are direct PDF objects
-          if obj.kind_of?(HexaPDF::PDF::Object) && obj.oid == 0
+          if obj.kind_of?(HexaPDF::PDF::Object) && !obj.indirect?
             obj.validate do |msg, correctable|
               yield("Field #{name}: #{msg}", correctable)
             end

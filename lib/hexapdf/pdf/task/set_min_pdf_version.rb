@@ -26,7 +26,7 @@ module HexaPDF
             if field.version > version && obj.value.key?(name)
               version = field.version
             end
-            if obj.value[name].kind_of?(HexaPDF::PDF::Dictionary) && obj.oid == 0
+            if obj.value[name].kind_of?(HexaPDF::PDF::Dictionary) && !obj.indirect?
               version = process_object(obj.value[name], version)
             end
           end

@@ -122,7 +122,7 @@ module HexaPDF
         end
         obj.document = self
 
-        if obj.oid != 0 && (rev_obj = revision.object(obj.oid))
+        if obj.indirect? && (rev_obj = revision.object(obj.oid))
           if rev_obj.equal?(obj)
             return obj
           else
@@ -131,7 +131,7 @@ module HexaPDF
           end
         end
 
-        obj.oid = @revisions.map {|rev| rev.next_free_oid}.max if obj.oid == 0
+        obj.oid = @revisions.map {|rev| rev.next_free_oid}.max if !obj.indirect?
 
         revision.add(obj)
       end

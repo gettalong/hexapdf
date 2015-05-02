@@ -113,6 +113,12 @@ module HexaPDF
         !@document.nil?
       end
 
+      # Returns +true+ if the object is an indirect object (i.e. has an object number unequal to
+      # zero).
+      def indirect?
+        oid != 0
+      end
+
       # Returns the type (symbol) of the object.
       #
       # Since the type system is implemented in such a way as to allow exchanging implementations of
