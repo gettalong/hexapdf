@@ -83,6 +83,20 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
       assert_equal(['r', 1, 's', 1, 'u', 1, 'v', 1], @kid221[:Names])
     end
 
+    it "splits nodes if needed" do
+      @doc.config['sorted_tree.max_leaf_node_size'] = 4
+      %w[a c e m k i g d b l j f h].each {|key| @root.add(key, 1)}
+      refute(@root.value.key?(:Limits))
+      refute(@root.value.key?(:Names))
+      assert_equal(6, @root[:Kids].size)
+      assert_equal(['a', 1, 'b', 1], @root[:Kids][0][:Names])
+      assert_equal(['c', 1, 'd', 1], @root[:Kids][1][:Names])
+      assert_equal(['e', 1, 'f', 1], @root[:Kids][2][:Names])
+      assert_equal(['g', 1, 'h', 1, 'i', 1], @root[:Kids][3][:Names])
+      assert_equal(['j', 1, 'k', 1], @root[:Kids][4][:Names])
+      assert_equal(['l', 1, 'm', 1], @root[:Kids][5][:Names])
+    end
+
     it "fails if not called on the root node" do
       @root[:Limits] = ['a', 'c']
       assert_raises(HexaPDF::Error) { @root.add('b', 1) }

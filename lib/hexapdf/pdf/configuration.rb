@@ -84,6 +84,9 @@ module HexaPDF
     #    The value needs to be an object that responds to \#call(document, message, position) and
     #    returns +true+ if an error should be raised.
     #
+    # sorted_tree.max_leaf_node_size::
+    #    The maximum number of nodes that should be in a leaf node of a node tree.
+    #
     # task.map::
     #    A mapping from task names to callable task objects. See Task for more information.
     class Configuration
@@ -131,6 +134,7 @@ module HexaPDF
             },
             'io.chunk_size' => 2**16,
             'parser.on_correctable_error' => proc { false },
+            'sorted_tree.max_leaf_node_size' => 64,
             'task.map' => {
               set_min_pdf_version: 'HexaPDF::PDF::Task::SetMinPDFVersion',
               optimize: 'HexaPDF::PDF::Task::Optimize',

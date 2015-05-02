@@ -29,6 +29,7 @@ module HexaPDF
 
           if value.key?(container_name)
             insert_pair(self[container_name], key, data)
+            split_if_needed(self, self)
           else
             stack = []
             iterate_kids = lambda do |obj|
@@ -52,6 +53,8 @@ module HexaPDF
               end
               node
             end
+
+            split_if_needed(stack[-2] || self, stack[-1])
           end
         end
 
@@ -120,6 +123,32 @@ module HexaPDF
             end
           end
           left
+        end
+
+        # Splits the leaf node if it contains the maximum number of entries.
+        def split_if_needed(parent, leaf_node)
+          container_name = leaf_node_container_name
+          max_size = config['sorted_tree.max_leaf_node_size'] * 2
+          return unless leaf_node[container_name].size >= max_size
+
+          split_point = (max_size / 2) & ~1
+          if parent == leaf_node
+            node1 = document.add(document.wrap({}, type: self.class))
+            node2 = document.add(document.wrap({}, type: self.class))
+            node1[container_name] = leaf_node[container_name][0, split_point]
+            node1[:Limits] = node1[container_name].values_at(0, -2)
+            node2[container_name] = leaf_node[container_name][split_point..-1]
+            node2[:Limits] = node2[container_name].values_at(0, -2)
+            parent.delete(container_name)
+            parent[:Kids] = [node1, node2]
+          else
+            node1 = document.add(document.wrap({}, type: self.class))
+            node1[container_name] = leaf_node[container_name].slice!(split_point..-1)
+            node1[:Limits] = node1[container_name].values_at(0, -2)
+            leaf_node[:Limits][1] = leaf_node[container_name][-2]
+            index = 1 + parent[:Kids].index {|o| document.deref(o) == leaf_node}
+            parent[:Kids].insert(index, node1)
+          end
         end
 
       end
