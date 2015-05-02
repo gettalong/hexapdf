@@ -209,7 +209,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.3.8
       def serialize_hexapdf_pdf_stream(obj)
-        return serialize_hexapdf_pdf_reference(obj) if obj.oid != 0 && obj != @object
+        return serialize_hexapdf_pdf_reference(obj) if obj != @object
 
         fiber = if @encrypt
                   @object.document.security_handler.encrypt_stream(obj)
