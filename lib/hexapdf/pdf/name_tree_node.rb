@@ -21,6 +21,12 @@ module HexaPDF
     # build a name tree manually. Instead, use the provided convenience methods (see
     # Utils::SortedTreeNode) to add or retrieve entries. They ensure that the name tree stays valid.
     #
+    # The public convenience methods that should be used are:
+    #
+    # * #add_name (alias for Utils::SortedTreeNode#add_to_tree)
+    # * #delete_name (alias for Utils::SortedTreeNode#delete_from_tree)
+    # * #find_name (alias for Utils::SortedTreeNode#find_in_tree)
+    #
     # See: PDF1.7 s7.9.6
     class NameTreeNode < Dictionary
 
@@ -29,6 +35,10 @@ module HexaPDF
       define_field :Kids,   type: Array
       define_field :Names,  type: Array
       define_field :Limits, type: Array
+
+      alias_method :add_name, :add_to_tree
+      alias_method :find_name, :find_in_tree
+      public :add_name, :find_name
 
       private
 

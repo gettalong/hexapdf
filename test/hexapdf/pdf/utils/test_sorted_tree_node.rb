@@ -32,16 +32,16 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
 
   describe "add" do
     it "works with the root node alone" do
-      @root.add('c', 1)
-      @root.add('a', 2)
-      @root.add('e', 3)
+      @root.add_name('c', 1)
+      @root.add_name('a', 2)
+      @root.add_name('e', 3)
       assert_equal(['a', 2, 'c', 1, 'e', 3], @root[:Names])
       refute(@root[:Limits])
     end
 
     it "replaces an existing entry" do
-      @root.add('a', 2)
-      @root.add('a', 5)
+      @root.add_name('a', 2)
+      @root.add_name('a', 5)
       assert_equal(['a', 5], @root[:Names])
     end
 
@@ -49,11 +49,11 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
       kid1 = HexaPDF::PDF::NameTreeNode.new({Limits: ['m', 'm'], Names: ['m', 1]}, document: @doc)
       kid2 = HexaPDF::PDF::NameTreeNode.new({Limits: ['t', 't'], Names: ['t', 1]}, document: @doc)
       @root[:Kids] = [kid1, kid2]
-      @root.add('c', 1)
-      @root.add('d', 1)
-      @root.add('p', 1)
-      @root.add('r', 1)
-      @root.add('u', 1)
+      @root.add_name('c', 1)
+      @root.add_name('d', 1)
+      @root.add_name('p', 1)
+      @root.add_name('r', 1)
+      @root.add_name('u', 1)
       assert_equal(['c', 'm'], kid1[:Limits])
       assert_equal(['c', 1, 'd', 1, 'm', 1], kid1[:Names])
       assert_equal(['p', 'u'], kid2[:Limits])
@@ -62,14 +62,14 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
 
     it "works with multiple levels of intermediate nodes" do
       add_multilevel_entries
-      @root.add('a', 1)
-      @root.add('e', 1)
-      @root.add('g', 1)
-      @root.add('j', 1)
-      @root.add('n', 1)
-      @root.add('p', 1)
-      @root.add('r', 1)
-      @root.add('v', 1)
+      @root.add_name('a', 1)
+      @root.add_name('e', 1)
+      @root.add_name('g', 1)
+      @root.add_name('j', 1)
+      @root.add_name('n', 1)
+      @root.add_name('p', 1)
+      @root.add_name('r', 1)
+      @root.add_name('v', 1)
       assert_equal(['a', 'm'], @kid1[:Limits])
       assert_equal(['a', 'f'], @kid11[:Limits])
       assert_equal(['a', 1, 'c', 1, 'e', 1, 'f', 1], @kid11[:Names])
@@ -85,7 +85,7 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
 
     it "splits nodes if needed" do
       @doc.config['sorted_tree.max_leaf_node_size'] = 4
-      %w[a c e m k i g d b l j f h].each {|key| @root.add(key, 1)}
+      %w[a c e m k i g d b l j f h].each {|key| @root.add_name(key, 1)}
       refute(@root.value.key?(:Limits))
       refute(@root.value.key?(:Names))
       assert_equal(6, @root[:Kids].size)
@@ -99,31 +99,31 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
 
     it "fails if not called on the root node" do
       @root[:Limits] = ['a', 'c']
-      assert_raises(HexaPDF::Error) { @root.add('b', 1) }
+      assert_raises(HexaPDF::Error) { @root.add_name('b', 1) }
     end
 
     it "fails if the key is not a string" do
-      assert_raises(HexaPDF::Error) { @root.add(5, 1) }
+      assert_raises(HexaPDF::Error) { @root.add_name(5, 1) }
     end
   end
 
   describe "find" do
     it "finds the correct entry" do
       add_multilevel_entries
-      assert_equal(1, @root.find('i'))
-      assert_equal(1, @root.find('q'))
+      assert_equal(1, @root.find_name('i'))
+      assert_equal(1, @root.find_name('q'))
     end
 
     it "returns nil for non-existing entries" do
       add_multilevel_entries
-      assert_nil(@root.find('non'))
+      assert_nil(@root.find_name('non'))
     end
   end
 
   it "works equally well with a NumberTreeNode" do
     root = HexaPDF::PDF::NumberTreeNode.new({}, document: @doc)
-    root.add(2, 1)
-    root.add(1, 2)
+    root.add_number(2, 1)
+    root.add_number(1, 2)
     assert_equal([1, 2, 2, 1], root[:Nums])
   end
 

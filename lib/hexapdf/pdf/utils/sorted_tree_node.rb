@@ -12,7 +12,7 @@ module HexaPDF
         # Adds a new key-data pair to the sorted tree.
         #
         # This method has to be invoked on the root node of the tree!
-        def add(key, data)
+        def add_to_tree(key, data)
           if value.key?(:Limits)
             raise HexaPDF::Error, "Adding a new tree entry is only allowed via the root node"
           elsif !key.kind_of?(key_type)
@@ -60,7 +60,7 @@ module HexaPDF
 
         # Finds and returns the associated data for the key, or returns +nil+ if no such key is
         # found.
-        def find(key)
+        def find_in_tree(key)
           container_name = leaf_node_container_name
           if value.key?(container_name)
             index = find_in_leaf_node(self[container_name], key)
@@ -68,7 +68,7 @@ module HexaPDF
           else
             index = find_in_intermediate_node(self[:Kids], key)
             kid = self[:Kids][index]
-            kid.find(key) if key >= kid[:Limits][0] && key <= kid[:Limits][1]
+            kid.find_in_tree(key) if key >= kid[:Limits][0] && key <= kid[:Limits][1]
           end
         end
 
