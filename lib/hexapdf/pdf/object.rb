@@ -92,11 +92,11 @@ module HexaPDF
 
       # Creates a new PDF object for +value+.
       def initialize(value, document: nil, oid: 0, gen: 0)
-        self.value = value
         self.document = document
         self.oid = oid
         self.gen = gen
         self.must_be_indirect = false
+        self.value = value
       end
 
       # Sets the value for this PDF object.
