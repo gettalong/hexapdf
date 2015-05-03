@@ -354,4 +354,15 @@ describe HexaPDF::PDF::Dictionary do
     end
   end
 
+  describe "type" do
+    it "returns the /Type entry" do
+      @dict[:Type] = :Test
+      assert_equal(:Test, @dict.type)
+    end
+
+    it "returns the value from Object#type if not /Type entry is present" do
+      assert_equal(:Unknown, @dict.type)
+    end
+  end
+
 end

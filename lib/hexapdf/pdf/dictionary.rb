@@ -347,11 +347,9 @@ module HexaPDF
         self
       end
 
-      # Returns the value of the /Type field.
-      #
-      # See Object#type.
+      # Returns the value of the /Type field or, if not set, the result of Object#type.
       def type
-        self[:Type]
+        self[:Type] || super
       end
 
       # See Object#empty?.
