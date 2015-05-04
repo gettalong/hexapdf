@@ -18,7 +18,7 @@ module HexaPDF
         define_field :Type,              type: Symbol,     required: true, default: :Catalog
         define_field :Version,           type: Symbol,     version: '1.4'
         define_field :Extensions,        type: Dictionary, version: '1.7'
-        define_field :Pages,             type: Dictionary, indirect: true
+        define_field :Pages,             type: 'HexaPDF::PDF::Type::PageTreeNode', indirect: true
         define_field :PageLabels,        type: NumberTreeNode, version: '1.3'
         define_field :Names,             type: Dictionary, version: '1.2'
         define_field :Dests,             type: Dictionary, version: '1.1'

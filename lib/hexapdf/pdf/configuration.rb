@@ -129,6 +129,7 @@ module HexaPDF
               ObjStm: 'HexaPDF::PDF::Type::ObjectStream',
               Catalog: 'HexaPDF::PDF::Type::Catalog',
               ViewerPreferences: 'HexaPDF::PDF::Type::ViewerPreferences',
+              Pages: 'HexaPDF::PDF::Type::PageTreeNode',
             },
             'object.subtype_map' => {
             },

@@ -17,6 +17,7 @@ module HexaPDF
       autoload(:Info, 'hexapdf/pdf/type/info')
       autoload(:Catalog, 'hexapdf/pdf/type/catalog')
       autoload(:ViewerPreferences, 'hexapdf/pdf/type/viewer_preferences')
+      autoload(:PageTreeNode, 'hexapdf/pdf/type/page_tree_node')
 
     end
 
