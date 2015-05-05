@@ -8,7 +8,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
 
   before do
     @doc = HexaPDF::PDF::Document.new
-    @root = HexaPDF::PDF::Type::PageTreeNode.new({}, document: @doc)
+    @root = @doc.add(Type: :Pages)
   end
 
   def define_multilevel_page_tree
@@ -157,6 +157,40 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       assert_nil(@doc.object(node).value)
       refute_equal(node, @root[:Kids].last)
       assert(8, @root[:Count])
+    end
+  end
+
+  describe "validation" do
+    before do
+      define_multilevel_page_tree
+    end
+
+    it "corrects faulty /Count entries" do
+      root_count = @root[:Count]
+      @root[:Count] = -5
+      kid_count = @kid12[:Count]
+      @kid12[:Count] = 100
+
+      called_msg = ''
+      refute(@root.validate(auto_correct: false) {|msg, c| called_msg = msg})
+      assert_match(/Count.*invalid/, called_msg)
+
+      assert(@root.validate)
+      assert_equal(root_count, @root[:Count])
+      assert_equal(kid_count, @kid12[:Count])
+    end
+
+    it "corrects faulty /Parent entries" do
+      @kid12.delete(:Parent)
+      @kid2.delete(:Parent)
+
+      called_msg = ''
+      refute(@root.validate(auto_correct: false) {|msg, c| called_msg = msg})
+      assert_match(/Parent.*invalid/, called_msg)
+
+      assert(@root.validate)
+      assert_equal(@kid1, @kid12[:Parent])
+      assert_equal(@root, @kid2[:Parent])
     end
   end
 

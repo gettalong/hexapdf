@@ -12,6 +12,10 @@ module HexaPDF
       # nodes and page objects for the leaf nodes (see Page). The root node of the page tree is
       # linked via the /Pages entry in the Catalog.
       #
+      # All operations except #add_page on the page tree are rather expensive because page tree
+      # nodes and page objects can be mixed. This means that for finding a page at a specific index
+      # we have to go through all objects that come before it.
+      #
       # See: PDF1.7 s7.7.3.2, Page
       class PageTreeNode < Dictionary
 
@@ -19,6 +23,8 @@ module HexaPDF
         define_field :Parent, type: Hash,    indirect: true
         define_field :Kids,   type: Array,   required: true, default: []
         define_field :Count,  type: Integer, required: true, default: 0
+
+        define_validator(:validate_page_tree)
 
         # Page objects must always be indirect.
         def must_be_indirect?
@@ -129,6 +135,37 @@ module HexaPDF
           end
 
           page
+        end
+
+        private
+
+        # Ensures that the /Count and /Parent fields of the whole page tree are set up correctly.
+        # This is therefore only done for the root node of the page tree!
+        def validate_page_tree
+          return if value.key?(:Parent)
+
+          validate_node = lambda do |node|
+            count = 0
+            node[:Kids].each do |kid|
+              kid = document.deref(kid)
+              if kid.type == :Page
+                count += 1
+              else
+                count += validate_node.call(kid)
+              end
+              if kid[:Parent] != node
+                yield("Field Parent of page tree node (#{kid.oid},#{kid.gen}) is invalid", true)
+                kid[:Parent] = node
+              end
+            end
+            if node[:Count] != count
+              yield("Field Count of page tree node (#{node.oid},#{node.gen}) is invalid", true)
+              node[:Count] = count
+            end
+            count
+          end
+
+          validate_node.call(self)
         end
 
       end
