@@ -26,10 +26,7 @@ module HexaPDF
 
         define_validator(:validate_page_tree)
 
-        # Page objects must always be indirect.
-        def must_be_indirect?
-          true
-        end
+        must_be_indirect
 
         # Returns the page for the index or +nil+ if no such page exists.
         #

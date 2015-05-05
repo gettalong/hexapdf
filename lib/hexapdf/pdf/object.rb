@@ -79,6 +79,12 @@ module HexaPDF
         @validators.each(&block) if defined?(@validators)
       end
 
+      # Ensures that an object of this class is *always* an indirect object once it is written. This
+      # overrides any value set via #must_be_indirect=.
+      def self.must_be_indirect
+        define_method(:must_be_indirect?) { true }
+      end
+
       define_validator(:validate_must_be_indirect)
 
       # The wrapped object.
