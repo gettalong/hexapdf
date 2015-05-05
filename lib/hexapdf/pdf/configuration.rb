@@ -130,6 +130,7 @@ module HexaPDF
               Catalog: 'HexaPDF::PDF::Type::Catalog',
               ViewerPreferences: 'HexaPDF::PDF::Type::ViewerPreferences',
               Pages: 'HexaPDF::PDF::Type::PageTreeNode',
+              Page: 'HexaPDF::PDF::Type::Page',
             },
             'object.subtype_map' => {
             },
