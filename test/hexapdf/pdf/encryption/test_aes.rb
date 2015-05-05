@@ -55,6 +55,7 @@ describe HexaPDF::PDF::Encryption::AES do
       end
 
       def process(data)
+        raise "invalid data" if data.length == 0 || data.length % 16 != 0
         data
       end
 
