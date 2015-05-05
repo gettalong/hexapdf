@@ -37,7 +37,8 @@ module HexaPDF
       class XRefStream < HexaPDF::PDF::Stream
 
         define_field :Type,  type: Symbol, default: :XRef, required: true, indirect: false, version: '1.5'
-        define_field :Size,  type: Integer, required: true, indirect: false
+        # Size is not required because it will be auto-filled before the object is written
+        define_field :Size,  type: Integer, indirect: false
         define_field :Index, type: Array, indirect: false
         define_field :Prev,  type: Integer, indirect: false
         # W is not required because it will be auto-filled on #update_with_xref_section_and_trailer
