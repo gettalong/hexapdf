@@ -20,7 +20,7 @@ module HexaPDF
         define_field :Extensions,        type: Dictionary, version: '1.7'
         define_field :Pages,             type: 'HexaPDF::PDF::Type::PageTreeNode', indirect: true
         define_field :PageLabels,        type: NumberTreeNode, version: '1.3'
-        define_field :Names,             type: Dictionary, version: '1.2'
+        define_field :Names,             type: 'HexaPDF::PDF::Type::Names', version: '1.2'
         define_field :Dests,             type: Dictionary, version: '1.1'
         define_field :ViewerPreferences, type: 'HexaPDF::PDF::Type::ViewerPreferences', version: '1.2'
         define_field :PageLayout,        type: Symbol,     default: :SinglePage

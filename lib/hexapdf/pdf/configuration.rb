@@ -131,6 +131,7 @@ module HexaPDF
               ViewerPreferences: 'HexaPDF::PDF::Type::ViewerPreferences',
               Pages: 'HexaPDF::PDF::Type::PageTreeNode',
               Page: 'HexaPDF::PDF::Type::Page',
+              Names: 'HexaPDF::PDF::Type::Names',
             },
             'object.subtype_map' => {
             },
