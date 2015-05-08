@@ -196,26 +196,28 @@ module HexaPDF
       # :stream:: (String or StreamData) The stream object which should be set on the wrapped
       #           object.
       def wrap(obj, type: nil, subtype: nil, oid: nil, gen: nil, stream: nil)
-        if obj.kind_of?(HexaPDF::PDF::Object)
-          oid ||= obj.oid
-          gen ||= obj.gen
-          stream ||= obj.raw_stream if obj.respond_to?(:raw_stream)
-          obj = obj.value
-        end
+        data = if obj.kind_of?(HexaPDF::PDF::Object)
+                 obj.data
+               else
+                 HexaPDF::PDF::PDFData.new(obj)
+               end
+        data.oid = oid if oid
+        data.gen = gen if gen
+        data.stream = stream if stream
 
         if type.kind_of?(Class)
           klass = type
         else
-          default = if stream
+          default = if data.stream
                       HexaPDF::PDF::Stream
-                    elsif obj.kind_of?(Hash)
+                    elsif data.value.kind_of?(Hash)
                       HexaPDF::PDF::Dictionary
                     else
                       HexaPDF::PDF::Object
                     end
-          if obj.kind_of?(Hash)
-            type ||= obj[:Type]
-            subtype ||= obj[:Subtype]
+          if data.value.kind_of?(Hash)
+            type ||= deref(data.value[:Type])
+            subtype ||= deref(data.value[:Subtype])
           end
 
           if subtype
@@ -226,11 +228,7 @@ module HexaPDF
           klass ||= default
         end
 
-        opts = {document: self}
-        opts[:stream] = stream if stream
-        opts[:oid] = oid if oid
-        opts[:gen] = gen if gen
-        klass.new(obj, opts)
+        klass.new(data, document: self)
       end
 
       # Recursively unwraps the object to get native Ruby objects (i.e. Hash, Array, Integer, ...

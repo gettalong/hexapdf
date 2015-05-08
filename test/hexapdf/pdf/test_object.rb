@@ -2,13 +2,46 @@
 
 require 'test_helper'
 require 'hexapdf/pdf/object'
+require 'hexapdf/pdf/reference'
 
 describe HexaPDF::PDF::Object do
 
-  it "uses the value of a HexaPDF::PDF::Object when setting the value" do
-    obj = HexaPDF::PDF::Object.new(5)
-    assert_equal(5, obj.value)
-    assert_equal(5, HexaPDF::PDF::Object.new(obj).value)
+  describe "initialize" do
+    it "uses a simple value as is" do
+      obj = HexaPDF::PDF::Object.new(5)
+      assert_equal(5, obj.value)
+    end
+
+    it "reuses the data object of a HexaPDF::PDF::Object" do
+      obj = HexaPDF::PDF::Object.new(5)
+      assert_same(obj.data, HexaPDF::PDF::Object.new(obj).data)
+    end
+
+    it "uses a provided PDFData structure" do
+      obj = HexaPDF::PDF::PDFData.new(5)
+      assert_equal(obj, HexaPDF::PDF::Object.new(obj).data)
+    end
+  end
+
+  describe "getters and setters" do
+    before do
+      @obj = HexaPDF::PDF::Object.new(5)
+    end
+
+    it "can get/set oid" do
+      @obj.oid = 7
+      assert_equal(7, @obj.oid)
+    end
+
+    it "can get/set gen" do
+      @obj.gen = 7
+      assert_equal(7, @obj.gen)
+    end
+
+    it "can get/set the value" do
+      @obj.value = :test
+      assert_equal(:test, @obj.value)
+    end
   end
 
   describe "empty" do
@@ -114,6 +147,23 @@ describe HexaPDF::PDF::Object do
 
     obj1 = HexaPDF::PDF::Object.new(6, oid: 5)
     refute_equal(obj, obj1)
+  end
+
+  it "works correctly as hash key, is interchangable in this regard with Reference objects" do
+    hash = {}
+    hash[HexaPDF::PDF::Reference.new(1)] = :one
+    hash[HexaPDF::PDF::Object.new(:val, oid: 2)] = :two
+    assert_equal(:one, hash[HexaPDF::PDF::Reference.new(1, 0)])
+    assert_equal(:one, hash[HexaPDF::PDF::Object.new(:data, oid: 1)])
+    assert_equal(:two, hash[HexaPDF::PDF::Reference.new(2)])
+    assert_equal(:two, hash[HexaPDF::PDF::Object.new(:data, oid: 2)])
+  end
+
+  it "can be sorted together with Reference objects" do
+    a = HexaPDF::PDF::Object.new(:data, oid: 1)
+    b = HexaPDF::PDF::Object.new(:data, oid: 1, gen: 1)
+    c = HexaPDF::PDF::Reference.new(5, 7)
+    assert_equal([a, b, c], [b, c, a].sort)
   end
 
   it "validates that the object is indirect if it must be indirect" do

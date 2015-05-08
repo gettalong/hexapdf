@@ -270,15 +270,6 @@ module HexaPDF
       define_validator(:validate_fields)
 
 
-      # Sets the value and updates it with information from the dictionary's field.
-      def value=(value) # :nodoc:
-        super(value || {})
-        unless self.value.kind_of?(Hash)
-          raise HexaPDF::Error, "A PDF dictionary object needs a hash value, not a #{value.class}"
-        end
-        set_required_fields_with_defaults
-      end
-
       # Returns the value for the given dictionary entry.
       #
       # This method should be used instead of direct access to the value because it provides
@@ -365,6 +356,17 @@ module HexaPDF
 
 
       private
+
+      # Ensures that the value is useful for a Dictionary and updates the object's value with
+      # information from the dictionary's field.
+      def after_data_change # :nodoc:
+        super
+        data.value ||= {}
+        unless self.value.kind_of?(Hash)
+          raise HexaPDF::Error, "A PDF dictionary object needs a hash value, not a #{value.class}"
+        end
+        set_required_fields_with_defaults
+      end
 
       # Sets all required fields that have no current value but a default value to their respective
       # default value.

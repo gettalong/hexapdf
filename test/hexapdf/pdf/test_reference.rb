@@ -16,6 +16,13 @@ describe HexaPDF::PDF::Reference do
     assert_raises(ArgumentError) { HexaPDF::PDF::Reference.new(5, 'b') }
   end
 
+  it "is sortable" do
+    assert_equal([HexaPDF::PDF::Reference.new(1, 0), HexaPDF::PDF::Reference.new(1, 1),
+                  HexaPDF::PDF::Reference.new(5, 7)],
+                 [HexaPDF::PDF::Reference.new(5, 7), HexaPDF::PDF::Reference.new(1, 1),
+                  HexaPDF::PDF::Reference.new(1, 0)].sort)
+  end
+
   it "is comparable to itself" do
     assert_equal(HexaPDF::PDF::Reference.new(5, 7), HexaPDF::PDF::Reference.new(5, 7))
     refute_equal(HexaPDF::PDF::Reference.new(5, 7), HexaPDF::PDF::Reference.new(5, 8))

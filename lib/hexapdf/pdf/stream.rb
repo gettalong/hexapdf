@@ -93,15 +93,6 @@ module HexaPDF
 
       define_validator(:validate_stream_filter)
 
-      # Creates a new Stream object.
-      #
-      # The +stream+ option may be used to assign a stream to this stream object on creation (see
-      # #stream=).
-      def initialize(value, stream: nil, **kwargs)
-        super(value, kwargs)
-        self.stream = stream
-      end
-
       # Stream objects must always be indirect.
       def must_be_indirect?
         true
@@ -113,12 +104,8 @@ module HexaPDF
       #
       # If +stream+ is +nil+, an empty binary string is used instead.
       def stream=(stream)
-        stream ||= ''.force_encoding(Encoding::BINARY)
-        unless stream.kind_of?(StreamData) || stream.kind_of?(String)
-          raise HexaPDF::Error, "Object of class #{stream.class} cannot be used as stream value"
-        end
-
-        @stream = stream
+        data.stream = stream
+        after_data_change
       end
 
       # Returns the (possibly decoded) stream data as string.
@@ -126,10 +113,10 @@ module HexaPDF
       # After this method has been called, the original, possibly encoded stream data is not
       # available anymore!
       def stream
-        unless @stream.kind_of?(String)
-          @stream = HexaPDF::PDF::Filter.string_from_source(stream_decoder)
+        unless data.stream.kind_of?(String)
+          data.stream = HexaPDF::PDF::Filter.string_from_source(stream_decoder)
         end
-        @stream
+        data.stream
       end
 
       # Returns the raw stream object.
@@ -137,15 +124,15 @@ module HexaPDF
       # The returned value can be of many different types (see #stream=). For working with the
       # decoded stream contents use #stream.
       def raw_stream
-        @stream
+        data.stream
       end
 
       # Returns the Fiber representing the unprocessed content of the stream.
       def stream_source
-        if @stream.kind_of?(String)
-          HexaPDF::PDF::Filter.source_from_string(@stream)
+        if data.stream.kind_of?(String)
+          HexaPDF::PDF::Filter.source_from_string(data.stream)
         else
-          @stream.fiber(config['io.chunk_size'])
+          data.stream.fiber(config['io.chunk_size'])
         end
       end
 
@@ -155,8 +142,8 @@ module HexaPDF
       def stream_decoder
         source = stream_source
 
-        if @stream.kind_of?(StreamData)
-          @stream.filter.zip(@stream.decode_parms) do |filter, decode_parms|
+        if data.stream.kind_of?(StreamData)
+          data.stream.filter.zip(data.stream.decode_parms) do |filter, decode_parms|
             source = filter_for_name(filter).decoder(source, decode_parms)
           end
         end
@@ -173,8 +160,8 @@ module HexaPDF
           delete_if {|f, d| f.nil?}
         source = stream_source
 
-        if @stream.kind_of?(StreamData)
-          decoder_data = @stream.filter.zip(@stream.decode_parms)
+        if data.stream.kind_of?(StreamData)
+          decoder_data = data.stream.filter.zip(data.stream.decode_parms)
 
           while !decoder_data.empty? && !encoder_data.empty? && decoder_data.last == encoder_data.last
             decoder_data.pop
@@ -215,6 +202,15 @@ module HexaPDF
       end
 
       private
+
+      # Makes sure that the stream data is either a String or a StreamData object.
+      def after_data_change
+        super
+        data.stream ||= ''.force_encoding(Encoding::BINARY)
+        unless data.stream.kind_of?(StreamData) || data.stream.kind_of?(String)
+          raise HexaPDF::Error, "Object of class #{data.stream.class} cannot be used as stream value"
+        end
+      end
 
       # Returns the filter object that corresponds to the given filter name.
       #

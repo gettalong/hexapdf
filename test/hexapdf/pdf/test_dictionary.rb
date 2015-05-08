@@ -190,7 +190,7 @@ describe HexaPDF::PDF::Dictionary do
 
   end
 
-  describe "value=" do
+  describe "after_data_change" do
     it "fails if the value is not a hash" do
       assert_raises(HexaPDF::Error) { HexaPDF::PDF::Dictionary.new(:Name) }
     end

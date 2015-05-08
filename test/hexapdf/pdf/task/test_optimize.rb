@@ -11,12 +11,14 @@ describe HexaPDF::PDF::Task::Optimize do
   end
 
   before do
-    @doc = HexaPDF::PDF::Document.new(io: StringIO.new(MINIMAL_PDF))
-    @obj = @doc.add(@doc.wrap({Optional: :Optional}, type: TestType))
-    @doc.trailer[:Test] = @obj
+    @doc = HexaPDF::PDF::Document.new
+    @obj1 = @doc.add(@doc.wrap({Optional: :Optional}, type: TestType))
+    @doc.trailer[:Test] = @doc.wrap(@obj1)
     @doc.revisions.add
-    @obj1 = @doc.add({Type: :UsedEntry})
-    @obj2 = @doc.add({Unused: @obj1})
+    @obj2 = @doc.add({Type: :UsedEntry})
+    @obj3 = @doc.add({Unused: @obj2})
+    @obj4 = @doc.add({Test: :Test})
+    @obj1[:Test] = @doc.wrap(@obj4, type: TestType)
   end
 
   def assert_objstms_generated
@@ -29,22 +31,24 @@ describe HexaPDF::PDF::Task::Optimize do
   end
 
   def assert_default_deleted
-    refute(@obj.value.key?(:Optional))
+    refute(@obj1.value.key?(:Optional))
   end
 
   describe "compact" do
     it "compacts the document" do
       @doc.task(:optimize, compact: true)
-      refute(@doc.object?(@obj1))
-      refute(@doc.object?(@obj2))
-      assert_default_deleted
       assert_equal(1, @doc.revisions.each.to_a.size)
+      assert_equal(2, @doc.each(current: false).to_a.size)
+      refute_equal(@obj2, @doc.object(@obj2))
+      refute_equal(@obj3, @doc.object(@obj3))
+      assert_default_deleted
+      assert_equal(2, @obj4.oid)
+      assert_equal(@obj1[:Test], @obj4)
     end
 
     it "compacts and generates object streams" do
       @doc.task(:optimize, compact: true, object_streams: :generate)
       assert_objstms_generated
-      assert_default_deleted
       assert_default_deleted
     end
 

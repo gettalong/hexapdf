@@ -1,10 +1,38 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/pdf/reference'
 require 'hexapdf/error'
 
 module HexaPDF
   module PDF
+
+    # Internal value object for storing object number, generation number, object value and a
+    # possible stream together. Such objects are not used directly but wrapped by Object or one of
+    # its subclasses.
+    class PDFData
+
+      #:nodoc:
+      attr_reader :oid, :gen
+
+      #:nodoc:
+      attr_accessor :stream, :value
+
+      def initialize(value, oid = nil, gen = nil, stream = nil) #:nodoc:
+        self.value = value
+        self.oid = oid
+        self.gen = gen
+        self.stream = stream
+      end
+
+      def oid=(oid) #:nodoc:
+        @oid = Integer(oid || 0)
+      end
+
+      def gen=(gen) #:nodoc
+        @gen = Integer(gen || 0)
+      end
+
+    end
+
 
     # Objects of the PDF object system.
     #
@@ -15,16 +43,23 @@ module HexaPDF
     # represents a direct object. Otherwise the object identifier uniquely identifies this object as
     # an indirect object and can be used for referencing it (from possibly multiple places).
     #
+    # Furthermore a PDF object may have an associated stream. However, this stream is only
+    # accessible if the subclass Stream is used.
+    #
     # A PDF object *should* be connected to a PDF document, otherwise some methods may not work.
     #
     # Most PDF objects in a PDF document are represented by subclasses of this class that provide
     # additional functionality.
     #
+    # The methods #hash and #eql? are implemented so that objects of this class can be used as hash
+    # keys. Furthermore the implementation is compatible to the one of Reference, i.e. the hash of a
+    # PDF Object is the same as the hash of its corresponding Reference object.
+    #
     # See: Dictionary, Stream, Reference, Document
     # See: PDF1.7 s7.3.10, s7.3.8
     class Object
 
-      include ReferenceBehavior
+      include Comparable
 
       # :call-seq:
       #   define_validator(method_name)
@@ -87,8 +122,11 @@ module HexaPDF
 
       define_validator(:validate_must_be_indirect)
 
-      # The wrapped object.
-      attr_reader :value
+
+      # The wrapped PDFData value.
+      #
+      # This attribute is not part of the public API!
+      attr_reader :data
 
       # Sets the associated PDF document.
       attr_writer :document
@@ -96,21 +134,56 @@ module HexaPDF
       # Sets whether the object has to be an indirect object once it is written.
       attr_writer :must_be_indirect
 
-      # Creates a new PDF object for +value+.
-      def initialize(value, document: nil, oid: 0, gen: 0)
+      # Creates a new PDF object wrapping the value.
+      #
+      # The +value+ can either be a PDFData object in which case it is used directly. If it is a PDF
+      # Object, then its data is used. Otherwise the +value+ object is used as is. In all cases, the
+      # oid, gen and stream values may be overridden by the corresponding keyword arguments.
+      def initialize(value, document: nil, oid: nil, gen: nil, stream: nil)
+        @data = case value
+                when PDFData then value
+                when Object then value.data
+                else PDFData.new(value)
+                end
+        @data.oid = oid if oid
+        @data.gen = gen if gen
+        @data.stream = stream if stream
         self.document = document
-        self.oid = oid
-        self.gen = gen
         self.must_be_indirect = false
-        self.value = value
+        after_data_change
       end
 
-      # Sets the value for this PDF object.
-      #
-      # If the value is a PDF object itself, uses the value of the PDF object instead of the PDF
-      # object.
-      def value=(value)
-        @value = (value.kind_of?(Object) ? value.value : value)
+      # Returns the object number of the PDF object.
+      def oid
+        data.oid
+      end
+
+      # Sets the object number of the PDF object.
+      def oid=(oid)
+        data.oid = oid
+        after_data_change
+      end
+
+      # Returns the generation number of the PDF object.
+      def gen
+        data.gen
+      end
+
+      # Sets the generation number of the PDF object.
+      def gen=(gen)
+        data.gen = gen
+        after_data_change
+      end
+
+      # Returns the object value.
+      def value
+        data.value
+      end
+
+      # Sets the object value. Unlike in #initialize the value is used as is!
+      def value=(val)
+        data.value = val
+        after_data_change
       end
 
       # Returns the associated PDF document.
@@ -150,7 +223,7 @@ module HexaPDF
       # Returns +true+ if the object represents an empty object, i.e. a PDF null object or an empty
       # value.
       def empty?
-        @value.nil? || (@value.respond_to?(:empty?) && @value.empty?)
+        value.nil? || (value.respond_to?(:empty?) && value.empty?)
       end
 
       # :call-seq:
@@ -190,9 +263,29 @@ module HexaPDF
         end
       end
 
-      # Returns +true+ if the other object has the same oid, gen and value.
+      # Compares this object to another object.
+      #
+      # If the other object does not respond to +oid+ or +gen+, +nil+ is returned. Otherwise objects
+      # are ordered first by object number and then by generation number.
+      def <=>(other)
+        return nil unless other.respond_to?(:oid) && other.respond_to?(:gen)
+        (oid == other.oid ? gen <=> other.gen : oid <=> other.oid)
+      end
+
+      # Returns +true+ if the other object is a Object and has the same object number, generation
+      # number and value.
       def ==(other)
-        super && value == other.value
+        other.kind_of?(Object) && oid == other.oid && gen == other.gen && value == other.value
+      end
+
+      # Returns +true+ if the other object references the same PDF object as this object.
+      def eql?(other)
+        other.respond_to?(:oid) && oid == other.oid && other.respond_to?(:gen) && gen == other.gen
+      end
+
+      # Computes the hash value based on the object and generation numbers.
+      def hash
+        oid.hash ^ gen.hash
       end
 
       def inspect #:nodoc:
@@ -200,6 +293,13 @@ module HexaPDF
       end
 
       private
+
+      # This method is called whenever a part of the wrapped PDFData structure is changed.
+      #
+      # A subclass implementing this method has to call +super+! Otherwise things might not work
+      # properly.
+      def after_data_change
+      end
 
       # Returns the configuration object of the PDF document.
       def config

@@ -1,37 +1,15 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/parser'
 require 'stringio'
 
 describe HexaPDF::PDF::Parser do
 
   before do
-    @document = Object.new
-    def (@document).config; @config ||= {'parser.on_correctable_error' => proc { false }}; end
-    def (@document).unwrap(obj)
-      obj.kind_of?(HexaPDF::PDF::Reference) ? 10 : obj
-    end
-    def (@document).deref(obj)
-      obj.kind_of?(HexaPDF::PDF::Reference) ? HexaPDF::PDF::Object.new(10) : obj
-    end
-    def (@document).wrap(obj, type: nil, subtype: nil, oid: nil, gen: nil, stream: nil)
-      klass = if obj.kind_of?(Hash) && obj[:Type] == :XRef
-                HexaPDF::PDF::Type::XRefStream
-              elsif stream.nil?
-                HexaPDF::PDF::Object
-              else
-                HexaPDF::PDF::Stream
-              end
-      wrapped = klass.new(obj, document: self)
-      wrapped.oid = oid if oid
-      wrapped.gen = gen if gen
-      if stream
-        stream.source.seek(stream.offset)
-        wrapped.stream = stream.source.read(stream.length)
-      end
-      wrapped
-    end
+    @document = HexaPDF::PDF::Document.new
+    @document.add(@document.wrap(10, oid: 1, gen: 0))
 
     set_string(<<EOF)
 %PDF-1.7
