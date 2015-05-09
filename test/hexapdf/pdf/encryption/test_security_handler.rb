@@ -121,6 +121,13 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
       assert(@handler.encryption_key_valid?)
     end
 
+    it "provides correct encryption details" do
+      @handler.set_up_encryption
+      assert_equal({version: 2, string_algorithm: :aes, stream_algorithm: :arc4,
+                     embedded_file_algorithm: :identity, key_length: 128},
+                   @handler.encryption_details)
+    end
+
     it "fails for unsupported encryption key lengths" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
         @handler.set_up_encryption(key_length: 43)
@@ -188,6 +195,13 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
         @handler.set_up_decryption(dict)
         assert_equal('data', @handler.decrypt(@obj)[:X])
       end
+    end
+
+    it "provides correct encryption details" do
+      @handler.set_up_decryption({Filter: :test, V: 2, Length: 128}, myopt: 5)
+      assert_equal({version: 2, string_algorithm: :arc4, stream_algorithm: :arc4,
+                     embedded_file_algorithm: :arc4, key_length: 128},
+                   @handler.encryption_details)
     end
 
     it "fails for unsupported /V values in the dict" do

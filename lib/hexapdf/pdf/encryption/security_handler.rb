@@ -108,10 +108,28 @@ module HexaPDF
         # The associated PDF document.
         attr_reader :document
 
+        # A hash containing information about the used encryption. This information is only
+        # available once the security handler has been set up for decryption or encryption.
+        #
+        # Available keys:
+        #
+        # :version::
+        #    The version of the security handler in use.
+        # :string_algorithm::
+        #    The algorithm used for encrypting/decrypting strings.
+        # :stream_algorithm::
+        #    The algorithm used for encrypting/decrypting streams.
+        # :embedded_file_algorithm::
+        #    The algorithm used for encrypting/decrypting embedded files.
+        # :key_length::
+        #    The key length in bits.
+        attr_reader :encryption_details
+
         # Creates a new SecurityHandler for the given document.
         def initialize(document)
           @document = document
           @encrypt_dict_hash = nil
+          @encryption_details = {}
         end
 
         # Checks if the encryption key computed by this security handler is derived from the
@@ -299,6 +317,13 @@ module HexaPDF
           @string_algorithm = send("#{strf}_algorithm")
           @stream_algorithm = send("#{stmf}_algorithm")
           @embedded_file_algorithm = send("#{eff}_algorithm")
+          @encryption_details = {
+            version: dict[:V],
+            string_algorithm: strf,
+            stream_algorithm: stmf,
+            embedded_file_algorithm: eff,
+            key_length: key_length*8
+          }
         end
 
         # Returns the class that is used for ARC4 encryption.
