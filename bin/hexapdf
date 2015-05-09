@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'hexapdf/cli'
+
+HexaPDF::CLI.run
+
