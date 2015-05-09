@@ -311,7 +311,12 @@ module HexaPDF
         @revisions.current.trailer
       end
 
-      # Returns the PDF documents version as string (e.g. '1.4').
+      # Returns the document's catalog, the root of the object tree.
+      def catalog
+        trailer[:Root]
+      end
+
+      # Returns the PDF document's version as string (e.g. '1.4').
       #
       # This method takes the file header version and the catalog's /Version key into account. If a
       # version has been set manually and the catalog's /Version key refers to a later version, the
@@ -319,7 +324,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.2.2
       def version
-        catalog_version = (trailer[:Root][:Version] || '1.0'.freeze).to_s
+        catalog_version = (catalog[:Version] || '1.0'.freeze).to_s
         (@version < catalog_version ? catalog_version : @version)
       end
 
