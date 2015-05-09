@@ -159,7 +159,7 @@ module HexaPDF
         #   Forces the use of protocol version 4 when key_length=128 and algorithm=:arc4.
         #
         # See: PDF1.7 s7.6.1, PDF2.0 s7.6.1
-        def set_up_encryption(key_length: 128, algorithm: :arc4, force_V4: false, **options)
+        def set_up_encryption(key_length: 128, algorithm: :aes, force_V4: false, **options)
           @dict = document.trailer[:Encrypt] =
             encryption_dictionary_class.new({}, document: document)
 

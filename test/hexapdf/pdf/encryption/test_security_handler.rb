@@ -123,7 +123,7 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
 
     it "provides correct encryption details" do
       @handler.set_up_encryption
-      assert_equal({version: 2, string_algorithm: :aes, stream_algorithm: :arc4,
+      assert_equal({version: 4, string_algorithm: :aes, stream_algorithm: :arc4,
                      embedded_file_algorithm: :identity, key_length: 128},
                    @handler.encryption_details)
     end
