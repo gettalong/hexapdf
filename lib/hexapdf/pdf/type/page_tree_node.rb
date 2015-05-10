@@ -60,7 +60,7 @@ module HexaPDF
         # Must be called on the root of the page tree, otherwise the /Count entries are not
         # correctly updated!
         def insert_page(index, page = nil)
-          page ||= document.add({Type: :Page})
+          page ||= new_page
           index = self[:Count] + index + 1 if index < 0
 
           if index >= self[:Count]
@@ -135,6 +135,17 @@ module HexaPDF
         end
 
         private
+
+        # Returns a new page object, correctly initialized using the document's configuration
+        # options.
+        def new_page
+          media_box = config['page.default_media_box']
+          media_box = Page::PAPER_SIZE[media_box] if media_box.kind_of?(Symbol)
+          if media_box.nil?
+            raise HexaPDF::Error, "Can't create new page, page.default_media_box option is invalid"
+          end
+          document.add({Type: :Page, MediaBox: media_box, Resources: {}})
+        end
 
         # Ensures that the /Count and /Parent fields of the whole page tree are set up correctly.
         # This is therefore only done for the root node of the page tree!

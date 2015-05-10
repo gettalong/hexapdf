@@ -78,6 +78,13 @@ module HexaPDF
     #
     #    This mapping is used to provide automatic wrapping of objects in the Document#wrap method.
     #
+    # page.default_media_box::
+    #    The media box that is used for new pages that don't define a media box. Default value is
+    #    A4. See HexaPDF::PDF::Type::Page::PAPER_SIZE for a list of predefined paper sizes.
+    #
+    #    The value can either be a rectangle defining the paper size or a Symbol referencing one of
+    #    the predefined paper sizes.
+    #
     # parser.on_correctable_error::
     #    Callback hook when the parser encounters an error that can be corrected.
     #
@@ -136,6 +143,7 @@ module HexaPDF
             'object.subtype_map' => {
             },
             'io.chunk_size' => 2**16,
+            'page.default_media_box' => :A4,
             'parser.on_correctable_error' => proc { false },
             'sorted_tree.max_leaf_node_size' => 64,
             'task.map' => {

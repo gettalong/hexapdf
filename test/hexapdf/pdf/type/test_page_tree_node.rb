@@ -66,6 +66,8 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       assert_equal(1, @root[:Count])
       assert_equal(:Page, page[:Type])
       assert_equal(@root, page[:Parent])
+      assert_kind_of(Array, page[:MediaBox])
+      assert_equal({}, page[:Resources])
       refute(@root.value.key?(:Parent))
     end
 
@@ -115,6 +117,11 @@ describe HexaPDF::PDF::Type::PageTreeNode do
 
       page = @root.insert_page(-4)
       assert_equal(page, @root[:Kids][2])
+    end
+
+    it "fails when adding a new page if the media box config option is invalid" do
+      @doc.config['page.default_media_box'] = :S101
+      assert_raises(HexaPDF::Error) { @root.add_page }
     end
   end
 
