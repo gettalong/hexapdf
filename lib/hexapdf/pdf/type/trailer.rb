@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/pdf/dictionary'
+require 'digest/md5'
 
 module HexaPDF
   module PDF
