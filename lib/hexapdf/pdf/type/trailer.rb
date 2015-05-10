@@ -54,6 +54,12 @@ module HexaPDF
             yield(msg, true)
             set_random_id
           end
+
+          if !value[:Root]
+            yield("A PDF document must have a Catalog dictionary", true)
+            value[:Root] = document.add(Type: :Catalog)
+            value[:Root].validate {|message, correctable| yield(message, correctable)}
+          end
         end
 
       end

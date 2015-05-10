@@ -147,8 +147,9 @@ module HexaPDF
           document.add({Type: :Page, MediaBox: media_box, Resources: {}})
         end
 
-        # Ensures that the /Count and /Parent fields of the whole page tree are set up correctly.
-        # This is therefore only done for the root node of the page tree!
+        # Ensures that the /Count and /Parent fields of the whole page tree are set up correctly and
+        # that there is at least one page node. This is therefore only done for the root node of the
+        # page tree!
         def validate_page_tree
           return if value.key?(:Parent)
 
@@ -174,6 +175,11 @@ module HexaPDF
           end
 
           validate_node.call(self)
+
+          if self[:Count] == 0
+            yield("A PDF document needs at least one page", true)
+            add_page.validate {|msg, correctable| yield(msg, correctable)}
+          end
         end
 
       end

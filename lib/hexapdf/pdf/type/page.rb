@@ -71,6 +71,10 @@ module HexaPDF
         # The inheritable fields.
         INHERITABLE_FIELDS = [:Resources, :MediaBox, :CropBox, :Rotate]
 
+        # The required inheritable fields.
+        REQUIRED_INHERITABLE_FIELDS = [:Resources, :MediaBox]
+
+
         define_field :Type,                 type: Symbol, required: true, default: :Page
         define_field :Parent,               type: PageTreeNode, indirect: true
         define_field :LastModified,         type: PDFDate, version: '1.3'
@@ -102,6 +106,8 @@ module HexaPDF
         define_field :UserUnit,             type: Numeric, version: '1.6'
         define_field :VP,                   type: Dictionary, version: '1.6'
 
+        define_validator(:validate_page)
+
         must_be_indirect
 
         # Returns the value for the entry +name+.
@@ -118,6 +124,24 @@ module HexaPDF
             value = node[name]
           end
           value
+        end
+
+        private
+
+        # Ensures that the required inheritable fields are set.
+        def validate_page
+          REQUIRED_INHERITABLE_FIELDS.each do |name|
+            if self[name].nil?
+              yield("Inheritable page field #{name} not set", false)
+            end
+          end
+
+          # Workaround so that an empty Resources dict will be written instead of being left out
+          res = self[:Resources]
+          res = self[:Resources].value if res.kind_of?(HexaPDF::PDF::Object)
+          if res.length == 0
+            self[:Resources][:DummyKeyWillBeDeletedOnWrite] = nil
+          end
         end
 
       end

@@ -168,11 +168,8 @@ describe HexaPDF::PDF::Type::PageTreeNode do
   end
 
   describe "validation" do
-    before do
-      define_multilevel_page_tree
-    end
-
     it "corrects faulty /Count entries" do
+      define_multilevel_page_tree
       root_count = @root[:Count]
       @root[:Count] = -5
       kid_count = @kid12[:Count]
@@ -188,6 +185,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
     end
 
     it "corrects faulty /Parent entries" do
+      define_multilevel_page_tree
       @kid12.delete(:Parent)
       @kid2.delete(:Parent)
 
@@ -198,6 +196,12 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       assert(@root.validate)
       assert_equal(@kid1, @kid12[:Parent])
       assert_equal(@root, @kid2[:Parent])
+    end
+
+    it "needs at least one page node" do
+      refute(@root.validate(auto_correct: false))
+      assert(@root.validate)
+      assert_equal(1, @root[:Count])
     end
   end
 

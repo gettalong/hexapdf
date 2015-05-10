@@ -8,7 +8,7 @@ describe HexaPDF::PDF::Task::Validate do
 
   before do
     @doc = HexaPDF::PDF::Document.new
-    @doc.trailer.set_random_id
+    @doc.trailer.validate # to create a valid document
   end
 
   it "validates indirect objects" do

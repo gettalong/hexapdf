@@ -5,10 +5,12 @@ require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/type/page'
 
 describe HexaPDF::PDF::Type::Page do
+  before do
+    @doc = HexaPDF::PDF::Document.new
+  end
 
   describe "[]" do
     before do
-      @doc = HexaPDF::PDF::Document.new
       @root = @doc.add(Type: :Pages)
       @kid = @doc.add(Type: :Pages, Parent: @root)
       @page = @doc.add(Type: :Page, Parent: @kid)
@@ -32,4 +34,12 @@ describe HexaPDF::PDF::Type::Page do
     end
   end
 
+  describe "validation" do
+    it "fails in a required inheritable field is not set" do
+      page = @doc.add(Type: :Page)
+      message = ''
+      refute(page.validate {|m, c| message = m})
+      assert_match(/inheritable.*Resources/i, message)
+    end
+  end
 end

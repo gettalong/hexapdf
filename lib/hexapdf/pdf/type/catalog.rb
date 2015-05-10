@@ -2,6 +2,7 @@
 
 require 'hexapdf/pdf/dictionary'
 require 'hexapdf/pdf/number_tree_node'
+require 'hexapdf/pdf/stream'
 
 module HexaPDF
   module PDF
@@ -18,6 +19,7 @@ module HexaPDF
         define_field :Type,              type: Symbol,     required: true, default: :Catalog
         define_field :Version,           type: Symbol,     version: '1.4'
         define_field :Extensions,        type: Dictionary, version: '1.7'
+        # Pages field is required but this is handled in validator
         define_field :Pages,             type: 'HexaPDF::PDF::Type::PageTreeNode', indirect: true
         define_field :PageLabels,        type: NumberTreeNode, version: '1.3'
         define_field :Names,             type: 'HexaPDF::PDF::Type::Names', version: '1.2'
@@ -44,6 +46,21 @@ module HexaPDF
         define_field :Requirements,      type: Array,      version: '1.7'
         define_field :Collection,        type: Dictionary, version: '1.7'
         define_field :NeedsRendering,    type: Boolean,    version: '1.7'
+
+        define_validator(:validate_catalog)
+
+        must_be_indirect
+
+        private
+
+        # Ensures that there is a valid page tree.
+        def validate_catalog
+          unless value.key?(:Pages)
+            yield("A PDF document needs a page tree", true)
+            value[:Pages] = document.add(Type: :Pages)
+            value[:Pages].validate {|msg, correctable| yield(msg, correctable)}
+          end
+        end
 
       end
 
