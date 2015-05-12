@@ -151,7 +151,7 @@ module HexaPDF
         # that there is at least one page node. This is therefore only done for the root node of the
         # page tree!
         def validate_page_tree
-          return if value.key?(:Parent)
+          return if key?(:Parent)
 
           validate_node = lambda do |node|
             count = 0

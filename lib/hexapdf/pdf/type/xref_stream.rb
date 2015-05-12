@@ -60,7 +60,7 @@ module HexaPDF
         # See: Trailer
         def trailer
           Trailer.each_field.with_object({}) do |(name, _data), hash|
-            hash[name] = value[name] if value.key?(name)
+            hash[name] = value[name] if key?(name)
           end
         end
 

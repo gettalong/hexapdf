@@ -68,7 +68,7 @@ module HexaPDF
             if ![1, 2, 4, 5].include?(value[:V])
               yield("Value of /V is not one of 1, 2, 4 or 5", false)
             end
-            if value[:V] == 2 && (!value.key?(:Length) || value[:Length] < 40 ||
+            if value[:V] == 2 && (!key?(:Length) || value[:Length] < 40 ||
                                   value[:Length] > 128 || value[:Length] % 8 != 0)
               yield("Invalid value for /Length field when /V is 2", false)
             end

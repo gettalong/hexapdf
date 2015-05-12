@@ -121,7 +121,7 @@ module HexaPDF
       # * Returns the default value if one is specified and no value is available.
       def [](name)
         field = self.class.field(name)
-        data = if value.key?(name)
+        data = if key?(name)
                  document.deref(value[name])
                elsif field && field.default?
                  value[name] = field.default
@@ -151,6 +151,11 @@ module HexaPDF
         else
           value[name] = data
         end
+      end
+
+      # Returns +true+ if the given key is present in the dictionary.
+      def key?(key)
+        value.key?(key)
       end
 
       # Deletes the name-value pair from the dictionary and returns the value. If such a pair does
@@ -206,7 +211,7 @@ module HexaPDF
       # default value.
       def set_required_fields_with_defaults
         self.class.each_field do |name, field|
-          if !value.key?(name) && field.required? && field.default?
+          if !key?(name) && field.required? && field.default?
             value[name] = field.default
           end
         end
@@ -217,7 +222,7 @@ module HexaPDF
       # See: Object#validate for information on the available arguments.
       def validate_fields(&block)
         self.class.each_field do |name, field|
-          obj = value.key?(name) && document.deref(value[name]) || nil
+          obj = key?(name) && document.deref(value[name]) || nil
 
           # Check that required fields are set
           if field.required? && obj.nil?

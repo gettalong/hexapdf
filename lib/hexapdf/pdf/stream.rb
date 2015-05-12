@@ -194,7 +194,7 @@ module HexaPDF
           self[:Filter] = filter
         end
         if decode_parms.nil? || (decode_parms.kind_of?(Array) && decode_parms.empty?) ||
-            !value.key?(:Filter)
+            !key?(:Filter)
           delete(:DecodeParms)
         else
           self[:DecodeParms] = decode_parms

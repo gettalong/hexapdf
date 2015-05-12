@@ -13,7 +13,7 @@ module HexaPDF
         #
         # This method has to be invoked on the root node of the tree!
         def add_to_tree(key, data)
-          if value.key?(:Limits)
+          if key?(:Limits)
             raise HexaPDF::Error, "Adding a new tree entry is only allowed via the root node"
           elsif !key.kind_of?(key_type)
             raise HexaPDF::Error, "A key must be a #{key_type} object, not a #{key.class}"
@@ -21,13 +21,13 @@ module HexaPDF
 
           container_name = leaf_node_container_name
 
-          if (!value.key?(:Kids) && !value.key?(container_name)) ||
+          if (!key?(:Kids) && !key?(container_name)) ||
               (value[:Kids] && self[:Kids].empty?)
             value.delete(:Kids)
             value[container_name] = []
           end
 
-          if value.key?(container_name)
+          if key?(container_name)
             insert_pair(self[container_name], key, data)
             split_if_needed(self, self)
           else
@@ -55,7 +55,7 @@ module HexaPDF
         #
         # This method has to be invoked on the root node of the tree!
         def delete_from_tree(key)
-          if value.key?(:Limits)
+          if key?(:Limits)
             raise HexaPDF::Error, "Deleting a tree entry is only allowed via the root node"
           end
 
@@ -91,7 +91,7 @@ module HexaPDF
         # found.
         def find_in_tree(key)
           container_name = leaf_node_container_name
-          if value.key?(container_name)
+          if key?(container_name)
             index = find_in_leaf_node(self[container_name], key)
             self[container_name][index + 1] if self[container_name][index] == key
           else
@@ -106,7 +106,7 @@ module HexaPDF
         # Starting from node traverses the tree to the node where the key is located or, if not
         # present, where it would be located and adds the nodes to the stack.
         def path_to_key(node, key, stack)
-          return unless node.value.key?(:Kids)
+          return unless node.key?(:Kids)
           index = find_in_intermediate_node(node[:Kids], key)
           stack << document.deref(node[:Kids][index])
           path_to_key(stack.last, key, stack)

@@ -23,7 +23,7 @@ module HexaPDF
           return version unless obj.kind_of?(HexaPDF::PDF::Dictionary)
 
           obj.class.each_field do |name, field|
-            if field.version > version && obj.value.key?(name)
+            if field.version > version && obj.key?(name)
               version = field.version
             end
             if obj.value[name].kind_of?(HexaPDF::PDF::Dictionary) && !obj.indirect?

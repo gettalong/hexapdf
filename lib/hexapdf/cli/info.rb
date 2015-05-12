@@ -45,7 +45,7 @@ module HexaPDF
         File.open(file, 'rb') do |file_io|
           doc = HexaPDF::PDF::Document.new(io: file_io, decryption_opts: {password: @password})
           INFO_KEYS.each do |name|
-            next unless doc.trailer[:Info].value.key?(name)
+            next unless doc.trailer[:Info].key?(name)
             output_line(name.to_s, doc.trailer[:Info][name].to_s)
           end
 

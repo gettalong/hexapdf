@@ -55,7 +55,7 @@ module HexaPDF
 
         # Ensures that there is a valid page tree.
         def validate_catalog
-          unless value.key?(:Pages)
+          unless key?(:Pages)
             yield("A PDF document needs a page tree", true)
             value[:Pages] = document.add(Type: :Pages)
             value[:Pages].validate {|msg, correctable| yield(msg, correctable)}
