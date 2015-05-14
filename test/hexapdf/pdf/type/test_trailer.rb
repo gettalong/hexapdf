@@ -19,8 +19,16 @@ describe HexaPDF::PDF::Type::Trailer do
       @obj.set_random_id
       assert_kind_of(Array, @obj[:ID])
       assert_equal(2, @obj[:ID].length)
+      assert_same(@obj[:ID][0], @obj[:ID][1])
       assert_kind_of(String, @obj[:ID][0])
-      assert_kind_of(String, @obj[:ID][1])
+    end
+
+    it "updates the ID field" do
+      @obj.update_id
+      assert_same(@obj[:ID][0], @obj[:ID][1])
+
+      @obj.update_id
+      refute_same(@obj[:ID][0], @obj[:ID][1])
     end
   end
 

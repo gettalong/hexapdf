@@ -295,9 +295,10 @@ module HexaPDF
 
         private
 
-        # Computes the hash value for the trailer ID array.
+        # Computes the hash value for the first string in the trailer ID array.
         def trailer_id_hash # :nodoc:
-          document.unwrap(document.trailer[:ID]).hash
+          id = document.unwrap(document.trailer[:ID])
+          (id.kind_of?(Array) ? id[0] : id).hash
         end
 
         # See SecurityHandler#encryption_dictionary_class

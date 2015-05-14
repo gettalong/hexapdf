@@ -385,6 +385,16 @@ EOF
       @doc.trailer[:Size] = :Symbol
       assert_raises(HexaPDF::Error) { @doc.write(StringIO.new(''.b)) }
     end
+
+    it "update the ID field" do
+      _id0, id1 = @doc.trailer.set_random_id
+
+      @doc.write(StringIO.new(''.b), update_id: false)
+      assert_same(id1, @doc.trailer[:ID][1])
+
+      @doc.write(StringIO.new(''.b))
+      refute_same(id1, @doc.trailer[:ID][1])
+    end
   end
 
   describe "version" do

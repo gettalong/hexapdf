@@ -21,7 +21,7 @@ module HexaPDF
       # object's trailer dictionary is always of this type. Only when a cross-reference stream is
       # written is the trailer integrated into the stream's dictionary.
       #
-      # See: PDF1.7 s7.5.5
+      # See: PDF1.7 s7.5.5, s14.4
       #      XRefStream
       class Trailer < Dictionary
 
@@ -36,9 +36,21 @@ module HexaPDF
         define_validator(:validate_trailer)
 
 
-        # Sets the /ID field to a random array of two strings.
+        # Sets the /ID field to an array of two copies of a random string and returns this array.
+        #
+        # See: PDF1.7 14.4
         def set_random_id
-          value[:ID] = [Digest::MD5.digest(rand.to_s), Digest::MD5.digest(rand.to_s)]
+          value[:ID] = [Digest::MD5.digest(rand.to_s)]*2
+        end
+
+        # Updates the second part of the /ID field (the first part should always be the same for a
+        # PDF file, the second part should change with each write).
+        def update_id
+          if !value[:ID]
+            set_random_id
+          else
+            value[:ID][1] = Digest::MD5.digest(rand.to_s)
+          end
         end
 
         private
