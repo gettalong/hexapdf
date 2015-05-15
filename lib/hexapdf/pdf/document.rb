@@ -383,17 +383,20 @@ module HexaPDF
       # validate::
       #   Validates the document and raises an error if an uncorrectable problem is found.
       #
-      # update_id::
-      #   Updates the /ID field in the trailer dictionary so that it is clear that the document has
-      #   been updated.
-      def write(io, validate: true, update_id: true)
+      # update_fields::
+      #   Updates the /ID field in the trailer dictionary as well as the /ModDate field in the
+      #   trailer's /Info dictionary so that it is clear that the document has been updated.
+      def write(io, validate: true, update_fields: true)
         if validate
           task(:validate) do |msg, correctable|
             next if correctable
             raise HexaPDF::Error, "Validation error: #{msg}"
           end
         end
-        trailer.update_id if update_id
+        if update_fields
+          trailer.update_id
+          trailer[:Info][:ModDate] = Time.now
+        end
         Writer.write(self, io)
       end
 

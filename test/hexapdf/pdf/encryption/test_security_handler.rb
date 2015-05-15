@@ -297,7 +297,7 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
     doc = HexaPDF::PDF::Document.new(io: StringIO.new(File.read(test_file)))
     doc.security_handler.set_up_encryption(algorithm: :aes, password: 'test')
     out = StringIO.new(''.b)
-    doc.write(out)
+    doc.write(out, update_fields: false)
 
     assert_raises(HexaPDF::EncryptionError) { HexaPDF::PDF::Document.new(io: out) }
     doc = HexaPDF::PDF::Document.new(io: out, decryption_opts: {password: 'test'})

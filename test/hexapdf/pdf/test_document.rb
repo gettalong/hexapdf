@@ -386,14 +386,16 @@ EOF
       assert_raises(HexaPDF::Error) { @doc.write(StringIO.new(''.b)) }
     end
 
-    it "update the ID field" do
+    it "update the ID and the Info's ModDate field" do
       _id0, id1 = @doc.trailer.set_random_id
 
-      @doc.write(StringIO.new(''.b), update_id: false)
+      @doc.write(StringIO.new(''.b), update_fields: false)
       assert_same(id1, @doc.trailer[:ID][1])
+      refute(@doc.trailer[:Info].key?(:ModDate))
 
       @doc.write(StringIO.new(''.b))
       refute_same(id1, @doc.trailer[:ID][1])
+      assert(@doc.trailer[:Info].key?(:ModDate))
     end
   end
 
