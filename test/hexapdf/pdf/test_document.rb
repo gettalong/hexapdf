@@ -134,6 +134,11 @@ EOF
       assert_equal(5, obj.value)
     end
 
+    it "allows passing arguments to the wrap call" do
+      obj = @doc.add({}, type: HexaPDF::PDF::Dictionary)
+      assert_equal(HexaPDF::PDF::Dictionary, obj.class)
+    end
+
     it "allows adding a HexaPDF::PDF::Object" do
       obj = @doc.add(HexaPDF::PDF::Object.new(5))
       assert_equal(5, obj.value)

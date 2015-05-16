@@ -99,18 +99,19 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   doc.add(obj, revision: :current)     -> indirect_object
+      #   doc.add(obj, revision: :current, **wrap_opts)     -> indirect_object
       #
       # Adds the object to the specified revision of the document and returns the wrapped indirect
       # object.
       #
+      # The object can either be a native Ruby object (Hash, Array, Integer, ...) or a
+      # HexaPDF::PDF::Object. If it is not the latter, #wrap is called with the object and the
+      # additional keyword arguments.
+      #
       # If the +revision+ option is +:current+, the current revision is used. Otherwise +revision+
       # should be a revision index.
-      #
-      # The object can either be a native Ruby object (Hash, Array, Integer, ...) or a
-      # HexaPDF::PDF::Object.
-      def add(obj, revision: :current)
-        obj = wrap(obj) unless obj.kind_of?(HexaPDF::PDF::Object)
+      def add(obj, revision: :current, **wrap_opts)
+        obj = wrap(obj, wrap_opts) unless obj.kind_of?(HexaPDF::PDF::Object)
 
         revision = (revision == :current ? @revisions.current : @revisions.revision(revision))
         if revision.nil?
