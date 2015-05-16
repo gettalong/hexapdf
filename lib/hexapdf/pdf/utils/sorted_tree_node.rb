@@ -101,6 +101,29 @@ module HexaPDF
           end
         end
 
+        # :call-seq:
+        #   node.each_tree_entry {|key, data| block }   -> node
+        #   node.each_tree_entry                        -> Enumerator
+        #
+        # Calls the given block once for each key-data of the sorted tree.
+        def each_tree_entry(&block)
+          return to_enum(__method__) unless block_given?
+
+          container_name = leaf_node_container_name
+          if key?(container_name)
+            data = self[container_name]
+            index = 0
+            while index < data.length
+              yield(data[index], data[index+1])
+              index += 2
+            end
+          else
+            self[:Kids].each {|kid| kid.each_tree_entry(&block)}
+          end
+
+          self
+        end
+
         private
 
         # Starting from node traverses the tree to the node where the key is located or, if not

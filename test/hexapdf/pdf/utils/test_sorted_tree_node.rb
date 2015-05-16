@@ -143,6 +143,14 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
     end
   end
 
+  describe "each" do
+    it "enumerates in the key-value pairs in sorted order" do
+      add_multilevel_entries
+      assert_equal(['c', 1, 'f', 1, 'i', 1, 'm', 1, 'o', 1, 'q', 1, 's', 1, 'u', 1],
+                    @root.each_tree_entry.to_a.flatten)
+    end
+  end
+
   it "works equally well with a NumberTreeNode" do
     root = HexaPDF::PDF::NumberTreeNode.new({}, document: @doc)
     root.add_number(2, 1)
