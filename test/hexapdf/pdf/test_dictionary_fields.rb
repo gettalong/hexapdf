@@ -47,13 +47,6 @@ describe HexaPDF::PDF::DictionaryFields do
       assert(@field.type.include?(Hash))
     end
 
-    it "allows conversion from nil" do
-      assert(@field.convert?(nil))
-      @doc.expect(:wrap, :data, [NilClass, Hash])
-      @field.convert(nil, @doc)
-      @doc.verify
-    end
-
     it "allows conversion from a hash" do
       assert(@field.convert?({}))
       @doc.expect(:wrap, :data, [Hash, Hash])

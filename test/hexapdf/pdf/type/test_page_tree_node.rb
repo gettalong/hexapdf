@@ -67,7 +67,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       assert_equal(:Page, page[:Type])
       assert_equal(@root, page[:Parent])
       assert_kind_of(Array, page[:MediaBox])
-      assert_equal({}, page[:Resources])
+      assert_equal({}, page[:Resources].value)
       refute(@root.value.key?(:Parent))
     end
 

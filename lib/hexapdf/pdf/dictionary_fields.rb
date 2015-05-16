@@ -129,7 +129,7 @@ module HexaPDF
         # Returns +true+ if the given data value can be converted to the Dictionary subclass
         # specified by type (see Field#type).
         def self.convert?(data, type)
-          !data.kind_of?(type.first) && (data.nil? || data.kind_of?(Hash) ||
+          !data.kind_of?(type.first) && (data.kind_of?(Hash) ||
                                          data.kind_of?(HexaPDF::PDF::Dictionary))
         end
 

@@ -396,7 +396,7 @@ EOF
 
       @doc.write(StringIO.new(''.b), update_fields: false)
       assert_same(id1, @doc.trailer[:ID][1])
-      refute(@doc.trailer[:Info].key?(:ModDate))
+      refute(@doc.trailer.key?(:Info))
 
       @doc.write(StringIO.new(''.b))
       refute_same(id1, @doc.trailer[:ID][1])
@@ -414,7 +414,7 @@ EOF
     end
 
     it "uses the catalog's /Version entry if it points to a later version" do
-      @doc.trailer[:Root][:Version] = '1.4'
+      (@doc.trailer[:Root] ||= {})[:Version] = '1.4'
       assert_equal('1.4', @doc.version)
     end
 

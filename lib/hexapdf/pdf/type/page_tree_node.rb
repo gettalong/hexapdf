@@ -19,9 +19,9 @@ module HexaPDF
       # See: PDF1.7 s7.7.3.2, Page
       class PageTreeNode < Dictionary
 
-        define_field :Type,   type: Symbol,  required: true, default: :Pages
-        define_field :Parent, type: Hash,    indirect: true
-        define_field :Kids,   type: Array,   required: true, default: []
+        define_field :Type,   type: Symbol, required: true, default: :Pages
+        define_field :Parent, type: Dictionary, indirect: true
+        define_field :Kids,   type: Array, required: true, default: []
         define_field :Count,  type: Integer, required: true, default: 0
 
         define_validator(:validate_page_tree)

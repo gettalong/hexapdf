@@ -89,11 +89,7 @@ describe HexaPDF::PDF::Dictionary do
       assert_equal(true, @dict[:Boolean])
     end
 
-    it "wraps nil/Hash values in specific subclasses" do
-      @dict.value[:TestClass] = nil
-      assert_kind_of(@test_class, @dict[:TestClass])
-      assert_equal([], @dict[:TestClass][:Array])
-
+    it "wraps hash values in specific subclasses" do
       @dict.value[:TestClass] = {Array: [1, 2]}
       assert_kind_of(@test_class, @dict[:TestClass])
       assert_equal([1, 2], @dict[:TestClass][:Array])
@@ -126,7 +122,7 @@ describe HexaPDF::PDF::Dictionary do
     end
 
     it "doesn't store the value inside subclasses of HexaPDF::PDF::Object but directly as stored value" do
-      @dict[:TestClass][:Array] = [4, 5]
+      (@dict[:TestClass] ||= {})[:Array] = [4, 5]
       assert_kind_of(@test_class, @dict[:TestClass])
       @dict[:TestClass] = [4, 5]
       assert_equal([4, 5], @dict[:TestClass])

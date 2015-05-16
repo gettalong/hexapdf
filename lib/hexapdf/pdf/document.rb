@@ -314,7 +314,7 @@ module HexaPDF
 
       # Returns the document's catalog, the root of the object tree.
       def catalog
-        trailer[:Root]
+        trailer[:Root] ||= add({}, type: :Catalog)
       end
 
       # Returns the PDF document's version as string (e.g. '1.4').
@@ -396,7 +396,7 @@ module HexaPDF
         end
         if update_fields
           trailer.update_id
-          trailer[:Info][:ModDate] = Time.now
+          (trailer[:Info] ||= {})[:ModDate] = Time.now
         end
         Writer.write(self, io)
       end

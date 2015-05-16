@@ -36,7 +36,8 @@ describe HexaPDF::PDF::Type::Page do
 
   describe "validation" do
     it "fails in a required inheritable field is not set" do
-      page = @doc.add(Type: :Page)
+      root = @doc.add(Type: :Pages)
+      page = @doc.add(Type: :Page, Parent: root)
       message = ''
       refute(page.validate {|m, c| message = m})
       assert_match(/inheritable.*Resources/i, message)
