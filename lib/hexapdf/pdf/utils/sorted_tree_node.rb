@@ -51,7 +51,8 @@ module HexaPDF
           end
         end
 
-        # Deletes the key-data pair from the tree.
+        # Deletes the key-data pair from the tree and returns the data. If the tree doesn't contain
+        # the key, +nil+ is returned.
         #
         # This method has to be invoked on the root node of the tree!
         def delete_from_tree(key)
@@ -63,6 +64,7 @@ module HexaPDF
           path_to_key(self, key, stack)
           container_name = leaf_node_container_name
 
+          return unless stack.last[container_name]
           index = find_in_leaf_node(stack.last[container_name], key)
           return unless stack.last[container_name][index] == key
 
@@ -85,6 +87,8 @@ module HexaPDF
             end
             node
           end
+
+          value
         end
 
         # Finds and returns the associated data for the key, or returns +nil+ if no such key is
@@ -94,7 +98,7 @@ module HexaPDF
           if key?(container_name)
             index = find_in_leaf_node(self[container_name], key)
             self[container_name][index + 1] if self[container_name][index] == key
-          else
+          elsif key?(:Kids)
             index = find_in_intermediate_node(self[:Kids], key)
             kid = self[:Kids][index]
             kid.find_in_tree(key) if key >= kid[:Limits][0] && key <= kid[:Limits][1]
@@ -117,7 +121,7 @@ module HexaPDF
               yield(data[index], data[index+1])
               index += 2
             end
-          else
+          elsif key?(:Kids)
             self[:Kids].each {|kid| kid.each_tree_entry(&block)}
           end
 

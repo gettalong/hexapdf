@@ -118,15 +118,20 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
       add_multilevel_entries
       assert_nil(@root.find_name('non'))
     end
+
+    it "works when no entry exists" do
+      assert_nil(@root.find_name('non'))
+    end
   end
 
   describe "delete" do
     it "works with only the root node" do
-      %w[a b c d e f].each {|name| @root.add_name(name, 1)}
-      %w[f b a unknown e d c].each {|name| @root.delete_name(name)}
+      %w[a b c d e f g].each {|name| @root.add_name(name, 1)}
+      %w[g b a unknown e d c].each {|name| @root.delete_name(name)}
       refute(@root.value.key?(:Kids))
       refute(@root.value.key?(:Limits))
-      assert(@root[:Names].empty?)
+      assert_equal(['f', 1], @root[:Names])
+      assert_equal(1, @root.delete_name('f'))
     end
 
     it "works with multiple levels of intermediate nodes" do
@@ -135,6 +140,10 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
       refute(@root.value.key?(:Names))
       refute(@root.value.key?(:Limits))
       assert(@root[:Kids].empty?)
+    end
+
+    it "works on an uninitalized tree" do
+      assert_nil(@root.delete_name('non'))
     end
 
     it "fails if not called on the root node" do
@@ -148,6 +157,10 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
       add_multilevel_entries
       assert_equal(['c', 1, 'f', 1, 'i', 1, 'm', 1, 'o', 1, 'q', 1, 's', 1, 'u', 1],
                     @root.each_tree_entry.to_a.flatten)
+    end
+
+    it "works on an uninitalized tree" do
+      assert_equal([], @root.each_tree_entry.to_a)
     end
   end
 
