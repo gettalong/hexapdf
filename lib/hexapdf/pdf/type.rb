@@ -20,6 +20,8 @@ module HexaPDF
       autoload(:PageTreeNode, 'hexapdf/pdf/type/page_tree_node')
       autoload(:Page, 'hexapdf/pdf/type/page')
       autoload(:Names, 'hexapdf/pdf/type/names')
+      autoload(:FileSpecification, 'hexapdf/pdf/type/file_specification')
+      autoload(:EmbeddedFile, 'hexapdf/pdf/type/embedded_file')
 
     end
 

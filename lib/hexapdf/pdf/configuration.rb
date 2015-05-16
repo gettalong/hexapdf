@@ -139,6 +139,8 @@ module HexaPDF
               Pages: 'HexaPDF::PDF::Type::PageTreeNode',
               Page: 'HexaPDF::PDF::Type::Page',
               Names: 'HexaPDF::PDF::Type::Names',
+              Filespec: 'HexaPDF::PDF::Type::FileSpecification',
+              EmbeddedFile: 'HexaPDF::PDF::Type::EmbeddedFile',
             },
             'object.subtype_map' => {
             },
