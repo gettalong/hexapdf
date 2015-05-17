@@ -123,7 +123,7 @@ module HexaPDF
 
       # Writes the single indirect object which may be a stream object or another object.
       def write_indirect_object(obj)
-        @io << "#{obj.oid} #{obj.gen} obj\n"
+        @io << "#{obj.oid} #{obj.gen} obj\n".freeze
         @io << @serializer.serialize(obj)
         @io << "\nendobj\n".freeze
       end
@@ -137,7 +137,7 @@ module HexaPDF
           @io << "#{entries.empty? ? 0 : entries.first.oid} #{entries.size}\n"
           entries.each do |entry|
             if entry.in_use?
-              @io << sprintf("%010d %05d n \n".freeze, entry.pos, entry.gen)
+              @io << sprintf("%010d %05d n \n".freeze, entry.pos, entry.gen).freeze
             elsif entry.free?
               @io << "0000000000 65535 f \n".freeze
             else

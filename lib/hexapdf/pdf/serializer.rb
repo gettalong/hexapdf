@@ -10,8 +10,6 @@ module HexaPDF
 
     # Knows how to serialize Ruby objects for a PDF file.
     #
-    # The stream of stream objects is not serialized by this class but every other object is!
-    #
     # == How This Class Works
     #
     # The public interface consists of the #serialize method which accepts an object and returns its
@@ -70,7 +68,7 @@ module HexaPDF
 
       # Invokes the correct serialization method for the object.
       def __serialize(obj)
-        send(@dispatcher[obj.class], obj).force_encoding(Encoding::BINARY)
+        send(@dispatcher[obj.class], obj)
       end
 
       # See: PDF1.7 s7.3.9
@@ -202,7 +200,7 @@ module HexaPDF
 
       # See: PDF1.7 s7.3.10
       def serialize_hexapdf_pdf_reference(obj)
-        "#{obj.oid} #{obj.gen} R"
+        "#{obj.oid} #{obj.gen} R".freeze
       end
 
       # Serializes the streams dictionary and its stream.

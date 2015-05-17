@@ -132,7 +132,7 @@ module HexaPDF
         if data.stream.kind_of?(String)
           HexaPDF::PDF::Filter.source_from_string(data.stream)
         else
-          data.stream.fiber(config['io.chunk_size'])
+          data.stream.fiber(config['io.chunk_size'.freeze])
         end
       end
 

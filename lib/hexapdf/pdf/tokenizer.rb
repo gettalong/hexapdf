@@ -281,7 +281,7 @@ module HexaPDF
             str[-1] = "\n"
             @ss.pos += 1 if @ss.peek(1) == "\n"
           when '\\'
-            str.slice!(-1, 1)
+            str.chop!
             byte = @ss.get_byte
             if (data = LITERAL_STRING_ESCAPE_MAP[byte])
               str << data
@@ -296,7 +296,7 @@ module HexaPDF
           end
         end
 
-        str.slice!(-1, 1) # remove last parsed closing parenthesis
+        str.chop! # remove last parsed closing parenthesis
         str
       end
 

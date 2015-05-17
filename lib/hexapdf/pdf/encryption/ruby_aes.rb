@@ -235,8 +235,8 @@ module HexaPDF
           nr_bytes = 16 * (NUMBER_OF_ROUNDS[key_size] + 1)
           result = key.bytes
 
+          temp = result[-4, 4]
           while result.size  < nr_bytes
-            temp = result[-4, 4]
             if result.size % key_size == 0
               temp[0] = SBOX[temp[1]] ^ RCON[result.size / key_size]
               temp[1] = SBOX[temp[2]]
@@ -248,7 +248,10 @@ module HexaPDF
               temp[2] = SBOX[temp[2]]
               temp[3] = SBOX[temp[3]]
             end
-            temp.each {|b| result << (result[-key_size] ^ b)}
+            result << (temp[0] ^= result[-key_size])
+            result << (temp[1] ^= result[-key_size])
+            result << (temp[2] ^= result[-key_size])
+            result << (temp[3] ^= result[-key_size])
           end
 
           result.each_slice(16).to_a

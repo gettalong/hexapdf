@@ -232,30 +232,30 @@ module HexaPDF
         klass.new(data, document: self)
       end
 
+      # :call-seq:
+      #   document.unwrap(obj)   -> unwrapped_obj
+      #
       # Recursively unwraps the object to get native Ruby objects (i.e. Hash, Array, Integer, ...
       # instead of HexaPDF::PDF::Reference and HexaPDF::PDF::Object).
-      def unwrap(obj)
-        recurse = lambda do |object, seen|
-          object = deref(object)
-          if seen.key?(object)
-            raise HexaPDF::Error, "Can't unwrap a recursive structure"
-          end
-
-          case object
-          when Hash
-            seen[object] = true
-            object.each_with_object({}) {|(key, val), memo| memo[key] = recurse.call(val, seen.dup)}
-          when Array
-            seen[object] = true
-            object.map {|inner_o| recurse.call(inner_o, seen.dup)}
-          when HexaPDF::PDF::Object
-            seen[object] = true
-            recurse.call(object.value, seen.dup)
-          else
-            object
-          end
+      def unwrap(object, seen = {})
+        object = deref(object)
+        if seen.key?(object)
+          raise HexaPDF::Error, "Can't unwrap a recursive structure"
         end
-        recurse.call(obj, {})
+
+        case object
+        when Hash
+          seen[object] = true
+          object.each_with_object({}) {|(key, val), memo| memo[key] = unwrap(val, seen.dup)}
+        when Array
+          seen[object] = true
+          object.map {|inner_o| unwrap(inner_o, seen.dup)}
+        when HexaPDF::PDF::Object
+          seen[object] = true
+          unwrap(object.value, seen.dup)
+        else
+          object
+        end
       end
 
       # :call-seq:

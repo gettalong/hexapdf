@@ -95,14 +95,13 @@ module HexaPDF
           index.each_slice(2) do |first_oid, number_of_entries|
             number_of_entries.times do |i|
               oid = first_oid + i
-              entry = stream[pos_in_stream, entry_size]
 
               # Default for first field: type 1
-              type_field = (w[0] == 0 ? TYPE_IN_USE : bytes_to_int(entry[0, w[0]]))
+              type_field = (w[0] == 0 ? TYPE_IN_USE : bytes_to_int(stream, pos_in_stream, w[0]))
               # No default available for second field
-              field2 = bytes_to_int(entry[w[0], w[1]])
+              field2 = bytes_to_int(stream, pos_in_stream + w[0], w[1])
               # Default for third field is 0 for type 1, otherwise it needs to be specified!
-              field3 = bytes_to_int(entry[w[0] + w[1], w[2]])
+              field3 = bytes_to_int(stream, pos_in_stream + w[0] + w[1], w[2])
 
               case type_field
               when TYPE_IN_USE
@@ -121,12 +120,17 @@ module HexaPDF
           xref
         end
 
-        # Converts the given bytes (a String object) to an integer.
+        # Converts +length+ bytes from the +start+ index from the +string+ to an integer.
         #
-        # The bytes are converted in the big-endian way. If +bytes+ is an empty string, zero is
-        # returned.
-        def bytes_to_int(bytes)
-          bytes.unpack('H*').first.to_i(16)
+        # The bytes are converted in the big-endian way. If +length+ is zero, zero is returned.
+        def bytes_to_int(string, start, length)
+          result = 0
+          end_index = start + length
+          while start < end_index
+            result = (result << 8) | string.getbyte(start)
+            start += 1
+          end
+          result
         end
 
         # Writes the given cross-reference section to the stream and sets the correct /W and /Index

@@ -22,7 +22,7 @@ module HexaPDF
         EOD = 257 # :nodoc:
 
         INITIAL_ENCODER_TABLE = {} #:nodoc:
-        0.upto(255) {|i| INITIAL_ENCODER_TABLE[i.chr] = i}
+        0.upto(255) {|i| INITIAL_ENCODER_TABLE[i.chr.freeze] = i}
         INITIAL_ENCODER_TABLE[CLEAR_TABLE] = CLEAR_TABLE
         INITIAL_ENCODER_TABLE[EOD] = EOD
 
@@ -127,7 +127,7 @@ module HexaPDF
                   str = newstr
                 else
                   result << stream.write(table[str], code_length)
-                  table[newstr] = table.size
+                  table[newstr.freeze] = table.size
                   str = char
                 end
 
