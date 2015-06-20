@@ -51,6 +51,7 @@ module HexaPDF
           method
         end
         @encrypt = false
+        @io = nil
       end
 
       # Returns the serialized form of the given object.
@@ -62,6 +63,16 @@ module HexaPDF
         __serialize(obj)
       ensure
         @object = nil
+      end
+
+      # Serializes the given object and writes it to the IO.
+      #
+      # Also see: #serialize
+      def serialize_to_io(obj, io)
+        @io = io
+        @io << serialize(obj).freeze
+      ensure
+        @io = nil
       end
 
       private
@@ -214,13 +225,26 @@ module HexaPDF
                 else
                   obj.stream_encoder
                 end
-        data = Filter.string_from_source(fiber)
-        obj.value[:Length] = data.size
 
-        str = __serialize(obj.value)
-        str << "stream\n".freeze
-        str << data
-        str << "\nendstream".freeze
+        if @io && fiber.respond_to?(:length) && fiber.length >= 0
+          obj.value[:Length] = fiber.length
+          @io << __serialize(obj.value)
+          @io << "stream\n".freeze
+          while fiber.alive? && (data = fiber.resume)
+            @io << data.freeze
+          end
+          @io << "\nendstream".freeze
+
+          nil
+        else
+          data = Filter.string_from_source(fiber)
+          obj.value[:Length] = data.size
+
+          str = __serialize(obj.value)
+          str << "stream\n".freeze
+          str << data
+          str << "\nendstream".freeze
+        end
       end
 
     end

@@ -124,7 +124,7 @@ module HexaPDF
       # Writes the single indirect object which may be a stream object or another object.
       def write_indirect_object(obj)
         @io << "#{obj.oid} #{obj.gen} obj\n".freeze
-        @io << @serializer.serialize(obj)
+        @serializer.serialize_to_io(obj, @io)
         @io << "\nendobj\n".freeze
       end
 

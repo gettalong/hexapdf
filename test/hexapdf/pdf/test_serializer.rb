@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require 'stringio'
 require 'hexapdf/pdf/serializer'
 require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/stream'
@@ -104,13 +105,27 @@ describe HexaPDF::PDF::Serializer do
     assert_serialized("5 3 R", HexaPDF::PDF::Reference.new(5, 3))
   end
 
-  it "serializes streams" do
-    doc = Object.new
-    def doc.unwrap(obj); obj; end
-    stream = HexaPDF::PDF::Stream.new({Key: "value", Length: 5}, stream: "somedata", document: doc)
-    assert_serialized("<</Key(value)/Length 8>>stream\nsomedata\nendstream", stream)
-    stream.oid = 2
-    assert_serialized("<</Name 2 0 R>>", HexaPDF::PDF::Object.new({Name: stream}))
+  describe "stream serialization" do
+    before do
+      @doc = Object.new
+      def (@doc).unwrap(obj); obj; end
+      def (@doc).config; {chunk_size: 100}; end
+      @stream = HexaPDF::PDF::Stream.new({Key: "value", Length: 5}, document: @doc)
+    end
+
+    it "serializes streams" do
+      @stream.stream = "somedata"
+      assert_serialized("<</Key(value)/Length 8>>stream\nsomedata\nendstream", @stream)
+      @stream.oid = 2
+      assert_serialized("<</Name 2 0 R>>", HexaPDF::PDF::Object.new({Name: @stream}))
+    end
+
+    it "serializes stream more efficiently when an IO is provided" do
+      @stream.stream = HexaPDF::PDF::StreamData.new(HexaPDF::PDF::FiberWithLength.new(6) { "some" })
+      io = StringIO.new(''.b)
+      @serializer.serialize_to_io(@stream, io)
+      assert_equal("<</Key(value)/Length 6>>stream\nsome\nendstream", io.string)
+    end
   end
 
 end

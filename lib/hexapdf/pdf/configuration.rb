@@ -128,7 +128,8 @@ module HexaPDF
               DCTDecode: 'HexaPDF::PDF::Filter::DCTDecode',
               DCT: 'HexaPDF::PDF::Filter::DCTDecode',
               JPXDecode: 'HexaPDF::PDF::Filter::JPXDecode',
-              Crypt: nil
+              Crypt: nil,
+              Encryption: 'HexaPDF::PDF::Filter::Encryption',
             },
             'object.type_map' => {
               XRef: 'HexaPDF::PDF::Type::XRefStream',

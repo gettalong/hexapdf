@@ -153,10 +153,13 @@ module HexaPDF
 
       # Returns the encoder Fiber for the stream data.
       #
+      # The two arguments can be used to add additional filters for *only* this returned encoder
+      # Fiber. They should normally *not* be used and are here for use by the encryption facilities.
+      #
       # See the Filter module for more information on how to work with the fiber.
-      def stream_encoder
-        encoder_data = [document.unwrap(self[:Filter])].flatten.compact.
-          zip([document.unwrap(self[:DecodeParms])].flatten).
+      def stream_encoder(additional_filter = nil, additional_decode_parms = nil)
+        encoder_data = [additional_filter, document.unwrap(self[:Filter])].flatten.
+          zip([additional_decode_parms, document.unwrap(self[:DecodeParms])].flatten).
           delete_if {|f, d| f.nil?}
         source = stream_source
 

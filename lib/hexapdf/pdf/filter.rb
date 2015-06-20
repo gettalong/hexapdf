@@ -5,6 +5,22 @@ require 'fiber'
 module HexaPDF
   module PDF
 
+    # This special Fiber class should be used when the total length of the data yielded by the fiber
+    # is known beforehand. HexaPDF uses this information to avoid unnecessary memory usage.
+    class FiberWithLength < Fiber
+
+      # The total length of the data that will be yielded by this fiber.
+      attr_reader :length
+
+      # Initializes the Fiber and sets the +length+.
+      def initialize(length, &block)
+        super(&block)
+        @length = length
+      end
+
+    end
+
+
     # == Overview
     #
     # A *stream filter* is used to compress a stream or to encode it in an ASCII compatible way; or
@@ -46,10 +62,12 @@ module HexaPDF
 
       autoload(:Predictor, 'hexapdf/pdf/filter/predictor')
 
+      autoload(:Encryption, 'hexapdf/pdf/filter/encryption')
+
       # Returns a Fiber that can be used as a source for decoders/encoders and that is based on a
       # String object.
       def self.source_from_string(str)
-        Fiber.new { str.dup }
+        FiberWithLength.new(str.length) { str.dup }
       end
 
       # Returns a Fiber that can be used as a source for decoders/encoders and that reads chunks of
@@ -71,12 +89,13 @@ module HexaPDF
       #               of less than or equal to 0 means using the biggest chunk size available (can
       #               change between versions!). Default: 0.
       def self.source_from_io(io, pos: 0, length: -1, chunk_size: 0)
+        orig_length = length
         chunk_size = 2**32 if chunk_size <= 0
         chunk_size = length if length >= 0 && chunk_size > length
         length = 2**61 if length < 0
         pos = 0 if pos < 0
 
-        Fiber.new do
+        FiberWithLength.new(orig_length) do
           while length > 0 && (io.pos = pos) && (data = io.read(chunk_size))
             pos = io.pos
             length -= data.size

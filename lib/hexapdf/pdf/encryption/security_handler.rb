@@ -247,7 +247,8 @@ module HexaPDF
             unless string_algorithm == stream_algorithm
               key = object_key(obj.oid, obj.gen, stream_algorithm)
             end
-            obj.raw_stream.source = stream_algorithm.decryption_fiber(key, obj.stream_source)
+            obj.raw_stream.filter.unshift(:Encryption)
+            obj.raw_stream.decode_parms.unshift(key: key, algorithm: stream_algorithm)
           end
 
           obj
@@ -268,7 +269,7 @@ module HexaPDF
           return obj.stream_encoder if obj.type == :XRef
 
           key = object_key(obj.oid, obj.gen, stream_algorithm)
-          stream_algorithm.encryption_fiber(key, obj.stream_encoder)
+          obj.stream_encoder(:Encryption, {key: key, algorithm: stream_algorithm})
         end
 
         private

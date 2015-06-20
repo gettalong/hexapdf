@@ -147,7 +147,7 @@ module HexaPDF
           stat = File.stat(filename)
           ef_stream[:Params] = {Size: stat.size, CreationDate: stat.ctime, ModDate: stat.mtime}
           ef_stream.set_filter(filter)
-          fiber = Fiber.new do
+          fiber = FiberWithLength.new(stat.size) do
             File.open(filename, 'rb') do |file|
               io_fiber = Filter.source_from_io(file, chunk_size: config['io.chunk_size'])
               while io_fiber.alive? && (io_data = io_fiber.resume)

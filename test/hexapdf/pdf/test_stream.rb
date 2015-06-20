@@ -151,7 +151,7 @@ describe HexaPDF::PDF::Stream do
       assert_equal("78da634a6462444000058f0076>", collector(@stm.stream_encoder))
 
       @stm.value[:Filter] = [:AHx, nil, :Fl]
-      @stm.value[:DecodeParms] = [nil, {Predictor: 10}]
+      @stm.value[:DecodeParms] = [nil, nil, {Predictor: 10}]
       @stm.stream = 'abcdefg'
       assert_equal("78da6348644862486648614865486348070012fa02bd>", collector(@stm.stream_encoder))
     end
