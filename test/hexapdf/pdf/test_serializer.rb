@@ -121,7 +121,7 @@ describe HexaPDF::PDF::Serializer do
     end
 
     it "serializes stream more efficiently when an IO is provided" do
-      @stream.stream = HexaPDF::PDF::StreamData.new(HexaPDF::PDF::FiberWithLength.new(6) { "some" })
+      @stream.stream = HexaPDF::PDF::StreamData.new(proc { "some" }, length: 6)
       io = StringIO.new(''.b)
       @serializer.serialize_to_io(@stream, io)
       assert_equal("<</Key(value)/Length 6>>stream\nsome\nendstream", io.string)

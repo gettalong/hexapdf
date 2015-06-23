@@ -237,7 +237,7 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
     end
 
     it "decrypts the content of a stream object" do
-      data = HexaPDF::PDF::StreamData.new(Fiber.new { @encrypted })
+      data = HexaPDF::PDF::StreamData.new(proc { @encrypted })
       obj = @document.wrap({}, oid: @obj.oid, stream: data)
       @handler.decrypt(obj)
       assert_equal('string', obj.stream)
@@ -265,7 +265,7 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
 
     before do
       @handler.set_up_encryption(key_length: 128, algorithm: :arc4)
-      @stream = @document.wrap({}, oid: 1, stream: HexaPDF::PDF::StreamData.new(Fiber.new { "string" }))
+      @stream = @document.wrap({}, oid: 1, stream: HexaPDF::PDF::StreamData.new(proc { "string" }))
     end
 
     it "encrypts strings of indirect objects" do
@@ -275,7 +275,7 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
 
     it "encrypts streams" do
       result = TestHelper.collector(@handler.encrypt_stream(@stream))
-      @stream.stream = HexaPDF::PDF::StreamData.new(Fiber.new { result })
+      @stream.stream = HexaPDF::PDF::StreamData.new(proc { result })
       assert_equal('string', @handler.decrypt(@stream).stream)
     end
 

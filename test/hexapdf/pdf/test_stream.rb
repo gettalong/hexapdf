@@ -9,33 +9,34 @@ require 'hexapdf/pdf/stream'
 
 describe HexaPDF::PDF::StreamData do
 
-  it "sets the attributes correctly on initialization" do
-    s = HexaPDF::PDF::StreamData.new(:source, offset: 5, length: 10, filter: :a, decode_parms: [:b])
-    assert_equal(:source, s.source)
-    assert_equal(5, s.offset)
-    assert_equal(10, s.length)
-    assert_equal([:a], s.filter)
-    assert_equal([:b], s.decode_parms)
-  end
-
   it "normalizes the filter value" do
-    s = HexaPDF::PDF::StreamData.new(:source)
-    s.filter = :test
+    s = HexaPDF::PDF::StreamData.new(:source, filter: :test)
     assert_equal([:test], s.filter)
-    s.filter = [:a, nil, :b]
+    s = HexaPDF::PDF::StreamData.new(:source, filter: [:a, nil, :b])
     assert_equal([:a, :b], s.filter)
-    s.filter = nil
+    s = HexaPDF::PDF::StreamData.new(:source)
     assert_equal([], s.filter)
   end
 
   it "normalizes the decode_parms value" do
-    s = HexaPDF::PDF::StreamData.new(:source)
-    s.decode_parms = :test
+    s = HexaPDF::PDF::StreamData.new(:source, decode_parms: :test)
     assert_equal([:test], s.decode_parms)
-    s.decode_parms = [:a, nil, :b]
+    s = HexaPDF::PDF::StreamData.new(:source, decode_parms: [:a, nil, :b])
     assert_equal([:a, nil, :b], s.decode_parms)
-    s.decode_parms = nil
+    s = HexaPDF::PDF::StreamData.new(:source)
     assert_equal([nil], s.decode_parms)
+  end
+
+  describe "fiber" do
+    it "returns a fiber for a Proc source" do
+      s = HexaPDF::PDF::StreamData.new(proc { :source })
+      assert_equal(:source, s.fiber.resume)
+    end
+
+    it "returns a fiber for an IO source" do
+      s = HexaPDF::PDF::StreamData.new(StringIO.new('source'))
+      assert_equal('source', s.fiber.resume)
+    end
   end
 
 end
@@ -102,7 +103,7 @@ describe HexaPDF::PDF::Stream do
     map = HexaPDF::PDF::Configuration.default['filter.map']
     tmp = feeder(str)
     encoders.each {|e| tmp = ::Object.const_get(map[e]).encoder(tmp)}
-    tmp
+    collector(tmp)
   end
 
   describe "stream_decoder" do
@@ -114,13 +115,13 @@ describe HexaPDF::PDF::Stream do
     end
 
     it "works with an IO object inside StreamData" do
-      io = StringIO.new(collector(encoded_data('testing', [:A85, :AHx])))
+      io = StringIO.new(encoded_data('testing', [:A85, :AHx]))
       @stm.stream = HexaPDF::PDF::StreamData.new(io, filter: [:AHx, :A85])
       assert_equal('testing', collector(@stm.stream_decoder))
     end
 
-    it "works with a Fiber object inside StreamData" do
-      @stm.stream = HexaPDF::PDF::StreamData.new(encoded_data('testing', [:A85, :AHx]), filter: [:AHx, :A85])
+    it "works with a Proc object inside StreamData" do
+      @stm.stream = HexaPDF::PDF::StreamData.new(proc {'testing'})
       assert_equal('testing', collector(@stm.stream_decoder))
     end
 
@@ -158,7 +159,8 @@ describe HexaPDF::PDF::Stream do
 
     it "decodes a StreamData stream before encoding" do
       @stm.value[:Filter] = :AHx
-      @stm.stream = HexaPDF::PDF::StreamData.new(encoded_data('test', [:A85, :AHx]), filter: [:AHx, :A85])
+      data_proc = proc { encoded_data('test', [:A85, :AHx]) }
+      @stm.stream = HexaPDF::PDF::StreamData.new(data_proc, filter: [:AHx, :A85])
       assert_equal('74657374>', collector(@stm.stream_encoder))
     end
 
@@ -166,13 +168,14 @@ describe HexaPDF::PDF::Stream do
       @document.config['filter.map'][:AHx] = nil
 
       @stm.value[:Filter] = :AHx
-      @stm.stream = HexaPDF::PDF::StreamData.new(encoded_data('test', [:AHx, :A85]), filter: [:A85, :AHx])
+      data_proc = proc { encoded_data('test', [:AHx, :A85]) }
+      @stm.stream = HexaPDF::PDF::StreamData.new(data_proc, filter: [:A85, :AHx])
       assert_equal('74657374>', collector(@stm.stream_encoder))
 
       @stm.value[:Filter] = [:AHx, :AHx]
-      fiber = encoded_data('test', [:AHx, :AHx])
-      @stm.stream = HexaPDF::PDF::StreamData.new(fiber, filter: [:AHx, :AHx])
-      assert_equal(fiber, @stm.stream_encoder)
+      invoked = false
+      @stm.stream = HexaPDF::PDF::StreamData.new(proc { invoked = true }, filter: [:AHx, :AHx])
+      refute(invoked)
     end
   end
 

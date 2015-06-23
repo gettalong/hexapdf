@@ -9,13 +9,14 @@ module HexaPDF
     # is known beforehand. HexaPDF uses this information to avoid unnecessary memory usage.
     class FiberWithLength < Fiber
 
-      # The total length of the data that will be yielded by this fiber.
+      # The total length of the data that will be yielded by this fiber. If the return value is
+      # negative the total length is *not* known.
       attr_reader :length
 
       # Initializes the Fiber and sets the +length+.
       def initialize(length, &block)
         super(&block)
-        @length = length
+        @length = length || -1
       end
 
     end

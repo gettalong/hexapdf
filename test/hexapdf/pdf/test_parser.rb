@@ -85,15 +85,13 @@ EOF
     it "handles keyword stream followed only by CR without LF" do
       set_string("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
       _, _, _, stream = @parser.parse_indirect_object
-      assert_equal(2, stream.length)
-      assert_equal(28, stream.offset)
+      assert_equal('12', TestHelper.collector(stream.fiber))
     end
 
     it "recovers from an invalid stream length value" do
       set_string("1 0 obj<</Length 4>> stream\n12endstream endobj")
       _, _, _, stream = @parser.parse_indirect_object
-      assert_equal(2, stream.length)
-      assert_equal(28, stream.offset)
+      assert_equal('12', TestHelper.collector(stream.fiber))
     end
 
     it "works even if the keyword endobj is missing or mangled" do

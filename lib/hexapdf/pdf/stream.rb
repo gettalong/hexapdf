@@ -9,60 +9,42 @@ module HexaPDF
 
     # Container for stream data from an existing PDF.
     #
-    # This helper class wraps all information necessary to read the stream data from an existing IO
-    # object.
-    #
-    # The +source+ can either be an IO stream which is read starting from a specific +offset+ for a
-    # specific +length+, or a Fiber (see Filter) in which case the +offset+ and +length+ values are
-    # ignored.
+    # This helper class wraps all information necessary to read the stream data by using a Fiber
+    # object (see Filter). The underlying data either comes from an IO object or a Fiber defined via
+    # a Proc object.
     #
     # The +filter+ and +decode_parms+ are automatically normalized to arrays on assignment to ease
     # further processing.
     class StreamData
 
-      # The source of the stream, either an IO object or a Fiber.
-      attr_accessor :source
-
-      # The offset into the IO object where reading should start. Ignored if +source+ is a Fiber.
-      attr_accessor :offset
-
-      # The length of the stream data that should be read from the IO object. Ignored if +source+ is
-      # a Fiber.
-      attr_accessor :length
-
       # The filter(s) that need to be applied for getting the decoded stream data.
-      attr_accessor :filter
+      attr_reader :filter
 
       # The decoding parameters associated with the +filter+(s).
-      attr_accessor :decode_parms
+      attr_reader :decode_parms
 
       # Creates a new StreamData object for the given +source+ and with the given options.
+      #
+      # The +source+ can either be an IO stream which is read starting from a specific +offset+ for
+      # a specific +length+, or a Proc object (that is converted to a Fiber when needed) in which
+      # case the +offset+ and +length+ values are ignored.
       def initialize(source, offset: nil, length: nil, filter: nil, decode_parms: nil)
         @source = source
         @offset = offset
         @length = length
-        self.filter = filter
-        self.decode_parms = decode_parms
+        @filter = [filter].flatten.compact
+        @decode_parms = [decode_parms].flatten
+        freeze
       end
 
-      # Returns a Fiber for getting at the data of the underlying IO object.
+      # Returns a Fiber for getting at the data of the stream represented by this object.
       def fiber(chunk_size = 0)
-        if source.kind_of?(Fiber)
-          source
+        if @source.kind_of?(Proc)
+          FiberWithLength.new(@length, &@source)
         else
-          HexaPDF::PDF::Filter.source_from_io(source, pos: offset || 0, length: length || -1,
+          HexaPDF::PDF::Filter.source_from_io(@source, pos: @offset || 0, length: @length || -1,
                                               chunk_size: chunk_size)
         end
-      end
-
-      remove_method :filter=
-      def filter=(filter) #:nodoc:
-        @filter = [filter].flatten.compact
-      end
-
-      remove_method :decode_parms=
-      def decode_parms=(parms) #:nodoc:
-        @decode_parms = [parms].flatten
       end
 
     end
