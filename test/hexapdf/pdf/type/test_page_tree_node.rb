@@ -63,7 +63,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
     it "uses an empty new page when none is provided" do
       page = @root.insert_page(3)
       assert_equal([page], @root[:Kids])
-      assert_equal(1, @root[:Count])
+      assert_equal(1, @root.page_count)
       assert_equal(:Page, page[:Type])
       assert_equal(@root, page[:Parent])
       assert_kind_of(Array, page[:MediaBox])
@@ -84,30 +84,30 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       page1 = @root.insert_page(0)
       page2 = @root.insert_page(1)
       assert_equal([page1, page2, page3], @root[:Kids])
-      assert_equal(3, @root[:Count])
+      assert_equal(3, @root.page_count)
     end
 
     it "inserts multiple pages correctly in a multilevel page tree" do
       define_multilevel_page_tree
       page = @root.insert_page(2)
       assert_equal([@pages[0], @pages[1], page], @kid11[:Kids])
-      assert_equal(3, @kid11[:Count])
-      assert_equal(6, @kid1[:Count])
-      assert_equal(9, @root[:Count])
+      assert_equal(3, @kid11.page_count)
+      assert_equal(6, @kid1.page_count)
+      assert_equal(9, @root.page_count)
 
       page = @root.insert_page(4)
       assert_equal([@pages[2], page, @pages[3], @pages[4]], @kid12[:Kids])
-      assert_equal(4, @kid12[:Count])
-      assert_equal(7, @kid1[:Count])
-      assert_equal(10, @root[:Count])
+      assert_equal(4, @kid12.page_count)
+      assert_equal(7, @kid1.page_count)
+      assert_equal(10, @root.page_count)
 
       page = @root.insert_page(8)
       assert_equal([@kid1, @pages[5], page, @kid2], @root[:Kids])
-      assert_equal(11, @root[:Count])
+      assert_equal(11, @root.page_count)
 
       page = @root.insert_page(100)
       assert_equal([@kid1, @pages[5], @root[:Kids][2], @kid2, page], @root[:Kids])
-      assert_equal(12, @root[:Count])
+      assert_equal(12, @root.page_count)
     end
 
     it "allows negative indices to be specified" do
@@ -133,23 +133,23 @@ describe HexaPDF::PDF::Type::PageTreeNode do
     it "does nothing if the page index is not valid" do
       assert_nil(@root.delete_page(20))
       assert_nil(@root.delete_page(-20))
-      assert_equal(8, @root[:Count])
+      assert_equal(8, @root.page_count)
     end
 
     it "deletes the correct page" do
       assert_equal(@pages[2], @root.delete_page(2))
-      assert_equal(2, @kid12[:Count])
-      assert_equal(4, @kid1[:Count])
-      assert_equal(7, @root[:Count])
+      assert_equal(2, @kid12.page_count)
+      assert_equal(4, @kid1.page_count)
+      assert_equal(7, @root.page_count)
 
       assert_equal(@pages[5], @root.delete_page(4))
-      assert_equal(6, @root[:Count])
+      assert_equal(6, @root.page_count)
     end
 
     it "deletes intermediate page tree nodes if they contain only one child after deletion" do
       assert_equal(@pages[0], @root.delete_page(0))
-      assert_equal(4, @kid1[:Count])
-      assert_equal(7, @root[:Count])
+      assert_equal(4, @kid1.page_count)
+      assert_equal(7, @root.page_count)
       assert_nil(@doc.object(@kid11).value)
       assert_equal(@pages[1], @kid1[:Kids][0])
     end
@@ -163,16 +163,16 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       assert_equal(page, @root.delete_page(-1))
       assert_nil(@doc.object(node).value)
       refute_equal(node, @root[:Kids].last)
-      assert(8, @root[:Count])
+      assert(8, @root.page_count)
     end
   end
 
   describe "validation" do
     it "corrects faulty /Count entries" do
       define_multilevel_page_tree
-      root_count = @root[:Count]
+      root_count = @root.page_count
       @root[:Count] = -5
-      kid_count = @kid12[:Count]
+      kid_count = @kid12.page_count
       @kid12[:Count] = 100
 
       called_msg = ''
@@ -180,8 +180,8 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       assert_match(/Count.*invalid/, called_msg)
 
       assert(@root.validate)
-      assert_equal(root_count, @root[:Count])
-      assert_equal(kid_count, @kid12[:Count])
+      assert_equal(root_count, @root.page_count)
+      assert_equal(kid_count, @kid12.page_count)
     end
 
     it "corrects faulty /Parent entries" do
@@ -201,7 +201,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
     it "needs at least one page node" do
       refute(@root.validate(auto_correct: false))
       assert(@root.validate)
-      assert_equal(1, @root[:Count])
+      assert_equal(1, @root.page_count)
     end
   end
 

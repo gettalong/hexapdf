@@ -16,6 +16,10 @@ module HexaPDF
       # nodes and page objects can be mixed. This means that for finding a page at a specific index
       # we have to go through all objects that come before it.
       #
+      # Since the page tree needs a certain structure it is not advised to directly modify page tree
+      # nodes. The validation feature can correct most problems but until the page tree is in order
+      # the methods may not work correctly!
+      #
       # See: PDF1.7 s7.7.3.2, Page
       class PageTreeNode < Dictionary
 
@@ -27,6 +31,14 @@ module HexaPDF
         define_validator(:validate_page_tree)
 
         must_be_indirect
+
+        # Returns the number of pages under this page tree.
+        #
+        # *Note*: If this methods is not called on the root object of the page tree, the returned
+        # number is not the total number of pages in the document!
+        def page_count
+          self[:Count]
+        end
 
         # Returns the page for the index or +nil+ if no such page exists.
         #
