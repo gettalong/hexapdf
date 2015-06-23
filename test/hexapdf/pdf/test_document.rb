@@ -449,4 +449,12 @@ EOF
       assert_raises(HexaPDF::Error) { @doc.task(:unknown) }
     end
   end
+
+  describe "pages" do
+    it "returns the root node of the page tree" do
+      pages = @doc.pages
+      assert_equal(:Pages, pages.type)
+    end
+  end
+
 end

@@ -317,6 +317,13 @@ module HexaPDF
         trailer[:Root] ||= add({}, type: :Catalog)
       end
 
+      # Returns the root node of the document's page tree.
+      #
+      # See: HexaPDF::PDF::Type::PageTreeNode
+      def pages
+        catalog.pages
+      end
+
       # Returns the PDF document's version as string (e.g. '1.4').
       #
       # This method takes the file header version and the catalog's /Version key into account. If a

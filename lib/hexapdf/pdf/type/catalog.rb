@@ -51,6 +51,13 @@ module HexaPDF
 
         must_be_indirect
 
+        # Returns the root node of the page tree.
+        #
+        # See: PageTreeNode
+        def pages
+          self[:Pages] ||= document.add(Type: :Pages)
+        end
+
         private
 
         # Ensures that there is a valid page tree.
