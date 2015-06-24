@@ -84,7 +84,7 @@ module HexaPDF
         # generation number and the associated data as arguments.
         def each
           return to_enum(__method__) unless block_given?
-          @oids.each {|oid, gen| yield(oid, gen, @table[oid]) if @table.key?(oid)}
+          @oids.keys.each {|oid| yield(oid, @oids[oid], @table[oid]) if @table.key?(oid)}
           self
         end
 

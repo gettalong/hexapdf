@@ -68,14 +68,23 @@ describe HexaPDF::PDF::Utils::ObjectHash do
     assert_nil(@hash[1])
   end
 
-  it "acts as an enumerable object" do
-    @hash[1, 0] = 5
-    @hash[2, 3] = 6
-    @hash[3, 2] = 7
-    assert_equal([[1, 0, 5], [2, 3, 6], [3, 2, 7]], @hash.each.to_a)
+  describe "each" do
+    it "acts as an enumerable object" do
+      @hash[1, 0] = 5
+      @hash[2, 3] = 6
+      @hash[3, 2] = 7
+      assert_equal([[1, 0, 5], [2, 3, 6], [3, 2, 7]], @hash.each.to_a)
 
-    @hash.each do |oid, gen, data|
-      assert_equal(data, @hash[oid, gen])
+      @hash.each do |oid, gen, data|
+        assert_equal(data, @hash[oid, gen])
+      end
+    end
+
+    it "allows key insertion during iteration" do
+      @hash[1, 0] = 5
+      count = 0
+      @hash.each { count += 1; @hash[2, 0] = 6 }
+      assert_equal(1, count)
     end
   end
 
