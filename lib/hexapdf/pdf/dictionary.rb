@@ -102,8 +102,8 @@ module HexaPDF
       #   subclasses of HexaPDF::PDF::Object are returned as is (it makes no sense, for example, to
       #   return the hash that describes the Catalog instead of the Catalog object).
       #
-      # * Automatically wraps unset or hash values in specific subclasses of this class if field
-      #   information is available (see ::define_field).
+      # * Automatically wraps hash values in specific subclasses of this class if field information
+      #   is available (see ::define_field).
       #
       # * Returns the default value if one is specified and no value is available.
       def [](name)
@@ -114,12 +114,8 @@ module HexaPDF
                  value[name] = field.default
                end
 
-        if field && field.convert?(data)
-          value[name] = data = field.convert(data, document)
-        elsif data.class == HexaPDF::PDF::Object
-          data = data.value
-        end
-
+        data = data.value if data.class == HexaPDF::PDF::Object
+        self[name] = data = field.convert(data, document) if field && field.convert?(data)
         data
       end
 

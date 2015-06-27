@@ -102,6 +102,16 @@ describe HexaPDF::PDF::Dictionary do
     it "fetches the value out of a HexaPDF::PDF::Object" do
       assert_equal(:obj, @dict[:Object])
     end
+
+    it "can convert data even if it is inside a HexaPDF::PDF::Object" do
+      @test_class.define_field(:Binary, type: HexaPDF::PDF::DictionaryFields::PDFByteString)
+      @dict[:Binary] = HexaPDF::PDF::Object.new('test')
+      result = @dict[:Binary]
+      assert_equal('test', result)
+      assert_equal(Encoding::BINARY, result.encoding)
+      assert_kind_of(HexaPDF::PDF::Object, @dict.value[:Binary])
+      assert_same(result, @dict.value[:Binary].value)
+    end
   end
 
   describe "[]=" do
