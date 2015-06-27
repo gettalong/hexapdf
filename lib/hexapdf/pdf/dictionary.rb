@@ -60,20 +60,7 @@ module HexaPDF
       def self.define_field(name, type:, required: false, default: nil, indirect: nil,
                             version: '1.2')
         @fields ||= {}
-        converter = if type.kind_of?(String) ||
-                        (type.respond_to?(:ancestors) &&
-                         type.ancestors.include?(HexaPDF::PDF::Dictionary))
-                      DictionaryConverter
-                    elsif type == String || type == PDFByteString
-                      StringConverter
-                    elsif type == PDFDate
-                      DateConverter
-                    else
-                      IdentityConverter
-                    end
         @fields[name] = Field.new(type, required, default, indirect, version)
-        @fields[name].converter = converter
-        @fields[name]
       end
 
       # Returns the field entry for the given field name.

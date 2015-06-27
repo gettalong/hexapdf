@@ -11,7 +11,15 @@ describe HexaPDF::PDF::DictionaryFields do
 
   describe "Field" do
     before do
-      @field = self.class::Field.new(['Integer', Integer], false, nil, false, '1.2')
+      @field = self.class::Field.new(['Integer', Integer], true, 500, false, '1.2')
+    end
+
+    it "allows access to the basic field information" do
+      assert(@field.required?)
+      assert(@field.default?)
+      assert_equal(500, @field.default)
+      assert_equal(false, @field.indirect)
+      assert_equal('1.2', @field.version)
     end
 
     it "maps string types to constants" do
@@ -19,8 +27,8 @@ describe HexaPDF::PDF::DictionaryFields do
     end
 
     it "uses the additional types from a converter" do
-      @field.converter = self.class::StringConverter
-      assert_equal([Integer, String], @field.type)
+      @field = self.class::Field.new(self.class::PDFByteString)
+      assert_equal([self.class::PDFByteString, String], @field.type)
     end
 
     it "does not allow any conversion with the identity converter" do
@@ -38,8 +46,7 @@ describe HexaPDF::PDF::DictionaryFields do
 
   describe "DictionaryConverter" do
     before do
-      @field = self.class::Field.new([Class.new(HexaPDF::PDF::Dictionary)], false, nil, false, '1.2')
-      @field.converter = self.class::DictionaryConverter
+      @field = self.class::Field.new(Class.new(HexaPDF::PDF::Dictionary))
       @doc = Minitest::Mock.new
     end
 
@@ -64,20 +71,11 @@ describe HexaPDF::PDF::DictionaryFields do
 
   describe "StringConverter" do
     before do
-      @field = self.class::Field.new([String], false, nil, false, '1.2')
-      @field.converter = self.class::StringConverter
-      @bin_field = self.class::Field.new([self.class::PDFByteString], false, nil, false, '1.2')
-      @bin_field.converter = self.class::StringConverter
-    end
-
-    it "additionally adds String as allowed type if not already present" do
-      assert_equal([String], @field.type)
-      assert_equal([HexaPDF::PDF::Dictionary::PDFByteString, String], @bin_field.type)
+      @field = self.class::Field.new(String)
     end
 
     it "allows conversion to UTF-8 string from binary" do
       assert(@field.convert?('test'.b))
-      refute(@bin_field.convert?('test'.b))
 
       str = @field.convert("\xfe\xff\x00t\x00e\x00s\x00t".b, self)
       assert_equal('test', str)
@@ -88,10 +86,28 @@ describe HexaPDF::PDF::DictionaryFields do
     end
   end
 
+  describe "PDFByteStringConverter" do
+    before do
+      @field = self.class::Field.new(self.class::PDFByteString)
+    end
+
+    it "additionally adds String as allowed type if not already present" do
+      assert_equal([HexaPDF::PDF::Dictionary::PDFByteString, String], @field.type)
+    end
+
+    it "allows conversion to a binary string" do
+      assert(@field.convert?('test'))
+      refute(@field.convert?('test'.b))
+
+      str = @field.convert("test", self)
+      assert_equal('test', str)
+      assert_equal(Encoding::BINARY, str.encoding)
+    end
+  end
+
   describe "DateConverter" do
     before do
-      @field = self.class::Field.new([self.class::PDFDate], false, nil, false, '1.2')
-      @field.converter = self.class::DateConverter
+      @field = self.class::Field.new(self.class::PDFDate)
     end
 
     it "additionally adds String/Time/Date/DateTime as allowed types" do

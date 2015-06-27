@@ -8,19 +8,63 @@ module HexaPDF
   module PDF
 
     # A mixin used by Dictionary that implements the infrastructure and classes for defining fields.
+    #
+    # The class responsible for holding the field information is the Field class. Additionally, each
+    # field object is automatically assigned a stateless converter object that knows if data read
+    # from a PDF file potentially needs to be converted into a standard format before use.
+    #
+    # The methods that need to be implemented by such stateless converter objects are:
+    #
+    # usable_for?(type)::
+    #   Should return +true+ if the converter is usable for the given type.
+    #
+    # additional_types::
+    #   Should return +nil+, a single type class or an array of type classes which will additionally
+    #   be allowed for the field.
+    #
+    # convert?(data, type)::
+    #   Should return +true+ if the given +data+ object can be converted. The +type+ argument is the
+    #   result of the Field#type method call.
+    #
+    # convert(data, type, document)::
+    #   Should return the +converted+ data. The +type+ argument is the result of the Field#type
+    #   method call and +document+ is the HexaPDF::PDF::Document for which the data should be
+    #   converted.
     module DictionaryFields
 
-      # For easier defining boolean fields.
+      # This constant should *always* be used for boolean fields.
       Boolean = [TrueClass, FalseClass]
 
       # PDFByteString is used for defining fields with strings in binary encoding.
-      PDFByteString = Class.new
+      PDFByteString = Class.new { private_class_method :new }
 
       # PDFDate is used for defining fields which store a date object as a string.
-      PDFDate = Class.new
+      PDFDate = Class.new { private_class_method :new }
 
-      # A dictionary field entry.
+      # A dictionary field contains information about one field of a structured PDF object and this
+      # information comes directly from the PDF specification.
+      #
+      # By incorporating this field information into HexaPDF it is possible to do many things
+      # automatically, like checking for the correct minimum PDF version to use or converting a date
+      # from its string representation to a Time object.
       class Field
+
+        # Returns the list of available converter objects.
+        #
+        # See ::converter_for for information on how this list is used.
+        def self.converters
+          @converters ||= []
+        end
+
+        # Returns the converter for the given +type+ specification.
+        #
+        # The converter list is checked for a suitable converter from the front to the back. So if
+        # two converters could potentially be used for the same type, the one that appears earlier
+        # is used.
+        def self.converter_for(type)
+          @converters.find {|converter| converter.usable_for?(type)}
+        end
+
 
         # Returns +true+ if the value for this field needs to be an indirect object, +false+ if it
         # needs to be a direct object or +nil+ if it can be either.
@@ -29,22 +73,22 @@ module HexaPDF
         # Returns the PDF version that is required for this field.
         attr_reader :version
 
-        # Associates a converter module with the field.
-        attr_accessor :converter
-
         # Create a new Field object. See Dictionary::define_field for information on the arguments.
-        def initialize(type, required, default, indirect, version)
+        #
+        # Depending on the +type+ entry an appropriate field converter object is chosen from the
+        # available converters.
+        def initialize(type, required = false, default = nil, indirect = nil, version = nil)
           @type = [type].flatten
           @type_mapped = false
           @required, @default, @indirect, @version = required, default, indirect, version
-          @converter = IdentityConverter
+          @converter = self.class.converter_for(type)
         end
 
         # Returns the array with valid types for this field.
         def type
           return @type if @type_mapped
           @type_mapped = true
-          @type.concat(Array(converter.additional_types)) if converter
+          @type.concat(Array(@converter.additional_types))
           @type.map! {|type| type.kind_of?(String) ? ::Object.const_get(type) : type}
           @type.uniq!
           @type
@@ -87,7 +131,7 @@ module HexaPDF
         #
         # See: #convert
         def convert?(data)
-          converter.convert?(data, type)
+          @converter.convert?(data, type)
         end
 
         # If a converter was defined, it is used for converting the data. Otherwise this is a Noop -
@@ -95,7 +139,7 @@ module HexaPDF
         #
         # See: #convert?
         def convert(data, document)
-          converter.convert(data, type, document)
+          @converter.convert(data, type, document)
         end
 
       end
@@ -103,8 +147,11 @@ module HexaPDF
       # Does nothing.
       module IdentityConverter
 
+        def self.usable_for?(type) #:nodoc:
+          true
+        end
+
         def self.additional_types #:nodoc:
-          []
         end
 
         def self.convert?(data, type) #:nodoc:
@@ -120,6 +167,13 @@ module HexaPDF
       # Converter module for fields of type Dictionary and its subclasses. The first class in the
       # type array of the field is used for the conversion.
       module DictionaryConverter
+
+        # This converter is used when either a String is provided as +type+ (for lazy loading) or
+        # when the type is a class derived from the Dictionary class.
+        def self.usable_for?(type)
+          type.kind_of?(String) ||
+            (type.respond_to?(:ancestors) && type.ancestors.include?(HexaPDF::PDF::Dictionary))
+        end
 
         # Dictionary fields can also contain simple hashes.
         def self.additional_types
@@ -140,19 +194,21 @@ module HexaPDF
 
       end
 
-      # Converter module for string fields to automatically convert a string into UTF-8 encoding on
-      # access. This is only done if the first class in the type array of the field is not
-      # PDFByteString which represents a binary string.
+      # Converter module for string fields to automatically convert a string into UTF-8 encoding.
       module StringConverter
+
+        # This converter is usable if the +type+ is the String class.
+        def self.usable_for?(type)
+          type == String
+        end
 
         # :nodoc:
         def self.additional_types
-          String
         end
 
         # Returns +true+ if the given data should be converted to a UTF-8 encoded string.
         def self.convert?(data, type)
-          data.kind_of?(String) && data.encoding == Encoding::BINARY && type[0] != PDFByteString
+          data.kind_of?(String) && data.encoding == Encoding::BINARY
         end
 
         # Converts the string into UTF-8 encoding, assuming it is currently a binary string.
@@ -166,6 +222,32 @@ module HexaPDF
 
       end
 
+      # Converter module for binary string fields to automatically convert a string into binary
+      # encoding.
+      module PDFByteStringConverter
+
+        # This converter is usable if the +type+ is PDFByteString.
+        def self.usable_for?(type)
+          type == PDFByteString
+        end
+
+        # :nodoc:
+        def self.additional_types
+          String
+        end
+
+        # Returns +true+ if the given data should be converted to a UTF-8 encoded string.
+        def self.convert?(data, type)
+          data.kind_of?(String) && data.encoding != Encoding::BINARY
+        end
+
+        # Converts the string into UTF-8 encoding, assuming it is currently a binary string.
+        def self.convert(str, type, document)
+          str.force_encoding(Encoding::BINARY)
+        end
+
+      end
+
       # Converter module for handling PDF date fields since they are stored as strings.
       #
       # The ISO PDF specification differs from Adobe's specification in respect to the supported
@@ -174,6 +256,11 @@ module HexaPDF
       #
       # See: PDF1.7 s7.9.4, ADB1.7 3.8.3
       module DateConverter
+
+        # This converter is usable if the +type+ is PDFDate.
+        def self.usable_for?(type)
+          type == PDFDate
+        end
 
         # A date field may contain a string in PDF format, or a Time, Date or DateTime object.
         def self.additional_types
@@ -185,8 +272,7 @@ module HexaPDF
 
         # Returns +true+ if the given data should be converted to a Time object.
         def self.convert?(data, type)
-          data.kind_of?(String) && data.encoding == Encoding::BINARY &&
-            data =~ DATE_RE
+          data.kind_of?(String) && data =~ DATE_RE
         end
 
         # Converts the string into a Time object.
@@ -198,6 +284,10 @@ module HexaPDF
         end
 
       end
+
+
+      Field.converters.replace([DictionaryConverter, StringConverter, PDFByteStringConverter,
+                                DateConverter, IdentityConverter])
 
     end
 
