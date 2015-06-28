@@ -9,7 +9,7 @@ module HexaPDF
       #
       # Running this task is most often done to prepare for other steps in a PDF transformation
       # process.
-      module Dereference
+      class Dereference
 
         # Recursively dereferences the reachable parts of the document and returns an array of
         # objects that are never referenced. This includes indirect objects that are used as values
@@ -18,47 +18,59 @@ module HexaPDF
         # If the optional argument +object+ is provided, only the given object is dereferenced and
         # nothing is returned.
         def self.call(doc, object: nil)
-          if object
-            dereference(doc, object)
-            nil
+          new(doc, object).result
+        end
+
+        attr_reader :result # :nodoc:
+
+        def initialize(doc, object = nil) #:nodoc:
+          @doc = doc
+          @object = object
+          @seen = {}
+          @result = nil
+          execute
+        end
+
+        private
+
+        def execute #:nodoc:
+          if @object
+            dereference(@object)
           else
-            visited = {}
-            dereference(doc, doc.trailer, visited)
-            doc.each(current: false).with_object([]) do |obj, unused|
-              if !visited.key?(obj) && obj.type != :ObjStm && obj.type != :XRef
-                unused << obj
+            dereference(@doc.trailer)
+            @result = []
+            @doc.each(current: false) do |obj|
+              if !@seen.key?(obj) && obj.type != :ObjStm && obj.type != :XRef
+                @result << obj
               elsif obj.kind_of?(HexaPDF::PDF::Stream) && (val = obj.value[:Length]) &&
                   val.kind_of?(HexaPDF::PDF::Object) && val.indirect?
-                unused << val
+                @result << val
               end
             end
           end
         end
 
-        # Dereferences a single PDF object.
-        def self.dereference(doc, object, done = {})
-          return object if done.key?(object)
-          done[object] = true
-
-          recurse = lambda do |val|
-            case val
-            when Hash
-              val.each do |k, v|
-                val[k] = recurse.call(v)
-              end
-            when Array
-              val.map! {|v| recurse.call(v)}
-            when HexaPDF::PDF::Reference
-              dereference(doc, doc.object(val), done)
-            when HexaPDF::PDF::Object
-              (val.indirect? ? dereference(doc, val, done) : recurse.call(val.value))
-            else
-              val
-            end
-          end
-
-          object.value = recurse.call(object.value)
+        def dereference(object) #:nodoc:
+          return object if @seen.key?(object)
+          @seen[object] = true
+          recurse(object.value)
           object
+        end
+
+        def recurse(val) #:nodoc:
+          case val
+          when Hash
+            val.each {|k, v| val[k] = recurse(v)}
+          when Array
+            val.map! {|v| recurse(v)}
+          when HexaPDF::PDF::Reference
+            dereference(@doc.object(val))
+          when HexaPDF::PDF::Object
+            (val.indirect? ? dereference(val) : recurse(val.value))
+            val
+          else
+            val
+          end
         end
 
       end
