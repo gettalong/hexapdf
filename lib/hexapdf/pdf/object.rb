@@ -161,7 +161,6 @@ module HexaPDF
       # Sets the object number of the PDF object.
       def oid=(oid)
         data.oid = oid
-        after_data_change
       end
 
       # Returns the generation number of the PDF object.
@@ -172,7 +171,6 @@ module HexaPDF
       # Sets the generation number of the PDF object.
       def gen=(gen)
         data.gen = gen
-        after_data_change
       end
 
       # Returns the object value.
@@ -293,7 +291,8 @@ module HexaPDF
 
       private
 
-      # This method is called whenever a part of the wrapped PDFData structure is changed.
+      # This method is called whenever the value or the stream of the wrapped PDFData structure is
+      # changed.
       #
       # A subclass implementing this method has to call +super+! Otherwise things might not work
       # properly.
