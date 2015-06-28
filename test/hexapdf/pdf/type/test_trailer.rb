@@ -10,7 +10,8 @@ describe HexaPDF::PDF::Type::Trailer do
   before do
     @doc = Object.new
     def (@doc).deref(obj); obj; end
-    root = HexaPDF::PDF::Object.new({}, oid: 3)
+    def (@doc).wrap(obj, *); HexaPDF::PDF::Dictionary.new(obj, oid: (obj.oid rescue 0)); end
+    root = HexaPDF::PDF::Dictionary.new({}, oid: 3)
     @obj = HexaPDF::PDF::Type::Trailer.new({Size: 10, Root: root}, document: @doc)
   end
 

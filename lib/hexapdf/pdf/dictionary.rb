@@ -88,7 +88,7 @@ module HexaPDF
       end
 
 
-      define_validator(:validate_fields)
+      define_validator(:validate_dictionary)
 
 
       # Returns the value for the given dictionary entry.
@@ -200,12 +200,30 @@ module HexaPDF
         end
       end
 
-      # Performs validation tasks based on the defined fields.
+      # Iterates over all currently set fields and those that are required.
+      def each_set_key_or_required_field #:yields: name, field
+        value.each_key {|name| yield(name, self.class.field(name))}
+        self.class.each_field do |name, field|
+          yield(name, field) if field.required? && !value.key?(name)
+        end
+      end
+
+      # Performs validation tasks based on the currently set keys and defined fields.
       #
       # See: Object#validate for information on the available arguments.
-      def validate_fields(&block)
-        self.class.each_field do |name, field|
-          obj = key?(name) && document.deref(value[name]) || nil
+      def validate_dictionary(&block)
+        each_set_key_or_required_field do |name, field|
+          obj = key?(name) && self[name] || nil
+
+          # Validate direct PDF objects and those possibly nested within a hash
+          if obj.kind_of?(HexaPDF::PDF::Object) && !obj.indirect?
+            obj.validate(&block)
+          elsif obj.kind_of?(Hash)
+            validate_hash(obj, &block)
+          end
+
+          # The checks below need a valid field definition
+          next if field.nil?
 
           # Check that required fields are set
           if field.required? && obj.nil?
@@ -223,6 +241,7 @@ module HexaPDF
 
           # Check if field value needs to be (in)direct
           if !field.indirect.nil?
+            obj = value[name] # we need the unwrapped object!
             if field.indirect && (!obj.kind_of?(HexaPDF::PDF::Object) || !obj.indirect?)
               yield("Field #{name} needs to be an indirect object", true)
               value[name] = obj = document.add(obj)
@@ -232,18 +251,16 @@ module HexaPDF
               value[name] = obj = obj.value
             end
           end
+        end
+      end
 
-          # Validate the field values if they are direct PDF objects
+      # Validates all nested values of the given hash.
+      def validate_hash(hash, &block)
+        hash.each_value do |obj|
           if obj.kind_of?(HexaPDF::PDF::Object) && !obj.indirect?
-            obj.validate do |msg, correctable|
-              yield("Field #{name}: #{msg}", correctable)
-            end
-          end
-
-          # Check that a PDFByteString field has a string with binary encoding
-          if field.type.include?(PDFByteString) && obj.encoding != Encoding::BINARY
-            yield("Field #{name} doesn't contain a binary string", true)
-            obj.force_encoding(Encoding::BINARY)
+            obj.validate(&block)
+          elsif obj.kind_of?(Hash)
+            validate_hash(obj, &block)
           end
         end
       end

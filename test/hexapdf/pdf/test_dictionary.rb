@@ -190,28 +190,27 @@ describe HexaPDF::PDF::Dictionary do
       assert(@obj.validate(auto_correct: true))
       assert_equal(:test, @obj.value[:Inherited])
 
-      @obj.value[:TestClass] = {}
+      @obj.value[:TestClass] = {Inherited: :symbol}
       refute(@obj.validate(auto_correct: false))
       assert(@obj.validate(auto_correct: true))
       assert_equal(1, @obj.value[:TestClass].oid)
 
-      @obj.value[:TestClass] = HexaPDF::PDF::Object.new({})
+      @obj.value[:TestClass] = HexaPDF::PDF::Object.new(Inherited: :symbol)
       assert(@obj.validate(auto_correct: true))
       assert_equal(1, @obj.value[:TestClass].oid)
     end
 
     it "validates values that are PDF objects" do
-      @test_class.field(:TestClass).instance_variable_set(:@indirect, nil)
       @obj.value[:TestClass] = @test_class.new(nil, document: self)
       refute(@obj.validate)
       @obj.value[:TestClass][:Inherited] = :symbol
       assert(@obj.validate)
     end
 
-    it "checks that a PDFByteString field has a binary string" do
-      @test_class.define_field(:ByteString, type: HexaPDF::PDF::Dictionary::PDFByteString)
-      @obj[:ByteString] = 'some text'
-      refute(@obj.validate(auto_correct: false))
+    it "validates direct PDF objects nested in hashes" do
+      @obj[:TestClass] = {Inherited: :symbol, Nested: {Nested: {TestClass: @test_class.new(nil, document: self)}}}
+      refute(@obj.validate)
+      @obj[:TestClass][:Nested][:Nested][:TestClass][:Inherited] = :symbol
       assert(@obj.validate)
     end
   end
