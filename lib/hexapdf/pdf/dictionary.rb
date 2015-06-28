@@ -109,11 +109,11 @@ module HexaPDF
       def [](name)
         field = self.class.field(name)
         data = if key?(name)
-                 document.deref(value[name])
+                 value[name]
                elsif field && field.default?
                  value[name] = field.default
                end
-
+        value[name] = data = document.deref(data) if data.kind_of?(HexaPDF::PDF::Reference)
         data = data.value if data.class == HexaPDF::PDF::Object
         self[name] = data = field.convert(data, document) if field && field.convert?(data)
         data

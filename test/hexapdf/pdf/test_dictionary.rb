@@ -2,11 +2,16 @@
 
 require 'test_helper'
 require 'hexapdf/pdf/dictionary'
+require 'hexapdf/pdf/reference'
 
 describe HexaPDF::PDF::Dictionary do
 
   def deref(obj)
-    obj
+    if obj.kind_of?(HexaPDF::PDF::Reference)
+      HexaPDF::PDF::Object.new('deref', oid: obj.oid, gen: obj.gen)
+    else
+      obj
+    end
   end
 
   def add(obj)
@@ -87,6 +92,12 @@ describe HexaPDF::PDF::Dictionary do
       assert_equal(false, @dict[:Boolean])
       @dict.value[:Boolean] = true
       assert_equal(true, @dict[:Boolean])
+    end
+
+    it "resolves references and stores the resolved object in place of the reference" do
+      @dict[:value] = HexaPDF::PDF::Reference.new(1, 0)
+      assert_equal('deref', @dict[:value])
+      assert_kind_of(HexaPDF::PDF::Object, @dict.value[:value])
     end
 
     it "wraps hash values in specific subclasses" do
