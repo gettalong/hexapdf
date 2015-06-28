@@ -3,6 +3,7 @@
 require 'test_helper'
 require 'hexapdf/pdf/revision'
 require 'hexapdf/pdf/object'
+require 'hexapdf/pdf/reference'
 require 'hexapdf/pdf/xref_section'
 require 'stringio'
 
