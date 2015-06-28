@@ -320,6 +320,8 @@ EOF
 
     it "recursively unwraps PDF objects" do
       assert_equal({a: 10}, @io_doc.unwrap(@io_doc.wrap({a: HexaPDF::PDF::Reference.new(1, 0)})))
+      value = {a: HexaPDF::PDF::Object.new({b: HexaPDF::PDF::Object.new(10)})}
+      assert_equal({a: {b: 10}}, @doc.unwrap(value))
     end
 
     it "fails to unwrap recursive structures" do

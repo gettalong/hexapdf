@@ -239,6 +239,7 @@ module HexaPDF
       # instead of HexaPDF::PDF::Reference and HexaPDF::PDF::Object).
       def unwrap(object, seen = {})
         object = deref(object)
+        object = object.data if object.kind_of?(HexaPDF::PDF::Object)
         if seen.key?(object)
           raise HexaPDF::Error, "Can't unwrap a recursive structure"
         end
@@ -250,7 +251,7 @@ module HexaPDF
         when Array
           seen[object] = true
           object.map {|inner_o| unwrap(inner_o, seen.dup)}
-        when HexaPDF::PDF::Object
+        when HexaPDF::PDF::PDFData
           seen[object] = true
           unwrap(object.value, seen.dup)
         else
