@@ -136,17 +136,11 @@ describe HexaPDF::PDF::Object do
   it "can be compared to another object" do
     obj = HexaPDF::PDF::Object.new(5, oid: 5)
 
-    obj1 = HexaPDF::PDF::Object.new(5, oid: 5)
-    assert_equal(obj, obj1)
-
-    obj1 = HexaPDF::PDF::Object.new(5, oid: 1)
-    refute_equal(obj, obj1)
-
-    obj1 = HexaPDF::PDF::Object.new(5, oid: 5, gen: 1)
-    refute_equal(obj, obj1)
-
-    obj1 = HexaPDF::PDF::Object.new(6, oid: 5)
-    refute_equal(obj, obj1)
+    assert_equal(obj, HexaPDF::PDF::Object.new(obj))
+    refute_equal(obj, HexaPDF::PDF::Object.new(5, oid: 5))
+    refute_equal(obj, HexaPDF::PDF::Object.new(6, oid: 5))
+    refute_equal(obj, HexaPDF::PDF::Object.new(5, oid: 1))
+    refute_equal(obj, HexaPDF::PDF::Object.new(5, oid: 5, gen: 1))
   end
 
   it "works correctly as hash key, is interchangable in this regard with Reference objects" do

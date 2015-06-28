@@ -116,8 +116,9 @@ describe HexaPDF::PDF::Revision do
   describe "object iteration" do
     it "iterates over all objects via each" do
       @rev.add(@obj)
-      assert_equal([@obj, HexaPDF::PDF::Object.new(:Test, oid: 2, gen: 0),
-                   HexaPDF::PDF::Object.new(nil, oid: 3, gen: 0)], @rev.each.to_a)
+      obj2 = @rev.object(2)
+      obj3 = @rev.object(3)
+      assert_equal([@obj, obj2, obj3], @rev.each.to_a)
     end
   end
 

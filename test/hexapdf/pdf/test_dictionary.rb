@@ -219,7 +219,7 @@ describe HexaPDF::PDF::Dictionary do
   describe "each" do
     it "iterates over all name-value pairs in the dictionary" do
       @dict[:TestClass] = {}
-      data = [:Array, [3, 4], :Other, 5, :Object, :obj, :TestClass, @test_class.new({})]
+      data = [:Array, [3, 4], :Other, 5, :Object, :obj, :TestClass, @dict[:TestClass]]
       @dict.each do |name, value|
         assert_equal(data.shift, name)
         assert_equal(data.shift, value)
