@@ -120,7 +120,7 @@ module HexaPDF
         define_method(:must_be_indirect?) { true }
       end
 
-      define_validator(:validate_must_be_indirect)
+      define_validator(:validate_basic_object)
 
 
       # The wrapped PDFData value.
@@ -306,8 +306,9 @@ module HexaPDF
         document.config
       end
 
-      # Validates that the object is indirect if #must_be_indirect? is +true+.
-      def validate_must_be_indirect
+      # Validates the basic object properties.
+      def validate_basic_object
+        # Validate that the object is indirect if #must_be_indirect? is +true+.
         if must_be_indirect? && !indirect?
           yield("Object must be an indirect object", true)
           document.add(self)
