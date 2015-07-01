@@ -65,7 +65,12 @@ module HexaPDF
         each_file(doc) do |index, obj|
           next unless @indices.include?(index)
           puts "Extracting #{obj.path}..."
-          File.write(obj.path, obj.embedded_file_stream.stream, mode: 'wb')
+          File.open(obj.path, 'wb') do |file|
+            fiber = obj.embedded_file_stream.stream_decoder
+            while fiber.alive? && (data = fiber.resume)
+              file << data.freeze
+            end
+          end
         end
       end
 
