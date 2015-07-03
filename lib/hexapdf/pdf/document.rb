@@ -10,6 +10,7 @@ require 'hexapdf/pdf/type'
 require 'hexapdf/pdf/task'
 require 'hexapdf/pdf/encryption'
 require 'hexapdf/pdf/writer'
+require 'hexapdf/pdf/importer'
 
 module HexaPDF
   module PDF
@@ -162,6 +163,23 @@ module HexaPDF
         else
           raise HexaPDF::Error, "Unsupported option revision=#{revision}"
         end
+      end
+
+      # :call-seq:
+      #   doc.import(obj)     -> imported_object
+      #
+      # Imports the given, with a different document associated PDF object and returns the imported
+      # object.
+      #
+      # If the same argument is provided in multiple invocations, the import is done only once and
+      # the previously imoprted object is returned.
+      #
+      # See: Importer
+      def import(obj)
+        if !obj.kind_of?(HexaPDF::PDF::Object) || !obj.document? || obj.document == self
+          raise HexaPDF::Error, "Importing only works for PDF objects associated with another document"
+        end
+        HexaPDF::PDF::Importer.for(source: obj.document, destination: self).import(obj)
       end
 
       # Wraps the given object inside a HexaPDF::PDF::Object class which allows one to use

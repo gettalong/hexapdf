@@ -222,6 +222,24 @@ EOF
     end
   end
 
+  describe "import" do
+    it "allows importing objects from another document" do
+      obj = @doc.import(@io_doc.object(2))
+      assert_equal(200, obj.value)
+      refute_equal(0, obj.oid)
+    end
+
+    it "fails if the given object is not a PDF object" do
+      assert_raises(HexaPDF::Error) { @doc.import(5) }
+    end
+
+    it "fails if the given object is associated with no or the destination document" do
+      assert_raises(HexaPDF::Error) { @doc.import(HexaPDF::PDF::Object.new(5)) }
+      obj = @doc.add(5)
+      assert_raises(HexaPDF::Error) { @doc.import(obj) }
+    end
+  end
+
   describe "wrap" do
     before do
       @myclass = Class.new(HexaPDF::PDF::Object)
