@@ -118,6 +118,7 @@ module HexaPDF
           end
           tok = @tokenizer.next_token
 
+          object[:Length] = length
           stream = StreamData.new(@tokenizer.io, offset: pos, length: length,
                                   filter: @document.unwrap(object[:Filter]),
                                   decode_parms: @document.unwrap(object[:DecodeParms]))

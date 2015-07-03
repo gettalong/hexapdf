@@ -73,7 +73,7 @@ EOF
       assert_kind_of(HexaPDF::PDF::StreamData, stream)
       assert_equal([:Fl], stream.filter)
       assert_equal([{}], stream.decode_parms)
-      assert_equal({Length: HexaPDF::PDF::Reference.new(1, 0), Hallo: 6, Filter: :Fl, DecodeParms: {}}, object)
+      assert_equal({Length: 10, Hallo: 6, Filter: :Fl, DecodeParms: {}}, object)
     end
 
     it "handles empty indirect objects by using PDF null for them" do
@@ -90,7 +90,8 @@ EOF
 
     it "recovers from an invalid stream length value" do
       set_string("1 0 obj<</Length 4>> stream\n12endstream endobj")
-      _, _, _, stream = @parser.parse_indirect_object
+      obj, _, _, stream = @parser.parse_indirect_object
+      assert_equal(2, obj[:Length])
       assert_equal('12', TestHelper.collector(stream.fiber))
     end
 
