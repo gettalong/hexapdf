@@ -3,6 +3,7 @@
 require 'hexapdf/error'
 require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/dictionary_fields'
+require 'hexapdf/pdf/reference'
 
 module HexaPDF
   module PDF
