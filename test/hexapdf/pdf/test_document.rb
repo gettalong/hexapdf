@@ -54,13 +54,12 @@ EOF
   describe "initialize" do
     it "doesn't need any arguments" do
       doc = HexaPDF::PDF::Document.new
-      assert_equal('HexaPDF::PDF::Filter::ASCIIHexDecode', doc.config['filter.map'][:AHx])
+      assert_equal(:A4, doc.config['page.default_media_box'])
     end
 
     it "takes a configuration hash as option" do
-      doc = HexaPDF::PDF::Document.new(config: {'filter.map' => {AHx: 'Something'}})
-      assert_equal('Something', doc.config['filter.map'][:AHx])
-      assert_equal('HexaPDF::PDF::Filter::ASCII85Decode', doc.config['filter.map'][:A85])
+      doc = HexaPDF::PDF::Document.new(config: {'page.default_media_box' => :A5})
+      assert_equal(:A5, doc.config['page.default_media_box'])
     end
 
     it "takes an IO object as option" do
@@ -244,8 +243,13 @@ EOF
     before do
       @myclass = Class.new(HexaPDF::PDF::Object)
       @myclass2 = Class.new(HexaPDF::PDF::Object)
-      @doc.config['object.type_map'][:MyClass] = @myclass
-      @doc.config['object.subtype_map'][:TheSecond] = @myclass2
+      HexaPDF::PDF::GlobalConfiguration['object.type_map'][:MyClass] = @myclass
+      HexaPDF::PDF::GlobalConfiguration['object.subtype_map'][:TheSecond] = @myclass2
+    end
+
+    after do
+      HexaPDF::PDF::GlobalConfiguration['object.type_map'].delete(:MyClass)
+      HexaPDF::PDF::GlobalConfiguration['object.subtype_map'].delete(:TheSecond)
     end
 
     it "uses a suitable default type if no special type is specified" do
@@ -449,8 +453,12 @@ EOF
   end
 
   describe "task" do
+    after do
+      HexaPDF::PDF::GlobalConfiguration['task.map'].delete(:test)
+    end
+
     it "executes the given task with options" do
-      @doc.config['task.map'][:test] = lambda do |doc, arg1:|
+      HexaPDF::PDF::GlobalConfiguration['task.map'][:test] = lambda do |doc, arg1:|
         assert_equal(doc, @doc)
         assert_equal(:arg1, arg1)
       end
@@ -458,7 +466,7 @@ EOF
     end
 
     it "executes the given task with a block" do
-      @doc.config['task.map'][:test] = lambda do |doc, **, &block|
+      HexaPDF::PDF::GlobalConfiguration['task.map'][:test] = lambda do |doc, **, &block|
         assert_equal(doc, @doc)
         block.call('inside')
       end

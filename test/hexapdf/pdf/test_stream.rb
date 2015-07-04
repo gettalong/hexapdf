@@ -48,7 +48,7 @@ describe HexaPDF::PDF::Stream do
 
   before do
     @document = OpenStruct.new
-    @document.config = HexaPDF::PDF::Configuration.default
+    @document.config = HexaPDF::PDF::Configuration.with_defaults
     def (@document).unwrap(obj); obj; end
     def (@document).deref(obj); obj; end
 
@@ -100,7 +100,7 @@ describe HexaPDF::PDF::Stream do
   end
 
   def encoded_data(str, encoders = [])
-    map = HexaPDF::PDF::Configuration.default['filter.map']
+    map = HexaPDF::PDF::GlobalConfiguration['filter.map']
     tmp = feeder(str)
     encoders.each {|e| tmp = ::Object.const_get(map[e]).encoder(tmp)}
     collector(tmp)
@@ -165,17 +165,14 @@ describe HexaPDF::PDF::Stream do
     end
 
     it "decodes only what is necessary of a StreamData stream on encoding" do
-      @document.config['filter.map'][:AHx] = nil
-
       @stm.value[:Filter] = :AHx
       data_proc = proc { encoded_data('test', [:AHx, :A85]) }
       @stm.stream = HexaPDF::PDF::StreamData.new(data_proc, filter: [:A85, :AHx])
       assert_equal('74657374>', collector(@stm.stream_encoder))
 
-      @stm.value[:Filter] = [:AHx, :AHx]
-      invoked = false
-      @stm.stream = HexaPDF::PDF::StreamData.new(proc { invoked = true }, filter: [:AHx, :AHx])
-      refute(invoked)
+      @stm.value[:Filter] = [:Unknown]
+      @stm.stream = HexaPDF::PDF::StreamData.new(proc { 'test' }, filter: [:Unknown])
+      assert_equal('test', collector(@stm.stream_encoder))
     end
   end
 

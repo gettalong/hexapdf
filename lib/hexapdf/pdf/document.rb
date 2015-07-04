@@ -45,7 +45,7 @@ module HexaPDF
       # decryption_opts:: A hash with options for decrypting the PDF objects loaded from the IO.
       #
       # config:: A hash with configuration options that is deep-merged into the default
-      #          configuration options hash (see ::default_config), meaning that direct sub-hashes
+      #          configuration (see DefaultDocumentConfiguration), meaning that direct sub-hashes
       #          are merged instead of overwritten.
       def initialize(io: nil, decryption_opts: {}, config: {})
         @config = Configuration.with_defaults(config)
@@ -191,7 +191,7 @@ module HexaPDF
       # The class of the returned object is always a subclass of HexaPDF::PDF::Object (or of
       # HexaPDF::PDF::Stream if a +stream+ is given). Which subclass is used, depends on the values
       # of the +type+ and +subtype+ options as well as on the 'object.type_map' and
-      # 'object.subtype_map' configuration options:
+      # 'object.subtype_map' global configuration options:
       #
       # * If *only* +type+ is provided and a mapping is found, the resulting class object is used.
       # * Otherwise if only +subtype+ or both arguments are provided and a mapping for +subtype+ is
@@ -240,9 +240,9 @@ module HexaPDF
           end
 
           if subtype
-            klass = config.constantize('object.subtype_map'.freeze, subtype)
+            klass = GlobalConfiguration.constantize('object.subtype_map'.freeze, subtype)
           else
-            klass = config.constantize('object.type_map'.freeze, type)
+            klass = GlobalConfiguration.constantize('object.type_map'.freeze, type)
           end
           klass ||= default
         end
@@ -320,7 +320,7 @@ module HexaPDF
       #
       # See Task for more information.
       def task(name, **opts, &block)
-        task = config.constantize('task.map'.freeze, name) do
+        task = GlobalConfiguration.constantize('task.map'.freeze, name) do
           raise HexaPDF::Error, "No task named '#{name}' is available"
         end
         task.call(self, **opts, &block)
@@ -381,7 +381,7 @@ module HexaPDF
       # option 'encryption.filter_map') is automatically set and used.
       def security_handler(use_standard_handler: true)
         if @security_handler.nil? && use_standard_handler
-          handler = config.constantize('encryption.filter_map', :Standard)
+          handler = GlobalConfiguration.constantize('encryption.filter_map', :Standard)
           @security_handler = handler.new(self) if handler
         end
         @security_handler
