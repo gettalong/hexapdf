@@ -22,6 +22,7 @@ module HexaPDF
       autoload(:Names, 'hexapdf/pdf/type/names')
       autoload(:FileSpecification, 'hexapdf/pdf/type/file_specification')
       autoload(:EmbeddedFile, 'hexapdf/pdf/type/embedded_file')
+      autoload(:Resources, 'hexapdf/pdf/type/resources')
 
     end
 

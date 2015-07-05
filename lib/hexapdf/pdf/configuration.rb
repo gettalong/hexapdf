@@ -217,6 +217,7 @@ module HexaPDF
                           Filespec: 'HexaPDF::PDF::Type::FileSpecification',
                           EmbeddedFile: 'HexaPDF::PDF::Type::EmbeddedFile',
                           Info: 'HexaPDF::PDF::Type::Info',
+                          Resources: 'HexaPDF::PDF::Type::Resources',
                         },
                         'object.subtype_map' => {
                         },

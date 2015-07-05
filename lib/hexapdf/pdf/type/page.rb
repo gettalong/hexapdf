@@ -78,7 +78,7 @@ module HexaPDF
         define_field :Type,                 type: Symbol, required: true, default: :Page
         define_field :Parent,               type: :Pages, indirect: true
         define_field :LastModified,         type: PDFDate, version: '1.3'
-        define_field :Resources,            type: Dictionary
+        define_field :Resources,            type: :Resources
         define_field :MediaBox,             type: Array
         define_field :CropBox,              type: Array
         define_field :BleedBox,             type: Array, version: '1.3'
@@ -129,17 +129,17 @@ module HexaPDF
         private
 
         # Ensures that the required inheritable fields are set.
-        def validate_page
+        def validate_page(&block)
           REQUIRED_INHERITABLE_FIELDS.each do |name|
             if self[name].nil?
-              yield("Inheritable page field #{name} not set", false)
+              yield("Inheritable page field #{name} not set", name == :Resources)
+              self[:Resources] = {}
+              self[:Resources].validate(&block)
             end
           end
 
           # Workaround so that an empty Resources dict will be written instead of being left out
-          res = self[:Resources]
-          res = self[:Resources].value if res.kind_of?(HexaPDF::PDF::Object)
-          if res.length == 0
+          if self[:Resources].value.length == 0
             self[:Resources][:DummyKeyWillBeDeletedOnWrite] = nil
           end
         end
