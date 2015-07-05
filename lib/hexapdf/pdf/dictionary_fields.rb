@@ -293,8 +293,34 @@ module HexaPDF
       end
 
 
-      Field.converters.replace([DictionaryConverter, StringConverter, PDFByteStringConverter,
-                                DateConverter, IdentityConverter])
+      # Converter module for file specification fields. A file specification in string format is
+      # converted to the corresponding file specification dictionary.
+      module FileSpecificationConverter
+
+        # This converter is only used for the :FileSpec type.
+        def self.usable_for?(type)
+          type == :Filespec
+        end
+
+        # FileSpecs can also be simple hashes or strings.
+        def self.additional_types
+          [Hash, String]
+        end
+
+        # Returns +true+ if the given data is a string file specification.
+        def self.convert?(data, type)
+          data.kind_of?(String)
+        end
+
+        # Converts the string file specification into a full file specification.
+        def self.convert(data, type, document)
+          document.wrap({F: data}, type: type.first)
+        end
+
+      end
+
+      Field.converters.replace([FileSpecificationConverter, DictionaryConverter, StringConverter,
+                                PDFByteStringConverter, DateConverter, IdentityConverter])
 
     end
 

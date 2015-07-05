@@ -2,8 +2,8 @@
 
 require 'test_helper'
 require 'hexapdf/pdf/dictionary_fields'
-require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/dictionary'
+require 'hexapdf/pdf/type'
 
 describe HexaPDF::PDF::DictionaryFields do
 
@@ -142,6 +142,26 @@ describe HexaPDF::PDF::DictionaryFields do
       assert_equal(0, obj.min)
       assert_equal(0, obj.sec)
       assert_equal(0, obj.utc_offset)
+    end
+  end
+
+  describe "FileSpecificationConverter" do
+    before do
+      @field = self.class::Field.new(:Filespec)
+    end
+
+    it "additionally adds Hash and String as allowed types" do
+      assert(@field.type.include?(Hash))
+      assert(@field.type.include?(String))
+    end
+
+    it "allows conversion from a string" do
+      refute(@field.convert?({}))
+
+      @doc = Minitest::Mock.new
+      @doc.expect(:wrap, :data, [{F: 'test'}, {type: HexaPDF::PDF::Type::FileSpecification}])
+      @field.convert('test', @doc)
+      @doc.verify
     end
   end
 
