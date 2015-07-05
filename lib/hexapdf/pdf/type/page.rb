@@ -117,13 +117,13 @@ module HexaPDF
         #
         # See: Dictionary#[]
         def [](name)
-          value = super
-          if value.nil? && INHERITABLE_FIELDS.include?(name)
+          if value[name].nil? && INHERITABLE_FIELDS.include?(name)
             node = self[:Parent]
-            node = node[:Parent] while !node.key?(name) && node.key?(:Parent)
-            value = node[name]
+            node = node[:Parent] while node.value[name].nil? && node.key?(:Parent)
+            node[name] || super
+          else
+            super
           end
-          value
         end
 
         private

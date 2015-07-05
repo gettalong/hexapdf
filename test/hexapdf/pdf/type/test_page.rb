@@ -23,14 +23,19 @@ describe HexaPDF::PDF::Type::Page do
 
     it "automatically retrieves inherited values" do
       @root[:MediaBox] = :media
+      assert_equal(:media, @page[:MediaBox])
+
       @root[:Resources] = :root_res
       @kid[:Resources] = :res
-      @kid[:Rotate] = :kid_rotate
-      @page[:Rotate] = :rotate
-      assert_equal(:media, @page[:MediaBox])
       assert_equal(:res, @page[:Resources])
-      assert_equal(:rotate, @page[:Rotate])
-      assert_nil(@page[:CropBox])
+
+      @page[:CropBox] = :cropbox
+      assert_equal(:cropbox, @page[:CropBox])
+
+      @kid[:Rotate] = :kid_rotate
+      assert_equal(:kid_rotate, @page[:Rotate])
+      @kid.delete(:Rotate)
+      assert_equal(0, @page[:Rotate])
     end
   end
 
