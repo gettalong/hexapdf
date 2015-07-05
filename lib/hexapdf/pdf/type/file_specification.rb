@@ -46,7 +46,7 @@ module HexaPDF
 
         define_field :Type, type: Symbol, default: :Filespec, required: true
         define_field :FS,   type: Symbol
-        define_field :F,    type: String
+        define_field :F,    type: PDFByteString
         define_field :UF,   type: String, version: '1.7'
         define_field :DOS,  type: PDFByteString
         define_field :Mac,  type: PDFByteString
@@ -70,7 +70,7 @@ module HexaPDF
         # If multiple file specification strings are available, the fields are search in the
         # following order and the first one with a value is used: /UF, /F, /Unix, /Mac, /DOS.
         #
-        # The encoding of the returned path string is either UTF-8 (for /UF and /F) or BINARY (for
+        # The encoding of the returned path string is either UTF-8 (for /UF) or BINARY (for /F
         # /Unix, /Mac and /DOS).
         def path
           tmp = (self[:UF] || self[:F] || self[:Unix] || self[:Mac] || self[:DOS] || '').dup
