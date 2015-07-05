@@ -28,6 +28,12 @@ module HexaPDF
         define_field :Kids,   type: Array, required: true, default: []
         define_field :Count,  type: Integer, required: true, default: 0
 
+        # Inheritable page fields
+        define_field :Resources, type: Dictionary
+        define_field :MediaBox,  type: Array
+        define_field :CropBox,   type: Array
+        define_field :Rotate,    type: Integer
+
         define_validator(:validate_page_tree)
 
         must_be_indirect
