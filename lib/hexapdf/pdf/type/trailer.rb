@@ -27,9 +27,9 @@ module HexaPDF
 
         define_field :Size,    type: Integer, indirect: false # will be auto-set when written
         define_field :Prev,    type: Integer
-        define_field :Root,    type: 'HexaPDF::PDF::Type::Catalog', indirect: true
+        define_field :Root,    type: :Catalog, indirect: true
         define_field :Encrypt, type: Dictionary
-        define_field :Info,    type: 'HexaPDF::PDF::Type::Info', indirect: true
+        define_field :Info,    type: :Info, indirect: true
         define_field :ID,      type: Array
         define_field :XRefStm, type: Integer, version: '1.5'
 

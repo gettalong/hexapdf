@@ -76,7 +76,7 @@ module HexaPDF
 
 
         define_field :Type,                 type: Symbol, required: true, default: :Page
-        define_field :Parent,               type: PageTreeNode, indirect: true
+        define_field :Parent,               type: :Pages, indirect: true
         define_field :LastModified,         type: PDFDate, version: '1.3'
         define_field :Resources,            type: Dictionary
         define_field :MediaBox,             type: Array

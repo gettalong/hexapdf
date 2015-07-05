@@ -20,11 +20,11 @@ module HexaPDF
         define_field :Version,           type: Symbol,     version: '1.4'
         define_field :Extensions,        type: Dictionary, version: '1.7'
         # Pages field is required but this is handled in validator
-        define_field :Pages,             type: 'HexaPDF::PDF::Type::PageTreeNode', indirect: true
+        define_field :Pages,             type: :Pages, indirect: true
         define_field :PageLabels,        type: NumberTreeNode, version: '1.3'
-        define_field :Names,             type: 'HexaPDF::PDF::Type::Names', version: '1.2'
+        define_field :Names,             type: :Names, version: '1.2'
         define_field :Dests,             type: Dictionary, version: '1.1'
-        define_field :ViewerPreferences, type: 'HexaPDF::PDF::Type::ViewerPreferences', version: '1.2'
+        define_field :ViewerPreferences, type: :ViewerPreferences, version: '1.2'
         define_field :PageLayout,        type: Symbol,     default: :SinglePage
         define_field :PageMode,          type: Symbol,     default: :UseNone
         define_field :Outlines,          type: Dictionary, indirect: true

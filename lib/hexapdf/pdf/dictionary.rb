@@ -45,9 +45,8 @@ module HexaPDF
       #        If an array of classes is provided, the value can be an instance of any of these
       #        classes.
       #
-      #        If a String object instead of a class is provided, the class is looked up when
-      #        necessary to support lazy loading. This should only be done for Dictionary
-      #        subclasses.
+      #        If a Symbol object instead of a class is provided, the class is looked up using the
+      #        'object.type_map' global configuration option when necessary to support lazy loading.
       #
       # required:: Specifies whether this field is required.
       #

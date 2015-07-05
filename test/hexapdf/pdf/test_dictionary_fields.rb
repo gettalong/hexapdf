@@ -11,7 +11,12 @@ describe HexaPDF::PDF::DictionaryFields do
 
   describe "Field" do
     before do
-      @field = self.class::Field.new(['Integer', Integer], true, 500, false, '1.2')
+      @field = self.class::Field.new([:Integer, Integer], true, 500, false, '1.2')
+      HexaPDF::PDF::GlobalConfiguration['object.type_map'][:Integer] = Integer
+    end
+
+    after do
+      HexaPDF::PDF::GlobalConfiguration['object.type_map'].delete(:Integer)
     end
 
     it "allows access to the basic field information" do

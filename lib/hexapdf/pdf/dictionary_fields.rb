@@ -2,6 +2,7 @@
 
 require 'time'
 require 'date'
+require 'hexapdf/pdf/configuration'
 require 'hexapdf/pdf/utils/pdf_doc_encoding'
 
 module HexaPDF
@@ -89,7 +90,13 @@ module HexaPDF
           return @type if @type_mapped
           @type_mapped = true
           @type.concat(Array(@converter.additional_types))
-          @type.map! {|type| type.kind_of?(String) ? ::Object.const_get(type) : type}
+          @type.map! do |type|
+            if type.kind_of?(Symbol)
+              HexaPDF::PDF::GlobalConfiguration.constantize('object.type_map'.freeze, type)
+            else
+              type
+            end
+          end
           @type.uniq!
           @type
         end
@@ -168,10 +175,10 @@ module HexaPDF
       # type array of the field is used for the conversion.
       module DictionaryConverter
 
-        # This converter is used when either a String is provided as +type+ (for lazy loading) or
+        # This converter is used when either a Symbol is provided as +type+ (for lazy loading) or
         # when the type is a class derived from the Dictionary class.
         def self.usable_for?(type)
-          type.kind_of?(String) ||
+          type.kind_of?(Symbol) ||
             (type.respond_to?(:ancestors) && type.ancestors.include?(HexaPDF::PDF::Dictionary))
         end
 
