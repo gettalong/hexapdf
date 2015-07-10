@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/pdf/filter/predictor'
 
 describe HexaPDF::PDF::Filter::Predictor do
-
   module CommonTests
     def test_decoding_through_decoder_method
       @testcases.each do |name, data|
@@ -33,7 +32,6 @@ describe HexaPDF::PDF::Filter::Predictor do
   end
 
   describe "png predictor" do
-
     include CommonTests
 
     before do
@@ -121,7 +119,6 @@ describe HexaPDF::PDF::Filter::Predictor do
   end
 
   describe "tiff predictor" do
-
     include CommonTests
 
     before do
@@ -183,5 +180,4 @@ describe HexaPDF::PDF::Filter::Predictor do
       end
     end
   end
-
 end

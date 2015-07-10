@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/pdf/reference'
 
 describe HexaPDF::PDF::Reference do
-
   it "correctly assigns oid and gen on initialization" do
     r = HexaPDF::PDF::Reference.new(5, 7)
     assert_equal(5, r.oid)
@@ -39,5 +38,4 @@ describe HexaPDF::PDF::Reference do
   it "shows oid and gen on inspection" do
     assert_match(/\[5, 7\]/, HexaPDF::PDF::Reference.new(5, 7).inspect)
   end
-
 end

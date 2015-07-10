@@ -7,7 +7,6 @@ require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/stream'
 
 describe HexaPDF::PDF::Serializer do
-
   before do
     @serializer = HexaPDF::PDF::Serializer.new
   end
@@ -16,9 +15,9 @@ describe HexaPDF::PDF::Serializer do
     object = nil
     @serializer.singleton_class.send(:define_method, :serialize_symbol) do |obj|
       object = @object
-      "/#{obj.to_s}"
+      "/#{obj}"
     end
-    @serializer.serialize({this: :is, null: nil})
+    @serializer.serialize(this: :is, null: nil)
     assert_equal({this: :is, null: nil}, object)
   end
 
@@ -75,7 +74,7 @@ describe HexaPDF::PDF::Serializer do
   end
 
   it "serializes hashes" do
-    assert_serialized("<</hallo 5/other true>>", {hallo: 5, other: true})
+    assert_serialized("<</hallo 5/other true>>", hallo: 5, other: true)
     assert_serialized("<<>>", {})
   end
 
@@ -117,7 +116,7 @@ describe HexaPDF::PDF::Serializer do
       @stream.stream = "somedata"
       assert_serialized("<</Key(value)/Length 8>>stream\nsomedata\nendstream", @stream)
       @stream.oid = 2
-      assert_serialized("<</Name 2 0 R>>", HexaPDF::PDF::Object.new({Name: @stream}))
+      assert_serialized("<</Name 2 0 R>>", HexaPDF::PDF::Object.new(Name: @stream))
     end
 
     it "serializes stream more efficiently when an IO is provided" do
@@ -127,5 +126,4 @@ describe HexaPDF::PDF::Serializer do
       assert_equal("<</Key(value)/Length 6>>stream\nsome\nendstream", io.string)
     end
   end
-
 end

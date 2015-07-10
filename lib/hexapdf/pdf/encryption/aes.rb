@@ -81,7 +81,7 @@ module HexaPDF
           #
           # See: PDF1.7 s7.6.2.
           def decrypt(key, data)
-            if data.length % BLOCK_SIZE != 0 || data.length < 2*BLOCK_SIZE
+            if data.length % BLOCK_SIZE != 0 || data.length < 2 * BLOCK_SIZE
               raise HexaPDF::EncryptionError, "Invalid data for decryption, need 32 + 16*n bytes"
             end
             unpad(new(key, data.slice!(0, BLOCK_SIZE), :decrypt).process(data))
@@ -102,7 +102,7 @@ module HexaPDF
 
               while source.alive? && (new_data = source.resume)
                 data << new_data
-                next if data.length < 2*BLOCK_SIZE
+                next if data.length < 2 * BLOCK_SIZE
                 new_data = data.slice!(0, data.length - BLOCK_SIZE - data.length % BLOCK_SIZE)
                 Fiber.yield(algorithm.process(new_data))
               end

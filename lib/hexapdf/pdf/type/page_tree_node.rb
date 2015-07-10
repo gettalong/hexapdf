@@ -162,7 +162,7 @@ module HexaPDF
           if media_box.nil?
             raise HexaPDF::Error, "Can't create new page, page.default_media_box option is invalid"
           end
-          document.add({Type: :Page, MediaBox: media_box, Resources: {}})
+          document.add(Type: :Page, MediaBox: media_box, Resources: {})
         end
 
         # Ensures that the /Count and /Parent fields of the whole page tree are set up correctly and

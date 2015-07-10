@@ -46,7 +46,7 @@ module HexaPDF
       # Returns +true+ if the other object is a Reference and has the same object and generation
       # numbers.
       def ==(other)
-        Reference === other && oid == other.oid && gen == other.gen
+        other.kind_of?(Reference) && oid == other.oid && gen == other.gen
       end
 
       # Returns +true+ if the other object references the same PDF object as this reference object.

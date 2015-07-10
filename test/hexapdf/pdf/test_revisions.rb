@@ -6,7 +6,6 @@ require 'hexapdf/pdf/document'
 require 'stringio'
 
 describe HexaPDF::PDF::Revisions do
-
   before do
     @io = StringIO.new(<<EOF)
 %PDF-1.7
@@ -91,5 +90,4 @@ EOF
       assert_equal(200, @revisions[1].object(2).value)
     end
   end
-
 end

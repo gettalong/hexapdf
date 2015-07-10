@@ -5,7 +5,6 @@ require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/type/catalog'
 
 describe HexaPDF::PDF::Type::Catalog do
-
   before do
     @doc = HexaPDF::PDF::Document.new
     @catalog = @doc.add(Type: :Catalog)
@@ -23,5 +22,4 @@ describe HexaPDF::PDF::Type::Catalog do
       assert(@catalog.validate)
     end
   end
-
 end

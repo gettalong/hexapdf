@@ -65,7 +65,7 @@ module HexaPDF
 
           # Ensures that the encryption dictionary's content is valid.
           def validate_encrypt_dict
-            if ![1, 2, 4, 5].include?(value[:V])
+            unless [1, 2, 4, 5].include?(value[:V])
               yield("Value of /V is not one of 1, 2, 4 or 5", false)
             end
             if value[:V] == 2 && (!key?(:Length) || value[:Length] < 40 ||
@@ -269,7 +269,7 @@ module HexaPDF
           return obj.stream_encoder if obj.type == :XRef
 
           key = object_key(obj.oid, obj.gen, stream_algorithm)
-          obj.stream_encoder(:Encryption, {key: key, algorithm: stream_algorithm})
+          obj.stream_encoder(:Encryption, key: key, algorithm: stream_algorithm)
         end
 
         private
@@ -323,7 +323,7 @@ module HexaPDF
             string_algorithm: strf,
             stream_algorithm: stmf,
             embedded_file_algorithm: eff,
-            key_length: key_length*8
+            key_length: key_length * 8,
           }
         end
 
@@ -385,7 +385,7 @@ module HexaPDF
         def each_string_in_object(obj, &block) # :yields: str
           case obj
           when Hash
-            obj.each {|key, val| each_string_in_object(val, &block)}
+            obj.each_value {|val| each_string_in_object(val, &block)}
           when Array
             obj.each {|inner_o| each_string_in_object(inner_o, &block)}
           when String

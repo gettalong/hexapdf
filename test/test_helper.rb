@@ -28,7 +28,7 @@ module TestHelper
 
   def collector(source)
     str = ''.force_encoding('BINARY')
-    while source.alive? && data = source.resume
+    while source.alive? && (data = source.resume)
       str << data
     end
     str
@@ -70,7 +70,7 @@ module StandardFilterTests
   end
 
   def assert_encodings(source, type)
-    while source.alive? && data = source.resume
+    while source.alive? && (data = source.resume)
       assert_equal(Encoding::BINARY, data.encoding, "encoding problem in #{type}")
     end
   end

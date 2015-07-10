@@ -39,7 +39,6 @@ module HexaPDF
       #
       # See: PDF1.7 s7.5.4, s7.5.8
       Entry = Struct.new(:type, :oid, :gen, :pos, :objstm) do
-
         def free?
           type == :free
         end
@@ -51,7 +50,6 @@ module HexaPDF
         def compressed?
           type == :compressed
         end
-
       end
 
       # Creates an in-use cross-reference entry. See Entry for details on the arguments.

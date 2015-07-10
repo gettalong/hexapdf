@@ -6,7 +6,6 @@ require 'hexapdf/pdf/dictionary'
 require 'hexapdf/pdf/type'
 
 describe HexaPDF::PDF::DictionaryFields do
-
   include HexaPDF::PDF::DictionaryFields
 
   describe "Field" do
@@ -69,7 +68,7 @@ describe HexaPDF::PDF::DictionaryFields do
     it "allows conversion from a Dictionary" do
       assert(@field.convert?(HexaPDF::PDF::Dictionary.new({})))
       @doc.expect(:wrap, :data, [HexaPDF::PDF::Dictionary, Hash])
-      @field.convert(HexaPDF::PDF::Dictionary.new({Test: :value}), @doc)
+      @field.convert(HexaPDF::PDF::Dictionary.new(Test: :value), @doc)
       @doc.verify
     end
   end
@@ -131,7 +130,7 @@ describe HexaPDF::PDF::DictionaryFields do
       assert_equal(19, obj.hour)
       assert_equal(52, obj.min)
       assert_equal(0, obj.sec)
-      assert_equal(-8*60*60, obj.utc_offset)
+      assert_equal(-8 * 60 * 60, obj.utc_offset)
 
       date = "D:19981223".b
       obj = @field.convert(date, self)
@@ -164,5 +163,4 @@ describe HexaPDF::PDF::DictionaryFields do
       @doc.verify
     end
   end
-
 end

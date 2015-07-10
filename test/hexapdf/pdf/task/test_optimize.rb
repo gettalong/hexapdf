@@ -5,7 +5,6 @@ require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/task/optimize'
 
 describe HexaPDF::PDF::Task::Optimize do
-
   class TestType < HexaPDF::PDF::Dictionary
     define_field :Optional, type: Symbol, default: :Optional
   end
@@ -15,9 +14,9 @@ describe HexaPDF::PDF::Task::Optimize do
     @obj1 = @doc.add(@doc.wrap({Optional: :Optional}, type: TestType))
     @doc.trailer[:Test] = @doc.wrap(@obj1)
     @doc.revisions.add
-    @obj2 = @doc.add({Type: :UsedEntry})
-    @obj3 = @doc.add({Unused: @obj2})
-    @obj4 = @doc.add({Test: :Test})
+    @obj2 = @doc.add(Type: :UsedEntry)
+    @obj3 = @doc.add(Unused: @obj2)
+    @obj4 = @doc.add(Test: :Test)
     @obj1[:Test] = @doc.wrap(@obj4, type: TestType)
   end
 
@@ -53,14 +52,14 @@ describe HexaPDF::PDF::Task::Optimize do
     end
 
     it "compacts and deletes object streams" do
-      @doc.add({Type: :ObjStm})
+      @doc.add(Type: :ObjStm)
       @doc.task(:optimize, compact: true, object_streams: :delete)
       assert_no_objstms
       assert_default_deleted
     end
 
     it "compacts and preserves object streams" do
-      objstm = @doc.add({Type: :ObjStm})
+      objstm = @doc.add(Type: :ObjStm)
       @doc.task(:optimize, compact: true, object_streams: :preserve)
       assert(@doc.object?(objstm))
       assert_default_deleted
@@ -69,8 +68,8 @@ describe HexaPDF::PDF::Task::Optimize do
 
   describe "object_streams" do
     it "generates object streams" do
-      objstm = @doc.add({Type: :ObjStm})
-      xref = @doc.add({Type: :XRef})
+      objstm = @doc.add(Type: :ObjStm)
+      xref = @doc.add(Type: :XRef)
       210.times { @doc.add(5) }
       @doc.task(:optimize, object_streams: :generate)
       assert_objstms_generated
@@ -81,18 +80,17 @@ describe HexaPDF::PDF::Task::Optimize do
     end
 
     it "deletes object streams" do
-      @doc.add({Type: :ObjStm})
+      @doc.add(Type: :ObjStm)
       @doc.task(:optimize, object_streams: :delete)
       assert_no_objstms
       assert_default_deleted
     end
 
     it "preserves object streams" do
-      objstm = @doc.add({Type: :ObjStm})
+      objstm = @doc.add(Type: :ObjStm)
       @doc.task(:optimize, object_streams: :preserve)
       assert(@doc.object?(objstm))
       assert_default_deleted
     end
   end
-
 end

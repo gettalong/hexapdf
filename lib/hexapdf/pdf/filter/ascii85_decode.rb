@@ -53,7 +53,7 @@ module HexaPDF
                          CHAR_TO_VALUE[m[2]] * POW85_2 + CHAR_TO_VALUE[m[3]] * POW85_1 +
                          CHAR_TO_VALUE[m[4]])
                   if num > MAX_VALUE
-                    raise HexaPDF::MalformedPDFError, "Value outside base-85 range in ASCII85 stream"
+                    raise HexaPDF::MalformedPDFError, "Value outside range in ASCII85 stream"
                   end
                   result << num
                 elsif scanner.scan(/z/)

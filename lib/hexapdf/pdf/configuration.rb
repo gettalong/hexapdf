@@ -56,7 +56,7 @@ module HexaPDF
       # +config+. However, hash values are merged instead of being overwritten.
       def merge(config)
         config = (config.kind_of?(self.class) ? config.options : config)
-        self.class.new(options.merge(config) do |k, old, new|
+        self.class.new(options.merge(config) do |_key, old, new|
                          old.kind_of?(Hash) && new.kind_of?(Hash) ? old.merge(new) : new
                        end)
       end

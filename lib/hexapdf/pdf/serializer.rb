@@ -83,17 +83,17 @@ module HexaPDF
       end
 
       # See: PDF1.7 s7.3.9
-      def serialize_nilclass(obj)
+      def serialize_nilclass(_obj)
         "null"
       end
 
       # See: PDF1.7 s7.3.2
-      def serialize_trueclass(obj)
+      def serialize_trueclass(_obj)
         "true"
       end
 
       # See: PDF1.7 s7.3.2
-      def serialize_falseclass(obj)
+      def serialize_falseclass(_obj)
         "false"
       end
 

@@ -6,7 +6,6 @@ require 'hexapdf/pdf/encryption/fast_arc4'
 require_relative 'test_arc4'
 
 describe HexaPDF::PDF::Encryption::RubyARC4 do
-
   include ARC4EncryptionTests
 
   before do
@@ -19,5 +18,4 @@ describe HexaPDF::PDF::Encryption::RubyARC4 do
                    process(HexaPDF::PDF::Encryption::RubyARC4.new(key).process(@plain[i])))
     end
   end
-
 end

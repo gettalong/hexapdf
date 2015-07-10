@@ -7,7 +7,6 @@ require 'hexapdf/pdf/writer'
 require 'stringio'
 
 describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
-
   TEST_FILES = Dir[File.join(TEST_DATA_DIR, 'standard-security-handler', '*.pdf')].sort
   USER_PASSWORD = 'uhexapdf'
   OWNER_PASSWORD = 'ohexapdf'
@@ -57,12 +56,12 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
       @dict[:Filter] = :Standard
       @dict[:V] = 1
       @dict[:R] = 2
-      @dict[:U] = 'test'*8
-      @dict[:O] = 'test'*8
+      @dict[:U] = 'test' * 8
+      @dict[:O] = 'test' * 8
       @dict[:P] = -5
-      @dict[:UE] = 'test'*8
-      @dict[:OE] = 'test'*8
-      @dict[:Perms] = 'test'*8
+      @dict[:UE] = 'test' * 8
+      @dict[:OE] = 'test' * 8
+      @dict[:Perms] = 'test' * 8
     end
 
     it "validates the /R value" do
@@ -109,15 +108,13 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
 
     it "sets the correct revision independent /P value" do
       @handler.set_up_encryption
-      assert_equal(@handler.class::Permissions::ALL|@handler.class::Permissions::RESERVED,
+      assert_equal(@handler.class::Permissions::ALL | @handler.class::Permissions::RESERVED,
                    @document.trailer[:Encrypt][:P])
       @handler.set_up_encryption(permissions: @handler.class::Permissions::COPY_CONTENT)
-      assert_equal(@handler.class::Permissions::COPY_CONTENT|@handler.class::Permissions::RESERVED,
+      assert_equal(@handler.class::Permissions::COPY_CONTENT | @handler.class::Permissions::RESERVED,
                    @document.trailer[:Encrypt][:P])
       @handler.set_up_encryption(permissions: [:modify_content, :modify_annotation])
-      assert_equal(@handler.class::Permissions::MODIFY_CONTENT|
-                   @handler.class::Permissions::MODIFY_ANNOTATION|
-                   @handler.class::Permissions::RESERVED,
+      assert_equal(@handler.class::Permissions::MODIFY_CONTENT | @handler.class::Permissions::MODIFY_ANNOTATION | @handler.class::Permissions::RESERVED,
                    @document.trailer[:Encrypt][:P])
     end
 
@@ -206,29 +203,29 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
   describe "prepare_decryption" do
     it "fails if the /Filter value is incorrect" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
-        @handler.set_up_decryption({Filter: :NonStandard, V: 2})
+        @handler.set_up_decryption(Filter: :NonStandard, V: 2)
       end
       assert_match(/Invalid \/Filter/i, exp.message)
     end
 
     it "fails if the /R value is incorrect" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
-        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 5})
+        @handler.set_up_decryption(Filter: :Standard, V: 2, R: 5)
       end
       assert_match(/Invalid \/R/i, exp.message)
     end
 
     it "fails if the ID in the document's trailer is missing although it is needed" do
       exp = assert_raises(HexaPDF::EncryptionError) do
-        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 2})
+        @handler.set_up_decryption(Filter: :Standard, V: 2, R: 2)
       end
       assert_match(/Document ID/i, exp.message)
     end
 
     it "fails if the supplied password is invalid" do
       exp = assert_raises(HexaPDF::EncryptionError) do
-        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 6, U: 'a'*48, O: 'a'*48,
-                                     UE: 'a'*32, OE: 'a'*32})
+        @handler.set_up_decryption(Filter: :Standard, V: 2, R: 6, U: 'a' * 48, O: 'a' * 48,
+                                     UE: 'a' * 32, OE: 'a' * 32)
       end
       assert_match(/Invalid password/i, exp.message)
     end
@@ -269,9 +266,8 @@ describe HexaPDF::PDF::Encryption::StandardSecurityHandler do
   end
 
   it "returns an array of permission symbols" do
-    perms = @handler.class::Permissions::MODIFY_CONTENT|@handler.class::Permissions::COPY_CONTENT
+    perms = @handler.class::Permissions::MODIFY_CONTENT | @handler.class::Permissions::COPY_CONTENT
     @handler.set_up_encryption(permissions: perms)
     assert_equal([:copy_content, :modify_content], @handler.permissions.sort)
   end
-
 end

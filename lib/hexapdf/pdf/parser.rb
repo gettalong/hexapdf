@@ -45,7 +45,7 @@ module HexaPDF
           end
 
         if xref_entry.oid != 0 && (oid != xref_entry.oid || gen != xref_entry.gen)
-          raise_malformed("The oid,gen (#{oid},#{gen}) values of the indirect object don't match " +
+          raise_malformed("The oid,gen (#{oid},#{gen}) values of the indirect object don't match " \
                           "the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref")
         end
 
@@ -85,7 +85,7 @@ module HexaPDF
           end
           tok1 = @tokenizer.next_byte
           tok2 = @tokenizer.next_byte if tok1 == 13 # 13=CR, 10=LF
-          if tok1 != 10  && tok1 != 13
+          if tok1 != 10 && tok1 != 13
             raise_malformed("Keyword stream must be followed by LF or CR/LF", pos: @tokenizer.pos)
           elsif tok1 == 13 && tok2 != 10
             maybe_raise("Keyword stream must be followed by LF or CR/LF, not CR alone",
@@ -135,7 +135,7 @@ module HexaPDF
       def load_compressed_object(xref_entry)
         unless @object_stream_data.key?(xref_entry.objstm)
           obj = @document.object(xref_entry.objstm)
-          if !obj.respond_to?(:parse_stream)
+          unless obj.respond_to?(:parse_stream)
             raise_malformed("Object with oid=#{xref_entry.objstm} is not an object stream")
           end
           @object_stream_data[xref_entry.objstm] = obj.parse_stream
@@ -153,7 +153,7 @@ module HexaPDF
           xref_section, trailer = parse_xref_section_and_trailer(pos)
         else
           obj = load_object(XRefSection.in_use_entry(0, 0, pos))
-          if !obj.respond_to?(:xref_section)
+          unless obj.respond_to?(:xref_section)
             raise_malformed("Object is not a cross-reference stream", pos: pos)
           end
           xref_section = obj.xref_section

@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/pdf/configuration'
 
 describe HexaPDF::PDF::Configuration do
-
   before do
     @config = HexaPDF::PDF::Configuration.new
     @config['test'] = :test
@@ -76,5 +75,4 @@ describe HexaPDF::PDF::Configuration do
       assert_equal(:test, @config.constantize('unk') {|name| assert_equal('unk', name); :test})
     end
   end
-
 end

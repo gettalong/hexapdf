@@ -5,7 +5,6 @@ require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/task/set_min_pdf_version'
 
 describe HexaPDF::PDF::Task::SetMinPDFVersion do
-
   before do
     minimal_pdf = File.join(TEST_DATA_DIR, 'minimal.pdf')
     @doc = HexaPDF::PDF::Document.new(io: StringIO.new(File.read(minimal_pdf)))
@@ -20,5 +19,4 @@ describe HexaPDF::PDF::Task::SetMinPDFVersion do
     @doc.task(:set_min_pdf_version)
     assert_equal('1.6', @doc.version)
   end
-
 end

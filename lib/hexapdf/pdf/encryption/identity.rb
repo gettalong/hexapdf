@@ -15,13 +15,13 @@ module HexaPDF
         class << self
 
           # Just returns the given +data+.
-          def encrypt(key, data)
+          def encrypt(_key, data)
             data
           end
           alias :decrypt :encrypt
 
           # Just returns the given +source+ fiber.
-          def encryption_fiber(key, source)
+          def encryption_fiber(_key, source)
             source
           end
           alias :decryption_fiber :encryption_fiber

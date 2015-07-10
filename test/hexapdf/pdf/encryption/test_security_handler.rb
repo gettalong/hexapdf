@@ -6,13 +6,12 @@ require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/stream'
 
 describe HexaPDF::PDF::Encryption::SecurityHandler do
-
   class TestHandler < HexaPDF::PDF::Encryption::SecurityHandler
 
     attr_accessor :strf, :myopt
     public :dict
 
-    def prepare_encrypt_dict(**options)
+    def prepare_encrypt_dict(**_options)
       dict[:Filter] = :test
       @key = "a" * key_length
       @strf ||= :aes
@@ -80,7 +79,6 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
   end
 
   describe "set_up_encryption" do
-
     it "sets the trailer's /Encrypt entry to an encryption dictionary with a custom class" do
       @handler.set_up_encryption
       assert_kind_of(HexaPDF::PDF::Encryption::SecurityHandler::EncryptionDictionary,
@@ -124,7 +122,7 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
     it "provides correct encryption details" do
       @handler.set_up_encryption
       assert_equal({version: 4, string_algorithm: :aes, stream_algorithm: :arc4,
-                     embedded_file_algorithm: :identity, key_length: 128},
+                    embedded_file_algorithm: :identity, key_length: 128},
                    @handler.encryption_details)
     end
 
@@ -155,12 +153,10 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
       end
       assert_match(/ARC4 algorithm.*key length/i, exp.message)
     end
-
   end
 
 
   describe "set_up_decryption" do
-
     it "sets the handlers's dictionary to the encryption dictionary wrapped in a custom class" do
       @handler.set_up_decryption(Filter: :test, V: 1)
       assert_kind_of(HexaPDF::PDF::Encryption::SecurityHandler::EncryptionDictionary,
@@ -200,7 +196,7 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
     it "provides correct encryption details" do
       @handler.set_up_decryption({Filter: :test, V: 2, Length: 128}, myopt: 5)
       assert_equal({version: 2, string_algorithm: :arc4, stream_algorithm: :arc4,
-                     embedded_file_algorithm: :arc4, key_length: 128},
+                    embedded_file_algorithm: :arc4, key_length: 128},
                    @handler.encryption_details)
     end
 
@@ -217,12 +213,10 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
       end
       assert_match(/Unsupported encryption method/i, exp.message)
     end
-
   end
 
 
   describe "decrypt" do
-
     before do
       @handler.set_up_decryption(V: 1)
       @encrypted = @handler.encrypt_string('string', @obj)
@@ -262,7 +256,6 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
 
 
   describe "encryption" do
-
     before do
       @handler.set_up_encryption(key_length: 128, algorithm: :arc4)
       @stream = @document.wrap({}, oid: 1, stream: HexaPDF::PDF::StreamData.new(proc { "string" }))
@@ -288,7 +281,6 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
       @stream[:Type] = :XRef
       assert_equal('string', @handler.encrypt_stream(@stream).resume)
     end
-
   end
 
 
@@ -303,5 +295,4 @@ describe HexaPDF::PDF::Encryption::SecurityHandler do
     doc = HexaPDF::PDF::Document.new(io: out, decryption_opts: {password: 'test'})
     assert_equal('D:20150409164600', doc.trailer[:Info].value[:ModDate])
   end
-
 end

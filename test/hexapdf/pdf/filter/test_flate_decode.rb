@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/pdf/filter/flate_decode'
 
 describe HexaPDF::PDF::Filter::FlateDecode do
-
   include StandardFilterTests
 
   before do
@@ -33,5 +32,4 @@ describe HexaPDF::PDF::Filter::FlateDecode do
       assert_equal(@encoded_predictor, collector(@obj.encoder(feeder(@decoded.dup), @predictor_opts)))
     end
   end
-
 end

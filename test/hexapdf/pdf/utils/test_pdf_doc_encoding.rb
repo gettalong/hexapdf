@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/pdf/utils/pdf_doc_encoding'
 
 describe HexaPDF::PDF::Utils::PDFDocEncoding do
-
   before do
     @mod = HexaPDF::PDF::Utils::PDFDocEncoding
   end
@@ -16,5 +15,4 @@ describe HexaPDF::PDF::Utils::PDFDocEncoding do
       assert_equal("Testing\u0153\u2122", result)
     end
   end
-
 end

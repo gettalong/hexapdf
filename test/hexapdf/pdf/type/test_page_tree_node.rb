@@ -5,19 +5,18 @@ require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/type/page_tree_node'
 
 describe HexaPDF::PDF::Type::PageTreeNode do
-
   before do
     @doc = HexaPDF::PDF::Document.new
     @root = @doc.add(Type: :Pages)
   end
 
   def define_multilevel_page_tree
-    @pages = 8.times.map { @doc.add({Type: :Page}) }
-    @kid1 = @doc.add({Type: :Pages, Parent: @root, Count: 5})
-    @kid11 = @doc.add({Type: :Pages, Parent: @kid1})
+    @pages = 8.times.map { @doc.add(Type: :Page) }
+    @kid1 = @doc.add(Type: :Pages, Parent: @root, Count: 5)
+    @kid11 = @doc.add(Type: :Pages, Parent: @kid1)
     @kid11.add_page(@pages[0])
     @kid11.add_page(@pages[1])
-    @kid12 = @doc.add({Type: :Pages, Parent: @kid1})
+    @kid12 = @doc.add(Type: :Pages, Parent: @kid1)
     @kid12.add_page(@pages[2])
     @kid12.add_page(@pages[3])
     @kid12.add_page(@pages[4])
@@ -27,7 +26,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
     @pages[5][:Parent] = @root
     @root[:Kids] << @pages[5]
 
-    @kid2 = @doc.add({Type: :Pages, Parent: @root})
+    @kid2 = @doc.add(Type: :Pages, Parent: @root)
     @kid2.add_page(@pages[6])
     @kid2.add_page(@pages[7])
     @root[:Kids] << @kid2
@@ -72,7 +71,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
     end
 
     it "inserts the provided page at the given index" do
-      page = @doc.wrap({Type: :Page})
+      page = @doc.wrap(Type: :Page)
       assert_equal(page, @root.insert_page(3, page))
       assert_equal([page], @root[:Kids])
       assert_equal(@root, page[:Parent])
@@ -155,7 +154,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
     end
 
     it "deletes intermediate page tree nodes if they don't have any children after deletion" do
-      node = @doc.add({Type: :Pages, Parent: @root})
+      node = @doc.add(Type: :Pages, Parent: @root)
       page = node.add_page
       @root[:Kids] << node
       @root[:Count] += 1
@@ -176,7 +175,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       @kid12[:Count] = 100
 
       called_msg = ''
-      refute(@root.validate(auto_correct: false) {|msg, c| called_msg = msg})
+      refute(@root.validate(auto_correct: false) {|msg, _| called_msg = msg})
       assert_match(/Count.*invalid/, called_msg)
 
       assert(@root.validate)
@@ -190,7 +189,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       @kid2.delete(:Parent)
 
       called_msg = ''
-      refute(@root.validate(auto_correct: false) {|msg, c| called_msg = msg})
+      refute(@root.validate(auto_correct: false) {|msg, _| called_msg = msg})
       assert_match(/Parent.*invalid/, called_msg)
 
       assert(@root.validate)
@@ -204,5 +203,4 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       assert_equal(1, @root.page_count)
     end
   end
-
 end

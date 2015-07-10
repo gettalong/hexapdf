@@ -15,7 +15,7 @@ module ARC4EncryptionTests
     @keys = ['Key', 'Wiki', 'Secret']
   end
 
-  def test_processes_the_test_vectors_from_the_RC4_wikipeda_page
+  def test_processes_the_test_vectors_from_the_rc4_wikipeda_page
     @keys.each_with_index do |key, i|
       assert_equal(@encrypted[i], @algorithm_class.new(key).process(@plain[i]))
     end
@@ -31,7 +31,6 @@ module ARC4EncryptionTests
 end
 
 describe HexaPDF::PDF::Encryption::ARC4 do
-
   include EncryptionAlgorithmInterfaceTests
 
   before do
@@ -48,7 +47,6 @@ describe HexaPDF::PDF::Encryption::ARC4 do
         @data = ''
         result
       end
-
     end
   end
 
@@ -65,5 +63,4 @@ describe HexaPDF::PDF::Encryption::ARC4 do
     assert_equal('mykeyfirstsecond',
                  TestHelper.collector(@algorithm_class.decryption_fiber('mykey', f)))
   end
-
 end

@@ -22,7 +22,7 @@ module HexaPDF
         @io = io
 
         @io.binmode
-        @io.seek(0, IO::SEEK_SET) #TODO: incremental update!
+        @io.seek(0, IO::SEEK_SET) # TODO: incremental update!
 
         @serializer = Serializer.new
         @rev_size = 0

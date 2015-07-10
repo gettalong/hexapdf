@@ -45,7 +45,7 @@ module HexaPDF
       # Outputs the list of files embedded in the given PDF document.
       def list_files(doc)
         each_file(doc) do |index, obj|
-          $stdout.write("%4i: %s" % [index, obj.path])
+          $stdout.write(sprintf("%4i: %s", index, obj.path))
           ef_stream = obj.embedded_file_stream
           if (params = ef_stream[:Params]) && !params.empty?
             data = []
@@ -89,4 +89,3 @@ module HexaPDF
 
   end
 end
-

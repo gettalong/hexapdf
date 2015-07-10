@@ -76,7 +76,7 @@ module HexaPDF
           value.replace(trailer)
           value[:Type] = :XRef
           write_xref_section_to_stream(xref_section)
-          set_filter(:FlateDecode, {:Columns => value[:W].inject(:+), :Predictor => 12})
+          set_filter(:FlateDecode, Columns: value[:W].inject(:+), Predictor: 12)
         end
 
         private
@@ -111,7 +111,7 @@ module HexaPDF
               when TYPE_COMPRESSED
                 xref.add_compressed_entry(oid, field2, field3)
               else
-                # Ignore entry as per PDF1.7 s7.5.8.3
+                nil # Ignore entry as per PDF1.7 s7.5.8.3
               end
               pos_in_stream += entry_size
             end
@@ -152,7 +152,7 @@ module HexaPDF
                      else
                        raise HexaPDF::Error, "Unsupported cross-reference entry #{entry}"
                      end
-              self.stream << data.pack(pack_string)
+              stream << data.pack(pack_string)
             end
           end
         end

@@ -236,7 +236,7 @@ module HexaPDF
           result = key.bytes
 
           temp = result[-4, 4]
-          while result.size  < nr_bytes
+          while result.size < nr_bytes
             if result.size % key_size == 0
               temp[0] = SBOX[temp[1]] ^ RCON[result.size / key_size]
               temp[1] = SBOX[temp[2]]
@@ -330,11 +330,11 @@ module HexaPDF
         #  s[3,c]   [03 01 01 02] s[3,c]
         def mix_columns(state)
           4.times do |c| # each column
-            s0, s1, s2, s3 = state[4*c], state[4*c + 1], state[4*c + 2], state[4*c + 3]
-            state[4*c]     = G2MULT[s0] ^ G3MULT[s1] ^ s2 ^ s3
-            state[4*c + 1] = s0 ^ G2MULT[s1] ^ G3MULT[s2] ^ s3
-            state[4*c + 2] = s0 ^ s1 ^ G2MULT[s2] ^ G3MULT[s3]
-            state[4*c + 3] = G3MULT[s0] ^ s1 ^ s2 ^ G2MULT[s3]
+            s0, s1, s2, s3 = state[4 * c], state[4 * c + 1], state[4 * c + 2], state[4 * c + 3]
+            state[4 * c]     = G2MULT[s0] ^ G3MULT[s1] ^ s2 ^ s3
+            state[4 * c + 1] = s0 ^ G2MULT[s1] ^ G3MULT[s2] ^ s3
+            state[4 * c + 2] = s0 ^ s1 ^ G2MULT[s2] ^ G3MULT[s3]
+            state[4 * c + 3] = G3MULT[s0] ^ s1 ^ s2 ^ G2MULT[s3]
           end
         end
 
@@ -403,11 +403,11 @@ module HexaPDF
         #  s[3,c]   [11 13 09 14] s[3,c]
         def inverse_mix_columns(state)
           4.times do |c| # each column
-            s0, s1, s2, s3 = state[4*c], state[4*c + 1], state[4*c + 2], state[4*c + 3]
-            state[4*c]     = G14MULT[s0] ^ G11MULT[s1] ^ G13MULT[s2] ^ G9MULT[s3]
-            state[4*c + 1] = G9MULT[s0] ^ G14MULT[s1] ^ G11MULT[s2] ^ G13MULT[s3]
-            state[4*c + 2] = G13MULT[s0] ^ G9MULT[s1] ^ G14MULT[s2] ^ G11MULT[s3]
-            state[4*c + 3] = G11MULT[s0] ^ G13MULT[s1] ^ G9MULT[s2] ^ G14MULT[s3]
+            s0, s1, s2, s3 = state[4 * c], state[4 * c + 1], state[4 * c + 2], state[4 * c + 3]
+            state[4 * c]     = G14MULT[s0] ^ G11MULT[s1] ^ G13MULT[s2] ^ G9MULT[s3]
+            state[4 * c + 1] = G9MULT[s0] ^ G14MULT[s1] ^ G11MULT[s2] ^ G13MULT[s3]
+            state[4 * c + 2] = G13MULT[s0] ^ G9MULT[s1] ^ G14MULT[s2] ^ G11MULT[s3]
+            state[4 * c + 3] = G11MULT[s0] ^ G13MULT[s1] ^ G9MULT[s2] ^ G14MULT[s3]
           end
         end
 

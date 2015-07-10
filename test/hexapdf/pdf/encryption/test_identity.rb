@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/pdf/encryption/identity'
 
 describe HexaPDF::PDF::Encryption::Identity do
-
   include EncryptionAlgorithmInterfaceTests
 
   before do
@@ -19,5 +18,4 @@ describe HexaPDF::PDF::Encryption::Identity do
     f = Fiber.new {'data'}
     assert_equal(f, @algorithm_class.encryption_fiber('key', f))
   end
-
 end

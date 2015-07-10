@@ -6,7 +6,6 @@ require 'hexapdf/pdf/type/file_specification'
 require 'hexapdf/pdf/document'
 
 describe HexaPDF::PDF::Type::FileSpecification do
-
   before do
     @doc = HexaPDF::PDF::Document.new
     @obj = HexaPDF::PDF::Type::FileSpecification.new({}, document: @doc)
@@ -125,5 +124,4 @@ describe HexaPDF::PDF::Type::FileSpecification do
       assert_equal([['test2', @obj]], @doc.catalog[:Names][:EmbeddedFiles].each_tree_entry.to_a)
     end
   end
-
 end

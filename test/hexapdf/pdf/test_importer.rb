@@ -5,7 +5,6 @@ require 'hexapdf/pdf/importer'
 require 'hexapdf/pdf/document'
 
 describe HexaPDF::PDF::Importer do
-
   before do
     @source = HexaPDF::PDF::Document.new
     obj = @source.add("test")
@@ -69,5 +68,4 @@ describe HexaPDF::PDF::Importer do
       assert_raises(HexaPDF::Error) { @importer.import(other_obj) }
     end
   end
-
 end

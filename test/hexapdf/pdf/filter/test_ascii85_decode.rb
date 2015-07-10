@@ -4,18 +4,17 @@ require 'test_helper'
 require 'hexapdf/pdf/filter/ascii85_decode'
 
 describe HexaPDF::PDF::Filter::ASCII85Decode do
-
   include StandardFilterTests
 
   before do
     @obj = HexaPDF::PDF::Filter::ASCII85Decode
     @all_test_cases ||= [['Nov shmoz ka pop.', ':2b:uF(fE/H6@!3+E27</c~>'],
-     ['Nov shmoz ka pop.1', ':2b:uF(fE/H6@!3+E27</hm~>'],
-     ['Nov shmoz ka pop.12', ':2b:uF(fE/H6@!3+E27</ho*~>'],
-     ['Nov shmoz ka pop.123', ':2b:uF(fE/H6@!3+E27</ho+;~>'],
-     ["\0\0\0\0Nov shmoz ka pop.", 'z:2b:uF(fE/H6@!3+E27</c~>'],
-     ["Nov \x0\x0\x0\x0shmoz ka pop.", ':2b:uzF(fE/H6@!3+E27</c~>']
-    ]
+                         ['Nov shmoz ka pop.1', ':2b:uF(fE/H6@!3+E27</hm~>'],
+                         ['Nov shmoz ka pop.12', ':2b:uF(fE/H6@!3+E27</ho*~>'],
+                         ['Nov shmoz ka pop.123', ':2b:uF(fE/H6@!3+E27</ho+;~>'],
+                         ["\0\0\0\0Nov shmoz ka pop.", 'z:2b:uF(fE/H6@!3+E27</c~>'],
+                         ["Nov \x0\x0\x0\x0shmoz ka pop.", ':2b:uzF(fE/H6@!3+E27</c~>'],
+                        ]
     @decoded = @all_test_cases[0][0]
     @encoded = @all_test_cases[0][1]
   end
@@ -57,5 +56,4 @@ describe HexaPDF::PDF::Filter::ASCII85Decode do
       assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder('uuu>', 1))) }
     end
   end
-
 end

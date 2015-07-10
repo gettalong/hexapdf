@@ -6,7 +6,6 @@ require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/type'
 
 describe HexaPDF::PDF::Type::Trailer do
-
   before do
     @doc = Object.new
     def (@doc).deref(obj); obj; end
@@ -57,10 +56,9 @@ describe HexaPDF::PDF::Type::Trailer do
       def (@doc).add(val) HexaPDF::PDF::Object.new(val, oid: 3) end
 
       message = ''
-      refute(@obj.validate(auto_correct: false) {|m, c| message = m})
+      refute(@obj.validate(auto_correct: false) {|m, _| message = m})
       assert_match(/Catalog/, message)
       assert(@obj.validate)
     end
   end
-
 end

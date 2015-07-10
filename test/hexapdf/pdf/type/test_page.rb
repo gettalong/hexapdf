@@ -44,7 +44,7 @@ describe HexaPDF::PDF::Type::Page do
       root = @doc.add(Type: :Pages)
       page = @doc.add(Type: :Page, Parent: root)
       message = ''
-      refute(page.validate {|m, c| message = m})
+      refute(page.validate {|m, _| message = m})
       assert_match(/inheritable.*MediaBox/i, message)
     end
   end

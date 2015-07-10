@@ -118,7 +118,7 @@ module HexaPDF
             data = self[container_name]
             index = 0
             while index < data.length
-              yield(data[index], data[index+1])
+              yield(data[index], data[index + 1])
               index += 2
             end
           elsif key?(:Kids)

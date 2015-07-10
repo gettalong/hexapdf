@@ -5,7 +5,6 @@ require 'hexapdf/pdf/dictionary'
 require 'hexapdf/pdf/reference'
 
 describe HexaPDF::PDF::Dictionary do
-
   def deref(obj)
     if obj.kind_of?(HexaPDF::PDF::Reference)
       HexaPDF::PDF::Object.new('deref', oid: obj.oid, gen: obj.gen)
@@ -18,7 +17,7 @@ describe HexaPDF::PDF::Dictionary do
     HexaPDF::PDF::Object.new(obj, oid: 1)
   end
 
-  def delete(obj)
+  def delete(_obj)
   end
 
   def wrap(obj, type:)
@@ -31,7 +30,7 @@ describe HexaPDF::PDF::Dictionary do
     @test_class.define_field(:Array, type: Array, required: true, default: [])
     @test_class.define_field(:TestClass, type: @test_class, indirect: true)
 
-    @dict = @test_class.new({:Array => [3, 4], :Other => 5, :Object => HexaPDF::PDF::Object.new(:obj)},
+    @dict = @test_class.new({Array: [3, 4], Other: 5, Object: HexaPDF::PDF::Object.new(:obj)},
                             document: self)
   end
 
@@ -60,14 +59,13 @@ describe HexaPDF::PDF::Dictionary do
     it "can iterate over all fields" do
       @inherited_class = Class.new(@test_class)
       @inherited_class.define_field(:Inherited, type: [Array, Symbol])
-      assert_equal([:Boolean, :Array, :TestClass, :Inherited], @inherited_class.each_field.map {|k,v| k})
+      assert_equal([:Boolean, :Array, :TestClass, :Inherited], @inherited_class.each_field.map {|k, _| k})
     end
 
     it "allows field access without subclassing" do
       refute(HexaPDF::PDF::Dictionary.field(:Test))
       assert_equal([], HexaPDF::PDF::Dictionary.each_field.to_a)
     end
-
   end
 
   describe "after_data_change" do
@@ -255,5 +253,4 @@ describe HexaPDF::PDF::Dictionary do
       assert_equal(:Unknown, @dict.type)
     end
   end
-
 end

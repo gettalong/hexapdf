@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/pdf/type/xref_stream'
 
 describe HexaPDF::PDF::Type::XRefStream do
-
   before do
     @doc = Object.new
     def (@doc).deref(obj); obj; end
@@ -97,7 +96,7 @@ describe HexaPDF::PDF::Type::XRefStream do
     end
 
     it "sets all necessary dictionary values" do
-      @obj.update_with_xref_section_and_trailer(@section, {Size: 100})
+      @obj.update_with_xref_section_and_trailer(@section, Size: 100)
       assert_equal(:XRef, @obj.value[:Type])
       assert_equal(100, @obj.value[:Size])
       assert_equal([0, 3], @obj.value[:Index])
@@ -105,7 +104,7 @@ describe HexaPDF::PDF::Type::XRefStream do
     end
 
     it "updates the stream with the new information" do
-      @obj.update_with_xref_section_and_trailer(@section, {Size: 100})
+      @obj.update_with_xref_section_and_trailer(@section, Size: 100)
       section = @obj.xref_section
       @section.each do |oid, gen, data|
         if section[oid, gen] == data
@@ -120,7 +119,7 @@ describe HexaPDF::PDF::Type::XRefStream do
     it "can write multiple subsections" do
       @section.add_free_entry(10, 1)
       @section.add_in_use_entry(11, 1, 100)
-      @obj.update_with_xref_section_and_trailer(@section, {Size: 100})
+      @obj.update_with_xref_section_and_trailer(@section, Size: 100)
       assert_equal([0, 3, 10, 2], @obj.value[:Index])
     end
 
@@ -129,5 +128,4 @@ describe HexaPDF::PDF::Type::XRefStream do
       assert_raises(HexaPDF::Error) { @obj.update_with_xref_section_and_trailer(@section, {}) }
     end
   end
-
 end

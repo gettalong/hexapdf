@@ -184,7 +184,7 @@ module HexaPDF
       def after_data_change # :nodoc:
         super
         data.value ||= {}
-        unless self.value.kind_of?(Hash)
+        unless value.kind_of?(Hash)
           raise HexaPDF::Error, "A PDF dictionary object needs a hash value, not a #{value.class}"
         end
         set_required_fields_with_defaults
@@ -235,12 +235,12 @@ module HexaPDF
           next if obj.nil?
 
           # Check the type of the field
-          if !field.valid_object?(obj)
+          unless field.valid_object?(obj)
             yield("Type of field #{name} is invalid", false)
           end
 
           # Check if field value needs to be (in)direct
-          if !field.indirect.nil?
+          unless field.indirect.nil?
             obj = value[name] # we need the unwrapped object!
             if field.indirect && (!obj.kind_of?(HexaPDF::PDF::Object) || !obj.indirect?)
               yield("Field #{name} needs to be an indirect object", true)

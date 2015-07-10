@@ -4,14 +4,13 @@ require 'test_helper'
 require 'hexapdf/pdf/filter/lzw_decode'
 
 describe HexaPDF::PDF::Filter::LZWDecode do
-
   include StandardFilterTests
 
   before do
     @obj = HexaPDF::PDF::Filter::LZWDecode
     @all_test_cases ||= [["-----A---B", "\x80\x0b\x60\x50\x22\x0c\x0c\x85\x01"],
                          ['abcabcaaaabbbcdeffffffagggggg', "\x80\x18LF8\x14\x10\xC3\a1BLfC)\x9A\x1D\x0F0\x99\xE2Q8\b"],
-                        ].each {|a,b| a.force_encoding(Encoding::BINARY); b.force_encoding(Encoding::BINARY)}
+                        ].each {|a, b| a.force_encoding(Encoding::BINARY); b.force_encoding(Encoding::BINARY)}
     @decoded = @all_test_cases[0][0]
     @encoded = @all_test_cases[0][1]
     @encoded_predictor = "\x80\x00\x85\xA0 \x04\x12\r\x05\n\x00\x9D\x90p\x10V\x02".force_encoding(Encoding::BINARY)
@@ -50,5 +49,4 @@ describe HexaPDF::PDF::Filter::LZWDecode do
       assert_equal(@encoded_predictor, collector(@obj.encoder(feeder(@decoded.dup), @predictor_opts)))
     end
   end
-
 end

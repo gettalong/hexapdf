@@ -5,7 +5,6 @@ require 'hexapdf/pdf/filter'
 require 'stringio'
 
 describe HexaPDF::PDF::Filter do
-
   include TestHelper
 
   before do
@@ -14,7 +13,6 @@ describe HexaPDF::PDF::Filter do
   end
 
   describe "source_from_string" do
-
     it "doesn't modify the given string" do
       str = @str.dup
       HexaPDF::PDF::Filter.source_from_string(@str).resume.slice!(0, 10)
@@ -24,7 +22,6 @@ describe HexaPDF::PDF::Filter do
     it "returns the whole string" do
       assert_equal(@str, collector(HexaPDF::PDF::Filter.source_from_string(@str)))
     end
-
   end
 
   it "converts an IO into a source via #source_from_io" do
@@ -56,5 +53,4 @@ describe HexaPDF::PDF::Filter do
     assert_equal(@str, result)
     assert_equal(Encoding::BINARY, result.encoding)
   end
-
 end

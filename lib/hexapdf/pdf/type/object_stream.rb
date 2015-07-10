@@ -177,7 +177,7 @@ module HexaPDF
 
         # Validates that the generation number of the object stream is zero.
         def validate_gen_number
-          yield("Object stream has invalid generation number > 0", false) if self.gen != 0
+          yield("Object stream has invalid generation number > 0", false) if gen != 0
         end
 
       end

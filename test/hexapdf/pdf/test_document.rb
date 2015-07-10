@@ -5,7 +5,6 @@ require 'hexapdf/pdf/document'
 require 'stringio'
 
 describe HexaPDF::PDF::Document do
-
   before do
     @io = StringIO.new(<<EOF)
 %PDF-1.7
@@ -255,7 +254,7 @@ EOF
     it "uses a suitable default type if no special type is specified" do
       assert_instance_of(HexaPDF::PDF::Object, @doc.wrap(5))
       assert_instance_of(HexaPDF::PDF::Stream, @doc.wrap({a: 5}, stream: ''))
-      assert_instance_of(HexaPDF::PDF::Dictionary, @doc.wrap({a: 5}))
+      assert_instance_of(HexaPDF::PDF::Dictionary, @doc.wrap(a: 5))
     end
 
     it "returns an object of type HexaPDF::PDF::Object" do
@@ -300,9 +299,9 @@ EOF
     end
 
     it "uses the type/subtype information in the hash that should be wrapped" do
-      assert_kind_of(@myclass, @doc.wrap({Type: :MyClass}))
-      assert_kind_of(@myclass2, @doc.wrap({Subtype: :TheSecond}))
-      assert_kind_of(@myclass2, @doc.wrap({Type: :MyClass, Subtype: :TheSecond}))
+      assert_kind_of(@myclass, @doc.wrap(Type: :MyClass))
+      assert_kind_of(@myclass2, @doc.wrap(Subtype: :TheSecond))
+      assert_kind_of(@myclass2, @doc.wrap(Type: :MyClass, Subtype: :TheSecond))
     end
 
     it "respects the given type/subtype arguments" do
@@ -330,19 +329,19 @@ EOF
     it "recursively unwraps arrays" do
       assert_equal([5, 10, [200], [200]],
                    @io_doc.unwrap([5, HexaPDF::PDF::Reference.new(1, 0), [HexaPDF::PDF::Reference.new(2, 0)],
-                                  [HexaPDF::PDF::Reference.new(2, 0)]]))
+                                   [HexaPDF::PDF::Reference.new(2, 0)]]))
     end
 
     it "recursively unwraps hashes" do
       assert_equal({a: 5, b: 10, c: [200], d: [200]},
-                   @io_doc.unwrap({a: 5, b: HexaPDF::PDF::Reference.new(1, 0),
+                   @io_doc.unwrap(a: 5, b: HexaPDF::PDF::Reference.new(1, 0),
                                     c: [HexaPDF::PDF::Reference.new(2, 0)],
-                                    d: [HexaPDF::PDF::Reference.new(2, 0)]}))
+                                    d: [HexaPDF::PDF::Reference.new(2, 0)]))
     end
 
     it "recursively unwraps PDF objects" do
-      assert_equal({a: 10}, @io_doc.unwrap(@io_doc.wrap({a: HexaPDF::PDF::Reference.new(1, 0)})))
-      value = {a: HexaPDF::PDF::Object.new({b: HexaPDF::PDF::Object.new(10)})}
+      assert_equal({a: 10}, @io_doc.unwrap(@io_doc.wrap(a: HexaPDF::PDF::Reference.new(1, 0))))
+      value = {a: HexaPDF::PDF::Object.new(b: HexaPDF::PDF::Object.new(10))}
       assert_equal({a: {b: 10}}, @doc.unwrap(value))
     end
 
@@ -351,7 +350,7 @@ EOF
       obj2 = @doc.add({})
       obj1.value[2] = obj2
       obj2.value[1] = obj1
-      assert_raises(HexaPDF::Error) { @doc.unwrap({a: obj1}) }
+      assert_raises(HexaPDF::Error) { @doc.unwrap(a: obj1) }
     end
   end
 
@@ -484,5 +483,4 @@ EOF
       assert_equal(:Pages, pages.type)
     end
   end
-
 end

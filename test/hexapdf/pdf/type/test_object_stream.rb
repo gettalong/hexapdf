@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/pdf/type/object_stream'
 
 describe HexaPDF::PDF::Type::ObjectStream::Data do
-
   before do
     @data = HexaPDF::PDF::Type::ObjectStream::Data.new("5 [1 2]", [1, 5], [0, 2])
   end
@@ -18,16 +17,14 @@ describe HexaPDF::PDF::Type::ObjectStream::Data do
     assert_raises(HexaPDF::Error) { @data.object_by_index(5) }
     assert_raises(HexaPDF::Error) { @data.object_by_index(-1) }
   end
-
 end
 
 
 describe HexaPDF::PDF::Type::ObjectStream do
-
   before do
     @doc = Object.new
     def (@doc).trailer
-      {:Encrypt => HexaPDF::PDF::Object.new({}, oid: 9)}
+      {Encrypt: HexaPDF::PDF::Object.new({}, oid: 9)}
     end
     @obj = HexaPDF::PDF::Type::ObjectStream.new({}, document: @doc)
   end
@@ -77,11 +74,11 @@ describe HexaPDF::PDF::Type::ObjectStream do
 
   it "fails validation if gen != 0" do
     invocations = 0
-    @obj.send(:validate_gen_number) {|msg, correctable| invocations += 1}
+    @obj.send(:validate_gen_number) {|*| invocations += 1}
     assert_equal(0, invocations)
 
     @obj.gen = 1
-    @obj.send(:validate_gen_number) {|msg, correctable| refute(correctable); invocations += 1}
+    @obj.send(:validate_gen_number) {|_msg, correctable| refute(correctable); invocations += 1}
     assert_equal(1, invocations)
   end
 end

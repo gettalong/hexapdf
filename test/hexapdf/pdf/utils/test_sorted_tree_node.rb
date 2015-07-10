@@ -6,7 +6,6 @@ require 'hexapdf/pdf/name_tree_node'
 require 'hexapdf/pdf/number_tree_node'
 
 describe HexaPDF::PDF::Utils::SortedTreeNode do
-
   before do
     @doc = HexaPDF::PDF::Document.new
     @root = HexaPDF::PDF::NameTreeNode.new({}, document: @doc)
@@ -14,19 +13,19 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
 
   def add_multilevel_entries
     @kid11 = HexaPDF::PDF::NameTreeNode.new({Limits: ['c', 'f'], Names: ['c', 1, 'f', 1]},
-                                           document: @doc)
+                                            document: @doc)
     @kid12 = HexaPDF::PDF::NameTreeNode.new({Limits: ['i', 'm'], Names: ['i', 1, 'm', 1]},
-                                           document: @doc)
+                                            document: @doc)
     @kid1 = HexaPDF::PDF::NameTreeNode.new({Limits: ['c', 'm'], Kids: [@kid11, @kid12]},
-                                          document: @doc)
-    @kid21 = HexaPDF::PDF::NameTreeNode.new({Limits: ['o', 'q'], Names: ['o', 1, 'q', 1]},
                                            document: @doc)
+    @kid21 = HexaPDF::PDF::NameTreeNode.new({Limits: ['o', 'q'], Names: ['o', 1, 'q', 1]},
+                                            document: @doc)
     @kid221 = HexaPDF::PDF::NameTreeNode.new({Limits: ['s', 'u'], Names: ['s', 1, 'u', 1]},
                                              document: @doc)
     @kid22 = HexaPDF::PDF::NameTreeNode.new({Limits: ['s', 'u'], Kids: [@kid221]},
-                                           document: @doc)
+                                            document: @doc)
     @kid2 = HexaPDF::PDF::NameTreeNode.new({Limits: ['o', 'u'], Kids: [@kid21, @kid22]},
-                                          document: @doc)
+                                           document: @doc)
     @root[:Kids] = [@kid1, @kid2]
   end
 
@@ -156,7 +155,7 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
     it "enumerates in the key-value pairs in sorted order" do
       add_multilevel_entries
       assert_equal(['c', 1, 'f', 1, 'i', 1, 'm', 1, 'o', 1, 'q', 1, 's', 1, 'u', 1],
-                    @root.each_tree_entry.to_a.flatten)
+                   @root.each_tree_entry.to_a.flatten)
     end
 
     it "works on an uninitalized tree" do
@@ -170,5 +169,4 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
     root.add_number(1, 2)
     assert_equal([1, 2, 2, 1], root[:Nums])
   end
-
 end

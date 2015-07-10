@@ -6,7 +6,6 @@ require 'hexapdf/pdf/encryption/fast_aes'
 require_relative 'test_aes'
 
 describe HexaPDF::PDF::Encryption::RubyAES do
-
   include AESEncryptionTests
 
   before do
@@ -22,5 +21,4 @@ describe HexaPDF::PDF::Encryption::RubyAES do
     assert_equal(sample, HexaPDF::PDF::Encryption::FastAES.new(key, iv, :decrypt).
                  process(HexaPDF::PDF::Encryption::RubyAES.new(key, iv, :encrypt).process(sample)))
   end
-
 end

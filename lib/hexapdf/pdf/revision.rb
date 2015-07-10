@@ -53,7 +53,7 @@ module HexaPDF
 
       # Returns the next free object number for adding an object to this revision.
       def next_free_oid
-        ((a = @xref_section.max_oid) < (b = @objects.max_oid) ? b : a ) + 1
+        ((a = @xref_section.max_oid) < (b = @objects.max_oid) ? b : a) + 1
       end
 
       # :call-seq:
@@ -141,7 +141,7 @@ module HexaPDF
       #
       # Objects that are loadable via an associated cross-reference section but are currently not,
       # are loaded automatically.
-      def each(&block)
+      def each
         return to_enum(__method__) unless block_given?
         load_all_objects
         @objects.each {|_oid, _gen, data| yield(data)}

@@ -73,7 +73,10 @@ module HexaPDF
       # See: PDF1.7 s7.3.9
       def object(ref)
         i = @revisions.size - 1
-        (return @revisions[i].object(ref) if @revisions[i].object?(ref); i -= 1) while i >= 0
+        while i >= 0
+          return @revisions[i].object(ref) if @revisions[i].object?(ref)
+          i -= 1
+        end
         nil
       end
 
@@ -128,12 +131,12 @@ module HexaPDF
           if rev_obj.equal?(obj)
             return obj
           else
-            raise HexaPDF::Error, "Can't add object because the specified revision already has " +
+            raise HexaPDF::Error, "Can't add object because the specified revision already has " \
               "an object with object number #{obj.oid}"
           end
         end
 
-        obj.oid = @revisions.map {|rev| rev.next_free_oid}.max if !obj.indirect?
+        obj.oid = @revisions.map(&:next_free_oid).max unless obj.indirect?
 
         revision.add(obj)
       end
@@ -177,7 +180,8 @@ module HexaPDF
       # See: Importer
       def import(obj)
         if !obj.kind_of?(HexaPDF::PDF::Object) || !obj.document? || obj.document == self
-          raise HexaPDF::Error, "Importing only works for PDF objects associated with another document"
+          raise HexaPDF::Error, "Importing only works for PDF objects associated " \
+            "with another document"
         end
         HexaPDF::PDF::Importer.for(source: obj.document, destination: self).import(obj)
       end

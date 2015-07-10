@@ -6,7 +6,6 @@ require 'hexapdf/pdf/document'
 require 'stringio'
 
 describe HexaPDF::PDF::Writer do
-
   before do
     @std_input_io = StringIO.new(<<EOF.force_encoding(Encoding::BINARY))
 %PDF-1.7
@@ -97,9 +96,8 @@ EOF
   end
 
   it "raises an error if no xref stream is in a revision but object streams are" do
-    document = HexaPDF::PDF::Document.new()
+    document = HexaPDF::PDF::Document.new
     document.add(Type: :ObjStm)
     assert_raises(HexaPDF::Error) { HexaPDF::PDF::Writer.new(document, StringIO.new).write }
   end
-
 end

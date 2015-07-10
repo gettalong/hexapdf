@@ -6,12 +6,11 @@ require 'hexapdf/pdf/parser'
 require 'stringio'
 
 describe HexaPDF::PDF::Parser do
-
   before do
     @document = HexaPDF::PDF::Document.new
     @document.add(@document.wrap(10, oid: 1, gen: 0))
 
-    set_string(<<EOF)
+    create_parser(<<EOF)
 %PDF-1.7
 
 1 0 obj
@@ -49,7 +48,7 @@ startxref
 EOF
   end
 
-  def set_string(str)
+  def create_parser(str)
     @parser = HexaPDF::PDF::Parser.new(StringIO.new(str), @document)
   end
 
@@ -77,66 +76,65 @@ EOF
     end
 
     it "handles empty indirect objects by using PDF null for them" do
-      set_string("1 0 obj\nendobj")
-      object, _, _, _ = @parser.parse_indirect_object
+      create_parser("1 0 obj\nendobj")
+      object, * = @parser.parse_indirect_object
       assert_nil(object)
     end
 
     it "handles keyword stream followed only by CR without LF" do
-      set_string("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
-      _, _, _, stream = @parser.parse_indirect_object
+      create_parser("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
+      *, stream = @parser.parse_indirect_object
       assert_equal('12', TestHelper.collector(stream.fiber))
     end
 
     it "recovers from an invalid stream length value" do
-      set_string("1 0 obj<</Length 4>> stream\n12endstream endobj")
+      create_parser("1 0 obj<</Length 4>> stream\n12endstream endobj")
       obj, _, _, stream = @parser.parse_indirect_object
       assert_equal(2, obj[:Length])
       assert_equal('12', TestHelper.collector(stream.fiber))
     end
 
     it "works even if the keyword endobj is missing or mangled" do
-      set_string("1 0 obj<</Length 4>>5")
-      object, _, _, _ = @parser.parse_indirect_object
+      create_parser("1 0 obj<</Length 4>>5")
+      object, * = @parser.parse_indirect_object
       assert_equal({Length: 4}, object)
-      set_string("1 0 obj<</Length 4>>endobjk")
-      object, _, _, _ = @parser.parse_indirect_object
+      create_parser("1 0 obj<</Length 4>>endobjk")
+      object, * = @parser.parse_indirect_object
       assert_equal({Length: 4}, object)
     end
 
     it "fails if the oid, gen or 'obj' keyword is invalid" do
-      set_string("a 0 obj\n5\nendobj")
+      create_parser("a 0 obj\n5\nendobj")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       assert_match(/No valid object/, exp.message)
-      set_string("1 a obj\n5\nendobj")
+      create_parser("1 a obj\n5\nendobj")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       assert_match(/No valid object/, exp.message)
-      set_string("1 0 dobj\n5\nendobj")
+      create_parser("1 0 dobj\n5\nendobj")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       assert_match(/No valid object/, exp.message)
     end
 
     it "fails if the value of a stream is not a dictionary" do
-      set_string("1 0 obj\n(fail)\nstream\nendstream\nendobj\n")
+      create_parser("1 0 obj\n(fail)\nstream\nendstream\nendobj\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       assert_match(/stream.*dictionary/, exp.message)
     end
 
     it "fails if the 'stream' keyword isn't followed by EOL" do
-      set_string("1 0 obj\n<< >>\nstream endstream\nendobj\n")
+      create_parser("1 0 obj\n<< >>\nstream endstream\nendobj\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
       assert_match(/stream.*followed by LF/, exp.message)
     end
 
     it "fails if the 'endstream' keyword is missing" do
-      set_string("1 0 obj\n<< >>\nstream\nendobj\n")
+      create_parser("1 0 obj\n<< >>\nstream\nendobj\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
       assert_match(/stream.*followed by.*endstream/i, exp.message)
     end
   end
 
   describe "load_object" do
-
     before do
       @entry = HexaPDF::PDF::XRefSection.in_use_entry(2, 0, 29)
     end
@@ -156,7 +154,7 @@ EOF
     end
 
     it "can load a compressed object" do
-      def (@document).object(oid)
+      def (@document).object(_oid)
         obj = Object.new
         def obj.parse_stream
           HexaPDF::PDF::Type::ObjectStream::Data.new("5 [1 2]", [1, 2], [0, 2])
@@ -170,7 +168,7 @@ EOF
     end
 
     it "fails if another object is found instead of an object stream" do
-      def (@document).object(oid)
+      def (@document).object(_oid)
         :invalid
       end
       exp = assert_raises(HexaPDF::MalformedPDFError) do
@@ -201,36 +199,36 @@ EOF
     end
 
     it "ignores garbage at the end of the file" do
-      set_string("startxref\n5\n%%EOF" + "\nhallo"*150)
+      create_parser("startxref\n5\n%%EOF" + "\nhallo" * 150)
       assert_equal(5, @parser.startxref_offset)
     end
 
     it "uses the last startxref if there are more than one" do
-      set_string("startxref\n5\n%%EOF\n\nsome garbage\n\nstartxref\n555\n%%EOF\n")
+      create_parser("startxref\n5\n%%EOF\n\nsome garbage\n\nstartxref\n555\n%%EOF\n")
       assert_equal(555, @parser.startxref_offset)
     end
 
     it "finds the startxref anywhere in file" do
-      set_string("startxref\n5\n%%EOF" + "\nhallo"*5000)
+      create_parser("startxref\n5\n%%EOF" + "\nhallo" * 5000)
       assert_equal(5, @parser.startxref_offset)
-      set_string("startxref\n5\n%%EOF\n" + "h"*1017)
+      create_parser("startxref\n5\n%%EOF\n" + "h" * 1017)
       assert_equal(5, @parser.startxref_offset)
     end
 
     it "fails even in big files when nothing is found" do
-      set_string("\nhallo"*5000)
+      create_parser("\nhallo" * 5000)
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
       assert_match(/end-of-file marker not found/, exp.message)
     end
 
     it "fails if the %%EOF marker is missing" do
-      set_string("startxref\n5")
+      create_parser("startxref\n5")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
       assert_match(/end-of-file marker not found/, exp.message)
     end
 
     it "fails if the startxref keyword is missing" do
-      set_string("somexref\n5\n%%EOF")
+      create_parser("somexref\n5\n%%EOF")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
       assert_match(/missing startxref/, exp.message)
     end
@@ -242,13 +240,13 @@ EOF
     end
 
     it "fails if the header is mangled" do
-      set_string("%PDF-1\n")
+      create_parser("%PDF-1\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.file_header_version }
       assert_match(/file header/, exp.message)
     end
 
     it "ignores junk at the beginning of the file and correctly calculates offset" do
-      set_string("junk" * 200 + "\n%PDF-1.4\n")
+      create_parser("junk" * 200 + "\n%PDF-1.4\n")
       assert_equal('1.4', @parser.file_header_version)
       assert_equal(801, @parser.instance_variable_get(:@header_offset))
     end
@@ -269,43 +267,43 @@ EOF
     end
 
     it "works for an empty section" do
-      set_string("xref\n0 0\ntrailer\n<</Name /Value >>\n")
+      create_parser("xref\n0 0\ntrailer\n<</Name /Value >>\n")
       _, trailer = @parser.parse_xref_section_and_trailer(0)
       assert_equal({Name: :Value}, trailer)
     end
 
     it "handles xref type=n with offset=0" do
-      set_string("xref\n0 2\n0000000000 00000 n \n0000000000 00000 n \ntrailer\n<<>>\n")
-      section, _ = @parser.parse_xref_section_and_trailer(0)
+      create_parser("xref\n0 2\n0000000000 00000 n \n0000000000 00000 n \ntrailer\n<<>>\n")
+      section, _trailer = @parser.parse_xref_section_and_trailer(0)
       assert_equal(HexaPDF::PDF::XRefSection.free_entry(1, 0), section[1])
     end
 
     it "handles xref type=n with gen>65535" do
-      set_string("xref\n0 2\n0000000000 00000 n \n0000000000 65536 n \ntrailer\n<<>>\n")
-      section, _ = @parser.parse_xref_section_and_trailer(0)
+      create_parser("xref\n0 2\n0000000000 00000 n \n0000000000 65536 n \ntrailer\n<<>>\n")
+      section, _trailer = @parser.parse_xref_section_and_trailer(0)
       assert_equal(HexaPDF::PDF::XRefSection.free_entry(1, 65536), section[1])
     end
 
     it "fails if the xref keyword is missing/mangled" do
-      set_string("xTEf\n0 d\n0000000000 00000 n \ntrailer\n<< >>\n")
+      create_parser("xTEf\n0 d\n0000000000 00000 n \ntrailer\n<< >>\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
       assert_match(/keyword xref/, exp.message)
     end
 
     it "fails if a sub section header is mangled" do
-      set_string("xref\n0 d\n0000000000 00000 n \ntrailer\n<< >>\n")
+      create_parser("xref\n0 d\n0000000000 00000 n \ntrailer\n<< >>\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
       assert_match(/invalid cross-reference subsection/i, exp.message)
     end
 
     it "fails if there is no trailer" do
-      set_string("xref\n0 1\n0000000000 00000 n \n")
+      create_parser("xref\n0 1\n0000000000 00000 n \n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
       assert_match(/keyword trailer/i, exp.message)
     end
 
     it "fails if the trailer is not a PDF dictionary" do
-      set_string("xref\n0 1\n0000000000 00000 n \ntrailer\n(base)")
+      create_parser("xref\n0 1\n0000000000 00000 n \ntrailer\n(base)")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
       assert_match(/dictionary/, exp.message)
     end
@@ -336,56 +334,54 @@ EOF
     end
 
     it "startxref_offset fails if the startxref is not in the last part of the file" do
-      set_string("startxref\n5\n%%EOF" + "\nhallo"*5000)
+      create_parser("startxref\n5\n%%EOF" + "\nhallo" * 5000)
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
       assert_match(/end-of-file marker not found/, exp.message)
     end
 
     it "parse_xref_section_and_trailer fails if xref type=n with offset=0" do
-      set_string("xref\n0 2\n0000000000 00000 n \n0000000000 00000 n \ntrailer\n<<>>\n")
+      create_parser("xref\n0 2\n0000000000 00000 n \n0000000000 00000 n \ntrailer\n<<>>\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
       assert_match(/invalid.*cross-reference entry/i, exp.message)
     end
 
     it "parse_xref_section_and_trailer fails xref type=n with gen>65535" do
-      set_string("xref\n0 2\n0000000000 00000 n \n0000000000 65536 n \ntrailer\n<<>>\n")
+      create_parser("xref\n0 2\n0000000000 00000 n \n0000000000 65536 n \ntrailer\n<<>>\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
       assert_match(/invalid.*cross-reference entry/i, exp.message)
     end
 
     it "parse_indirect_object fails if an empty indirect object is found" do
-      set_string("1 0 obj\nendobj")
+      create_parser("1 0 obj\nendobj")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       assert_match(/no indirect object value/i, exp.message)
     end
 
     it "parse_indirect_object fails if keyword stream is followed only by CR without LF" do
-      set_string("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
+      create_parser("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       assert_match(/not CR alone/, exp.message)
     end
 
     it "parse_indirect_object fails if the stream length value is invalid" do
-      set_string("1 0 obj<</Length 4>> stream\n12endstream endobj")
+      create_parser("1 0 obj<</Length 4>> stream\n12endstream endobj")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       assert_match(/invalid stream length/i, exp.message)
     end
 
     it "parse_indirect_object fails if the keyword endobj is missing or mangled" do
-      set_string("1 0 obj\n<< >>\nendobjd\n")
+      create_parser("1 0 obj\n<< >>\nendobjd\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       assert_match(/keyword endobj/, exp.message)
-      set_string("1 0 obj\n<< >>")
+      create_parser("1 0 obj\n<< >>")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
       assert_match(/keyword endobj/, exp.message)
     end
 
     it "parse_indirect_object fails if there is data between 'endstream' and 'endobj'" do
-      set_string("1 0 obj\n<< >>\nstream\nendstream\ntest\nendobj\n")
+      create_parser("1 0 obj\n<< >>\nstream\nendstream\ntest\nendobj\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
       assert_match(/keyword endobj/, exp.message)
     end
-
   end
-
 end

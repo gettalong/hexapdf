@@ -142,7 +142,7 @@ module HexaPDF
       def stream_encoder(additional_filter = nil, additional_decode_parms = nil)
         encoder_data = [additional_filter, document.unwrap(self[:Filter])].flatten.
           zip([additional_decode_parms, document.unwrap(self[:DecodeParms])].flatten).
-          delete_if {|f, d| f.nil?}
+          delete_if {|f, _| f.nil?}
         source = stream_source
 
         if data.stream.kind_of?(StreamData)
@@ -209,7 +209,7 @@ module HexaPDF
       # :nodoc:
       # A mapping from short name to long name for filters.
       FILTER_MAP = {AHx: :ASCIIHexDecode, A85: :ASCII85Decode, LZW: :LZWDecode,
-        Fl: :FlateDecode, RL: :RunLengthDecode, CCF: :CCITTFaxDecode, DCT: :DCTDecode}
+                    Fl: :FlateDecode, RL: :RunLengthDecode, CCF: :CCITTFaxDecode, DCT: :DCTDecode}
 
       # Validates the /Filter entry so that it contains only long-name filter names.
       def validate_stream_filter

@@ -70,11 +70,10 @@ module HexaPDF
       end
 
       def output_line(header, text) #:nodoc:
-        puts (header + ":").ljust(COLUMN_WIDTH) << text
+        puts((header + ":").ljust(COLUMN_WIDTH) << text)
       end
 
     end
 
   end
 end
-

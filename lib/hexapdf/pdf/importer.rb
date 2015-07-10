@@ -29,7 +29,7 @@ module HexaPDF
       # document.
       def self.for(source:, destination:)
         @map ||= {}
-        @map.keep_if {|k, v| v.source.weakref_alive? && v.destination.weakref_alive?}
+        @map.keep_if {|_, v| v.source.weakref_alive? && v.destination.weakref_alive?}
         source = NullableWeakRef.new(source)
         destination = NullableWeakRef.new(destination)
         @map[[source.hash, destination.hash]] ||= new(source: source, destination: destination)

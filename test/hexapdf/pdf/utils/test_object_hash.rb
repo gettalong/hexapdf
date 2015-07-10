@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/pdf/utils/object_hash'
 
 describe HexaPDF::PDF::Utils::ObjectHash do
-
   before do
     @hash = HexaPDF::PDF::Utils::ObjectHash.new
   end

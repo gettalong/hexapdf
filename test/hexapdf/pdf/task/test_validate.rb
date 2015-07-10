@@ -5,14 +5,13 @@ require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/task/validate'
 
 describe HexaPDF::PDF::Task::Validate do
-
   before do
     @doc = HexaPDF::PDF::Document.new
     @doc.trailer.validate # to create a valid document
   end
 
   it "validates indirect objects" do
-    obj = @doc.add({Type: :XRef, Size: 100})
+    obj = @doc.add(Type: :XRef, Size: 100)
     assert(@doc.task(:validate, auto_correct: false))
 
     obj.delete(:Type)
@@ -28,11 +27,10 @@ describe HexaPDF::PDF::Task::Validate do
 
   it "validates that the encryption key matches the trailer's Encrypt dictionary" do
     @doc.security_handler.set_up_encryption
-    @doc.trailer[:Encrypt][:U] = 'a'.b*32
-    valid = @doc.task(:validate) do |msg, correctable|
+    @doc.trailer[:Encrypt][:U] = 'a'.b * 32
+    valid = @doc.task(:validate) do |msg, _|
       assert_match(/Encryption key/, msg)
     end
     refute(valid)
   end
-
 end

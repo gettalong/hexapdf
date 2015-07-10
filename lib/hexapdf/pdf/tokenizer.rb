@@ -254,7 +254,7 @@ module HexaPDF
         'f' => "\f",
         '(' => "(",
         ')' => ")",
-        '\\' => "\\"
+        '\\' => "\\",
       }
 
       # Parses the literal string at the current position.

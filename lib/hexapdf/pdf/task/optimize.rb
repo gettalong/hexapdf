@@ -81,7 +81,7 @@ module HexaPDF
             doc.revisions.each_with_index do |rev, rev_index|
               xref_stream = false
               count = 0
-              objstms = [doc.wrap({Type: :ObjStm})]
+              objstms = [doc.wrap(Type: :ObjStm)]
               rev.each do |obj|
                 if obj.type == :XRef
                   xref_stream = true
@@ -95,7 +95,7 @@ module HexaPDF
                 objstms[-1].add_object(obj)
                 count += 1
                 if count == 200
-                  objstms << doc.wrap({Type: :ObjStm})
+                  objstms << doc.wrap(Type: :ObjStm)
                   count = 0
                 end
               end

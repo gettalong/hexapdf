@@ -55,7 +55,7 @@ module HexaPDF
           elsif options[:Predictor] >= 10
             png_execute(type, source, options[:Predictor], colors, bits_per_component, columns)
           else
-            raise HexaPDF::InvalidPDFObjectError, "Value of Predictor key is invalid: #{options[:Predictor]}"
+            raise HexaPDF::InvalidPDFObjectError, "Predictor key is invalid: #{options[:Predictor]}"
           end
         end
 
@@ -111,7 +111,6 @@ module HexaPDF
             unless pos == data.length
               raise HexaPDF::Error, "Data is missing for TIFF predictor"
             end
-
           end
         end
 
@@ -229,7 +228,6 @@ module HexaPDF
             unless pos == data.length
               raise HexaPDF::Error, "Data is missing for PNG predictor"
             end
-
           end
         end
 

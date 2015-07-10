@@ -8,7 +8,6 @@ require 'hexapdf/pdf/stream'
 
 
 describe HexaPDF::PDF::StreamData do
-
   it "normalizes the filter value" do
     s = HexaPDF::PDF::StreamData.new(:source, filter: :test)
     assert_equal([:test], s.filter)
@@ -38,12 +37,10 @@ describe HexaPDF::PDF::StreamData do
       assert_equal('source', s.fiber.resume)
     end
   end
-
 end
 
 
 describe HexaPDF::PDF::Stream do
-
   include TestHelper
 
   before do
@@ -227,5 +224,4 @@ describe HexaPDF::PDF::Stream do
       assert_equal([:FlateDecode, :ASCIIHexDecode], @stm[:Filter])
     end
   end
-
 end

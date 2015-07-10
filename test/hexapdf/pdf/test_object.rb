@@ -5,7 +5,6 @@ require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/reference'
 
 describe HexaPDF::PDF::Object do
-
   describe "initialize" do
     it "uses a simple value as is" do
       obj = HexaPDF::PDF::Object.new(5)
@@ -60,11 +59,11 @@ describe HexaPDF::PDF::Object do
   describe "validation" do
     it "allows nesting validate calls" do
       nested_klass = Class.new(HexaPDF::PDF::Object)
-      nested_klass.define_validator do |obj, &block|
+      nested_klass.define_validator do |_obj, &block|
         block.call("error", false)
       end
       klass = Class.new(HexaPDF::PDF::Object)
-      klass.define_validator do |obj, &block|
+      klass.define_validator do |_obj, &block|
         nested_klass.new(5).validate do |msg, correctable|
           block.call("nested:#{msg}", correctable)
         end
@@ -84,7 +83,7 @@ describe HexaPDF::PDF::Object do
 
     it "allows adding and retrieving arbitrary class level validators" do
       klass = Class.new(HexaPDF::PDF::Object)
-      validate_me = lambda {|obj, auto_correct:|}
+      validate_me = lambda {|*|}
       klass.define_validator(&validate_me)
       assert_equal([:validate_basic_object, validate_me], klass.each_validator.to_a)
     end

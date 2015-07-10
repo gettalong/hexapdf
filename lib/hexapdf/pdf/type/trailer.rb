@@ -40,7 +40,7 @@ module HexaPDF
         #
         # See: PDF1.7 14.4
         def set_random_id
-          value[:ID] = [Digest::MD5.digest(rand.to_s)]*2
+          value[:ID] = [Digest::MD5.digest(rand.to_s)] * 2
         end
 
         # Updates the second part of the /ID field (the first part should always be the same for a
@@ -57,7 +57,7 @@ module HexaPDF
 
         # Validates the trailer.
         def validate_trailer
-          if !value[:ID]
+          unless value[:ID]
             msg = if value[:Encrypt]
                     "ID field is required when an Encrypt dictionary is present"
                   else
@@ -67,7 +67,7 @@ module HexaPDF
             set_random_id
           end
 
-          if !value[:Root]
+          unless value[:Root]
             yield("A PDF document must have a Catalog dictionary", true)
             value[:Root] = document.add(Type: :Catalog)
             value[:Root].validate {|message, correctable| yield(message, correctable)}

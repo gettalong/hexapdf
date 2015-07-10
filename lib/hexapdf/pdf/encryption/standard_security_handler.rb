@@ -111,14 +111,14 @@ module HexaPDF
 
           # Maps permission symbols to their respective value
           SYMBOL_TO_PERMISSON = {
-            :print => PRINT,
-            :modify_content => MODIFY_CONTENT,
-            :copy_content => COPY_CONTENT,
-            :modify_annotation => MODIFY_ANNOTATION,
-            :fill_in_forms => FILL_IN_FORMS,
-            :extract_content => EXTRACT_CONTENT,
-            :assemble_document => ASSEMBLE_DOCUMENT,
-            :high_quality_print => HIGH_QUALITY_PRINT
+            print: PRINT,
+            modify_content: MODIFY_CONTENT,
+            copy_content: COPY_CONTENT,
+            modify_annotation: MODIFY_ANNOTATION,
+            fill_in_forms: FILL_IN_FORMS,
+            extract_content: EXTRACT_CONTENT,
+            assemble_document: ASSEMBLE_DOCUMENT,
+            high_quality_print: HIGH_QUALITY_PRINT,
           }
 
           # Maps a permission value to its symbol
@@ -130,7 +130,7 @@ module HexaPDF
             FILL_IN_FORMS => :fill_in_forms,
             EXTRACT_CONTENT => :extract_content,
             ASSEMBLE_DOCUMENT => :assemble_document,
-            HIGH_QUALITY_PRINT => :high_quality_print
+            HIGH_QUALITY_PRINT => :high_quality_print,
           }
 
         end
@@ -190,7 +190,7 @@ module HexaPDF
         #
         # See: SecurityHandler#encryption_key_valid?
         def encryption_key_valid?
-          super && trailer_id_hash  == @trailer_id_hash
+          super && trailer_id_hash == @trailer_id_hash
         end
 
         # Prepares the encryption dictionary for use in encrypting the document.
@@ -339,7 +339,7 @@ module HexaPDF
             data[0, n]
           elsif dict[:R] == 6
             key = compute_hash(password, dict[:U][40, 8])
-            aes_algorithm.new(key, "\0"*16, :decrypt).process(dict[:UE])
+            aes_algorithm.new(key, "\0" * 16, :decrypt).process(dict[:UE])
           end
         end
 
@@ -358,7 +358,7 @@ module HexaPDF
             compute_user_encryption_key(user_password_from_owner_password(password))
           elsif dict[:R] == 6
             key = compute_hash(password, dict[:O][40, 8], dict[:U])
-            aes_algorithm.new(key, "\0"*16, :decrypt).process(dict[:OE])
+            aes_algorithm.new(key, "\0" * 16, :decrypt).process(dict[:OE])
           end
         end
 
@@ -402,7 +402,7 @@ module HexaPDF
         # See: PDF2.0 s7.6.3.4.7 (algorithm 9 (b))
         def compute_oe_field(password, file_encryption_key)
           key = compute_hash(password, dict[:O][40, 8], dict[:U])
-          aes_algorithm.new(key, "\0"*16, :encrypt).process(file_encryption_key)
+          aes_algorithm.new(key, "\0" * 16, :encrypt).process(file_encryption_key)
         end
 
         # Computes the encryption dictionary's /U (user password) value.
@@ -565,7 +565,10 @@ module HexaPDF
         def xor_key(key, value)
           new_key = key.dup
           i = 0
-          (new_key.setbyte(i, new_key.getbyte(i) ^ value); i += 1) while i < new_key.length
+          while i < new_key.length
+            new_key.setbyte(i, new_key.getbyte(i) ^ value)
+            i += 1
+          end
           new_key
         end
 

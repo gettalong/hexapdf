@@ -8,7 +8,6 @@ require 'hexapdf/pdf/xref_section'
 require 'stringio'
 
 describe HexaPDF::PDF::Revision do
-
   before do
     @xref_section = HexaPDF::PDF::XRefSection.new
     @xref_section.add_in_use_entry(2, 0, 5000)
@@ -131,5 +130,4 @@ describe HexaPDF::PDF::Revision do
     rev.delete(@ref, mark_as_free: false)
     refute(rev.object?(@ref))
   end
-
 end

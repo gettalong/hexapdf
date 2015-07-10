@@ -154,18 +154,18 @@ module HexaPDF
       # Does nothing.
       module IdentityConverter
 
-        def self.usable_for?(type) #:nodoc:
+        def self.usable_for?(_type) #:nodoc:
           true
         end
 
         def self.additional_types #:nodoc:
         end
 
-        def self.convert?(data, type) #:nodoc:
+        def self.convert?(_data, _type) #:nodoc:
           false
         end
 
-        def self.convert(data, type, document) #:nodoc:
+        def self.convert(data, _type, _document) #:nodoc:
           data
         end
 
@@ -214,12 +214,12 @@ module HexaPDF
         end
 
         # Returns +true+ if the given data should be converted to a UTF-8 encoded string.
-        def self.convert?(data, type)
+        def self.convert?(data, _type)
           data.kind_of?(String) && data.encoding == Encoding::BINARY
         end
 
         # Converts the string into UTF-8 encoding, assuming it is currently a binary string.
-        def self.convert(str, type, document)
+        def self.convert(str, _type, _document)
           if str.getbyte(0) == 254 && str.getbyte(1) == 255
             str[2..-1].force_encoding(Encoding::UTF_16BE).encode(Encoding::UTF_8)
           else
@@ -244,12 +244,12 @@ module HexaPDF
         end
 
         # Returns +true+ if the given data should be converted to a UTF-8 encoded string.
-        def self.convert?(data, type)
+        def self.convert?(data, _type)
           data.kind_of?(String) && data.encoding != Encoding::BINARY
         end
 
         # Converts the string into UTF-8 encoding, assuming it is currently a binary string.
-        def self.convert(str, type, document)
+        def self.convert(str, _type, _document)
           str.force_encoding(Encoding::BINARY)
         end
 
@@ -278,12 +278,12 @@ module HexaPDF
         DATE_RE = /\AD:(\d{4})(\d\d)?(\d\d)?(\d\d)?(\d\d)?(\d\d)?([Z+-])?(?:(\d\d)')?(\d\d)?'?\z/n
 
         # Returns +true+ if the given data should be converted to a Time object.
-        def self.convert?(data, type)
+        def self.convert?(data, _type)
           data.kind_of?(String) && data =~ DATE_RE
         end
 
         # Converts the string into a Time object.
-        def self.convert(str, type, document)
+        def self.convert(str, _type, _document)
           match = DATE_RE.match(str)
           utc_offset = (match[7].nil? || match[7] == 'Z' ? 0 : "#{match[7]}#{match[8]}:#{match[9]}")
           Time.new(match[1].to_i, (match[2] ? match[2].to_i : 1), (match[3] ? match[3].to_i : 1),
@@ -308,7 +308,7 @@ module HexaPDF
         end
 
         # Returns +true+ if the given data is a string file specification.
-        def self.convert?(data, type)
+        def self.convert?(data, _type)
           data.kind_of?(String)
         end
 

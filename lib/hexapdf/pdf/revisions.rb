@@ -28,7 +28,7 @@ module HexaPDF
         #
         # If the +io+ object is +nil+, an empty Revisions object is returned.
         def from_io(document, io)
-          return self.new(document) if io.nil?
+          return new(document) if io.nil?
 
           parser = Parser.new(io, document)
           object_loader = lambda {|xref_entry| parser.load_object(xref_entry)}
@@ -53,7 +53,7 @@ module HexaPDF
           end
 
           document.version = parser.file_header_version
-          self.new(document, initial_revisions: revisions)
+          new(document, initial_revisions: revisions)
         end
 
       end

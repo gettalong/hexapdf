@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/pdf/filter/ascii_hex_decode'
 
 describe HexaPDF::PDF::Filter::ASCIIHexDecode do
-
   include StandardFilterTests
 
   before do
@@ -31,5 +30,4 @@ describe HexaPDF::PDF::Filter::ASCIIHexDecode do
       assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('f0f0z')).resume }
     end
   end
-
 end
