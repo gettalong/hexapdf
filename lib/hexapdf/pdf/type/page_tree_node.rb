@@ -16,6 +16,8 @@ module HexaPDF
       # nodes and page objects can be mixed. This means that for finding a page at a specific index
       # we have to go through all objects that come before it.
       #
+      # Page indices are zero-based, not one-based. Therefore the first page has an index of 0!
+      #
       # Since the page tree needs a certain structure it is not advised to directly modify page tree
       # nodes. The validation feature can correct most problems but until the page tree is in order
       # the methods may not work correctly!
@@ -46,7 +48,7 @@ module HexaPDF
           self[:Count]
         end
 
-        # Returns the page for the index or +nil+ if no such page exists.
+        # Returns the page for the zero-based index or +nil+ if no such page exists.
         #
         # Negative indices count backwards from the end, i.e. -1 is the last page.
         def page(index)
@@ -69,7 +71,7 @@ module HexaPDF
           end
         end
 
-        # Inserts the page or a new empty page at the index and returns it.
+        # Inserts the page or a new empty page at the zero-based index and returns it.
         #
         # Negative indices count backwards from the end, i.e. -1 is the last page. When using
         # negative indices, the page will be inserted after that element. So using an index of -1
@@ -112,8 +114,8 @@ module HexaPDF
           insert_page(-1, page)
         end
 
-        # Deletes the page at the position specified by index and returns it. If an invalid index is
-        # specified, +nil+ is returned.
+        # Deletes the page at the position specified by the zero-based index and returns it. If an
+        # invalid index is specified, +nil+ is returned.
         #
         # Negative indices count backwards from the end, i.e. -1 is the last page.
         #
