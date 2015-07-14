@@ -144,7 +144,7 @@ module HexaPDF
       # the use of this method during array parsing.
       #
       # See: PDF1.7 s7.3
-      def next_object(allow_end_array_token = false)
+      def next_object(allow_end_array_token: false, allow_keyword: false)
         token = next_token
 
         if token.kind_of?(Token)
@@ -158,7 +158,9 @@ module HexaPDF
               raise HexaPDF::MalformedPDFError.new("Found invalid end array token ']'", pos: pos)
             end
           else
-            raise HexaPDF::MalformedPDFError.new("Invalid object, got token #{token}", pos: pos)
+            unless allow_keyword
+              raise HexaPDF::MalformedPDFError.new("Invalid object, got token #{token}", pos: pos)
+            end
           end
         end
 
@@ -339,7 +341,7 @@ module HexaPDF
       def parse_array
         result = []
         loop do
-          obj = next_object(true)
+          obj = next_object(allow_end_array_token: true)
           break if obj.equal?(TOKEN_ARRAY_END)
           result << obj
         end

@@ -200,6 +200,13 @@ describe HexaPDF::PDF::Tokenizer do
       assert_equal({Name: 5}, @tokenizer.next_object)
     end
 
+    it "allows keywords if the corresponding option is set" do
+      create_tokenizer("name")
+      obj = @tokenizer.next_object(allow_keyword: true)
+      assert_kind_of(HexaPDF::PDF::Tokenizer::Token, obj)
+      assert_equal('name', obj)
+    end
+
     it "fails if the value is not a correct object" do
       create_tokenizer("<< /name ] >>")
       assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_object }
