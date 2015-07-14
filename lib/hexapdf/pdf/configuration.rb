@@ -218,6 +218,7 @@ module HexaPDF
                           EmbeddedFile: 'HexaPDF::PDF::Type::EmbeddedFile',
                           Info: 'HexaPDF::PDF::Type::Info',
                           Resources: 'HexaPDF::PDF::Type::Resources',
+                          ExtGState: 'HexaPDF::PDF::Type::GraphicsStateParameter',
                         },
                         'object.subtype_map' => {
                         },

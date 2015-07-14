@@ -23,6 +23,7 @@ module HexaPDF
       autoload(:FileSpecification, 'hexapdf/pdf/type/file_specification')
       autoload(:EmbeddedFile, 'hexapdf/pdf/type/embedded_file')
       autoload(:Resources, 'hexapdf/pdf/type/resources')
+      autoload(:GraphicsStateParameter, 'hexapdf/pdf/type/graphics_state_parameter')
 
     end
 
