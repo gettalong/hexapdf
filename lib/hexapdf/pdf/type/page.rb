@@ -1,8 +1,11 @@
 # -*- encoding: utf-8 -*-
 
+require 'stringio'
 require 'hexapdf/pdf/dictionary'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/type/page_tree_node'
+require 'hexapdf/pdf/content/processor'
+require 'hexapdf/pdf/tokenizer'
 
 module HexaPDF
   module PDF
@@ -123,6 +126,50 @@ module HexaPDF
             node[name] || super
           else
             super
+          end
+        end
+
+        # Returns the concatenated stream data from the content streams as binary string.
+        def contents
+          Array(self[:Contents]).each_with_object("".b) do |content_stream, content|
+            content << " ".freeze unless content.empty?
+            content << document.deref(content_stream).stream
+          end
+        end
+
+        # Replaces the contents of the page with the given string.
+        #
+        # This is done by deleting all but the first content stream and reuses this content stream;
+        # or by creating a new one if no content stream exists.
+        def contents=(data)
+          first, *rest = self[:Contents]
+          rest.each {|stream| document.delete(stream)}
+          if first
+            self[:Contents] = first
+            document.deref(first).stream = data
+          else
+            self[:Contents] = document.add({Filter: :FlateDecode}, stream: data)
+          end
+        end
+
+        # Processes the content streams associated with the page with a Content::Processor object
+        # and calls the callback methods for the found operators in the given +renderer+ object.
+        #
+        # The processor object is yielded if a block is given so that it can be customized before
+        # use.
+        def process_contents(renderer)
+          self[:Resources] = {} if self[:Resources].nil?
+          processor = Content::Processor.new(self[:Resources], renderer: renderer)
+          yield(processor) if block_given?
+          tokenizer = Tokenizer.new(StringIO.new(contents))
+          params = []
+          while (obj = tokenizer.next_object(allow_keyword: true)) != Tokenizer::NO_MORE_TOKENS
+            if obj.kind_of?(Tokenizer::Token)
+              processor.process(obj.to_sym, params)
+              params.clear
+            else
+              params << obj
+            end
           end
         end
 
