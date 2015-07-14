@@ -154,6 +154,27 @@ module HexaPDF
           page
         end
 
+        # :call-seq:
+        #   pages.each_page {|page| block }   -> pages
+        #   pages.each_page                   -> Enumerator
+        #
+        # Iterates over all pages that are beneath this page tree node, from the first to the last
+        # page.
+        def each_page(&block)
+          return to_enum(__method__) unless block_given?
+
+          self[:Kids].each do |kid|
+            kid = document.deref(kid)
+            if kid.type == :Page
+              yield(kid)
+            else
+              kid.each_page(&block)
+            end
+          end
+
+          self
+        end
+
         private
 
         # Returns a new page object, correctly initialized using the document's configuration

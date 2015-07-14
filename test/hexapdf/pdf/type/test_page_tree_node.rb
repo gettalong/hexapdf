@@ -10,6 +10,21 @@ describe HexaPDF::PDF::Type::PageTreeNode do
     @root = @doc.add(Type: :Pages)
   end
 
+  # Defines the following page tree:
+  #
+  #   @root
+  #     @kid1
+  #       @kid11
+  #         @pages[0]
+  #         @pages[1]
+  #       @kid12
+  #         @pages[2]
+  #         @pages[3]
+  #         @pages[4]
+  #     @pages[5]
+  #     @kid2
+  #       @pages[6]
+  #       @pages[7]
   def define_multilevel_page_tree
     @pages = 8.times.map { @doc.add(Type: :Page) }
     @kid1 = @doc.add(Type: :Pages, Parent: @root, Count: 5)
@@ -163,6 +178,20 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       assert_nil(@doc.object(node).value)
       refute_equal(node, @root[:Kids].last)
       assert(8, @root.page_count)
+    end
+  end
+
+  describe "each_page" do
+    before do
+      define_multilevel_page_tree
+    end
+
+    it "iterates over a simple, one-level page tree" do
+      assert_equal([@pages[2], @pages[3], @pages[4]], @kid12.each_page.to_a)
+    end
+
+    it "iterates over a multilevel page tree" do
+      assert_equal(@pages, @root.each_page.to_a)
     end
   end
 
