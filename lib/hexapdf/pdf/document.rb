@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+require 'stringio'
 require 'hexapdf/error'
 require 'hexapdf/pdf/configuration'
 require 'hexapdf/pdf/reference'
@@ -26,16 +27,46 @@ module HexaPDF
     # that there are no convenience methods for higher PDF functionality whatsoever.
     class Document
 
+      # :call-seq:
+      #   Document.open(filename, **docargs)                   -> doc
+      #   Document.open(filename, **docargs) {|doc| block}     -> obj
+      #
+      # Creates a new PDF Document object for the given file.
+      #
+      # Depending on whether a block is provided, the functionality is different:
+      #
+      # * If no block is provided, the whole file is instantly read into memory and the PDF Document
+      #   created for it is returned.
+      #
+      # * If a block is provided, the file is opened and a PDF Document is created for it. The
+      #   created document is passed as an argument to the block and when the block returns the
+      #   associated file object is closed. The value of the block will be returned.
+      #
+      # The block version is useful, for example, when you are dealing with a large file and you
+      # only need a small portion of it.
+      #
+      # The provided keyword arguments (except +io+) are passed on unchanged to Document.new.
+      def self.open(filename, **kwargs)
+        if block_given?
+          File.open(filename, 'rb') do |file|
+            yield(new(**kwargs, io: file))
+          end
+        else
+          new(**kwargs, io: StringIO.new(File.binread(filename)))
+        end
+      end
+
       # The configuration for the document.
       attr_reader :config
 
       # The revisions of the document.
       attr_reader :revisions
 
-      # Creates a new PDF document.
+      # Creates a new PDF document, either an empty one or one read from the provided +io+.
       #
       # When an IO object is provided and it contains an encrypted PDF file, it is automatically
-      # decrypted behind the scenes.
+      # decrypted behind the scenes. The +decryption_opts+ argument has to be set appropriately in
+      # this case.
       #
       # Options:
       #
@@ -404,7 +435,11 @@ module HexaPDF
         trailer.delete(:Encrypt) if handler.nil?
       end
 
-      # Writes the document to the IO stream.
+      # :call-seq:
+      #   doc.write(filename, validate: true, update_fields: true)
+      #   doc.write(io, validate: true, update_fields: true)
+      #
+      # Writes the document to the give file (in case +io+ is a String) or IO stream.
       #
       # Before the document is written, it is validated using the 'validate' task, and an error is
       # raised if the document is not valid. However, this step can be skipped if needed.
@@ -417,7 +452,7 @@ module HexaPDF
       # update_fields::
       #   Updates the /ID field in the trailer dictionary as well as the /ModDate field in the
       #   trailer's /Info dictionary so that it is clear that the document has been updated.
-      def write(io, validate: true, update_fields: true)
+      def write(file_or_io, validate: true, update_fields: true)
         if validate
           task(:validate) do |msg, correctable|
             next if correctable
@@ -428,7 +463,12 @@ module HexaPDF
           trailer.update_id
           (trailer[:Info] ||= {})[:ModDate] = Time.now
         end
-        Writer.write(self, io)
+
+        if file_or_io.kind_of?(String)
+          File.open(file_or_io, 'w+') {|file| Writer.write(self, file)}
+        else
+          Writer.write(self, file_or_io)
+        end
       end
 
     end

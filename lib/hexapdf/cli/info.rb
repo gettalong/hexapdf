@@ -42,8 +42,7 @@ module HexaPDF
       COLUMN_WIDTH = 20
 
       def output_info(file) # :nodoc:
-        File.open(file, 'rb') do |file_io|
-          doc = HexaPDF::PDF::Document.new(io: file_io, decryption_opts: {password: @password})
+        HexaPDF::PDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
           INFO_KEYS.each do |name|
             next unless doc.trailer[:Info].key?(name)
             output_line(name.to_s, doc.trailer[:Info][name].to_s)

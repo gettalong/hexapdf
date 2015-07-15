@@ -30,8 +30,7 @@ module HexaPDF
       end
 
       def execute(file) #:nodoc:
-        File.open(file, 'rb') do |file_io|
-          doc = HexaPDF::PDF::Document.new(io: file_io, decryption_opts: {password: @password})
+        HexaPDF::PDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
           if @indices.empty?
             list_files(doc)
           else

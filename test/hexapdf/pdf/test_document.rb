@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+require 'tempfile'
 require 'test_helper'
 require 'hexapdf/pdf/document'
 require 'stringio'
@@ -48,6 +49,29 @@ startxref
 EOF
     @io_doc = HexaPDF::PDF::Document.new(io: @io)
     @doc = HexaPDF::PDF::Document.new
+  end
+
+  describe "::open" do
+    before do
+      @file = Tempfile.new('hexapdf-document')
+      @io_doc.write(@file)
+      @file.close
+    end
+
+    after do
+      @file.unlink
+    end
+
+    it "works without block" do
+      doc = HexaPDF::PDF::Document.open(@file.path)
+      assert_equal(200, doc.object(2).value)
+    end
+
+    it "works with a block" do
+      HexaPDF::PDF::Document.open(@file.path) do |doc|
+        assert_equal(200, doc.object(2).value)
+      end
+    end
   end
 
   describe "initialize" do
@@ -403,6 +427,19 @@ EOF
   end
 
   describe "write" do
+    it "writes the document to a file" do
+      begin
+        file = Tempfile.new('hexapdf-write')
+        file.close
+        @io_doc.write(file.path)
+        HexaPDF::PDF::Document.open(file.path) do |doc|
+          assert_equal(200, doc.object(2).value)
+        end
+      ensure
+        file.unlink
+      end
+    end
+
     it "writes the document to an IO object" do
       io = StringIO.new(''.b)
       @doc.write(io)
