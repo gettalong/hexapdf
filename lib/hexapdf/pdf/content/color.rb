@@ -32,6 +32,48 @@ module HexaPDF
 
       end
 
+      # This class represents a "universal" color space that is used for all color spaces that
+      # aren't implemented yet.
+      module UniversalColorSpace
+
+        # The default universal color.
+        def self.default_color
+          Color.new
+        end
+
+        # Creates a new universal color object. The number of arguments isn't restricted.
+        def self.color(*args)
+          Color.new(*args)
+        end
+
+        # A single color in the universal color space.
+        #
+        # This doesn't represent a real color but is a place holder for a color in a color space
+        # that isn't implemented yet.
+        class Color
+
+          include ColorUtils
+
+          # Creates a new universal color with the given components.
+          def initialize(*components)
+            @components = components
+          end
+
+          # Returns the UniversalColorSpace module.
+          def color_space
+            UniversalColorSpace
+          end
+
+          # Returns the componets of the universal color, i.e. all arguments provided on
+          # initialization.
+          def components
+            @components
+          end
+
+        end
+
+      end
+
 
       # The DeviceRGB color space that manages the DeviceRGBColorSpace::Color objects.
       module DeviceRGBColorSpace

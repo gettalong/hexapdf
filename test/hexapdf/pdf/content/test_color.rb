@@ -32,6 +32,16 @@ module CommonColorSpaceTests
 
 end
 
+describe HexaPDF::PDF::Content::UniversalColorSpace do
+  include CommonColorSpaceTests
+
+  before do
+    @color_space = HexaPDF::PDF::Content::UniversalColorSpace
+    @color = @color_space.default_color
+    @other_color = @color_space.color(128, 5, 6, 7, 8)
+  end
+end
+
 describe HexaPDF::PDF::Content::DeviceRGBColorSpace do
   include CommonColorSpaceTests
 
