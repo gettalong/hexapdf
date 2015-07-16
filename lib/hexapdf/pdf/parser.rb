@@ -158,6 +158,10 @@ module HexaPDF
           end
           xref_section = obj.xref_section
           trailer = obj.trailer
+          unless xref_section.entry?(obj.oid, obj.gen)
+            maybe_raise("Cross-reference stream doesn't contain entry for itself", pos: pos)
+            xref_section.add_in_use_entry(obj.oid, obj.gen, pos)
+          end
         end
         xref_section.delete(0)
         [xref_section, trailer]
