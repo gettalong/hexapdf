@@ -242,7 +242,7 @@ module HexaPDF
           tmp
         else
           val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/)
-          val << '0' if val[-1] == '.'
+          val << '0'.freeze if val.getbyte(-1) == 46 # dot '.'
           Float(val)
         end
       end
@@ -314,8 +314,8 @@ module HexaPDF
         end
 
         @ss.pos += 1
-        data.tr!(WHITESPACE, "")
-        [data].pack('H*')
+        data.tr!(WHITESPACE, "".freeze)
+        [data].pack('H*'.freeze)
       end
 
       # Parses the name at the current position.
