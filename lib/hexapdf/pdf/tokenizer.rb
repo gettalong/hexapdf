@@ -270,13 +270,14 @@ module HexaPDF
 
         while parentheses != 0
           data = scan_until(/([()\\\r])/)
+          char = @ss[1]
           unless data
             raise HexaPDF::MalformedPDFError.new("Unclosed literal string found", pos: pos)
           end
 
           str << data
           prepare_string_scanner if @ss.eos?
-          case @ss[1]
+          case char
           when '(' then parentheses += 1
           when ')' then parentheses -= 1
           when "\r"
