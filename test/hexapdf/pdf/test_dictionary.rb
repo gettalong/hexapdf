@@ -140,11 +140,18 @@ describe HexaPDF::PDF::Dictionary do
       assert_equal(temp, @dict.value[:Object])
     end
 
-    it "doesn't store the value inside subclasses of HexaPDF::PDF::Object but directly as stored value" do
+    it "doesn't store the value inside for subclasses of HexaPDF::PDF::Object" do
       (@dict[:TestClass] ||= {})[:Array] = [4, 5]
       assert_kind_of(@test_class, @dict[:TestClass])
       @dict[:TestClass] = [4, 5]
       assert_equal([4, 5], @dict[:TestClass])
+    end
+
+    it "doesn't store the value inside for HexaPDF::PDF::Reference objects" do
+      @dict[:Object] = HexaPDF::PDF::Object.new(:test)
+      assert_kind_of(HexaPDF::PDF::Object, @dict.value[:Object])
+      @dict[:Object] = HexaPDF::PDF::Reference.new(5, 0)
+      assert_kind_of(HexaPDF::PDF::Reference, @dict.value[:Object])
     end
 
     it "raises an error if the key is not a symbol object" do

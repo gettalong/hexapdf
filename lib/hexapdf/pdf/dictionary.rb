@@ -129,7 +129,8 @@ module HexaPDF
           raise HexaPDF::Error, "Only Symbol (Name) keys are allowed to be used in PDF dictionaries"
         end
 
-        if value[name].class == HexaPDF::PDF::Object && !data.kind_of?(HexaPDF::PDF::Object)
+        if value[name].class == HexaPDF::PDF::Object && !data.kind_of?(HexaPDF::PDF::Object) &&
+            !data.kind_of?(HexaPDF::PDF::Reference)
           value[name].value = data
         else
           value[name] = data
