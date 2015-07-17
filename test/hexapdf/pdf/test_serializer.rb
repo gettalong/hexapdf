@@ -69,12 +69,12 @@ describe HexaPDF::PDF::Serializer do
   end
 
   it "serializes arrays" do
-    assert_serialized("[-12 2.4321/Name true]", [-12, 2.4321, :Name, true])
+    assert_serialized("[-12 2.4321/Name true(345)true]", [-12, 2.4321, :Name, true, '345', true])
     assert_serialized("[]", [])
   end
 
   it "serializes hashes" do
-    assert_serialized("<</hallo 5/other true>>", hallo: 5, other: true)
+    assert_serialized("<</hallo 5/other true/name[5]>>", hallo: 5, other: true, name: [5])
     assert_serialized("<<>>", {})
   end
 

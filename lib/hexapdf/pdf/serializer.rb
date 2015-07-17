@@ -131,7 +131,8 @@ module HexaPDF
       end
 
       # :nodoc:
-      BYTE_IS_STARTING_DELIMITER = {40 => true, 47 => true, 60 => true, 91 => true}
+      BYTE_IS_DELIMITER = {40 => true, 47 => true, 60 => true, 91 => true,
+                           41 => true, 62 => true, 93 => true}
 
       # See: PDF1.7 s7.3.6
       def serialize_array(obj)
@@ -139,7 +140,8 @@ module HexaPDF
         index = 0
         while index < obj.size
           tmp = __serialize(obj[index])
-          str << " ".freeze unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)] || index == 0
+          str << " ".freeze unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
+            BYTE_IS_DELIMITER[str.getbyte(-1)]
           str << tmp
           index += 1
         end
@@ -153,7 +155,8 @@ module HexaPDF
           next if v.nil? || (v.respond_to?(:empty?) && v.empty?)
           str << __serialize(k)
           tmp = __serialize(v)
-          str << " ".freeze unless BYTE_IS_STARTING_DELIMITER[tmp.getbyte(0)]
+          str << " ".freeze unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
+            BYTE_IS_DELIMITER[str.getbyte(-1)]
           str << tmp
         end
         str << ">>".freeze
