@@ -43,16 +43,9 @@ describe HexaPDF::PDF::Object do
     end
   end
 
-  describe "empty" do
+  describe "null?" do
     it "works for nil values" do
-      assert(HexaPDF::PDF::Object.new(nil).empty?)
-    end
-
-    it "works for empty values" do
-      assert(HexaPDF::PDF::Object.new("").empty?)
-      assert(HexaPDF::PDF::Object.new(:"").empty?)
-      assert(HexaPDF::PDF::Object.new([]).empty?)
-      assert(HexaPDF::PDF::Object.new({}).empty?)
+      assert(HexaPDF::PDF::Object.new(nil).null?)
     end
   end
 

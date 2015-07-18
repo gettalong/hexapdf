@@ -166,7 +166,7 @@ module HexaPDF
         self[:Type] || super
       end
 
-      # See Object#empty?.
+      # Returns +true+ if the dictionary contains no entries.
       def empty?
         value.empty?
       end

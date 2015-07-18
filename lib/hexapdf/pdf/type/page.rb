@@ -174,11 +174,6 @@ module HexaPDF
               self[:Resources].validate(&block)
             end
           end
-
-          # Workaround so that an empty Resources dict will be written instead of being left out
-          if self[:Resources].value.length == 0
-            self[:Resources][:DummyKeyWillBeDeletedOnWrite] = nil
-          end
         end
 
       end

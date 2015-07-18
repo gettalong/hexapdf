@@ -235,7 +235,7 @@ EOF
 
       it "marks the object as PDF null object when using mark_as_free=true" do
         @doc.delete(@ref, revision: :current)
-        assert(@doc.object(@ref).empty?)
+        assert(@doc.object(@ref).null?)
       end
     end
 

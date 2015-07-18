@@ -218,10 +218,9 @@ module HexaPDF
         :Unknown
       end
 
-      # Returns +true+ if the object represents an empty object, i.e. a PDF null object or an empty
-      # value.
-      def empty?
-        value.nil? || (value.respond_to?(:empty?) && value.empty?)
+      # Returns +true+ if the object represents the PDF null object.
+      def null?
+        value.nil?
       end
 
       # :call-seq:

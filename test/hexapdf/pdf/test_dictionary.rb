@@ -260,4 +260,11 @@ describe HexaPDF::PDF::Dictionary do
       assert_equal(:Unknown, @dict.type)
     end
   end
+
+  describe "empty?" do
+    it "returns true if the dictionary contains no entries" do
+      assert(HexaPDF::PDF::Dictionary.new({}).empty?)
+      refute(HexaPDF::PDF::Dictionary.new(x: 5).empty?)
+    end
+  end
 end

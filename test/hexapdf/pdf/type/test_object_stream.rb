@@ -24,7 +24,7 @@ describe HexaPDF::PDF::Type::ObjectStream do
   before do
     @doc = Object.new
     def (@doc).trailer
-      {Encrypt: HexaPDF::PDF::Object.new({}, oid: 9)}
+      @trailer ||= {Encrypt: HexaPDF::PDF::Object.new({}, oid: 9)}
     end
     @obj = HexaPDF::PDF::Type::ObjectStream.new({}, document: @doc)
   end

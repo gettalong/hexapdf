@@ -56,7 +56,7 @@ module HexaPDF
           oid = 1
           xref_stream = false
           doc.revisions[0].each do |obj|
-            next if obj.empty? || unused.include?(obj) || (xref_stream && obj.type == :XRef) ||
+            next if obj.null? || unused.include?(obj) || (xref_stream && obj.type == :XRef) ||
               (obj.type == :ObjStm && object_streams != :preserve)
 
             xref_stream = true if obj.type == :XRef
