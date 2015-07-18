@@ -326,6 +326,7 @@ EOF
       assert_kind_of(@myclass, @doc.wrap(Type: :MyClass))
       assert_kind_of(@myclass2, @doc.wrap(Subtype: :TheSecond))
       assert_kind_of(@myclass2, @doc.wrap(Type: :MyClass, Subtype: :TheSecond))
+      assert_kind_of(@myclass, @doc.wrap(Type: :MyClass, Subtype: :TheThird))
     end
 
     it "respects the given type/subtype arguments" do

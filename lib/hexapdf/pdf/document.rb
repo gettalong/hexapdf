@@ -228,9 +228,16 @@ module HexaPDF
       # of the +type+ and +subtype+ options as well as on the 'object.type_map' and
       # 'object.subtype_map' global configuration options:
       #
-      # * If *only* +type+ is provided and a mapping is found, the resulting class object is used.
-      # * Otherwise if only +subtype+ or both arguments are provided and a mapping for +subtype+ is
-      #   found, the resulting class object is used.
+      # * If *only* +type+ or +subtype+ is provided and a mapping is found, the resulting class is
+      #   used.
+      #
+      # * If both +type+ and +subtype+ are provided and and a mapping for +subtype+ is found, the
+      #   resulting class is used. If no mapping is found but there is a mapping for +type+, the
+      #   mapped class is used.
+      #
+      # * If there is no valid class after the above steps, HexaPDF::PDF::Stream is used if a stream
+      #   is given, HexaPDF::PDF::Dictionary is used if the given objecct is a hash or else
+      #   HexaPDF::PDF::Object is used.
       #
       # Options:
       #
@@ -276,7 +283,8 @@ module HexaPDF
 
           if subtype
             klass = GlobalConfiguration.constantize('object.subtype_map'.freeze, subtype)
-          else
+          end
+          if type && !klass
             klass = GlobalConfiguration.constantize('object.type_map'.freeze, type)
           end
           klass ||= default
