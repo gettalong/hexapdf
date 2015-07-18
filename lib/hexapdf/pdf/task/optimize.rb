@@ -1,6 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 require 'set'
+require 'hexapdf/pdf/serializer'
+require 'hexapdf/pdf/content/processor'
 
 module HexaPDF
   module PDF
@@ -25,7 +27,12 @@ module HexaPDF
         #   Specifies if and how object streams should be used: For :preserve, existing object
         #   streams are preserved; for :generate objects are packed into object streams as much as
         #   possible; and for :delete existing object streams are deleted.
-        def self.call(doc, compact: false, object_streams: :preserve)
+        #
+        # compress_pages::
+        #   Compresses the content streams of all pages if set to +true+. Note that this can take a
+        #   *very* long time because each content stream has to be unfiltered, parsed, serialized
+        #   and then filtered again.
+        def self.call(doc, compact: false, object_streams: :preserve, compress_pages: false)
           if compact
             compact(doc, object_streams, &method(:delete_fields_with_defaults))
           elsif object_streams != :preserve
@@ -33,6 +40,8 @@ module HexaPDF
           else
             doc.each(current: false, &method(:delete_fields_with_defaults))
           end
+
+          compress_pages(doc) if compress_pages
         end
 
         # Compacts the document by merging all revisions into one, deleting null and unused entries
@@ -115,6 +124,59 @@ module HexaPDF
               obj.delete(name)
             end
           end
+        end
+
+        # Compresses the contents of all pages by parsing and then serializing again. The HexaPDF
+        # serializer is already optimized for small output size so nothing else needs to be done.
+        def self.compress_pages(doc)
+          doc.pages.each_page do |page|
+            renderer = SerializationRenderer.new
+            page.process_contents(renderer) {|processor| processor.operators.clear}
+            page.contents = renderer.result
+            page[:Contents].set_filter(:FlateDecode)
+          end
+        end
+
+        # This renderer is used when compressing pages.
+        class SerializationRenderer
+
+          #:nodoc:
+          MESSAGE_TO_OPERATOR_MAP = Content::Processor::OPERATOR_MESSAGE_NAME_MAP.
+            each_with_object({}) {|(k, v), h| h[v] = k.to_s}
+
+          attr_reader :result #:nodoc:
+
+          def initialize #:nodoc:
+            @result = ''.b
+            @serializer = Serializer.new
+          end
+
+          def inline_image(dict, data) #:nodoc:
+            @result << "BI\n".freeze
+            dict.each do |k, v|
+              @result << @serializer.serialize(k)
+              @result << ' '.freeze
+              @result << @serializer.serialize(v)
+              @result << ' '.freeze
+            end
+            @result << "ID ".freeze
+            @result << data
+            @result << "EI\n"
+          end
+
+          def serialize(*operands) #:nodoc:
+            operands.each do |operand|
+              @result << @serializer.serialize(operand)
+              @result << " ".freeze unless Serializer::BYTE_IS_DELIMITER[@result.getbyte(-1)]
+            end
+            @result << MESSAGE_TO_OPERATOR_MAP[__callee__] << "\n".freeze
+          end
+
+          MESSAGE_TO_OPERATOR_MAP.each do |msg, _op|
+            next if msg == :inline_image
+            alias_method msg, :serialize
+          end
+
         end
 
       end
