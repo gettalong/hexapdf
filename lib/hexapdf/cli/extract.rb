@@ -18,7 +18,7 @@ module HexaPDF
           the available files are listed with their names and indices. The --indices option can then
           be used to extract one or more files.
         EOF
-        options.on("--password PASSOWRD", "-p", String, "The password for decryption") do |pwd|
+        options.on("--password PASSWORD", "-p", String, "The password for decryption") do |pwd|
           @password = pwd
         end
         options.on("--indices a,b,c", "-i a,b,c", Array,
