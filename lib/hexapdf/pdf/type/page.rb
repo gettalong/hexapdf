@@ -1,11 +1,10 @@
 # -*- encoding: utf-8 -*-
 
-require 'stringio'
 require 'hexapdf/pdf/dictionary'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/type/page_tree_node'
+require 'hexapdf/pdf/content/parser'
 require 'hexapdf/pdf/content/processor'
-require 'hexapdf/pdf/tokenizer'
 
 module HexaPDF
   module PDF
@@ -161,16 +160,7 @@ module HexaPDF
           self[:Resources] = {} if self[:Resources].nil?
           processor = Content::Processor.new(self[:Resources], renderer: renderer)
           yield(processor) if block_given?
-          tokenizer = Tokenizer.new(StringIO.new(contents))
-          params = []
-          while (obj = tokenizer.next_object(allow_keyword: true)) != Tokenizer::NO_MORE_TOKENS
-            if obj.kind_of?(Tokenizer::Token)
-              processor.process(obj.to_sym, params)
-              params.clear
-            else
-              params << obj
-            end
-          end
+          Content::Parser.parse(contents, processor)
         end
 
         private

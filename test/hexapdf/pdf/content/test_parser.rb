@@ -1,0 +1,58 @@
+# -*- encoding: utf-8 -*-
+
+require 'test_helper'
+require 'hexapdf/pdf/content/parser'
+require 'hexapdf/pdf/content/processor'
+
+describe HexaPDF::PDF::Content::Parser do
+  before do
+    @recorder = TestHelper::OperatorRecorder.new
+    @processor = HexaPDF::PDF::Content::Processor.new({}, renderer: @recorder)
+    @processor.operators.clear
+    @parser = HexaPDF::PDF::Content::Parser.new
+  end
+
+  describe "parse" do
+    it "parses a simple content stream without inline images" do
+      @parser.parse("0 0.500 m q Q /Name SCN", @processor)
+      assert_equal([[:begin_subpath, [0, 0.5]], [:save_graphics_state, []],
+                    [:restore_graphics_state, []],
+                    [:set_stroking_color, [:Name]]], @recorder.operations)
+    end
+
+    it "parses a content stream with inline images" do
+      @parser.parse("q BI /Name 0.5/Other 1 ID some dataEI Q", @processor)
+      assert_equal([[:save_graphics_state, []],
+                    [:inline_image, [{Name: 0.5, Other: 1}, "some data"]],
+                    [:restore_graphics_state, []]], @recorder.operations)
+    end
+
+    it "fails parsing inline images if the dictionary keys are not PDF names" do
+      exp = assert_raises(HexaPDF::Error) do
+        @parser.parse("q BI /Name 0.5 Other 1 ID some dataEI Q", @processor)
+      end
+      assert_match(/keys.*PDF name/, exp.message)
+    end
+
+    it "fails parsing inline images when trying to read a dict key and EOS is encountered" do
+      exp = assert_raises(HexaPDF::Error) do
+        @parser.parse("q BI /Name 0.5", @processor)
+      end
+      assert_match(/EOS.*dictionary key/, exp.message)
+    end
+
+    it "fails parsing inline images when trying to read a dict value and EOS is encountered" do
+      exp = assert_raises(HexaPDF::Error) do
+        @parser.parse("q BI /Name 0.5 /Other", @processor)
+      end
+      assert_match(/EOS.*dictionary value/, exp.message)
+    end
+
+    it "fails parsing inline images if the EI is not found" do
+      exp = assert_raises(HexaPDF::Error) do
+        @parser.parse("q BI /Name 0.5 /Other 1 ID test", @processor)
+      end
+      assert_match(/EI not found/, exp.message)
+    end
+  end
+end

@@ -36,6 +36,10 @@ module HexaPDF
       # Each PDF operator name is mapped to a nicer message name via the OPERATOR_MESSAGE_NAME_MAP
       # constant. For example, the operator 'q' is mapped to 'save_graphics_state".
       #
+      # For inline images only the 'BI' operator mapped to 'inline_image' is used. Although also the
+      # operators 'ID' and 'EI' exist for inline images, they are not used because they are consumed
+      # while parsing inline images and do not reflect separate operators.
+      #
       # When the processor encounters an operator and the renderer responds to the equivalent
       # message, the renderer is sent the message with the operands as method arguments.
       #
@@ -107,9 +111,7 @@ module HexaPDF
           d0: :set_glyph_width, # only for Type 3 fonts
           d1: :set_glyph_width_and_bounding_box, # only for Type 3 fonts
           sh: :paint_shading,
-          BI: :begin_inline_image,
-          ID: :begin_inline_image_data,
-          EI: :end_inline_image,
+          BI: :inline_image, # ID and EI are not sent because the complete image has been read
           Do: :paint_xobject,
           MP: :designate_marked_content_point,
           DP: :designate_marked_content_point_with_property_list,
