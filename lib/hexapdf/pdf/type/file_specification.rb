@@ -143,19 +143,11 @@ module HexaPDF
           unembed
           self.path = name
 
-          ef_stream = (self[:EF] ||= {})[:F] = document.add({}, type: :EmbeddedFile)
           stat = File.stat(filename)
+          ef_stream = (self[:EF] ||= {})[:F] = document.add({}, type: :EmbeddedFile)
           ef_stream[:Params] = {Size: stat.size, CreationDate: stat.ctime, ModDate: stat.mtime}
           ef_stream.set_filter(filter)
-          fiber_proc = proc do
-            File.open(filename, 'rb') do |file|
-              io_fiber = Filter.source_from_io(file, chunk_size: config['io.chunk_size'])
-              while io_fiber.alive? && (io_data = io_fiber.resume)
-                Fiber.yield(io_data)
-              end
-            end
-          end
-          ef_stream.stream = HexaPDF::PDF::StreamData.new(fiber_proc, length: stat.size)
+          ef_stream.stream = HexaPDF::PDF::StreamData.new(filename)
 
           if register
             (document.catalog[:Names] ||= {})[:EmbeddedFiles] = {}
