@@ -3,6 +3,7 @@
 require 'test_helper'
 require 'hexapdf/pdf/filter'
 require 'stringio'
+require 'tempfile'
 
 describe HexaPDF::PDF::Filter do
   include TestHelper
@@ -54,6 +55,35 @@ describe HexaPDF::PDF::Filter do
     it "fails if not all requested bytes could be read" do
       assert_raises(HexaPDF::Error) do
         collector(HexaPDF::PDF::Filter.source_from_io(@io, length: 200))
+      end
+    end
+  end
+
+  describe "source_from_file" do
+    before do
+      @file = Tempfile.new('hexapdf-filter')
+      @file.write(@str)
+      @file.close
+    end
+
+    after do
+      @file.unlink
+    end
+
+    it "converts the file into a source fiber" do
+      assert_equal(@str, collector(HexaPDF::PDF::Filter.source_from_file(@file.path)))
+      assert_equal(@file.size, HexaPDF::PDF::Filter.source_from_file(@file.path).length)
+
+      assert_equal(@str[100..-1], collector(HexaPDF::PDF::Filter.source_from_file(@file.path, pos: 100)))
+      assert_equal(@str[100..-1].length, HexaPDF::PDF::Filter.source_from_file(@file.path, pos: 100).length)
+
+      assert_equal(@str[50...100], collector(HexaPDF::PDF::Filter.source_from_file(@file.path, pos: 50, length: 50)))
+      assert_equal(50, HexaPDF::PDF::Filter.source_from_file(@file.path, length: 50).length)
+    end
+
+    it "fails if more bytes are requested than stored in the file" do
+      assert_raises(HexaPDF::Error) do
+        collector(HexaPDF::PDF::Filter.source_from_file(@file.path, length: 200))
       end
     end
   end

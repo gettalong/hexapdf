@@ -110,6 +110,25 @@ module HexaPDF
         end
       end
 
+      # Returns a Fiber that can be used as a source for decoders/encoders and that reads chunks
+      # from a file.
+      #
+      # Note that there will be a problem if the size of the file changes between the invocation of
+      # this method and the actual consumption of the file!
+      #
+      # See ::source_from_io for a description of the available options.
+      def self.source_from_file(filename, pos: 0, length: -1, chunk_size: 0)
+        fib_length = (length < 0 ? File.stat(filename).size - pos : length)
+        FiberWithLength.new(fib_length) do
+          File.open(filename, 'rb') do |file|
+            source = source_from_io(file, pos: pos, length: length, chunk_size: chunk_size)
+            while source.alive? && (io_data = source.resume)
+              Fiber.yield(io_data)
+            end
+          end
+        end
+      end
+
       # Returns the concatenated string chunks retrieved by resuming the given source Fiber until it
       # is dead.
       #
