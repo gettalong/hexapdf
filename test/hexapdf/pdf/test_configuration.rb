@@ -54,6 +54,10 @@ describe HexaPDF::PDF::Configuration do
       @config['test'] = {'test' => 'HexaPDF', 'const' => HexaPDF}
       assert_equal(HexaPDF, @config.constantize('test', 'test'))
       assert_equal(HexaPDF, @config.constantize('test', 'const'))
+
+      @config['test'] = ['HexaPDF', HexaPDF]
+      assert_equal(HexaPDF, @config.constantize('test', 0))
+      assert_equal(HexaPDF, @config.constantize('test', 1))
     end
 
     it "returns nil for an unknown option" do
