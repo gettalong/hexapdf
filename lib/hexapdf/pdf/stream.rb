@@ -7,14 +7,15 @@ require 'hexapdf/pdf/filter'
 module HexaPDF
   module PDF
 
-    # Container for stream data from an existing PDF.
+    # Container for stream data that is more complex than a string.
     #
-    # This helper class wraps all information necessary to read the stream data by using a Fiber
-    # object (see Filter). The underlying data either comes from an IO object or a Fiber defined via
-    # a Proc object.
+    # This helper class wraps all information necessary to read stream data by using a Fiber object
+    # (see Filter). The underlying data either comes from an IO object, a file represented by its
+    # file name or a Fiber defined via a Proc object.
     #
-    # The +filter+ and +decode_parms+ are automatically normalized to arrays on assignment to ease
-    # further processing.
+    # Additionally, the #filter and #decode_parms can be set to indicate that the data returned from
+    # the Fiber needs to be post-processed. The +filter+ and +decode_parms+ are automatically
+    # normalized to arrays on assignment to ease further processing.
     class StreamData
 
       # The filter(s) that need to be applied for getting the decoded stream data.
@@ -25,9 +26,15 @@ module HexaPDF
 
       # Creates a new StreamData object for the given +source+ and with the given options.
       #
-      # The +source+ can either be an IO stream which is read starting from a specific +offset+ for
-      # a specific +length+, or a Proc object (that is converted to a Fiber when needed) in which
-      # case the +offset+ and +length+ values are ignored.
+      # The +source+ can be:
+      #
+      # * An IO stream which is read starting from a specific +offset+ for a specific +length+
+      #
+      # * A string which is interpreted as a file name and read starting from a specific +offset+
+      # * and for a specific +length+
+      #
+      # * A Proc object (that is converted to a Fiber when needed) in which case the +offset+ and
+      #   +length+ values are ignored.
       def initialize(source, offset: nil, length: nil, filter: nil, decode_parms: nil)
         @source = source
         @offset = offset
@@ -41,6 +48,9 @@ module HexaPDF
       def fiber(chunk_size = 0)
         if @source.kind_of?(Proc)
           FiberWithLength.new(@length, &@source)
+        elsif @source.kind_of?(String)
+          HexaPDF::PDF::Filter.source_from_file(@source, pos: @offset || 0, length: @length || -1,
+                                                chunk_size: chunk_size)
         else
           HexaPDF::PDF::Filter.source_from_io(@source, pos: @offset || 0, length: @length || -1,
                                               chunk_size: chunk_size)

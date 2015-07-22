@@ -3,6 +3,7 @@
 require 'test_helper'
 require 'ostruct'
 require 'stringio'
+require 'tempfile'
 require 'hexapdf/pdf/configuration'
 require 'hexapdf/pdf/stream'
 
@@ -35,6 +36,18 @@ describe HexaPDF::PDF::StreamData do
     it "returns a fiber for an IO source" do
       s = HexaPDF::PDF::StreamData.new(StringIO.new('source'))
       assert_equal('source', s.fiber.resume)
+    end
+
+    it "returns a fiber for a string representing a file name" do
+      begin
+        file = Tempfile.new('hexapdf-stream')
+        file.write('source')
+        file.close
+        s = HexaPDF::PDF::StreamData.new(file.path)
+        assert_equal('source', s.fiber.resume)
+      ensure
+        file.unlink
+      end
     end
   end
 end
