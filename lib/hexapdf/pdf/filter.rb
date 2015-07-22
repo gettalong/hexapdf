@@ -91,7 +91,7 @@ module HexaPDF
       #               change between versions!). Default: 0.
       def self.source_from_io(io, pos: 0, length: -1, chunk_size: 0)
         orig_length = length
-        chunk_size = 2**32 if chunk_size <= 0
+        chunk_size = 2**20 if chunk_size <= 0
         chunk_size = length if length >= 0 && chunk_size > length
         length = 2**61 if length < 0
         pos = 0 if pos < 0
