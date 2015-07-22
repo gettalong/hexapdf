@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'fiber'
+require 'hexapdf/error'
 
 module HexaPDF
   module PDF
@@ -82,9 +83,9 @@ module HexaPDF
       # :pos:: The position from where the reading should start. A negative position is treated as
       #        zero. Default: 0.
       #
-      # :length:: The length indicating the number of bytes to read at most (less if EOF is
-      #           reached). A negative length means reading until the end of the IO stream. Default:
-      #           -1.
+      # :length:: The length indicating the number of bytes to read. An error is raised if not all
+      #           specified bytes could be read. A negative length means reading until the end of
+      #           the IO stream. Default: -1.
       #
       # :chunk_size:: The size of the chunks that should be returned in each iteration. A chunk size
       #               of less than or equal to 0 means using the biggest chunk size available (can
@@ -102,6 +103,9 @@ module HexaPDF
             length -= data.size
             chunk_size = length if chunk_size > length
             Fiber.yield(data)
+          end
+          if length > 0 && orig_length >= 0
+            raise HexaPDF::Error, "Couldn't read all requested bytes before encountering EOF"
           end
         end
       end
