@@ -12,6 +12,7 @@ require 'hexapdf/pdf/task'
 require 'hexapdf/pdf/encryption'
 require 'hexapdf/pdf/writer'
 require 'hexapdf/pdf/importer'
+require 'hexapdf/pdf/image_loader'
 
 module HexaPDF
   module PDF

@@ -162,6 +162,15 @@ module HexaPDF
     #
     #    See PDF1.7 s7.4.1, ADB sH.3 3.3
     #
+    # image_loader::
+    #    An array with image loader implementations. When an image should be loaded, the array is
+    #    iterated in sequence to find a suitable image loader.
+    #
+    #    If a value is a String, it should contain the name of a constant that is an image loader
+    #    object.
+    #
+    #    See the ImageLoader module for information on how to implement an image loader object.
+    #
     # object.type_map::
     #    A mapping from a PDF name (a Symbol) to PDF object classes which is based on the /Type
     #    field. If the value is a String, it should contain the name of a constant that contains a
@@ -206,6 +215,9 @@ module HexaPDF
                           Crypt: nil,
                           Encryption: 'HexaPDF::PDF::Filter::Encryption',
                         },
+                        'image_loader' => [
+                          'HexaPDF::PDF::ImageLoader::JPEG',
+                        ],
                         'object.type_map' => {
                           XRef: 'HexaPDF::PDF::Type::XRefStream',
                           ObjStm: 'HexaPDF::PDF::Type::ObjectStream',
