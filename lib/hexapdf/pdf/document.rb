@@ -13,6 +13,7 @@ require 'hexapdf/pdf/encryption'
 require 'hexapdf/pdf/writer'
 require 'hexapdf/pdf/importer'
 require 'hexapdf/pdf/image_loader'
+require 'hexapdf/pdf/document_utils'
 
 module HexaPDF
   module PDF
@@ -355,6 +356,12 @@ module HexaPDF
           end
         end
         self
+      end
+
+      # Returns a DocumentUtils object that provides convenience methods for often used
+      # functionality like adding images.
+      def utils
+        @utils ||= DocumentUtils.new(self)
       end
 
       # Executes the given task and returns its result.
