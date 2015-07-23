@@ -233,6 +233,7 @@ module HexaPDF
                           ExtGState: 'HexaPDF::PDF::Type::GraphicsStateParameter',
                         },
                         'object.subtype_map' => {
+                          Image: 'HexaPDF::PDF::Type::Image',
                         },
                         'task.map' => {
                           set_min_pdf_version: 'HexaPDF::PDF::Task::SetMinPDFVersion',
