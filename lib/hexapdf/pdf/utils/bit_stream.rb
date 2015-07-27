@@ -27,6 +27,11 @@ module HexaPDF
           @pos = 0
         end
 
+        # Returns the number of remaining bits that can be read.
+        def remaining_bits
+          (@data.length - @pos) * 8 + @available_bits
+        end
+
         # Returns +true+ if +bits+ number of bits can be read.
         def read?(bits)
           fill_bit_cache

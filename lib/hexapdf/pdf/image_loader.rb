@@ -30,6 +30,7 @@ module HexaPDF
     module ImageLoader
 
       autoload(:JPEG, 'hexapdf/pdf/image_loader/jpeg')
+      autoload(:PNG, 'hexapdf/pdf/image_loader/png')
 
     end
 

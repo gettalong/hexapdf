@@ -217,6 +217,7 @@ module HexaPDF
                         },
                         'image_loader' => [
                           'HexaPDF::PDF::ImageLoader::JPEG',
+                          'HexaPDF::PDF::ImageLoader::PNG',
                         ],
                         'object.type_map' => {
                           XRef: 'HexaPDF::PDF::Type::XRefStream',
