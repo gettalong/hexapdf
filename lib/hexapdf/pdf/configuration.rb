@@ -154,6 +154,10 @@ module HexaPDF
     #    The sub filter map is used when the security handler defined by the encryption dictionary
     #    is not available, but a compatible implementation is.
     #
+    # filter.flate_compression::
+    #    Specifies the compression level that should be used with the FlateDecode filter. The level
+    #    can range from 0 (no compression), 1 (best speed) to 9 (best compression, default).
+    #
     # filter.map::
     #    A mapping from a PDF name (a Symbol) to a filter object (see Filter). If the value is a
     #    String, it should contain the name of a constant that contains a filter object.
@@ -195,6 +199,7 @@ module HexaPDF
                         },
                         'encryption.sub_filter_map' => {
                         },
+                        'filter.flate_compression' => 9,
                         'filter.map' => {
                           ASCIIHexDecode: 'HexaPDF::PDF::Filter::ASCIIHexDecode',
                           AHx: 'HexaPDF::PDF::Filter::ASCIIHexDecode',

@@ -3,6 +3,7 @@
 require 'fiber'
 require 'zlib'
 require 'hexapdf/pdf/filter/predictor'
+require 'hexapdf/pdf/configuration'
 require 'hexapdf/error'
 
 module HexaPDF
@@ -47,7 +48,7 @@ module HexaPDF
           end
 
           Fiber.new do
-            deflater = Zlib::Deflate.new(Zlib::BEST_COMPRESSION)
+            deflater = Zlib::Deflate.new(GlobalConfiguration['filter.flate_compression'])
             while source.alive? && (data = source.resume)
               data = deflater.deflate(data)
               Fiber.yield(data)
