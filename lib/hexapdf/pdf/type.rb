@@ -25,6 +25,7 @@ module HexaPDF
       autoload(:Resources, 'hexapdf/pdf/type/resources')
       autoload(:GraphicsStateParameter, 'hexapdf/pdf/type/graphics_state_parameter')
       autoload(:Image, 'hexapdf/pdf/type/image')
+      autoload(:Form, 'hexapdf/pdf/type/form')
 
     end
 

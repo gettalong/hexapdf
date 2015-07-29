@@ -240,6 +240,7 @@ module HexaPDF
                         },
                         'object.subtype_map' => {
                           Image: 'HexaPDF::PDF::Type::Image',
+                          Form: 'HexaPDF::PDF::Type::Form',
                         },
                         'task.map' => {
                           set_min_pdf_version: 'HexaPDF::PDF::Task::SetMinPDFVersion',
