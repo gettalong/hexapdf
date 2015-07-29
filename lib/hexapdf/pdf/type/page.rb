@@ -128,6 +128,45 @@ module HexaPDF
           end
         end
 
+        # Returns the rectangle defining a certain kind of box for the page.
+        #
+        # This method should be used instead of directly accessing any of /MediaBox, /CropBox,
+        # /BleedBox, /ArtBox or /TrimBox because it also takes the fallback values into account!
+        #
+        # The following types are allowed:
+        #
+        # :media::
+        #     The media box defines the boundaries of the medium the page is to be printed on.
+        #
+        # :crop::
+        #     The crop box defines the region to which the contents of the page should be clipped
+        #     when it is displayed or printed. The default is the media box.
+        #
+        # :bleed::
+        #     The bleed box defines the region to which the contents of the page should be clipped
+        #     when output in a production environment. The default is the crop box.
+        #
+        # :trim::
+        #     The trim box defines the intended dimensions of the page after trimming. The default
+        #     value is the crop box.
+        #
+        # :art::
+        #     The art box defines the region of page's meaningful content as intended by the author.
+        #     The default is the crop box.
+        #
+        # See: PDF1.7 s14.11.2
+        def box(type = :media)
+          case type
+          when :media then self[:MediaBox]
+          when :crop then self[:CropBox] || self[:MediaBox]
+          when :bleed then self[:BleedBox] || self[:CropBox] || self[:MediaBox]
+          when :trim then self[:TrimBox] || self[:CropBox] || self[:MediaBox]
+          when :art then self[:ArtBox] || self[:CropBox] || self[:MediaBox]
+          else
+            raise HexaPDF::Error, "Unknown kind of page box: #{type}"
+          end
+        end
+
         # Returns the concatenated stream data from the content streams as binary string.
         def contents
           Array(self[:Contents]).each_with_object("".b) do |content_stream, content|

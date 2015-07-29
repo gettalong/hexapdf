@@ -49,6 +49,41 @@ describe HexaPDF::PDF::Type::Page do
     end
   end
 
+  describe "box" do
+    before do
+      @page = @doc.pages.add_page
+    end
+
+    it "returns the correct media box" do
+      @page[:MediaBox] = :media
+      assert_equal(:media, @page.box(:media))
+    end
+
+    it "returns the correct crop box" do
+      @page[:MediaBox] = :media
+      assert_equal(:media, @page.box(:crop))
+      @page[:CropBox] = :crop
+      assert_equal(:crop, @page.box(:crop))
+    end
+
+    it "returns the correct bleed, trim and art boxes" do
+      @page[:CropBox] = :crop
+      assert_equal(:crop, @page.box(:bleed))
+      assert_equal(:crop, @page.box(:trim))
+      assert_equal(:crop, @page.box(:art))
+      @page[:BleedBox] = :bleed
+      @page[:TrimBox] = :trim
+      @page[:ArtBox] = :art
+      assert_equal(:bleed, @page.box(:bleed))
+      assert_equal(:trim, @page.box(:trim))
+      assert_equal(:art, @page.box(:art))
+    end
+
+    it "fails if an unknown box type is supplied" do
+      assert_raises(HexaPDF::Error) { @page.box(:undefined) }
+    end
+  end
+
   describe "contents" do
     it "returns the contents of a single content stream" do
       page = @doc.pages.add_page
