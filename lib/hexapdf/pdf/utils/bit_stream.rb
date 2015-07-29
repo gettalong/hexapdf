@@ -97,7 +97,7 @@ module HexaPDF
           @bit_cache |= int << (32 - @available_bits)
           if @available_bits >= 16
             @available_bits -= 16
-            result = [@bit_cache >> 16].pack('n'.freeze)
+            result = (@bit_cache >> 24).chr << ((@bit_cache >> 16) & 0xFF).chr
             @bit_cache = (@bit_cache & 0xFFFF) << 16
             result
           else

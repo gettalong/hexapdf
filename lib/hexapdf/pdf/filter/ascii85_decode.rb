@@ -16,17 +16,17 @@ module HexaPDF
       module ASCII85Decode
 
         VALUE_TO_CHAR = {} #:nodoc:
-        CHAR_TO_VALUE = {} #:nodoc:
         (0..84).each do |i|
           VALUE_TO_CHAR[i] = (i + 33).chr
-          CHAR_TO_VALUE[VALUE_TO_CHAR[i]] = i
         end
 
         POW85_1 = 85    #:nodoc:
         POW85_2 = 85**2 #:nodoc:
         POW85_3 = 85**3 #:nodoc:
         POW85_4 = 85**4 #:nodoc:
+
         MAX_VALUE = 0xffffffff  #:nodoc:
+        FIXED_SUBTRAHEND = 33 * (POW85_4 + POW85_3 + POW85_2 + POW85_1 + 1) #:nodoc:
 
         # See HexaPDF::PDF::Filter
         def self.decoder(source, _ = nil)
@@ -49,9 +49,9 @@ module HexaPDF
               scanner = StringScanner.new(data)
               until scanner.eos?
                 if (m = scanner.scan(/[!-u]{5}/))
-                  num = (CHAR_TO_VALUE[m[0]] * POW85_4 + CHAR_TO_VALUE[m[1]] * POW85_3 +
-                         CHAR_TO_VALUE[m[2]] * POW85_2 + CHAR_TO_VALUE[m[3]] * POW85_1 +
-                         CHAR_TO_VALUE[m[4]])
+                  num = (m.getbyte(0) * POW85_4 + m.getbyte(1) * POW85_3 +
+                         m.getbyte(2) * POW85_2 + m.getbyte(3) * POW85_1 +
+                         m.getbyte(4)) - FIXED_SUBTRAHEND
                   if num > MAX_VALUE
                     raise HexaPDF::MalformedPDFError, "Value outside range in ASCII85 stream"
                   end
@@ -76,9 +76,9 @@ module HexaPDF
 
               rlen = rest.length
               rest << "u" * (5 - rlen)
-              num = (CHAR_TO_VALUE[rest[0]] * POW85_4 + CHAR_TO_VALUE[rest[1]] * POW85_3 +
-                     CHAR_TO_VALUE[rest[2]] * POW85_2 + CHAR_TO_VALUE[rest[3]] * POW85_1 +
-                     CHAR_TO_VALUE[rest[4]])
+              num = (rest.getbyte(0) * POW85_4 + rest.getbyte(1) * POW85_3 +
+                     rest.getbyte(2) * POW85_2 + rest.getbyte(3) * POW85_1 +
+                     rest.getbyte(4)) - FIXED_SUBTRAHEND
               if num > MAX_VALUE
                 raise HexaPDF::MalformedPDFError, "Value outside base-85 range in ASCII85 stream"
               end
