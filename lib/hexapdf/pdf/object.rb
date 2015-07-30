@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
+require 'hexapdf/pdf/reference'
 
 module HexaPDF
   module PDF
@@ -61,6 +62,9 @@ module HexaPDF
 
       include Comparable
 
+      # A list of classes whose objects cannot be duplicated.
+      NOT_DUPLICATABLE_CLASSES = [NilClass, FalseClass, TrueClass, Symbol, Integer, Float]
+
       # :call-seq:
       #   define_validator(method_name)
       #   define_validator {|obj, &callback| block }
@@ -118,6 +122,27 @@ module HexaPDF
       # overrides any value set via #must_be_indirect=.
       def self.must_be_indirect
         define_method(:must_be_indirect?) { true }
+      end
+
+      # :call-seq:
+      #   HexaPDF::PDF::Object.deep_copy(object)    -> copy
+      #
+      # Creates a deep copy of the given object which retains the references to indirect objects.
+      def self.deep_copy(object)
+        case object
+        when Hash
+          object.each_with_object({}) {|(key, val), memo| memo[key] = deep_copy(val)}
+        when Array
+          object.map {|o| deep_copy(o)}
+        when HexaPDF::PDF::Object
+          (object.indirect? ? object : deep_copy(object.value))
+        when HexaPDF::PDF::Reference
+          object
+        when *NOT_DUPLICATABLE_CLASSES
+          object
+        else
+          object.dup
+        end
       end
 
       define_validator(:validate_basic_object)
@@ -260,6 +285,17 @@ module HexaPDF
         end
       end
 
+      # Makes a deep copy of the source PDF object and resets the object identifier.
+      def deep_copy
+        obj = dup
+        obj.instance_variable_set(:@data, @data.dup)
+        obj.data.oid = 0
+        obj.data.gen = 0
+        obj.data.stream = @data.stream.dup if @data.stream.kind_of?(String)
+        obj.data.value = self.class.deep_copy(@data.value)
+        obj
+      end
+
       # Compares this object to another object.
       #
       # If the other object does not respond to +oid+ or +gen+, +nil+ is returned. Otherwise objects
@@ -269,7 +305,7 @@ module HexaPDF
         (oid == other.oid ? gen <=> other.gen : oid <=> other.oid)
       end
 
-      # Returns +true+ if the other object is a Object and wraps the same #data structure.
+      # Returns +true+ if the other object is an Object and wraps the same #data structure.
       def ==(other)
         other.kind_of?(Object) && data == other.data
       end

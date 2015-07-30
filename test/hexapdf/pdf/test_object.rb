@@ -5,6 +5,49 @@ require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/reference'
 
 describe HexaPDF::PDF::Object do
+  describe "class.deep_copy" do
+    it "handles not-duplicatable classes" do
+      assert_equal(5, HexaPDF::PDF::Object.deep_copy(5))
+      assert_equal(5.5, HexaPDF::PDF::Object.deep_copy(5.5))
+      assert_equal(nil, HexaPDF::PDF::Object.deep_copy(nil))
+      assert_equal(true, HexaPDF::PDF::Object.deep_copy(true))
+      assert_equal(false, HexaPDF::PDF::Object.deep_copy(false))
+      assert_equal(:Name, HexaPDF::PDF::Object.deep_copy(:Name))
+    end
+
+    it "handles general, duplicatable classes" do
+      x = "test"
+      assert_equal("test", HexaPDF::PDF::Object.deep_copy(x))
+      refute_same(x, HexaPDF::PDF::Object.deep_copy(x))
+    end
+
+    it "handles arrays" do
+      x = [5, 6, [1, 2, 3]]
+      y = HexaPDF::PDF::Object.deep_copy(x)
+      x[2][0] = 4
+      assert_equal([5, 6, [1, 2, 3]], y)
+    end
+
+    it "handles hashes" do
+      x = {a: 5, b: 6, c: {a: 1, b: 2}}
+      y = HexaPDF::PDF::Object.deep_copy(x)
+      x[:c][:a] = 4
+      assert_equal({a: 5, b: 6, c: {a: 1, b: 2}}, y)
+    end
+
+    it "handles PDF references" do
+      x = HexaPDF::PDF::Reference.new(1, 2)
+      assert_same(x, HexaPDF::PDF::Object.deep_copy(x))
+    end
+
+    it "handles PDF objects" do
+      x = HexaPDF::PDF::Object.new("test")
+      assert_equal("test", HexaPDF::PDF::Object.deep_copy(x))
+      x.oid = 1
+      assert_same(x, HexaPDF::PDF::Object.deep_copy(x))
+    end
+  end
+
   describe "initialize" do
     it "uses a simple value as is" do
       obj = HexaPDF::PDF::Object.new(5)
@@ -150,6 +193,16 @@ describe HexaPDF::PDF::Object do
     b = HexaPDF::PDF::Object.new(:data, oid: 1, gen: 1)
     c = HexaPDF::PDF::Reference.new(5, 7)
     assert_equal([a, b, c], [b, c, a].sort)
+  end
+
+  describe "deep_copy" do
+    it "creates an independent object" do
+      obj = HexaPDF::PDF::Object.new(a: "mystring", b: HexaPDF::PDF::Reference.new(1, 0), c: 5)
+      copy = obj.deep_copy
+      refute_equal(copy, obj)
+      assert_equal(copy.value, obj.value)
+      refute_same(copy.value[:a], obj.value[:a])
+    end
   end
 
   it "validates that the object is indirect if it must be indirect" do

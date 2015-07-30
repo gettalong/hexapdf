@@ -2,6 +2,7 @@
 
 require 'time'
 require 'date'
+require 'hexapdf/pdf/object'
 require 'hexapdf/pdf/configuration'
 require 'hexapdf/pdf/utils/pdf_doc_encoding'
 
@@ -117,12 +118,9 @@ module HexaPDF
           duplicatable_default? ? @default.dup : @default
         end
 
-        # A list of classes whose objects cannot be duplicated
-        NOT_DUPLICATABLE_CLASSES = [NilClass, FalseClass, TrueClass, Symbol, Integer, Fixnum, Float]
-
         # Returns +true+ if the default value can safely be duplicated with #dup.
         def duplicatable_default?
-          @cached_dupdefault ||= NOT_DUPLICATABLE_CLASSES.none? do |klass|
+          @cached_dupdefault ||= HexaPDF::PDF::Object::NOT_DUPLICATABLE_CLASSES.none? do |klass|
             @default.kind_of?(klass)
           end
         end
