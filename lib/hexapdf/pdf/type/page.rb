@@ -168,6 +168,9 @@ module HexaPDF
         end
 
         # Returns the concatenated stream data from the content streams as binary string.
+        #
+        # Note: Any modifications done to the returned value *won't* be reflected in any of the
+        # stream's data!
         def contents
           Array(self[:Contents]).each_with_object("".b) do |content_stream, content|
             content << " ".freeze unless content.empty?
