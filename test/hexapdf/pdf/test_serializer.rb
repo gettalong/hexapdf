@@ -109,13 +109,12 @@ describe HexaPDF::PDF::Serializer do
       @doc = Object.new
       def (@doc).unwrap(obj); obj; end
       def (@doc).config; {chunk_size: 100}; end
-      @stream = HexaPDF::PDF::Stream.new({Key: "value", Length: 5}, document: @doc)
+      @stream = HexaPDF::PDF::Stream.new({Key: "value", Length: 5}, oid: 2, document: @doc)
     end
 
     it "serializes streams" do
       @stream.stream = "somedata"
       assert_serialized("<</Key(value)/Length 8>>stream\nsomedata\nendstream", @stream)
-      @stream.oid = 2
       assert_serialized("<</Name 2 0 R>>", HexaPDF::PDF::Object.new(Name: @stream))
     end
 
@@ -124,6 +123,12 @@ describe HexaPDF::PDF::Serializer do
       io = StringIO.new(''.b)
       @serializer.serialize_to_io(@stream, io)
       assert_equal("<</Key(value)/Length 6>>stream\nsome\nendstream", io.string)
+    end
+
+    it "fails if a stream without object identifier is serialized" do
+      @stream.oid = 0
+      assert_raises(HexaPDF::Error) { @serializer.serialize(@stream) }
+      assert_raises(HexaPDF::Error) { @serializer.serialize(Name: @stream) }
     end
   end
 end
