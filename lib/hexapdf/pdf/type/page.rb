@@ -205,6 +205,29 @@ module HexaPDF
           Content::Parser.parse(contents, processor)
         end
 
+        # Creates an independent Form XObject from the page's dictionary and contents for the given
+        # PDF document.
+        #
+        # Note: The created Form XObject is *not* added to the document automatically!
+        def to_form_xobject
+          first, *rest = self[:Contents]
+          stream = if !first
+                     nil
+                   elsif !rest.empty? || first.raw_stream.kind_of?(String)
+                     contents
+                   else
+                     first.raw_stream
+                   end
+          dict = {
+            Type: :XObject,
+            Subtype: :Form,
+            BBox: HexaPDF::PDF::Object.deep_copy(box(:crop)),
+            Resources: HexaPDF::PDF::Object.deep_copy(self[:Resources]),
+            Filter: :FlateDecode,
+          }
+          document.wrap(dict, stream: stream)
+        end
+
         private
 
         # Ensures that the required inheritable fields are set.

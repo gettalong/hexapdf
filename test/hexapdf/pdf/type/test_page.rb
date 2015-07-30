@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require 'stringio'
 require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/type/page'
 
@@ -130,6 +131,29 @@ describe HexaPDF::PDF::Type::Page do
       page.process_contents(renderer) {|processor| processor.operators.clear}
       assert_equal([[:save_graphics_state, []], [:set_line_width, [10]], [:restore_graphics_state, []]],
                    renderer.operations)
+    end
+  end
+
+  describe "to_form_xobject" do
+    it "creates an independent form xobject" do
+      page = @doc.pages.add_page
+      page.contents = "test"
+      form = page.to_form_xobject
+      refute(form.indirect?)
+      assert_equal(form.box, page.box)
+    end
+
+    it "works for pages without content" do
+      page = @doc.pages.add_page
+      form = page.to_form_xobject
+      assert_equal('', form.stream)
+    end
+
+    it "uses the raw stream data if possible to avoid unnecessary work" do
+      page = @doc.pages.add_page
+      page.contents = HexaPDF::PDF::StreamData.new(StringIO.new("test"))
+      form = page.to_form_xobject
+      assert_same(form.raw_stream, page[:Contents].raw_stream)
     end
   end
 end
