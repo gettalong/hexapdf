@@ -47,10 +47,11 @@ describe HexaPDF::PDF::Serializer do
   it "serializes floats with a precision of 4" do
     assert_serialized("1.5", 1.5)
     assert_serialized("-1.5", -1.5)
-    assert_serialized("9.1234", 9.1234)
-    assert_serialized("9.1235", 9.12345)
-    assert_serialized("0.0005", 0.00047)
-    assert_serialized("0.0", 0.0)
+    assert_serialized("9.123456", 9.123456)
+    assert_serialized("9.123457", 9.1234567)
+    assert_serialized("0.000005", 0.000005)
+    assert_serialized("-0.000005", -0.000005)
+    assert_serialized("0.000000", 0.0)
   end
 
   it "serializes symbols" do
