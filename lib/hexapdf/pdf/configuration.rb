@@ -95,6 +95,20 @@ module HexaPDF
     #
     # The following options are provided:
     #
+    # image_loader.pdf.use_stringio::
+    #    A boolean determining whether images specified via file names should be read into memory
+    #    all at once using a StringIO object.
+    #
+    #    Since loading a PDF as image entails having the IO object from the image PDF around until
+    #    the PDF document where it is used is written, there is the choice whether memory should be
+    #    used to load the image PDF all at once or whether a File object is used that needs to be
+    #    manually closed.
+    #
+    #    To avoid leaking file descriptors, using the StringIO is the default setting. If you set
+    #    this option to +false+, it is strongly advised to use +ObjectSpace.each_object(File)+ (or
+    #    +IO+ instead of +File) to traverse the list of open file descriptors and close the ones
+    #    that have been used for PDF images.
+    #
     # io.chunk_size::
     #    The size of the chunks that are used when reading IO data.
     #
@@ -117,7 +131,8 @@ module HexaPDF
     # sorted_tree.max_leaf_node_size::
     #    The maximum number of nodes that should be in a leaf node of a node tree.
     DefaultDocumentConfiguration =
-      Configuration.new('io.chunk_size' => 2**16,
+      Configuration.new('image_loader.pdf.use_stringio' => true,
+                        'io.chunk_size' => 2**16,
                         'page.default_media_box' => :A4,
                         'parser.on_correctable_error' => proc { false },
                         'sorted_tree.max_leaf_node_size' => 64)
@@ -223,6 +238,7 @@ module HexaPDF
                         'image_loader' => [
                           'HexaPDF::PDF::ImageLoader::JPEG',
                           'HexaPDF::PDF::ImageLoader::PNG',
+                          'HexaPDF::PDF::ImageLoader::PDF',
                         ],
                         'object.type_map' => {
                           XRef: 'HexaPDF::PDF::Type::XRefStream',
