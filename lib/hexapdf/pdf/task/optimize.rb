@@ -117,7 +117,7 @@ module HexaPDF
         # Deletes field entries of the object that are optional and currently set to their default
         # value.
         def self.delete_fields_with_defaults(obj)
-          return unless obj.kind_of?(HexaPDF::PDF::Dictionary)
+          return unless obj.kind_of?(HexaPDF::PDF::Dictionary) && !obj.null?
           obj.each do |name, value|
             if (field = obj.class.field(name)) && !field.required? && field.default? &&
                 value == field.default

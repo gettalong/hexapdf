@@ -94,21 +94,27 @@ describe HexaPDF::PDF::Revision do
   end
 
   describe "delete" do
+    before do
+      @rev.add(@obj)
+    end
+
     it "deletes objects specified by reference" do
-      ref = HexaPDF::PDF::Reference.new(3, 0)
-      @rev.delete(ref, mark_as_free: false)
-      refute(@rev.object?(ref))
+      @rev.delete(@ref, mark_as_free: false)
+      refute(@rev.object?(@ref))
+      assert(@obj.null?)
     end
 
     it "deletes objects specified by object number" do
-      @rev.delete(3, mark_as_free: false)
-      refute(@rev.object?(3))
+      @rev.delete(@ref.oid, mark_as_free: false)
+      refute(@rev.object?(@ref.oid))
+      assert(@obj.null?)
     end
 
     it "marks the object as PDF null object when using mark_as_free=true" do
-      assert(5000, @rev.object(2).value)
-      @rev.delete(2)
-      assert(@rev.object(2).null?)
+      refute(@obj.null?)
+      @rev.delete(@ref)
+      assert(@rev.object(@ref).null?)
+      assert(@obj.null?)
     end
   end
 

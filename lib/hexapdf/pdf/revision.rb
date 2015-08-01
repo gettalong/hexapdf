@@ -124,8 +124,9 @@ module HexaPDF
         return unless object?(ref_or_oid)
         ref_or_oid = ref_or_oid.oid if ref_or_oid.respond_to?(:oid)
 
+        obj = object(ref_or_oid)
+        obj.data.value = nil
         if mark_as_free
-          obj = object(ref_or_oid)
           add_without_check(HexaPDF::PDF::Object.new(nil, oid: obj.oid, gen: obj.gen))
         else
           @xref_section.delete(ref_or_oid)
