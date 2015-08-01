@@ -226,6 +226,19 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       assert_equal(@root, @kid2[:Parent])
     end
 
+    it "removes invalid objects from the page tree (like null objects)" do
+      define_multilevel_page_tree
+      assert(@root.validate(auto_correct: false) {|m, _| p m})
+
+      @doc.delete(@pages[3])
+      refute(@root.validate(auto_correct: false)) do |msg, _|
+        assert_match(/invalid object/i, msg)
+      end
+      assert(@root.validate)
+      assert_equal(2, @kid12[:Count])
+      assert_equal([@pages[2], @pages[4]], @kid12[:Kids])
+    end
+
     it "needs at least one page node" do
       refute(@root.validate(auto_correct: false))
       assert(@root.validate)

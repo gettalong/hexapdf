@@ -196,9 +196,13 @@ module HexaPDF
 
           validate_node = lambda do |node|
             count = 0
-            node[:Kids].each do |kid|
+            node[:Kids].reject! do |kid|
               kid = document.deref(kid)
-              if kid.type == :Page
+              if !kid.kind_of?(HexaPDF::PDF::Object) || kid.null? ||
+                  (kid.type != :Page && kid.type != :Pages)
+                yield("Invalid object in page tree node", true)
+                next true
+              elsif kid.type == :Page
                 count += 1
               else
                 count += validate_node.call(kid)
@@ -207,6 +211,7 @@ module HexaPDF
                 yield("Field Parent of page tree node (#{kid.oid},#{kid.gen}) is invalid", true)
                 kid[:Parent] = node
               end
+              false
             end
             if node[:Count] != count
               yield("Field Count of page tree node (#{node.oid},#{node.gen}) is invalid", true)
