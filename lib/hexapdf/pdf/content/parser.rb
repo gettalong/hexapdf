@@ -7,6 +7,97 @@ module HexaPDF
   module PDF
     module Content
 
+      # More efficient tokenizer for content streams. This tokenizer class works directly on a
+      # string and not on an IO.
+      #
+      # Note: Indirect object references are *not* supported by this tokenizer!
+      #
+      # See: PDF1.7 s7.2
+      class Tokenizer < HexaPDF::PDF::Tokenizer #:nodoc:
+
+        # Creates a new tokenizer.
+        def initialize(string)
+          @ss = StringScanner.new(string)
+        end
+
+        # See: HexaPDF::PDF::Tokenizer#pos
+        def pos
+          @ss.pos
+        end
+
+        # See: HexaPDF::PDF::Tokenizer#pos=
+        def pos=(pos)
+          @ss.pos = pos
+        end
+
+        # See: HexaPDF::PDF::Tokenizer#scan_until
+        def scan_until(re)
+          @ss.scan_until(re)
+        end
+
+        # See: HexaPDF::PDF::Tokenizer#next_token
+        def next_token
+          @ss.skip(WHITESPACE_MULTI_RE)
+          case (@ss.eos? ? -1 : @ss.string.getbyte(@ss.pos))
+          when 43, 45, 46, 48..57 # + - . 0..9
+            parse_number
+          when 65..90, 96..121
+            parse_keyword
+          when 47 # /
+            parse_name
+          when 40 # (
+            parse_literal_string
+          when 60 # <
+            if @ss.string.getbyte(@ss.pos + 1) != 60
+              parse_hex_string
+            else
+              @ss.pos += 2
+              TOKEN_DICT_START
+            end
+          when 62 # >
+            unless @ss.string.getbyte(@ss.pos + 1) == 62
+              raise HexaPDF::MalformedPDFError.new("Delimiter '>' found at invalid position", pos: pos)
+            end
+            @ss.pos += 2
+            TOKEN_DICT_END
+          when 91 # [
+            @ss.pos += 1
+            TOKEN_ARRAY_START
+          when 93 # ]
+            @ss.pos += 1
+            TOKEN_ARRAY_END
+          when 123, 125 # { }
+            Token.new(@ss.get_byte)
+          when 37 # %
+            return NO_MORE_TOKENS unless @ss.skip_until(/(?=[\r\n])/)
+            next_token
+          when -1
+            NO_MORE_TOKENS
+          else
+            parse_keyword
+          end
+        end
+
+        private
+
+        # See: HexaPDF::PDF::Tokenizer#parse_number
+        def parse_number
+          if (val = @ss.scan(/[+-]?\d++(?!\.)/))
+            val.to_i
+          else
+            val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/)
+            val << '0'.freeze if val.getbyte(-1) == 46 # dot '.'
+            Float(val)
+          end
+        end
+
+        # Stub implementation to prevent errors for not-overridden methods.
+        def prepare_string_scanner(*)
+        end
+
+      end
+
+
       # This class knows how to correctly parse a content stream.
       #
       # == Overview
@@ -29,7 +120,7 @@ module HexaPDF
 
         # Parses the contents and calls the processor object for each parsed operator.
         def parse(contents, processor)
-          tokenizer = Tokenizer.new(StringIO.new(contents))
+          tokenizer = Tokenizer.new(contents)
           params = []
           while (obj = tokenizer.next_object(allow_keyword: true)) != Tokenizer::NO_MORE_TOKENS
             if obj.kind_of?(Tokenizer::Token)

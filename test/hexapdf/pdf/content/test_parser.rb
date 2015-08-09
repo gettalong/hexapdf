@@ -3,6 +3,15 @@
 require 'test_helper'
 require 'hexapdf/pdf/content/parser'
 require 'hexapdf/pdf/content/processor'
+require_relative '../common_tokenizer_tests'
+
+describe HexaPDF::PDF::Content::Tokenizer do
+  include CommonTokenizerTests
+
+  def create_tokenizer(str)
+    @tokenizer = HexaPDF::PDF::Content::Tokenizer.new(str.b)
+  end
+end
 
 describe HexaPDF::PDF::Content::Parser do
   before do
