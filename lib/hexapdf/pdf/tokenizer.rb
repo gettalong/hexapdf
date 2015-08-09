@@ -3,7 +3,6 @@
 require 'strscan'
 require 'hexapdf/error'
 require 'hexapdf/pdf/reference'
-require 'hexapdf/pdf/utils/lru_cache'
 
 module HexaPDF
   module PDF
@@ -89,17 +88,14 @@ module HexaPDF
         when 43, 45, 46, 48..57 # + - . 0..9
           parse_number
         when 47 # /
-          @ss.pos += 1
           parse_name
         when 40 # (
-          @ss.pos += 1
           parse_literal_string
         when 60 # <
-          @ss.pos += 1
-          if @ss.string.getbyte(@ss.pos) != 60
+          if @ss.string.getbyte(@ss.pos + 1) != 60
             parse_hex_string
           else
-            @ss.pos += 1
+            @ss.pos += 2
             TOKEN_DICT_START
           end
         when 62 # >
@@ -124,8 +120,7 @@ module HexaPDF
         when -1 # we reached the end of the file
           NO_MORE_TOKENS
         else # everything else consisting of regular characters
-          byte = (scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/))
-          convert_keyword(byte)
+          parse_keyword
         end
       end
 
@@ -208,23 +203,17 @@ module HexaPDF
       private
 
       # :nodoc:
-      TOKEN_CACHE = HexaPDF::PDF::Utils::LRUCache.new(200)
+      TOKEN_CACHE = Hash.new {|h, k| h[k] = Token.new(k)}
+      TOKEN_CACHE['true'] = true
+      TOKEN_CACHE['false'] = false
+      TOKEN_CACHE['null'] = nil
 
-      # Converts the given keyword to a boolean or nil if possible. Otherwise a Token object
-      # representing +str+ is returned.
+      # Parses the keyword at the current position.
       #
-      # See: PDF1.7 s7.3.2, s7.3.9
-      def convert_keyword(str)
-        case str
-        when 'true'
-          true
-        when 'false'
-          false
-        when 'null'
-          nil
-        else
-          TOKEN_CACHE[str.freeze] ||= Token.new(str)
-        end
+      # See: PDF1.7 s7.2
+      def parse_keyword
+        str = scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/).freeze
+        TOKEN_CACHE[str.freeze]
       end
 
       # :nodoc:
@@ -261,10 +250,9 @@ module HexaPDF
 
       # Parses the literal string at the current position.
       #
-      # It is assumed that the initial '(' has already been scanned.
-      #
       # See: PDF1.7 s7.3.4.2
       def parse_literal_string
+        @ss.pos += 1
         str = "".force_encoding(Encoding::BINARY)
         parentheses = 1
 
@@ -305,10 +293,9 @@ module HexaPDF
 
       # Parses the hex string at the current position.
       #
-      # It is assumed that the initial '#' has already been scanned.
-      #
       # See: PDF1.7 s7.3.4.3
       def parse_hex_string
+        @ss.pos += 1
         data = scan_until(/(?=>)/)
         unless data
           raise HexaPDF::MalformedPDFError.new("Unclosed hex string found", pos: pos)
@@ -321,10 +308,9 @@ module HexaPDF
 
       # Parses the name at the current position.
       #
-      # It is assumed that the initial '/' has already been scanned.
-      #
       # See: PDF1.7 s7.3.5
       def parse_name
+        @ss.pos += 1
         str = scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
         str.gsub!(/#[A-Fa-f0-9]{2}/) {|m| m[1, 2].hex.chr }
         if str.force_encoding(Encoding::UTF_8).valid_encoding?
@@ -341,7 +327,7 @@ module HexaPDF
       # See: PDF1.7 s7.3.6
       def parse_array
         result = []
-        loop do
+        while true
           obj = next_object(allow_end_array_token: true)
           break if obj.equal?(TOKEN_ARRAY_END)
           result << obj
@@ -356,7 +342,7 @@ module HexaPDF
       # See: PDF1.7 s7.3.7
       def parse_dictionary
         result = {}
-        loop do
+        while true
           # Use #next_token because we either need a Name or the '>>' token here, the latter would
           # throw an error with #next_object.
           key = next_token
