@@ -10,12 +10,16 @@ module HexaPDF
 
     # Knows how to serialize Ruby objects for a PDF file.
     #
+    # For normal serialization purposes, the #serialize or #serialize_to_io methods should be used.
+    # However, it the type of the object to be serialized is known, a specialized serialization
+    # method like #serialize_float can be used.
+    #
     # == How This Class Works
     #
-    # The public interface consists of the #serialize method which accepts an object and returns its
-    # serialized form. During serialization of this object it is accessible by individual
-    # serialization methods via the @object instance variable (useful if the object is a composed
-    # object).
+    # The main public interface consists of the #serialize and #serialize_to_io methods which
+    # accepts an object and returns its serialized form. During serialization of this object it is
+    # accessible by individual serialization methods via the @object instance variable (useful if
+    # the object is a composed object).
     #
     # Internally, the #__serialize method is used for invoking the correct serialization method
     # based on the class of a given object. It is also used for serializing individual parts of a
@@ -52,6 +56,7 @@ module HexaPDF
         end
         @encrypt = false
         @io = nil
+        @object = nil
       end
 
       # Returns the serialized form of the given object.
@@ -75,28 +80,29 @@ module HexaPDF
         @io = nil
       end
 
-      private
-
-      # Invokes the correct serialization method for the object.
-      def __serialize(obj)
-        send(@dispatcher[obj.class], obj)
-      end
-
+      # Serializes the +nil+ value.
+      #
       # See: PDF1.7 s7.3.9
       def serialize_nilclass(_obj)
         "null"
       end
 
+      # Serializes the +true+ value.
+      #
       # See: PDF1.7 s7.3.2
       def serialize_trueclass(_obj)
         "true"
       end
 
+      # Serializes the +false+ value.
+      #
       # See: PDF1.7 s7.3.2
       def serialize_falseclass(_obj)
         "false"
       end
 
+      # Serializes a Numeric object (either Integer or Float).
+      #
       # This method should be used for cases where it is known that the object is either an Integer
       # or a Float.
       #
@@ -105,11 +111,15 @@ module HexaPDF
         obj.kind_of?(Integer) ? obj.to_s : serialize_float(obj)
       end
 
+      # Serializes an Integer object.
+      #
       # See: PDF1.7 s7.3.3
       def serialize_integer(obj)
         obj.to_s
       end
 
+      # Serializes a Float object.
+      #
       # See: PDF1.7 s7.3.3
       def serialize_float(obj)
         obj.abs < 0.0001 && obj != 0 ? sprintf("%.6f".freeze, obj) : obj.round(6).to_s
@@ -128,6 +138,8 @@ module HexaPDF
       # :nodoc:
       NAME_CACHE = HexaPDF::PDF::Utils::LRUCache.new(1000)
 
+      # Serializes a Symbol object (i.e. a PDF name object).
+      #
       # See: PDF1.7 s7.3.5
       def serialize_symbol(obj)
         NAME_CACHE[obj] ||=
@@ -142,6 +154,8 @@ module HexaPDF
       BYTE_IS_DELIMITER = {40 => true, 47 => true, 60 => true, 91 => true,
                            41 => true, 62 => true, 93 => true}
 
+      # Serializes an Array object.
+      #
       # See: PDF1.7 s7.3.6
       def serialize_array(obj)
         str = "["
@@ -156,6 +170,8 @@ module HexaPDF
         str << "]".freeze
       end
 
+      # Serializes a Hash object (i.e. a PDF dictionary object).
+      #
       # See: PDF1.7 s7.3.7
       def serialize_hash(obj)
         str = "<<"
@@ -173,6 +189,8 @@ module HexaPDF
       # :nodoc:
       STRING_ESCAPE_MAP = {"(" => "\\(", ")" => "\\)", "\\" => "\\\\", "\r" => "\\r"}
 
+      # Serializes a String object.
+      #
       # See: PDF1.7 s7.3.4
       def serialize_string(obj)
         if @encrypt && @object.kind_of?(HexaPDF::PDF::Object) && @object.indirect?
@@ -209,6 +227,8 @@ module HexaPDF
       def serialize_datetime(obj)
         serialize_time(obj.to_time)
       end
+
+      private
 
       # Uses #serialize_hexapdf_pdf_reference if it is an indirect object, otherwise just serializes
       # the objects value.
@@ -260,6 +280,11 @@ module HexaPDF
           str << data
           str << "\nendstream".freeze
         end
+      end
+
+      # Invokes the correct serialization method for the object.
+      def __serialize(obj)
+        send(@dispatcher[obj.class], obj)
       end
 
     end
