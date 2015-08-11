@@ -51,7 +51,7 @@ describe HexaPDF::PDF::Serializer do
     assert_serialized("9.123457", 9.1234567)
     assert_serialized("0.000005", 0.000005)
     assert_serialized("-0.000005", -0.000005)
-    assert_serialized("0.000000", 0.0)
+    assert_serialized("0.0", 0.0)
   end
 
   it "serializes symbols" do

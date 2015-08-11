@@ -104,7 +104,7 @@ module HexaPDF
 
       # See: PDF1.7 s7.3.3
       def serialize_float(obj)
-        obj.abs < 0.0001 ? sprintf("%.6f".freeze, obj) : obj.round(6).to_s
+        obj.abs < 0.0001 && obj != 0 ? sprintf("%.6f".freeze, obj) : obj.round(6).to_s
       end
 
       # The regexp matches all characters that need to be escaped and the substs hash contains the
