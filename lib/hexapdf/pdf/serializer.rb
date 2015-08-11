@@ -97,6 +97,14 @@ module HexaPDF
         "false"
       end
 
+      # This method should be used for cases where it is known that the object is either an Integer
+      # or a Float.
+      #
+      # See: PDF1.7 s7.3.3
+      def serialize_numeric(obj)
+        obj.kind_of?(Integer) ? obj.to_s : serialize_float(obj)
+      end
+
       # See: PDF1.7 s7.3.3
       def serialize_integer(obj)
         obj.to_s
