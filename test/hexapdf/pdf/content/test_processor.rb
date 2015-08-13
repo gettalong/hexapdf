@@ -10,7 +10,7 @@ describe HexaPDF::PDF::Content::Processor do
 
   describe "initialization" do
     it "has a prepopulated operators mapping" do
-      assert_equal(HexaPDF::PDF::Content::Operator::SaveGraphicsState, @processor.operators[:q])
+      assert_kind_of(HexaPDF::PDF::Content::Operator::BaseOperator, @processor.operators[:q])
     end
 
     it "has a prepopulated color spaces mapping" do
@@ -50,10 +50,11 @@ describe HexaPDF::PDF::Content::Processor do
 
   describe "process" do
     it "invokes the specified operator implementation" do
-      val = nil
-      @processor.operators[:test] = lambda {|_processor, arg| val = arg }
+      op = Minitest::Mock.new
+      op.expect(:invoke, nil, [@processor, :arg])
+      @processor.operators[:test] = op
       @processor.process(:test, [:arg])
-      assert_equal(:arg, val)
+      op.verify
     end
 
     it "invokes the renderer with the mapped message name" do

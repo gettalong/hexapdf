@@ -72,11 +72,11 @@ module HexaPDF
           rg: :set_device_rgb_non_stroking_color,
           K: :set_device_cmyk_stroking_color,
           k: :set_device_cmyk_non_stroking_color,
-          m: :begin_subpath,
-          l: :append_line,
-          c: :append_curve,
-          v: :append_curve_only_second_control_point,
-          y: :append_curve_only_first_control_point,
+          m: :move_to,
+          l: :line_to,
+          c: :curve_to,
+          v: :curve_to_no_first_control_point,
+          y: :curve_to_no_second_control_point,
           h: :close_subpath,
           re: :append_rectangle,
           S: :stroke_path,
@@ -89,24 +89,24 @@ module HexaPDF
           b: :close_fill_and_stroke_path_non_zero,
           'b*'.to_sym => :close_fill_and_stroke_path_even_odd,
           n: :end_path,
-          W: :set_clipping_path_non_zero,
-          'W*'.to_sym => :set_clipping_path_even_odd,
+          W: :clip_path_non_zero,
+          'W*'.to_sym => :clip_path_even_odd,
           BT: :begin_text,
           ET: :end_text,
           Tc: :set_character_spacing,
           Tw: :set_word_spacing,
-          Tz: :set_horizontal_text_scaling,
-          TL: :set_text_leading,
-          Tf: :set_text_font_and_size,
+          Tz: :set_horizontal_scaling,
+          TL: :set_leading,
+          Tf: :set_font_and_size,
           Tr: :set_text_rendering_mode,
           Ts: :set_text_rise,
-          Td: :move_to_next_line_with_offset,
-          TD: :move_to_next_line_with_offset_and_set_leading,
-          Tm: :set_text_matrix_and_text_line_matrix,
-          'T*'.to_sym => :move_to_next_line,
+          Td: :move_text,
+          TD: :move_text_and_set_leading,
+          Tm: :set_text_matrix,
+          'T*'.to_sym => :move_text_next_line,
           Tj: :show_text,
-          '\''.to_sym => :move_to_next_line_and_show_text,
-          '"'.to_sym => :set_spacing_move_to_next_line_and_show_text,
+          '\''.to_sym => :move_text_next_line_and_show_text,
+          '"'.to_sym => :set_spacing_move_text_next_line_and_show_text,
           TJ: :show_text_with_positioning,
           d0: :set_glyph_width, # only for Type 3 fonts
           d1: :set_glyph_width_and_bounding_box, # only for Type 3 fonts
@@ -120,46 +120,6 @@ module HexaPDF
           EMC: :end_marked_content,
           BX: :begin_compatibility_section,
           EX: :end_compatibility_section,
-        }
-
-        # Mapping of operator names to their default operator implentations used for processing.
-        DEFAULT_OPERATORS = {
-          q: Operator::SaveGraphicsState,
-          Q: Operator::RestoreGraphicsState,
-          cm: Operator::ConcatenateMatrix,
-          w: Operator::SetLineWidth,
-          J: Operator::SetLineCap,
-          j: Operator::SetLineJoin,
-          M: Operator::SetMiterLimit,
-          d: Operator::SetLineDashPattern,
-          ri: Operator::SetRenderingIntent,
-          gs: Operator::SetGraphicsStateParameters,
-          CS: Operator::SetStrokingColorSpace,
-          cs: Operator::SetNonStrokingColorSpace,
-          SC: Operator::SetStrokingColor,
-          SCN: Operator::SetStrokingColor,
-          sc: Operator::SetNonStrokingColor,
-          scn: Operator::SetNonStrokingColor,
-          G: Operator::SetDeviceGrayStrokingColor,
-          g: Operator::SetDeviceGrayNonStrokingColor,
-          RG: Operator::SetDeviceRGBStrokingColor,
-          rg: Operator::SetDeviceRGBNonStrokingColor,
-          K: Operator::SetDeviceCMYKStrokingColor,
-          k: Operator::SetDeviceCMYKNonStrokingColor,
-          m: Operator::BeginPath,
-          re: Operator::BeginPath,
-          S: Operator::EndPath,
-          s: Operator::EndPath,
-          f: Operator::EndPath,
-          F: Operator::EndPath,
-          'f*'.to_sym => Operator::EndPath,
-          B: Operator::EndPath,
-          'B*'.to_sym => Operator::EndPath,
-          b: Operator::EndPath,
-          'b*'.to_sym => Operator::EndPath,
-          n: Operator::EndPath,
-          W: Operator::ClipPath,
-          'W*'.to_sym => Operator::ClipPath,
         }
 
         # Mapping of supported color space names to their implementation.
@@ -210,7 +170,7 @@ module HexaPDF
         # Initializes a new processor that uses the +resources+ PDF dictionary for resolving
         # resources while processing operators.
         def initialize(resources, renderer: nil)
-          @operators = DEFAULT_OPERATORS.dup
+          @operators = Operator::DEFAULT_OPERATORS.dup
           @color_spaces = DEFAULT_COLOR_SPACES.dup
           @graphics_state = GraphicsState.new
           @resources = resources
@@ -223,7 +183,7 @@ module HexaPDF
         # The operator is first processed with an operator implementation (if any) to ensure correct
         # operations and then the corresponding method on the renderer is invoked.
         def process(operator, operands = [])
-          @operators[operator].call(self, *operands) if @operators.key?(operator)
+          @operators[operator].invoke(self, *operands) if @operators.key?(operator)
           msg = OPERATOR_MESSAGE_NAME_MAP[operator]
           @renderer.send(msg, *operands) if @renderer && @renderer.respond_to?(msg)
         end

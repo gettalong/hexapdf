@@ -2,7 +2,8 @@
 
 require 'set'
 require 'hexapdf/pdf/serializer'
-require 'hexapdf/pdf/content/processor'
+require 'hexapdf/pdf/content/parser'
+require 'hexapdf/pdf/content/operator'
 
 module HexaPDF
   module PDF
@@ -130,51 +131,25 @@ module HexaPDF
         # serializer is already optimized for small output size so nothing else needs to be done.
         def self.compress_pages(doc)
           doc.pages.each_page do |page|
-            renderer = SerializationRenderer.new
-            page.process_contents(renderer) {|processor| processor.operators.clear}
-            page.contents = renderer.result
+            processor = SerializationProcessor.new
+            Content::Parser.parse(page.contents, processor)
+            page.contents = processor.result
             page[:Contents].set_filter(:FlateDecode)
           end
         end
 
-        # This renderer is used when compressing pages.
-        class SerializationRenderer
-
-          #:nodoc:
-          MESSAGE_TO_OPERATOR_MAP = Content::Processor::OPERATOR_MESSAGE_NAME_MAP.
-            each_with_object({}) {|(k, v), h| h[v] = k.to_s}
+        # This processor is used when compressing pages.
+        class SerializationProcessor
 
           attr_reader :result #:nodoc:
 
           def initialize #:nodoc:
-            @result = ''.b
-            @serializer = Serializer.new
+            @result = ''.force_encoding(Encoding::BINARY)
+            @serializer = HexaPDF::PDF::Serializer.new
           end
 
-          def inline_image(dict, data) #:nodoc:
-            @result << "BI\n".freeze
-            dict.each do |k, v|
-              @result << @serializer.serialize(k)
-              @result << ' '.freeze
-              @result << @serializer.serialize(v)
-              @result << ' '.freeze
-            end
-            @result << "ID ".freeze
-            @result << data
-            @result << "EI\n"
-          end
-
-          def serialize(*operands) #:nodoc:
-            operands.each do |operand|
-              @result << @serializer.serialize(operand)
-              @result << " ".freeze unless Serializer::BYTE_IS_DELIMITER[@result.getbyte(-1)]
-            end
-            @result << MESSAGE_TO_OPERATOR_MAP[__callee__] << "\n".freeze
-          end
-
-          MESSAGE_TO_OPERATOR_MAP.each do |msg, _op|
-            next if msg == :inline_image
-            alias_method msg, :serialize
+          def process(op, operands)
+            @result << Content::Operator::DEFAULT_OPERATORS[op.intern].serialize(@serializer, *operands)
           end
 
         end

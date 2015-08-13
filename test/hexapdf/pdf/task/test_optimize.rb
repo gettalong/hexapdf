@@ -99,7 +99,7 @@ describe HexaPDF::PDF::Task::Optimize do
       page = @doc.pages.add_page
       page.contents = "   10  10   m    q            Q    BI /Name   5 ID dataEI   "
       @doc.task(:optimize, compress_pages: true)
-      assert_equal("10 10 m\nq\nQ\nBI\n/Name 5 ID dataEI\n", page.contents)
+      assert_equal("10 10 m\nq\nQ\nBI\n/Name 5 ID\ndataEI\n", page.contents)
     end
   end
 end

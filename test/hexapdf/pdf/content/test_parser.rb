@@ -24,7 +24,7 @@ describe HexaPDF::PDF::Content::Parser do
   describe "parse" do
     it "parses a simple content stream without inline images" do
       @parser.parse("0 0.500 m q Q /Name SCN", @processor)
-      assert_equal([[:begin_subpath, [0, 0.5]], [:save_graphics_state, []],
+      assert_equal([[:move_to, [0, 0.5]], [:save_graphics_state, []],
                     [:restore_graphics_state, []],
                     [:set_stroking_color, [:Name]]], @recorder.operations)
     end
