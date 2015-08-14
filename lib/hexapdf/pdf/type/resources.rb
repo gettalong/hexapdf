@@ -1,6 +1,9 @@
 # -*- encoding: utf-8 -*-
 
+require 'hexapdf/error'
+require 'hexapdf/pdf/configuration'
 require 'hexapdf/pdf/dictionary'
+require 'hexapdf/pdf/content/color_space'
 
 module HexaPDF
   module PDF
@@ -21,6 +24,27 @@ module HexaPDF
         define_field :Properties, type: Dictionary, version: '1.2'
 
         define_validator(:validate_resources)
+
+        # Returns the color space stored under the given name.
+        #
+        # Note: The color spaces :DeviceGray, :DeviceRGB and :DeviceCMYK are returned without a
+        # lookup since they are fixed.
+        def color_space(name)
+          case name
+          when :DeviceRGB, :DeviceGray, :DeviceCMYK
+            GlobalConfiguration.constantize('color_space.map'.freeze, name).new
+          else
+            space_definition = self[:ColorSpace] && self[:ColorSpace][name]
+            if space_definition.nil?
+              raise HexaPDF::Error, "Color space '#{name}' not found in the resources"
+            end
+            space_name = (space_definition.kind_of?(Array) ? space_definition[0] : space_definition)
+
+            GlobalConfiguration.constantize('color_space.map'.freeze, space_name) do
+              Content::ColorSpace::Universal
+            end.new(space_definition)
+          end
+        end
 
         private
 
