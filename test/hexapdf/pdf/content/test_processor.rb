@@ -12,20 +12,6 @@ describe HexaPDF::PDF::Content::Processor do
     it "has a prepopulated operators mapping" do
       assert_kind_of(HexaPDF::PDF::Content::Operator::BaseOperator, @processor.operators[:q])
     end
-
-    it "has a prepopulated color spaces mapping" do
-      assert_equal(HexaPDF::PDF::Content::DeviceGrayColorSpace, @processor.color_spaces[:DeviceGray])
-    end
-  end
-
-  describe "color_space" do
-    it "returns the color space implementation for a given color space name" do
-      assert_equal(HexaPDF::PDF::Content::DeviceGrayColorSpace, @processor.color_space(:DeviceGray))
-    end
-
-    it "returns the fallback universal color space if the given color space is not known" do
-      assert_equal(HexaPDF::PDF::Content::UniversalColorSpace, @processor.color_space(:Unknown))
-    end
   end
 
   describe "graphics_object" do

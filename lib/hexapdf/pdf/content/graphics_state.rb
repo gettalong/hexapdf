@@ -1,7 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
-require 'hexapdf/pdf/content/color'
+require 'hexapdf/pdf/configuration'
+require 'hexapdf/pdf/content/color_space'
 require 'hexapdf/pdf/content/text_state'
 require 'hexapdf/pdf/content/transformation_matrix'
 
@@ -180,7 +181,8 @@ module HexaPDF
         # Initializes the graphics state parameters to their default values.
         def initialize
           @ctm = TransformationMatrix.new
-          @stroking_color = @non_stroking_color = DeviceGrayColorSpace.default_color
+          @stroking_color = @non_stroking_color =
+            GlobalConfiguration.constantize('color_space.map'.freeze, :DeviceGray).new.default_color
           @text_state = TextState.new
           @line_width = 1.0
           @line_cap_style = LineCapStyle::BUTT_CAP

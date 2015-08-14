@@ -2,7 +2,6 @@
 
 require 'hexapdf/pdf/content/operator'
 require 'hexapdf/pdf/content/graphics_state'
-require 'hexapdf/pdf/content/color'
 
 module HexaPDF
   module PDF
@@ -122,26 +121,12 @@ module HexaPDF
           EX: :end_compatibility_section,
         }
 
-        # Mapping of supported color space names to their implementation.
-        DEFAULT_COLOR_SPACES = {
-          DeviceRGB: DeviceRGBColorSpace,
-          DeviceCMYK: DeviceCMYKColorSpace,
-          DeviceGray: DeviceGrayColorSpace,
-        }
-
         # Mapping from operator name (Symbol) to a callable object.
         #
         # This hash is prepopulated with the default operator implementations (see
         # DEFAULT_OPERATORS). If a default operator implementation is not satisfactory, it can
         # easily be changed by modifying this hash.
         attr_reader :operators
-
-        # Mapping from color space name (Symbol) to a color space implementation.
-        #
-        # This hash is prepopulated with all supported color spaces (see DEFAULT_COLOR_SPACES) and
-        # can be used to support additional color spaces or exchange the implementation of existing
-        # ones.
-        attr_reader :color_spaces
 
         # The resources dictionary used during processing.
         attr_reader :resources
@@ -171,7 +156,6 @@ module HexaPDF
         # resources while processing operators.
         def initialize(resources, renderer: nil)
           @operators = Operator::DEFAULT_OPERATORS.dup
-          @color_spaces = DEFAULT_COLOR_SPACES.dup
           @graphics_state = GraphicsState.new
           @resources = resources
           @renderer = renderer
@@ -186,12 +170,6 @@ module HexaPDF
           @operators[operator].invoke(self, *operands) if @operators.key?(operator)
           msg = OPERATOR_MESSAGE_NAME_MAP[operator]
           @renderer.send(msg, *operands) if @renderer && @renderer.respond_to?(msg)
-        end
-
-        # Returns the color space implementation for the given color space name. If the color space
-        # isn't yet supported, the UniversalColorSpace is returned.
-        def color_space(name)
-          @color_spaces.fetch(name, UniversalColorSpace)
         end
 
         # Returns +true+ if the current graphics object is a text object.

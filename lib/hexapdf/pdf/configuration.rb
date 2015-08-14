@@ -139,6 +139,15 @@ module HexaPDF
 
     # The global configuration object, providing the following options:
     #
+    # color_space.map::
+    #    A mapping from a PDF name (a Symbol) to a color space class (see Content::ColorSpace). If
+    #    the value is a String, it should contain the name of a constant that contains a color space
+    #    class.
+    #
+    #    The most often used color spaces are implemented and readily available.
+    #
+    #    See PDF1.7 s8.6
+    #
     # encryption.aes::
     #    The class that should be used for AES encryption. If the value is a String, it should
     #    contain the name of a constant to such a class.
@@ -234,6 +243,11 @@ module HexaPDF
                           JPXDecode: 'HexaPDF::PDF::Filter::JPXDecode',
                           Crypt: nil,
                           Encryption: 'HexaPDF::PDF::Filter::Encryption',
+                        },
+                        'color_space.map' => {
+                          DeviceRGB: 'HexaPDF::PDF::Content::ColorSpace::DeviceRGB',
+                          DeviceCMYK: 'HexaPDF::PDF::Content::ColorSpace::DeviceCMYK',
+                          DeviceGray: 'HexaPDF::PDF::Content::ColorSpace::DeviceGray',
                         },
                         'image_loader' => [
                           'HexaPDF::PDF::ImageLoader::JPEG',

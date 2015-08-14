@@ -46,7 +46,11 @@ module CommonOperatorTests
   extend Minitest::Spec::DSL
 
   before do
-    @processor = HexaPDF::PDF::Content::Processor.new({})
+    resources = {}
+    resources.define_singleton_method(:color_space) do |name|
+      HexaPDF::PDF::GlobalConfiguration.constantize('color_space.map', name).new
+    end
+    @processor = HexaPDF::PDF::Content::Processor.new(resources)
     @serializer = HexaPDF::PDF::Serializer.new
   end
 
@@ -217,7 +221,7 @@ end
 describe_operator :SetStrokingColorSpace, :CS do
   it "sets the stroking color space" do
     invoke(:DeviceRGB)
-    assert_equal(@processor.color_space(:DeviceRGB), @processor.graphics_state.stroking_color_space)
+    assert_equal(@processor.resources.color_space(:DeviceRGB), @processor.graphics_state.stroking_color_space)
   end
 
   it "serializes correctly" do
@@ -228,7 +232,7 @@ end
 describe_operator :SetNonStrokingColorSpace, :cs do
   it "sets the non stroking color space" do
     invoke(:DeviceRGB)
-    assert_equal(@processor.color_space(:DeviceRGB),
+    assert_equal(@processor.resources.color_space(:DeviceRGB),
                  @processor.graphics_state.non_stroking_color_space)
   end
 
@@ -240,7 +244,7 @@ end
 describe_operator :SetStrokingColor, :SC do
   it "sets the stroking color" do
     invoke(128)
-    assert_equal(@processor.color_space(:DeviceGray).color(128),
+    assert_equal(@processor.resources.color_space(:DeviceGray).color(128),
                  @processor.graphics_state.stroking_color)
   end
 
@@ -252,7 +256,7 @@ end
 describe_operator :SetNonStrokingColor, :sc do
   it "sets the non stroking color" do
     invoke(128)
-    assert_equal(@processor.color_space(:DeviceGray).color(128),
+    assert_equal(@processor.resources.color_space(:DeviceGray).color(128),
                  @processor.graphics_state.non_stroking_color)
   end
 
@@ -264,7 +268,7 @@ end
 describe_operator :SetDeviceGrayStrokingColor, :G do
   it "sets the DeviceGray stroking color" do
     invoke(128)
-    assert_equal(@processor.color_space(:DeviceGray).color(128),
+    assert_equal(@processor.resources.color_space(:DeviceGray).color(128),
                  @processor.graphics_state.stroking_color)
   end
 end
@@ -272,7 +276,7 @@ end
 describe_operator :SetDeviceGrayNonStrokingColor, :g do
   it "sets the DeviceGray non stroking color" do
     invoke(128)
-    assert_equal(@processor.color_space(:DeviceGray).color(128),
+    assert_equal(@processor.resources.color_space(:DeviceGray).color(128),
                  @processor.graphics_state.non_stroking_color)
   end
 end
@@ -280,7 +284,7 @@ end
 describe_operator :SetDeviceRGBStrokingColor, :RG do
   it "sets the DeviceRGB stroking color" do
     invoke(128, 0, 128)
-    assert_equal(@processor.color_space(:DeviceRGB).color(128, 0, 128),
+    assert_equal(@processor.resources.color_space(:DeviceRGB).color(128, 0, 128),
                  @processor.graphics_state.stroking_color)
   end
 
@@ -292,7 +296,7 @@ end
 describe_operator :SetDeviceRGBNonStrokingColor, :rg do
   it "sets the DeviceRGB non stroking color" do
     invoke(128, 0, 128)
-    assert_equal(@processor.color_space(:DeviceRGB).color(128, 0, 128),
+    assert_equal(@processor.resources.color_space(:DeviceRGB).color(128, 0, 128),
                  @processor.graphics_state.non_stroking_color)
   end
 
@@ -304,7 +308,7 @@ end
 describe_operator :SetDeviceCMYKStrokingColor, :K do
   it "sets the DeviceCMYK stroking color" do
     invoke(128, 0, 128, 128)
-    assert_equal(@processor.color_space(:DeviceCMYK).color(128, 0, 128, 128),
+    assert_equal(@processor.resources.color_space(:DeviceCMYK).color(128, 0, 128, 128),
                  @processor.graphics_state.stroking_color)
   end
 
@@ -316,7 +320,7 @@ end
 describe_operator :SetDeviceCMYKNonStrokingColor, :k do
   it "sets the DeviceCMYK non stroking color" do
     invoke(128, 0, 128, 128)
-    assert_equal(@processor.color_space(:DeviceCMYK).color(128, 0, 128, 128),
+    assert_equal(@processor.resources.color_space(:DeviceCMYK).color(128, 0, 128, 128),
                  @processor.graphics_state.non_stroking_color)
   end
 
