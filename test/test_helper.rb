@@ -37,10 +37,10 @@ module TestHelper
   # Can be used to record operators parsed from content streams.
   class OperatorRecorder
 
-    attr_reader :operations
+    attr_reader :operators
 
     def initialize
-      @operations = []
+      @operators = []
     end
 
     def respond_to_missing?(*)
@@ -48,7 +48,7 @@ module TestHelper
     end
 
     def method_missing(msg, *params)
-      @operations << [msg, params]
+      @operators << (params.empty? ? [msg] : [msg, params])
     end
   end
 

@@ -24,16 +24,16 @@ describe HexaPDF::PDF::Content::Parser do
   describe "parse" do
     it "parses a simple content stream without inline images" do
       @parser.parse("0 0.500 m q Q /Name SCN", @processor)
-      assert_equal([[:move_to, [0, 0.5]], [:save_graphics_state, []],
-                    [:restore_graphics_state, []],
-                    [:set_stroking_color, [:Name]]], @recorder.operations)
+      assert_equal([[:move_to, [0, 0.5]], [:save_graphics_state],
+                    [:restore_graphics_state],
+                    [:set_stroking_color, [:Name]]], @recorder.operators)
     end
 
     it "parses a content stream with inline images" do
       @parser.parse("q BI /Name 0.5/Other 1 ID some dataEI Q", @processor)
-      assert_equal([[:save_graphics_state, []],
+      assert_equal([[:save_graphics_state],
                     [:inline_image, [{Name: 0.5, Other: 1}, "some data"]],
-                    [:restore_graphics_state, []]], @recorder.operations)
+                    [:restore_graphics_state]], @recorder.operators)
     end
 
     it "fails parsing inline images if the dictionary keys are not PDF names" do

@@ -151,8 +151,8 @@ describe HexaPDF::PDF::Type::Page do
       page[:Contents] = @doc.wrap({}, stream: 'q 10 w Q')
       renderer = TestHelper::OperatorRecorder.new
       page.process_contents(renderer) {|processor| processor.operators.clear}
-      assert_equal([[:save_graphics_state, []], [:set_line_width, [10]], [:restore_graphics_state, []]],
-                   renderer.operations)
+      assert_equal([[:save_graphics_state], [:set_line_width, [10]], [:restore_graphics_state]],
+                   renderer.operators)
     end
   end
 
