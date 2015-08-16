@@ -85,6 +85,12 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       refute(@root.value.key?(:Parent))
     end
 
+    it "doesn't create a /Resources entry if an inherited one exists" do
+      @root[:Resources] = {Font: {F1: nil}}
+      page = @root.insert_page(3)
+      assert_equal(@root[:Resources], page[:Resources])
+    end
+
     it "inserts the provided page at the given index" do
       page = @doc.wrap(Type: :Page)
       assert_equal(page, @root.insert_page(3, page))

@@ -22,6 +22,10 @@ module HexaPDF
       # nodes. The validation feature can correct most problems but until the page tree is in order
       # the methods may not work correctly!
       #
+      # Newly created pages use the 'page.default_media_box' configuration option for the /MediaBox
+      # value. If an inherited /Resources dictionary does *not* exist, an empty one is created for
+      # the page.
+      #
       # See: PDF1.7 s7.7.3.2, Page
       class PageTreeNode < Dictionary
 
@@ -86,6 +90,7 @@ module HexaPDF
           if index >= self[:Count]
             self[:Kids] << page
             page[:Parent] = self
+            page[:Resources] ||= {}
           else
             self[:Kids].each_with_index do |kid, kid_index|
               kid = document.deref(kid)
@@ -185,7 +190,7 @@ module HexaPDF
           if media_box.nil?
             raise HexaPDF::Error, "Can't create new page, page.default_media_box option is invalid"
           end
-          document.add(Type: :Page, MediaBox: media_box, Resources: {})
+          document.add(Type: :Page, MediaBox: media_box)
         end
 
         # Ensures that the /Count and /Parent fields of the whole page tree are set up correctly and
