@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+require 'hexapdf/pdf/utils/math_helpers'
+
 module HexaPDF
   module PDF
     module Content
@@ -35,11 +37,7 @@ module HexaPDF
       # See: PDF1.7 s8.3
       class TransformationMatrix
 
-        # Convert degrees to radians.
-        def self.rad(degrees)
-          degrees * Math::PI / 180
-        end
-
+        include Utils::MathHelpers
 
         # The value at the position (1,1) in the matrix.
         attr_reader :a
@@ -98,8 +96,8 @@ module HexaPDF
         #
         # This equal to premultiply(cos(rad(q)), sin(rad(q)), -sin(rad(q)), cos(rad(q)), x, y).
         def rotate(q)
-          cq = Math.cos(self.class.rad(q))
-          sq = Math.sin(self.class.rad(q))
+          cq = Math.cos(deg_to_rad(q))
+          sq = Math.sin(deg_to_rad(q))
           premultiply(cq, sq, -sq, cq, 0, 0)
         end
 
@@ -108,7 +106,7 @@ module HexaPDF
         #
         # This is equal to premultiply(1, tan(rad(a)), tan(rad(b)), 1, x, y).
         def skew(a, b)
-          premultiply(1, Math.tan(self.class.rad(a)), Math.tan(self.class.rad(b)), 1, 0, 0)
+          premultiply(1, Math.tan(deg_to_rad(a)), Math.tan(deg_to_rad(b)), 1, 0, 0)
         end
 
         # Transforms this matrix by premultiplying it with the given one (ie. given*this) and
