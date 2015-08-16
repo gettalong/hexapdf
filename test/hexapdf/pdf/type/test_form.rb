@@ -17,6 +17,20 @@ describe HexaPDF::PDF::Type::Form do
     end
   end
 
+  describe "contents" do
+    it "just returns the stream" do
+      @form.stream = 'test'
+      assert_equal(@form.stream, @form.contents)
+    end
+  end
+
+  describe "contents" do
+    it "set the stream contents" do
+      @form.contents = 'test'
+      assert_equal('test', @form.stream)
+    end
+  end
+
   describe "resources" do
     it "creates the resource dictionary if it is not found" do
       resources = @form.resources

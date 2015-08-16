@@ -32,6 +32,21 @@ module HexaPDF
           self[:BBox]
         end
 
+        # Returns the contents of the form XObject.
+        #
+        # Note: This is the same as #stream but here for interface compatibility with Page.
+        def contents
+          stream
+        end
+
+        # Replaces the contents of the form XObject with the given string.
+        #
+        #
+        # Note: This is the same as #stream= but here for interface compatibility with Page.
+        def contents=(data)
+          self.stream = data
+        end
+
         # Returns the resource dictionary which is automatically created if it doesn't exist.
         def resources
           self[:Resources] ||= document.wrap({}, type: :Resources)
