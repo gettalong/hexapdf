@@ -32,6 +32,11 @@ module HexaPDF
           self[:BBox]
         end
 
+        # Returns the resource dictionary which is automatically created if it doesn't exist.
+        def resources
+          self[:Resources] ||= document.wrap({}, type: :Resources)
+        end
+
       end
 
     end

@@ -128,6 +128,23 @@ describe HexaPDF::PDF::Type::Page do
     end
   end
 
+  describe "resources" do
+    it "creates the resource dictionary if it is not found" do
+      page = @doc.add(Type: :Page, Parent: @doc.pages)
+      resources = page.resources
+      assert_kind_of(HexaPDF::PDF::Type::Resources, resources)
+      assert_equal({}, resources.value)
+    end
+
+    it "returns the already used resource dictionary" do
+      @doc.pages[:Resources] = {Font: {F1: nil}}
+      page = @doc.pages.add_page(@doc.add(Type: :Page))
+      resources = page.resources
+      assert_kind_of(HexaPDF::PDF::Type::Resources, resources)
+      assert_equal(@doc.pages[:Resources], resources)
+    end
+  end
+
   describe "process_contents" do
     it "parses the contents and processes it" do
       page = @doc.pages.add_page
