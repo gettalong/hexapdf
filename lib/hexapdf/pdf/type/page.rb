@@ -120,7 +120,7 @@ module HexaPDF
         # See: Dictionary#[]
         def [](name)
           if value[name].nil? && INHERITABLE_FIELDS.include?(name)
-            node = self[:Parent]
+            node = self[:Parent] || (raise HexaPDF::Error, "Page has no parent node")
             node = node[:Parent] while node.value[name].nil? && node.key?(:Parent)
             node[name] || super
           else

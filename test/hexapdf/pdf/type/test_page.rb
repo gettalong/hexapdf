@@ -38,6 +38,11 @@ describe HexaPDF::PDF::Type::Page do
       @kid.delete(:Rotate)
       assert_equal(0, @page[:Rotate])
     end
+
+    it "fails if no parent node is associated" do
+      page = @doc.add(Type: :Page)
+      assert_raises(HexaPDF::Error) { page[:Resources] }
+    end
   end
 
   describe "validation" do
