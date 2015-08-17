@@ -16,6 +16,24 @@ module HexaPDF
       # See: PDF1.7 s8.4.3.3
       module LineCapStyle
 
+        # Returns the argument normalized to a valid line cap style.
+        #
+        # * If the argument is either 0, 1 or 2, it is just returned.
+        # * The symbol :butt can be used for the BUTT_CAP style.
+        # * The symobl :round can be used for the ROUND_CAP style.
+        # * The symbol :projecting_square can be used for the PROJECTING_SQUARE_CAP style.
+        # * Otherwise an error is raised.
+        def self.normalize(style)
+          case style
+          when :butt then BUTT_CAP
+          when :round then ROUND_CAP
+          when :projecting_square then PROJECTING_SQUARE_CAP
+          when 0..2 then style
+          else
+            raise HexaPDF::Error, "Unknown line cap style: #{style}"
+          end
+        end
+
         # Stroke is squared off at the endpoint of a path.
         BUTT_CAP = 0
 
@@ -33,6 +51,24 @@ module HexaPDF
       #
       # See: PDF1.7 s8.4.3.4
       module LineJoinStyle
+
+        # Returns the argument normalized to a valid line join style.
+        #
+        # * If the argument is either 0, 1 or 2, it is just returned.
+        # * The symbol :miter can be used for the MITER_JOIN style.
+        # * The symobl :round can be used for the ROUND_JOIN style.
+        # * The symbol :bevel can be used for the BEVEL_JOIN style.
+        # * Otherwise an error is raised.
+        def self.normalize(style)
+          case style
+          when :miter then MITER_JOIN
+          when :round then ROUND_JOIN
+          when :bevel then BEVEL_JOIN
+          when 0, 1, 2 then style
+          else
+            raise HexaPDF::Error, "Unknown line join style: #{style}"
+          end
+        end
 
         # The outer lines of the two segments continue until the meet at an angle.
         MITER_JOIN = 0
@@ -99,6 +135,19 @@ module HexaPDF
       #
       # See: PDF1.7 s8.6.5.8
       module RenderingIntent
+
+        # Returns the argument normalized to a valid rendering intent.
+        #
+        # * If the argument is a valid symbol, it is just returned.
+        # * Otherwise an error is raised.
+        def self.normalize(intent)
+          case intent
+          when ABSOLUTE_COLORIMETRIC, RELATIVE_COLORIMETRIC, SATURATION, PERCEPTUAL
+            intent
+          else
+            raise HexaPDF::Error, "Invalid rendering intent: #{intent}"
+          end
+        end
 
         # Colors should be represented solely with respect to the light source.
         ABSOLUTE_COLORIMETRIC = :AbsoluteColorimetric
