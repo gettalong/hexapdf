@@ -83,6 +83,10 @@ describe HexaPDF::PDF::Content::LineDashPattern do
     refute_equal(HexaPDF::PDF::Content::LineDashPattern.new([2, 3], 0),
                  HexaPDF::PDF::Content::LineDashPattern.new([2, 2], 0))
   end
+
+  it "returns the operands needed for the line dash pattern operator" do
+    assert_equal([[2, 3], 0], HexaPDF::PDF::Content::LineDashPattern.new([2, 3], 0).to_operands)
+  end
 end
 
 describe HexaPDF::PDF::Content::GraphicsState do

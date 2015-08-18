@@ -180,4 +180,106 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_operators(@page.contents, [[:concatenate_matrix, [1, 1, 0, 1, 0, -100]]])
     end
   end
+
+  describe "private gs_getter_setter" do
+    it "returns the current value when used with a nil argument" do
+      @canvas.graphics_state.line_width = 5
+      assert_equal(5, @canvas.send(:gs_getter_setter, :line_width, :w, nil))
+    end
+
+    it "invokes the operator implementation when a non-nil argument is used" do
+      assert_operator_invoked(:w) { @canvas.send(:gs_getter_setter, :line_width, :w, 5) }
+      assert_operator_invoked(:w) { @canvas.send(:gs_getter_setter, :line_width, :w, 15) {} }
+    end
+
+    it "doesn't add an operator if the value is equal to the current one" do
+      @canvas.send(:gs_getter_setter, :line_width, :w,
+                   @canvas.send(:gs_getter_setter, :line_width, :w, nil))
+      assert_operators(@page.contents, [])
+    end
+
+    it "is serialized correctly when no block is used" do
+      @canvas.send(:gs_getter_setter, :line_width, :w, 5)
+      assert_operators(@page.contents, [[:set_line_width, [5]]])
+    end
+
+    it "is serialized correctly when a block is used" do
+      @canvas.send(:gs_getter_setter, :line_width, :w, 5) do
+        @canvas.send(:gs_getter_setter, :line_width, :w, 15)
+      end
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:set_line_width, [5]],
+                                        [:set_line_width, [15]],
+                                        [:restore_graphics_state]])
+    end
+
+    it "fails if a block is given without an argument" do
+      assert_raises(HexaPDF::Error) { @canvas.send(:gs_getter_setter, :line_width, :w, nil) {} }
+    end
+  end
+
+  # Asserts that the method +name+ invoked with +values+ invokes the #gs_getter_setter helper method
+  # with the +name+, +operator+ and +expected_value+ as arguments.
+  def assert_gs_getter_setter(name, operator, expected_value, *values)
+    args = nil
+    @canvas.define_singleton_method(:gs_getter_setter) {|*largs, &block| args = largs + [block]}
+    @canvas.send(name, *values) {}
+    assert_equal(name, args[0])
+    assert_equal(operator, args[1])
+    assert_equal(expected_value, args[2])
+    assert_kind_of(Proc, args[3])
+    assert_respond_to(@canvas, name)
+  end
+
+  describe "line_width" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:line_width, :w, 5, 5)
+      assert_gs_getter_setter(:line_width, :w, nil, nil)
+    end
+  end
+
+  describe "line_cap_style" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:line_cap_style, :J, 1, :round)
+      assert_gs_getter_setter(:line_cap_style, :J, nil, nil)
+    end
+  end
+
+  describe "line_join_style" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:line_join_style, :j, 1, :round)
+      assert_gs_getter_setter(:line_join_style, :j, nil, nil)
+    end
+  end
+
+  describe "miter_limit" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:miter_limit, :M, 15, 15)
+      assert_gs_getter_setter(:miter_limit, :M, nil, nil)
+    end
+  end
+
+  describe "line_dash_pattern" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:line_dash_pattern, :d, nil, nil)
+      assert_gs_getter_setter(:line_dash_pattern, :d,
+                              HexaPDF::PDF::Content::LineDashPattern.new, 0)
+      assert_gs_getter_setter(:line_dash_pattern, :d,
+                              HexaPDF::PDF::Content::LineDashPattern.new([5]), 5)
+      assert_gs_getter_setter(:line_dash_pattern, :d,
+                              HexaPDF::PDF::Content::LineDashPattern.new([5], 2), 5, 2)
+      assert_gs_getter_setter(:line_dash_pattern, :d,
+                              HexaPDF::PDF::Content::LineDashPattern.new([5, 3], 2), [5, 3], 2)
+      assert_gs_getter_setter(:line_dash_pattern, :d,
+                              HexaPDF::PDF::Content::LineDashPattern.new([5, 3], 2),
+                              HexaPDF::PDF::Content::LineDashPattern.new([5, 3], 2))
+    end
+  end
+
+  describe "rendering_intent" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:rendering_intent, :ri, :Perceptual, :Perceptual)
+      assert_gs_getter_setter(:rendering_intent, :ri, nil, nil)
+    end
+  end
 end

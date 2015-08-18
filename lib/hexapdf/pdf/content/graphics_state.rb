@@ -127,6 +127,12 @@ module HexaPDF
           other.kind_of?(self.class) && other.array == array && other.phase == phase
         end
 
+        # Converts the LineDashPattern object to an array of operands for the associated PDF content
+        # operator.
+        def to_operands
+          [@array, @phase]
+        end
+
       end
 
 
