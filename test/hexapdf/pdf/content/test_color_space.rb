@@ -19,6 +19,10 @@ module CommonColorSpaceTests
     assert(@color_space.respond_to?(:color))
   end
 
+  it "the color space returns the correct color space family" do
+    assert_equal(@color_space_family, @color_space.family)
+  end
+
   it "the color responds to :components" do
     assert(@color.respond_to?(:components))
   end
@@ -41,10 +45,18 @@ describe HexaPDF::PDF::Content::ColorSpace::Universal do
   include CommonColorSpaceTests
 
   before do
-    @color_space = HexaPDF::PDF::Content::ColorSpace::Universal.new
+    @color_space = HexaPDF::PDF::Content::ColorSpace::Universal.new([:test])
+    @color_space_family = :test
     @color = @color_space.default_color
     @other_color = @color_space.color(128, 5, 6, 7, 8)
     @components = [5, 6, 7, 8]
+  end
+
+  it "can be compared to another universal color space" do
+    other = HexaPDF::PDF::Content::ColorSpace::Universal.new([:other])
+    same = HexaPDF::PDF::Content::ColorSpace::Universal.new([:test])
+    assert_equal(same, @color_space)
+    refute_equal(other, @color_space)
   end
 end
 
@@ -53,6 +65,7 @@ describe HexaPDF::PDF::Content::ColorSpace::DeviceRGB do
 
   before do
     @color_space = HexaPDF::PDF::Content::ColorSpace::DeviceRGB.new
+    @color_space_family = :DeviceRGB
     @color = @color_space.default_color
     @other_color = @color_space.color(128, 0, 0)
     @components = [0.5, 0.2, 0.3]
@@ -64,6 +77,7 @@ describe HexaPDF::PDF::Content::ColorSpace::DeviceCMYK do
 
   before do
     @color_space = HexaPDF::PDF::Content::ColorSpace::DeviceCMYK.new
+    @color_space_family = :DeviceCMYK
     @color = @color_space.default_color
     @other_color = @color_space.color(128, 0, 0, 128)
     @components = [0.1, 0.2, 0.3, 0.4]
@@ -75,6 +89,7 @@ describe HexaPDF::PDF::Content::ColorSpace::DeviceGray do
 
   before do
     @color_space = HexaPDF::PDF::Content::ColorSpace::DeviceGray.new
+    @color_space_family = :DeviceGray
     @color = @color_space.default_color
     @other_color = @color_space.color(128)
     @components = [0.1]

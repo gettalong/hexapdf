@@ -144,7 +144,7 @@ module HexaPDF
     #    the value is a String, it should contain the name of a constant that contains a color space
     #    class.
     #
-    #    The most often used color spaces are implemented and readily available.
+    #    Classes for the most often used color space families are implemented and readily available.
     #
     #    See PDF1.7 s8.6
     #

@@ -29,10 +29,16 @@ module HexaPDF
       #
       # The class for the color space needs to respond to the following methods:
       #
-      # #initialize(array)::
+      # #initialize(definition)::
       #   Creates the color space using the given array with the color space definition. The first
-      #   item in the array is always the color space name, the other items are color space
+      #   item in the array is always the color space family, the other items are color space
       #   specific.
+      #
+      # #family::
+      #   Returns the PDF name of the color space family this color space belongs to.
+      #
+      # #definition::
+      #   Returns the color space definition as array.
       #
       # #default_color::
       #   Returns the default color for this color space.
@@ -81,8 +87,12 @@ module HexaPDF
         # aren't implemented yet.
         class Universal
 
-          # A universal color space discards any parameters.
-          def initialize(*)
+          # The color space definition used for creating this universal color space.
+          attr_reader :definition
+
+          # Creates the universal color space for the given color space definition.
+          def initialize(definition)
+            @definition = definition
           end
 
           # The default universal color.
@@ -93,6 +103,16 @@ module HexaPDF
           # Creates a new universal color object. The number of arguments isn't restricted.
           def color(*args)
             Color.new(self, *args)
+          end
+
+          # Returns the PDF color space family this color space belongs to.
+          def family
+            @definition[0]
+          end
+
+          # Compares this universal color space to another one by looking at their definitions.
+          def ==(other)
+            other.kind_of?(self.class) && definition == other.definition
           end
 
           # A single color in the universal color space.
@@ -142,6 +162,11 @@ module HexaPDF
           # Returns the color object for the given red, green and blue components.
           def color(r, g, b)
             Color.new(r, g, b)
+          end
+
+          # Returns :DeviceRGB.
+          def family
+            :DeviceRGB
           end
 
           # A color in the DeviceRGB color space.
@@ -200,6 +225,11 @@ module HexaPDF
             Color.new(c, m, y, k)
           end
 
+          # Returns :DeviceCMYK.
+          def family
+            :DeviceCMYK
+          end
+
           # A color in the DeviceCMYK color space.
           #
           # The color values are automatically normalized to the DeviceCMYK color value range of 0.0
@@ -256,6 +286,11 @@ module HexaPDF
           # Returns the color object for the given gray component.
           def color(gray)
             Color.new(gray)
+          end
+
+          # Returns :DeviceGray.
+          def family
+            :DeviceGray
           end
 
           # A color in the DeviceGray color space.
