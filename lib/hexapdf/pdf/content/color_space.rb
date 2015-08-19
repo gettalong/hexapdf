@@ -216,10 +216,10 @@ module HexaPDF
             # Each argument has to be either an integer between 0 and 100 or a float between 0.0 and
             # 1.0.
             def initialize(c, m, y, k)
-              @c = normalize_value(c, 255)
-              @m = normalize_value(m, 255)
-              @y = normalize_value(y, 255)
-              @k = normalize_value(k, 255)
+              @c = normalize_value(c, 100)
+              @m = normalize_value(m, 100)
+              @y = normalize_value(y, 100)
+              @k = normalize_value(k, 100)
             end
 
             # Returns the DeviceCMYK color space module.
