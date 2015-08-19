@@ -52,7 +52,7 @@ module HexaPDF
       # Some operators modify the so called graphics state (see GraphicsState). The graphics state
       # is a collection of settings that is used during processing or creating a content stream. For
       # example, the path painting operators don't have operands to specify the line width or the
-      # stroking color but take this information from the graphics state.
+      # stroke color but take this information from the graphics state.
       #
       # One important thing about the graphics state is that it is only possible to restore a prior
       # state using the save and restore methods. It is not possible to reset the graphics state

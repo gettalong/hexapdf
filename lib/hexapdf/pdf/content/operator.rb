@@ -12,7 +12,7 @@ module HexaPDF
       # == General Information
       #
       # A PDF content streams consists of a series of instructions, operands followed by an operator
-      # name. Each operator has a specific function, for example, the 'G' operator sets the stroking
+      # name. Each operator has a specific function, for example, the 'G' operator sets the stroke
       # color to the specified gray value.
       #
       # Since HexaPDF doesn't have a content stream rendering facility, it is only interested in the
@@ -298,8 +298,8 @@ module HexaPDF
             gs = processor.graphics_state
             gs.stroke_adjustment = dict[:SA] if dict.key?(:SA)
             gs.blend_mode = dict[:BM] if dict.key?(:BM)
-            gs.stroking_alpha = dict[:CA] if dict.key?(:CA)
-            gs.non_stroking_alpha = dict[:ca] if dict.key?(:ca)
+            gs.stroke_alpha = dict[:CA] if dict.key?(:CA)
+            gs.fill_alpha = dict[:ca] if dict.key?(:ca)
             gs.alpha_source = dict[:AIS] if dict.key?(:AIS)
             gs.text_state.knockout = dict[:TK] if dict.key?(:TK)
           end
@@ -321,7 +321,7 @@ module HexaPDF
           end
 
           def invoke(processor, name) #:nodoc:
-            processor.graphics_state.stroking_color_space = processor.resources.color_space(name)
+            processor.graphics_state.stroke_color_space = processor.resources.color_space(name)
           end
 
           def serialize(serializer, name) #:nodoc:
@@ -341,8 +341,7 @@ module HexaPDF
           end
 
           def invoke(processor, name) #:nodoc:
-            processor.graphics_state.non_stroking_color_space =
-              processor.resources.color_space(name)
+            processor.graphics_state.fill_color_space = processor.resources.color_space(name)
           end
 
           def serialize(serializer, name) #:nodoc:
@@ -357,8 +356,8 @@ module HexaPDF
         class SetStrokingColor < BaseOperator
 
           def invoke(processor, *operands) #:nodoc:
-            color_space = processor.graphics_state.stroking_color.color_space
-            processor.graphics_state.stroking_color = color_space.color(*operands)
+            processor.graphics_state.stroke_color =
+              processor.graphics_state.stroke_color.color_space.color(*operands)
           end
 
         end
@@ -369,8 +368,8 @@ module HexaPDF
         class SetNonStrokingColor < BaseOperator
 
           def invoke(processor, *operands) #:nodoc:
-            color_space = processor.graphics_state.non_stroking_color.color_space
-            processor.graphics_state.non_stroking_color = color_space.color(*operands)
+            processor.graphics_state.fill_color =
+              processor.graphics_state.fill_color.color_space.color(*operands)
           end
 
         end
@@ -385,7 +384,7 @@ module HexaPDF
           end
 
           def invoke(processor, gray) #:nodoc:
-            processor.graphics_state.stroking_color =
+            processor.graphics_state.stroke_color =
               processor.resources.color_space(:DeviceGray).color(gray)
           end
 
@@ -402,7 +401,7 @@ module HexaPDF
           end
 
           def invoke(processor, gray) #:nodoc:
-            processor.graphics_state.non_stroking_color =
+            processor.graphics_state.fill_color =
               processor.resources.color_space(:DeviceGray).color(gray)
           end
 
@@ -419,7 +418,7 @@ module HexaPDF
           end
 
           def invoke(processor, r, g, b) #:nodoc:
-            processor.graphics_state.stroking_color =
+            processor.graphics_state.stroke_color =
               processor.resources.color_space(:DeviceRGB).color(r, g, b)
           end
 
@@ -441,7 +440,7 @@ module HexaPDF
           end
 
           def invoke(processor, r, g, b) #:nodoc:
-            processor.graphics_state.non_stroking_color =
+            processor.graphics_state.fill_color =
               processor.resources.color_space(:DeviceRGB).color(r, g, b)
           end
 
@@ -463,7 +462,7 @@ module HexaPDF
           end
 
           def invoke(processor, c, m, y, k) #:nodoc:
-            processor.graphics_state.stroking_color =
+            processor.graphics_state.stroke_color =
               processor.resources.color_space(:DeviceCMYK).color(c, m, y, k)
           end
 
@@ -485,7 +484,7 @@ module HexaPDF
           end
 
           def invoke(processor, c, m, y, k) #:nodoc:
-            processor.graphics_state.non_stroking_color =
+            processor.graphics_state.fill_color =
               processor.resources.color_space(:DeviceCMYK).color(c, m, y, k)
           end
 

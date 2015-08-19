@@ -186,10 +186,10 @@ module HexaPDF
         attr_accessor :ctm
 
         # The current color used for stroking operations during painting.
-        attr_accessor :stroking_color
+        attr_accessor :stroke_color
 
         # The current color used for all other (i.e. non-stroking) painting operations.
-        attr_accessor :non_stroking_color
+        attr_accessor :fill_color
 
         # The text state parameters (see TextState).
         attr_accessor :text_state
@@ -224,10 +224,10 @@ module HexaPDF
         attr_accessor :soft_mask
 
         # The alpha constant for stroking operations in the transparent imaging model.
-        attr_accessor :stroking_alpha
+        attr_accessor :stroke_alpha
 
         # The alpha constant for non-stroking operations in the transparent imaging model.
-        attr_accessor :non_stroking_alpha
+        attr_accessor :fill_alpha
 
         # A boolean specifying whether the current soft mask and alpha parameters should be
         # interpreted as shape values or opacity values.
@@ -236,7 +236,7 @@ module HexaPDF
         # Initializes the graphics state parameters to their default values.
         def initialize
           @ctm = TransformationMatrix.new
-          @stroking_color = @non_stroking_color =
+          @stroke_color = @fill_color =
             GlobalConfiguration.constantize('color_space.map'.freeze, :DeviceGray).new.default_color
           @text_state = TextState.new
           @line_width = 1.0
@@ -248,7 +248,7 @@ module HexaPDF
           @stroke_adjustment = false
           @blend_mode = :Normal
           @soft_mask = :None
-          @stroking_alpha = @non_stroking_alpha = 1.0
+          @stroke_alpha = @fill_alpha = 1.0
           @alpha_source = false
 
           @stack = []
@@ -256,10 +256,10 @@ module HexaPDF
 
         # Saves the current graphics state on the internal stack.
         def save
-          @stack.push([@ctm, @stroking_color, @non_stroking_color, @text_state,
+          @stack.push([@ctm, @stroke_color, @fill_color, @text_state,
                        @line_width, @line_cap_style, @line_join_style, @miter_limit,
                        @line_dash_pattern, @rendering_intent, @stroke_adjustment, @blend_mode,
-                       @soft_mask, @stroking_alpha, @non_stroking_alpha, @alpha_source])
+                       @soft_mask, @stroke_alpha, @fill_alpha, @alpha_source])
           @ctm = @ctm.dup
           @text_state = @text_state.dup
         end
@@ -271,38 +271,38 @@ module HexaPDF
           if @stack.empty?
             raise HexaPDF::Error, "Can't restore graphics state because the stack is empty"
           end
-          @ctm, @stroking_color, @non_stroking_color, @text_state,
+          @ctm, @stroke_color, @fill_color, @text_state,
           @line_width, @line_cap_style, @line_join_style, @miter_limit, @line_dash_pattern,
           @rendering_intent, @stroke_adjustment, @blend_mode,
-          @soft_mask, @stroking_alpha, @non_stroking_alpha, @alpha_source = @stack.pop
+          @soft_mask, @stroke_alpha, @fill_alpha, @alpha_source = @stack.pop
         end
 
         ##
-        # :attr_accessor: stroking_color_space
+        # :attr_accessor: stroke_color_space
         #
         # The current color space for stroking operations during painting.
 
         # :nodoc:
-        def stroking_color_space
-          @stroking_color.color_space
+        def stroke_color_space
+          @stroke_color.color_space
         end
 
-        def stroking_color_space=(color_space) # :nodoc:
-          self.stroking_color = color_space.default_color
+        def stroke_color_space=(color_space) # :nodoc:
+          self.stroke_color = color_space.default_color
         end
 
         ##
-        # :attr_accessor: non_stroking_color_space
+        # :attr_accessor: fill_color_space
         #
         # The current color space for non-stroking operations during painting.
 
         # :nodoc:
-        def non_stroking_color_space
-          @non_stroking_color.color_space
+        def fill_color_space
+          @fill_color.color_space
         end
 
-        def non_stroking_color_space=(color_space) #:nodoc:
-          self.non_stroking_color = color_space.default_color
+        def fill_color_space=(color_space) #:nodoc:
+          self.fill_color = color_space.default_color
         end
 
       end
