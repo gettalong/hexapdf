@@ -154,7 +154,7 @@ module HexaPDF
       #
       # Calls the given block once for every name-value entry that is stored in the dictionary.
       #
-      # Note that the yielded value is alreayd preprocessed like in #[].
+      # Note that the yielded value is already preprocessed like in #[].
       def each
         return to_enum(__method__) unless block_given?
         value.each_key {|name| yield(name, self[name])}
