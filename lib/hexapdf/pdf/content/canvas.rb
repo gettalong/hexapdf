@@ -565,6 +565,81 @@ module HexaPDF
         end
         alias :rendering_intent= :rendering_intent
 
+        # :call-seq:
+        #   canvas.stroke_color                             => current_stroke_color
+        #   canvas.stroke_color(gray)                       => gray_color
+        #   canvas.stroke_color(r, g, b)                    => rgb_color
+        #   canvas.stroke_color(c, m, y, k)                 => cmyk_color
+        #   canvas.stroke_color(string)                     => rgb_color
+        #   canvas.stroke_color(color_object)               => color_object
+        #   canvas.stroke_color(array)                      => color_object
+        #   canvas.stroke_color(color_spec) { block }       => current_stroke_color
+        #
+        # The stroke color defines the color used for stroking operations, i.e. for painting paths.
+        #
+        # There are several ways to define the color that should be used:
+        #
+        # * A single numeric argument specifies a gray color (see ColorSpace::DeviceGray::Color).
+        # * Three numeric arguments specify an RGB color (see ColorSpace::DeviceRGB::Color).
+        # * A string in the format "RRGGBB" where "RR" is the hexadecimal number for the red, "GG"
+        #   for the green and "BB" for the blue color value also specifies an RGB color.
+        # * Four numeric arguments specify a CMYK color (see ColorSpace::DeviceCMYK::Color).
+        # * A color object is used directly (normally used for color spaces other than DeviceRGB,
+        #   DeviceCMYK and DeviceGray).
+        # * An array is treated as if its items were specified separately as arguments.
+        #
+        # Returns the current stroke color (see GraphicsState#stroke_color) when no argument is
+        # given. Otherwise sets the stroke color using the given arguments and returns it. The
+        # setter version can also be called in the stroke_color= form.
+        #
+        # If the arguments and a block are provided, the changed stroke color is only active during
+        # the block by saving and restoring the graphics state.
+        #
+        # Examples:
+        #
+        #   # With no arguments just returns the current color
+        #   canvas.stroke_color                        # => DeviceGray.color(0.0)
+        #
+        #   # Same gray color because integer values are normalized to the range of 0.0 to 1.0
+        #   canvas.stroke_color(102)                   # => DeviceGray.color(0.4)
+        #   canvas.stroke_color(0.4)                   # => DeviceGray.color(0.4)
+        #
+        #   # Specifying RGB colors
+        #   canvas.stroke_color(255, 255, 0)           # => DeviceRGB.color(255, 255, 0)
+        #   canvas.stroke_color("FFFF00")              # => DeviceRGB.color(255, 255, 0)
+        #
+        #   # Specifying CMYK colors
+        #   canvas.stroke_color(255, 255, 0, 128)      # => DeviceCMYK.color(255, 255, 0, 128)
+        #
+        #   # Can use a color object directly
+        #   color = HexaPDF::PDF::Content::ColorSpace::DeviceRGB.color(255, 255, 0)
+        #   canvas.stroke_color(color)                 # => DeviceRGB.color(255, 255, 0)
+        #
+        #   # An array argument is destructured - these calls are all equal
+        #   cnavas.stroke_color(255, 255, 0)
+        #   canvas.stroke_color([255, 255, 0])
+        #   canvas.stroke_color = [255, 255, 0]
+        #
+        #   # As usual, can be invoked with a block to limit the effects
+        #   canvas.stroke_color(25) do
+        #     canvas.stroke_color                      # => ColorSpace::DeviceGray.color(25)
+        #   end
+        #
+        # See: PDF1.7 s8.6, ColorSpace
+        def stroke_color(*color, &block)
+          color_getter_setter(:stroke_color, color, :RG, :G, :K, :CS, :SCN, &block)
+        end
+        alias :stroke_color= :stroke_color
+
+        # The fill color defines the color used for non-stroking operations, i.e. for filling paths.
+        #
+        # Works exactly the same #stroke_color but for the fill color. See #stroke_color for
+        # details on invocation and use.
+        def fill_color(*color, &block)
+          color_getter_setter(:fill_color, color, :rg, :g, :k, :cs, :scn, &block)
+        end
+        alias :fill_color= :fill_color
+
         private
 
         def init_contents(strategy)
@@ -585,6 +660,61 @@ module HexaPDF
         # Serializes the operator with the operands to the content stream.
         def serialize(operator, *operands)
           @contents << @operators[operator].serialize(@serializer, *operands)
+        end
+
+        # Utility method that abstracts the implementation of the stroke and fill color methods.
+        def color_getter_setter(name, color, rg, g, k, cs, scn)
+          color.flatten!
+          if color.length > 0
+            color = color_from_specification(color)
+            color_changed = (color != graphics_state.send(name))
+            color_space_changed = (color.color_space != graphics_state.send(name).color_space)
+
+            save_graphics_state if block_given? && color_changed
+            graphics_state.send(:"#{name}=", color)
+
+            if color_changed
+              case color.color_space.family
+              when :DeviceRGB then serialize(rg, *color.components)
+              when :DeviceGray then serialize(g, *color.components)
+              when :DeviceCMYK then serialize(k, *color.components)
+              else
+                serialize(cs, resources.add_color_space(color.color_space)) if color_space_changed
+                serialize(scn, *color.components)
+              end
+            end
+
+            yield if block_given?
+            restore_graphics_state if block_given? && color_changed
+          elsif block_given?
+            raise HexaPDF::Error, "Block only allowed with arguments"
+          end
+
+          graphics_state.send(name)
+        end
+
+        # Creates a color object from the given color specification. See #stroke_color for details
+        # on the possible color specifications.
+        def color_from_specification(spec)
+          if spec.length == 1 && spec[0].kind_of?(String)
+            resources.color_space(:DeviceRGB).color(*spec[0].scan(/../).map!(&:hex))
+          elsif spec.length == 1 && spec[0].respond_to?(:color_space)
+            spec[0]
+          else
+            resources.color_space(color_space_for_components(spec)).color(*spec)
+          end
+        end
+
+        # Returns the name of the device color space that should be used for creating a color object
+        # from the components array.
+        def color_space_for_components(components)
+          case components.length
+          when 1 then :DeviceGray
+          when 3 then :DeviceRGB
+          when 4 then :DeviceCMYK
+          else
+            raise HexaPDF::Error, "Invalid number of color components"
+          end
         end
 
         # Utility method that abstracts the implementation of a graphics state parameter

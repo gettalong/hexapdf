@@ -289,4 +289,88 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_gs_getter_setter(:rendering_intent, :ri, nil, nil)
     end
   end
+
+
+  describe "private color_getter_setter" do
+    def invoke(*params, &block)
+      @canvas.send(:color_getter_setter, :stroke_color, params, :RG, :G, :K, :CS, :SCN, &block)
+    end
+
+    it "returns the current value when used with no argument or a block" do
+      color = @canvas.graphics_state.stroke_color
+      assert_equal(color, invoke)
+      assert_equal(color, invoke(255) {})
+    end
+
+    it "returns the new value when used with a non-nil argument and no block" do
+      assert_equal(HexaPDF::PDF::Content::ColorSpace::DeviceGray::DEFAULT.color(255), invoke(255))
+    end
+
+    it "doesn't add an operator if the value is equal to the current one" do
+      @canvas.send(:gs_getter_setter, :line_width, :w,
+                   @canvas.send(:gs_getter_setter, :line_width, :w, nil))
+      assert_operators(@page.contents, [])
+    end
+
+    it "adds an unknown color space to the resource dictionary" do
+      invoke(HexaPDF::PDF::Content::ColorSpace::Universal.new([:Pattern, :DeviceRGB]).color(:Name))
+      assert_equal([:Pattern, :DeviceRGB], @page.resources.color_space(:CS1).definition)
+    end
+
+    it "is serialized correctly when no block is used" do
+      invoke(102)
+      invoke([102])
+      invoke("6600FF")
+      invoke(102, 0, 255)
+      invoke(0, 20, 40, 80)
+      invoke(HexaPDF::PDF::Content::ColorSpace::Universal.new([:Pattern]).color(:Name))
+      assert_operators(@page.contents, [[:set_device_gray_stroking_color, [0.4]],
+                                        [:set_device_rgb_stroking_color, [0.4, 0, 1]],
+                                        [:set_device_cmyk_stroking_color, [0, 0.2, 0.4, 0.8]],
+                                        [:set_stroking_color_space, [:CS1]],
+                                        [:set_stroking_color, [:Name]]])
+    end
+
+    it "is serialized correctly when a block is used" do
+      invoke(102) { invoke(255) }
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:set_device_gray_stroking_color, [0.4]],
+                                        [:set_device_gray_stroking_color, [1.0]],
+                                        [:restore_graphics_state]])
+    end
+
+    it "fails if a block is given without an argument" do
+      assert_raises(HexaPDF::Error) { invoke {} }
+    end
+
+    it "fails if an unsupported number of component values is provided" do
+      assert_raises(HexaPDF::Error) { invoke(5, 5) }
+    end
+  end
+
+  # Asserts that the method +name+ invoked with +values+ invokes the #color_getter_setter helper
+  # method with the +expected_values+ as arguments.
+  def assert_color_getter_setter(name, expected_values, *values)
+    args = nil
+    block = nil
+    @canvas.define_singleton_method(:color_getter_setter) {|*la, &lb| args = la; block = lb}
+    @canvas.send(name, *values) {}
+    @canvas.singleton_class.send(:remove_method, :color_getter_setter)
+    assert_equal(expected_values, args)
+    assert_kind_of(Proc, block)
+  end
+
+  describe "stroke_color" do
+    it "uses the color_getter_setter implementation" do
+      assert_color_getter_setter(:stroke_color, [:stroke_color, [255], :RG, :G, :K, :CS, :SCN], 255)
+      assert_color_getter_setter(:stroke_color, [:stroke_color, [], :RG, :G, :K, :CS, :SCN])
+    end
+  end
+
+  describe "fill_color" do
+    it "uses the color_getter_setter implementation" do
+      assert_color_getter_setter(:fill_color, [:fill_color, [255], :rg, :g, :k, :cs, :scn], 255)
+      assert_color_getter_setter(:fill_color, [:fill_color, [], :rg, :g, :k, :cs, :scn])
+    end
+  end
 end
