@@ -171,8 +171,9 @@ module HexaPDF
 
           # A color in the DeviceRGB color space.
           #
-          # The color values are automatically normalized to the DeviceRGB color value range of 0.0
-          # to 1.0.
+          # Color values can either be integers in the range from 0 to 255 or floating point numbers
+          # between 0.0 and 1.0. The integer color values are automatically normalized to the
+          # DeviceRGB color value range of 0.0 to 1.0.
           #
           # See: PDF1.7 s8.6.4.3
           class Color
@@ -232,8 +233,9 @@ module HexaPDF
 
           # A color in the DeviceCMYK color space.
           #
-          # The color values are automatically normalized to the DeviceCMYK color value range of 0.0
-          # to 1.0.
+          # Color values can either be integers in the range from 0 to 100 or floating point numbers
+          # between 0.0 and 1.0. The integer color values are automatically normalized to the
+          # DeviceCMYK color value range of 0.0 to 1.0.
           #
           # See: PDF1.7 s8.6.4.4
           class Color
@@ -295,8 +297,9 @@ module HexaPDF
 
           # A color in the DeviceGray color space.
           #
-          # The color values are automatically normalized to the DeviceGray color value range of 0.0
-          # to 1.0.
+          # Color values can either be integers in the range from 0 to 255 or floating point numbers
+          # between 0.0 and 1.0. The integer color values are automatically normalized to the
+          # DeviceGray color value range of 0.0 to 1.0.
           #
           # See: PDF1.7 s8.6.4.2
           class Color
