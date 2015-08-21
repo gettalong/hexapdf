@@ -39,6 +39,44 @@ describe HexaPDF::PDF::Type::Resources do
     end
   end
 
+  describe "add_color_space" do
+    it "returns device color spaces without adding an entry" do
+      [HexaPDF::PDF::Content::ColorSpace::DeviceRGB::DEFAULT,
+       HexaPDF::PDF::Content::ColorSpace::DeviceCMYK::DEFAULT,
+       HexaPDF::PDF::Content::ColorSpace::DeviceGray::DEFAULT].each do |space|
+        name = @res.add_color_space(space)
+        assert_equal(space.family, name)
+        refute(@res.key?(:ColorSpace))
+      end
+    end
+
+    it "adds a color space that is not a device color space" do
+      space = HexaPDF::PDF::Content::ColorSpace::Universal.new([:DeviceN, :data])
+      name = @res.add_color_space(space)
+      assert(@res[:ColorSpace].key?(name))
+      assert_equal(space.definition, @res[:ColorSpace][name])
+      assert_equal(space, @res.color_space(name))
+    end
+
+    it "doesn't add the same color space twice" do
+      object = @doc.add(some: :data)
+      @res[:ColorSpace] = {space: [:DeviceN, HexaPDF::PDF::Reference.new(object.oid, object.gen)]}
+      space = HexaPDF::PDF::Content::ColorSpace::Universal.new([:DeviceN, object])
+      name = @res.add_color_space(space)
+      assert_equal(:space, name)
+      assert_equal(1, @res[:ColorSpace].value.size)
+      assert_equal(space, @res.color_space(name))
+    end
+
+    it "uses a unique color space name" do
+      @res[:ColorSpace] = {CS2: [:DeviceN, :test]}
+      space = HexaPDF::PDF::Content::ColorSpace::Universal.new([:DeviceN, :data])
+      name = @res.add_color_space(space)
+      refute_equal(:CS2, name)
+      assert_equal(2, @res[:ColorSpace].value.size)
+    end
+  end
+
   describe "validation" do
     it "assigns the default value if ProcSet is not set" do
       @res.validate

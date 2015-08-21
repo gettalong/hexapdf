@@ -51,7 +51,41 @@ module HexaPDF
           end
         end
 
+        # Adds the color space to the resources and returns the name under which it is stored.
+        #
+        # If there already exists a color space with the same definition, it is reused. The device
+        # color spaces :DeviceGray, :DeviceRGB and :DeviceCMYK are never stored, their respective
+        # name is just returned.
+        def add_color_space(color_space)
+          family = color_space.family
+          return family if family == :DeviceRGB || family == :DeviceGray || family == :DeviceCMYK
+
+          definition = color_space.definition
+          self[:ColorSpace] = {} unless key?(:ColorSpace)
+          color_space_dict = self[:ColorSpace]
+
+          name, _value = color_space_dict.value.find do |_k, v|
+            v.map! {|item| document.deref(item)}
+            v == definition
+          end
+          unless name
+            name = create_resource_name(color_space_dict.value, 'CS')
+            color_space_dict[name] = definition
+          end
+          name
+        end
+
         private
+
+        # Returns a unique name that can be used to store a resource in the given hash.
+        def create_resource_name(hash, prefix)
+          n = hash.size + 1
+          while true
+            name = :"#{prefix}#{n}"
+            return name unless hash.key?(name)
+            n += 1
+          end
+        end
 
         # Ensures that a valid procedure set is available.
         def validate_resources
