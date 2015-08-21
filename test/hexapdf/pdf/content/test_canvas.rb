@@ -182,9 +182,15 @@ describe HexaPDF::PDF::Content::Canvas do
   end
 
   describe "private gs_getter_setter" do
-    it "returns the current value when used with a nil argument" do
+    it "returns the current value when used with a nil argument or a block" do
       @canvas.graphics_state.line_width = 5
       assert_equal(5, @canvas.send(:gs_getter_setter, :line_width, :w, nil))
+      assert_equal(5, @canvas.send(:gs_getter_setter, :line_width, :w, 15) {})
+    end
+
+    it "returns the new value when used with a non-nil argument and no block" do
+      @canvas.graphics_state.line_width = 5
+      assert_equal(15, @canvas.send(:gs_getter_setter, :line_width, :w, 15))
     end
 
     it "invokes the operator implementation when a non-nil argument is used" do
@@ -224,6 +230,7 @@ describe HexaPDF::PDF::Content::Canvas do
     args = nil
     @canvas.define_singleton_method(:gs_getter_setter) {|*largs, &block| args = largs + [block]}
     @canvas.send(name, *values) {}
+    @canvas.singleton_class.send(:remove_method, :gs_getter_setter)
     assert_equal(name, args[0])
     assert_equal(operator, args[1])
     assert_equal(expected_value, args[2])

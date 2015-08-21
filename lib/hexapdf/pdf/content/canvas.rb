@@ -341,7 +341,7 @@ module HexaPDF
         # :call-seq:
         #   canvas.line_width                    => current_line_width
         #   canvas.line_width(width)             => width
-        #   canvas.line_width(width) { block }   => width
+        #   canvas.line_width(width) { block }   => current_line_width
         #
         # The line width determines the thickness of a stroked path.
         #
@@ -372,7 +372,7 @@ module HexaPDF
         # :call-seq:
         #   canvas.line_cap_style                    => current_line_cap_style
         #   canvas.line_cap_style(style)             => style
-        #   canvas.line_cap_style(style) { block }   => style
+        #   canvas.line_cap_style(style) { block }   => current_line_cap_style
         #
         # The line cap style specifies how the ends of stroked open paths should look like. The
         # +style+ parameter can either be a valid integer or one of the symbols :butt, :round or
@@ -406,7 +406,7 @@ module HexaPDF
         # :call-seq:
         #   canvas.line_join_style                    => current_line_join_style
         #   canvas.line_join_style(style)             => style
-        #   canvas.line_join_style(style) { block }   => style
+        #   canvas.line_join_style(style) { block }   => current_line_join_style
         #
         # The line join style specifies the shape that is used at the corners of stroked paths. The
         # +style+ parameter can either be a valid integer or one of the symbols :miter, :round or
@@ -440,7 +440,7 @@ module HexaPDF
         # :call-seq:
         #   canvas.miter_limit                    => current_miter_limit
         #   canvas.miter_limit(limit)             => limit
-        #   canvas.miter_limit(limit) { block }   => limit
+        #   canvas.miter_limit(limit) { block }   => current_miter_limit
         #
         # The miter limit specifies the maximum ratio of the miter length to the line width for
         # mitered line joins (see #line_join_style). When the limit is exceeded, a bevel join is
@@ -475,7 +475,7 @@ module HexaPDF
         #   canvas.line_dash_pattern(line_dash_pattern)               => line_dash_pattern
         #   canvas.line_dash_pattern(length, phase = 0)               => line_dash_pattern
         #   canvas.line_dash_pattern(array, phase = 0)                => line_dash_pattern
-        #   canvas.line_dash_pattern(value, phase = 0) { block }      => line_dash_pattern
+        #   canvas.line_dash_pattern(value, phase = 0) { block }      => current_line_dash_pattern
         #
         # The line dash pattern defines the appearance of a stroked path (line _or_ curve), ie. if
         # it is solid or if it contains dashes and gaps.
@@ -530,7 +530,7 @@ module HexaPDF
         # :call-seq:
         #   canvas.rendering_intent                       => current_rendering_intent
         #   canvas.rendering_intent(intent)               => rendering_intent
-        #   canvas.rendering_intent(intent) { block }     => rendering_intent
+        #   canvas.rendering_intent(intent) { block }     => current_rendering_intent
         #
         # The rendering intent is used to specify the intent on how colors should be rendered since
         # sometimes compromises have to be made when the capabilities of an output device are not
@@ -592,7 +592,7 @@ module HexaPDF
         #
         #   canvas.method                        # => cur_value
         #   canvas.method(new_value)             # => new_value
-        #   canvas.method(new_value) { block }   # => new_value
+        #   canvas.method(new_value) { block }   # => cur_value
         #
         # +name+::
         #   The name (Symbol) of the graphics state parameter for fetching the value from the
