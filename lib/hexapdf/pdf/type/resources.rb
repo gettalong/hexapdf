@@ -37,10 +37,15 @@ module HexaPDF
             space_definition = self[:ColorSpace] && self[:ColorSpace][name]
             if space_definition.nil?
               raise HexaPDF::Error, "Color space '#{name}' not found in the resources"
+            elsif space_definition.kind_of?(Array)
+              space_definition.map! {|item| document.deref(item)}
+              space_family = space_definition[0]
+            else
+              space_family = space_definition
+              space_definition = [space_definition]
             end
-            space_name = (space_definition.kind_of?(Array) ? space_definition[0] : space_definition)
 
-            GlobalConfiguration.constantize('color_space.map'.freeze, space_name) do
+            GlobalConfiguration.constantize('color_space.map'.freeze, space_family) do
               Content::ColorSpace::Universal
             end.new(space_definition)
           end

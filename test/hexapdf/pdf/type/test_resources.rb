@@ -6,8 +6,8 @@ require 'hexapdf/pdf/document'
 
 describe HexaPDF::PDF::Type::Resources do
   before do
-    doc = HexaPDF::PDF::Document.new
-    @res = HexaPDF::PDF::Type::Resources.new({}, document: doc)
+    @doc = HexaPDF::PDF::Document.new
+    @res = HexaPDF::PDF::Type::Resources.new({}, document: @doc)
   end
 
   describe "color_space" do
@@ -20,10 +20,18 @@ describe HexaPDF::PDF::Type::Resources do
                    @res.color_space(:DeviceGray))
     end
 
-    it "returns the universal color space for unknown color space names" do
-      @res[:ColorSpace] = {CSName: [:SomeUnknownColorSpace, :some, :data, :here]}
-      assert_kind_of(HexaPDF::PDF::Content::ColorSpace::Universal,
-                     @res.color_space(:CSName))
+    it "works for color spaces defined only with a name" do
+      @res[:ColorSpace] = {CSName: :Pattern}
+      assert_kind_of(HexaPDF::PDF::Content::ColorSpace::Universal, @res.color_space(:CSName))
+    end
+
+    it "returns the universal color space for unknown color spaces, with resolved references" do
+      data = @doc.add({Some: :data})
+      @res[:ColorSpace] = {CSName: [:SomeUnknownColorSpace,
+                                    HexaPDF::PDF::Reference.new(data.oid, data.gen)]}
+      color_space = @res.color_space(:CSName)
+      assert_kind_of(HexaPDF::PDF::Content::ColorSpace::Universal, color_space)
+      assert_equal([:SomeUnknownColorSpace, data], color_space.definition)
     end
 
     it "fails if the specified name is neither a device color space nor in the dictionary" do
