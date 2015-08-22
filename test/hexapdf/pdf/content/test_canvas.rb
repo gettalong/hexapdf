@@ -26,14 +26,19 @@ describe HexaPDF::PDF::Content::Canvas do
   end
 
   # Asserts that a specific operator is invoked when the block is executed.
-  def assert_operator_invoked(op)
+  def assert_operator_invoked(op, *args)
     mock = Minitest::Mock.new
-    mock.expect(:invoke, nil) { true }
-    mock.expect(:serialize, '') { true }
+    if args.empty?
+      mock.expect(:invoke, nil) { true }
+      mock.expect(:serialize, '') { true }
+    else
+      mock.expect(:invoke, nil, [@canvas] + args)
+      mock.expect(:serialize, '', [@canvas.instance_variable_get(:@serializer)] + args)
+    end
     op_before = @canvas.instance_variable_get(:@operators)[op]
     @canvas.instance_variable_get(:@operators)[op] = mock
     yield
-    mock.verify
+    assert(mock.verify)
   ensure
     @canvas.instance_variable_get(:@operators)[op] = op_before
   end
@@ -117,7 +122,7 @@ describe HexaPDF::PDF::Content::Canvas do
 
   describe "transform" do
     it "invokes the operator implementation" do
-      assert_operator_invoked(:cm) { @canvas.transform(1, 2, 3, 4, 5, 6) }
+      assert_operator_invoked(:cm, 1, 2, 3, 4, 5, 6) { @canvas.transform(1, 2, 3, 4, 5, 6) }
     end
 
     it "is serialized correctly when no block is used" do
@@ -194,8 +199,8 @@ describe HexaPDF::PDF::Content::Canvas do
     end
 
     it "invokes the operator implementation when a non-nil argument is used" do
-      assert_operator_invoked(:w) { @canvas.send(:gs_getter_setter, :line_width, :w, 5) }
-      assert_operator_invoked(:w) { @canvas.send(:gs_getter_setter, :line_width, :w, 15) {} }
+      assert_operator_invoked(:w, 5) { @canvas.send(:gs_getter_setter, :line_width, :w, 5) }
+      assert_operator_invoked(:w, 15) { @canvas.send(:gs_getter_setter, :line_width, :w, 15) {} }
     end
 
     it "doesn't add an operator if the value is equal to the current one" do
