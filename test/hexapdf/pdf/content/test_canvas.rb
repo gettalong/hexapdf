@@ -378,4 +378,43 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_color_getter_setter(:fill_color, [:fill_color, [], :rg, :g, :k, :cs, :scn])
     end
   end
+
+  describe "move_to" do
+    it "invokes the operator implementation" do
+      assert_operator_invoked(:m, 5, 6) { @canvas.move_to(5, 6) }
+      assert_operator_invoked(:m, 5, 6) { @canvas.move_to([5, 6]) }
+    end
+  end
+
+  describe "line_to" do
+    it "invokes the operator implementation" do
+      assert_operator_invoked(:l, 5, 6) { @canvas.line_to(5, 6) }
+      assert_operator_invoked(:l, 5, 6) { @canvas.line_to([5, 6]) }
+    end
+  end
+
+  describe "curve_to" do
+    it "invokes the operator implementation" do
+      assert_operator_invoked(:c, 5, 6, 7, 8, 9, 10) { @canvas.curve_to(9, 10, p1: [5, 6], p2: [7, 8]) }
+      assert_operator_invoked(:v, 7, 8, 9, 10) { @canvas.curve_to(9, 10, p2: [7, 8]) }
+      assert_operator_invoked(:y, 5, 6, 9, 10) { @canvas.curve_to(9, 10, p1: [5, 6]) }
+    end
+
+    it "raises an error if both control points are omitted" do
+      assert_raises(HexaPDF::Error) { @canvas.curve_to(9, 10) }
+    end
+  end
+
+  describe "rectangle" do
+    it "invokes the operator implementation" do
+      assert_operator_invoked(:re, 5, 10, 15, -20) { @canvas.rectangle(5, 10, 15, 20) }
+      assert_operator_invoked(:re, 5, 10, 15, -20) { @canvas.rectangle([5, 10], 15, 20) }
+    end
+  end
+
+  describe "close_subpath" do
+    it "invokes the operator implementation" do
+      assert_operator_invoked(:h) { @canvas.close_subpath }
+    end
+  end
 end

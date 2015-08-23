@@ -640,6 +640,106 @@ module HexaPDF
         end
         alias :fill_color= :fill_color
 
+        # :call-seq:
+        #   canvas.move_to(x, y)
+        #   canvas.move_to([x, y])
+        #
+        # Begins a new subpath (and possibly a new path) by moving the current point to the given
+        # point.
+        #
+        # The point can either be specified as +x+ and +y+ arguments or as an array containing two
+        # numbers.
+        #
+        # Examples:
+        #
+        #   canvas.move_to(100, 50)
+        #   canvas.move_to([100, 50]
+        def move_to(*point)
+          point.flatten!
+          invoke(:m, *point)
+        end
+
+        # :call-seq:
+        #   canvas.line_to(x, y)
+        #   canvas.line_to([x, y])
+        #
+        # Appends a straight line segment from the current point to the given point to the current
+        # subpath.
+        #
+        # The point can either be specified as +x+ and +y+ arguments or as an array containing two
+        # numbers.
+        #
+        # Examples:
+        #
+        #   canvas.line_to(100, 100)
+        #   canvas.line_to([100, 100])
+        def line_to(*point)
+          point.flatten!
+          invoke(:l, *point)
+        end
+
+        # :call-seq:
+        #   canvas.curve_to(x, y, p1:, p2:)
+        #   canvas.curve_to([x, y], p1:, p2:)
+        #   canvas.curve_to(x, y, p1:)
+        #   canvas.curve_to([x, y], p1:)
+        #   canvas.curve_to(x, y, p2:)
+        #   canvas.curve_to([x, y], p2:)
+        #
+        # Appends a cubic Bezier curve to the current subpath starting from the current point.
+        #
+        # A Bezier curve consists of the start point, the end point and the two control points +p1+
+        # and +p2+. The start point is always the current point and the end point is specified as
+        # +x+ and +y+ arguments or as an array containing two numbers.
+        #
+        # Additionally, either the first control point +p1+ or the second control +p2+ or both
+        # control points have to be specified (as arrays containing two numbers). If the first
+        # control point is not specified, the current point is used as first control point. If the
+        # second control point is not specified, the end point is used as the second control point.
+        #
+        # Examples:
+        #
+        #   canvas.curve_to(100, 100, p1: [100, 50], p2: [50, 100])
+        #   canvas.curve_to([100, 100], p1: [100, 50])
+        #   canvas.curve_to(100, 100, p2: [50, 100])
+        def curve_to(*point, p1: nil, p2: nil)
+          point.flatten!
+          if p1 && p2
+            invoke(:c, *p1, *p2, *point)
+          elsif p1
+            invoke(:y, *p1, *point)
+          elsif p2
+            invoke(:v, *p2, *point)
+          else
+            raise HexaPDF::Error, "At least one control point must be specified for Bézier curves"
+          end
+        end
+
+        # :call-seq:
+        #   canvas.rectangle(x, y, width, height)
+        #   canvas.rectangle([x, y], width, height)
+        #
+        # Appends a rectangle to the current path as a complete subpath, with the upper-left corner
+        # specified by +x+ and +y+ and the given +width+ and +height+.
+        #
+        # If there is no current path when the method is invoked, a new path is automatically begun.
+        # The current point after invoking this method will be the upper-left corner.
+        #
+        # Examples:
+        #
+        #   canvas.rectangle(100, 100, 100, 50)
+        #   canvas.rectangle([100, 100], 100, 50)
+        def rectangle(*point, width, height)
+          point.flatten!
+          invoke(:re, *point, width, -height)
+        end
+
+        # Closes the current subpath by appending a straight line from the current point to the
+        # start point of the subpath.
+        def close_subpath
+          invoke(:h)
+        end
+
         private
 
         def init_contents(strategy)
