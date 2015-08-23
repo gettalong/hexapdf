@@ -187,15 +187,14 @@ describe HexaPDF::PDF::Content::Canvas do
   end
 
   describe "private gs_getter_setter" do
-    it "returns the current value when used with a nil argument or a block" do
+    it "returns the current value when used with a nil argument" do
       @canvas.graphics_state.line_width = 5
       assert_equal(5, @canvas.send(:gs_getter_setter, :line_width, :w, nil))
-      assert_equal(5, @canvas.send(:gs_getter_setter, :line_width, :w, 15) {})
     end
 
-    it "returns the new value when used with a non-nil argument and no block" do
-      @canvas.graphics_state.line_width = 5
-      assert_equal(15, @canvas.send(:gs_getter_setter, :line_width, :w, 15))
+    it "returns the canvas object when used with a non-nil argument or a block" do
+      assert_equal(@canvas, @canvas.send(:gs_getter_setter, :line_width, :w, 15))
+      assert_equal(@canvas, @canvas.send(:gs_getter_setter, :line_width, :w, 15) {})
     end
 
     it "invokes the operator implementation when a non-nil argument is used" do
@@ -310,14 +309,14 @@ describe HexaPDF::PDF::Content::Canvas do
       @canvas.send(:color_getter_setter, :stroke_color, params, :RG, :G, :K, :CS, :SCN, &block)
     end
 
-    it "returns the current value when used with no argument or a block" do
+    it "returns the current value when used with no argument" do
       color = @canvas.graphics_state.stroke_color
       assert_equal(color, invoke)
-      assert_equal(color, invoke(255) {})
     end
 
-    it "returns the new value when used with a non-nil argument and no block" do
-      assert_equal(HexaPDF::PDF::Content::ColorSpace::DeviceGray::DEFAULT.color(255), invoke(255))
+    it "returns the canvas when used with a non-nil argument and no block" do
+      assert_equal(@canvas, invoke(255))
+      assert_equal(@canvas, invoke(255) {})
     end
 
     it "doesn't add an operator if the value is equal to the current one" do
@@ -389,12 +388,20 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_operator_invoked(:m, 5, 6) { @canvas.move_to(5, 6) }
       assert_operator_invoked(:m, 5, 6) { @canvas.move_to([5, 6]) }
     end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.move_to(5, 6))
+    end
   end
 
   describe "line_to" do
     it "invokes the operator implementation" do
       assert_operator_invoked(:l, 5, 6) { @canvas.line_to(5, 6) }
       assert_operator_invoked(:l, 5, 6) { @canvas.line_to([5, 6]) }
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.line_to(5, 6))
     end
   end
 
@@ -403,6 +410,10 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_operator_invoked(:c, 5, 6, 7, 8, 9, 10) { @canvas.curve_to(9, 10, p1: [5, 6], p2: [7, 8]) }
       assert_operator_invoked(:v, 7, 8, 9, 10) { @canvas.curve_to(9, 10, p2: [7, 8]) }
       assert_operator_invoked(:y, 5, 6, 9, 10) { @canvas.curve_to(9, 10, p1: [5, 6]) }
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.curve_to(5, 6, p1: [7, 8]))
     end
 
     it "raises an error if both control points are omitted" do
@@ -415,11 +426,20 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_operator_invoked(:re, 5, 10, 15, -20) { @canvas.rectangle(5, 10, 15, 20) }
       assert_operator_invoked(:re, 5, 10, 15, -20) { @canvas.rectangle([5, 10], 15, 20) }
     end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.rectangle(5, 6, 7, 8))
+    end
   end
 
   describe "close_subpath" do
     it "invokes the operator implementation" do
       assert_operator_invoked(:h) { @canvas.close_subpath }
     end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.close_subpath)
+    end
+  end
   end
 end

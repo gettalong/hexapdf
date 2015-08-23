@@ -133,10 +133,10 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   canvas.save_graphics_state
-        #   canvas.save_graphics_state { block }
+        #   canvas.save_graphics_state              => canvas
+        #   canvas.save_graphics_state { block }    => canvas
         #
-        # Saves the current graphics state.
+        # Saves the current graphics state and returns self.
         #
         # If invoked without a block a corresponding call to #restore_graphics_state must be done.
         # Otherwise the graphics state is automatically restored when the block is finished.
@@ -145,13 +145,13 @@ module HexaPDF
         #
         #   # With a block
         #   canvas.save_graphics_state do
-        #     canvas.set_line_width(10)
+        #     canvas.line_width(10)
         #     canvas.line(100, 100, 200, 200)
         #   end
         #
         #   # Same without a block
         #   canvas.save_graphics_state
-        #   canvas.set_line_width(10)
+        #   canvas.line_width(10)
         #   canvas.line(100, 100, 200, 200)
         #   canvas.restore_graphics_state
         #
@@ -162,23 +162,28 @@ module HexaPDF
             yield
             restore_graphics_state
           end
+          self
         end
 
-        # Restores the current graphics state.
+        # :call-seq:
+        #   canvas.restore_graphics_state      => canvas
+        #
+        # Restores the current graphics state and returns self.
         #
         # Must not be invoked more times than #save_graphics_state.
         #
         # See: PDF1.7 s8.4.2, #save_graphics_state
         def restore_graphics_state
           invoke(:Q)
+          self
         end
 
         # :call-seq:
-        #   canvas.transform(a, b, c, d, e, f)
-        #   canvas.transform(a, b, c, d, e, f) { block }
+        #   canvas.transform(a, b, c, d, e, f)              => canvas
+        #   canvas.transform(a, b, c, d, e, f) { block }    => canvas
         #
         # Transforms the user space by applying the given matrix to the current transformation
-        # matrix.
+        # matrix and returns self.
         #
         # If invoked with a block, the transformation is only active during the block by saving and
         # restoring the graphics state.
@@ -204,14 +209,15 @@ module HexaPDF
             yield
             restore_graphics_state
           end
+          self
         end
 
         # :call-seq:
-        #   canvas.rotate(angle, origin: nil)
-        #   canvas.rotate(angle, origin: nil) { block }
+        #   canvas.rotate(angle, origin: nil)               => canvas
+        #   canvas.rotate(angle, origin: nil) { block }     => canvas
         #
         # Rotates the user space +angle+ degrees around the coordinate system origin or around the
-        # given point.
+        # given point and returns self.
         #
         # If invoked with a block, the rotation of the user space is only active during the block by
         # saving and restoring the graphics state.
@@ -245,11 +251,12 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   canvas.scale(sx, sy = sx, origin: nil)
-        #   canvas.scale(sx, sy = sx, origin: nil) { block }
+        #   canvas.scale(sx, sy = sx, origin: nil)              => canvas
+        #   canvas.scale(sx, sy = sx, origin: nil) { block }    => canvas
         #
         # Scales the user space +sx+ units in the horizontal and +sy+ units in the vertical
-        # direction. If the optional +origin+ is specified, scaling is done from that point.
+        # direction and returns self. If the optional +origin+ is specified, scaling is done from
+        # that point.
         #
         # If invoked with a block, the scaling is only active during the block by saving and
         # restoring the graphics state.
@@ -280,10 +287,11 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   canvas.translate(x, y)
-        #   canvas.translate(x, y) { block }
+        #   canvas.translate(x, y)               => canvas
+        #   canvas.translate(x, y) { block }     => canvas
         #
-        # Translates the user space coordinate system origin to the given +x+ and +y+ coordinates.
+        # Translates the user space coordinate system origin to the given +x+ and +y+ coordinates
+        # and returns self.
         #
         # If invoked with a block, the translation of the user space is only active during the block
         # by saving and restoring the graphics state.
@@ -301,11 +309,11 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   canvas.skew(a, b, origin: nil)
-        #   canvas.skew(a, b, origin: nil) { block }
+        #   canvas.skew(a, b, origin: nil)               => canvas
+        #   canvas.skew(a, b, origin: nil) { block }     => canvas
         #
-        # Skews the the x-axis by +a+ degrees and the y-axis by +b+ degress. If the optional
-        # +origin+ is specified, skewing is done from that point.
+        # Skews the the x-axis by +a+ degrees and the y-axis by +b+ degress and returns self. If the
+        # optional +origin+ is specified, skewing is done from that point.
         #
         # If invoked with a block, the skewing is only active during the block by saving and
         # restoring the graphics state.
@@ -340,21 +348,21 @@ module HexaPDF
 
         # :call-seq:
         #   canvas.line_width                    => current_line_width
-        #   canvas.line_width(width)             => width
-        #   canvas.line_width(width) { block }   => current_line_width
+        #   canvas.line_width(width)             => canvas
+        #   canvas.line_width(width) { block }   => canvas
         #
         # The line width determines the thickness of a stroked path.
         #
         # Returns the current line width (see GraphicsState#line_width) when no argument is given.
-        # Otherwise sets the line width to the given +width+ and returns it. The setter version can
-        # also be called in the line_width= form.
+        # Otherwise sets the line width to the given +width+ and returns self. The setter version
+        # can also be called in the line_width= form.
         #
         # If the +width+ and a block are provided, the changed line width is only active during the
         # block by saving and restoring the graphics state.
         #
         # Examples:
         #
-        #   canvas.line_width(10)      # => 10
+        #   canvas.line_width(10)
         #   canvas.line_width          # => 10
         #   canvas.line_width = 5      # => 5
         #
@@ -371,8 +379,8 @@ module HexaPDF
 
         # :call-seq:
         #   canvas.line_cap_style                    => current_line_cap_style
-        #   canvas.line_cap_style(style)             => style
-        #   canvas.line_cap_style(style) { block }   => current_line_cap_style
+        #   canvas.line_cap_style(style)             => canvas
+        #   canvas.line_cap_style(style) { block }   => canvas
         #
         # The line cap style specifies how the ends of stroked open paths should look like. The
         # +style+ parameter can either be a valid integer or one of the symbols :butt, :round or
@@ -380,7 +388,7 @@ module HexaPDF
         # always a normalized (i.e. Integer) line cap style.
         #
         # Returns the current line cap style (see GraphicsState#line_cap_style) when no argument is
-        # given. Otherwise sets the line cap style to the given +style+ and returns it. The setter
+        # given. Otherwise sets the line cap style to the given +style+ and returns self. The setter
         # version can also be called in the line_cap_style= form.
         #
         # If the +style+ and a block are provided, the changed line cap style is only active during
@@ -388,7 +396,7 @@ module HexaPDF
         #
         # Examples:
         #
-        #   canvas.line_cap_style(:butt)        # => 0
+        #   canvas.line_cap_style(:butt)
         #   canvas.line_cap_style               # => 0
         #   canvas.line_cap_style = :round      # => 1
         #
@@ -405,8 +413,8 @@ module HexaPDF
 
         # :call-seq:
         #   canvas.line_join_style                    => current_line_join_style
-        #   canvas.line_join_style(style)             => style
-        #   canvas.line_join_style(style) { block }   => current_line_join_style
+        #   canvas.line_join_style(style)             => canvas
+        #   canvas.line_join_style(style) { block }   => canvas
         #
         # The line join style specifies the shape that is used at the corners of stroked paths. The
         # +style+ parameter can either be a valid integer or one of the symbols :miter, :round or
@@ -414,7 +422,7 @@ module HexaPDF
         # normalized (i.e. Integer) line join style.
         #
         # Returns the current line join style (see GraphicsState#line_join_style) when no argument
-        # is given. Otherwise sets the line join style to the given +style+ and returns it. The
+        # is given. Otherwise sets the line join style to the given +style+ and returns self. The
         # setter version can also be called in the line_join_style= form.
         #
         # If the +style+ and a block are provided, the changed line join style is only active during
@@ -422,7 +430,7 @@ module HexaPDF
         #
         # Examples:
         #
-        #   canvas.line_join_style(:miter)       # => 0
+        #   canvas.line_join_style(:miter)
         #   canvas.line_join_style               # => 0
         #   canvas.line_join_style = :round      # => 1
         #
@@ -439,23 +447,23 @@ module HexaPDF
 
         # :call-seq:
         #   canvas.miter_limit                    => current_miter_limit
-        #   canvas.miter_limit(limit)             => limit
-        #   canvas.miter_limit(limit) { block }   => current_miter_limit
+        #   canvas.miter_limit(limit)             => canvas
+        #   canvas.miter_limit(limit) { block }   => canvas
         #
         # The miter limit specifies the maximum ratio of the miter length to the line width for
         # mitered line joins (see #line_join_style). When the limit is exceeded, a bevel join is
         # used instead of a miter join.
         #
         # Returns the current miter limit (see GraphicsState#miter_limit) when no argument is given.
-        # Otherwise sets the miter limit to the given +limit+ and returns it. The setter version can
-        # also be called in the miter_limit= form.
+        # Otherwise sets the miter limit to the given +limit+ and returns self. The setter version
+        # can also be called in the miter_limit= form.
         #
         # If the +limit+ and a block are provided, the changed miter limit is only active during the
         # block by saving and restoring the graphics state.
         #
         # Examples:
         #
-        #   canvas.miter_limit(10)      # => 10
+        #   canvas.miter_limit(10)
         #   canvas.miter_limit          # => 10
         #   canvas.miter_limit = 5      # => 5
         #
@@ -472,10 +480,10 @@ module HexaPDF
 
         # :call-seq:
         #   canvas.line_dash_pattern                                  => current_line_dash_pattern
-        #   canvas.line_dash_pattern(line_dash_pattern)               => line_dash_pattern
-        #   canvas.line_dash_pattern(length, phase = 0)               => line_dash_pattern
-        #   canvas.line_dash_pattern(array, phase = 0)                => line_dash_pattern
-        #   canvas.line_dash_pattern(value, phase = 0) { block }      => current_line_dash_pattern
+        #   canvas.line_dash_pattern(line_dash_pattern)               => canvas
+        #   canvas.line_dash_pattern(length, phase = 0)               => canvas
+        #   canvas.line_dash_pattern(array, phase = 0)                => canvas
+        #   canvas.line_dash_pattern(value, phase = 0) { block }      => canvas
         #
         # The line dash pattern defines the appearance of a stroked path (line _or_ curve), ie. if
         # it is solid or if it contains dashes and gaps.
@@ -493,18 +501,18 @@ module HexaPDF
         #
         # Returns the current line dash pattern (see GraphicsState#line_dash_pattern) when no
         # argument is given. Otherwise sets the line dash pattern using the given arguments and
-        # returns it. The setter version can also be called in the line_dash_pattern= form (but only
-        # without the second argument!).
+        # returns self. The setter version can also be called in the line_dash_pattern= form (but
+        # only without the second argument!).
         #
         # If arguments and a block are provided, the changed line dash pattern is only active during
         # the block by saving and restoring the graphics state.
         #
         # Examples:
         #
-        #   canvas.line_dash_pattern(10)            # => LineDashPattern.new([10], 0)
+        #   canvas.line_dash_pattern(10)
         #   canvas.line_dash_pattern                # => LineDashPattern.new([10], 0)
-        #   canvas.line_dash_pattern(10, 2)         # => LineDashPattern.new([10], 2)
-        #   canvas.line_dash_pattern([5, 3, 1], 2)  # => LineDashPattern.new([5, 3, 1], 2)
+        #   canvas.line_dash_pattern(10, 2)
+        #   canvas.line_dash_pattern([5, 3, 1], 2)
         #   canvas.line_dash_pattern = LineDashPattern.new([5, 3, 1], 1)
         #
         #   canvas.line_dash_pattern(10) do
@@ -529,8 +537,8 @@ module HexaPDF
 
         # :call-seq:
         #   canvas.rendering_intent                       => current_rendering_intent
-        #   canvas.rendering_intent(intent)               => rendering_intent
-        #   canvas.rendering_intent(intent) { block }     => current_rendering_intent
+        #   canvas.rendering_intent(intent)               => canvas
+        #   canvas.rendering_intent(intent) { block }     => canvas
         #
         # The rendering intent is used to specify the intent on how colors should be rendered since
         # sometimes compromises have to be made when the capabilities of an output device are not
@@ -542,15 +550,15 @@ module HexaPDF
         # * :Perceptual
         #
         # Returns the current rendering intent (see GraphicsState#rendering_intent) when no argument
-        # is given. Otherwise sets the rendering intent using the +intent+ argument and returns it.
-        # The setter version can also be called in the rendering_intent= form.
+        # is given. Otherwise sets the rendering intent using the +intent+ argument and returns
+        # self. The setter version can also be called in the rendering_intent= form.
         #
         # If the +intent+ and a block are provided, the changed rendering intent is only active
         # during the block by saving and restoring the graphics state.
         #
         # Examples:
         #
-        #   canvas.rendering_intent(:Perceptual)         # => :Perceptual
+        #   canvas.rendering_intent(:Perceptual)
         #   canvas.rendering_intent                      # => :Perceptual
         #   canvas.rendering_intent = :Saturation        # => :Saturation
         #
@@ -567,13 +575,13 @@ module HexaPDF
 
         # :call-seq:
         #   canvas.stroke_color                             => current_stroke_color
-        #   canvas.stroke_color(gray)                       => gray_color
-        #   canvas.stroke_color(r, g, b)                    => rgb_color
-        #   canvas.stroke_color(c, m, y, k)                 => cmyk_color
-        #   canvas.stroke_color(string)                     => rgb_color
-        #   canvas.stroke_color(color_object)               => color_object
-        #   canvas.stroke_color(array)                      => color_object
-        #   canvas.stroke_color(color_spec) { block }       => current_stroke_color
+        #   canvas.stroke_color(gray)                       => canvas
+        #   canvas.stroke_color(r, g, b)                    => canvas
+        #   canvas.stroke_color(c, m, y, k)                 => canvas
+        #   canvas.stroke_color(string)                     => canvas
+        #   canvas.stroke_color(color_object)               => canvas
+        #   canvas.stroke_color(array)                      => canvas
+        #   canvas.stroke_color(color_spec) { block }       => canvas
         #
         # The stroke color defines the color used for stroking operations, i.e. for painting paths.
         #
@@ -589,7 +597,7 @@ module HexaPDF
         # * An array is treated as if its items were specified separately as arguments.
         #
         # Returns the current stroke color (see GraphicsState#stroke_color) when no argument is
-        # given. Otherwise sets the stroke color using the given arguments and returns it. The
+        # given. Otherwise sets the stroke color using the given arguments and returns self. The
         # setter version can also be called in the stroke_color= form.
         #
         # If the arguments and a block are provided, the changed stroke color is only active during
@@ -601,19 +609,19 @@ module HexaPDF
         #   canvas.stroke_color                        # => DeviceGray.color(0.0)
         #
         #   # Same gray color because integer values are normalized to the range of 0.0 to 1.0
-        #   canvas.stroke_color(102)                   # => DeviceGray.color(0.4)
-        #   canvas.stroke_color(0.4)                   # => DeviceGray.color(0.4)
+        #   canvas.stroke_color(102)
+        #   canvas.stroke_color(0.4)
         #
         #   # Specifying RGB colors
-        #   canvas.stroke_color(255, 255, 0)           # => DeviceRGB.color(255, 255, 0)
-        #   canvas.stroke_color("FFFF00")              # => DeviceRGB.color(255, 255, 0)
+        #   canvas.stroke_color(255, 255, 0)
+        #   canvas.stroke_color("FFFF00")
         #
         #   # Specifying CMYK colors
-        #   canvas.stroke_color(255, 255, 0, 128)      # => DeviceCMYK.color(255, 255, 0, 128)
+        #   canvas.stroke_color(255, 255, 0, 128)
         #
         #   # Can use a color object directly
         #   color = HexaPDF::PDF::Content::ColorSpace::DeviceRGB.color(255, 255, 0)
-        #   canvas.stroke_color(color)                 # => DeviceRGB.color(255, 255, 0)
+        #   canvas.stroke_color(color)
         #
         #   # An array argument is destructured - these calls are all equal
         #   cnavas.stroke_color(255, 255, 0)
@@ -621,8 +629,8 @@ module HexaPDF
         #   canvas.stroke_color = [255, 255, 0]
         #
         #   # As usual, can be invoked with a block to limit the effects
-        #   canvas.stroke_color(25) do
-        #     canvas.stroke_color                      # => ColorSpace::DeviceGray.color(25)
+        #   canvas.stroke_color(102) do
+        #     canvas.stroke_color                      # => ColorSpace::DeviceGray.color(0.4)
         #   end
         #
         # See: PDF1.7 s8.6, ColorSpace
@@ -641,8 +649,8 @@ module HexaPDF
         alias :fill_color= :fill_color
 
         # :call-seq:
-        #   canvas.move_to(x, y)
-        #   canvas.move_to([x, y])
+        #   canvas.move_to(x, y)       => canvas
+        #   canvas.move_to([x, y])     => canvas
         #
         # Begins a new subpath (and possibly a new path) by moving the current point to the given
         # point.
@@ -657,11 +665,12 @@ module HexaPDF
         def move_to(*point)
           point.flatten!
           invoke(:m, *point)
+          self
         end
 
         # :call-seq:
-        #   canvas.line_to(x, y)
-        #   canvas.line_to([x, y])
+        #   canvas.line_to(x, y)       => canvas
+        #   canvas.line_to([x, y])     => canvas
         #
         # Appends a straight line segment from the current point to the given point to the current
         # subpath.
@@ -676,15 +685,16 @@ module HexaPDF
         def line_to(*point)
           point.flatten!
           invoke(:l, *point)
+          self
         end
 
         # :call-seq:
-        #   canvas.curve_to(x, y, p1:, p2:)
-        #   canvas.curve_to([x, y], p1:, p2:)
-        #   canvas.curve_to(x, y, p1:)
-        #   canvas.curve_to([x, y], p1:)
-        #   canvas.curve_to(x, y, p2:)
-        #   canvas.curve_to([x, y], p2:)
+        #   canvas.curve_to(x, y, p1:, p2:)       => canvas
+        #   canvas.curve_to([x, y], p1:, p2:)     => canvas
+        #   canvas.curve_to(x, y, p1:)            => canvas
+        #   canvas.curve_to([x, y], p1:)          => canvas
+        #   canvas.curve_to(x, y, p2:)            => canvas
+        #   canvas.curve_to([x, y], p2:)          => canvas
         #
         # Appends a cubic Bezier curve to the current subpath starting from the current point.
         #
@@ -713,11 +723,12 @@ module HexaPDF
           else
             raise HexaPDF::Error, "At least one control point must be specified for Bézier curves"
           end
+          self
         end
 
         # :call-seq:
-        #   canvas.rectangle(x, y, width, height)
-        #   canvas.rectangle([x, y], width, height)
+        #   canvas.rectangle(x, y, width, height)       => canvas
+        #   canvas.rectangle([x, y], width, height)     => canvas
         #
         # Appends a rectangle to the current path as a complete subpath, with the upper-left corner
         # specified by +x+ and +y+ and the given +width+ and +height+.
@@ -732,12 +743,17 @@ module HexaPDF
         def rectangle(*point, width, height)
           point.flatten!
           invoke(:re, *point, width, -height)
+          self
         end
 
+        # :call-seq:
+        #   canvas.close_subpath      => canvas
+        #
         # Closes the current subpath by appending a straight line from the current point to the
         # start point of the subpath.
         def close_subpath
           invoke(:h)
+          self
         end
 
         private
@@ -786,11 +802,12 @@ module HexaPDF
 
             yield if block_given?
             restore_graphics_state if block_given? && color_changed
+            self
           elsif block_given?
             raise HexaPDF::Error, "Block only allowed with arguments"
+          else
+            graphics_state.send(name)
           end
-
-          graphics_state.send(name)
         end
 
         # Creates a color object from the given color specification. See #stroke_color for details
@@ -821,8 +838,8 @@ module HexaPDF
         # getter/setter method with a call sequence of:
         #
         #   canvas.method                        # => cur_value
-        #   canvas.method(new_value)             # => new_value
-        #   canvas.method(new_value) { block }   # => cur_value
+        #   canvas.method(new_value)             # => canvas
+        #   canvas.method(new_value) { block }   # => canvas
         #
         # +name+::
         #   The name (Symbol) of the graphics state parameter for fetching the value from the
@@ -844,10 +861,12 @@ module HexaPDF
             end
             yield if block_given?
             restore_graphics_state if block_given? && value_changed
+            self
           elsif block_given?
             raise HexaPDF::Error, "Block only allowed with an argument"
+          else
+            graphics_state.send(name)
           end
-          graphics_state.send(name)
         end
 
       end
