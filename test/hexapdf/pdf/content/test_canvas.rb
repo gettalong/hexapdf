@@ -229,17 +229,26 @@ describe HexaPDF::PDF::Content::Canvas do
     end
   end
 
+  # Asserts that the method +name+ of +object+ gets invoked with the +expected_values+ when
+  # executing the block.
+  def assert_method_invoked(object, name, *expected_values, check_block: false)
+    args = nil
+    block = nil
+    object.define_singleton_method(name) {|*la, &lb| args = la; block = lb}
+    yield
+    assert_equal(expected_values, args, "Incorrect arguments for #{object.class}##{name}")
+    assert_kind_of(Proc, block, "Missing block for #{object.class}##{name}") if check_block
+  ensure
+    object.singleton_class.send(:remove_method, name)
+  end
+
   # Asserts that the method +name+ invoked with +values+ invokes the #gs_getter_setter helper method
   # with the +name+, +operator+ and +expected_value+ as arguments.
   def assert_gs_getter_setter(name, operator, expected_value, *values)
-    args = nil
-    @canvas.define_singleton_method(:gs_getter_setter) {|*largs, &block| args = largs + [block]}
-    @canvas.send(name, *values) {}
-    @canvas.singleton_class.send(:remove_method, :gs_getter_setter)
-    assert_equal(name, args[0])
-    assert_equal(operator, args[1])
-    assert_equal(expected_value, args[2])
-    assert_kind_of(Proc, args[3])
+    args = [name, operator, expected_value]
+    assert_method_invoked(@canvas, :gs_getter_setter, *args, check_block: true) do
+      @canvas.send(name, *values) {}
+    end
     assert_respond_to(@canvas, name)
   end
 
@@ -356,13 +365,9 @@ describe HexaPDF::PDF::Content::Canvas do
   # Asserts that the method +name+ invoked with +values+ invokes the #color_getter_setter helper
   # method with the +expected_values+ as arguments.
   def assert_color_getter_setter(name, expected_values, *values)
-    args = nil
-    block = nil
-    @canvas.define_singleton_method(:color_getter_setter) {|*la, &lb| args = la; block = lb}
-    @canvas.send(name, *values) {}
-    @canvas.singleton_class.send(:remove_method, :color_getter_setter)
-    assert_equal(expected_values, args)
-    assert_kind_of(Proc, block)
+    assert_method_invoked(@canvas, :color_getter_setter, *expected_values, check_block: true) do
+      @canvas.send(name, *values) {}
+    end
   end
 
   describe "stroke_color" do
