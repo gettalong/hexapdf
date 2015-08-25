@@ -6,6 +6,23 @@ require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/content/processor'
 require 'hexapdf/pdf/content/parser'
 
+describe HexaPDF::PDF::Content::Canvas::EllipticalArc do
+  before do
+    @arc = HexaPDF::PDF::Content::Canvas::EllipticalArc.new(0, 0, a: 1, b: 1, start_angle: -30,
+                                                            end_angle: 30, theta: 90)
+  end
+
+  it "returns the start and end points" do
+    x, y = @arc.start_point
+    assert_in_delta(0.5, x, 0.00001)
+    assert_in_delta(Math.sin(Math::PI / 3), y, 0.00001)
+
+    x, y = @arc.end_point
+    assert_in_delta(-0.5, x, 0.00001)
+    assert_in_delta(Math.sin(Math::PI / 3), y, 0.00001)
+  end
+end
+
 describe HexaPDF::PDF::Content::Canvas do
   before do
     @recorder = TestHelper::OperatorRecorder.new
@@ -14,6 +31,7 @@ describe HexaPDF::PDF::Content::Canvas do
     @parser = HexaPDF::PDF::Content::Parser.new
 
     @doc = HexaPDF::PDF::Document.new
+    @doc.config['canvas.max_ellipse_curves'] = 4
     @page = @doc.pages.add_page
     @canvas = HexaPDF::PDF::Content::Canvas.new(@page, content: :replace)
   end
@@ -229,14 +247,17 @@ describe HexaPDF::PDF::Content::Canvas do
   end
 
   # Asserts that the method +name+ of +object+ gets invoked with the +expected_values+ when
-  # executing the block.
+  # executing the block. +expected_values+ should contain arrays of arguments, one array for each
+  # invocation of the method.
   def assert_method_invoked(object, name, *expected_values, check_block: false)
-    args = nil
-    block = nil
-    object.define_singleton_method(name) {|*la, &lb| args = la; block = lb}
+    args = []
+    block = []
+    object.define_singleton_method(name) {|*la, &lb| args << la; block << lb}
     yield
     assert_equal(expected_values, args, "Incorrect arguments for #{object.class}##{name}")
-    assert_kind_of(Proc, block, "Missing block for #{object.class}##{name}") if check_block
+    block.each do |block_arg|
+      assert_kind_of(Proc, block_arg, "Missing block for #{object.class}##{name}") if check_block
+    end
   ensure
     object.singleton_class.send(:remove_method, name)
   end
@@ -245,7 +266,7 @@ describe HexaPDF::PDF::Content::Canvas do
   # with the +name+, +operator+ and +expected_value+ as arguments.
   def assert_gs_getter_setter(name, operator, expected_value, *values)
     args = [name, operator, expected_value]
-    assert_method_invoked(@canvas, :gs_getter_setter, *args, check_block: true) do
+    assert_method_invoked(@canvas, :gs_getter_setter, args, check_block: true) do
       @canvas.send(name, *values) {}
     end
     assert_respond_to(@canvas, name)
@@ -364,7 +385,7 @@ describe HexaPDF::PDF::Content::Canvas do
   # Asserts that the method +name+ invoked with +values+ invokes the #color_getter_setter helper
   # method with the +expected_values+ as arguments.
   def assert_color_getter_setter(name, expected_values, *values)
-    assert_method_invoked(@canvas, :color_getter_setter, *expected_values, check_block: true) do
+    assert_method_invoked(@canvas, :color_getter_setter, expected_values, check_block: true) do
       @canvas.send(name, *values) {}
     end
   end
@@ -422,9 +443,16 @@ describe HexaPDF::PDF::Content::Canvas do
   end
 
   describe "rectangle" do
-    it "invokes the operator implementation" do
-      assert_operator_invoked(:re, 5, 10, 15, -20) { @canvas.rectangle(5, 10, 15, 20) }
-      assert_operator_invoked(:re, 5, 10, 15, -20) { @canvas.rectangle([5, 10], 15, 20) }
+    it "invokes the operator implementation when radius == 0" do
+      assert_operator_invoked(:re, 5, 10, 15, 20) { @canvas.rectangle(5, 10, 15, 20) }
+      assert_operator_invoked(:re, 5, 10, 15, 20) { @canvas.rectangle([5, 10], 15, 20) }
+    end
+
+    it "invokes the polygon method when radius != 0" do
+      args = [0, 0, 10, 0, 10, 10, 0, 10, radius: 5]
+      assert_method_invoked(@canvas, :polygon, args) do
+        @canvas.rectangle(0, 0, 10, 10, radius: 5)
+      end
     end
 
     it "returns the canvas object" do
@@ -441,5 +469,118 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_equal(@canvas, @canvas.close_subpath)
     end
   end
+
+  describe "line" do
+    it "serializes correctly" do
+      @canvas.line(1, 2, 3, 4)
+      assert_operators(@page.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]]])
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.line(1, 2, 3, 4))
+    end
+  end
+
+  describe "polyline" do
+    it "serializes correctly" do
+      @canvas.polyline(1, 2, 3, 4, [5, 6])
+      assert_operators(@page.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]], [:line_to, [5, 6]]])
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.polyline(1, 2, 3, 4))
+    end
+
+    it "fails if not enought points are supplied" do
+      assert_raises(HexaPDF::Error) { @canvas.polyline(5, 6) }
+    end
+
+    it "fails if a y-coordinate is missing" do
+      assert_raises(HexaPDF::Error) { @canvas.polyline(5, 6, 7, 8, 9) }
+    end
+  end
+
+  describe "polygon" do
+    it "serializes correctly with no radius" do
+      @canvas.polygon(1, 2, 3, 4, [5, 6])
+      assert_operators(@page.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]],
+                                        [:line_to, [5, 6]], [:close_subpath]])
+    end
+
+    it "serializes correctly with a radius" do
+      @canvas.polygon(-1, -1, -1, 1, 1, 1, 1, -1, radius: 1)
+      k = @canvas.class::KAPPA.round(6)
+      assert_operators(@page.contents, [[:move_to, [-1, 0]],
+                                        [:line_to, [-1, 0]], [:curve_to, [-1, k, -k, 1, 0, 1]],
+                                        [:line_to, [0, 1]], [:curve_to, [k, 1, 1, k, 1, 0]],
+                                        [:line_to, [1, 0]], [:curve_to, [1, -k, k, -1, 0, -1]],
+                                        [:line_to, [0, -1]], [:curve_to, [-k, -1, -1, -k, -1, 0]],
+                                        [:close_subpath]])
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.polyline(1, 2, 3, 4, 5, 6))
+    end
+  end
+
+  describe "circle" do
+    it "uses arc for the hard work" do
+      assert_method_invoked(@canvas, :arc, [5, 6, a: 7]) do
+        @canvas.circle(5, 6, 7)
+      end
+    end
+
+    it "serializes correctly" do
+      @canvas.circle(0, 0, 1)
+      @recorder.operations.clear
+      @parser.parse(@page.contents, @processor)
+      assert_equal([:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
+                    @recorder.operators.map(&:first))
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.circle(1, 2, 3))
+    end
+  end
+
+  describe "ellipse" do
+    it "uses arc for the hard work" do
+      assert_method_invoked(@canvas, :ellipse, [5, 6, a: 7, b: 5, inclination: 10]) do
+        @canvas.ellipse(5, 6, a: 7, b: 5, inclination: 10)
+      end
+    end
+
+    it "serializes correctly" do
+      @canvas.ellipse(0, 0, a: 10, b: 5, inclination: 10)
+      @recorder.operations.clear
+      @parser.parse(@page.contents, @processor)
+      assert_equal([:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
+                    @recorder.operators.map(&:first))
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.circle(1, 2, 3))
+    end
+  end
+
+  describe "arc" do
+    it "serializes correctly" do
+      @canvas.arc(0, 0, a: 1, b: 1, start_angle: 0, end_angle: 360, inclination: 0)
+      @canvas.arc(0, 0, a: 1, b: 1, start_angle: 0, end_angle: 360, sweep: false, inclination: 0)
+      assert_operators(@page.contents, [[:move_to, [1, 0]],
+                                        [:curve_to, [1, 0.548584, 0.548584, 1, 0, 1]],
+                                        [:curve_to, [-0.548584, 1, -1, 0.548584, -1, 0]],
+                                        [:curve_to, [-1, -0.548584, -0.548584, -1, 0, -1]],
+                                        [:curve_to, [0.548584, -1, 1, -0.548584, 1, 0]],
+                                        [:move_to, [1, 0]],
+                                        [:curve_to, [1, -0.548584, 0.548584, -1, 0, -1]],
+                                        [:curve_to, [-0.548584, -1, -1, -0.548584, -1, 0]],
+                                        [:curve_to, [-1, 0.548584, -0.548584, 1, 0, 1]],
+                                        [:curve_to, [0.548584, 1, 1, 0.548584, 1, 0]]])
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.arc(1, 2, a: 3))
+    end
   end
 end

@@ -87,6 +87,142 @@ module HexaPDF
       # See: PDF1.7 s8, s9
       class Canvas
 
+        # Helper class used to calculate the Bezier curves to approximate an ellipse or an arc of an
+        # ellipse.
+        #
+        # The ellipse inclined +theta+ degrees with center (cx, cy), semi-major axis +a+ and
+        # semi-minor axis +b+ is defined as a parametric function of the parameter +eta+:
+        #
+        #   E(eta) = {cx + a * cos(theta) * cos(eta) − b * sin(theta) * sin(eta),
+        #             cy + a * sin(theta) * cos(eta) + b * cos(theta) * sin(eta)}
+        #
+        # However, the arc itself can be specified using a start angle and an end angle, the
+        # corresponding eta values are automatically calculated.
+        #
+        # See: ELL - https://www.spaceroots.org/documents/ellipse/elliptical-arc.pdf
+        class EllipticalArc
+
+          include Utils::MathHelpers
+
+          # The maximal number of curves used for approximating a complete ellipse.
+          #
+          # The higher the value the better the approximation will be but it will also take longer
+          # to compute. The value should not be lower than 4. Default value is 6 which already
+          # provides a good approximation.
+          attr_accessor :max_curves
+
+          # Creates an elliptical arc with center point (+cx+, +cy+), semi-major axis +a+,
+          # semi-minor axis +b+, start angle of +start_angle+ degrees, end angle of +end_angle+
+          # degrees and an inclination in respect to the x-axis of +theta+ degrees.
+          #
+          # The +sweep+ argument determines if the arc is drawn in a positive-angle direction
+          # (+true+) or in a negative-angle direction (+false+).
+          def initialize(cx, cy, a:, b:, start_angle: 0, end_angle: 360, theta: 0, sweep: true)
+            @max_curves = 6
+            @cx = cx
+            @cy = cy
+            @a = a
+            @b = b
+            @theta = deg_to_rad(theta)
+            @cos_theta = Math.cos(@theta)
+            @sin_theta = Math.sin(@theta)
+
+            # (see ELL s2.2.1) Calculating eta1 and eta2 so that
+            #   eta1 < eta2 <= eta1 + 2*PI if sweep
+            #   eta2 < eta1 <= eta2 + 2*PI if not sweep
+            start_angle = deg_to_rad(start_angle % 360)
+            end_angle = deg_to_rad(end_angle % 360)
+            @eta1 = Math.atan2(Math.sin(start_angle) / b, Math.cos(start_angle) / a)
+            @eta1 += 2 * Math::PI if @eta1 < 0
+            @eta2 = Math.atan2(Math.sin(end_angle) / b, Math.cos(end_angle) / a)
+            @eta2 += 2 * Math::PI if @eta2 < 0
+            if sweep && @eta2 <= @eta1
+              @eta2 += 2 * Math::PI
+            elsif !sweep && @eta2 >= @eta1
+              @eta1 += 2 * Math::PI
+            end
+          end
+
+          # Returns the start point of the elliptical arc.
+          def start_point
+            @start_point ||= evaluate(@eta1)
+          end
+
+          # Returns the end point of the elliptical arc.
+          def end_point
+            @end_point ||= evaluate(@eta2)
+          end
+
+          # Returns an array of arrays that contain the points for the Bezier curves which are used
+          # for approximating the elliptical arc.
+          #
+          # One subarray consists of
+          #
+          #   [end_point, p1: control_point_1, p2: control_point_2]
+          #
+          # The first start point is the one returned by #start_point, the other start points are
+          # the end points of the curve before.
+          #
+          # The format of the subarray is chosen so that it can be fed to the Canvas#curve_to
+          # method by using array splatting.
+          #
+          # See: ELL s3.4.1 (especially the last box on page 18)
+          def curves
+            result = []
+
+            # Number of curves to use, maximal segment angle is PI/2
+            n = [@max_curves, ((@eta2 - @eta1).abs / (Math::PI / @max_curves / 2)).ceil].min
+            d_eta = (@eta2 - @eta1) / n
+
+            alpha = Math.sin(d_eta) * (Math.sqrt(4 + 3 * Math.tan(d_eta / 2)**2) - 1) / 3
+
+            eta2 = @eta1
+            p2x, p2y = evaluate(eta2)
+            p2x_prime, p2y_prime = derivative_evaluate(eta2)
+            1.upto(n) do
+              p1x = p2x
+              p1y = p2y
+              p1x_prime = p2x_prime
+              p1y_prime = p2y_prime
+
+              eta2 += d_eta
+              p2x, p2y = evaluate(eta2)
+              p2x_prime, p2y_prime = derivative_evaluate(eta2)
+
+              result << [[p2x, p2y],
+                         p1: [p1x + alpha * p1x_prime, p1y + alpha * p1y_prime],
+                         p2: [p2x - alpha * p2x_prime, p2y - alpha * p2y_prime]]
+            end
+
+            result
+          end
+
+          private
+
+          # Returns an array containing the x and y coordinates of the point on the elliptical arc
+          # specified by the parameter +eta+.
+          #
+          # See: ELL s2.2.1 (3)
+          def evaluate(eta)
+            a_cos_eta = @a * Math.cos(eta)
+            b_sin_eta = @b * Math.sin(eta)
+            [@cx + a_cos_eta * @cos_theta - b_sin_eta * @sin_theta,
+             @cy + a_cos_eta * @sin_theta + b_sin_eta * @cos_theta]
+          end
+
+          # Returns an array containing the derivative of the parametric function defining the
+          # ellipse evaluated at +eta+.
+          #
+          # See: ELL s2.2.1 (4)
+          def derivative_evaluate(eta)
+            a_sin_eta = @a * Math.sin(eta)
+            b_cos_eta = @b * Math.cos(eta)
+            [- a_sin_eta * @cos_theta - b_cos_eta * @sin_theta,
+             - a_sin_eta * @sin_theta + b_cos_eta * @cos_theta]
+          end
+
+        end
+
         include Utils::MathHelpers
 
         # The context for which the canvas was created (a Type::Page or Type::Form object).
@@ -727,23 +863,31 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   canvas.rectangle(x, y, width, height)       => canvas
-        #   canvas.rectangle([x, y], width, height)     => canvas
+        #   canvas.rectangle(x, y, width, height, radius: 0)       => canvas
+        #   canvas.rectangle([x, y], width, height, radius: 0)     => canvas
         #
-        # Appends a rectangle to the current path as a complete subpath, with the upper-left corner
+        # Appends a rectangle to the current path as a complete subpath, with the lower-left corner
         # specified by +x+ and +y+ and the given +width+ and +height+.
         #
+        # If +radius+ is greater than 0, the corners are rounded with the given radius.
+        #
         # If there is no current path when the method is invoked, a new path is automatically begun.
-        # The current point after invoking this method will be the upper-left corner.
         #
         # Examples:
         #
         #   canvas.rectangle(100, 100, 100, 50)
         #   canvas.rectangle([100, 100], 100, 50)
-        def rectangle(*point, width, height)
+        #
+        #   canvas.rectangle([100, 100], 100, 50, radius: 10)
+        def rectangle(*point, width, height, radius: 0)
           point.flatten!
-          invoke(:re, *point, width, -height)
-          self
+          if radius == 0
+            invoke(:re, *point, width, height)
+            self
+          else
+            x, y = point
+            polygon(x, y, x + width, y, x + width, y + height, x, y + height, radius: radius)
+          end
         end
 
         # :call-seq:
@@ -753,6 +897,201 @@ module HexaPDF
         # start point of the subpath.
         def close_subpath
           invoke(:h)
+          self
+        end
+
+        # :call-seq:
+        #   canvas.line(x0, y0, x1, y1)        => canvas
+        #   canvas.line([x0, y0], [x1, y1])    => canvas
+        #
+        # Moves the current point to (x0, y0) and appends a line to (x1, y1) to the current path.
+        #
+        # The points can either be specified as +x+ and +y+ arguments or as arrays containing two
+        # numbers.
+        #
+        # Examples:
+        #
+        #   canvas.line(10, 10, 100, 100)
+        #   canvas.line([10, 10], [100, 100])
+        def line(*points)
+          points.flatten!
+          move_to(points[0], points[1])
+          line_to(points[2], points[3])
+        end
+
+        # :call-seq:
+        #   canvas.polyline(x0, y0, x1, y1, x2, y2, ...)          => canvas
+        #   canvas.polyline([x0, y0], [x1, y1], [x2, y2], ...)    => canvas
+        #
+        # Moves the current point to (x0, y0) and appends line segments between all given
+        # consecutive points, i.e. between (x0, y0) and (x1, y1), between (x1, y1) and (x2, y2) and
+        # so on.
+        #
+        # The points can either be specified as +x+ and +y+ arguments or as arrays containing two
+        # numbers.
+        #
+        # Examples:
+        #
+        #   canvas.polyline(0, 0, 100, 0, 100, 100, 0, 100, 0, 0)
+        #   canvas.polyline([0, 0], [100, 0], [100, 100], [0, 100], [0, 0])
+        def polyline(*points)
+          check_poly_points(points)
+          move_to(points[0], points[1])
+          i = 2
+          while i < points.length
+            line_to(points[i], points[i + 1])
+            i += 2
+          end
+          self
+        end
+
+        # :call-seq:
+        #   canvas.polygon(x0, y0, x1, y1, x2, y2, ..., radius: 0)          => canvas
+        #   canvas.polygon([x0, y0], [x1, y1], [x2, y2], ..., radius: 0)    => canvas
+        #
+        # Appends a polygon consisting of the given points to the path as a complete subpath.
+        #
+        # If +radius+ is greater than 0, the corners are rounded with the given radius.
+        #
+        # If there is no current path when the method is invoked, a new path is automatically begun.
+        #
+        # The points can either be specified as +x+ and +y+ arguments or as arrays containing two
+        # numbers.
+        #
+        # Examples:
+        #
+        #   canvas.polygon(0, 0, 100, 0, 100, 100, 0, 100)
+        #   canvas.polygon([0, 0], [100, 0], [100, 100], [0, 100])
+        #
+        #   canvas.polygon(0, 0, 100, 0, 100, 100, 0, 100, radius: 10)
+        def polygon(*points, radius: 0)
+          if radius == 0
+            polyline(*points)
+          else
+            check_poly_points(points)
+            move_to(point_on_line(points[0], points[1], points[2], points[3], distance: radius))
+            points.concat(points[0, 4])
+            0.step(points.length - 6, 2) {|i| line_with_rounded_corner(*points[i, 6], radius)}
+          end
+          close_subpath
+        end
+
+        # :call-seq:
+        #   canvas.circle(cx, cy, radius)      => canvas
+        #   canvas.circle([cx, cy], radius)    => canvas
+        #
+        # Appends a circle with center (cx, cy) and the given +radius+ (in degrees) to the path as a
+        # complete subpath.
+        #
+        # If there is no current path when the method is invoked, a new path is automatically begun.
+        #
+        # The center point can either be specified as +x+ and +y+ arguments or as an array
+        # containing two numbers.
+        #
+        # Examples:
+        #
+        #   canvas.circle(100, 100, 10)
+        #   canvas.circle([100, 100], 10)
+        #
+        # See: #arc (for approximation accuracy)
+        def circle(*center, radius)
+          arc(*center, a: radius)
+          close_subpath
+        end
+
+        # :call-seq:
+        #   canvas.ellipse(cx, cy, a:, b:, inclination: 0)      => canvas
+        #   canvas.ellipse([cx, cy], a:, b:, inclination: 0)    => canvas
+        #
+        # Appends an ellipse with center (cx, cy), semi-major axis +a+, semi-minor axis +b+ and an
+        # inclination from the x-axis of +inclination+ degrees to the path as a complete subpath.
+        #
+        # If there is no current path when the method is invoked, a new path is automatically begun.
+        #
+        # The center point can either be specified as +x+ and +y+ arguments or as an array
+        # containing two numbers.
+        #
+        # Examples:
+        #
+        #   # Ellipse aligned to x-axis and y-axis
+        #   canvas.ellipse(100, 100, a: 10, b: 5)
+        #   canvas.ellipse([100, 100], a: 10, b: 5)
+        #
+        #   # Inclined ellipse
+        #   canvas.ellipse(100, 100, a: 10, b: 5, inclination: 45)
+        #
+        # See: #arc (for approximation accuracy)
+        def ellipse(*center, a:, b:, inclination: 0)
+          arc(*center, a: a, b: b, inclination: inclination)
+          close_subpath
+        end
+
+        # :call-seq:
+        #   canvas.arc(cx, cy, a:, b: a, start_angle: 0, end_angle: 360, sweep: true, inclination: 0)   => canvas
+        #   canvas.arc([cx, cy], a:, b: a, start_angle: 0, end_angle: 360, sweep: true, inclination: 0) => canvas
+        #
+        # Appends an elliptical arc to the path.
+        #
+        # +cx+::
+        #   x-coordinate of the center point of the arc
+        #
+        # +cy+::
+        #   y-coordinate of the center point of the arc
+        #
+        # +a+::
+        #   Length of semi-major axis
+        #
+        # +b+::
+        #   Length of semi-minor axis (default: +a+)
+        #
+        # +start_angle+::
+        #   Angle in degrees at which to start the arc (default: 0)
+        #
+        # +end_angle+::
+        #   Angle in degrees at which to end the arc (default: 360)
+        #
+        # +sweep+::
+        #   If +true+ the arc is drawn in a positive-angle direction, otherwise in a negative-angle
+        #   direction.
+        #
+        # +inclination+::
+        #   Angle in degrees between the x-axis and the semi-major axis (default: 0)
+        #
+        # If +a+ and +b+ are equal, a circular arc is drawn. If the difference of the start angle
+        # and end angle is equal to 360, a full ellipse (or circle) is drawn.
+        #
+        # If there is no current path when the method is invoked, a new path is automatically begun.
+        #
+        # The center point can either be specified as +x+ and +y+ arguments or as an array
+        # containing two numbers.
+        #
+        # Since PDF doesn't have operators for drawing elliptical or circular arcs, they have to be
+        # approximated using Bezier curves (see #curve_to). The accuracy of the approximation can be
+        # controlled using the configuration option 'canvas.max_ellipse_curves'.
+        #
+        # Examples:
+        #
+        #   canvas.arc(0, 0, a: 10)                         # Circle at (0, 0) with radius 10
+        #   canvas.arc(0, 0, a: 10, b: 5)                   # Ellipse at (0, 0) with radii 10 and 5
+        #   canvas.arc(0, 0, a: 10, b: 5, inclination: 45)  # The above ellipse inclined 45 degrees
+        #
+        #   # Circular and elliptical arcs from 45 degrees to 135 degrees
+        #   canvas.arc(0, 0, a: 10, start_angle: 45, end_angle: 135)
+        #   canvas.arc(0, 0, a: 10, b: 5, start_angle: 45, end_angle: 135)
+        #
+        #   # Arcs from 135 degrees to 15 degrees, the first in positive direction (i.e. to 15 + 360
+        #   # degrees, the big arc), the other in negative direction (the small arc)
+        #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15)
+        #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15, sweep: false)
+        #
+        # See: EllipticalArc
+        def arc(*center, a:, b: a, start_angle: 0, end_angle: 360, sweep: true, inclination: 0)
+          center.flatten!
+          e = EllipticalArc.new(*center, a: a, b: b, start_angle: start_angle,
+                                end_angle: end_angle, sweep: sweep, theta: inclination)
+          e.max_curves = context.document.config['canvas.max_ellipse_curves']
+          move_to(e.start_point)
+          e.curves.each {|curve| curve_to(*curve)}
           self
         end
 
@@ -867,6 +1206,42 @@ module HexaPDF
           else
             graphics_state.send(name)
           end
+        end
+
+        # Modifies and checks the array +points+ so that polylines and polygons work correctly.
+        def check_poly_points(points)
+          points.flatten!
+          if points.length < 4
+            raise HexaPDF::Error, "At least two points needed to make one line segment"
+          elsif points.length.odd?
+            raise HexaPDF::Error, "Missing y-coordinate for last point"
+          end
+        end
+
+        # Used for calculating the optimal distance of the control points.
+        #
+        # See: http://itc.ktu.lt/itc354/Riskus354.pdf, p373 right column
+        KAPPA = 0.55191496 #:nodoc:
+
+        # Appends a line with a rounded corner from the current point. The corner is specified by
+        # the three points (x0, y0), (x1, y1) and (x2, y2) where (x1, y1) is the corner point.
+        def line_with_rounded_corner(x0, y0, x1, y1, x2, y2, radius)
+          p0 = point_on_line(x1, y1, x0, y0, distance: radius)
+          p3 = point_on_line(x1, y1, x2, y2, distance: radius)
+          p1 = point_on_line(p0[0], p0[1], x1, y1, distance: KAPPA * radius)
+          p2 = point_on_line(p3[0], p3[1], x1, y1, distance: KAPPA * radius)
+          line_to(p0)
+          curve_to(p3, p1: p1, p2: p2)
+        end
+
+        # Given two points p0 = (x0, y0) and p1 = (x1, y1), returns the point on the line through
+        # these points that is +distance+ units away from p0.
+        #
+        #   v = p1 - p0
+        #   result = p0 + distance * v/norm(v)
+        def point_on_line(x0, y0, x1, y1, distance:)
+          norm = Math.sqrt((x1 - x0)**2 + (y1 - y0)**2)
+          [x0 + distance / norm * (x1 - x0), y0 + distance / norm * (y1 - y0)]
         end
 
       end

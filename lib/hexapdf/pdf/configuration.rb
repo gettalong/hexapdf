@@ -95,6 +95,13 @@ module HexaPDF
     #
     # The following options are provided:
     #
+    # canvas.max_ellipse_curves::
+    #    The maximum number of curves used for approximating a complete ellipse using Bezier curves.
+    #
+    #    The default value is 6, higher values result in better approximations but also take longer
+    #    to compute. It should not be set to values lower than 4, otherwise the approximation of a
+    #    complete ellipse is visibly false.
+    #
     # image_loader.pdf.use_stringio::
     #    A boolean determining whether images specified via file names should be read into memory
     #    all at once using a StringIO object.
@@ -131,7 +138,8 @@ module HexaPDF
     # sorted_tree.max_leaf_node_size::
     #    The maximum number of nodes that should be in a leaf node of a node tree.
     DefaultDocumentConfiguration =
-      Configuration.new('image_loader.pdf.use_stringio' => true,
+      Configuration.new('canvas.max_ellipse_curves' => 6,
+                        'image_loader.pdf.use_stringio' => true,
                         'io.chunk_size' => 2**16,
                         'page.default_media_box' => :A4,
                         'parser.on_correctable_error' => proc { false },
