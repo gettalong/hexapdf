@@ -583,4 +583,38 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_equal(@canvas, @canvas.arc(1, 2, a: 3))
     end
   end
+
+  describe "path painting methods" do
+    it "invokes the respective operator implementation" do
+      assert_operator_invoked(:S) { @canvas.stroke }
+      assert_operator_invoked(:s) { @canvas.close_stroke }
+      assert_operator_invoked(:f) { @canvas.fill(:nonzero) }
+      assert_operator_invoked(:'f*') { @canvas.fill(:even_odd) }
+      assert_operator_invoked(:B) { @canvas.fill_stroke(:nonzero) }
+      assert_operator_invoked(:'B*') { @canvas.fill_stroke(:even_odd) }
+      assert_operator_invoked(:b) { @canvas.close_fill_stroke(:nonzero) }
+      assert_operator_invoked(:'b*') { @canvas.close_fill_stroke(:even_odd) }
+      assert_operator_invoked(:n) { @canvas.end_path }
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.stroke)
+      assert_equal(@canvas, @canvas.close_stroke)
+      assert_equal(@canvas, @canvas.fill)
+      assert_equal(@canvas, @canvas.fill_stroke)
+      assert_equal(@canvas, @canvas.close_fill_stroke)
+      assert_equal(@canvas, @canvas.end_path)
+    end
+  end
+
+  describe "clip_path" do
+    it "invokes the respective operator implementation" do
+      assert_operator_invoked(:W) { @canvas.clip_path(:nonzero) }
+      assert_operator_invoked(:'W*') { @canvas.clip_path(:even_odd) }
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.clip_path)
+    end
+  end
 end

@@ -1095,6 +1095,104 @@ module HexaPDF
           self
         end
 
+        # :call-seq:
+        #   canvas.stroke    => canvas
+        #
+        # Strokes the path.
+        #
+        # See: PDF1.7 s8.5.3.1, s8.5.3.2
+        def stroke
+          invoke(:S)
+          self
+        end
+
+        # :call-seq:
+        #   canvas.close_stroke    => canvas
+        #
+        # Closes the last subpath and then strokes the path.
+        #
+        # See: PDF1.7 s8.5.3.1, s8.5.3.2
+        def close_stroke
+          invoke(:s)
+          self
+        end
+
+        # :call-seq:
+        #   canvas.fill(rule = :nonzero)    => canvas
+        #
+        # Fills the path using the given rule.
+        #
+        # The argument +rule+ may either be +:nonzero+ to use the nonzero winding number rule or
+        # +:even_odd+ to use the even-odd rule for determining which regions to fill in.
+        #
+        # Any open subpaths are implicitly closed before being filled.
+        #
+        # See: PDF1.7 s8.5.3.1, s8.5.3.3
+        def fill(rule = :nonzero)
+          invoke(rule == :nonzero ? :f : :'f*')
+          self
+        end
+
+        # :call-seq:
+        #   canvas.fill_stroke(rule = :nonzero)    => canvas
+        #
+        # Fills and then strokes the path using the given rule.
+        #
+        # The argument +rule+ may either be +:nonzero+ to use the nonzero winding number rule or
+        # +:even_odd+ to use the even-odd rule for determining which regions to fill in.
+        #
+        # See: PDF1.7 s8.5.3
+        def fill_stroke(rule = :nonzero)
+          invoke(rule == :nonzero ? :B : :'B*')
+          self
+        end
+
+        # :call-seq:
+        #   canvas.close_fill_stroke(rule = :nonzero)    => canvas
+        #
+        # Closes the last subpath and then fills and strokes the path using the given rule.
+        #
+        # The argument +rule+ may either be +:nonzero+ to use the nonzero winding number rule or
+        # +:even_odd+ to use the even-odd rule for determining which regions to fill in.
+        #
+        # See: PDF1.7 s8.5.3
+        def close_fill_stroke(rule = :nonzero)
+          invoke(rule == :nonzero ? :b : :'b*')
+          self
+        end
+
+        # :call-seq:
+        #   canvas.end_path     => canvas
+        #
+        # Ends the path without stroking or filling it.
+        #
+        # This method is normally used in conjunction with the clipping path methods to define the
+        # clipping.
+        #
+        # See: PDF1.7 s8.5.3.1 #clip
+        def end_path
+          invoke(:n)
+          self
+        end
+
+        # :call-seq:
+        #   canvas.clip_path(rule = :nonzero)     => canvas
+        #
+        # Modifies the clipping path by intersecting it with the current path.
+        #
+        # The argument +rule+ may either be +:nonzero+ to use the nonzero winding number rule or
+        # +:even_odd+ to use the even-odd rule for determining which regions lie inside the clipping
+        # path.
+        #
+        # Note that the current path cannot be modified after invoking this method! This means that
+        # one of the path painting methods or #end_path must be called immediately afterwards.
+        #
+        # See: PDF1.7 s8.5.4
+        def clip_path(rule = :nonzero)
+          invoke(rule == :nonzero ? :W : :'W*')
+          self
+        end
+
         private
 
         def init_contents(strategy)
