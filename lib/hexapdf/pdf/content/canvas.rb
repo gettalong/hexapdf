@@ -4,6 +4,7 @@ require 'hexapdf/pdf/content/graphics_state'
 require 'hexapdf/pdf/content/operator'
 require 'hexapdf/pdf/serializer'
 require 'hexapdf/pdf/utils/math_helpers'
+require 'hexapdf/pdf/content/graphic_object'
 
 module HexaPDF
   module PDF
@@ -86,142 +87,6 @@ module HexaPDF
       #
       # See: PDF1.7 s8, s9
       class Canvas
-
-        # Helper class used to calculate the Bezier curves to approximate an ellipse or an arc of an
-        # ellipse.
-        #
-        # The ellipse inclined +theta+ degrees with center (cx, cy), semi-major axis +a+ and
-        # semi-minor axis +b+ is defined as a parametric function of the parameter +eta+:
-        #
-        #   E(eta) = {cx + a * cos(theta) * cos(eta) − b * sin(theta) * sin(eta),
-        #             cy + a * sin(theta) * cos(eta) + b * cos(theta) * sin(eta)}
-        #
-        # However, the arc itself can be specified using a start angle and an end angle, the
-        # corresponding eta values are automatically calculated.
-        #
-        # See: ELL - https://www.spaceroots.org/documents/ellipse/elliptical-arc.pdf
-        class EllipticalArc
-
-          include Utils::MathHelpers
-
-          # The maximal number of curves used for approximating a complete ellipse.
-          #
-          # The higher the value the better the approximation will be but it will also take longer
-          # to compute. The value should not be lower than 4. Default value is 6 which already
-          # provides a good approximation.
-          attr_accessor :max_curves
-
-          # Creates an elliptical arc with center point (+cx+, +cy+), semi-major axis +a+,
-          # semi-minor axis +b+, start angle of +start_angle+ degrees, end angle of +end_angle+
-          # degrees and an inclination in respect to the x-axis of +theta+ degrees.
-          #
-          # The +sweep+ argument determines if the arc is drawn in a positive-angle direction
-          # (+true+) or in a negative-angle direction (+false+).
-          def initialize(cx, cy, a:, b:, start_angle: 0, end_angle: 360, theta: 0, sweep: true)
-            @max_curves = 6
-            @cx = cx
-            @cy = cy
-            @a = a
-            @b = b
-            @theta = deg_to_rad(theta)
-            @cos_theta = Math.cos(@theta)
-            @sin_theta = Math.sin(@theta)
-
-            # (see ELL s2.2.1) Calculating eta1 and eta2 so that
-            #   eta1 < eta2 <= eta1 + 2*PI if sweep
-            #   eta2 < eta1 <= eta2 + 2*PI if not sweep
-            start_angle = deg_to_rad(start_angle % 360)
-            end_angle = deg_to_rad(end_angle % 360)
-            @eta1 = Math.atan2(Math.sin(start_angle) / b, Math.cos(start_angle) / a)
-            @eta1 += 2 * Math::PI if @eta1 < 0
-            @eta2 = Math.atan2(Math.sin(end_angle) / b, Math.cos(end_angle) / a)
-            @eta2 += 2 * Math::PI if @eta2 < 0
-            if sweep && @eta2 <= @eta1
-              @eta2 += 2 * Math::PI
-            elsif !sweep && @eta2 >= @eta1
-              @eta1 += 2 * Math::PI
-            end
-          end
-
-          # Returns the start point of the elliptical arc.
-          def start_point
-            @start_point ||= evaluate(@eta1)
-          end
-
-          # Returns the end point of the elliptical arc.
-          def end_point
-            @end_point ||= evaluate(@eta2)
-          end
-
-          # Returns an array of arrays that contain the points for the Bezier curves which are used
-          # for approximating the elliptical arc.
-          #
-          # One subarray consists of
-          #
-          #   [end_point, p1: control_point_1, p2: control_point_2]
-          #
-          # The first start point is the one returned by #start_point, the other start points are
-          # the end points of the curve before.
-          #
-          # The format of the subarray is chosen so that it can be fed to the Canvas#curve_to
-          # method by using array splatting.
-          #
-          # See: ELL s3.4.1 (especially the last box on page 18)
-          def curves
-            result = []
-
-            # Number of curves to use, maximal segment angle is PI/2
-            n = [@max_curves, ((@eta2 - @eta1).abs / (Math::PI / @max_curves / 2)).ceil].min
-            d_eta = (@eta2 - @eta1) / n
-
-            alpha = Math.sin(d_eta) * (Math.sqrt(4 + 3 * Math.tan(d_eta / 2)**2) - 1) / 3
-
-            eta2 = @eta1
-            p2x, p2y = evaluate(eta2)
-            p2x_prime, p2y_prime = derivative_evaluate(eta2)
-            1.upto(n) do
-              p1x = p2x
-              p1y = p2y
-              p1x_prime = p2x_prime
-              p1y_prime = p2y_prime
-
-              eta2 += d_eta
-              p2x, p2y = evaluate(eta2)
-              p2x_prime, p2y_prime = derivative_evaluate(eta2)
-
-              result << [[p2x, p2y],
-                         p1: [p1x + alpha * p1x_prime, p1y + alpha * p1y_prime],
-                         p2: [p2x - alpha * p2x_prime, p2y - alpha * p2y_prime]]
-            end
-
-            result
-          end
-
-          private
-
-          # Returns an array containing the x and y coordinates of the point on the elliptical arc
-          # specified by the parameter +eta+.
-          #
-          # See: ELL s2.2.1 (3)
-          def evaluate(eta)
-            a_cos_eta = @a * Math.cos(eta)
-            b_sin_eta = @b * Math.sin(eta)
-            [@cx + a_cos_eta * @cos_theta - b_sin_eta * @sin_theta,
-             @cy + a_cos_eta * @sin_theta + b_sin_eta * @cos_theta]
-          end
-
-          # Returns an array containing the derivative of the parametric function defining the
-          # ellipse evaluated at +eta+.
-          #
-          # See: ELL s2.2.1 (4)
-          def derivative_evaluate(eta)
-            a_sin_eta = @a * Math.sin(eta)
-            b_cos_eta = @b * Math.cos(eta)
-            [- a_sin_eta * @cos_theta - b_cos_eta * @sin_theta,
-             - a_sin_eta * @sin_theta + b_cos_eta * @cos_theta]
-          end
-
-        end
 
         include Utils::MathHelpers
 
@@ -1084,14 +949,50 @@ module HexaPDF
         #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15)
         #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15, sweep: false)
         #
-        # See: EllipticalArc
+        # See: GraphicObject::Arc
         def arc(*center, a:, b: a, start_angle: 0, end_angle: 360, sweep: true, inclination: 0)
           center.flatten!
-          e = EllipticalArc.new(*center, a: a, b: b, start_angle: start_angle,
-                                end_angle: end_angle, sweep: sweep, theta: inclination)
-          e.max_curves = context.document.config['canvas.max_ellipse_curves']
-          move_to(e.start_point)
-          e.curves.each {|curve| curve_to(*curve)}
+          arc = GraphicObject::Arc.configure(cx: center[0], cy: center[1], a: a, b: b,
+            start_angle: start_angle, end_angle: end_angle, sweep: sweep, theta: inclination)
+          arc.draw(self)
+          self
+        end
+
+        # :call-seq:
+        #   canvas.graphic_object(obj, **options)      => obj
+        #   canvas.graphic_object(name, **options)     => graphic_object
+        #
+        # Returns the named graphic object, configured with the given options.
+        #
+        # If an object responding to :configure is given, it is used. Otherwise the graphic object
+        # is looked up via the given name in the configuration option 'graphic_object.map'. Then the
+        # graphic object is configured with the given options if at least one is given.
+        #
+        # Examples:
+        #
+        #   obj = canvas.graphic_object(:arc, cx: 10, cy: 10)
+        #   canvas.draw(obj)
+        def graphic_object(obj, **options)
+          unless obj.respond_to?(:configure)
+            obj = context.document.config.constantize('graphic_object.map', obj)
+          end
+          obj = obj.configure(options) if options.size > 0 || !obj.respond_to?(:draw)
+          obj
+        end
+
+        # :call-seq:
+        #   canvas.draw(obj, **options)      => canvas
+        #   canvas.draw(name, **options)     => canvas
+        #
+        # Draws the given graphic object on the canvas.
+        #
+        # See #graphic_object for information on the arguments.
+        #
+        # Examples:
+        #
+        #   canvas.draw(:arc, cx: 10, cy: 10)
+        def draw(name, **options)
+          graphic_object(name, **options).draw(self)
           self
         end
 

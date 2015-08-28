@@ -95,7 +95,12 @@ module HexaPDF
     #
     # The following options are provided:
     #
-    # canvas.max_ellipse_curves::
+    # graphic_object.map::
+    #    A mapping from graphic object names to graphic object factories.
+    #
+    #    See HexaPDF::PDF::Content::GraphicObject for more information.
+    #
+    # graphic_object.arc.max_curves::
     #    The maximum number of curves used for approximating a complete ellipse using Bezier curves.
     #
     #    The default value is 6, higher values result in better approximations but also take longer
@@ -138,7 +143,10 @@ module HexaPDF
     # sorted_tree.max_leaf_node_size::
     #    The maximum number of nodes that should be in a leaf node of a node tree.
     DefaultDocumentConfiguration =
-      Configuration.new('canvas.max_ellipse_curves' => 6,
+      Configuration.new('graphic_object.map' => {
+                          arc: 'HexaPDF::PDF::Content::GraphicObject::Arc',
+                        },
+                        'graphic_object.arc.max_curves' => 6,
                         'image_loader.pdf.use_stringio' => true,
                         'io.chunk_size' => 2**16,
                         'page.default_media_box' => :A4,

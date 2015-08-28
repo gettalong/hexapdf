@@ -6,23 +6,6 @@ require 'hexapdf/pdf/document'
 require 'hexapdf/pdf/content/processor'
 require 'hexapdf/pdf/content/parser'
 
-describe HexaPDF::PDF::Content::Canvas::EllipticalArc do
-  before do
-    @arc = HexaPDF::PDF::Content::Canvas::EllipticalArc.new(0, 0, a: 1, b: 1, start_angle: -30,
-                                                            end_angle: 30, theta: 90)
-  end
-
-  it "returns the start and end points" do
-    x, y = @arc.start_point
-    assert_in_delta(0.5, x, 0.00001)
-    assert_in_delta(Math.sin(Math::PI / 3), y, 0.00001)
-
-    x, y = @arc.end_point
-    assert_in_delta(-0.5, x, 0.00001)
-    assert_in_delta(Math.sin(Math::PI / 3), y, 0.00001)
-  end
-end
-
 describe HexaPDF::PDF::Content::Canvas do
   before do
     @recorder = TestHelper::OperatorRecorder.new
@@ -31,7 +14,7 @@ describe HexaPDF::PDF::Content::Canvas do
     @parser = HexaPDF::PDF::Content::Parser.new
 
     @doc = HexaPDF::PDF::Document.new
-    @doc.config['canvas.max_ellipse_curves'] = 4
+    @doc.config['graphic_object.arc.max_curves'] = 4
     @page = @doc.pages.add_page
     @canvas = HexaPDF::PDF::Content::Canvas.new(@page, content: :replace)
   end
@@ -581,6 +564,42 @@ describe HexaPDF::PDF::Content::Canvas do
 
     it "returns the canvas object" do
       assert_equal(@canvas, @canvas.arc(1, 2, a: 3))
+    end
+  end
+
+  describe "graphic_object" do
+    it "returns a new graphic object given a name" do
+      arc = @canvas.graphic_object(:arc)
+      assert_respond_to(arc, :draw)
+      arc1 = @canvas.graphic_object(:arc)
+      refute_same(arc, arc1)
+    end
+
+    it "returns a configured graphic object given a name" do
+      arc = @canvas.graphic_object(:arc, cx: 10)
+      assert_equal(10, arc.cx)
+    end
+
+    it "reconfigures the given graphic object" do
+      arc = @canvas.graphic_object(:arc)
+      arc1 = @canvas.graphic_object(arc, cx: 10)
+      assert_same(arc, arc1)
+      assert_equal(10, arc.cx)
+    end
+  end
+
+  describe "draw" do
+    it "draws the, optionally configured, graphic object onto the canvas" do
+      obj = Object.new
+      obj.define_singleton_method(:options) { @options }
+      obj.define_singleton_method(:configure) {|**kwargs| @options = kwargs; self}
+      obj.define_singleton_method(:draw) {|canvas| canvas.move_to(@options[:x], @options[:y])}
+      @canvas.draw(obj, x: 5, y: 6)
+      assert_operators(@page.contents, [[:move_to, [5, 6]]])
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.draw(:arc))
     end
   end
 
