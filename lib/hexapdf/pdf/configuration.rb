@@ -145,6 +145,7 @@ module HexaPDF
     DefaultDocumentConfiguration =
       Configuration.new('graphic_object.map' => {
                           arc: 'HexaPDF::PDF::Content::GraphicObject::Arc',
+                          solid_arc: 'HexaPDF::PDF::Content::GraphicObject::SolidArc',
                         },
                         'graphic_object.arc.max_curves' => 6,
                         'image_loader.pdf.use_stringio' => true,

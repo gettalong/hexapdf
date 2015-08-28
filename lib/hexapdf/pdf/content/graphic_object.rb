@@ -43,6 +43,7 @@ module HexaPDF
       module GraphicObject
 
         autoload(:Arc, 'hexapdf/pdf/content/graphic_object/arc')
+        autoload(:SolidArc, 'hexapdf/pdf/content/graphic_object/solid_arc')
 
       end
 
