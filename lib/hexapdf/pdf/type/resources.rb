@@ -77,6 +77,31 @@ module HexaPDF
           name
         end
 
+        # Returns the XObject stored under the given name.
+        #
+        # If the XObject is not found, an error is raised.
+        def xobject(name)
+          obj = self[:XObject] && self[:XObject][name]
+          if obj.nil?
+            raise HexaPDF::Error, "XObject '#{name}' not found in the resources"
+          end
+          obj
+        end
+
+        # Adds the XObject to the resources and returns the name under which it is stored.
+        #
+        # If there already exists a name for the given XObject, it is just returned.
+        def add_xobject(object)
+          self[:XObject] = {} unless key?(:XObject)
+          dict = self[:XObject]
+          name, _value = dict.each.find {|_, dict_obj| dict_obj == object}
+          unless name
+            name = create_resource_name(dict.value, 'XO')
+            dict[name] = object
+          end
+          name
+        end
+
         private
 
         # Returns a unique name that can be used to store a resource in the given hash.

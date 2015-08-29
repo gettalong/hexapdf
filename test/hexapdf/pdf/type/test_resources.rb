@@ -77,6 +77,33 @@ describe HexaPDF::PDF::Type::Resources do
     end
   end
 
+  describe "xobject" do
+    it "returns the named XObject" do
+      @res[:XObject] = {name: :value}
+      assert_equal(:value, @res.xobject(:name))
+    end
+
+    it "fails if the specified name is not in the dictionary" do
+      assert_raises(HexaPDF::Error) { @res.xobject(:UnknownXObject) }
+    end
+  end
+
+  describe "add_xobject" do
+    it "adds the XObject to the /XObject subdictionary" do
+      obj = @doc.add(some: :xobject)
+      name = @res.add_xobject(obj)
+      assert(@res[:XObject].key?(name))
+      assert_equal(obj, @res[:XObject][name])
+    end
+
+    it "doesn't add the same XObject twice" do
+      obj = @doc.add(some: :xobject)
+      name = @res.add_xobject(obj)
+      name2 = @res.add_xobject(obj)
+      assert_equal(name, name2)
+    end
+  end
+
   describe "validation" do
     it "assigns the default value if ProcSet is not set" do
       @res.validate
