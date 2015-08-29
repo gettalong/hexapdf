@@ -27,6 +27,8 @@ module HexaPDF
 
         # Returns the color space stored under the given name.
         #
+        # If the color space is not found, an error is raised.
+        #
         # Note: The color spaces :DeviceGray, :DeviceRGB and :DeviceCMYK are returned without a
         # lookup since they are fixed.
         def color_space(name)
