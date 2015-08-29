@@ -7,11 +7,11 @@ module HexaPDF
   module PDF
     module ImageLoader
 
-      # This module is used for loading the first page of a PDF file and use it like an image.
+      # This module is used for loading the first page of a PDF file.
       #
-      # The last part, "use it like an image", means that the /Matrix of the created Form XObject is
-      # automatically set to scale the PDF page to the unit square of of user space. Then it can be
-      # treated like any other image by specifying the needed proportions.
+      # Loaded PDF graphics are represented by form XObjects instead of image XObjects. However, the
+      # image/xobject drawing methods of the Canvas know how to handle them correctly so that this
+      # doesn't matter from a user's point of view.
       #
       # See: PDF1.7 s8.10
       module PDF
@@ -38,7 +38,7 @@ module HexaPDF
         #   PDF.load(document, filename)    -> form_obj
         #   PDF.load(document, io)          -> form_obj
         #
-        # Creates a PDF form XObject from the PDF file or IO stream that can be used like any image.
+        # Creates a PDF form XObject from the PDF file or IO stream.
         #
         # See: DefaultConfiguration for the meaning of 'image_loader.pdf.use_stringio'.
         def self.load(document, file_or_io)
@@ -50,7 +50,6 @@ module HexaPDF
                    HexaPDF::PDF::Document.new(io: file_or_io)
                  end
           form = idoc.pages.page(0).to_form_xobject
-          form[:Matrix] = [1.0 / form.box[2], 0, 0, 1.0 / form.box[3], 0, 0]
           document.add(document.import(form))
         end
 

@@ -636,4 +636,93 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_equal(@canvas, @canvas.clip_path)
     end
   end
+
+  describe "xobject" do
+    before do
+      @image = @doc.add(Subtype: :Image, Width: 10, Height: 5)
+      @image.source_path = File.join(TEST_DATA_DIR, 'images', 'gray.jpg')
+      @form = @doc.add(Subtype: :Form, BBox: [100, 50, 200, 100])
+    end
+
+    it "can use any xobject specified via a filename" do
+      xobject = @canvas.xobject(@image.source_path, at: [0, 0])
+      assert_equal(xobject, @page.resources.xobject(:XO1))
+    end
+
+    it "can use any xobject specified via an IO object" do
+      File.open(@image.source_path, 'rb') do |file|
+        xobject = @canvas.xobject(file, at: [0, 0])
+        assert_equal(xobject, @page.resources.xobject(:XO1))
+      end
+    end
+
+    it "can use an already existing xobject" do
+      xobject = @canvas.xobject(@image, at: [0, 0])
+      assert_equal(xobject, @page.resources.xobject(:XO1))
+    end
+
+    it "correctly serializes the image with no options" do
+      @canvas.xobject(@image, at: [1, 2])
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:concatenate_matrix, [10, 0, 0, 5, 1, 2]],
+                                        [:paint_xobject, [:XO1]],
+                                        [:restore_graphics_state]])
+    end
+
+    it "correctly serializes the image with just the width given" do
+      @canvas.image(@image, at: [1, 2], width: 20)
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:concatenate_matrix, [20, 0, 0, 10, 1, 2]],
+                                        [:paint_xobject, [:XO1]],
+                                        [:restore_graphics_state]])
+    end
+
+    it "correctly serializes the image with just the height given" do
+      @canvas.image(@image, at: [1, 2], height: 10)
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:concatenate_matrix, [20, 0, 0, 10, 1, 2]],
+                                        [:paint_xobject, [:XO1]],
+                                        [:restore_graphics_state]])
+    end
+
+    it "correctly serializes the image with both width and height given" do
+      @canvas.image(@image, at: [1, 2], width: 10, height: 20)
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:concatenate_matrix, [10, 0, 0, 20, 1, 2]],
+                                        [:paint_xobject, [:XO1]],
+                                        [:restore_graphics_state]])
+    end
+
+    it "correctly serializes the form with no options" do
+      @canvas.xobject(@form, at: [1, 2])
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:concatenate_matrix, [1, 0, 0, 1, -99, -48]],
+                                        [:paint_xobject, [:XO1]],
+                                        [:restore_graphics_state]])
+    end
+
+    it "correctly serializes the form with just the width given" do
+      @canvas.image(@form, at: [1, 2], width: 50)
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:concatenate_matrix, [0.5, 0, 0, 0.5, -99, -48]],
+                                        [:paint_xobject, [:XO1]],
+                                        [:restore_graphics_state]])
+    end
+
+    it "correctly serializes the form with just the height given" do
+      @canvas.image(@form, at: [1, 2], height: 10)
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:concatenate_matrix, [0.2, 0, 0, 0.2, -99, -48]],
+                                        [:paint_xobject, [:XO1]],
+                                        [:restore_graphics_state]])
+    end
+
+    it "correctly serializes the form with both width and height given" do
+      @canvas.image(@form, at: [1, 2], width: 50, height: 10)
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:concatenate_matrix, [0.5, 0, 0, 0.2, -99, -48]],
+                                        [:paint_xobject, [:XO1]],
+                                        [:restore_graphics_state]])
+    end
+  end
 end

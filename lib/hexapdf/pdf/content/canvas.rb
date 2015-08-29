@@ -1094,6 +1094,67 @@ module HexaPDF
           self
         end
 
+        # :call-seq:
+        #   canvas.xobject(filename, at:, width: nil, height: nil)       => xobject
+        #   canvas.xobject(io, at:, width: nil, height: nil)             => xobject
+        #   canvas.xobject(image_object, at:, width: nil, height: nil)   => image_object
+        #   canvas.xobject(form_object, at:, width: nil, height: nil)    => form_object
+        #
+        # Draws the given XObject (either an image XObject or a form XObject) at the specified
+        # position and returns the XObject.
+        #
+        # Any image format for which an ImageLoader object is available and registered with the
+        # configuration option 'image_loader' can be used. PNG and JPEG images are supported out of
+        # the box.
+        #
+        # If the filename or the IO specifies a PDF file, the first page of this file is used to
+        # create a form XObject which is then drawn.
+        #
+        # The +at+ argument has to be an array containing two numbers specifying the lower-left
+        # corner at which to draw the XObject.
+        #
+        # If +width+ and +height+ are specified, the drawn XObject will have exactly these
+        # dimensions. If only one of them is specified, the other dimension is automatically
+        # calculated so that the aspect ratio is retained. If neither is specified, the width and
+        # height of the XObject are used (for images, 1 pixel being represented by 1 PDF point, i.e.
+        # 72 DPI).
+        #
+        # Examples:
+        #
+        #   canvas.xobject('test.png', at: [100, 100])
+        #   canvas.xobject('test.pdf', at: [100, 100])
+        #
+        #   File.new('test.jpg', 'rb') do |io|
+        #     canvas.xobject(io, at: [100, 200], width: 300)
+        #   end
+        #
+        #   image = document.object(5)    # Object with oid=5 is an image XObject in this example
+        #   canvas.xobject(image, at: [100, 200], width: 200, heigth: 300)
+        def xobject(obj, at:, width: nil, height: nil)
+          unless obj.kind_of?(HexaPDF::PDF::Stream)
+            obj = context.document.utils.add_image(obj)
+          end
+
+          if obj[:Subtype] == :Image
+            width, height = calculate_dimensions(obj[:Width], obj[:Height],
+                                                 rwidth: width, rheight: height)
+          else
+            width, height = calculate_dimensions(obj.box.width, obj.box.height,
+                                                 rwidth: width, rheight: height)
+            width /= obj.box.width.to_f
+            height /= obj.box.height.to_f
+            at[0] -= obj.box.left
+            at[1] -= obj.box.bottom
+          end
+
+          transform(width, 0, 0, height, at[0], at[1]) do
+            invoke(:Do, resources.add_xobject(obj))
+          end
+
+          obj
+        end
+        alias :image :xobject
+
         private
 
         def init_contents(strategy)
@@ -1241,6 +1302,28 @@ module HexaPDF
         def point_on_line(x0, y0, x1, y1, distance:)
           norm = Math.sqrt((x1 - x0)**2 + (y1 - y0)**2)
           [x0 + distance / norm * (x1 - x0), y0 + distance / norm * (y1 - y0)]
+        end
+
+        # Calculates and returns the requested dimensions for the rectangular object with the given
+        # +width+ and +height+ based on the options.
+        #
+        # +rwidth+::
+        #     The requested width. If +rheight+ is not specified, it is chosen so that the aspect
+        #     ratio is maintained
+        #
+        # +rheight+::
+        #     The requested height. If +rwidth+ is not specified, it is chosen so that the aspect
+        #     ratio is maintained
+        def calculate_dimensions(width, height, rwidth: nil, rheight: nil)
+          if rwidth && rheight
+            [rwidth, rheight]
+          elsif rwidth
+            [rwidth, height * rwidth / width.to_f]
+          elsif rheight
+            [width * rheight / height.to_f, rheight]
+          else
+            [width, height]
+          end
         end
 
       end
