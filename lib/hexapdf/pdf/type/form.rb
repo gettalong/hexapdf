@@ -27,6 +27,13 @@ module HexaPDF
         define_field :OPI,           type: Dictionary, version: '1.2'
         define_field :OC,            type: Dictionary, version: '1.5'
 
+        # Returns the path to the PDF file that was used when creating the form object.
+        #
+        # This value is only set when the form object was created by using the image loading
+        # facility (i.e. when treating a single page PDF file as image) and not when the form object
+        # was created in any other way (i.e. manually created or already part of a loaded PDF file).
+        attr_accessor :source_path
+
         # Returns the rectangle defining the bounding box of the form.
         def box
           self[:BBox]

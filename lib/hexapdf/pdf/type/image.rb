@@ -31,6 +31,12 @@ module HexaPDF
         define_field :Metadata,         type: Stream,          version: '1.4'
         define_field :OC,               type: Dictionary,      version: '1.5'
 
+        # Returns the source path that was used when creating the image object.
+        #
+        # This value is only set when the image object was created by using the image loading
+        # facility and not when the image is part of a loaded PDF file.
+        attr_accessor :source_path
+
       end
 
     end

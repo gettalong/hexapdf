@@ -25,8 +25,24 @@ module HexaPDF
         #   images.add_image(io)              -> image
         #
         # Adds the image from the given file or IO to the PDF and returns the image object.
+        #
+        # If the image has been added to the PDF before (i.e. if there is an image object with the
+        # same path name), the already existing image object is returned.
         def add_image(file_or_io)
-          image_loader_for(file_or_io).load(@document, file_or_io)
+          name = if file_or_io.kind_of?(String)
+                   file_or_io
+                 elsif file_or_io.respond_to?(:to_path)
+                   file_or_io.to_path
+                 end
+          if name
+            name = File.absolute_path(name)
+            image = each_image.find {|im| im.source_path == name}
+          end
+          unless image
+            image = image_loader_for(file_or_io).load(@document, file_or_io)
+            image.source_path = name
+          end
+          image
         end
 
         # :call-seq:
