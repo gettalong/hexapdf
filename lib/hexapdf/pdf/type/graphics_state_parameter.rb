@@ -37,7 +37,7 @@ module HexaPDF
         define_field :SM,            type: Numeric, version: "1.3"
         define_field :SA,            type: Boolean
         define_field :BM,            type: [Symbol, Array], version: "1.4"
-        define_field :SMask,         type: [Dictionary, Hash, Array], version: "1.4"
+        define_field :SMask,         type: [Dictionary, Hash, Symbol], version: "1.4"
         define_field :CA,            type: Numeric, version: "1.4"
         define_field :ca,            type: Numeric, version: "1.4"
         define_field :AIS,           type: Boolean, version: "1.4"
