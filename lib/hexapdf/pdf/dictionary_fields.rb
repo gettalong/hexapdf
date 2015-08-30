@@ -3,6 +3,7 @@
 require 'time'
 require 'date'
 require 'hexapdf/pdf/object'
+require 'hexapdf/pdf/rectangle'
 require 'hexapdf/pdf/configuration'
 require 'hexapdf/pdf/utils/pdf_doc_encoding'
 
@@ -317,8 +318,35 @@ module HexaPDF
 
       end
 
+
+      # Converter module for fields of type Rectangle.
+      module RectangleConverter
+
+        # This converter is usable if the +type+ is Rectangle.
+        def self.usable_for?(type)
+          type == Rectangle
+        end
+
+        # Rectangle fields can also contain simple arrays.
+        def self.additional_types
+          Array
+        end
+
+        # Returns +true+ if the given data value is an Array.
+        def self.convert?(data, _type)
+          data.kind_of?(Array)
+        end
+
+        # Wraps the given data value in the Rectangle class.
+        def self.convert(data, _type, document)
+          document.wrap(data, type: Rectangle)
+        end
+
+      end
+
       Field.converters.replace([FileSpecificationConverter, DictionaryConverter, StringConverter,
-                                PDFByteStringConverter, DateConverter, IdentityConverter])
+                                PDFByteStringConverter, DateConverter, RectangleConverter,
+                                IdentityConverter])
 
     end
 

@@ -36,8 +36,8 @@ module HexaPDF
 
         # Inheritable page fields
         define_field :Resources, type: :Resources
-        define_field :MediaBox,  type: Array
-        define_field :CropBox,   type: Array
+        define_field :MediaBox,  type: Rectangle
+        define_field :CropBox,   type: Rectangle
         define_field :Rotate,    type: Integer
 
         define_validator(:validate_page_tree)

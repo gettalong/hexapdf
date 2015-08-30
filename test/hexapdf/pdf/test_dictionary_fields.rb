@@ -163,4 +163,24 @@ describe HexaPDF::PDF::DictionaryFields do
       @doc.verify
     end
   end
+
+  describe "RectangleConverter" do
+    before do
+      @field = self.class::Field.new(HexaPDF::PDF::Rectangle)
+    end
+
+    it "additionally adds Array as allowed types" do
+      assert_equal([HexaPDF::PDF::Rectangle, Array], @field.type)
+    end
+
+    it "allows conversion to a Rectangle from an Array" do
+      assert(@field.convert?([5, 6]))
+      refute(@field.convert?(:name))
+
+      doc = Minitest::Mock.new
+      doc.expect(:wrap, :data, [[0, 1, 2, 3], type: HexaPDF::PDF::Rectangle])
+      @field.convert([0, 1, 2, 3], doc)
+      doc.verify
+    end
+  end
 end

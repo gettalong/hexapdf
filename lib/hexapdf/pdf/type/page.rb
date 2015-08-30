@@ -81,11 +81,11 @@ module HexaPDF
         define_field :Parent,               type: :Pages, required: true, indirect: true
         define_field :LastModified,         type: PDFDate, version: '1.3'
         define_field :Resources,            type: :Resources
-        define_field :MediaBox,             type: Array
-        define_field :CropBox,              type: Array
-        define_field :BleedBox,             type: Array, version: '1.3'
-        define_field :TrimBox,              type: Array, version: '1.3'
-        define_field :ArtBox,               type: Array, version: '1.3'
+        define_field :MediaBox,             type: Rectangle
+        define_field :CropBox,              type: Rectangle
+        define_field :BleedBox,             type: Rectangle, version: '1.3'
+        define_field :TrimBox,              type: Rectangle, version: '1.3'
+        define_field :ArtBox,               type: Rectangle, version: '1.3'
         define_field :BoxColorInfo,         type: Dictionary, version: '1.4'
         define_field :Contents,             type: [Array, Stream]
         define_field :Rotate,               type: Integer, default: 0

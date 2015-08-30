@@ -162,7 +162,7 @@ describe HexaPDF::PDF::Type::Page do
       page.contents = "test"
       form = page.to_form_xobject
       refute(form.indirect?)
-      assert_equal(form.box, page.box)
+      assert_equal(form.box.value, page.box.value)
     end
 
     it "works for pages without content" do
