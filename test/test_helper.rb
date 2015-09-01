@@ -16,6 +16,22 @@ MINIMAL_PDF = File.read(File.join(TEST_DATA_DIR, 'minimal.pdf')).freeze
 
 module TestHelper
 
+  # Asserts that the method +name+ of +object+ gets invoked with the +expected_values+ when
+  # executing the block. +expected_values+ should contain arrays of arguments, one array for each
+  # invocation of the method.
+  def assert_method_invoked(object, name, *expected_values, check_block: false)
+    args = []
+    block = []
+    object.define_singleton_method(name) {|*la, &lb| args << la; block << lb}
+    yield
+    assert_equal(expected_values, args, "Incorrect arguments for #{object.class}##{name}")
+    block.each do |block_arg|
+      assert_kind_of(Proc, block_arg, "Missing block for #{object.class}##{name}") if check_block
+    end
+  ensure
+    object.singleton_class.send(:remove_method, name)
+  end
+
   module_function
 
   def feeder(string, len = string.length)
@@ -115,4 +131,9 @@ module EncryptionAlgorithmInterfaceTests
     end
   end
 
+end
+
+
+class Minitest::Spec
+  include TestHelper
 end
