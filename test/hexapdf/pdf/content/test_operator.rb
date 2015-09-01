@@ -50,6 +50,9 @@ module CommonOperatorTests
     resources.define_singleton_method(:color_space) do |name|
       HexaPDF::PDF::GlobalConfiguration.constantize('color_space.map', name).new
     end
+    resources.define_singleton_method(:ext_gstate) do |name|
+      self[:ExtGState] && self[:ExtGState][name] || raise(HexaPDF::Error, "missing")
+    end
     @processor = HexaPDF::PDF::Content::Processor.new(resources)
     @serializer = HexaPDF::PDF::Serializer.new
   end

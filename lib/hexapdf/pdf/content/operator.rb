@@ -277,12 +277,7 @@ module HexaPDF
           end
 
           def invoke(processor, name) #:nodoc:
-            dict = processor.resources[:ExtGState]
-            if !dict
-              raise HexaPDF::Error, "No /ExtGState entry in the resource dictionary"
-            elsif !(dict = dict[name])
-              raise HexaPDF::Error, "No /#{name} entry in the /ExtGState dictionary"
-            end
+            dict = processor.resources.ext_gstate(name)
 
             ops = processor.operators
             ops[:w].invoke(processor, dict[:LW]) if dict.key?(:LW)
