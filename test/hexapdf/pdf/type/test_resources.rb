@@ -77,8 +77,8 @@ describe HexaPDF::PDF::Type::Resources do
     end
   end
 
-  describe "xobject" do
-    it "returns the named XObject" do
+  describe "private object_getter" do
+    it "returns the named entry under the dictionary" do
       @res[:XObject] = {name: :value}
       assert_equal(:value, @res.xobject(:name))
     end
@@ -88,19 +88,51 @@ describe HexaPDF::PDF::Type::Resources do
     end
   end
 
-  describe "add_xobject" do
-    it "adds the XObject to the /XObject subdictionary" do
+  describe "private object_setter" do
+    it "adds the object to the specified subdictionary" do
       obj = @doc.add(some: :xobject)
       name = @res.add_xobject(obj)
       assert(@res[:XObject].key?(name))
       assert_equal(obj, @res[:XObject][name])
     end
 
-    it "doesn't add the same XObject twice" do
+    it "doesn't add the same object twice" do
       obj = @doc.add(some: :xobject)
       name = @res.add_xobject(obj)
       name2 = @res.add_xobject(obj)
       assert_equal(name, name2)
+    end
+  end
+
+  describe "xobject" do
+    it "invokes the object_getter method" do
+      assert_method_invoked(@res, :object_getter, [:XObject, :test]) do
+        @res.xobject(:test)
+      end
+    end
+  end
+
+  describe "add_xobject" do
+    it "invokes the object_setter method" do
+      assert_method_invoked(@res, :object_setter, [:XObject, 'XO', :test]) do
+        @res.add_xobject(:test)
+      end
+    end
+  end
+
+  describe "ext_gstate" do
+    it "invokes the object_getter method" do
+      assert_method_invoked(@res, :object_getter, [:ExtGState, :test]) do
+        @res.ext_gstate(:test)
+      end
+    end
+  end
+
+  describe "add_ext_gstate" do
+    it "invokes the object_setter method" do
+      assert_method_invoked(@res, :object_setter, [:ExtGState, 'GS', :test]) do
+        @res.add_ext_gstate(:test)
+      end
     end
   end
 

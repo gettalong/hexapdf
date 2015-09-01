@@ -81,28 +81,54 @@ module HexaPDF
         #
         # If the XObject is not found, an error is raised.
         def xobject(name)
-          obj = self[:XObject] && self[:XObject][name]
-          if obj.nil?
-            raise HexaPDF::Error, "XObject '#{name}' not found in the resources"
-          end
-          obj
+          object_getter(:XObject, name)
         end
 
         # Adds the XObject to the resources and returns the name under which it is stored.
         #
         # If there already exists a name for the given XObject, it is just returned.
         def add_xobject(object)
-          self[:XObject] = {} unless key?(:XObject)
-          dict = self[:XObject]
+          object_setter(:XObject, 'XO'.freeze, object)
+        end
+
+        # Returns the graphics state parameter dictionary (see GraphicsStateParameter) stored under
+        # the given name.
+        #
+        # If the dictionary is not found, an error is raised.
+        def ext_gstate(name)
+          object_getter(:ExtGState, name)
+        end
+
+        # Adds the graphics state parameter dictionary to the resources and returns the name under
+        # which it is stored.
+        #
+        # If there already exists a name for the given dictionary, it is just returned.
+        def add_ext_gstate(object)
+          object_setter(:ExtGState, 'GS'.freeze, object)
+        end
+
+        private
+
+        # Helper method for returning an entry of a subdictionary.
+        def object_getter(dict_name, name)
+          obj = self[dict_name] && self[dict_name][name]
+          if obj.nil?
+            raise HexaPDF::Error, "No object called '#{name}' stored under /#{dict_name}"
+          end
+          obj
+        end
+
+        # Helper method for setting an entry of a subdictionary.
+        def object_setter(dict_name, prefix, object)
+          self[dict_name] = {} unless key?(dict_name)
+          dict = self[dict_name]
           name, _value = dict.each.find {|_, dict_obj| dict_obj == object}
           unless name
-            name = create_resource_name(dict.value, 'XO')
+            name = create_resource_name(dict.value, prefix)
             dict[name] = object
           end
           name
         end
-
-        private
 
         # Returns a unique name that can be used to store a resource in the given hash.
         def create_resource_name(hash, prefix)
