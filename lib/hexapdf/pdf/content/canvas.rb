@@ -114,6 +114,9 @@ module HexaPDF
         # See: PDF1.7 s8.2
         attr_accessor :graphics_object
 
+        # The operator name/implementation map used when invoking or serializing an operator.
+        attr_reader :operators
+
         # Create a new Canvas object for the given context object (either a Page or a Form).
         #
         # content::
@@ -648,6 +651,60 @@ module HexaPDF
           color_getter_setter(:fill_color, color, :rg, :g, :k, :cs, :scn, &block)
         end
         alias :fill_color= :fill_color
+
+        # :call-seq:
+        #   canvas.opacity                                           => current_values
+        #   canvas.opacity(fill_alpha:)                              => canvas
+        #   canvas.opacity(stroke_alpha:)                            => canvas
+        #   canvas.opacity(fill_alpha:, stroke_alpha:)               => canvas
+        #   canvas.opacity(fill_alpha:, stroke_alpha:) { block }     => canvas
+        #
+        # The fill and stroke alpha values determine how opaque drawn elements will be. Note that
+        # the fill alpha value applies not just to fill values but to all non-stroking operations
+        # (e.g. images, ...).
+        #
+        # Returns the current fill alpha (see GraphicsState#fill_alpha) and stroke alpha
+        # (GraphicsState#stroke_alpha) values using a hash with the keys :fill_alpha and
+        # :stroke_alpha when no argument is given. Otherwise sets the fill and stroke alpha values
+        # and returns self. The setter version can also be called in the opacity= form.
+        #
+        # If the values are set and a block is provided, the changed alpha values are only active
+        # during the block by saving and restoring the graphics state.
+        #
+        # Examples:
+        #
+        #   canvas.opacity(fill_alpha: 0.5)
+        #   canvas.opacity                               # => {fill_alpha: 0.5, stroke_alpha: 1.0}
+        #   canvas.opacity(fill_alpha: 0.4, stroke_alpha: 0.9)
+        #   canvas.opacity                               # => {fill_alpha: 0.4, stroke_alpha: 0.9}
+        #
+        #   canvas.opacity(stroke_alpha: 0.7) do
+        #     canvas.opacity                             # => {fill_alpha: 0.4, stroke_alpha: 0.7}
+        #   end
+        #   canvas.opacity                               # => {fill_alpha: 0.4, stroke_alpha: 0.9}
+        #
+        # See: PDF1.7 s11.6.4.4
+        def opacity(fill_alpha: nil, stroke_alpha: nil)
+          if !fill_alpha.nil? || !stroke_alpha.nil?
+            value_changed = (!fill_alpha.nil? && graphics_state.fill_alpha != fill_alpha) ||
+              (!stroke_alpha.nil? && graphics_state.stroke_alpha != stroke_alpha)
+            save_graphics_state if block_given? && value_changed
+            if value_changed
+              dict = {Type: :ExtGState}
+              dict[:CA] = stroke_alpha unless stroke_alpha.nil?
+              dict[:ca] = fill_alpha unless fill_alpha.nil?
+              dict[:AIS] = false if graphics_state.alpha_source
+              invoke(:gs, resources.add_ext_gstate(dict))
+            end
+            yield if block_given?
+            restore_graphics_state if block_given? && value_changed
+            self
+          elsif block_given?
+            raise HexaPDF::Error, "Block only allowed with an argument"
+          else
+            {fill_alpha: graphics_state.fill_alpha, stroke_alpha: graphics_state.stroke_alpha}
+          end
+        end
 
         # :call-seq:
         #   canvas.move_to(x, y)       => canvas

@@ -291,6 +291,52 @@ describe HexaPDF::PDF::Content::Canvas do
     end
   end
 
+  describe "opacity" do
+    it "returns the current values when no argument/nil arguments are provided" do
+      assert_equal({fill_alpha: 1.0, stroke_alpha: 1.0}, @canvas.opacity)
+    end
+
+    it "returns the canvas object when at least one non-nil argument is provided" do
+      assert_equal(@canvas, @canvas.opacity(fill_alpha: 0.5))
+    end
+
+    it "invokes the operator implementation when at least one non-nil argument is used" do
+      assert_operator_invoked(:gs, :GS1) do
+        @canvas.opacity(fill_alpha: 1.0, stroke_alpha: 0.5)
+      end
+    end
+
+    it "doesn't add an operator if the values are not really changed" do
+      @canvas.opacity(fill_alpha: 1.0, stroke_alpha: 1.0)
+      assert_operators(@page.contents, [])
+    end
+
+    it "adds the needed entry to the /ExtGState resources dictionary" do
+      @canvas.graphics_state.alpha_source = true
+      @canvas.opacity(fill_alpha: 0.5, stroke_alpha: 0.7)
+      assert_equal({Type: :ExtGState, CA: 0.7, ca: 0.5, AIS: false},
+                   @canvas.resources.ext_gstate(:GS1))
+    end
+
+    it "is serialized correctly when no block is used" do
+      @canvas.opacity(fill_alpha: 0.5, stroke_alpha: 0.7)
+      assert_operators(@page.contents, [[:set_graphics_state_parameters, [:GS1]]])
+    end
+
+    it "is serialized correctly when a block is used" do
+      @canvas.send(:gs_getter_setter, :line_width, :w, 5) do
+        @canvas.send(:gs_getter_setter, :line_width, :w, 15)
+      end
+      assert_operators(@page.contents, [[:save_graphics_state],
+                                        [:set_line_width, [5]],
+                                        [:set_line_width, [15]],
+                                        [:restore_graphics_state]])
+    end
+
+    it "fails if a block is given without an argument" do
+      assert_raises(HexaPDF::Error) { @canvas.opacity {} }
+    end
+  end
 
   describe "private color_getter_setter" do
     def invoke(*params, &block)
