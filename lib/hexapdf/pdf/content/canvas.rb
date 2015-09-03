@@ -686,18 +686,19 @@ module HexaPDF
         # See: PDF1.7 s11.6.4.4
         def opacity(fill_alpha: nil, stroke_alpha: nil)
           if !fill_alpha.nil? || !stroke_alpha.nil?
-            value_changed = (!fill_alpha.nil? && graphics_state.fill_alpha != fill_alpha) ||
-              (!stroke_alpha.nil? && graphics_state.stroke_alpha != stroke_alpha)
-            save_graphics_state if block_given? && value_changed
-            if value_changed
+            save_graphics_state if block_given?
+            if (!fill_alpha.nil? && graphics_state.fill_alpha != fill_alpha) ||
+                (!stroke_alpha.nil? && graphics_state.stroke_alpha != stroke_alpha)
               dict = {Type: :ExtGState}
               dict[:CA] = stroke_alpha unless stroke_alpha.nil?
               dict[:ca] = fill_alpha unless fill_alpha.nil?
               dict[:AIS] = false if graphics_state.alpha_source
               invoke(:gs, resources.add_ext_gstate(dict))
             end
-            yield if block_given?
-            restore_graphics_state if block_given? && value_changed
+            if block_given?
+              yield
+              restore_graphics_state
+            end
             self
           elsif block_given?
             raise HexaPDF::Error, "Block only allowed with an argument"
@@ -1239,25 +1240,27 @@ module HexaPDF
           color.flatten!
           if color.length > 0
             color = color_from_specification(color)
-            color_changed = (color != graphics_state.send(name))
-            color_space_changed = (color.color_space != graphics_state.send(name).color_space)
 
-            save_graphics_state if block_given? && color_changed
-            graphics_state.send(:"#{name}=", color)
-
-            if color_changed
+            save_graphics_state if block_given?
+            if color != graphics_state.send(name)
               case color.color_space.family
               when :DeviceRGB then serialize(rg, *color.components)
               when :DeviceGray then serialize(g, *color.components)
               when :DeviceCMYK then serialize(k, *color.components)
               else
-                serialize(cs, resources.add_color_space(color.color_space)) if color_space_changed
+                if color.color_space != graphics_state.send(name).color_space
+                  serialize(cs, resources.add_color_space(color.color_space))
+                end
                 serialize(scn, *color.components)
               end
+              graphics_state.send(:"#{name}=", color)
             end
 
-            yield if block_given?
-            restore_graphics_state if block_given? && color_changed
+            if block_given?
+              yield
+              restore_graphics_state
+            end
+
             self
           elsif block_given?
             raise HexaPDF::Error, "Block only allowed with arguments"
@@ -1310,13 +1313,14 @@ module HexaPDF
         #   needed.
         def gs_getter_setter(name, op, value)
           if !value.nil?
-            value_changed = (graphics_state.send(name) != value)
-            save_graphics_state if block_given? && value_changed
-            if value_changed
+            save_graphics_state if block_given?
+            if graphics_state.send(name) != value
               value.respond_to?(:to_operands) ? invoke(op, *value.to_operands) : invoke(op, value)
             end
-            yield if block_given?
-            restore_graphics_state if block_given? && value_changed
+            if block_given?
+              yield
+              restore_graphics_state
+            end
             self
           elsif block_given?
             raise HexaPDF::Error, "Block only allowed with an argument"

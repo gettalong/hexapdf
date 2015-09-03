@@ -209,6 +209,12 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_operators(@page.contents, [])
     end
 
+    it "always saves and restores the graphics state if a block is used" do
+      @canvas.send(:gs_getter_setter, :line_width, :w,
+                   @canvas.send(:gs_getter_setter, :line_width, :w, nil)) {}
+      assert_operators(@page.contents, [[:save_graphics_state], [:restore_graphics_state]])
+    end
+
     it "is serialized correctly when no block is used" do
       @canvas.send(:gs_getter_setter, :line_width, :w, 5)
       assert_operators(@page.contents, [[:set_line_width, [5]]])
@@ -311,6 +317,11 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_operators(@page.contents, [])
     end
 
+    it "always saves and restores the graphics state if a block is used" do
+      @canvas.opacity(fill_alpha: 1.0, stroke_alpha: 1.0) {}
+      assert_operators(@page.contents, [[:save_graphics_state], [:restore_graphics_state]])
+    end
+
     it "adds the needed entry to the /ExtGState resources dictionary" do
       @canvas.graphics_state.alpha_source = true
       @canvas.opacity(fill_alpha: 0.5, stroke_alpha: 0.7)
@@ -354,9 +365,13 @@ describe HexaPDF::PDF::Content::Canvas do
     end
 
     it "doesn't add an operator if the value is equal to the current one" do
-      @canvas.send(:gs_getter_setter, :line_width, :w,
-                   @canvas.send(:gs_getter_setter, :line_width, :w, nil))
+      invoke(0.0)
       assert_operators(@page.contents, [])
+    end
+
+    it "always saves and restores the graphics state if a block is used" do
+      invoke(0.0) {}
+      assert_operators(@page.contents, [[:save_graphics_state], [:restore_graphics_state]])
     end
 
     it "adds an unknown color space to the resource dictionary" do
