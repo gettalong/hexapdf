@@ -3,20 +3,35 @@
 require 'test_helper'
 require 'hexapdf/pdf/content/graphics_state'
 
+describe HexaPDF::PDF::Content::NamedValue do
+  before do
+    @val = HexaPDF::PDF::Content::NamedValue.new(:round, 1)
+  end
+
+  it "freezes a new object on creation" do
+    assert(@val.frozen?)
+  end
+
+  it "can be compared to name, value or NamedValue objects" do
+    assert_equal(@val, :round)
+    assert_equal(@val, 1)
+    assert_equal(@val, @val)
+  end
+
+  it "returns the value when operands are requested" do
+    assert_equal(@val.value, @val.to_operands)
+  end
+end
+
 describe HexaPDF::PDF::Content::LineCapStyle do
   it "can normalize a style argument" do
-    assert_equal(HexaPDF::PDF::Content::LineCapStyle::BUTT_CAP,
-                 HexaPDF::PDF::Content::LineCapStyle.normalize(:butt))
-    assert_equal(HexaPDF::PDF::Content::LineCapStyle::BUTT_CAP,
-                 HexaPDF::PDF::Content::LineCapStyle.normalize(0))
-    assert_equal(HexaPDF::PDF::Content::LineCapStyle::ROUND_CAP,
-                 HexaPDF::PDF::Content::LineCapStyle.normalize(:round))
-    assert_equal(HexaPDF::PDF::Content::LineCapStyle::ROUND_CAP,
-                 HexaPDF::PDF::Content::LineCapStyle.normalize(1))
-    assert_equal(HexaPDF::PDF::Content::LineCapStyle::PROJECTING_SQUARE_CAP,
-                 HexaPDF::PDF::Content::LineCapStyle.normalize(:projecting_square))
-    assert_equal(HexaPDF::PDF::Content::LineCapStyle::PROJECTING_SQUARE_CAP,
-                 HexaPDF::PDF::Content::LineCapStyle.normalize(2))
+    [[:BUTT_CAP, :butt, 0], [:ROUND_CAP, :round, 1],
+     [:PROJECTING_SQUARE_CAP, :projecting_square, 2]].each do |const_name, name, value|
+      const = HexaPDF::PDF::Content::LineCapStyle.const_get(const_name)
+      assert_equal(const, HexaPDF::PDF::Content::LineCapStyle.normalize(name))
+      assert_equal(const, HexaPDF::PDF::Content::LineCapStyle.normalize(value))
+      assert_equal(const, HexaPDF::PDF::Content::LineCapStyle.normalize(const))
+    end
   end
 
   it "fails when trying to normalize an invalid argument" do
@@ -26,18 +41,13 @@ end
 
 describe HexaPDF::PDF::Content::LineJoinStyle do
   it "can normalize a style argument" do
-    assert_equal(HexaPDF::PDF::Content::LineJoinStyle::MITER_JOIN,
-                 HexaPDF::PDF::Content::LineJoinStyle.normalize(:miter))
-    assert_equal(HexaPDF::PDF::Content::LineJoinStyle::MITER_JOIN,
-                 HexaPDF::PDF::Content::LineJoinStyle.normalize(0))
-    assert_equal(HexaPDF::PDF::Content::LineJoinStyle::ROUND_JOIN,
-                 HexaPDF::PDF::Content::LineJoinStyle.normalize(:round))
-    assert_equal(HexaPDF::PDF::Content::LineJoinStyle::ROUND_JOIN,
-                 HexaPDF::PDF::Content::LineJoinStyle.normalize(1))
-    assert_equal(HexaPDF::PDF::Content::LineJoinStyle::BEVEL_JOIN,
-                 HexaPDF::PDF::Content::LineJoinStyle.normalize(:bevel))
-    assert_equal(HexaPDF::PDF::Content::LineJoinStyle::BEVEL_JOIN,
-                 HexaPDF::PDF::Content::LineJoinStyle.normalize(2))
+    [[:MITER_JOIN, :miter, 0], [:ROUND_JOIN, :round, 1],
+     [:BEVEL_JOIN, :bevel, 2]].each do |const_name, name, value|
+      const = HexaPDF::PDF::Content::LineJoinStyle.const_get(const_name)
+      assert_equal(const, HexaPDF::PDF::Content::LineJoinStyle.normalize(name))
+      assert_equal(const, HexaPDF::PDF::Content::LineJoinStyle.normalize(value))
+      assert_equal(const, HexaPDF::PDF::Content::LineJoinStyle.normalize(const))
+    end
   end
 
   it "fails when trying to normalize an invalid argument" do

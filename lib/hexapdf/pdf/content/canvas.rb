@@ -389,7 +389,7 @@ module HexaPDF
         # The line cap style specifies how the ends of stroked open paths should look like. The
         # +style+ parameter can either be a valid integer or one of the symbols :butt, :round or
         # :projecting_square (see LineCapStyle.normalize for details). Note that the return value is
-        # always a normalized (i.e. Integer) line cap style.
+        # always a normalized line cap style.
         #
         # Returns the current line cap style (see GraphicsState#line_cap_style) when no argument is
         # given. Otherwise sets the line cap style to the given +style+ and returns self. The setter
@@ -401,13 +401,13 @@ module HexaPDF
         # Examples:
         #
         #   canvas.line_cap_style(:butt)
-        #   canvas.line_cap_style               # => 0
-        #   canvas.line_cap_style = :round      # => 1
+        #   canvas.line_cap_style               # => #<NamedValue @name=:butt, @value=0>
+        #   canvas.line_cap_style = :round      # => #<NamedValue @name=:round, @value=1>
         #
         #   canvas.line_cap_style(:butt) do
-        #     canvas.line_cap_style             # => 0
+        #     canvas.line_cap_style             # => #<NamedValue @name=:butt, @value=0>
         #   end
-        #   canvas.line_cap_style               # => 1
+        #   canvas.line_cap_style               # => #<NamedValue @name=:round, @value=1>
         #
         # See: PDF1.7 s8.4.3.3
         def line_cap_style(style = nil, &block)
@@ -423,7 +423,7 @@ module HexaPDF
         # The line join style specifies the shape that is used at the corners of stroked paths. The
         # +style+ parameter can either be a valid integer or one of the symbols :miter, :round or
         # :bevel (see LineJoinStyle.normalize for details). Note that the return value is always a
-        # normalized (i.e. Integer) line join style.
+        # normalized line join style.
         #
         # Returns the current line join style (see GraphicsState#line_join_style) when no argument
         # is given. Otherwise sets the line join style to the given +style+ and returns self. The
@@ -435,13 +435,13 @@ module HexaPDF
         # Examples:
         #
         #   canvas.line_join_style(:miter)
-        #   canvas.line_join_style               # => 0
-        #   canvas.line_join_style = :round      # => 1
+        #   canvas.line_join_style               # => #<NamedValue @name=:miter, @value=0>
+        #   canvas.line_join_style = :round      # => #<NamedValue @name=:round, @value=1>
         #
         #   canvas.line_join_style(:bevel) do
-        #     canvas.line_join_style             # => 2
+        #     canvas.line_join_style             # => #<NamedValue @name=:bevel, @value=2>
         #   end
-        #   canvas.line_join_style               # => 1
+        #   canvas.line_join_style               # => #<NamedValue @name=:round, @value=1>
         #
         # See: PDF1.7 s8.4.3.4
         def line_join_style(style = nil, &block)

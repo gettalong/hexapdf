@@ -10,75 +10,102 @@ module HexaPDF
   module PDF
     module Content
 
-      # Defines all available line cap styles as constants. For use with
-      # GraphicsState#line_cap_style.
+      # Associates a name with a value, used by various graphics state parameters.
+      class NamedValue
+
+        # The value itself.
+        attr_reader :value
+
+        # The name for the value.
+        attr_reader :name
+
+        # Creates a new NamedValue object and freezes it.
+        def initialize(name, value)
+          @name = name
+          @value = value
+          freeze
+        end
+
+        # The object is equal to +other+ if either the name or the value is equal to +other+, or if
+        # the other object is a NamedValue object with the same name and value.
+        def ==(other)
+          @name == other || @value == other ||
+            (other.kind_of?(NamedValue) && @name == other.name && @value == other.value)
+        end
+
+        # Returns the value.
+        def to_operands
+          @value
+        end
+
+      end
+
+
+      # Defines all available line cap styles as constants. Each line cap style is an instance of
+      # NamedValue. For use with GraphicsState#line_cap_style.
       #
       # See: PDF1.7 s8.4.3.3
       module LineCapStyle
 
         # Returns the argument normalized to a valid line cap style.
         #
-        # * If the argument is either 0, 1 or 2, it is just returned.
-        # * The symbol :butt can be used for the BUTT_CAP style.
-        # * The symobl :round can be used for the ROUND_CAP style.
-        # * The symbol :projecting_square can be used for the PROJECTING_SQUARE_CAP style.
+        # * 0 or :butt can be used for the BUTT_CAP style.
+        # * 1 or :round can be used for the ROUND_CAP style.
+        # * 2 or :projecting_square can be used for the PROJECTING_SQUARE_CAP style.
         # * Otherwise an error is raised.
         def self.normalize(style)
           case style
-          when :butt then BUTT_CAP
-          when :round then ROUND_CAP
-          when :projecting_square then PROJECTING_SQUARE_CAP
-          when 0..2 then style
+          when :butt, 0 then BUTT_CAP
+          when :round, 1 then ROUND_CAP
+          when :projecting_square, 2 then PROJECTING_SQUARE_CAP
           else
             raise HexaPDF::Error, "Unknown line cap style: #{style}"
           end
         end
 
         # Stroke is squared off at the endpoint of a path.
-        BUTT_CAP = 0
+        BUTT_CAP = NamedValue.new(:butt, 0)
 
         # A semicircular arc is drawn at the endpoint of a path.
-        ROUND_CAP = 1
+        ROUND_CAP = NamedValue.new(:round, 1)
 
         # The stroke continues half the line width beyond the endpoint of a path.
-        PROJECTING_SQUARE_CAP = 2
+        PROJECTING_SQUARE_CAP = NamedValue.new(:projecting_square, 2)
 
       end
 
 
-      # Defines all available line join styles as constants. For use with
-      # GraphicsState#line_join_style.
+      # Defines all available line join styles as constants. Each line join style is an instance of
+      # NamedValue. For use with GraphicsState#line_join_style.
       #
       # See: PDF1.7 s8.4.3.4
       module LineJoinStyle
 
         # Returns the argument normalized to a valid line join style.
         #
-        # * If the argument is either 0, 1 or 2, it is just returned.
-        # * The symbol :miter can be used for the MITER_JOIN style.
-        # * The symobl :round can be used for the ROUND_JOIN style.
-        # * The symbol :bevel can be used for the BEVEL_JOIN style.
+        # * 0 or :miter can be used for the MITER_JOIN style.
+        # * 1 or :round can be used for the ROUND_JOIN style.
+        # * 2 or :bevel can be used for the BEVEL_JOIN style.
         # * Otherwise an error is raised.
         def self.normalize(style)
           case style
-          when :miter then MITER_JOIN
-          when :round then ROUND_JOIN
-          when :bevel then BEVEL_JOIN
-          when 0, 1, 2 then style
+          when :miter, 0 then MITER_JOIN
+          when :round, 1 then ROUND_JOIN
+          when :bevel, 2 then BEVEL_JOIN
           else
             raise HexaPDF::Error, "Unknown line join style: #{style}"
           end
         end
 
         # The outer lines of the two segments continue until the meet at an angle.
-        MITER_JOIN = 0
+        MITER_JOIN = NamedValue.new(:miter, 0)
 
         # An arc of a circle is drawn around the point where the segments meet.
-        ROUND_JOIN = 1
+        ROUND_JOIN = NamedValue.new(:round, 1)
 
         # The two segments are finished with butt caps and the space between the ends is filled with
         # a triangle.
-        BEVEL_JOIN = 2
+        BEVEL_JOIN = NamedValue.new(:bevel, 2)
 
       end
 

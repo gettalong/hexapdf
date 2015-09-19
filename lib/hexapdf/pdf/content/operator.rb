@@ -189,7 +189,7 @@ module HexaPDF
           end
 
           def invoke(processor, cap_style) #:nodoc:
-            processor.graphics_state.line_cap_style = cap_style
+            processor.graphics_state.line_cap_style = LineCapStyle.normalize(cap_style)
           end
 
         end
@@ -205,7 +205,7 @@ module HexaPDF
           end
 
           def invoke(processor, join_style) #:nodoc:
-            processor.graphics_state.line_join_style = join_style
+            processor.graphics_state.line_join_style = LineJoinStyle.normalize(join_style)
           end
 
         end
