@@ -184,6 +184,10 @@ describe_operator :SetRenderingIntent, :ri do
     assert_equal(HexaPDF::PDF::Content::RenderingIntent::SATURATION,
                  @processor.graphics_state.rendering_intent)
   end
+
+  it "serializes correctly" do
+    assert_serialized(HexaPDF::PDF::Content::RenderingIntent::SATURATION)
+  end
 end
 
 describe_operator :SetGraphicsStateParameters, :gs do

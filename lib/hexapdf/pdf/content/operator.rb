@@ -250,7 +250,7 @@ module HexaPDF
         # Implementation of the 'ri' operator.
         #
         # See: PDF1.7 s8.4.4
-        class SetRenderingIntent < SingleNumericArgumentOperator
+        class SetRenderingIntent < BaseOperator
 
           # Creates the operator.
           def initialize
@@ -259,6 +259,10 @@ module HexaPDF
 
           def invoke(processor, intent) #:nodoc:
             processor.graphics_state.rendering_intent = intent
+          end
+
+          def serialize(serializer, intent) #:nodoc:
+            "#{serializer.serialize_symbol(intent)} ri\n".freeze
           end
 
         end
