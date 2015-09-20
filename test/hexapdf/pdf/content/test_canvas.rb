@@ -339,12 +339,12 @@ describe HexaPDF::PDF::Content::Canvas do
     end
 
     it "is serialized correctly when a block is used" do
-      @canvas.send(:gs_getter_setter, :line_width, :w, 5) do
-        @canvas.send(:gs_getter_setter, :line_width, :w, 15)
+      @canvas.opacity(fill_alpha: 0.5) do
+        @canvas.opacity(stroke_alpha: 0.7)
       end
       assert_operators(@page.contents, [[:save_graphics_state],
-                                        [:set_line_width, [5]],
-                                        [:set_line_width, [15]],
+                                        [:set_graphics_state_parameters, [:GS1]],
+                                        [:set_graphics_state_parameters, [:GS2]],
                                         [:restore_graphics_state]])
     end
 
