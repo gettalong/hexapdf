@@ -161,6 +161,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.4.2, #restore_graphics_state
         def save_graphics_state
+          raise_unless_at_page_description_level
           invoke(:q)
           if block_given?
             yield
@@ -178,6 +179,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.4.2, #save_graphics_state
         def restore_graphics_state
+          raise_unless_at_page_description_level
           invoke(:Q)
           self
         end
@@ -207,6 +209,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.3, s8.4.4
         def transform(a, b, c, d, e, f)
+          raise_unless_at_page_description_level
           save_graphics_state if block_given?
           invoke(:cm, a, b, c, d, e, f)
           if block_given?
@@ -686,6 +689,7 @@ module HexaPDF
         # See: PDF1.7 s11.6.4.4
         def opacity(fill_alpha: nil, stroke_alpha: nil)
           if !fill_alpha.nil? || !stroke_alpha.nil?
+            raise_unless_at_page_description_level_or_in_text
             save_graphics_state if block_given?
             if (!fill_alpha.nil? && graphics_state.fill_alpha != fill_alpha) ||
                 (!stroke_alpha.nil? && graphics_state.stroke_alpha != stroke_alpha)
@@ -722,6 +726,7 @@ module HexaPDF
         #   canvas.move_to(100, 50)
         #   canvas.move_to([100, 50]
         def move_to(*point)
+          raise_unless_at_page_description_level_or_in_path
           point.flatten!
           invoke(:m, *point)
           self
@@ -742,6 +747,7 @@ module HexaPDF
         #   canvas.line_to(100, 100)
         #   canvas.line_to([100, 100])
         def line_to(*point)
+          raise_unless_in_path
           point.flatten!
           invoke(:l, *point)
           self
@@ -772,6 +778,7 @@ module HexaPDF
         #   canvas.curve_to([100, 100], p1: [100, 50])
         #   canvas.curve_to(100, 100, p2: [50, 100])
         def curve_to(*point, p1: nil, p2: nil)
+          raise_unless_in_path
           point.flatten!
           if p1 && p2
             invoke(:c, *p1, *p2, *point)
@@ -803,6 +810,7 @@ module HexaPDF
         #
         #   canvas.rectangle([100, 100], 100, 50, radius: 10)
         def rectangle(*point, width, height, radius: 0)
+          raise_unless_at_page_description_level_or_in_path
           point.flatten!
           if radius == 0
             invoke(:re, *point, width, height)
@@ -819,6 +827,7 @@ module HexaPDF
         # Closes the current subpath by appending a straight line from the current point to the
         # start point of the subpath.
         def close_subpath
+          raise_unless_in_path
           invoke(:h)
           self
         end
@@ -1061,6 +1070,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.5.3.1, s8.5.3.2
         def stroke
+          raise_unless_in_path_or_clipping_path
           invoke(:S)
           self
         end
@@ -1072,6 +1082,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.5.3.1, s8.5.3.2
         def close_stroke
+          raise_unless_in_path_or_clipping_path
           invoke(:s)
           self
         end
@@ -1088,6 +1099,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.5.3.1, s8.5.3.3
         def fill(rule = :nonzero)
+          raise_unless_in_path_or_clipping_path
           invoke(rule == :nonzero ? :f : :'f*')
           self
         end
@@ -1102,6 +1114,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.5.3
         def fill_stroke(rule = :nonzero)
+          raise_unless_in_path_or_clipping_path
           invoke(rule == :nonzero ? :B : :'B*')
           self
         end
@@ -1116,6 +1129,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.5.3
         def close_fill_stroke(rule = :nonzero)
+          raise_unless_in_path_or_clipping_path
           invoke(rule == :nonzero ? :b : :'b*')
           self
         end
@@ -1130,6 +1144,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.5.3.1 #clip
         def end_path
+          raise_unless_in_path_or_clipping_path
           invoke(:n)
           self
         end
@@ -1148,6 +1163,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.5.4
         def clip_path(rule = :nonzero)
+          raise_unless_in_path
           invoke(rule == :nonzero ? :W : :'W*')
           self
         end
@@ -1420,19 +1436,11 @@ module HexaPDF
         # If +force+ is +true+ and the current graphics object is already a text object, it is ended
         # and a new text object is begun.
         #
-        # An error is raised if the current graphics object doesn't allow beginning a new text
-        # object.
-        #
         # See: PDF1.7 s9.4.1
         def begin_text(force_new: false)
+          raise_unless_at_page_description_level_or_in_text
           end_text if force_new
-          case graphics_object
-          when :none then invoke(:BT)
-          when :text # noop
-          else
-            raise HexaPDF::Error, "Can't begin text object because of current graphics " \
-              "object #{graphics_object}"
-          end
+          invoke(:BT) if graphics_object == :none
           self
         end
 
@@ -1441,10 +1449,9 @@ module HexaPDF
         #
         # Ends the current text object.
         #
-        # If the current graphics object is not a text object, then this is a no-op.
-        #
         # See: PDF1.7 s9.4.1
         def end_text
+          raise_unless_at_page_description_level_or_in_text
           invoke(:ET) if graphics_object == :text
           self
         end
@@ -1471,10 +1478,53 @@ module HexaPDF
           @contents << @operators[operator].serialize(@serializer, *operands)
         end
 
+        # Raises an error unless the current graphics object is a path.
+        def raise_unless_in_path
+          if graphics_object != :path
+            raise HexaPDF::Error, "Operation only allowed when current graphics object is a path"
+          end
+        end
+
+        # Raises an error unless the current graphics object is a path or a clipping path.
+        def raise_unless_in_path_or_clipping_path
+          if graphics_object != :path && graphics_object != :clipping_path
+            raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
+              "path or clipping path"
+          end
+        end
+
+        # Raises an error unless the current graphics object is none, i.e. the page description
+        # level.
+        def raise_unless_at_page_description_level
+          end_text if graphics_object == :text
+          if graphics_object != :none
+            raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
+              "path or clipping path"
+          end
+        end
+
+        # Raises an error unless the current graphics object is none or a text object.
+        def raise_unless_at_page_description_level_or_in_text
+          if graphics_object != :none && graphics_object != :text
+            raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
+              "text object or if there is no current object"
+          end
+        end
+
+        # Raises an error unless the current graphics object is none or a path object.
+        def raise_unless_at_page_description_level_or_in_path
+          end_text if graphics_object == :text
+          if graphics_object != :none && graphics_object != :path
+            raise HexaPDF::Error, "Operation only allowed when current graphics object is a" \
+              "path object or if there is no current object"
+          end
+        end
+
         # Utility method that abstracts the implementation of the stroke and fill color methods.
         def color_getter_setter(name, color, rg, g, k, cs, scn)
           color.flatten!
           if color.length > 0
+            raise_unless_at_page_description_level_or_in_text
             color = color_from_specification(color)
 
             save_graphics_state if block_given?
@@ -1549,6 +1599,7 @@ module HexaPDF
         #   needed.
         def gs_getter_setter(name, op, value)
           if !value.nil?
+            raise_unless_at_page_description_level_or_in_text
             save_graphics_state if block_given?
             if graphics_state.send(name) != value
               value.respond_to?(:to_operands) ? invoke(op, *value.to_operands) : invoke(op, value)

@@ -44,6 +44,14 @@ describe HexaPDF::PDF::Content::Canvas do
     @canvas.instance_variable_get(:@operators)[op] = op_before
   end
 
+  # Asserts that the block raises an error when in one of the given graphics objects.
+  def assert_raises_in_graphics_object(*objects, &block)
+    objects.each do |graphics_object|
+      @canvas.graphics_object = graphics_object
+      assert_raises(HexaPDF::Error, &block)
+    end
+  end
+
   describe "initialize" do
     module ContentStrategyTests
       extend Minitest::Spec::DSL
@@ -107,6 +115,10 @@ describe HexaPDF::PDF::Content::Canvas do
       @canvas.save_graphics_state { }
       assert_operators(@page.contents, [[:save_graphics_state], [:restore_graphics_state]])
     end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) { @canvas.save_graphics_state }
+    end
   end
 
   describe "restore_graphics_state" do
@@ -118,6 +130,10 @@ describe HexaPDF::PDF::Content::Canvas do
       @canvas.graphics_state.save
       @canvas.restore_graphics_state
       assert_operators(@page.contents, [[:restore_graphics_state]])
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) { @canvas.restore_graphics_state }
     end
   end
 
@@ -136,6 +152,10 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_operators(@page.contents, [[:save_graphics_state],
                                         [:concatenate_matrix, [1, 2, 3, 4, 5, 6]],
                                         [:restore_graphics_state]])
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) { @canvas.transform(1, 2, 3, 4, 5, 6) }
     end
   end
 
@@ -232,6 +252,12 @@ describe HexaPDF::PDF::Content::Canvas do
 
     it "fails if a block is given without an argument" do
       assert_raises(HexaPDF::Error) { @canvas.send(:gs_getter_setter, :line_width, :w, nil) {} }
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) do
+        @canvas.send(:gs_getter_setter, :line_width, :w, 5)
+      end
     end
   end
 
@@ -351,6 +377,10 @@ describe HexaPDF::PDF::Content::Canvas do
     it "fails if a block is given without an argument" do
       assert_raises(HexaPDF::Error) { @canvas.opacity {} }
     end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) { @canvas.opacity(fill_alpha: 1.0) }
+    end
   end
 
   describe "private color_getter_setter" do
@@ -412,6 +442,10 @@ describe HexaPDF::PDF::Content::Canvas do
     it "fails if an unsupported number of component values is provided" do
       assert_raises(HexaPDF::Error) { invoke(5, 5) }
     end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) { invoke(0.5) }
+    end
   end
 
   # Asserts that the method +name+ invoked with +values+ invokes the #color_getter_setter helper
@@ -445,9 +479,17 @@ describe HexaPDF::PDF::Content::Canvas do
     it "returns the canvas object" do
       assert_equal(@canvas, @canvas.move_to(5, 6))
     end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:clipping_path) { @canvas.move_to(5, 6) }
+    end
   end
 
   describe "line_to" do
+    before do
+      @canvas.graphics_object = :path
+    end
+
     it "invokes the operator implementation" do
       assert_operator_invoked(:l, 5, 6) { @canvas.line_to(5, 6) }
       assert_operator_invoked(:l, 5, 6) { @canvas.line_to([5, 6]) }
@@ -456,9 +498,17 @@ describe HexaPDF::PDF::Content::Canvas do
     it "returns the canvas object" do
       assert_equal(@canvas, @canvas.line_to(5, 6))
     end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:none, :text, :clipping_path) { @canvas.line_to(5, 6) }
+    end
   end
 
   describe "curve_to" do
+    before do
+      @canvas.graphics_object = :path
+    end
+
     it "invokes the operator implementation" do
       assert_operator_invoked(:c, 5, 6, 7, 8, 9, 10) { @canvas.curve_to(9, 10, p1: [5, 6], p2: [7, 8]) }
       assert_operator_invoked(:v, 7, 8, 9, 10) { @canvas.curve_to(9, 10, p2: [7, 8]) }
@@ -471,6 +521,12 @@ describe HexaPDF::PDF::Content::Canvas do
 
     it "raises an error if both control points are omitted" do
       assert_raises(HexaPDF::Error) { @canvas.curve_to(9, 10) }
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:none, :text, :clipping_path) do
+        @canvas.curve_to(5, 6, p1: [7, 8])
+      end
     end
   end
 
@@ -490,15 +546,27 @@ describe HexaPDF::PDF::Content::Canvas do
     it "returns the canvas object" do
       assert_equal(@canvas, @canvas.rectangle(5, 6, 7, 8))
     end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:clipping_path) { @canvas.rectangle(5, 6, 7, 8) }
+    end
   end
 
   describe "close_subpath" do
+    before do
+      @canvas.graphics_object = :path
+    end
+
     it "invokes the operator implementation" do
       assert_operator_invoked(:h) { @canvas.close_subpath }
     end
 
     it "returns the canvas object" do
       assert_equal(@canvas, @canvas.close_subpath)
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:none, :text) { @canvas.close_subpath }
     end
   end
 
@@ -558,6 +626,7 @@ describe HexaPDF::PDF::Content::Canvas do
   describe "circle" do
     it "uses arc for the hard work" do
       assert_method_invoked(@canvas, :arc, [5, 6, a: 7]) do
+        @canvas.graphics_object = :path
         @canvas.circle(5, 6, 7)
       end
     end
@@ -653,6 +722,10 @@ describe HexaPDF::PDF::Content::Canvas do
   end
 
   describe "path painting methods" do
+    before do
+      @canvas.graphics_object = :path
+    end
+
     it "invokes the respective operator implementation" do
       assert_operator_invoked(:S) { @canvas.stroke }
       assert_operator_invoked(:s) { @canvas.close_stroke }
@@ -666,16 +739,24 @@ describe HexaPDF::PDF::Content::Canvas do
     end
 
     it "returns the canvas object" do
-      assert_equal(@canvas, @canvas.stroke)
-      assert_equal(@canvas, @canvas.close_stroke)
-      assert_equal(@canvas, @canvas.fill)
-      assert_equal(@canvas, @canvas.fill_stroke)
-      assert_equal(@canvas, @canvas.close_fill_stroke)
-      assert_equal(@canvas, @canvas.end_path)
+      [:stroke, :close_stroke, :fill, :fill_stroke, :close_fill_stroke, :end_path].each do |m|
+        @canvas.graphics_object = :path
+        assert_equal(@canvas, @canvas.send(m))
+      end
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      [:stroke, :close_stroke, :fill, :fill_stroke, :close_fill_stroke, :end_path].each do |m|
+        assert_raises_in_graphics_object(:none, :text) { @canvas.send(m) }
+      end
     end
   end
 
   describe "clip_path" do
+    before do
+      @canvas.graphics_object = :path
+    end
+
     it "invokes the respective operator implementation" do
       assert_operator_invoked(:W) { @canvas.clip_path(:nonzero) }
       assert_operator_invoked(:'W*') { @canvas.clip_path(:even_odd) }
@@ -683,6 +764,10 @@ describe HexaPDF::PDF::Content::Canvas do
 
     it "returns the canvas object" do
       assert_equal(@canvas, @canvas.clip_path)
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:none, :text, :clipping_path) { @canvas.clip_path }
     end
   end
 
@@ -840,6 +925,10 @@ describe HexaPDF::PDF::Content::Canvas do
         @canvas.begin_text
       end
     end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) { @canvas.begin_text }
+    end
   end
 
   describe "end_text" do
@@ -859,6 +948,10 @@ describe HexaPDF::PDF::Content::Canvas do
 
     it "returns the canvas object" do
       assert_equal(@canvas, @canvas.begin_text)
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) { @canvas.end_text }
     end
   end
 end
