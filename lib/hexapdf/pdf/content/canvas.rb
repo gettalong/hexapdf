@@ -1412,6 +1412,43 @@ module HexaPDF
         end
         alias :text_rise= :text_rise
 
+        # :call-seq:
+        #   canvas.begin_text(force_new: false)      -> canvas
+        #
+        # Begins a new text object.
+        #
+        # If +force+ is +true+ and the current graphics object is already a text object, it is ended
+        # and a new text object is begun.
+        #
+        # An error is raised if the current graphics object doesn't allow beginning a new text
+        # object.
+        #
+        # See: PDF1.7 s9.4.1
+        def begin_text(force_new: false)
+          end_text if force_new
+          case graphics_object
+          when :none then invoke(:BT)
+          when :text # noop
+          else
+            raise HexaPDF::Error, "Can't begin text object because of current graphics " \
+              "object #{graphics_object}"
+          end
+          self
+        end
+
+        # :call-seq:
+        #   canvas.end_text       -> canvas
+        #
+        # Ends the current text object.
+        #
+        # If the current graphics object is not a text object, then this is a no-op.
+        #
+        # See: PDF1.7 s9.4.1
+        def end_text
+          invoke(:ET) if graphics_object == :text
+          self
+        end
+
         private
 
         def init_contents(strategy)

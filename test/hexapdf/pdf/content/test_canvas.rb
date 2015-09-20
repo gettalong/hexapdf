@@ -816,4 +816,49 @@ describe HexaPDF::PDF::Content::Canvas do
       assert_gs_getter_setter(:text_rise, :Ts, nil, nil)
     end
   end
+
+  describe "begin_text" do
+    it "invokes the operator implementation" do
+      assert_operator_invoked(:BT) { @canvas.begin_text }
+    end
+
+    it "serializes correctly" do
+      @canvas.begin_text
+      @canvas.begin_text
+      @canvas.begin_text(force_new: true)
+      @parser.parse(@page.contents, @processor)
+      assert_equal([:begin_text, :end_text, :begin_text], @recorder.operators.map(&:first))
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.begin_text)
+    end
+
+    it "fails if the current graphics object doesn't allow a new text object" do
+      assert_raises(HexaPDF::Error) do
+        @canvas.graphics_object = :path
+        @canvas.begin_text
+      end
+    end
+  end
+
+  describe "end_text" do
+    it "invokes the operator implementation" do
+      @canvas.graphics_object = :text
+      assert_operator_invoked(:ET) { @canvas.end_text }
+    end
+
+    it "serializes correctly" do
+      @canvas.end_text
+      @canvas.begin_text
+      @canvas.end_text
+      @canvas.end_text
+      @parser.parse(@page.contents, @processor)
+      assert_equal([:begin_text, :end_text], @recorder.operators.map(&:first))
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.begin_text)
+    end
+  end
 end
