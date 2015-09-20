@@ -3,7 +3,6 @@
 require 'hexapdf/error'
 require 'hexapdf/pdf/configuration'
 require 'hexapdf/pdf/content/color_space'
-require 'hexapdf/pdf/content/text_state'
 require 'hexapdf/pdf/content/transformation_matrix'
 
 module HexaPDF
@@ -198,6 +197,65 @@ module HexaPDF
       end
 
 
+      # Defines all available text rendering modes as constants. Each text rendering mode is an
+      # instance of NamedValue. For use with GraphicsState#text_rendering_mode.
+      #
+      # See: PDF1.7 s9.3.6
+      module TextRenderingMode
+
+        # Returns the argument normalized to a valid text rendering mode.
+        #
+        # * 0 or :fill can be used for the FILL mode.
+        # * 1 or :stroke can be used for the STROKE mode.
+        # * 2 or :fill_stroke can be used for the FILL_STROKE mode.
+        # * 3 or :invisible can be used for the INVISIBLE mode.
+        # * 4 or :fill_clip can be used for the FILL_CLIP mode.
+        # * 5 or :stroke_clip can be used for the STROKE_CLIP mode.
+        # * 6 or :fill_stroke_clip can be used for the FILL_STROKE_CLIP mode.
+        # * 7 or :clip can be used for the CLIP mode.
+        # * Otherwise an error is raised.
+        def self.normalize(style)
+          case style
+          when :fill, 0 then FILL
+          when :stroke, 1 then STROKE
+          when :fill_stroke, 2 then FILL_STROKE
+          when :invisible, 3 then INVISIBLE
+          when :fill_clip, 4 then FILL_CLIP
+          when :stroke_clip, 5 then STROKE_CLIP
+          when :fill_stroke_clip, 6 then FILL_STROKE_CLIP
+          when :clip, 7 then CLIP
+          else
+            raise HexaPDF::Error, "Unknown text rendering mode: #{style}"
+          end
+        end
+
+        # Fill text
+        FILL = NamedValue.new(:fill, 0)
+
+        # Stroke text
+        STROKE = NamedValue.new(:stroke, 1)
+
+        # Fill, then stroke text
+        FILL_STROKE = NamedValue.new(:fill_stroke, 2)
+
+        # Neither fill nor stroke text (invisible)
+        INVISIBLE = NamedValue.new(:invisible, 3)
+
+        # Fill text and add to path for clipping
+        FILL_CLIP = NamedValue.new(:fill_clip, 4)
+
+        # Stroke text and add to path for clipping
+        STROKE_CLIP = NamedValue.new(:stroke_clip, 5)
+
+        # Fill, then stroke text and add to path for clipping
+        FILL_STROKE_CLIP = NamedValue.new(:fill_stroke_clip, 6)
+
+        # Add text to path for clipping
+        CLIP = NamedValue.new(:clip, 7)
+
+      end
+
+
       # A GraphicsState object holds all the graphic control parameters needed for correct
       # operation when parsing or creating a content stream with a Processor object.
       #
@@ -217,9 +275,6 @@ module HexaPDF
 
         # The current color used for all other (i.e. non-stroking) painting operations.
         attr_accessor :fill_color
-
-        # The text state parameters (see TextState).
-        attr_accessor :text_state
 
         # The current line width in user space units.
         attr_accessor :line_width
@@ -260,12 +315,60 @@ module HexaPDF
         # interpreted as shape values or opacity values.
         attr_accessor :alpha_source
 
+
+        # The character spacing in unscaled text units.
+        #
+        # It specifies the additional spacing used for the horizontal or vertical displacement of
+        # glyphs.
+        attr_accessor :character_spacing
+
+        # The word spacing in unscaled text units.
+        #
+        # It works like the character spacing but is only applied to the ASCII space character.
+        attr_accessor :word_spacing
+
+        # The horizontal text scaling.
+        #
+        # It is a value between 0 and 100 specifying the percentage of the normal width that should
+        # be used.
+        attr_accessor :horizontal_scaling
+
+        # The leading in unscaled text units.
+        #
+        # It specifies the distance between the baselines of adjacent lines of text.
+        attr_accessor :leading
+
+        # The font for the text.
+        attr_accessor :font
+
+        # The font size.
+        attr_accessor :font_size
+
+        # The text rendering mode.
+        #
+        # It determines if and how the glyphs of a text should be shown (for all available values
+        # see TextRenderingMode).
+        attr_accessor :text_rendering_mode
+
+        # The text rise distance in unscaled text units.
+        #
+        # It specifies the distance that the baseline should be moved up or down from its default
+        # location.
+        attr_accessor :text_rise
+
+        # The text knockout, a boolean value.
+        #
+        # It specifies whether each glyph should be treated as separate elementary object for the
+        # purpose of color compositing in the transparent imaging model (knockout = +false+) or if
+        # all glyphs together are treated as one elementary object (knockout = +true+).
+        attr_accessor :text_knockout
+
+
         # Initializes the graphics state parameters to their default values.
         def initialize
           @ctm = TransformationMatrix.new
           @stroke_color = @fill_color =
             GlobalConfiguration.constantize('color_space.map'.freeze, :DeviceGray).new.default_color
-          @text_state = TextState.new
           @line_width = 1.0
           @line_cap_style = LineCapStyle::BUTT_CAP
           @line_join_style = LineJoinStyle::MITER_JOIN
@@ -278,17 +381,28 @@ module HexaPDF
           @stroke_alpha = @fill_alpha = 1.0
           @alpha_source = false
 
+          @character_spacing = 0
+          @word_spacing = 0
+          @horizontal_scaling = 100
+          @leading = 0
+          @font = nil
+          @font_size = nil
+          @text_rendering_mode = TextRenderingMode::FILL
+          @text_rise = 0
+          @text_knockout = true
+
           @stack = []
         end
 
         # Saves the current graphics state on the internal stack.
         def save
-          @stack.push([@ctm, @stroke_color, @fill_color, @text_state,
+          @stack.push([@ctm, @stroke_color, @fill_color,
                        @line_width, @line_cap_style, @line_join_style, @miter_limit,
                        @line_dash_pattern, @rendering_intent, @stroke_adjustment, @blend_mode,
-                       @soft_mask, @stroke_alpha, @fill_alpha, @alpha_source])
+                       @soft_mask, @stroke_alpha, @fill_alpha, @alpha_source,
+                       @character_spacing, @word_spacing, @horizontal_scaling, @leading,
+                       @font, @font_size, @text_rendering_mode, @text_rise, @text_knockout])
           @ctm = @ctm.dup
-          @text_state = @text_state.dup
         end
 
         # Restores the graphics state from the internal stack.
@@ -298,10 +412,12 @@ module HexaPDF
           if @stack.empty?
             raise HexaPDF::Error, "Can't restore graphics state because the stack is empty"
           end
-          @ctm, @stroke_color, @fill_color, @text_state,
-          @line_width, @line_cap_style, @line_join_style, @miter_limit, @line_dash_pattern,
-          @rendering_intent, @stroke_adjustment, @blend_mode,
-          @soft_mask, @stroke_alpha, @fill_alpha, @alpha_source = @stack.pop
+          @ctm, @stroke_color, @fill_color,
+            @line_width, @line_cap_style, @line_join_style, @miter_limit, @line_dash_pattern,
+            @rendering_intent, @stroke_adjustment, @blend_mode,
+            @soft_mask, @stroke_alpha, @fill_alpha, @alpha_source,
+            @character_spacing, @word_spacing, @horizontal_scaling, @leading,
+            @font, @font_size, @text_rendering_mode, @text_rise, @text_knockout = @stack.pop
         end
 
         ##

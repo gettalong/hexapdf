@@ -208,7 +208,7 @@ describe_operator :SetGraphicsStateParameters, :gs do
     assert_equal(0.5, @processor.graphics_state.stroke_alpha)
     assert_equal(0.5, @processor.graphics_state.fill_alpha)
     assert(@processor.graphics_state.alpha_source)
-    refute(@processor.graphics_state.text_state.knockout)
+    refute(@processor.graphics_state.text_knockout)
   end
 
   it "fails if the resources dictionary doesn't have an ExtGState entry" do
@@ -411,30 +411,30 @@ describe_operator :InlineImage, :BI do
 end
 
 describe_operator :SetCharacterSpacing, :Tc do
-  it "modifies the character spacing in the text state" do
+  it "modifies the character spacing" do
     invoke(127)
-    assert_equal(127, @processor.graphics_state.text_state.character_spacing)
+    assert_equal(127, @processor.graphics_state.character_spacing)
   end
 end
 
 describe_operator :SetWordSpacing, :Tw do
-  it "modifies the word spacing in the text state" do
+  it "modifies the word spacing" do
     invoke(127)
-    assert_equal(127, @processor.graphics_state.text_state.word_spacing)
+    assert_equal(127, @processor.graphics_state.word_spacing)
   end
 end
 
 describe_operator :SetHorizontalScaling, :Tz do
-  it "modifies the horizontal scaling parameter in the text state" do
+  it "modifies the horizontal scaling parameter" do
     invoke(127)
-    assert_equal(127, @processor.graphics_state.text_state.horizontal_scaling)
+    assert_equal(127, @processor.graphics_state.horizontal_scaling)
   end
 end
 
 describe_operator :SetLeading, :TL do
-  it "modifies the leading parameter in the text state" do
+  it "modifies the leading parameter" do
     invoke(127)
-    assert_equal(127, @processor.graphics_state.text_state.leading)
+    assert_equal(127, @processor.graphics_state.leading)
   end
 end
 
@@ -445,16 +445,16 @@ describe_operator :SetFontAndSize, :Tf do
 end
 
 describe_operator :SetTextRenderingMode, :Tr do
-  it "modifies the text rendering mode in the text state" do
+  it "modifies the text rendering mode" do
     invoke(127)
-    assert_equal(127, @processor.graphics_state.text_state.rendering_mode)
+    assert_equal(127, @processor.graphics_state.text_rendering_mode)
   end
 end
 
 describe_operator :SetTextRise, :Ts do
-  it "modifies the text rise in the text state" do
+  it "modifies the text rise" do
     invoke(127)
-    assert_equal(127, @processor.graphics_state.text_state.rise)
+    assert_equal(127, @processor.graphics_state.text_rise)
   end
 end
 
@@ -511,7 +511,7 @@ describe_operator :MoveTextNextLine, :'T*' do
     td.expect(:invoke, nil, [@processor, 0, -1.78])
     @processor.operators[:Td] = td
 
-    @processor.graphics_state.text_state.leading = 1.78
+    @processor.graphics_state.leading = 1.78
     invoke
     td.verify
   end

@@ -300,7 +300,7 @@ module HexaPDF
             gs.stroke_alpha = dict[:CA] if dict.key?(:CA)
             gs.fill_alpha = dict[:ca] if dict.key?(:ca)
             gs.alpha_source = dict[:AIS] if dict.key?(:AIS)
-            gs.text_state.knockout = dict[:TK] if dict.key?(:TK)
+            gs.text_knockout = dict[:TK] if dict.key?(:TK)
           end
 
           def serialize(serializer, name) #:nodoc:
@@ -658,7 +658,7 @@ module HexaPDF
           end
 
           def invoke(processor, char_space) #:nodoc:
-            processor.graphics_state.text_state.character_spacing = char_space
+            processor.graphics_state.character_spacing = char_space
           end
 
         end
@@ -674,7 +674,7 @@ module HexaPDF
           end
 
           def invoke(processor, word_space) #:nodoc:
-            processor.graphics_state.text_state.word_spacing = word_space
+            processor.graphics_state.word_spacing = word_space
           end
 
         end
@@ -690,7 +690,7 @@ module HexaPDF
           end
 
           def invoke(processor, scale) #:nodoc:
-            processor.graphics_state.text_state.horizontal_scaling = scale
+            processor.graphics_state.horizontal_scaling = scale
           end
 
         end
@@ -706,7 +706,7 @@ module HexaPDF
           end
 
           def invoke(processor, leading) #:nodoc:
-            processor.graphics_state.text_state.leading = leading
+            processor.graphics_state.leading = leading
           end
 
         end
@@ -742,7 +742,7 @@ module HexaPDF
           end
 
           def invoke(processor, rendering_mode) #:nodoc:
-            processor.graphics_state.text_state.rendering_mode = rendering_mode
+            processor.graphics_state.text_rendering_mode = rendering_mode
           end
 
         end
@@ -758,7 +758,7 @@ module HexaPDF
           end
 
           def invoke(processor, rise) #:nodoc:
-            processor.graphics_state.text_state.rise = rise
+            processor.graphics_state.text_rise = rise
           end
 
         end
@@ -868,7 +868,7 @@ module HexaPDF
           end
 
           def invoke(processor) #:nodoc:
-            leading = processor.graphics_state.text_state.leading
+            leading = processor.graphics_state.leading
             processor.operators[:Td].invoke(processor, 0, -leading)
           end
 

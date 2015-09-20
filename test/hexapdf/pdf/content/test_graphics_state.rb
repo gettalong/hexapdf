@@ -99,6 +99,22 @@ describe HexaPDF::PDF::Content::LineDashPattern do
   end
 end
 
+describe HexaPDF::PDF::Content::TextRenderingMode do
+  it "can normalize a style argument" do
+    [[:FILL, 0], [:STROKE, 1], [:FILL_STROKE, 2], [:INVISIBLE, 3], [:FILL_CLIP, 4],
+     [:STROKE_CLIP, 5], [:FILL_STROKE_CLIP, 6], [:CLIP, 7]].each do |const_name, value|
+      const = HexaPDF::PDF::Content::TextRenderingMode.const_get(const_name)
+      assert_equal(const, HexaPDF::PDF::Content::TextRenderingMode.normalize(const_name.to_s.downcase.intern))
+      assert_equal(const, HexaPDF::PDF::Content::TextRenderingMode.normalize(value))
+      assert_equal(const, HexaPDF::PDF::Content::TextRenderingMode.normalize(const))
+    end
+  end
+
+  it "fails when trying to normalize an invalid argument" do
+    assert_raises(HexaPDF::Error) { HexaPDF::PDF::Content::TextRenderingMode.normalize(:invalid) }
+  end
+end
+
 describe HexaPDF::PDF::Content::GraphicsState do
   before do
     @gs = HexaPDF::PDF::Content::GraphicsState.new
