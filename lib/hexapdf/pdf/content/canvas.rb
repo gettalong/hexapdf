@@ -1213,6 +1213,205 @@ module HexaPDF
         end
         alias :image :xobject
 
+        # :call-seq:
+        #   canvas.character_spacing                       => current_character_spacing
+        #   canvas.character_spacing(amount)               => canvas
+        #   canvas.character_spacing(amount) { block }     => canvas
+        #
+        # The character spacing determines how much additional space is added between two
+        # consecutive characters. For horizontal writing positive values increase the distance
+        # between two characters, whereas for vertical writing negative values increase the
+        # distance.
+        #
+        # Returns the current character spacing value (see GraphicsState#character_spacing) when no
+        # argument is given. Otherwise sets the character spacing using the +amount+ argument and
+        # returns self. The setter version can also be called in the character_spacing= form.
+        #
+        # If the +amount+ and a block are provided, the changed character spacing is only active
+        # during the block by saving and restoring the graphics state.
+        #
+        # Examples:
+        #
+        #   canvas.character_spacing(0.25)
+        #   canvas.character_spacing                      # => 0.25
+        #   canvas.character_spacing = 0.5                # => 0.5
+        #
+        #   canvas.character_spacing(0.10) do
+        #     canvas.character_spacing                    # => 0.10
+        #   end
+        #   canvas.character_spacing                      # => 0.5
+        #
+        # See: PDF1.7 s9.3.2
+        def character_spacing(amount = nil, &bk)
+          gs_getter_setter(:character_spacing, :Tc, amount, &bk)
+        end
+        alias :character_spacing= :character_spacing
+
+        # :call-seq:
+        #   canvas.word_spacing                       => current_word_spacing
+        #   canvas.word_spacing(amount)               => canvas
+        #   canvas.word_spacing(amount) { block }     => canvas
+        #
+        # The word spacing determines how much additional space is added when the ASCII space
+        # character is encountered in a text. For horizontal writing positive values increase the
+        # distance between two words, whereas for vertical writing negative values increase the
+        # distance.
+        #
+        # Returns the current word spacing value (see GraphicsState#word_spacing) when no argument
+        # is given. Otherwise sets the word spacing using the +amount+ argument and returns self.
+        # The setter version can also be called in the word_spacing= form.
+        #
+        # If the +amount+ and a block are provided, the changed word spacing is only active during
+        # the block by saving and restoring the graphics state.
+        #
+        # Examples:
+        #
+        #   canvas.word_spacing(0.25)
+        #   canvas.word_spacing                      # => 0.25
+        #   canvas.word_spacing = 0.5                # => 0.5
+        #
+        #   canvas.word_spacing(0.10) do
+        #     canvas.word_spacing                    # => 0.10
+        #   end
+        #   canvas.word_spacing                      # => 0.5
+        #
+        # See: PDF1.7 s9.3.3
+        def word_spacing(amount = nil, &bk)
+          gs_getter_setter(:word_spacing, :Tw, amount, &bk)
+        end
+        alias :word_spacing= :word_spacing
+
+        # :call-seq:
+        #   canvas.horizontal_scaling                        => current_horizontal_scaling
+        #   canvas.horizontal_scaling(percent)               => canvas
+        #   canvas.horizontal_scaling(percent) { block }     => canvas
+        #
+        # The horizontal scaling adjusts the width of text character glyphs by stretching or
+        # compressing them in the horizontal direction. The value is specified as percent of the
+        # normal width.
+        #
+        # Returns the current horizontal scaling value (see GraphicsState#horizontal_scaling) when
+        # no argument is given. Otherwise sets the horizontal scaling using the +percent+ argument
+        # and returns self. The setter version can also be called in the horizontal_scaling= form.
+        #
+        # If the +percent+ and a block are provided, the changed horizontal scaling is only active
+        # during the block by saving and restoring the graphics state.
+        #
+        # Examples:
+        #
+        #   canvas.horizontal_scaling(50)                  # each glyph has only 50% width
+        #   canvas.horizontal_scaling                      # => 50
+        #   canvas.horizontal_scaling = 125                # => 125
+        #
+        #   canvas.horizontal_scaling(75) do
+        #     canvas.horizontal_scaling                    # => 75
+        #   end
+        #   canvas.horizontal_scaling                      # => 125
+        #
+        # See: PDF1.7 s9.3.4
+        def horizontal_scaling(amount = nil, &bk)
+          gs_getter_setter(:horizontal_scaling, :Tz, amount, &bk)
+        end
+        alias :horizontal_scaling= :horizontal_scaling
+
+        # :call-seq:
+        #   canvas.leading                       => current_leading
+        #   canvas.leading(amount)               => canvas
+        #   canvas.leading(amount) { block }     => canvas
+        #
+        # The leading specifies the vertical distance between the baselines of adjacent text lines.
+        #
+        # Returns the current leading value (see GraphicsState#leading) when no argument is given.
+        # Otherwise sets the leading using the +amount+ argument and returns self. The setter
+        # version can also be called in the leading= form.
+        #
+        # If the +amount+ and a block are provided, the changed leading is only active during the
+        # block by saving and restoring the graphics state.
+        #
+        # Examples:
+        #
+        #   canvas.leading(14.5)
+        #   canvas.leading                      # => 14.5
+        #   canvas.leading = 10                 # => 10
+        #
+        #   canvas.leading(25) do
+        #     canvas.leading                    # => 25
+        #   end
+        #   canvas.leading                      # => 10
+        #
+        # See: PDF1.7 s9.3.5
+        def leading(amount = nil, &bk)
+          gs_getter_setter(:leading, :TL, amount, &bk)
+        end
+        alias :leading= :leading
+
+        # :call-seq:
+        #   canvas.text_rendering_mode                     => current_text_rendering_mode
+        #   canvas.text_rendering_mode(mode)               => canvas
+        #   canvas.text_rendering_mode(mode) { block }     => canvas
+        #
+        # The text rendering mode determines if and how glyphs are rendered. The +mode+ parameter
+        # can either be a valid integer or one of the symbols :fill, :stroke, :fill_stroke,
+        # :invisible, :fill_clip, :stroke_clip, :fill_stroke_clip or :clip (see
+        # TextRenderingMode.normalize for details). Note that the return value is always a
+        # normalized text rendering mode value.
+        #
+        # Returns the current text rendering mode value (see GraphicsState#text_rendering_mode) when
+        # no argument is given. Otherwise sets the text rendering mode using the +mode+ argument and
+        # returns self. The setter version can also be called in the text_rendering_mode= form.
+        #
+        # If the +mode+ and a block are provided, the changed text rendering mode is only active
+        # during the block by saving and restoring the graphics state.
+        #
+        # Examples:
+        #
+        #   canvas.text_rendering_mode(:fill)
+        #   canvas.text_rendering_mode               # => #<NamedValue @name=:fill, @value = 0>
+        #   canvas.text_rendering_mode = :stroke     # => #<NamedValue @name=:stroke, @value = 1>
+        #
+        #   canvas.text_rendering_mode(3) do
+        #     canvas.text_rendering_mode             # => #<NamedValue @name=:invisible, @value = 3>
+        #   end
+        #   canvas.text_rendering_mode               # => #<NamedValue @name=:stroke, @value = 1>
+        #
+        # See: PDF1.7 s9.3.6
+        def text_rendering_mode(m = nil, &bk)
+          gs_getter_setter(:text_rendering_mode, :Tr, m && TextRenderingMode.normalize(m), &bk)
+        end
+        alias :text_rendering_mode= :text_rendering_mode
+
+        # :call-seq:
+        #   canvas.text_rise                       => current_text_rise
+        #   canvas.text_rise(amount)               => canvas
+        #   canvas.text_rise(amount) { block }     => canvas
+        #
+        # The text rise specifies the vertical distance to move the baseline up or down from its
+        # default location. Positive values move the baseline up, negative values down.
+        #
+        # Returns the current text rise value (see GraphicsState#text_rise) when no argument is
+        # given. Otherwise sets the text rise using the +amount+ argument and returns self. The
+        # setter version can also be called in the text_rise= form.
+        #
+        # If the +amount+ and a block are provided, the changed text rise is only active during the
+        # block by saving and restoring the graphics state.
+        #
+        # Examples:
+        #
+        #   canvas.text_rise(5)
+        #   canvas.text_rise                      # => 5
+        #   canvas.text_rise = 10                 # => 10
+        #
+        #   canvas.text_rise(15) do
+        #     canvas.text_rise                    # => 15
+        #   end
+        #   canvas.text_rise                      # => 10
+        #
+        # See: PDF1.7 s9.3.7
+        def text_rise(amount = nil, &bk)
+          gs_getter_setter(:text_rise, :Ts, amount, &bk)
+        end
+        alias :text_rise= :text_rise
+
         private
 
         def init_contents(strategy)

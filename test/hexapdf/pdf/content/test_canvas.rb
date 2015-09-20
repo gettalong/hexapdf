@@ -242,6 +242,10 @@ describe HexaPDF::PDF::Content::Canvas do
     assert_method_invoked(@canvas, :gs_getter_setter, args, check_block: true) do
       @canvas.send(name, *values) {}
     end
+    unless values.compact.empty?
+      @canvas.send(name, *values)
+      assert_equal(expected_value, @canvas.graphics_state.send(name))
+    end
     assert_respond_to(@canvas, name)
   end
 
@@ -768,6 +772,48 @@ describe HexaPDF::PDF::Content::Canvas do
                                         [:concatenate_matrix, [0.5, 0, 0, 0.2, -99, -48]],
                                         [:paint_xobject, [:XO1]],
                                         [:restore_graphics_state]])
+    end
+  end
+
+  describe "character_spacing" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:character_spacing, :Tc, 0.25, 0.25)
+      assert_gs_getter_setter(:character_spacing, :Tc, nil, nil)
+    end
+  end
+
+  describe "word_spacing" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:word_spacing, :Tw, 0.25, 0.25)
+      assert_gs_getter_setter(:word_spacing, :Tw, nil, nil)
+    end
+  end
+
+  describe "horizontal_scaling" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:horizontal_scaling, :Tz, 50, 50)
+      assert_gs_getter_setter(:horizontal_scaling, :Tz, nil, nil)
+    end
+  end
+
+  describe "leading" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:leading, :TL, 15, 15)
+      assert_gs_getter_setter(:leading, :TL, nil, nil)
+    end
+  end
+
+  describe "text_rendering_mode" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:text_rendering_mode, :Tr, 0, :fill)
+      assert_gs_getter_setter(:text_rendering_mode, :Tr, nil, nil)
+    end
+  end
+
+  describe "text_rise" do
+    it "uses the gs_getter_setter implementation" do
+      assert_gs_getter_setter(:text_rise, :Ts, 15, 15)
+      assert_gs_getter_setter(:text_rise, :Ts, nil, nil)
     end
   end
 end
