@@ -1193,6 +1193,11 @@ module HexaPDF
         # height of the XObject are used (for images, 1 pixel being represented by 1 PDF point, i.e.
         # 72 DPI).
         #
+        # Note: If a form XObject is drawn, all currently set graphics state parameters influence
+        # the rendering of the form XObject. This means, for example, that when the line width is
+        # set to 20, all lines of the form XObject are drawn with that line width unless the line
+        # width is changed in the form XObject itself.
+        #
         # Examples:
         #
         #   canvas.xobject('test.png', at: [100, 100])
@@ -1204,6 +1209,8 @@ module HexaPDF
         #
         #   image = document.object(5)    # Object with oid=5 is an image XObject in this example
         #   canvas.xobject(image, at: [100, 200], width: 200, heigth: 300)
+        #
+        # See: PDF1.7 s8.8, s.8.10.1
         def xobject(obj, at:, width: nil, height: nil)
           unless obj.kind_of?(HexaPDF::PDF::Stream)
             obj = context.document.utils.add_image(obj)
