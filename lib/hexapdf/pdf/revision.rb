@@ -71,7 +71,6 @@ module HexaPDF
           gen = ref.gen
         else
           oid = ref
-          gen = @objects.gen_for_oid(ref) || @xref_section.gen_for_oid(ref)
         end
 
         if @objects.entry?(oid, gen)
@@ -144,23 +143,23 @@ module HexaPDF
       # are loaded automatically.
       def each
         return to_enum(__method__) unless block_given?
-        load_all_objects
-        @objects.each {|_oid, _gen, data| yield(data)}
+
+        if defined?(@all_objects_loaded)
+          @objects.each {|_oid, _gen, data| yield(data)}
+        else
+          seen = {}
+          @objects.each {|oid, _gen, data| seen[oid] = true; yield(data)}
+          @xref_section.each do |oid, _gen, data|
+            next if seen.key?(oid)
+            yield(@objects[oid] || load_object(data))
+          end
+          @all_objects_loaded = true
+        end
+
         self
       end
 
       private
-
-      # Loads all objects from the associated cross-reference section.
-      def load_all_objects
-        return if defined?(@all_objects_loaded)
-        @all_objects_loaded = true
-
-        @xref_section.each do |oid, _gen, data|
-          next if @objects.entry?(oid)
-          load_object(data)
-        end
-      end
 
       # Loads a single object from the associated cross-reference section.
       def load_object(xref_entry)
