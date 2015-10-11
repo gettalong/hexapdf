@@ -2,7 +2,7 @@
 
 module HexaPDF
   module Font
-    module AFM
+    module Type1
 
       # Represents the character metrics for an individual character.
       class CharacterMetrics

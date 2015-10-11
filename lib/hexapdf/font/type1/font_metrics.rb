@@ -1,16 +1,13 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/font/afm/character_metrics'
+require 'hexapdf/font/type1/character_metrics'
 
 module HexaPDF
   module Font
-    module AFM
+    module Type1
 
-      # Represents the information stored in an AFM font metrics file that is needed for working
-      # with that font in context of the PDF format.
-      #
-      # FontMetrics objects are designed to be value objects. So after building a FontMetrics object
-      # it should be frozen so that no modifications can be done.
+      # Represents the information stored in an AFM font metrics file for a Type1 font that is
+      # needed for working with that font in context of the PDF format.
       class FontMetrics
 
         # PostScript name of the font.
@@ -24,6 +21,9 @@ module HexaPDF
 
         # A string describing the character set of the font.
         attr_accessor :character_set
+
+        # A string indicating the default encoding used for the font.
+        attr_accessor :encoding_scheme
 
         # Weight of the font.
         attr_accessor :weight
@@ -77,19 +77,6 @@ module HexaPDF
         def initialize #:nodoc:
           @character_metrics = {}
           @kerning_pairs = Hash.new {|h, k| h[k] = {}}
-        end
-
-        def freeze #:nodoc:
-          super
-          @character_metrics.each_value(&:freeze)
-          @character_metrics.freeze
-          @kerning_pairs.each_value do |hash|
-            hash.each_value(&:freeze)
-            hash.freeze
-          end
-          @kerning_pairs.default_proc = nil
-          @kerning_pairs.freeze
-          self
         end
 
       end

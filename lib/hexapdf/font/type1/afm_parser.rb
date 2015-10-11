@@ -1,17 +1,20 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/font/afm/font_metrics'
+require 'hexapdf/font/type1/font_metrics'
 require 'hexapdf/error'
 
 module HexaPDF
   module Font
-    module AFM
+    module Type1
 
       # Parses files in the AFM file format.
       #
       # Note that this implementation isn't a full AFM parser, only what is needed for parsing the
       # AFM files for the 14 PDF core fonts is implemented. However, if need be it should be
       # adaptable to other AFM files.
+      #
+      # For information on the AFM file format have a look at Adobe technical note #5004 - Adobe
+      # Font Metrics File Format Specification Version 4.1, available at the Adobe website.
       #
       # == How Parsing Works
       #
@@ -23,7 +26,7 @@ module HexaPDF
       # This parser reads in line by line and the type parsing functions parse a value from the
       # front of the line and then remove the parsed part from the line, including trailing
       # whitespace characters.
-      class Parser
+      class AFMParser
 
         # :call-seq:
         #   Parser.parse(filename)       -> font_metrics
@@ -64,7 +67,6 @@ module HexaPDF
               end
             end
           end
-          @metrics.freeze
           @metrics
         end
 
@@ -82,6 +84,7 @@ module HexaPDF
           when :FullName then @metrics.full_name = parse_string
           when :FamilyName then @metrics.family_name = parse_string
           when :CharacterSet then @metrics.character_set = parse_string
+          when :EncodingScheme then @metrics.encoding_scheme = parse_string
           when :Weight then @metrics.weight = parse_string
           when :FontBBox then
             @metrics.font_bbox = [parse_number, parse_number, parse_number, parse_number]
@@ -109,7 +112,7 @@ module HexaPDF
               case parse_name.to_sym
               when :C then char.code = parse_integer
               when :WX then char.width = parse_number
-              when :N then char.name = parse_name
+              when :N then char.name = parse_name.to_sym
               when :B then char.bbox = [parse_number, parse_number, parse_number, parse_number]
               when :L then char.ligatures[parse_name] = parse_name
               when :"" then break
