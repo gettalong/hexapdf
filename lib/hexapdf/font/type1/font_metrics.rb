@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/font/type1/character_metrics'
+require 'hexapdf/font/encoding'
 
 module HexaPDF
   module Font
@@ -77,6 +78,23 @@ module HexaPDF
         def initialize #:nodoc:
           @character_metrics = {}
           @kerning_pairs = Hash.new {|h, k| h[k] = {}}
+        end
+
+        # Returns the built-in encoding of the font.
+        def encoding
+          @encoding ||=
+            begin
+              if encoding_scheme == 'AdobeStandardEncoding'.freeze
+                Encoding.for_name(:StandardEncoding)
+              else
+                encoding = Encoding::Base.new
+                character_metrics.each do |key, char_metric|
+                  next unless key.kind_of?(Integer) && key >= 0
+                  encoding.code_to_name[key] = char_metric.name
+                end
+                encoding
+              end
+            end
         end
 
       end
