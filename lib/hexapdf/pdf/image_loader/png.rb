@@ -367,7 +367,7 @@ module HexaPDF
                 mask_data << (trns[index] || 255)
                 i += 1
               end
-              stream.read(8 - ((width * bpc) % 8)) # read remaining fill bits
+              stream.read(8 - ((width * bpc) % 8)) if bpc != 8 # read remaining fill bits
             end
           end
 

@@ -179,6 +179,21 @@ describe HexaPDF::PDF::ImageLoader::PNG do
       assert_image(image[:SMask], 5, 5, 8, :DeviceGray, data)
     end
 
+    it "works for an indexed 8-bit png with alpha values" do
+      png = @images.grep(/indexed-alpha-8bit\.png/).first
+      image = @loader.load(@doc, png)
+      data = [[5, 10, 11, 7, 6],
+              [5, 8, 9, 7, 6],
+              [5, 8, 9, 7, 6],
+              [0, 1, 4, 2, 3],
+              [0, 1, 4, 2, 3]]
+      assert_image(image, 5, 5, 8, nil, data)
+
+      data = [[255, 255, 255, 255, 255]] * 3 +
+        [[191, 191, 191, 191, 191]] * 2
+      assert_image(image[:SMask], 5, 5, 8, :DeviceGray, data)
+    end
+
     it "works for a true color 8-bit png" do
       png = @images.grep(/truecolour-8bit\.png/).first
       image = @loader.load(@doc, png)
