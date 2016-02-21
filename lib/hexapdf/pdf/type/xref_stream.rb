@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
-require 'hexapdf/pdf/stream'
-require 'hexapdf/pdf/xref_section'
+require 'hexapdf/stream'
+require 'hexapdf/xref_section'
 require 'hexapdf/pdf/type/trailer'
 
 module HexaPDF
@@ -34,7 +34,7 @@ module HexaPDF
       # cross-reference section plus trailer are written.
       #
       # See: PDF1.7 s7.5.8
-      class XRefStream < HexaPDF::PDF::Stream
+      class XRefStream < HexaPDF::Stream
 
         define_field :Type,  type: Symbol, default: :XRef, required: true, indirect: false, version: '1.5'
         # Size is not required because it will be auto-filled before the object is written

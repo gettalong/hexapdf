@@ -2,7 +2,7 @@
 
 require 'fiber'
 require 'strscan'
-require 'hexapdf/pdf/tokenizer'
+require 'hexapdf/tokenizer'
 require 'hexapdf/error'
 
 module HexaPDF
@@ -11,7 +11,7 @@ module HexaPDF
     # This filter module implements the ASCII-85 filter which can encode arbitrary data into an
     # ASCII compatible format that expands the original data only by a factor of 4:5.
     #
-    # See: HexaPDF::PDF::Filter, PDF1.7 s7.4.2
+    # See: HexaPDF::Filter, PDF1.7 s7.4.2
     module ASCII85Decode
 
       VALUE_TO_CHAR = {} #:nodoc:
@@ -27,14 +27,14 @@ module HexaPDF
       MAX_VALUE = 0xffffffff  #:nodoc:
       FIXED_SUBTRAHEND = 33 * (POW85_4 + POW85_3 + POW85_2 + POW85_1 + 1) #:nodoc:
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.decoder(source, _ = nil)
         Fiber.new do
           rest = nil
           finished = false
 
           while !finished && source.alive? && (data = source.resume)
-            data.tr!(HexaPDF::PDF::Tokenizer::WHITESPACE, '')
+            data.tr!(HexaPDF::Tokenizer::WHITESPACE, '')
             if data.index(/[^!-uz~]/)
               raise HexaPDF::MalformedPDFError, "Invalid characters in ASCII85 stream"
             end
@@ -86,7 +86,7 @@ module HexaPDF
         end
       end
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.encoder(source, _ = nil)
         Fiber.new do
           rest = nil

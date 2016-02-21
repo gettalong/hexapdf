@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 require 'hexapdf/pdf/type/catalog'
 
 describe HexaPDF::PDF::Type::Catalog do
   before do
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
     @catalog = @doc.add(Type: :Catalog)
   end
 

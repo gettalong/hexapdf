@@ -2,8 +2,8 @@
 
 require 'test_helper'
 require 'hexapdf/encryption/security_handler'
-require 'hexapdf/pdf/document'
-require 'hexapdf/pdf/stream'
+require 'hexapdf/document'
+require 'hexapdf/stream'
 
 describe HexaPDF::Encryption::SecurityHandler do
   class TestHandler < HexaPDF::Encryption::SecurityHandler
@@ -29,7 +29,7 @@ describe HexaPDF::Encryption::SecurityHandler do
 
 
   before do
-    @document = HexaPDF::PDF::Document.new
+    @document = HexaPDF::Document.new
     @obj = @document.add({})
     @handler = TestHandler.new(@document)
   end
@@ -231,7 +231,7 @@ describe HexaPDF::Encryption::SecurityHandler do
     end
 
     it "decrypts the content of a stream object" do
-      data = HexaPDF::PDF::StreamData.new(proc { @encrypted })
+      data = HexaPDF::StreamData.new(proc { @encrypted })
       obj = @document.wrap({}, oid: @obj.oid, stream: data)
       @handler.decrypt(obj)
       assert_equal('string', obj.stream)
@@ -258,7 +258,7 @@ describe HexaPDF::Encryption::SecurityHandler do
   describe "encryption" do
     before do
       @handler.set_up_encryption(key_length: 128, algorithm: :arc4)
-      @stream = @document.wrap({}, oid: 1, stream: HexaPDF::PDF::StreamData.new(proc { "string" }))
+      @stream = @document.wrap({}, oid: 1, stream: HexaPDF::StreamData.new(proc { "string" }))
     end
 
     it "encrypts strings of indirect objects" do
@@ -268,7 +268,7 @@ describe HexaPDF::Encryption::SecurityHandler do
 
     it "encrypts streams" do
       result = TestHelper.collector(@handler.encrypt_stream(@stream))
-      @stream.stream = HexaPDF::PDF::StreamData.new(proc { result })
+      @stream.stream = HexaPDF::StreamData.new(proc { result })
       assert_equal('string', @handler.decrypt(@stream).stream)
     end
 
@@ -286,13 +286,13 @@ describe HexaPDF::Encryption::SecurityHandler do
 
   it "works correctly with different decryption and encryption handlers" do
     test_file = File.join(TEST_DATA_DIR, 'standard-security-handler', 'nopwd-arc4-40bit-V1.pdf')
-    doc = HexaPDF::PDF::Document.new(io: StringIO.new(File.read(test_file)))
+    doc = HexaPDF::Document.new(io: StringIO.new(File.read(test_file)))
     doc.security_handler.set_up_encryption(algorithm: :aes, password: 'test')
     out = StringIO.new(''.b)
     doc.write(out, update_fields: false)
 
-    assert_raises(HexaPDF::EncryptionError) { HexaPDF::PDF::Document.new(io: out) }
-    doc = HexaPDF::PDF::Document.new(io: out, decryption_opts: {password: 'test'})
+    assert_raises(HexaPDF::EncryptionError) { HexaPDF::Document.new(io: out) }
+    doc = HexaPDF::Document.new(io: out, decryption_opts: {password: 'test'})
     assert_equal('D:20150409164600', doc.trailer[:Info].value[:ModDate])
   end
 end

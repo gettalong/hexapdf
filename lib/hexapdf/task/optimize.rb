@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'set'
-require 'hexapdf/pdf/serializer'
+require 'hexapdf/serializer'
 require 'hexapdf/pdf/content/parser'
 require 'hexapdf/pdf/content/operator'
 
@@ -117,7 +117,7 @@ module HexaPDF
       # Deletes field entries of the object that are optional and currently set to their default
       # value.
       def self.delete_fields_with_defaults(obj)
-        return unless obj.kind_of?(HexaPDF::PDF::Dictionary) && !obj.null?
+        return unless obj.kind_of?(HexaPDF::Dictionary) && !obj.null?
         obj.each do |name, value|
           if (field = obj.class.field(name)) && !field.required? && field.default? &&
               value == field.default
@@ -144,7 +144,7 @@ module HexaPDF
 
         def initialize #:nodoc:
           @result = ''.force_encoding(Encoding::BINARY)
-          @serializer = HexaPDF::PDF::Serializer.new
+          @serializer = HexaPDF::Serializer.new
         end
 
         def process(op, operands)

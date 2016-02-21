@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/pdf/dictionary'
-require 'hexapdf/pdf/name_tree_node'
+require 'hexapdf/dictionary'
+require 'hexapdf/name_tree_node'
 
 module HexaPDF
   module PDF

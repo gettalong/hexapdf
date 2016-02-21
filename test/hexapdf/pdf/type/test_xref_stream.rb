@@ -89,7 +89,7 @@ describe HexaPDF::PDF::Type::XRefStream do
 
   describe "update_with_xref_section_and_trailer" do
     before do
-      @section = HexaPDF::PDF::XRefSection.new
+      @section = HexaPDF::XRefSection.new
       @section.add_free_entry(0, 65535)
       @section.add_in_use_entry(1, 0, 200)
       @section.add_compressed_entry(2, 1, 5)
@@ -124,7 +124,7 @@ describe HexaPDF::PDF::Type::XRefStream do
     end
 
     it "fails for unsupported cross-reference entry types" do
-      @section.send(:[]=, 3, 0, HexaPDF::PDF::XRefSection::Entry.new(:unknown, 3, 0))
+      @section.send(:[]=, 3, 0, HexaPDF::XRefSection::Entry.new(:unknown, 3, 0))
       assert_raises(HexaPDF::Error) { @obj.update_with_xref_section_and_trailer(@section, {}) }
     end
   end

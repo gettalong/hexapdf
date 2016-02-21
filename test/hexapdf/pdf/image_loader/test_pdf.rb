@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/pdf/document'
-require 'hexapdf/pdf/image_loader/png'
+require 'hexapdf/document'
+require 'hexapdf/pdf/image_loader/pdf'
 
-describe HexaPDF::PDF::ImageLoader::PNG do
+describe HexaPDF::PDF::ImageLoader::PDF do
   before do
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
     @loader = HexaPDF::PDF::ImageLoader::PDF
     @pdf = File.join(TEST_DATA_DIR, 'minimal.pdf')
   end

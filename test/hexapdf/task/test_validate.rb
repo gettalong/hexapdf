@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 require 'hexapdf/task/validate'
 
 describe HexaPDF::Task::Validate do
   before do
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
     @doc.trailer.validate # to create a valid document
   end
 

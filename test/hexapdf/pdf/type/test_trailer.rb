@@ -2,15 +2,15 @@
 
 require 'test_helper'
 require 'hexapdf/pdf/type/trailer'
-require 'hexapdf/pdf/object'
+require 'hexapdf/object'
 require 'hexapdf/pdf/type'
 
 describe HexaPDF::PDF::Type::Trailer do
   before do
     @doc = Object.new
     def (@doc).deref(obj); obj; end
-    def (@doc).wrap(obj, *); HexaPDF::PDF::Dictionary.new(obj, oid: (obj.oid rescue 0)); end
-    root = HexaPDF::PDF::Dictionary.new({}, oid: 3)
+    def (@doc).wrap(obj, *); HexaPDF::Dictionary.new(obj, oid: (obj.oid rescue 0)); end
+    root = HexaPDF::Dictionary.new({}, oid: 3)
     @obj = HexaPDF::PDF::Type::Trailer.new({Size: 10, Root: root}, document: @doc)
   end
 
@@ -53,7 +53,7 @@ describe HexaPDF::PDF::Type::Trailer do
     it "corrects a missing Catalog entry" do
       @obj.delete(:Root)
       @obj.set_random_id
-      def (@doc).add(val) HexaPDF::PDF::Object.new(val, oid: 3) end
+      def (@doc).add(val) HexaPDF::Object.new(val, oid: 3) end
 
       message = ''
       refute(@obj.validate(auto_correct: false) {|m, _| message = m})

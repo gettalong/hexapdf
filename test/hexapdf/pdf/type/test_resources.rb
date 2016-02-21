@@ -2,11 +2,11 @@
 
 require 'test_helper'
 require 'hexapdf/pdf/type/resources'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 
 describe HexaPDF::PDF::Type::Resources do
   before do
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
     @res = HexaPDF::PDF::Type::Resources.new({}, document: @doc)
   end
 
@@ -28,7 +28,7 @@ describe HexaPDF::PDF::Type::Resources do
     it "returns the universal color space for unknown color spaces, with resolved references" do
       data = @doc.add({Some: :data})
       @res[:ColorSpace] = {CSName: [:SomeUnknownColorSpace,
-                                    HexaPDF::PDF::Reference.new(data.oid, data.gen)]}
+                                    HexaPDF::Reference.new(data.oid, data.gen)]}
       color_space = @res.color_space(:CSName)
       assert_kind_of(HexaPDF::PDF::Content::ColorSpace::Universal, color_space)
       assert_equal([:SomeUnknownColorSpace, data], color_space.definition)
@@ -60,7 +60,7 @@ describe HexaPDF::PDF::Type::Resources do
 
     it "doesn't add the same color space twice" do
       object = @doc.add(some: :data)
-      @res[:ColorSpace] = {space: [:DeviceN, HexaPDF::PDF::Reference.new(object.oid, object.gen)]}
+      @res[:ColorSpace] = {space: [:DeviceN, HexaPDF::Reference.new(object.oid, object.gen)]}
       space = HexaPDF::PDF::Content::ColorSpace::Universal.new([:DeviceN, object])
       name = @res.add_color_space(space)
       assert_equal(:space, name)

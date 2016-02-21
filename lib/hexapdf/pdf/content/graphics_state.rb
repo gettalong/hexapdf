@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
-require 'hexapdf/pdf/configuration'
+require 'hexapdf/configuration'
 require 'hexapdf/pdf/content/color_space'
 require 'hexapdf/pdf/content/transformation_matrix'
 

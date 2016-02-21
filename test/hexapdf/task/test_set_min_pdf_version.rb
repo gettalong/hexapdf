@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 require 'hexapdf/task/set_min_pdf_version'
 
 describe HexaPDF::Task::SetMinPDFVersion do
   before do
-    @doc = HexaPDF::PDF::Document.new(io: StringIO.new(MINIMAL_PDF))
+    @doc = HexaPDF::Document.new(io: StringIO.new(MINIMAL_PDF))
   end
 
   it "updates the PDF version of the document if needed" do

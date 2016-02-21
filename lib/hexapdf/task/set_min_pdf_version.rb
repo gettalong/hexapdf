@@ -19,13 +19,13 @@ module HexaPDF
       # Determines the minimum version required by the object and returns it or the given version,
       # whichever is higher.
       def self.process_object(obj, version)
-        return version unless obj.kind_of?(HexaPDF::PDF::Dictionary)
+        return version unless obj.kind_of?(HexaPDF::Dictionary)
 
         obj.class.each_field do |name, field|
           if field.version > version && obj.key?(name)
             version = field.version
           end
-          if obj.value[name].kind_of?(HexaPDF::PDF::Dictionary) && !obj.indirect?
+          if obj.value[name].kind_of?(HexaPDF::Dictionary) && !obj.indirect?
             version = process_object(obj.value[name], version)
           end
         end

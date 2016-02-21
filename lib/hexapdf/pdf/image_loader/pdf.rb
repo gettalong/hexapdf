@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 
 module HexaPDF
   module PDF
@@ -43,11 +43,11 @@ module HexaPDF
         # See: DefaultConfiguration for the meaning of 'image_loader.pdf.use_stringio'.
         def self.load(document, file_or_io)
           idoc = if file_or_io.kind_of?(String) && document.config['image_loader.pdf.use_stringio']
-                   HexaPDF::PDF::Document.open(file_or_io)
+                   HexaPDF::Document.open(file_or_io)
                  elsif file_or_io.kind_of?(String)
-                   HexaPDF::PDF::Document.new(io: File.open(file_or_io, 'rb'))
+                   HexaPDF::Document.new(io: File.open(file_or_io, 'rb'))
                  else
-                   HexaPDF::PDF::Document.new(io: file_or_io)
+                   HexaPDF::Document.new(io: file_or_io)
                  end
           form = idoc.pages.page(0).to_form_xobject
           document.add(document.import(form))

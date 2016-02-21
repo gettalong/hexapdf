@@ -4,7 +4,7 @@ require 'test_helper'
 require 'hexapdf/pdf/content/canvas'
 require 'hexapdf/pdf/content/parser'
 require 'hexapdf/pdf/content/processor'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 
 describe HexaPDF::PDF::Content::GraphicObject::SolidArc do
   describe "initialize" do
@@ -50,7 +50,7 @@ describe HexaPDF::PDF::Content::GraphicObject::SolidArc do
     end
 
     before do
-      @doc = HexaPDF::PDF::Document.new
+      @doc = HexaPDF::Document.new
       @doc.config['graphic_object.arc.max_curves'] = 4
       @page = @doc.pages.add_page
       @canvas = HexaPDF::PDF::Content::Canvas.new(@page, content: :replace)

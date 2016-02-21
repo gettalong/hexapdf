@@ -3,10 +3,10 @@
 require 'set'
 require 'stringio'
 require 'hexapdf/error'
-require 'hexapdf/pdf/stream'
-require 'hexapdf/pdf/reference'
-require 'hexapdf/pdf/tokenizer'
-require 'hexapdf/pdf/serializer'
+require 'hexapdf/stream'
+require 'hexapdf/reference'
+require 'hexapdf/tokenizer'
+require 'hexapdf/serializer'
 
 module HexaPDF
   module PDF
@@ -38,7 +38,7 @@ module HexaPDF
       # other objects are deleted from the object stream (#delete_object) and written normally.
       #
       # See PDF1.7 s7.5.7
-      class ObjectStream < HexaPDF::PDF::Stream
+      class ObjectStream < HexaPDF::Stream
 
         # Holds all necessary information to load objects for an object stream.
         class Data

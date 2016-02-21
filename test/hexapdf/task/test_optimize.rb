@@ -1,16 +1,16 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 require 'hexapdf/task/optimize'
 
 describe HexaPDF::Task::Optimize do
-  class TestType < HexaPDF::PDF::Dictionary
+  class TestType < HexaPDF::Dictionary
     define_field :Optional, type: Symbol, default: :Optional
   end
 
   before do
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
     @obj1 = @doc.add(@doc.wrap({Optional: :Optional}, type: TestType))
     @doc.trailer[:Test] = @doc.wrap(@obj1)
     @doc.revisions.add

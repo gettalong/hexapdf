@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 require 'hexapdf/pdf/image_loader/jpeg'
 
 describe HexaPDF::PDF::ImageLoader::JPEG do
   before do
     @images = Dir.glob(File.join(TEST_DATA_DIR, 'images', '*.jpg'))
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
     @loader = HexaPDF::PDF::ImageLoader::JPEG
   end
 

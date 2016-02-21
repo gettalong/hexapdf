@@ -2,7 +2,7 @@
 
 require 'test_helper'
 require 'hexapdf/pdf/content/canvas'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 require 'hexapdf/pdf/content/processor'
 require 'hexapdf/pdf/content/parser'
 
@@ -13,7 +13,7 @@ describe HexaPDF::PDF::Content::Canvas do
     @processor.operators.clear
     @parser = HexaPDF::PDF::Content::Parser.new
 
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
     @doc.config['graphic_object.arc.max_curves'] = 4
     @page = @doc.pages.add_page
     @canvas = HexaPDF::PDF::Content::Canvas.new(@page, content: :replace)

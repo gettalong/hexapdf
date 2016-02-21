@@ -14,7 +14,7 @@ module HexaPDF
     # not aligned to byte boundaries, this filter is not as fast as the other filters. If speed is
     # a concern, the FlateDecode filter should be used instead.
     #
-    # See: HexaPDF::PDF::Filter, PDF1.7 s7.4.4
+    # See: HexaPDF::Filter, PDF1.7 s7.4.4
     module LZWDecode
 
       CLEAR_TABLE = 256 # :nodoc:
@@ -30,7 +30,7 @@ module HexaPDF
       INITIAL_DECODER_TABLE[CLEAR_TABLE] = CLEAR_TABLE
       INITIAL_DECODER_TABLE[EOD] = EOD
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.decoder(source, options = nil)
         fib = Fiber.new do
           # initialize decoder state
@@ -103,7 +103,7 @@ module HexaPDF
         end
       end
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.encoder(source, options = nil)
         if options && options[:Predictor]
           source = Predictor.encoder(source, options)

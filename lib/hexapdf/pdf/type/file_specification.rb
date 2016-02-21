@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 require 'uri'
-require 'hexapdf/pdf/dictionary'
-require 'hexapdf/pdf/stream'
+require 'hexapdf/dictionary'
+require 'hexapdf/stream'
 require 'hexapdf/pdf/type/embedded_file'
 
 module HexaPDF
@@ -146,7 +146,7 @@ module HexaPDF
           ef_stream = (self[:EF] ||= {})[:F] = document.add({}, type: :EmbeddedFile)
           ef_stream[:Params] = {Size: stat.size, CreationDate: stat.ctime, ModDate: stat.mtime}
           ef_stream.set_filter(filter)
-          ef_stream.stream = HexaPDF::PDF::StreamData.new(filename)
+          ef_stream.stream = HexaPDF::StreamData.new(filename)
 
           if register
             (document.catalog[:Names] ||= {})[:EmbeddedFiles] = {}

@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'hexapdf/pdf/content/parser'
 require 'hexapdf/pdf/content/processor'
-require_relative '../common_tokenizer_tests'
+require_relative '../../common_tokenizer_tests'
 
 describe HexaPDF::PDF::Content::Tokenizer do
   include CommonTokenizerTests

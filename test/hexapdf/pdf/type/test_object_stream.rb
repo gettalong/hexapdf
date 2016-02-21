@@ -24,7 +24,7 @@ describe HexaPDF::PDF::Type::ObjectStream do
   before do
     @doc = Object.new
     def (@doc).trailer
-      @trailer ||= {Encrypt: HexaPDF::PDF::Object.new({}, oid: 9)}
+      @trailer ||= {Encrypt: HexaPDF::Object.new({}, oid: 9)}
     end
     @obj = HexaPDF::PDF::Type::ObjectStream.new({}, document: @doc)
   end
@@ -57,10 +57,10 @@ describe HexaPDF::PDF::Type::ObjectStream do
 
   it "allows writing the objects to the stream" do
     @obj.stream = 'something'
-    @obj.add_object(HexaPDF::PDF::Object.new(5, oid: 1))
-    @obj.add_object(HexaPDF::PDF::Object.new(:will_be_deleted, oid: 3, gen: 1))
-    @obj.add_object(HexaPDF::PDF::Object.new([1, 2], oid: 5))
-    @obj.add_object(HexaPDF::PDF::Object.new(nil, oid: 7))
+    @obj.add_object(HexaPDF::Object.new(5, oid: 1))
+    @obj.add_object(HexaPDF::Object.new(:will_be_deleted, oid: 3, gen: 1))
+    @obj.add_object(HexaPDF::Object.new([1, 2], oid: 5))
+    @obj.add_object(HexaPDF::Object.new(nil, oid: 7))
     @obj.add_object(@doc.trailer[:Encrypt])
 
     revision = Object.new

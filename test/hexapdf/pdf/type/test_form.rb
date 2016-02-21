@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 require 'hexapdf/pdf/type/form'
 
 describe HexaPDF::PDF::Type::Form do
   before do
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
     @form = @doc.wrap({}, subtype: :Form)
   end
 

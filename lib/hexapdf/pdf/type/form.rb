@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/pdf/stream'
+require 'hexapdf/stream'
 
 module HexaPDF
   module PDF

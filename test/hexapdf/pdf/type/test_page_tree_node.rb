@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 require 'hexapdf/pdf/type/page_tree_node'
 
 describe HexaPDF::PDF::Type::PageTreeNode do
   before do
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
     @root = @doc.add(Type: :Pages)
   end
 
@@ -80,7 +80,7 @@ describe HexaPDF::PDF::Type::PageTreeNode do
       assert_equal(1, @root.page_count)
       assert_equal(:Page, page[:Type])
       assert_equal(@root, page[:Parent])
-      assert_kind_of(HexaPDF::PDF::Rectangle, page[:MediaBox])
+      assert_kind_of(HexaPDF::Rectangle, page[:MediaBox])
       assert_equal({}, page[:Resources].value)
       refute(@root.value.key?(:Parent))
     end

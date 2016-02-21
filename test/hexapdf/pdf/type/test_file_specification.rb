@@ -3,11 +3,11 @@
 require 'test_helper'
 require 'tempfile'
 require 'hexapdf/pdf/type/file_specification'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 
 describe HexaPDF::PDF::Type::FileSpecification do
   before do
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
     @obj = HexaPDF::PDF::Type::FileSpecification.new({}, document: @doc)
   end
 

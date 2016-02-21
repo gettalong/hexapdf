@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/pdf/dictionary'
+require 'hexapdf/dictionary'
 
 module HexaPDF
   module PDF
@@ -203,7 +203,7 @@ module HexaPDF
             count = 0
             node[:Kids].reject! do |kid|
               kid = document.deref(kid)
-              if !kid.kind_of?(HexaPDF::PDF::Object) || kid.null? ||
+              if !kid.kind_of?(HexaPDF::Object) || kid.null? ||
                   (kid.type != :Page && kid.type != :Pages)
                 yield("Invalid object in page tree node", true)
                 next true

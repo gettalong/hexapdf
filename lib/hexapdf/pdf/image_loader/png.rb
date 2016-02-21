@@ -169,17 +169,17 @@ module HexaPDF
             if @color_type == TRUECOLOR_ALPHA || @color_type == GREYSCALE_ALPHA
               image_data, mask_data = separate_alpha_channel(idat_offset, decode_parms)
               add_smask_image(dict, mask_data)
-              stream = HexaPDF::PDF::StreamData.new(lambda { image_data },
-                                                    filter: :FlateDecode,
-                                                    decode_parms: decode_parms)
+              stream = HexaPDF::StreamData.new(lambda { image_data },
+                                               filter: :FlateDecode,
+                                               decode_parms: decode_parms)
             else
               if @color_type == INDEXED && trns
                 mask_data = alpha_mask_for_indexed_image(idat_offset, decode_parms, trns)
                 add_smask_image(dict, mask_data, from_indexed: true)
               end
-              stream = HexaPDF::PDF::StreamData.new(image_data_proc(idat_offset),
-                                                    filter: :FlateDecode,
-                                                    decode_parms: decode_parms)
+              stream = HexaPDF::StreamData.new(image_data_proc(idat_offset),
+                                               filter: :FlateDecode,
+                                               decode_parms: decode_parms)
             end
 
             obj = @document.add(dict, stream: stream)
@@ -262,7 +262,7 @@ module HexaPDF
             Columns: dict[:Width],
           }
           stream_opts = (from_indexed ? {} : {filter: :FlateDecode, decode_parms: decode_parms})
-          stream = HexaPDF::PDF::StreamData.new(lambda { mask_data }, stream_opts)
+          stream = HexaPDF::StreamData.new(lambda { mask_data }, stream_opts)
 
           smask_dict = {
             Type: :XObject,

@@ -12,12 +12,12 @@ module HexaPDF
     # This module must not be confused with the Crypt filter specified in the PDF specification!
     module Encryption
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.decoder(source, options)
         options[:algorithm].decryption_fiber(options[:key], source)
       end
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.encoder(source, options)
         options[:algorithm].encryption_fiber(options[:key], source)
       end

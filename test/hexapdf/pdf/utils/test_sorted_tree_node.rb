@@ -1,31 +1,31 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/pdf/document'
-require 'hexapdf/pdf/name_tree_node'
-require 'hexapdf/pdf/number_tree_node'
+require 'hexapdf/document'
+require 'hexapdf/name_tree_node'
+require 'hexapdf/number_tree_node'
 
 describe HexaPDF::PDF::Utils::SortedTreeNode do
   before do
-    @doc = HexaPDF::PDF::Document.new
-    @root = HexaPDF::PDF::NameTreeNode.new({}, document: @doc)
+    @doc = HexaPDF::Document.new
+    @root = HexaPDF::NameTreeNode.new({}, document: @doc)
   end
 
   def add_multilevel_entries
-    @kid11 = HexaPDF::PDF::NameTreeNode.new({Limits: ['c', 'f'], Names: ['c', 1, 'f', 1]},
-                                            document: @doc)
-    @kid12 = HexaPDF::PDF::NameTreeNode.new({Limits: ['i', 'm'], Names: ['i', 1, 'm', 1]},
-                                            document: @doc)
-    @kid1 = HexaPDF::PDF::NameTreeNode.new({Limits: ['c', 'm'], Kids: [@kid11, @kid12]},
-                                           document: @doc)
-    @kid21 = HexaPDF::PDF::NameTreeNode.new({Limits: ['o', 'q'], Names: ['o', 1, 'q', 1]},
-                                            document: @doc)
-    @kid221 = HexaPDF::PDF::NameTreeNode.new({Limits: ['s', 'u'], Names: ['s', 1, 'u', 1]},
-                                             document: @doc)
-    @kid22 = HexaPDF::PDF::NameTreeNode.new({Limits: ['s', 'u'], Kids: [@kid221]},
-                                            document: @doc)
-    @kid2 = HexaPDF::PDF::NameTreeNode.new({Limits: ['o', 'u'], Kids: [@kid21, @kid22]},
-                                           document: @doc)
+    @kid11 = HexaPDF::NameTreeNode.new({Limits: ['c', 'f'], Names: ['c', 1, 'f', 1]},
+                                       document: @doc)
+    @kid12 = HexaPDF::NameTreeNode.new({Limits: ['i', 'm'], Names: ['i', 1, 'm', 1]},
+                                       document: @doc)
+    @kid1 = HexaPDF::NameTreeNode.new({Limits: ['c', 'm'], Kids: [@kid11, @kid12]},
+                                      document: @doc)
+    @kid21 = HexaPDF::NameTreeNode.new({Limits: ['o', 'q'], Names: ['o', 1, 'q', 1]},
+                                       document: @doc)
+    @kid221 = HexaPDF::NameTreeNode.new({Limits: ['s', 'u'], Names: ['s', 1, 'u', 1]},
+                                        document: @doc)
+    @kid22 = HexaPDF::NameTreeNode.new({Limits: ['s', 'u'], Kids: [@kid221]},
+                                       document: @doc)
+    @kid2 = HexaPDF::NameTreeNode.new({Limits: ['o', 'u'], Kids: [@kid21, @kid22]},
+                                      document: @doc)
     @root[:Kids] = [@kid1, @kid2]
   end
 
@@ -45,8 +45,8 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
     end
 
     it "works with one level of intermediate nodes" do
-      kid1 = HexaPDF::PDF::NameTreeNode.new({Limits: ['m', 'm'], Names: ['m', 1]}, document: @doc)
-      kid2 = HexaPDF::PDF::NameTreeNode.new({Limits: ['t', 't'], Names: ['t', 1]}, document: @doc)
+      kid1 = HexaPDF::NameTreeNode.new({Limits: ['m', 'm'], Names: ['m', 1]}, document: @doc)
+      kid2 = HexaPDF::NameTreeNode.new({Limits: ['t', 't'], Names: ['t', 1]}, document: @doc)
       @root[:Kids] = [kid1, kid2]
       @root.add_name('c', 1)
       @root.add_name('d', 1)
@@ -164,7 +164,7 @@ describe HexaPDF::PDF::Utils::SortedTreeNode do
   end
 
   it "works equally well with a NumberTreeNode" do
-    root = HexaPDF::PDF::NumberTreeNode.new({}, document: @doc)
+    root = HexaPDF::NumberTreeNode.new({}, document: @doc)
     root.add_number(2, 1)
     root.add_number(1, 2)
     assert_equal([1, 2, 2, 1], root[:Nums])

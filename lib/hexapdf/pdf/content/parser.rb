@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'stringio'
-require 'hexapdf/pdf/tokenizer'
+require 'hexapdf/tokenizer'
 
 module HexaPDF
   module PDF
@@ -13,29 +13,29 @@ module HexaPDF
       # Note: Indirect object references are *not* supported by this tokenizer!
       #
       # See: PDF1.7 s7.2
-      class Tokenizer < HexaPDF::PDF::Tokenizer #:nodoc:
+      class Tokenizer < HexaPDF::Tokenizer #:nodoc:
 
         # Creates a new tokenizer.
         def initialize(string)
           @ss = StringScanner.new(string)
         end
 
-        # See: HexaPDF::PDF::Tokenizer#pos
+        # See: HexaPDF::Tokenizer#pos
         def pos
           @ss.pos
         end
 
-        # See: HexaPDF::PDF::Tokenizer#pos=
+        # See: HexaPDF::Tokenizer#pos=
         def pos=(pos)
           @ss.pos = pos
         end
 
-        # See: HexaPDF::PDF::Tokenizer#scan_until
+        # See: HexaPDF::Tokenizer#scan_until
         def scan_until(re)
           @ss.scan_until(re)
         end
 
-        # See: HexaPDF::PDF::Tokenizer#next_token
+        # See: HexaPDF::Tokenizer#next_token
         def next_token
           @ss.skip(WHITESPACE_MULTI_RE)
           case (@ss.eos? ? -1 : @ss.string.getbyte(@ss.pos))
@@ -80,7 +80,7 @@ module HexaPDF
 
         private
 
-        # See: HexaPDF::PDF::Tokenizer#parse_number
+        # See: HexaPDF::Tokenizer#parse_number
         def parse_number
           if (val = @ss.scan(/[+-]?\d++(?!\.)/))
             val.to_i

@@ -41,8 +41,8 @@ module HexaPDF
           @doc.each(current: false) do |obj|
             if !@seen.key?(obj) && obj.type != :ObjStm && obj.type != :XRef
               @result << obj
-            elsif obj.kind_of?(HexaPDF::PDF::Stream) && (val = obj.value[:Length]) &&
-                val.kind_of?(HexaPDF::PDF::Object) && val.indirect?
+            elsif obj.kind_of?(HexaPDF::Stream) && (val = obj.value[:Length]) &&
+                val.kind_of?(HexaPDF::Object) && val.indirect?
               @result << val
             end
           end
@@ -62,9 +62,9 @@ module HexaPDF
           val.each {|k, v| val[k] = recurse(v)}
         when Array
           val.map! {|v| recurse(v)}
-        when HexaPDF::PDF::Reference
+        when HexaPDF::Reference
           dereference(@doc.object(val))
-        when HexaPDF::PDF::Object
+        when HexaPDF::Object
           (val.indirect? ? dereference(val) : recurse(val.value))
           val
         else

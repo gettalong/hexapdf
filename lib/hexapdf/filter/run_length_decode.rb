@@ -9,12 +9,12 @@ module HexaPDF
 
     # Implements the run length filter.
     #
-    # See: HexaPDF::PDF::Filter, PDF1.7 s7.4.5
+    # See: HexaPDF::Filter, PDF1.7 s7.4.5
     module RunLengthDecode
 
       EOD = 128.chr #:nodoc:
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.decoder(source, _ = nil)
         Fiber.new do
           i = 0
@@ -51,7 +51,7 @@ module HexaPDF
         end
       end
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.encoder(source, _ = nil)
         Fiber.new do
           while source.alive? && (data = source.resume)

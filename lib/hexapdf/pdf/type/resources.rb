@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
-require 'hexapdf/pdf/configuration'
-require 'hexapdf/pdf/dictionary'
+require 'hexapdf/configuration'
+require 'hexapdf/dictionary'
 require 'hexapdf/pdf/content/color_space'
 
 module HexaPDF

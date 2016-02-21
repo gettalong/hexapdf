@@ -2,12 +2,12 @@
 
 require 'test_helper'
 require 'stringio'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 require 'hexapdf/pdf/type/page'
 
 describe HexaPDF::PDF::Type::Page do
   before do
-    @doc = HexaPDF::PDF::Document.new
+    @doc = HexaPDF::Document.new
   end
 
   describe "[]" do
@@ -173,7 +173,7 @@ describe HexaPDF::PDF::Type::Page do
 
     it "uses the raw stream data if possible to avoid unnecessary work" do
       page = @doc.pages.add_page
-      page.contents = HexaPDF::PDF::StreamData.new(StringIO.new("test"))
+      page.contents = HexaPDF::StreamData.new(StringIO.new("test"))
       form = page.to_form_xobject
       assert_same(form.raw_stream, page[:Contents].raw_stream)
     end

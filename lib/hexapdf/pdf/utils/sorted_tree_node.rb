@@ -6,7 +6,7 @@ module HexaPDF
 
       # Provides the convenience methods that are used for name trees and number trees.
       #
-      # See: HexaPDF::PDF::NameTreeNode, HexaPDF::PDF::NumberTreeNode
+      # See: HexaPDF::NameTreeNode, HexaPDF::NumberTreeNode
       module SortedTreeNode
 
         # Adds a new key-data pair to the sorted tree.
@@ -69,9 +69,9 @@ module HexaPDF
           return unless stack.last[container_name][index] == key
 
           value = stack.last[container_name].delete_at(index)
-          document.delete(value) if value.kind_of?(HexaPDF::PDF::Object)
+          document.delete(value) if value.kind_of?(HexaPDF::Object)
           value = stack.last[container_name].delete_at(index)
-          document.delete(value) if value.kind_of?(HexaPDF::PDF::Object)
+          document.delete(value) if value.kind_of?(HexaPDF::Object)
 
           stack.last[:Limits] = stack.last[container_name].values_at(0, -2) if stack.last[:Limits]
 
@@ -164,7 +164,7 @@ module HexaPDF
           index = find_in_leaf_node(array, key)
           if array[index] == key
             old_data = array[index + 1]
-            document.delete(old_data) if old_data.kind_of?(HexaPDF::PDF::Object)
+            document.delete(old_data) if old_data.kind_of?(HexaPDF::Object)
             array[index + 1] = data
           else
             array.insert(index, key, data)

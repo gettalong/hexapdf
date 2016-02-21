@@ -32,12 +32,12 @@ module HexaPDF
       PREDICTOR_PNG_PAETH = 4   #:nodoc:
       PREDICTOR_PNG_OPTIMUM = 5 #:nodoc:
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.decoder(source, options)
         execute(:decoder, source, options)
       end
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.encoder(source, options)
         execute(:encoder, source, options)
       end

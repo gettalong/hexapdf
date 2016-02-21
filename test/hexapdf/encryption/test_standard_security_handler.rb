@@ -2,8 +2,8 @@
 
 require 'test_helper'
 require 'hexapdf/encryption/standard_security_handler'
-require 'hexapdf/pdf/document'
-require 'hexapdf/pdf/writer'
+require 'hexapdf/document'
+require 'hexapdf/writer'
 require 'stringio'
 
 describe HexaPDF::Encryption::StandardSecurityHandler do
@@ -11,19 +11,19 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
   USER_PASSWORD = 'uhexapdf'
   OWNER_PASSWORD = 'ohexapdf'
 
-  MINIMAL_DOC = HexaPDF::PDF::Document.new(io: StringIO.new(MINIMAL_PDF))
+  MINIMAL_DOC = HexaPDF::Document.new(io: StringIO.new(MINIMAL_PDF))
 
   TEST_FILES.each do |file|
     basename = File.basename(file)
     it "can decrypt, encrypt and decrypt the encrypted file #{basename} with the user password" do
       begin
-        doc = HexaPDF::PDF::Document.new(io: StringIO.new(File.binread(file)),
-                                         decryption_opts: {password: USER_PASSWORD})
+        doc = HexaPDF::Document.new(io: StringIO.new(File.binread(file)),
+                                    decryption_opts: {password: USER_PASSWORD})
         assert_equal(MINIMAL_DOC.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
 
         out = StringIO.new(''.b)
-        HexaPDF::PDF::Writer.new(doc, out).write
-        doc = HexaPDF::PDF::Document.new(io: out, decryption_opts: {password: USER_PASSWORD})
+        HexaPDF::Writer.new(doc, out).write
+        doc = HexaPDF::Document.new(io: out, decryption_opts: {password: USER_PASSWORD})
         assert_equal(MINIMAL_DOC.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
       rescue HexaPDF::EncryptionError => e
         flunk("Error processing #{basename}: #{e}")
@@ -33,8 +33,8 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     if basename !~ /\Auserpwd/
       it "can decrypt the encrypted file #{basename} with the owner password" do
         begin
-          doc = HexaPDF::PDF::Document.new(io: StringIO.new(File.binread(file)),
-                                           decryption_opts: {password: OWNER_PASSWORD})
+          doc = HexaPDF::Document.new(io: StringIO.new(File.binread(file)),
+                                      decryption_opts: {password: OWNER_PASSWORD})
           assert_equal(MINIMAL_DOC.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
         rescue HexaPDF::EncryptionError => e
           flunk("Error processing #{basename}: #{e}")
@@ -45,7 +45,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
 
 
   before do
-    @document = HexaPDF::PDF::Document.new
+    @document = HexaPDF::Document.new
     @handler = HexaPDF::Encryption::StandardSecurityHandler.new(@document)
   end
 
@@ -255,7 +255,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       end
 
       it "ignores the /Perms when requested" do
-        obj = HexaPDF::PDF::Object.new(nil, oid: 1)
+        obj = HexaPDF::Object.new(nil, oid: 1)
         obj.value = @handler.encrypt_string('test', obj)
 
         @dict[:P] = 500

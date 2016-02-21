@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/pdf/dictionary'
-require 'hexapdf/pdf/number_tree_node'
-require 'hexapdf/pdf/stream'
+require 'hexapdf/dictionary'
+require 'hexapdf/number_tree_node'
+require 'hexapdf/stream'
 
 module HexaPDF
   module PDF

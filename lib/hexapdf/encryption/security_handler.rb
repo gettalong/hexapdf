@@ -2,8 +2,8 @@
 
 require 'digest/md5'
 require 'hexapdf/error'
-require 'hexapdf/pdf/dictionary'
-require 'hexapdf/pdf/stream'
+require 'hexapdf/dictionary'
+require 'hexapdf/stream'
 
 module HexaPDF
   module Encryption
@@ -47,13 +47,13 @@ module HexaPDF
       # needs further fields it should derive a new subclass and add the new fields there.
       #
       # See: PDF1.7 s7.6.1
-      class EncryptionDictionary < HexaPDF::PDF::Dictionary
+      class EncryptionDictionary < HexaPDF::Dictionary
 
         define_field :Filter,    type: Symbol, required: true
         define_field :SubFilter, type: Symbol, version: '1.3'
         define_field :V,         type: Integer, required: true
         define_field :Lenth,     type: Integer, default: 40, version: '1.4'
-        define_field :CF,        type: HexaPDF::PDF::Dictionary, version: '1.5'
+        define_field :CF,        type: HexaPDF::Dictionary, version: '1.5'
         define_field :StmF,      type: Symbol, default: :Identity, version: '1.5'
         define_field :StrF,      type: Symbol, default: :Identity, version: '1.5'
         define_field :EFF,       type: Symbol, version: '1.6'
@@ -83,9 +83,9 @@ module HexaPDF
       # used by the PDF file.
       def self.set_up_decryption(document, **decryption_opts)
         dict = document.unwrap(document.trailer[:Encrypt])
-        handler = HexaPDF::PDF::GlobalConfiguration.constantize('encryption.filter_map', dict[:Filter])
+        handler = HexaPDF::GlobalConfiguration.constantize('encryption.filter_map', dict[:Filter])
         if handler.nil?
-          handler = HexaPDF::PDF::GlobalConfiguration.constantize('encryption.sub_filter_map', dict[:SubFilter])
+          handler = HexaPDF::GlobalConfiguration.constantize('encryption.sub_filter_map', dict[:SubFilter])
         end
         if handler.nil?
           raise HexaPDF::EncryptionError, "Could not find a suitable security handler"
@@ -174,19 +174,19 @@ module HexaPDF
             5
           else
             raise(HexaPDF::UnsupportedEncryptionError,
-              "Invalid key length #{key_length} specified")
+                  "Invalid key length #{key_length} specified")
           end
         dict[:Length] = key_length if dict[:V] == 2
 
         if ![:aes, :arc4].include?(algorithm)
           raise(HexaPDF::UnsupportedEncryptionError,
-            "Unsupported encryption algorithm: #{algorithm}")
+                "Unsupported encryption algorithm: #{algorithm}")
         elsif key_length < 128 && algorithm == :aes
           raise(HexaPDF::UnsupportedEncryptionError,
-            "AES algorithm needs a key length of 128 or 256 bit")
+                "AES algorithm needs a key length of 128 or 256 bit")
         elsif key_length == 256 && algorithm == :arc4
           raise(HexaPDF::UnsupportedEncryptionError,
-            "ARC4 algorithm can only be used with key lengths between 40 and 128 bit")
+                "ARC4 algorithm can only be used with key lengths between 40 and 128 bit")
         end
 
         result = prepare_encrypt_dict(algorithm: algorithm, **options)
@@ -215,7 +215,7 @@ module HexaPDF
               when :None then :identity
               else
                 raise(HexaPDF::UnsupportedEncryptionError,
-                  "Unsupported encryption method: #{cf_dict[:CFM]}")
+                      "Unsupported encryption method: #{cf_dict[:CFM]}")
               end
             else
               :identity
@@ -242,7 +242,7 @@ module HexaPDF
           str.replace(string_algorithm.decrypt(key, str))
         end
 
-        if obj.kind_of?(HexaPDF::PDF::Stream)
+        if obj.kind_of?(HexaPDF::Stream)
           unless string_algorithm == stream_algorithm
             key = object_key(obj.oid, obj.gen, stream_algorithm)
           end
@@ -328,12 +328,12 @@ module HexaPDF
 
       # Returns the class that is used for ARC4 encryption.
       def arc4_algorithm
-        @arc4_algorithm ||= HexaPDF::PDF::GlobalConfiguration.constantize('encryption.arc4')
+        @arc4_algorithm ||= HexaPDF::GlobalConfiguration.constantize('encryption.arc4')
       end
 
       # Returns the class that is used for AES encryption.
       def aes_algorithm
-        @aes_algorithm ||= HexaPDF::PDF::GlobalConfiguration.constantize('encryption.aes')
+        @aes_algorithm ||= HexaPDF::GlobalConfiguration.constantize('encryption.aes')
       end
 
       # Returns the class that is used for the identity algorithm which passes back the data as is

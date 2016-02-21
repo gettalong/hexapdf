@@ -61,7 +61,7 @@ module HexaPDF
                  else
                    image_data_from_io(file_or_io)
                  end
-          document.add(dict, stream: HexaPDF::PDF::StreamData.new(file_or_io))
+          document.add(dict, stream: HexaPDF::StreamData.new(file_or_io))
         end
 
         # Returns a hash containing the extracted JPEG image data.

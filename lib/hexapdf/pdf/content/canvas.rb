@@ -2,7 +2,7 @@
 
 require 'hexapdf/pdf/content/graphics_state'
 require 'hexapdf/pdf/content/operator'
-require 'hexapdf/pdf/serializer'
+require 'hexapdf/serializer'
 require 'hexapdf/pdf/utils/math_helpers'
 require 'hexapdf/pdf/content/graphic_object'
 
@@ -127,7 +127,7 @@ module HexaPDF
           @operators = Operator::DEFAULT_OPERATORS.dup
           @graphics_state = GraphicsState.new
           @graphics_object = :none
-          @serializer = HexaPDF::PDF::Serializer.new
+          @serializer = HexaPDF::Serializer.new
           init_contents(content)
         end
 
@@ -1212,7 +1212,7 @@ module HexaPDF
         #
         # See: PDF1.7 s8.8, s.8.10.1
         def xobject(obj, at:, width: nil, height: nil)
-          unless obj.kind_of?(HexaPDF::PDF::Stream)
+          unless obj.kind_of?(HexaPDF::Stream)
             obj = context.document.utils.add_image(obj)
           end
 

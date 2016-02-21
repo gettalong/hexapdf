@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 require 'hexapdf/task/dereference'
 
 describe HexaPDF::Task::Dereference do
   before do
-    @doc = HexaPDF::PDF::Document.new(io: StringIO.new(MINIMAL_PDF))
+    @doc = HexaPDF::Document.new(io: StringIO.new(MINIMAL_PDF))
   end
 
   it "dereferences all references to objects" do
@@ -18,9 +18,9 @@ describe HexaPDF::Task::Dereference do
       case val
       when Array then val.all? {|v| checker.call(v, done)}
       when Hash then val.all? {|_, v| checker.call(v, done)}
-      when HexaPDF::PDF::Reference
+      when HexaPDF::Reference
         false
-      when HexaPDF::PDF::Object
+      when HexaPDF::Object
         if done.key?(val)
           true
         else
@@ -39,8 +39,8 @@ describe HexaPDF::Task::Dereference do
   end
 
   it "dereferences only a single object" do
-    assert(@doc.object(5).value[:Font][:F1].kind_of?(HexaPDF::PDF::Reference))
+    assert(@doc.object(5).value[:Font][:F1].kind_of?(HexaPDF::Reference))
     assert_nil(@doc.task(:dereference, object: @doc.object(5)))
-    refute(@doc.object(5).value[:Font][:F1].kind_of?(HexaPDF::PDF::Reference))
+    refute(@doc.object(5).value[:Font][:F1].kind_of?(HexaPDF::Reference))
   end
 end

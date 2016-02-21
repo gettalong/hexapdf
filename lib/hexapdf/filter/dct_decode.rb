@@ -7,15 +7,15 @@ module HexaPDF
     # gets passed on unmodified. This also means that the :ColorTransform parameter is not
     # evaluated!
     #
-    # See: HexaPDF::PDF::Filter, PDF1.7 s7.4.8
+    # See: HexaPDF::Filter, PDF1.7 s7.4.8
     module DCTDecode
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.decoder(source, _ = nil)
         source
       end
 
-      # See HexaPDF::PDF::Filter
+      # See HexaPDF::Filter
       def self.encoder(source, _ = nil)
         source
       end

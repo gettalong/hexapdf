@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'hexapdf/pdf/content/operator'
 require 'hexapdf/pdf/content/processor'
-require 'hexapdf/pdf/serializer'
+require 'hexapdf/serializer'
 
 describe HexaPDF::PDF::Content::Operator::BaseOperator do
   before do
@@ -20,7 +20,7 @@ describe HexaPDF::PDF::Content::Operator::BaseOperator do
   end
 
   it "can serialize any operator with its operands" do
-    serializer = HexaPDF::PDF::Serializer.new
+    serializer = HexaPDF::Serializer.new
     assert_equal("5.0 5 /Name name\n", @op.serialize(serializer, 5.0, 5, :Name))
   end
 end
@@ -35,7 +35,7 @@ end
 describe HexaPDF::PDF::Content::Operator::SingleNumericArgumentOperator do
   it "provides a special serialize method" do
     op = HexaPDF::PDF::Content::Operator::SingleNumericArgumentOperator.new('name')
-    serializer = HexaPDF::PDF::Serializer.new
+    serializer = HexaPDF::Serializer.new
     assert_equal("5 name\n", op.serialize(serializer, 5))
     assert_equal("5.45 name\n", op.serialize(serializer, 5.45))
   end
@@ -48,13 +48,13 @@ module CommonOperatorTests
   before do
     resources = {}
     resources.define_singleton_method(:color_space) do |name|
-      HexaPDF::PDF::GlobalConfiguration.constantize('color_space.map', name).new
+      HexaPDF::GlobalConfiguration.constantize('color_space.map', name).new
     end
     resources.define_singleton_method(:ext_gstate) do |name|
       self[:ExtGState] && self[:ExtGState][name] || raise(HexaPDF::Error, "missing")
     end
     @processor = HexaPDF::PDF::Content::Processor.new(resources)
-    @serializer = HexaPDF::PDF::Serializer.new
+    @serializer = HexaPDF::Serializer.new
   end
 
   # calls the method of the operator with the operands

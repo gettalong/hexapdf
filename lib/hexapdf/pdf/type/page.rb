@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/pdf/dictionary'
-require 'hexapdf/pdf/stream'
+require 'hexapdf/dictionary'
+require 'hexapdf/stream'
 require 'hexapdf/pdf/type/page_tree_node'
 require 'hexapdf/pdf/content/parser'
 require 'hexapdf/pdf/content/processor'
@@ -226,8 +226,8 @@ module HexaPDF
           dict = {
             Type: :XObject,
             Subtype: :Form,
-            BBox: HexaPDF::PDF::Object.deep_copy(box(:crop)),
-            Resources: HexaPDF::PDF::Object.deep_copy(self[:Resources]),
+            BBox: HexaPDF::Object.deep_copy(box(:crop)),
+            Resources: HexaPDF::Object.deep_copy(self[:Resources]),
             Filter: :FlateDecode,
           }
           document.wrap(dict, stream: stream)
