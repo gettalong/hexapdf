@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 require 'uri'
-require 'hexapdf/pdf/filter'
 require 'hexapdf/pdf/dictionary'
 require 'hexapdf/pdf/stream'
 require 'hexapdf/pdf/type/embedded_file'

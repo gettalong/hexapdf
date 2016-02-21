@@ -407,7 +407,7 @@ EOF
 
     it "automatically creates a security handler if specified" do
       assert_nil(@doc.security_handler(use_standard_handler: false))
-      assert_kind_of(HexaPDF::PDF::Encryption::SecurityHandler,
+      assert_kind_of(HexaPDF::Encryption::SecurityHandler,
                      @doc.security_handler)
       refute(@doc.encrypted?)
     end
@@ -421,7 +421,7 @@ EOF
       assert_nil(@doc.security_handler(use_standard_handler: false))
       refute(@doc.encrypted?)
 
-      @doc.security_handler = HexaPDF::PDF::Encryption::StandardSecurityHandler.new(@doc)
+      @doc.security_handler = HexaPDF::Encryption::StandardSecurityHandler.new(@doc)
       refute_nil(@doc.security_handler(use_standard_handler: false))
       refute(@doc.encrypted?)
     end

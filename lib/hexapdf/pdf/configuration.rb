@@ -233,33 +233,33 @@ module HexaPDF
     # task.map::
     #    A mapping from task names to callable task objects. See Task for more information.
     GlobalConfiguration =
-      Configuration.new('encryption.aes' => 'HexaPDF::PDF::Encryption::FastAES',
-                        'encryption.arc4' => 'HexaPDF::PDF::Encryption::FastARC4',
+      Configuration.new('encryption.aes' => 'HexaPDF::Encryption::FastAES',
+                        'encryption.arc4' => 'HexaPDF::Encryption::FastARC4',
                         'encryption.filter_map' => {
-                          Standard: 'HexaPDF::PDF::Encryption::StandardSecurityHandler',
+                          Standard: 'HexaPDF::Encryption::StandardSecurityHandler',
                         },
                         'encryption.sub_filter_map' => {
                         },
                         'filter.flate_compression' => 9,
                         'filter.map' => {
-                          ASCIIHexDecode: 'HexaPDF::PDF::Filter::ASCIIHexDecode',
-                          AHx: 'HexaPDF::PDF::Filter::ASCIIHexDecode',
-                          ASCII85Decode: 'HexaPDF::PDF::Filter::ASCII85Decode',
-                          A85: 'HexaPDF::PDF::Filter::ASCII85Decode',
-                          LZWDecode: 'HexaPDF::PDF::Filter::LZWDecode',
-                          LZW: 'HexaPDF::PDF::Filter::LZWDecode',
-                          FlateDecode: 'HexaPDF::PDF::Filter::FlateDecode',
-                          Fl: 'HexaPDF::PDF::Filter::FlateDecode',
-                          RunLengthDecode: 'HexaPDF::PDF::Filter::RunLengthDecode',
-                          RL: 'HexaPDF::PDF::Filter::RunLengthDecode',
+                          ASCIIHexDecode: 'HexaPDF::Filter::ASCIIHexDecode',
+                          AHx: 'HexaPDF::Filter::ASCIIHexDecode',
+                          ASCII85Decode: 'HexaPDF::Filter::ASCII85Decode',
+                          A85: 'HexaPDF::Filter::ASCII85Decode',
+                          LZWDecode: 'HexaPDF::Filter::LZWDecode',
+                          LZW: 'HexaPDF::Filter::LZWDecode',
+                          FlateDecode: 'HexaPDF::Filter::FlateDecode',
+                          Fl: 'HexaPDF::Filter::FlateDecode',
+                          RunLengthDecode: 'HexaPDF::Filter::RunLengthDecode',
+                          RL: 'HexaPDF::Filter::RunLengthDecode',
                           CCITTFaxDecode: nil,
                           CCF: nil,
                           JBIG2Decode: nil,
-                          DCTDecode: 'HexaPDF::PDF::Filter::DCTDecode',
-                          DCT: 'HexaPDF::PDF::Filter::DCTDecode',
-                          JPXDecode: 'HexaPDF::PDF::Filter::JPXDecode',
+                          DCTDecode: 'HexaPDF::Filter::DCTDecode',
+                          DCT: 'HexaPDF::Filter::DCTDecode',
+                          JPXDecode: 'HexaPDF::Filter::JPXDecode',
                           Crypt: nil,
-                          Encryption: 'HexaPDF::PDF::Filter::Encryption',
+                          Encryption: 'HexaPDF::Filter::Encryption',
                         },
                         'color_space.map' => {
                           DeviceRGB: 'HexaPDF::PDF::Content::ColorSpace::DeviceRGB',
@@ -290,10 +290,10 @@ module HexaPDF
                           Form: 'HexaPDF::PDF::Type::Form',
                         },
                         'task.map' => {
-                          set_min_pdf_version: 'HexaPDF::PDF::Task::SetMinPDFVersion',
-                          optimize: 'HexaPDF::PDF::Task::Optimize',
-                          dereference: 'HexaPDF::PDF::Task::Dereference',
-                          validate: 'HexaPDF::PDF::Task::Validate',
+                          set_min_pdf_version: 'HexaPDF::Task::SetMinPDFVersion',
+                          optimize: 'HexaPDF::Task::Optimize',
+                          dereference: 'HexaPDF::Task::Dereference',
+                          validate: 'HexaPDF::Task::Validate',
                         })
 
   end

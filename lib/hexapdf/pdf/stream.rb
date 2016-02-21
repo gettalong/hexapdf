@@ -2,7 +2,7 @@
 
 require 'hexapdf/error'
 require 'hexapdf/pdf/dictionary'
-require 'hexapdf/pdf/filter'
+require 'hexapdf/filter'
 
 module HexaPDF
   module PDF
@@ -49,10 +49,10 @@ module HexaPDF
         if @source.kind_of?(Proc)
           FiberWithLength.new(@length, &@source)
         elsif @source.kind_of?(String)
-          HexaPDF::PDF::Filter.source_from_file(@source, pos: @offset || 0, length: @length || -1,
+          HexaPDF::Filter.source_from_file(@source, pos: @offset || 0, length: @length || -1,
                                                 chunk_size: chunk_size)
         else
-          HexaPDF::PDF::Filter.source_from_io(@source, pos: @offset || 0, length: @length || -1,
+          HexaPDF::Filter.source_from_io(@source, pos: @offset || 0, length: @length || -1,
                                               chunk_size: chunk_size)
         end
       end
@@ -106,7 +106,7 @@ module HexaPDF
       # available anymore!
       def stream
         unless data.stream.kind_of?(String)
-          data.stream = HexaPDF::PDF::Filter.string_from_source(stream_decoder)
+          data.stream = HexaPDF::Filter.string_from_source(stream_decoder)
         end
         data.stream
       end
@@ -122,7 +122,7 @@ module HexaPDF
       # Returns the Fiber representing the unprocessed content of the stream.
       def stream_source
         if data.stream.kind_of?(String)
-          HexaPDF::PDF::Filter.source_from_string(data.stream)
+          HexaPDF::Filter.source_from_string(data.stream)
         else
           data.stream.fiber(config['io.chunk_size'.freeze])
         end

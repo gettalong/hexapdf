@@ -2,7 +2,7 @@
 
 require 'time'
 require 'hexapdf/pdf/tokenizer'
-require 'hexapdf/pdf/filter'
+require 'hexapdf/filter'
 require 'hexapdf/pdf/utils/lru_cache'
 
 module HexaPDF
