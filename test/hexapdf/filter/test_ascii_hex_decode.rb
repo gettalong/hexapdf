@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 
-require 'test_helper'
+require_relative 'common'
 require 'hexapdf/filter/ascii_hex_decode'
 
 describe HexaPDF::Filter::ASCIIHexDecode do
-  include StandardFilterTests
+  include CommonFilterTests
 
   before do
     @obj = HexaPDF::Filter::ASCIIHexDecode

@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 
-require 'test_helper'
+require_relative 'common'
 require 'hexapdf/filter/ascii85_decode'
 
 describe HexaPDF::Filter::ASCII85Decode do
-  include StandardFilterTests
+  include CommonFilterTests
 
   before do
     @obj = HexaPDF::Filter::ASCII85Decode
@@ -25,7 +25,8 @@ describe HexaPDF::Filter::ASCII85Decode do
     end
 
     it "ignores whitespace in the input" do
-      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded.dup.scan(/./).map {|a| "#{a} \r\t"}.join("\n")))))
+      encoded = @encoded.dup.scan(/./).map {|a| "#{a} \r\t"}.join("\n")
+      assert_equal(@decoded, collector(@obj.decoder(feeder(encoded))))
     end
 
     it "works without the EOD marker" do

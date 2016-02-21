@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-require 'test_helper'
+require_relative 'common'
 require 'hexapdf/encryption/identity'
 
 describe HexaPDF::Encryption::Identity do

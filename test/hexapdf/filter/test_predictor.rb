@@ -1,10 +1,12 @@
 # -*- encoding: utf-8 -*-
 
-require 'test_helper'
+require_relative 'common'
 require 'hexapdf/filter/predictor'
 
 describe HexaPDF::Filter::Predictor do
-  module CommonTests
+  include TestHelper
+
+  module CommonPredictorTests
     def test_decoding_through_decoder_method
       @testcases.each do |name, data|
         assert_equal(data[:source], collector(@obj.decoder(feeder(data[:result].dup), data)), "test case: #{name}")
@@ -18,8 +20,6 @@ describe HexaPDF::Filter::Predictor do
     end
   end
 
-  include TestHelper
-
   before do
     @obj = HexaPDF::Filter::Predictor
   end
@@ -32,7 +32,7 @@ describe HexaPDF::Filter::Predictor do
   end
 
   describe "png predictor" do
-    include CommonTests
+    include CommonPredictorTests
 
     before do
       @testcases = {
@@ -119,7 +119,7 @@ describe HexaPDF::Filter::Predictor do
   end
 
   describe "tiff predictor" do
-    include CommonTests
+    include CommonPredictorTests
 
     before do
       @testcases = {

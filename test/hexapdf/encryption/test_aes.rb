@@ -1,44 +1,7 @@
 # -*- encoding: utf-8 -*-
 
-require 'test_helper'
+require_relative 'common'
 require 'hexapdf/encryption/aes'
-
-module AESEncryptionTests
-
-  include EncryptionAlgorithmInterfaceTests
-
-  TEST_VECTOR_FILES = Dir[File.join(TEST_DATA_DIR, 'aes-test-vectors', '*')]
-
-  def test_processes_the_aes_test_vectors
-    TEST_VECTOR_FILES.each do |filename|
-      name, size, mode = File.basename(filename, '.data.gz').split('-')
-      size = size.to_i / 8
-      data = Zlib::GzipReader.open(filename) {|io| io.read}.force_encoding(Encoding::BINARY)
-      data.scan(/(.{#{size}})(.{16})(.{16})(.{16})/m).each_with_index do |(key, iv, plain, cipher), index|
-        aes = @algorithm_class.new(key, iv, mode.intern)
-        assert_equal(cipher, aes.process(plain),
-                     "name: #{name}, size: #{size * 8}, mode: #{mode}, index: #{index}")
-      end
-    end
-  end
-
-  def test_can_accept_one_big_chunk_or_multiple_smaller_ones
-    big = @algorithm_class.new('t' * 16, '0' * 16, :encrypt)
-    small = @algorithm_class.new('t' * 16, '0' * 16, :encrypt)
-    assert_equal(big.process('some' * 16),
-                 small.process('some' * 8) << small.process('some' * 4) << small.process('some' * 4))
-  end
-
-  def test_raises_error_on_invalid_key_length
-    assert_raises(HexaPDF::EncryptionError) { @algorithm_class.new('t' * 7, '0' * 16, :encrypt) }
-  end
-
-  def test_raises_error_on_invalid_iv_length
-    assert_raises(HexaPDF::EncryptionError) { @algorithm_class.new('t' * 16, '0' * 7, :encrypt) }
-  end
-
-end
-
 
 describe HexaPDF::Encryption::AES do
   include EncryptionAlgorithmInterfaceTests

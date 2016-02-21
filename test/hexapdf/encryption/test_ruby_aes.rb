@@ -1,9 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-require 'test_helper'
+require_relative 'common'
 require 'hexapdf/encryption/ruby_aes'
 require 'hexapdf/encryption/fast_aes'
-require_relative 'test_aes'
 
 describe HexaPDF::Encryption::RubyAES do
   include AESEncryptionTests

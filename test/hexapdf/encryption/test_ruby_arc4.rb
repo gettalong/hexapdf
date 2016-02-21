@@ -1,9 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-require 'test_helper'
+require_relative 'common'
 require 'hexapdf/encryption/ruby_arc4'
 require 'hexapdf/encryption/fast_arc4'
-require_relative 'test_arc4'
 
 describe HexaPDF::Encryption::RubyARC4 do
   include ARC4EncryptionTests

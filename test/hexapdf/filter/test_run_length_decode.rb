@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 
-require 'test_helper'
+require_relative 'common'
 require 'hexapdf/filter/run_length_decode'
 
 describe HexaPDF::Filter::RunLengthDecode do
-  include StandardFilterTests
+  include CommonFilterTests
 
   before do
     @obj = HexaPDF::Filter::RunLengthDecode

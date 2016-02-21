@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 
-require 'test_helper'
+require_relative 'common'
 require 'hexapdf/filter/lzw_decode'
 
 describe HexaPDF::Filter::LZWDecode do
-  include StandardFilterTests
+  include CommonFilterTests
 
   before do
     @obj = HexaPDF::Filter::LZWDecode
