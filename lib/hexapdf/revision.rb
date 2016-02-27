@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/error'
-require 'hexapdf/pdf/utils/object_hash'
+require 'hexapdf/utils/object_hash'
 
 module HexaPDF
 
@@ -47,7 +47,7 @@ module HexaPDF
       @trailer = trailer
       @loader = xref_section && (block || loader)
       @xref_section = xref_section || XRefSection.new
-      @objects = HexaPDF::PDF::Utils::ObjectHash.new
+      @objects = HexaPDF::Utils::ObjectHash.new
     end
 
     # Returns the next free object number for adding an object to this revision.

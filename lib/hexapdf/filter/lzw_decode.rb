@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'fiber'
-require 'hexapdf/pdf/utils/bit_stream'
+require 'hexapdf/utils/bit_stream'
 require 'hexapdf/filter/predictor'
 require 'hexapdf/error'
 
@@ -37,7 +37,7 @@ module HexaPDF
           code_length = 9
           table = INITIAL_DECODER_TABLE.dup
 
-          stream = HexaPDF::PDF::Utils::BitStreamReader.new
+          stream = HexaPDF::Utils::BitStreamReader.new
           result = ''.force_encoding(Encoding::BINARY)
           finished = false
           last_code = CLEAR_TABLE
@@ -115,7 +115,7 @@ module HexaPDF
           table = INITIAL_ENCODER_TABLE.dup
 
           # initialize the bit stream with the clear-table marker
-          stream = HexaPDF::PDF::Utils::BitStreamWriter.new
+          stream = HexaPDF::Utils::BitStreamWriter.new
           result = stream.write(CLEAR_TABLE, 9)
           str = ''.force_encoding(Encoding::BINARY)
 

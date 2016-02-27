@@ -157,7 +157,7 @@ EOF
       def (@document).object(_oid)
         obj = Object.new
         def obj.parse_stream
-          HexaPDF::PDF::Type::ObjectStream::Data.new("5 [1 2]", [1, 2], [0, 2])
+          HexaPDF::Type::ObjectStream::Data.new("5 [1 2]", [1, 2], [0, 2])
         end
         obj
       end
@@ -390,6 +390,5 @@ EOF
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.load_revision(0) }
       assert_match(/entry for itself/, exp.message)
     end
-
   end
 end

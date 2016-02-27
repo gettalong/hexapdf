@@ -3,7 +3,7 @@
 require 'time'
 require 'hexapdf/tokenizer'
 require 'hexapdf/filter'
-require 'hexapdf/pdf/utils/lru_cache'
+require 'hexapdf/utils/lru_cache'
 
 module HexaPDF
 
@@ -135,7 +135,7 @@ module HexaPDF
     # :nodoc:
     NAME_REGEXP = /[^!-~&&[^##{Regexp.escape(Tokenizer::DELIMITER)}#{Regexp.escape(Tokenizer::WHITESPACE)}]]/
     # :nodoc:
-    NAME_CACHE = HexaPDF::PDF::Utils::LRUCache.new(1000)
+    NAME_CACHE = Utils::LRUCache.new(1000)
 
     # Serializes a Symbol object (i.e. a PDF name object).
     #

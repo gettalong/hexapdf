@@ -1,0 +1,173 @@
+# -*- encoding: utf-8 -*-
+
+require 'stringio'
+require 'hexapdf/tokenizer'
+
+module HexaPDF
+  module Content
+
+    # More efficient tokenizer for content streams. This tokenizer class works directly on a
+    # string and not on an IO.
+    #
+    # Note: Indirect object references are *not* supported by this tokenizer!
+    #
+    # See: PDF1.7 s7.2
+    class Tokenizer < HexaPDF::Tokenizer #:nodoc:
+
+      # Creates a new tokenizer.
+      def initialize(string)
+        @ss = StringScanner.new(string)
+      end
+
+      # See: HexaPDF::Tokenizer#pos
+      def pos
+        @ss.pos
+      end
+
+      # See: HexaPDF::Tokenizer#pos=
+      def pos=(pos)
+        @ss.pos = pos
+      end
+
+      # See: HexaPDF::Tokenizer#scan_until
+      def scan_until(re)
+        @ss.scan_until(re)
+      end
+
+      # See: HexaPDF::Tokenizer#next_token
+      def next_token
+        @ss.skip(WHITESPACE_MULTI_RE)
+        case (@ss.eos? ? -1 : @ss.string.getbyte(@ss.pos))
+        when 43, 45, 46, 48..57 # + - . 0..9
+          parse_number
+        when 65..90, 96..121
+          parse_keyword
+        when 47 # /
+          parse_name
+        when 40 # (
+          parse_literal_string
+        when 60 # <
+          if @ss.string.getbyte(@ss.pos + 1) != 60
+            parse_hex_string
+          else
+            @ss.pos += 2
+            TOKEN_DICT_START
+          end
+        when 62 # >
+          unless @ss.string.getbyte(@ss.pos + 1) == 62
+            raise HexaPDF::MalformedPDFError.new("Delimiter '>' found at invalid position", pos: pos)
+          end
+          @ss.pos += 2
+          TOKEN_DICT_END
+        when 91 # [
+          @ss.pos += 1
+          TOKEN_ARRAY_START
+        when 93 # ]
+          @ss.pos += 1
+          TOKEN_ARRAY_END
+        when 123, 125 # { }
+          Token.new(@ss.get_byte)
+        when 37 # %
+          return NO_MORE_TOKENS unless @ss.skip_until(/(?=[\r\n])/)
+          next_token
+        when -1
+          NO_MORE_TOKENS
+        else
+          parse_keyword
+        end
+      end
+
+      private
+
+      # See: HexaPDF::Tokenizer#parse_number
+      def parse_number
+        if (val = @ss.scan(/[+-]?\d++(?!\.)/))
+          val.to_i
+        else
+          val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/)
+          val << '0'.freeze if val.getbyte(-1) == 46 # dot '.'
+          Float(val)
+        end
+      end
+
+      # Stub implementation to prevent errors for not-overridden methods.
+      def prepare_string_scanner(*)
+      end
+
+    end
+
+
+    # This class knows how to correctly parse a content stream.
+    #
+    # == Overview
+    #
+    # A content stream is mostly just a stream of PDF objects. However, there is one exception:
+    # inline images.
+    #
+    # Since inline images don't follow the normal PDF object parsing rules, they need to be
+    # handled specially and this is the reason for this class. Therefore only the BI operator is
+    # ever called for inline images because the ID and EI operators are handled by the parser.
+    #
+    # To parse some contents the #parse method needs to be called with the contents to be parsed
+    # and a Processor object which is used for processing the parsed operators.
+    class Parser
+
+      # Creates a new Parser object and calls #parse.
+      def self.parse(contents, processor)
+        new.parse(contents, processor)
+      end
+
+      # Parses the contents and calls the processor object for each parsed operator.
+      def parse(contents, processor)
+        tokenizer = Tokenizer.new(contents)
+        params = []
+        while (obj = tokenizer.next_object(allow_keyword: true)) != Tokenizer::NO_MORE_TOKENS
+          if obj.kind_of?(Tokenizer::Token)
+            if obj == 'BI'.freeze
+              params = parse_inline_image(tokenizer)
+            end
+            processor.process(obj.to_sym, params)
+            params.clear
+          else
+            params << obj
+          end
+        end
+      end
+
+      private
+
+      # Parses the inline image at the current position.
+      def parse_inline_image(tokenizer)
+        # BI has already been read, so read the image dictionary
+        dict = {}
+        while (key = tokenizer.next_object(allow_keyword: true))
+          if key == 'ID'.freeze
+            break
+          elsif key == Tokenizer::NO_MORE_TOKENS
+            raise HexaPDF::Error, "EOS while trying to read dictionary key for inline image"
+          elsif !key.kind_of?(Symbol)
+            raise HexaPDF::Error, "Inline image dictionary keys must be PDF name objects"
+          end
+          value = tokenizer.next_object
+          if value == Tokenizer::NO_MORE_TOKENS
+            raise HexaPDF::Error, "EOS while trying to read dictionary value for inline image"
+          end
+          dict[key] = value
+        end
+
+        # one whitespace character after ID
+        tokenizer.next_byte
+
+        # find the EI operator
+        data = tokenizer.scan_until(/(?=EI[#{Tokenizer::WHITESPACE}])/o)
+        if data.nil?
+          raise HexaPDF::Error, "End inline image marker EI not found"
+        end
+        tokenizer.pos += 3
+        [dict, data]
+      end
+
+    end
+
+  end
+end

@@ -4,7 +4,7 @@ require 'cmdparse'
 require 'hexapdf/cli/info'
 require 'hexapdf/cli/extract'
 require 'hexapdf/version'
-require 'hexapdf/pdf/document'
+require 'hexapdf/document'
 
 module HexaPDF
 

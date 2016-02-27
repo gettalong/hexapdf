@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'hexapdf/dictionary_fields'
 require 'hexapdf/dictionary'
-require 'hexapdf/pdf/type'
+require 'hexapdf/type'
 
 describe HexaPDF::DictionaryFields do
   include HexaPDF::DictionaryFields
@@ -158,7 +158,7 @@ describe HexaPDF::DictionaryFields do
       refute(@field.convert?({}))
 
       @doc = Minitest::Mock.new
-      @doc.expect(:wrap, :data, [{F: 'test'}, {type: HexaPDF::PDF::Type::FileSpecification}])
+      @doc.expect(:wrap, :data, [{F: 'test'}, {type: HexaPDF::Type::FileSpecification}])
       @field.convert('test', @doc)
       @doc.verify
     end

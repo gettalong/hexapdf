@@ -54,7 +54,8 @@ module CommonTokenizerTests
         % Test
         EOF
 
-    expected_tokens = [true, false,
+    expected_tokens = [
+      true, false,
       123, 17, -98, 0, 59,
       34.5, -3.62, 123.6, 4.0, -0.002, 0.002, 0.0,
       'obj', 'endobj', 'f*', '*f', '{', '}',

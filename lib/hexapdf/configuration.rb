@@ -70,8 +70,8 @@ module HexaPDF
     # If no constant can be found and no block is provided, +nil+ is returned. If a block is
     # provided it is called with the option name and its result will be returned.
     #
-    #   config.constantize('encryption.aes')      #=> HexaPDF::PDF::Encryption::FastAES
-    #   config.constantize('filter.map', :Fl)     #=> HexaPDF::PDF::Filter::FlateDecode
+    #   config.constantize('encryption.aes')      #=> HexaPDF::Encryption::FastAES
+    #   config.constantize('filter.map', :Fl)     #=> HexaPDF::Filter::FlateDecode
     def constantize(name, key = :__unset)
       data = self[name]
       data = data[key] if key != :__unset && data.respond_to?(:[])
@@ -97,7 +97,7 @@ module HexaPDF
   # graphic_object.map::
   #    A mapping from graphic object names to graphic object factories.
   #
-  #    See HexaPDF::PDF::Content::GraphicObject for more information.
+  #    See HexaPDF::Content::GraphicObject for more information.
   #
   # graphic_object.arc.max_curves::
   #    The maximum number of curves used for approximating a complete ellipse using Bezier curves.
@@ -128,7 +128,7 @@ module HexaPDF
   #
   # page.default_media_box::
   #    The media box that is used for new pages that don't define a media box. Default value is
-  #    A4. See HexaPDF::PDF::Type::Page::PAPER_SIZE for a list of predefined paper sizes.
+  #    A4. See HexaPDF::Type::Page::PAPER_SIZE for a list of predefined paper sizes.
   #
   #    The value can either be a rectangle defining the paper size or a Symbol referencing one of
   #    the predefined paper sizes.
@@ -143,8 +143,8 @@ module HexaPDF
   #    The maximum number of nodes that should be in a leaf node of a node tree.
   DefaultDocumentConfiguration =
     Configuration.new('graphic_object.map' => {
-                        arc: 'HexaPDF::PDF::Content::GraphicObject::Arc',
-                        solid_arc: 'HexaPDF::PDF::Content::GraphicObject::SolidArc',
+                        arc: 'HexaPDF::Content::GraphicObject::Arc',
+                        solid_arc: 'HexaPDF::Content::GraphicObject::SolidArc',
                       },
                       'graphic_object.arc.max_curves' => 6,
                       'image_loader.pdf.use_stringio' => true,
@@ -261,32 +261,33 @@ module HexaPDF
                         Encryption: 'HexaPDF::Filter::Encryption',
                       },
                       'color_space.map' => {
-                        DeviceRGB: 'HexaPDF::PDF::Content::ColorSpace::DeviceRGB',
-                        DeviceCMYK: 'HexaPDF::PDF::Content::ColorSpace::DeviceCMYK',
-                        DeviceGray: 'HexaPDF::PDF::Content::ColorSpace::DeviceGray',
+                        DeviceRGB: 'HexaPDF::Content::ColorSpace::DeviceRGB',
+                        DeviceCMYK: 'HexaPDF::Content::ColorSpace::DeviceCMYK',
+                        DeviceGray: 'HexaPDF::Content::ColorSpace::DeviceGray',
                       },
                       'image_loader' => [
-                        'HexaPDF::PDF::ImageLoader::JPEG',
-                        'HexaPDF::PDF::ImageLoader::PNG',
-                        'HexaPDF::PDF::ImageLoader::PDF',
+                        'HexaPDF::ImageLoader::JPEG',
+                        'HexaPDF::ImageLoader::PNG',
+                        'HexaPDF::ImageLoader::PDF',
                       ],
                       'object.type_map' => {
-                        XRef: 'HexaPDF::PDF::Type::XRefStream',
-                        ObjStm: 'HexaPDF::PDF::Type::ObjectStream',
-                        Catalog: 'HexaPDF::PDF::Type::Catalog',
-                        ViewerPreferences: 'HexaPDF::PDF::Type::ViewerPreferences',
-                        Pages: 'HexaPDF::PDF::Type::PageTreeNode',
-                        Page: 'HexaPDF::PDF::Type::Page',
-                        Names: 'HexaPDF::PDF::Type::Names',
-                        Filespec: 'HexaPDF::PDF::Type::FileSpecification',
-                        EmbeddedFile: 'HexaPDF::PDF::Type::EmbeddedFile',
-                        Info: 'HexaPDF::PDF::Type::Info',
-                        Resources: 'HexaPDF::PDF::Type::Resources',
-                        ExtGState: 'HexaPDF::PDF::Type::GraphicsStateParameter',
+                        XRef: 'HexaPDF::Type::XRefStream',
+                        ObjStm: 'HexaPDF::Type::ObjectStream',
+                        Catalog: 'HexaPDF::Type::Catalog',
+                        ViewerPreferences: 'HexaPDF::Type::ViewerPreferences',
+                        Pages: 'HexaPDF::Type::PageTreeNode',
+                        Page: 'HexaPDF::Type::Page',
+                        Names: 'HexaPDF::Type::Names',
+                        Filespec: 'HexaPDF::Type::FileSpecification',
+                        EmbeddedFile: 'HexaPDF::Type::EmbeddedFile',
+                        Info: 'HexaPDF::Type::Info',
+                        Resources: 'HexaPDF::Type::Resources',
+                        ExtGState: 'HexaPDF::Type::GraphicsStateParameter',
+                        Trailer: 'HexaPDF::Type::Trailer',
                       },
                       'object.subtype_map' => {
-                        Image: 'HexaPDF::PDF::Type::Image',
-                        Form: 'HexaPDF::PDF::Type::Form',
+                        Image: 'HexaPDF::Type::Image',
+                        Form: 'HexaPDF::Type::Form',
                       },
                       'task.map' => {
                         set_min_pdf_version: 'HexaPDF::Task::SetMinPDFVersion',

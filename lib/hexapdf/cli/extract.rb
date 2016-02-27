@@ -7,7 +7,7 @@ module HexaPDF
 
     # Extracts files from a PDF file.
     #
-    # See: HexaPDF::PDF::Type::EmbeddedFileStream
+    # See: HexaPDF::Type::EmbeddedFileStream
     class Extract < CmdParse::Command
 
       def initialize #:nodoc:
@@ -30,7 +30,7 @@ module HexaPDF
       end
 
       def execute(file) #:nodoc:
-        HexaPDF::PDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
+        HexaPDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
           if @indices.empty?
             list_files(doc)
           else

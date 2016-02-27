@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/pdf/utils/object_hash'
+require 'hexapdf/utils/object_hash'
 
 module HexaPDF
 
@@ -14,7 +14,7 @@ module HexaPDF
   #
   # See: Revision
   # See: PDF1.7 s7.5.4, s7.5.8
-  class XRefSection < HexaPDF::PDF::Utils::ObjectHash
+  class XRefSection < Utils::ObjectHash
 
     # One entry of a cross-reference section or stream.
     #

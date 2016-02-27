@@ -31,7 +31,7 @@ describe HexaPDF::Filter::LZWDecode do
     end
 
     it "fails if the code size would be more than 12bit" do
-      stream = HexaPDF::PDF::Utils::BitStreamWriter.new
+      stream = HexaPDF::Utils::BitStreamWriter.new
       result = stream.write(256, 9)
       result << stream.write(65, 9)
       258.upto(510) {|i| result << stream.write(i, 9)}

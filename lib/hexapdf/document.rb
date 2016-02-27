@@ -7,12 +7,12 @@ require 'hexapdf/reference'
 require 'hexapdf/object'
 require 'hexapdf/stream'
 require 'hexapdf/revisions'
-require 'hexapdf/pdf/type'
+require 'hexapdf/type'
 require 'hexapdf/task'
 require 'hexapdf/encryption'
 require 'hexapdf/writer'
 require 'hexapdf/importer'
-require 'hexapdf/pdf/image_loader'
+require 'hexapdf/image_loader'
 require 'hexapdf/document_utils'
 
 module HexaPDF
@@ -388,7 +388,7 @@ module HexaPDF
 
     # Returns the root node of the document's page tree.
     #
-    # See: HexaPDF::PDF::Type::PageTreeNode
+    # See: HexaPDF::Type::PageTreeNode
     def pages
       catalog.pages
     end

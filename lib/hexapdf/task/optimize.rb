@@ -2,8 +2,8 @@
 
 require 'set'
 require 'hexapdf/serializer'
-require 'hexapdf/pdf/content/parser'
-require 'hexapdf/pdf/content/operator'
+require 'hexapdf/content/parser'
+require 'hexapdf/content/operator'
 
 module HexaPDF
   module Task
@@ -131,7 +131,7 @@ module HexaPDF
       def self.compress_pages(doc)
         doc.pages.each_page do |page|
           processor = SerializationProcessor.new
-          HexaPDF::PDF::Content::Parser.parse(page.contents, processor)
+          HexaPDF::Content::Parser.parse(page.contents, processor)
           page.contents = processor.result
           page[:Contents].set_filter(:FlateDecode)
         end
@@ -148,7 +148,7 @@ module HexaPDF
         end
 
         def process(op, operands)
-          @result << HexaPDF::PDF::Content::Operator::DEFAULT_OPERATORS[op.intern].serialize(@serializer, *operands)
+          @result << HexaPDF::Content::Operator::DEFAULT_OPERATORS[op.intern].serialize(@serializer, *operands)
         end
 
       end

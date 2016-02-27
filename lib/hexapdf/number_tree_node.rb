@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/dictionary'
-require 'hexapdf/pdf/utils/sorted_tree_node'
+require 'hexapdf/utils/sorted_tree_node'
 
 module HexaPDF
 
@@ -19,7 +19,7 @@ module HexaPDF
   # See: PDF1.7 s7.9.7, NameTreeNode
   class NumberTreeNode < Dictionary
 
-    include HexaPDF::PDF::Utils::SortedTreeNode
+    include Utils::SortedTreeNode
 
     define_field :Kids,   type: Array
     define_field :Nums,  type: Array

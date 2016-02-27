@@ -2,7 +2,7 @@
 
 require 'fiber'
 require 'hexapdf/error'
-require 'hexapdf/pdf/utils/bit_stream'
+require 'hexapdf/utils/bit_stream'
 
 module HexaPDF
   module Filter
@@ -64,7 +64,7 @@ module HexaPDF
           mask = (1 << bits_per_component) - 1
 
           data = ''.force_encoding(Encoding::BINARY)
-          writer = HexaPDF::PDF::Utils::BitStreamWriter.new
+          writer = HexaPDF::Utils::BitStreamWriter.new
           pos = 0
 
           decode_row = lambda do |result, reader|
@@ -99,7 +99,7 @@ module HexaPDF
             pos = 0
 
             while pos + bytes_per_row <= data.length
-              reader = HexaPDF::PDF::Utils::BitStreamReader.new(data[pos, bytes_per_row])
+              reader = HexaPDF::Utils::BitStreamReader.new(data[pos, bytes_per_row])
               row_action.call(result, reader)
               pos += bytes_per_row
             end

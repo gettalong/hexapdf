@@ -22,7 +22,7 @@ module HexaPDF
   #
   # Here is a simple example:
   #
-  #   doc = HexaPDF::PDF::Document.new
+  #   doc = HexaPDF::Document.new
   #   doc.config['task.map'][:validate] = lambda do |doc|
   #     doc.each(current: false) {|obj| obj.validate || raise "Invalid object #{obj}"}
   #   end

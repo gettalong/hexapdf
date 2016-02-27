@@ -5,7 +5,7 @@ require 'date'
 require 'hexapdf/object'
 require 'hexapdf/rectangle'
 require 'hexapdf/configuration'
-require 'hexapdf/pdf/utils/pdf_doc_encoding'
+require 'hexapdf/utils/pdf_doc_encoding'
 
 module HexaPDF
 
@@ -29,9 +29,8 @@ module HexaPDF
   #   result of the Field#type method call.
   #
   # convert(data, type, document)::
-  #   Should return the +converted+ data. The +type+ argument is the result of the Field#type
-  #   method call and +document+ is the HexaPDF::PDF::Document for which the data should be
-  #   converted.
+  #   Should return the +converted+ data. The +type+ argument is the result of the Field#type method
+  #   call and +document+ is the HexaPDF::Document for which the data should be converted.
   module DictionaryFields
 
     # This constant should *always* be used for boolean fields.
@@ -221,7 +220,7 @@ module HexaPDF
         if str.getbyte(0) == 254 && str.getbyte(1) == 255
           str[2..-1].force_encoding(Encoding::UTF_16BE).encode(Encoding::UTF_8)
         else
-          HexaPDF::PDF::Utils::PDFDocEncoding.convert_to_utf8(str)
+          Utils::PDFDocEncoding.convert_to_utf8(str)
         end
       end
 

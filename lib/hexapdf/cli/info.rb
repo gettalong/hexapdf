@@ -12,7 +12,7 @@ module HexaPDF
     # * The number of pages
     # * The used PDF version
     #
-    # See: HexaPDF::PDF::Type::Info, HexaPDF::PDF::Encryption::SecurityHandler
+    # See: HexaPDF::Type::Info, HexaPDF::Encryption::SecurityHandler
     class Info < CmdParse::Command
 
       def initialize #:nodoc:
@@ -42,7 +42,7 @@ module HexaPDF
       COLUMN_WIDTH = 20
 
       def output_info(file) # :nodoc:
-        HexaPDF::PDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
+        HexaPDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
           INFO_KEYS.each do |name|
             next unless doc.trailer[:Info].key?(name)
             output_line(name.to_s, doc.trailer[:Info][name].to_s)
