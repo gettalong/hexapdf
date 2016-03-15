@@ -79,7 +79,7 @@ module HexaPDF
       # the document so that the decryption is handled automatically behind the scenes. The
       # decryption handler is also returned.
       #
-      # The +decryption_opts+ contain decryption options specific to the security handler that is
+      # The +decryption_opts+ contains decryption options specific to the security handler that is
       # used by the PDF file.
       def self.set_up_decryption(document, **decryption_opts)
         dict = document.unwrap(document.trailer[:Encrypt])
