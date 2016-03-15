@@ -8,6 +8,41 @@ require 'hexapdf/stream'
 module HexaPDF
   module Encryption
 
+    # Base class for all encryption dictionaries.
+    #
+    # Contains entries common to all encryption dictionaries. If a specific security handler
+    # needs further fields it should derive a new subclass and add the new fields there.
+    #
+    # See: PDF1.7 s7.6.1
+    class EncryptionDictionary < Dictionary
+
+      define_field :Filter,    type: Symbol, required: true
+      define_field :SubFilter, type: Symbol, version: '1.3'
+      define_field :V,         type: Integer, required: true
+      define_field :Lenth,     type: Integer, default: 40, version: '1.4'
+      define_field :CF,        type: Dictionary, version: '1.5'
+      define_field :StmF,      type: Symbol, default: :Identity, version: '1.5'
+      define_field :StrF,      type: Symbol, default: :Identity, version: '1.5'
+      define_field :EFF,       type: Symbol, version: '1.6'
+
+      define_validator(:validate_encrypt_dict)
+
+      private
+
+      # Ensures that the encryption dictionary's content is valid.
+      def validate_encrypt_dict
+        unless [1, 2, 4, 5].include?(value[:V])
+          yield("Value of /V is not one of 1, 2, 4 or 5", false)
+        end
+        if value[:V] == 2 && (!key?(:Length) || value[:Length] < 40 ||
+          value[:Length] > 128 || value[:Length] % 8 != 0)
+          yield("Invalid value for /Length field when /V is 2", false)
+        end
+      end
+
+    end
+
+
     # Base class for all security handlers.
     #
     # == Implementing a Security Handler
@@ -40,40 +75,6 @@ module HexaPDF
     # initialize(document)::
     #   Creates a new security handler object for the given Document.
     class SecurityHandler
-
-      # Base class for all encryption dictionaries.
-      #
-      # Contains entries common to all encryption dictionaries. If a specific security handler
-      # needs further fields it should derive a new subclass and add the new fields there.
-      #
-      # See: PDF1.7 s7.6.1
-      class EncryptionDictionary < HexaPDF::Dictionary
-
-        define_field :Filter,    type: Symbol, required: true
-        define_field :SubFilter, type: Symbol, version: '1.3'
-        define_field :V,         type: Integer, required: true
-        define_field :Lenth,     type: Integer, default: 40, version: '1.4'
-        define_field :CF,        type: HexaPDF::Dictionary, version: '1.5'
-        define_field :StmF,      type: Symbol, default: :Identity, version: '1.5'
-        define_field :StrF,      type: Symbol, default: :Identity, version: '1.5'
-        define_field :EFF,       type: Symbol, version: '1.6'
-
-        define_validator(:validate_encrypt_dict)
-
-        private
-
-        # Ensures that the encryption dictionary's content is valid.
-        def validate_encrypt_dict
-          unless [1, 2, 4, 5].include?(value[:V])
-            yield("Value of /V is not one of 1, 2, 4 or 5", false)
-          end
-          if value[:V] == 2 && (!key?(:Length) || value[:Length] < 40 ||
-            value[:Length] > 128 || value[:Length] % 8 != 0)
-            yield("Invalid value for /Length field when /V is 2", false)
-          end
-        end
-
-      end
 
       # Sets up the security handler that is used for decrypting the given document and modifies
       # the document so that the decryption is handled automatically behind the scenes. The

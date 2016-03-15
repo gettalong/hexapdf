@@ -7,6 +7,48 @@ require 'digest/sha2'
 module HexaPDF
   module Encryption
 
+    # The specialized encryption dictionary for the StandardSecurityHandler.
+    #
+    # Contains additional fields that are used for storing the information needed for retrieving
+    # the encryption key and a set of permissions.
+    class StandardEncryptionDictionary < EncryptionDictionary
+
+      define_field :R,               type: Integer, required: true
+      define_field :O,               type: PDFByteString, required: true
+      define_field :OE,              type: PDFByteString, version: '2.0'
+      define_field :U,               type: PDFByteString, required: true
+      define_field :UE,              type: PDFByteString, version: '2.0'
+      define_field :P,               type: Integer, required: true
+      define_field :Perms,           type: PDFByteString, version: '2.0'
+      define_field :EncryptMetadata, type: Boolean, default: true, version: '1.5'
+
+      define_validator(:validate_standard_encrypt_dict)
+
+      private
+
+      # Validates the fields special for this encryption dictionary.
+      def validate_standard_encrypt_dict
+        case value[:R]
+        when 2, 3, 4
+          if value[:U].length != 32 || value[:O].length != 32
+            yield("Invalid size for /U or /O values for revisions <= 4", false)
+          end
+        when 6
+          if !key?(:OE) || !key?(:UE) || !key?(:Perms)
+            yield("Value of /OE, /UE or /Perms is missing for dictionary revision 6", false)
+          end
+          if value[:U].length != 48 || value[:O].length != 48 || value[:UE].length == 32 ||
+              value[:OE].length != 32 || value[:Perms].length != 16
+            yield("Invalid size for /U, /O, /UE, /OE or /Perms values for revisions 6", false)
+          end
+        else
+          yield("Value of /R is not one of 2, 3, 4 or 6", false)
+        end
+      end
+
+    end
+
+
     # The password-based standard security handler of the PDF specification, identified by a
     # /Filter value of /Standard.
     #
@@ -25,48 +67,8 @@ module HexaPDF
     # See: PDF1.7 s7.6.3, PDF2.0 s7.6.3
     class StandardSecurityHandler < SecurityHandler
 
-      # The specialized encryption dictionary for the standard security handler.
-      #
-      # Contains additional fields that are used for storing the information needed for retrieving
-      # the encryption key.
-      class StandardEncryptionDictionary < EncryptionDictionary
 
-        define_field :R,               type: Integer, required: true
-        define_field :O,               type: PDFByteString, required: true
-        define_field :OE,              type: PDFByteString, version: '2.0'
-        define_field :U,               type: PDFByteString, required: true
-        define_field :UE,              type: PDFByteString, version: '2.0'
-        define_field :P,               type: Integer, required: true
-        define_field :Perms,           type: PDFByteString, version: '2.0'
-        define_field :EncryptMetadata, type: Boolean, default: true, version: '1.5'
-
-        define_validator(:validate_standard_encrypt_dict)
-
-        private
-
-        # Validates the fields special for this encryption dictionary.
-        def validate_standard_encrypt_dict
-          case value[:R]
-          when 2, 3, 4
-            if value[:U].length != 32 || value[:O].length != 32
-              yield("Invalid size for /U or /O values for revisions <= 4", false)
-            end
-          when 6
-            if !key?(:OE) || !key?(:UE) || !key?(:Perms)
-              yield("Value of /OE, /UE or /Perms is missing for dictionary revision 6", false)
-            end
-            if value[:U].length != 48 || value[:O].length != 48 || value[:UE].length == 32 ||
-                value[:OE].length != 32 || value[:Perms].length != 16
-              yield("Invalid size for /U, /O, /UE, /OE or /Perms values for revisions 6", false)
-            end
-          else
-            yield("Value of /R is not one of 2, 3, 4 or 6", false)
-          end
-        end
-
-      end
-
-      # Defines all permissions that can be specified.
+      # Defines all available permissions.
       #
       # It is possible to use an array of permission symbols instead of an integer to describe the
       # permission set. The used symbols are the lower case versions of the constants, i.e. the
@@ -133,6 +135,7 @@ module HexaPDF
         }
 
       end
+
 
       # Defines all possible options that can be passed to a StandardSecurityHandler when setting
       # up encryption.

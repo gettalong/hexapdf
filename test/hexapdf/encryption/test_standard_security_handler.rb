@@ -6,6 +6,52 @@ require 'hexapdf/document'
 require 'hexapdf/writer'
 require 'stringio'
 
+describe HexaPDF::Encryption::StandardEncryptionDictionary do
+  before do
+    @document = HexaPDF::Document.new
+    @dict = HexaPDF::Encryption::StandardEncryptionDictionary.new({}, document: @document)
+    @dict[:Filter] = :Standard
+    @dict[:V] = 1
+    @dict[:R] = 2
+    @dict[:U] = 'test' * 8
+    @dict[:O] = 'test' * 8
+    @dict[:P] = -5
+    @dict[:UE] = 'test' * 8
+    @dict[:OE] = 'test' * 8
+    @dict[:Perms] = 'test' * 8
+  end
+
+  it "validates the /R value" do
+    @dict[:R] = 2
+    assert(@dict.validate)
+    @dict[:R] = 5
+    refute(@dict.validate)
+  end
+
+  [:U, :O].each do |field|
+    it "validates the length of /#{field} field for R <= 4" do
+      @dict[field] = 'test'
+      refute(@dict.validate)
+    end
+  end
+
+  [:U, :O, :UE, :OE, :Perms].each do |field|
+    it "validates the length of /#{field} field for R=6" do
+      @dict[:R] = 6
+      @dict[field] = 'test'
+      refute(@dict.validate)
+    end
+  end
+
+  [:UE, :OE, :Perms].each do |field|
+    it "validates the existence of the /#{field} field for R=6" do
+      @dict[:R] = 6
+      @dict.delete(field)
+      refute(@dict.validate)
+    end
+  end
+end
+
 describe HexaPDF::Encryption::StandardSecurityHandler do
   TEST_FILES = Dir[File.join(TEST_DATA_DIR, 'standard-security-handler', '*.pdf')].sort
   USER_PASSWORD = 'uhexapdf'
@@ -49,56 +95,10 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     @handler = HexaPDF::Encryption::StandardSecurityHandler.new(@document)
   end
 
-
-  describe "StandardEncryptionDictionary" do
-    before do
-      @dict = @handler.class::StandardEncryptionDictionary.new({}, document: @document)
-      @dict[:Filter] = :Standard
-      @dict[:V] = 1
-      @dict[:R] = 2
-      @dict[:U] = 'test' * 8
-      @dict[:O] = 'test' * 8
-      @dict[:P] = -5
-      @dict[:UE] = 'test' * 8
-      @dict[:OE] = 'test' * 8
-      @dict[:Perms] = 'test' * 8
-    end
-
-    it "validates the /R value" do
-      @dict[:R] = 2
-      assert(@dict.validate)
-      @dict[:R] = 5
-      refute(@dict.validate)
-    end
-
-    [:U, :O].each do |field|
-      it "validates the length of /#{field} field for R <= 4" do
-        @dict[field] = 'test'
-        refute(@dict.validate)
-      end
-    end
-
-    [:U, :O, :UE, :OE, :Perms].each do |field|
-      it "validates the length of /#{field} field for R=6" do
-        @dict[:R] = 6
-        @dict[field] = 'test'
-        refute(@dict.validate)
-      end
-    end
-
-    [:UE, :OE, :Perms].each do |field|
-      it "validates the existence of the /#{field} field for R=6" do
-        @dict[:R] = 6
-        @dict.delete(field)
-        refute(@dict.validate)
-      end
-    end
-  end
-
   describe "prepare_encrypt_dict" do
     it "sets the trailer's /Encrypt entry to an encryption dictionary with a custom class" do
       @handler.set_up_encryption
-      assert_kind_of(@handler.class::StandardEncryptionDictionary, @document.trailer[:Encrypt])
+      assert_kind_of(HexaPDF::Encryption::StandardEncryptionDictionary, @document.trailer[:Encrypt])
     end
 
     it "sets the correct revision independent /Filter value" do

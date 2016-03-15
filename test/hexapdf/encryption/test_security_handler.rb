@@ -5,6 +5,37 @@ require 'hexapdf/encryption/security_handler'
 require 'hexapdf/document'
 require 'hexapdf/stream'
 
+describe HexaPDF::Encryption::EncryptionDictionary do
+  before do
+    @document = HexaPDF::Document.new
+    @dict = HexaPDF::Encryption::EncryptionDictionary.new({}, document: @document)
+    @dict[:Filter] = :Standard
+    @dict[:V] = 1
+  end
+
+  it "validates the /V value" do
+    @dict[:V] = 1
+    assert(@dict.validate)
+    @dict[:V] = 3
+    refute(@dict.validate)
+  end
+
+  it "validates the /Length field when /V=2" do
+    @dict[:V] = 2
+    refute(@dict.validate)
+
+    @dict[:Length] = 32
+    refute(@dict.validate)
+    @dict[:Length] = 136
+    refute(@dict.validate)
+    @dict[:Length] = 55
+    refute(@dict.validate)
+
+    @dict[:Length] = 120
+    assert(@dict.validate)
+  end
+end
+
 describe HexaPDF::Encryption::SecurityHandler do
   class TestHandler < HexaPDF::Encryption::SecurityHandler
 
@@ -38,37 +69,6 @@ describe HexaPDF::Encryption::SecurityHandler do
     refute(@handler.encryption_key_valid?)
   end
 
-
-  describe "EncryptionDictionary" do
-    before do
-      @dict = @handler.class::EncryptionDictionary.new({}, document: @document)
-      @dict[:Filter] = :Standard
-      @dict[:V] = 1
-    end
-
-    it "validates the /V value" do
-      @dict[:V] = 1
-      assert(@dict.validate)
-      @dict[:V] = 3
-      refute(@dict.validate)
-    end
-
-    it "validates the /Length field when /V=2" do
-      @dict[:V] = 2
-      refute(@dict.validate)
-
-      @dict[:Length] = 32
-      refute(@dict.validate)
-      @dict[:Length] = 136
-      refute(@dict.validate)
-      @dict[:Length] = 55
-      refute(@dict.validate)
-
-      @dict[:Length] = 120
-      assert(@dict.validate)
-    end
-  end
-
   describe "class set_up_decryption" do
     it "fails if the requested security handler cannot be found" do
       @document.trailer[:Encrypt] = {Filter: :NonStandard}
@@ -81,8 +81,7 @@ describe HexaPDF::Encryption::SecurityHandler do
   describe "set_up_encryption" do
     it "sets the trailer's /Encrypt entry to an encryption dictionary with a custom class" do
       @handler.set_up_encryption
-      assert_kind_of(HexaPDF::Encryption::SecurityHandler::EncryptionDictionary,
-                     @document.trailer[:Encrypt])
+      assert_kind_of(HexaPDF::Encryption::EncryptionDictionary, @document.trailer[:Encrypt])
     end
 
     it "sets the correct /V value for the given key length and algorithm" do
@@ -159,8 +158,7 @@ describe HexaPDF::Encryption::SecurityHandler do
   describe "set_up_decryption" do
     it "sets the handlers's dictionary to the encryption dictionary wrapped in a custom class" do
       @handler.set_up_decryption(Filter: :test, V: 1)
-      assert_kind_of(HexaPDF::Encryption::SecurityHandler::EncryptionDictionary,
-                     @handler.dict)
+      assert_kind_of(HexaPDF::Encryption::EncryptionDictionary, @handler.dict)
       assert_equal({Filter: :test, V: 1}, @handler.dict.value)
     end
 
