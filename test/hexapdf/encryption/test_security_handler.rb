@@ -42,8 +42,8 @@ describe HexaPDF::Encryption::SecurityHandler do
     attr_accessor :strf, :myopt
     public :dict
 
-    def prepare_encrypt_dict(**_options)
-      dict[:Filter] = :test
+    def prepare_encryption(**_options)
+      dict[:Filter] = :Test
       @key = "a" * key_length
       @strf ||= :aes
       @stmf ||= :arc4
@@ -65,30 +65,72 @@ describe HexaPDF::Encryption::SecurityHandler do
     @handler = TestHandler.new(@document)
   end
 
-  it "doesn't have a valid encryption key directly after creation" do
-    refute(@handler.encryption_key_valid?)
-  end
+  describe "class methods" do
+    before do
+      HexaPDF::GlobalConfiguration['encryption.filter_map'][:Test] = TestHandler
+    end
 
-  describe "class set_up_decryption" do
-    it "fails if the requested security handler cannot be found" do
-      @document.trailer[:Encrypt] = {Filter: :NonStandard}
-      assert_raises(HexaPDF::EncryptionError) do
+    after do
+      HexaPDF::GlobalConfiguration['encryption.filter_map'].delete(:Test)
+    end
+
+    describe "class set_up_encryption" do
+      it "fails if the requested security handler cannot be found" do
+        assert_raises(HexaPDF::EncryptionError) do
+          HexaPDF::Encryption::SecurityHandler.set_up_encryption(@document, :non_standard)
+        end
+      end
+
+      it "updates the trailer's /Encrypt entry to be wrapped by an encryption dictionary" do
+        HexaPDF::Encryption::SecurityHandler.set_up_encryption(@document, :Test)
+        assert_kind_of(HexaPDF::Encryption::EncryptionDictionary, @document.trailer[:Encrypt])
+      end
+
+      it "returns the frozen security handler" do
+        handler = HexaPDF::Encryption::SecurityHandler.set_up_encryption(@document, :Test)
+        assert(handler.frozen?)
+      end
+    end
+
+    describe "set_up_decryption" do
+      it "fails if the document has no /Encrypt dictionary" do
+        exp = assert_raises(HexaPDF::EncryptionError) do
+          HexaPDF::Encryption::SecurityHandler.set_up_decryption(@document)
+        end
+        assert_match(/No \/Encrypt/i, exp.message)
+      end
+
+      it "fails if the requested security handler cannot be found" do
+        @document.trailer[:Encrypt] = {Filter: :NonStandard}
+        assert_raises(HexaPDF::EncryptionError) do
+          HexaPDF::Encryption::SecurityHandler.set_up_decryption(@document)
+        end
+      end
+
+      it "updates the trailer's /Encrypt entry to be wrapped by an encryption dictionary" do
+        @document.trailer[:Encrypt] = {Filter: :Test, V: 1}
         HexaPDF::Encryption::SecurityHandler.set_up_decryption(@document)
+        assert_kind_of(HexaPDF::Encryption::EncryptionDictionary, @document.trailer[:Encrypt])
+      end
+
+      it "returns the frozen security handler" do
+        @document.trailer[:Encrypt] = {Filter: :Test, V: 1}
+        handler = HexaPDF::Encryption::SecurityHandler.set_up_decryption(@document)
+        assert(handler.frozen?)
       end
     end
   end
 
-  describe "set_up_encryption" do
-    it "sets the trailer's /Encrypt entry to an encryption dictionary with a custom class" do
-      @handler.set_up_encryption
-      assert_kind_of(HexaPDF::Encryption::EncryptionDictionary, @document.trailer[:Encrypt])
-    end
+  it "doesn't have a valid encryption key directly after creation" do
+    refute(@handler.encryption_key_valid?)
+  end
 
+  describe "set_up_encryption" do
     it "sets the correct /V value for the given key length and algorithm" do
       [[40, :arc4, 1], [128, :arc4, 2], [128, :arc4, 4],
        [128, :aes, 4], [256, :aes, 5]].each do |length, algorithm, version|
         @handler.set_up_encryption(key_length: length, algorithm: algorithm, force_V4: version == 4)
-        assert_equal(version, @document.trailer[:Encrypt][:V])
+        assert_equal(version, @handler.dict[:V])
       end
     end
 
@@ -96,13 +138,18 @@ describe HexaPDF::Encryption::SecurityHandler do
       [[40, nil], [48, 48], [128, 128], [256, nil]].each do |key_length, result|
         algorithm = (key_length == 256 ? :aes : :arc4)
         @handler.set_up_encryption(key_length: key_length, algorithm: algorithm)
-        assert_equal(result, @document.trailer[:Encrypt][:Length])
+        assert_equal(result, @handler.dict[:Length])
       end
     end
 
-    it "calls the prepare_encrypt_dict method" do
+    it "calls the prepare_encryption method" do
       @handler.set_up_encryption
-      assert_equal(:test, @document.trailer[:Encrypt][:Filter])
+      assert_equal(:Test, @handler.dict[:Filter])
+    end
+
+    it "returns the generated encryption dictionary wrapped in an encryption class" do
+      dict = @handler.set_up_encryption
+      assert_kind_of(HexaPDF::Encryption::EncryptionDictionary, dict)
     end
 
     it "set's up the handler for encryption" do
@@ -114,7 +161,7 @@ describe HexaPDF::Encryption::SecurityHandler do
     end
 
     it "generates a valid encryption key" do
-      @handler.set_up_encryption
+      @document.trailer[:Encrypt] = @handler.set_up_encryption
       assert(@handler.encryption_key_valid?)
     end
 
@@ -156,8 +203,9 @@ describe HexaPDF::Encryption::SecurityHandler do
 
 
   describe "set_up_decryption" do
-    it "sets the handlers's dictionary to the encryption dictionary wrapped in a custom class" do
-      @handler.set_up_decryption(Filter: :test, V: 1)
+    it "sets the handlers's dictionary to the encryption dictionary wrapped in a custom class and returns it" do
+      dict = @handler.set_up_decryption(Filter: :test, V: 1)
+      assert_equal(dict, @handler.dict)
       assert_kind_of(HexaPDF::Encryption::EncryptionDictionary, @handler.dict)
       assert_equal({Filter: :test, V: 1}, @handler.dict.value)
     end
@@ -271,6 +319,7 @@ describe HexaPDF::Encryption::SecurityHandler do
     end
 
     it "doesn't encrypt strings in a document's Encrypt dictionary" do
+      @document.trailer[:Encrypt] = @handler.dict
       @document.trailer[:Encrypt][:Mine] = 'string'
       assert_equal('string', @handler.encrypt_string('string', @document.trailer[:Encrypt]))
     end
@@ -285,7 +334,7 @@ describe HexaPDF::Encryption::SecurityHandler do
   it "works correctly with different decryption and encryption handlers" do
     test_file = File.join(TEST_DATA_DIR, 'standard-security-handler', 'nopwd-arc4-40bit-V1.pdf')
     doc = HexaPDF::Document.new(io: StringIO.new(File.read(test_file)))
-    doc.security_handler.set_up_encryption(algorithm: :aes, password: 'test')
+    doc.security_handler = HexaPDF::Encryption::SecurityHandler.set_up_encryption(doc, :Standard, algorithm: :aes, password: 'test')
     out = StringIO.new(''.b)
     doc.write(out, update_fields: false)
 

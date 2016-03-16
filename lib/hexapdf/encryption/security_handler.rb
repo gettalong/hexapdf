@@ -42,21 +42,50 @@ module HexaPDF
 
     end
 
-
     # Base class for all security handlers.
     #
-    # == Implementing a Security Handler
+    # == Creating SecurityHandler Instances
+    #
+    # The base class provides two class methods for this:
+    #
+    # * The method ::set_up_encryption is used when a security handler instance should be created
+    #   that populates the document's encryption dictionary.
+    #
+    # * The method ::set_up_decryption is used when a security handler should be created from the
+    #   document's encryption dictionary.
+    #
+    # Security handlers could also be created with the ::new method but this is discouraged because
+    # the above methods provide the correct handling in both cases.
+    #
+    #
+    # == Using SecurityHandler Instances
+    #
+    # The SecurityHandler base class provides the methods for decrypting an indirect object and for
+    # encrypting strings and streams:
+    #
+    # * #decrypt
+    # * #encrypt_string
+    # * #encrypt_stream
+    #
+    # How the decryption/encryption key is actually computed is deferred to a sub class.
+    #
+    # Additionally, the #encryption_key_valid? method can be used to check whether the
+    # SecurityHandler instance is built from/built for the current version of the encryption
+    # dictionary.
+    #
+    #
+    # == Implementing a SecurityHandler Class
     #
     # Each security handler has to implement the following methods:
     #
-    # prepare_encrypt_dict(**options)::
-    #   Prepares the encryption dictionary for use in encrypting the document and later for
-    #   decryption.
+    # prepare_encryption(**options)::
+    #   Prepares the security handler for use in encrypting the document.
     #
     #   See the #set_up_encryption documentation for information on which options are passed on to
     #   this method.
     #
-    #   Returns the encryption key as well as the string, stream and embedded file algorithms.
+    #   Returns the encryption key as well as the names of the string, stream and embedded file
+    #   algorithms.
     #
     # prepare_decryption(**options)::
     #   Prepares the security handler for decryption by using the information from the document's
@@ -71,19 +100,48 @@ module HexaPDF
     # encryption_dictionary_class::
     #   Returns the class that is used for the encryption dictionary. Should be derived from the
     #   EncryptionDictionary class.
-    #
-    # initialize(document)::
-    #   Creates a new security handler object for the given Document.
     class SecurityHandler
 
-      # Sets up the security handler that is used for decrypting the given document and modifies
-      # the document so that the decryption is handled automatically behind the scenes. The
-      # decryption handler is also returned.
+      # :call-seq:
+      #   SecurityHandler.set_up_encryption(document, handler_name, **options)   -> handler
       #
-      # The +decryption_opts+ contains decryption options specific to the security handler that is
-      # used by the PDF file.
-      def self.set_up_decryption(document, **decryption_opts)
-        dict = document.unwrap(document.trailer[:Encrypt])
+      # Sets up and returns the security handler with the specified name for the document and
+      # modifies then document's encryption dictionary accordingly.
+      #
+      # The +encryption_opts+ can contain any encryption options for the specific security handler
+      # and the common encryption options.
+      #
+      # See: #set_up_encryption (for the common encryption options).
+      def self.set_up_encryption(document, handler_name, **options)
+        handler = HexaPDF::GlobalConfiguration.constantize('encryption.filter_map', handler_name)
+        if handler.nil?
+          handler = HexaPDF::GlobalConfiguration.constantize('encryption.sub_filter_map', handler_name)
+        end
+        if handler.nil?
+          raise HexaPDF::EncryptionError, "Could not find the specified security handler"
+        end
+
+        handler = handler.new(document)
+        document.trailer[:Encrypt] = handler.set_up_encryption(**options)
+        handler.freeze
+      end
+
+      # :call-seq:
+      #   SecurityHandler.set_up_decryption(document, **options)   -> handler
+      #
+      # Sets up and returns the security handler that is used for decrypting the given document and
+      # modifies the document's object loader so that the decryption is handled automatically behind
+      # the scenes.
+      #
+      # The +decryption_opts+ has to contain decryption options specific to the security handler
+      # that is used by the PDF file.
+      #
+      # See: #set_up_decryption
+      def self.set_up_decryption(document, **options)
+        dict = document.trailer[:Encrypt]
+        if dict.nil?
+          raise HexaPDF::EncryptionError, "No /Encrypt dictionary found"
+        end
         handler = HexaPDF::GlobalConfiguration.constantize('encryption.filter_map', dict[:Filter])
         if handler.nil?
           handler = HexaPDF::GlobalConfiguration.constantize('encryption.sub_filter_map', dict[:SubFilter])
@@ -93,7 +151,7 @@ module HexaPDF
         end
 
         handler = handler.new(document)
-        handler.set_up_decryption(dict, **decryption_opts)
+        document.trailer[:Encrypt] = handler.set_up_decryption(dict, **options)
         document.revisions.each do |r|
           loader = r.loader
           r.loader = lambda do |xref_entry|
@@ -102,11 +160,9 @@ module HexaPDF
           end
         end
 
-        handler
+        handler.freeze
       end
 
-      # The associated PDF document.
-      attr_reader :document
 
       # A hash containing information about the used encryption. This information is only
       # available once the security handler has been set up for decryption or encryption.
@@ -133,101 +189,9 @@ module HexaPDF
       end
 
       # Checks if the encryption key computed by this security handler is derived from the
-      # documents encryption dictionary.
+      # document's encryption dictionary.
       def encryption_key_valid?
         document.unwrap(document.trailer[:Encrypt]).hash == @encrypt_dict_hash
-      end
-
-      # Updates the document's encryption dictionary with all needed values so that the document
-      # can later be decrypted and sets the encryption key and algorithms for encrypting the
-      # document.
-      #
-      # The security handler specific +options+ as well as the +algorithm+ arguments are passed
-      # on to the #prepare_encrypt_dict method.
-      #
-      # Options for all security handlers:
-      #
-      # key_length::
-      #   The key length in bits. Possible values are in the range of 40 to 128 and 256 and it
-      #   needs to be divisible by 8.
-      #
-      # algorithm::
-      #   The encryption algorithm. Possible values are :arc4 for ARC4 encryption with key lengths
-      #   of 40 to 128 bit or :aes for AES encryption with key lengths of 128 or 256 bit.
-      #
-      # force_V4::
-      #   Forces the use of protocol version 4 when key_length=128 and algorithm=:arc4.
-      #
-      # See: PDF1.7 s7.6.1, PDF2.0 s7.6.1
-      def set_up_encryption(key_length: 128, algorithm: :aes, force_V4: false, **options)
-        @dict = document.trailer[:Encrypt] =
-          encryption_dictionary_class.new({}, document: document)
-
-        dict[:V] =
-          case key_length
-          when 40
-            1
-          when 48, 56, 64, 72, 80, 88, 96, 104, 112, 120
-            2
-          when 128
-            (algorithm == :aes || force_V4 ? 4 : 2)
-          when 256
-            5
-          else
-            raise(HexaPDF::UnsupportedEncryptionError,
-                  "Invalid key length #{key_length} specified")
-          end
-        dict[:Length] = key_length if dict[:V] == 2
-
-        if ![:aes, :arc4].include?(algorithm)
-          raise(HexaPDF::UnsupportedEncryptionError,
-                "Unsupported encryption algorithm: #{algorithm}")
-        elsif key_length < 128 && algorithm == :aes
-          raise(HexaPDF::UnsupportedEncryptionError,
-                "AES algorithm needs a key length of 128 or 256 bit")
-        elsif key_length == 256 && algorithm == :arc4
-          raise(HexaPDF::UnsupportedEncryptionError,
-                "ARC4 algorithm can only be used with key lengths between 40 and 128 bit")
-        end
-
-        result = prepare_encrypt_dict(algorithm: algorithm, **options)
-        @encrypt_dict_hash = dict.value.hash
-        set_up_security_handler(*result)
-      end
-
-      # Uses the encryption dictionary to set up the security handler for decrypting the document.
-      #
-      # The security handler specific +options+ are passed on to the #prepare_decryption method.
-      #
-      # See: PDF1.7 s7.6.1, PDF2.0 s7.6.1
-      def set_up_decryption(dictionary, **options)
-        @dict = encryption_dictionary_class.new(dictionary, document: document)
-        @encrypt_dict_hash = dict.value.hash
-
-        case dict[:V]
-        when 1, 2
-          strf = stmf = eff = :arc4
-        when 4, 5
-          strf, stmf, eff = [:StrF, :StmF, :EFF].map do |alg|
-            if dict[:CF] && (cf_dict = dict[:CF][dict[alg]])
-              case cf_dict[:CFM]
-              when :V2 then :arc4
-              when :AESV2, :AESV3 then :aes
-              when :None then :identity
-              else
-                raise(HexaPDF::UnsupportedEncryptionError,
-                      "Unsupported encryption method: #{cf_dict[:CFM]}")
-              end
-            else
-              :identity
-            end
-          end
-          eff = stmf unless dict[:EFF]
-        else
-          raise HexaPDF::UnsupportedEncryptionError, "Unsupported encryption version #{dict[:V]}"
-        end
-
-        set_up_security_handler(prepare_decryption(**options), strf, stmf, eff)
       end
 
       # Decrypts the strings and the possibly attached stream of the given indirect object in
@@ -272,7 +236,107 @@ module HexaPDF
         obj.stream_encoder(:Encryption, key: key, algorithm: stream_algorithm)
       end
 
+      # Computes the encryption key and sets up the algorithms for encrypting the document based on
+      # the given options, and returns the corresponding encryption dictionary.
+      #
+      # The security handler specific +options+ as well as the +algorithm+ argument are passed on to
+      # the #prepare_encryption method.
+      #
+      # Options for all security handlers:
+      #
+      # key_length::
+      #   The key length in bits. Possible values are in the range of 40 to 128 and 256 and it
+      #   needs to be divisible by 8.
+      #
+      # algorithm::
+      #   The encryption algorithm. Possible values are :arc4 for ARC4 encryption with key lengths
+      #   of 40 to 128 bit or :aes for AES encryption with key lengths of 128 or 256 bit.
+      #
+      # force_V4::
+      #   Forces the use of protocol version 4 when key_length=128 and algorithm=:arc4.
+      #
+      # See: PDF1.7 s7.6.1, PDF2.0 s7.6.1
+      def set_up_encryption(key_length: 128, algorithm: :aes, force_V4: false, **options)
+        @dict = document.wrap({}, type: encryption_dictionary_class)
+
+        dict[:V] =
+          case key_length
+          when 40
+            1
+          when 48, 56, 64, 72, 80, 88, 96, 104, 112, 120
+            2
+          when 128
+            (algorithm == :aes || force_V4 ? 4 : 2)
+          when 256
+            5
+          else
+            raise(HexaPDF::UnsupportedEncryptionError,
+                  "Invalid key length #{key_length} specified")
+          end
+        dict[:Length] = key_length if dict[:V] == 2
+
+        if ![:aes, :arc4].include?(algorithm)
+          raise(HexaPDF::UnsupportedEncryptionError,
+                "Unsupported encryption algorithm: #{algorithm}")
+        elsif key_length < 128 && algorithm == :aes
+          raise(HexaPDF::UnsupportedEncryptionError,
+                "AES algorithm needs a key length of 128 or 256 bit")
+        elsif key_length == 256 && algorithm == :arc4
+          raise(HexaPDF::UnsupportedEncryptionError,
+                "ARC4 algorithm can only be used with key lengths between 40 and 128 bit")
+        end
+
+        result = prepare_encryption(algorithm: algorithm, **options)
+        @encrypt_dict_hash = document.unwrap(dict).hash
+        set_up_security_handler(*result)
+        @dict
+      end
+
+      # Uses the given encryption dictionary to set up the security handler for decrypting the
+      # document.
+      #
+      # The security handler specific +options+ are passed on to the #prepare_decryption method.
+      #
+      # See: PDF1.7 s7.6.1, PDF2.0 s7.6.1
+      def set_up_decryption(dictionary, **options)
+        @dict = document.wrap(dictionary, type: encryption_dictionary_class)
+        @encrypt_dict_hash = document.unwrap(@dict).hash
+
+        case dict[:V]
+        when 1, 2
+          strf = stmf = eff = :arc4
+        when 4, 5
+          strf, stmf, eff = [:StrF, :StmF, :EFF].map do |alg|
+            if dict[:CF] && (cf_dict = dict[:CF][dict[alg]])
+              case cf_dict[:CFM]
+              when :V2 then :arc4
+              when :AESV2, :AESV3 then :aes
+              when :None then :identity
+              else
+                raise(HexaPDF::UnsupportedEncryptionError,
+                      "Unsupported encryption method: #{cf_dict[:CFM]}")
+              end
+            else
+              :identity
+            end
+          end
+          eff = stmf unless dict[:EFF]
+        else
+          raise HexaPDF::UnsupportedEncryptionError, "Unsupported encryption version #{dict[:V]}"
+        end
+
+        set_up_security_handler(prepare_decryption(**options), strf, stmf, eff)
+        @dict
+      end
+
       private
+
+      # Returns the associated PDF document.
+      #
+      # Subclasses should use this method to access the document.
+      def document
+        @document
+      end
 
       # Returns the encryption dictionary used by this security handler.
       #

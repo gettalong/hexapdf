@@ -85,8 +85,7 @@ module HexaPDF
 
       @revisions = Revisions.from_io(self, io)
       if encrypted?
-        handler = Encryption::SecurityHandler.set_up_decryption(self, decryption_opts)
-        self.security_handler = handler.dup
+        self.security_handler = Encryption::SecurityHandler.set_up_decryption(self, decryption_opts)
       else
         self.security_handler = nil
       end

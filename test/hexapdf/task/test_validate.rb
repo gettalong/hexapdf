@@ -26,7 +26,7 @@ describe HexaPDF::Task::Validate do
   end
 
   it "validates that the encryption key matches the trailer's Encrypt dictionary" do
-    @doc.security_handler.set_up_encryption
+    @doc.security_handler = HexaPDF::Encryption::SecurityHandler.set_up_encryption(@doc, :Standard)
     @doc.trailer[:Encrypt][:U] = 'a'.b * 32
     valid = @doc.task(:validate) do |msg, _|
       assert_match(/Encryption key/, msg)

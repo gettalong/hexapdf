@@ -413,7 +413,7 @@ EOF
     end
 
     it "can set or delete a security handler via security_handler=" do
-      @doc.security_handler.set_up_encryption
+      @doc.security_handler = HexaPDF::Encryption::SecurityHandler.set_up_encryption(@doc, :Standard)
       refute_nil(@doc.security_handler(use_standard_handler: false))
       assert(@doc.encrypted?)
 

@@ -95,34 +95,34 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     @handler = HexaPDF::Encryption::StandardSecurityHandler.new(@document)
   end
 
-  describe "prepare_encrypt_dict" do
-    it "sets the trailer's /Encrypt entry to an encryption dictionary with a custom class" do
-      @handler.set_up_encryption
-      assert_kind_of(HexaPDF::Encryption::StandardEncryptionDictionary, @document.trailer[:Encrypt])
+  describe "prepare_encryption" do
+    it "returns the encryption dictionary wrapped with a custom class" do
+      dict = @handler.set_up_encryption
+      assert_kind_of(HexaPDF::Encryption::StandardEncryptionDictionary, dict)
     end
 
     it "sets the correct revision independent /Filter value" do
-      @handler.set_up_encryption
-      assert_equal(:Standard, @document.trailer[:Encrypt][:Filter])
+      dict = @handler.set_up_encryption
+      assert_equal(:Standard, dict[:Filter])
     end
 
     it "sets the correct revision independent /P value" do
-      @handler.set_up_encryption
+      dict = @handler.set_up_encryption
       assert_equal(@handler.class::Permissions::ALL | @handler.class::Permissions::RESERVED,
-                   @document.trailer[:Encrypt][:P])
-      @handler.set_up_encryption(permissions: @handler.class::Permissions::COPY_CONTENT)
+                   dict[:P])
+      dict = @handler.set_up_encryption(permissions: @handler.class::Permissions::COPY_CONTENT)
       assert_equal(@handler.class::Permissions::COPY_CONTENT | @handler.class::Permissions::RESERVED,
-                   @document.trailer[:Encrypt][:P])
-      @handler.set_up_encryption(permissions: [:modify_content, :modify_annotation])
+                   dict[:P])
+      dict = @handler.set_up_encryption(permissions: [:modify_content, :modify_annotation])
       assert_equal(@handler.class::Permissions::MODIFY_CONTENT | @handler.class::Permissions::MODIFY_ANNOTATION | @handler.class::Permissions::RESERVED,
-                   @document.trailer[:Encrypt][:P])
+                   dict[:P])
     end
 
     it "sets the correct revision independent /EncryptMetadata value" do
-      @handler.set_up_encryption
-      assert(@document.trailer[:Encrypt][:EncryptMetadata])
-      @handler.set_up_encryption(encrypt_metadata: false)
-      refute(@document.trailer[:Encrypt][:EncryptMetadata])
+      dict = @handler.set_up_encryption
+      assert(dict[:EncryptMetadata])
+      dict = @handler.set_up_encryption(encrypt_metadata: false)
+      refute(dict[:EncryptMetadata])
     end
 
     it "sets the correct encryption dictionary values for revision 2 and 3" do
@@ -133,14 +133,11 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
         refute(d.value.key?(:OE))
         refute(d.value.key?(:Perms))
       end
-      @handler.set_up_encryption(key_length: 40, algorithm: :arc4)
-      dict = @document.trailer[:Encrypt]
+      dict = @handler.set_up_encryption(key_length: 40, algorithm: :arc4)
       assert_equal(2, dict[:R])
       arc4_assertions.call(dict)
 
-      @document.trailer.value.delete(:Encrypt)
-      @handler.set_up_encryption(key_length: 128, algorithm: :arc4)
-      dict = @document.trailer[:Encrypt]
+      dict = @handler.set_up_encryption(key_length: 128, algorithm: :arc4)
       assert_equal(3, dict[:R])
       arc4_assertions.call(dict)
     end
@@ -156,24 +153,19 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
         assert_equal(:StdCF, d[:EFF])
       end
 
-      @handler.set_up_encryption(key_length: 128, algorithm: :arc4, force_V4: true)
-      dict = @document.trailer[:Encrypt]
+      dict = @handler.set_up_encryption(key_length: 128, algorithm: :arc4, force_V4: true)
       refute(dict.value.key?(:UE))
       refute(dict.value.key?(:OE))
       refute(dict.value.key?(:Perms))
       crypt_filter.call(dict, 4, :V2, 16)
 
-      @document.trailer.value.delete(:Encrypt)
-      @handler.set_up_encryption(key_length: 128, algorithm: :aes)
-      dict = @document.trailer[:Encrypt]
+      dict = @handler.set_up_encryption(key_length: 128, algorithm: :aes)
       refute(dict.value.key?(:UE))
       refute(dict.value.key?(:OE))
       refute(dict.value.key?(:Perms))
       crypt_filter.call(dict, 4, :AESV2, 16)
 
-      @document.trailer.value.delete(:Encrypt)
-      @handler.set_up_encryption(key_length: 256, algorithm: :aes)
-      dict = @document.trailer[:Encrypt]
+      dict = @handler.set_up_encryption(key_length: 256, algorithm: :aes)
       assert_equal(32, dict[:UE].length)
       assert_equal(32, dict[:OE].length)
       assert_equal(16, dict[:Perms].length)
@@ -181,12 +173,9 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     end
 
     it "uses the password keyword as fallback for the user and owner passwords" do
-      @handler.set_up_encryption(password: 'user', owner_password: 'owner')
-      dict1 = @document.unwrap(@document.trailer[:Encrypt])
-      @handler.set_up_encryption(password: 'owner', user_password: 'user')
-      dict2 = @document.unwrap(@document.trailer[:Encrypt])
-      @handler.set_up_encryption(user_password: 'user', owner_password: 'owner')
-      dict3 = @document.unwrap(@document.trailer[:Encrypt])
+      dict1 = @document.unwrap(@handler.set_up_encryption(password: 'user', owner_password: 'owner'))
+      dict2 = @document.unwrap(@handler.set_up_encryption(password: 'owner', user_password: 'user'))
+      dict3 = @document.unwrap(@handler.set_up_encryption(user_password: 'user', owner_password: 'owner'))
 
       assert_equal(dict1[:U], dict2[:U])
       assert_equal(dict2[:U], dict3[:U])
@@ -232,8 +221,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
 
     describe "/Perms field checking" do
       before do
-        @handler.set_up_encryption(key_length: 256, algorithm: :aes)
-        @dict = @document.unwrap(@document.trailer[:Encrypt])
+        @dict = @handler.set_up_encryption(key_length: 256, algorithm: :aes)
       end
 
       it "fails if the field cannot be decrypted" do

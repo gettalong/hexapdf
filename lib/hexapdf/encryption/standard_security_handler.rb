@@ -195,10 +195,21 @@ module HexaPDF
         super && trailer_id_hash == @trailer_id_hash
       end
 
-      # Prepares the encryption dictionary for use in encrypting the document.
+      # Returns the permissions of the managed dictionary as array of symbol values.
+      #
+      # See: Permissions
+      def permissions
+        Permissions::PERMISSON_TO_SYMBOL.each_with_object([]) do |(perm, sym), result|
+          result << sym if dict[:P] & perm == perm
+        end
+      end
+
+      private
+
+      # Prepares the security handler for use in encrypting the document.
       #
       # See the attributes of the EncryptionOptions class for all possible arguments.
-      def prepare_encrypt_dict(**kwoptions)
+      def prepare_encryption(**kwoptions)
         options = EncryptionOptions.new(kwoptions)
 
         dict[:Filter] = :Standard
@@ -286,17 +297,6 @@ module HexaPDF
 
         encryption_key
       end
-
-      # Returns the permissions of the managed dictionary as array of symbol values.
-      #
-      # See: Permissions
-      def permissions
-        Permissions::PERMISSON_TO_SYMBOL.each_with_object([]) do |(perm, sym), result|
-          result << sym if dict[:P] & perm == perm
-        end
-      end
-
-      private
 
       # Computes the hash value for the first string in the trailer ID array.
       def trailer_id_hash # :nodoc:
