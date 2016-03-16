@@ -85,9 +85,9 @@ module HexaPDF
 
       @revisions = Revisions.from_io(self, io)
       if encrypted?
-        self.security_handler = Encryption::SecurityHandler.set_up_decryption(self, decryption_opts)
+        @security_handler = Encryption::SecurityHandler.set_up_decryption(self, decryption_opts)
       else
-        self.security_handler = nil
+        @security_handler = nil
       end
     end
 
@@ -412,41 +412,43 @@ module HexaPDF
     end
 
     # Returns +true+ if the document is encrypted.
-    #
-    # Note that a security handler might be set but that the document might not (yet) be
-    # encrypted!
     def encrypted?
       !trailer[:Encrypt].nil?
     end
 
-    # Returns the security handler that is used for decrypting or encrypting the document.
+    # Encrypts the document.
     #
-    # Retrieving or setting a security handler does not automatically make a document encrypted!
-    # Only when the security handler is used to set up the encryption will the document be
-    # encrypted.
+    # This is done by setting up a security handler for this purpose and populating the trailer's
+    # Encrypt dictionary accordingly. The actual encryption, however, is only done when writing the
+    # document.
     #
-    # If the option +use_standard_handler+ is +true+ and if no security handler has yet been set,
-    # the standard security handler (i.e. the handler set as :Standard for the the configuration
-    # option 'encryption.filter_map') is automatically set and used.
-    def security_handler(use_standard_handler: true)
-      if @security_handler.nil? && use_standard_handler
-        handler = GlobalConfiguration.constantize('encryption.filter_map', :Standard)
-        @security_handler = handler.new(self) if handler
+    # The security handler used for encrypting is selected via the +name+ argument. All other
+    # arguments are passed on the security handler.
+    #
+    # If the document should not be encrypted, the +name+ argument has to be set to +nil+. This
+    # removes the security handler and deletes the trailer's Encrypt dictionary.
+    #
+    # See: Encryption::SecurityHandler#set_up_encryption and
+    # Encryption::StandardSecurityHandler::EncryptionOptions for possible encryption options.
+    def encrypt(name: :Standard, **options)
+      if name.nil?
+        trailer.delete(:Encrypt)
+        @security_handler = nil
+      else
+        @security_handler = Encryption::SecurityHandler.set_up_encryption(self, name, **options)
       end
-      @security_handler
     end
 
-    # Sets the security handler that is used for encrypting the document.
+    # Returns the security handler that is used for decrypting or encrypting the document, or +nil+
+    # if none is set.
     #
-    # If the document should not be encrypted, +nil+ has to be assigned. This removes the security
-    # handler and deletes the trailer's Encrypt dictionary.
+    # * If the document was created by reading an existing file and the document was automatically
+    #   decrypted, then this method returns the handler for decrypting.
     #
-    # The +handler+ object has to be a subclass of Encryption::SecurityHandler.
-    #
-    # See: #security_handler
-    def security_handler=(handler)
-      @security_handler = handler
-      trailer.delete(:Encrypt) if handler.nil?
+    # * Once the #encrypt method is called, the specified security handler for encrypting is
+    #   returned.
+    def security_handler
+      @security_handler
     end
 
     # :call-seq:

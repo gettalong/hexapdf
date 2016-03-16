@@ -14,7 +14,7 @@ describe HexaPDF::Task::SetMinPDFVersion do
     @doc.task(:set_min_pdf_version)
     assert_equal('1.2', @doc.version)
 
-    @doc.security_handler = HexaPDF::Encryption::SecurityHandler.set_up_encryption(@doc, :Standard, algorithm: :aes)
+    @doc.encrypt(algorithm: :aes)
     @doc.task(:set_min_pdf_version)
     assert_equal('1.6', @doc.version)
   end

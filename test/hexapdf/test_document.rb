@@ -405,24 +405,13 @@ EOF
       assert(@doc.encrypted?)
     end
 
-    it "automatically creates a security handler if specified" do
-      assert_nil(@doc.security_handler(use_standard_handler: false))
-      assert_kind_of(HexaPDF::Encryption::SecurityHandler,
-                     @doc.security_handler)
-      refute(@doc.encrypted?)
-    end
-
-    it "can set or delete a security handler via security_handler=" do
-      @doc.security_handler = HexaPDF::Encryption::SecurityHandler.set_up_encryption(@doc, :Standard)
-      refute_nil(@doc.security_handler(use_standard_handler: false))
+    it "can set or delete a security handler via #encrypt" do
+      @doc.encrypt
+      refute_nil(@doc.security_handler)
       assert(@doc.encrypted?)
 
-      @doc.security_handler = nil
-      assert_nil(@doc.security_handler(use_standard_handler: false))
-      refute(@doc.encrypted?)
-
-      @doc.security_handler = HexaPDF::Encryption::StandardSecurityHandler.new(@doc)
-      refute_nil(@doc.security_handler(use_standard_handler: false))
+      @doc.encrypt(name: nil)
+      assert_nil(@doc.security_handler)
       refute(@doc.encrypted?)
     end
   end

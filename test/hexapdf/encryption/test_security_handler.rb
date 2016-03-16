@@ -334,7 +334,7 @@ describe HexaPDF::Encryption::SecurityHandler do
   it "works correctly with different decryption and encryption handlers" do
     test_file = File.join(TEST_DATA_DIR, 'standard-security-handler', 'nopwd-arc4-40bit-V1.pdf')
     doc = HexaPDF::Document.new(io: StringIO.new(File.read(test_file)))
-    doc.security_handler = HexaPDF::Encryption::SecurityHandler.set_up_encryption(doc, :Standard, algorithm: :aes, password: 'test')
+    doc.encrypt(algorithm: :aes, password: 'test')
     out = StringIO.new(''.b)
     doc.write(out, update_fields: false)
 
