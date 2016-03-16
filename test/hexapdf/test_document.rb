@@ -414,6 +414,15 @@ EOF
       assert_nil(@doc.security_handler)
       refute(@doc.encrypted?)
     end
+
+    it "doesn't decrypt the document if document.auto_encrypt=false" do
+      test_file = File.join(TEST_DATA_DIR, 'standard-security-handler', 'nopwd-arc4-40bit-V1.pdf')
+      doc = HexaPDF::Document.new(io: StringIO.new(File.read(test_file)),
+                                  config: {'document.auto_decrypt' => false})
+      assert_kind_of(String, doc.trailer[:Info][:ModDate])
+      handler = HexaPDF::Encryption::SecurityHandler.set_up_decryption(doc)
+      assert_kind_of(Time, handler.decrypt(doc.trailer[:Info])[:ModDate])
+    end
   end
 
   describe "write" do

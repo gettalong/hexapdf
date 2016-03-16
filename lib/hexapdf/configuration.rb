@@ -94,6 +94,16 @@ module HexaPDF
   #
   # The following options are provided:
   #
+  # document.auto_decrypt::
+  #    A boolean determining whether the document should be decrypted automatically when parsed.
+  #
+  #    If this is set to +false+ and the PDF document should later be decrypted, the method
+  #    Encryption::SecurityHandler.set_up_decryption(document, decryption_opts) has to be called to
+  #    set and retrieve the needed security handler. Note, however, that already loaded indirect
+  #    objects have to be decrypted manually!
+  #
+  #    In nearly all cases this option should not be changed from its default setting!
+  #
   # graphic_object.map::
   #    A mapping from graphic object names to graphic object factories.
   #
@@ -142,7 +152,8 @@ module HexaPDF
   # sorted_tree.max_leaf_node_size::
   #    The maximum number of nodes that should be in a leaf node of a node tree.
   DefaultDocumentConfiguration =
-    Configuration.new('graphic_object.map' => {
+    Configuration.new('document.auto_decrypt' => true,
+                      'graphic_object.map' => {
                         arc: 'HexaPDF::Content::GraphicObject::Arc',
                         solid_arc: 'HexaPDF::Content::GraphicObject::SolidArc',
                       },

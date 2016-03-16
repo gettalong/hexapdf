@@ -84,7 +84,7 @@ module HexaPDF
       @version = '1.2'
 
       @revisions = Revisions.from_io(self, io)
-      if encrypted?
+      if encrypted? && @config['document.auto_decrypt']
         @security_handler = Encryption::SecurityHandler.set_up_decryption(self, decryption_opts)
       else
         @security_handler = nil

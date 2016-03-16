@@ -26,6 +26,7 @@ module HexaPDF
           @password = pwd
         end
         @password = ''
+        @config = {'document.auto_decrypt' => true}
       end
 
       def execute(file) #:nodoc:
@@ -42,13 +43,13 @@ module HexaPDF
       COLUMN_WIDTH = 20
 
       def output_info(file) # :nodoc:
-        HexaPDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
+        HexaPDF::Document.open(file, decryption_opts: {password: @password}, config: @config) do |doc|
           INFO_KEYS.each do |name|
             next unless doc.trailer[:Info].key?(name)
             output_line(name.to_s, doc.trailer[:Info][name].to_s)
-          end
+          end if @config['document.auto_decrypt']
 
-          if doc.encrypted?
+          if doc.encrypted? && @config['document.auto_decrypt']
             details = doc.security_handler.encryption_details
             data = "yes (version: #{details[:version]}, key length: #{details[:key_length]}bits)"
             output_line("Encrypted", data)
@@ -58,10 +59,20 @@ module HexaPDF
             if doc.security_handler.respond_to?(:permissions)
               output_line("  Permissions", doc.security_handler.permissions.join(", "))
             end
+          elsif doc.encrypted?
+            output_line("Encrypted", "yes (wrong password given)")
           end
 
           output_line("Pages", doc.catalog[:Pages][:Count].to_s)
           output_line("Version", doc.version)
+        end
+      rescue HexaPDF::EncryptionError => e
+        if @config['document.auto_decrypt']
+          @config['document.auto_decrypt'] = false
+          retry
+        else
+          $stderr.puts "Error while decrypting the file: #{e.message}"
+          exit(1)
         end
       rescue HexaPDF::Error => e
         $stderr.puts "Error while processing '#{file}': #{e.message}"
