@@ -37,7 +37,7 @@ module HexaPDF
       :Nums
     end
 
-    # Defines the class that is used for the keys in the name tree (String).
+    # Defines the class that is used for the keys in the number tree (Integer).
     def key_type
       Integer
     end

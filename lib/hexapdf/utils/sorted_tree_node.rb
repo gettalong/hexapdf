@@ -5,6 +5,21 @@ module HexaPDF
 
     # Provides the convenience methods that are used for name trees and number trees.
     #
+    # The provided methods require two methods defined in the including class so that they work
+    # correctly:
+    #
+    # leaf_node_container_name::
+    #   Defines the dictionary entry name that contains the leaf node entries.
+    #
+    #   For example, for name trees this would be :Names.
+    #
+    # key_type::
+    #   Defines the class that is used for the keys in the tree.
+    #
+    #   The class defined this way is used for making sure that only valid keys are used.
+    #
+    #   For example, for name trees this would be String.
+    #
     # See: HexaPDF::NameTreeNode, HexaPDF::NumberTreeNode
     module SortedTreeNode
 
