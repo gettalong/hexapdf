@@ -29,7 +29,7 @@ module HexaPDF
 
     # Writes the document to the IO object.
     def write
-      @serializer.encrypt = @document.encrypted?
+      @serializer.encrypter = @document.encrypted? ? @document.security_handler : nil
 
       write_file_header
 

@@ -137,4 +137,27 @@ describe HexaPDF::Serializer do
       assert_raises(HexaPDF::Error) { @serializer.serialize(Name: @stream) }
     end
   end
+
+  describe "with an encrypter" do
+    before do
+      @serializer.encrypter = encrypter = Object.new
+      def encrypter.encrypt_string(str, obj); "enc:#{obj.oid}:#{str}"; end
+      def encrypter.encrypt_stream(obj); Fiber.new { "encs:#{obj.oid}:#{obj.stream}" }; end
+    end
+
+    it "encrypts strings in indirect PDF objects" do
+      assert_serialized("(enc:1:test)", HexaPDF::Object.new("test", oid: 1))
+      assert_serialized("<</x[(enc:1:test)]>>", HexaPDF::Object.new({x: ["test"]}, oid: 1))
+    end
+
+    it "doesn't encrypt strings in direct PDF objects" do
+      assert_serialized("(test)", HexaPDF::Object.new("test"))
+      assert_serialized("(test)", "test")
+    end
+
+    it "encrypts streams" do
+      obj = HexaPDF::Stream.new({}, oid: 1, stream: "stream")
+      assert_serialized("<</Length 13>>stream\nencs:1:stream\nendstream", obj)
+    end
+  end
 end

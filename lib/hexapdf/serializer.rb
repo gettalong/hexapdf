@@ -10,15 +10,21 @@ module HexaPDF
   # Knows how to serialize Ruby objects for a PDF file.
   #
   # For normal serialization purposes, the #serialize or #serialize_to_io methods should be used.
-  # However, it the type of the object to be serialized is known, a specialized serialization
+  # However, if the type of the object to be serialized is known, a specialized serialization
   # method like #serialize_float can be used.
+  #
+  # Additionally, an object for encrypting strings and streams while serializing can be set via the
+  # #encrypter= method. The assigned object has to respond to #encrypt_string(str, ind_obj) (where
+  # the string is part of the indirect object; returns the encrypted string) and
+  # #encrypt_stream(stream) (returns a fiber that represents the encrypted stream).
+  #
   #
   # == How This Class Works
   #
-  # The main public interface consists of the #serialize and #serialize_to_io methods which
-  # accepts an object and returns its serialized form. During serialization of this object it is
-  # accessible by individual serialization methods via the @object instance variable (useful if
-  # the object is a composed object).
+  # The main public interface consists of the #serialize and #serialize_to_io methods which accept
+  # an object and return its serialized form. During serialization of this object it is accessible
+  # by individual serialization methods via the @object instance variable (useful if the object is a
+  # composed object).
   #
   # Internally, the #__serialize method is used for invoking the correct serialization method
   # based on the class of a given object. It is also used for serializing individual parts of a
@@ -40,8 +46,11 @@ module HexaPDF
   # See: PDF1.7 s7.3
   class Serializer
 
-    # Specifies whether the serializer object should encrypt strings and streams. Default: false.
-    attr_accessor :encrypt
+    # The encrypter to use for encrypting strings and streams. If +nil+, strings and streams are not
+    # encrypted.
+    #
+    # Default: +nil+
+    attr_accessor :encrypter
 
     # Creates a new Serializer object.
     def initialize
@@ -53,7 +62,7 @@ module HexaPDF
         end
         method
       end
-      @encrypt = false
+      @encrypter = false
       @io = nil
       @object = nil
     end
@@ -192,8 +201,8 @@ module HexaPDF
     #
     # See: PDF1.7 s7.3.4
     def serialize_string(obj)
-      if @encrypt && @object.kind_of?(HexaPDF::Object) && @object.indirect?
-        obj = @object.document.security_handler.encrypt_string(obj, @object)
+      if @encrypter && @object.kind_of?(HexaPDF::Object) && @object.indirect?
+        obj = encrypter.encrypt_string(obj, @object)
       elsif obj.encoding != Encoding::BINARY && obj =~ /[^ -~\t\r\n]/
         obj = ("\xFE\xFF".force_encoding(Encoding::UTF_16BE) << obj.encode(Encoding::UTF_16BE)).
           force_encoding(Encoding::BINARY)
@@ -254,8 +263,8 @@ module HexaPDF
         return serialize_hexapdf_reference(obj)
       end
 
-      fiber = if @encrypt
-                @object.document.security_handler.encrypt_stream(obj)
+      fiber = if @encrypter
+                encrypter.encrypt_stream(obj)
               else
                 obj.stream_encoder
               end
