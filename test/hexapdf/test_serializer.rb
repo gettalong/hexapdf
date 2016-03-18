@@ -54,6 +54,11 @@ describe HexaPDF::Serializer do
     assert_serialized("0.0", 0.0)
   end
 
+  it "serializes numerics" do
+    assert_equal("1", @serializer.serialize_numeric(1))
+    assert_equal("1.5", @serializer.serialize_numeric(1.5))
+  end
+
   it "serializes symbols" do
     assert_serialized("/Name", :Name)
     assert_serialized("/A;Name_With-Various***Chars?", 'A;Name_With-Various***Chars?'.intern)
