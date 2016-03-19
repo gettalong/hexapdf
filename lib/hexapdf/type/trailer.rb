@@ -71,6 +71,11 @@ module HexaPDF
           value[:Root] = document.add(Type: :Catalog)
           value[:Root].validate {|message, correctable| yield(message, correctable)}
         end
+
+        if value[:Encrypt] && (!document.security_handler ||
+                               !document.security_handler.encryption_key_valid?)
+          yield("Encryption key doesn't match encryption dictionary", false)
+        end
       end
 
     end

@@ -425,6 +425,28 @@ EOF
     end
   end
 
+  describe "validate" do
+    before do
+      @doc.trailer.validate # to create a valid document
+    end
+
+    it "validates indirect objects" do
+      obj = @doc.add(Type: :XRef, Size: 100)
+      assert(@doc.validate(auto_correct: false))
+
+      obj.delete(:Type)
+      called = false
+      assert(@doc.validate { called = true })
+      assert(called)
+    end
+
+    it "validates the trailer object" do
+      @doc.trailer[:ID] = :Symbol
+      refute(@doc.validate)
+    end
+  end
+
+
   describe "write" do
     it "writes the document to a file" do
       begin

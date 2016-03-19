@@ -304,7 +304,6 @@ module HexaPDF
                         set_min_pdf_version: 'HexaPDF::Task::SetMinPDFVersion',
                         optimize: 'HexaPDF::Task::Optimize',
                         dereference: 'HexaPDF::Task::Dereference',
-                        validate: 'HexaPDF::Task::Validate',
                       })
 
 end

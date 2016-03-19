@@ -42,6 +42,11 @@ describe HexaPDF::Type::Trailer do
     end
 
     it "validates and corrects a missing ID entry when an Encrypt dictionary is set" do
+      def (@doc).security_handler;
+        obj = Object.new
+        def obj.encryption_key_valid?; true; end
+        obj
+      end
       @obj[:Encrypt] = {}
       @obj.validate do |msg, correctable|
         assert(correctable)
@@ -59,6 +64,22 @@ describe HexaPDF::Type::Trailer do
       refute(@obj.validate(auto_correct: false) {|m, _| message = m})
       assert_match(/Catalog/, message)
       assert(@obj.validate)
+    end
+
+    it "fails if the Encrypt dictionary is set but no security handler is available" do
+      def (@doc).security_handler; nil; end
+      @obj[:Encrypt] = {}
+      refute(@obj.validate)
+    end
+
+    it "fails if the Encrypt dictionary is set but the security handler's key is wrong" do
+      def (@doc).security_handler
+        obj = Object.new
+        def obj.encryption_key_valid?; false; end
+        obj
+      end
+      @obj[:Encrypt] = {}
+      refute(@obj.validate)
     end
   end
 end

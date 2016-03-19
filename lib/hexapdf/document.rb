@@ -452,13 +452,31 @@ module HexaPDF
     end
 
     # :call-seq:
+    #   doc.validate(auto_correct: true)                               -> true or false
+    #   doc.validate(auto_correct: true) {|msg, correctable| block }   -> true or false
+    #
+    # Validates all objects of the document, with optional auto-correction, and returns +true+ if
+    # everything is fine.
+    #
+    # If a block is given, it is called on validation problems.
+    #
+    # See Object#validate for more information.
+    def validate(auto_correct: true, &block)
+      result = trailer.validate(auto_correct: auto_correct, &block)
+      each(current: false) do |obj|
+        result &&= obj.validate(auto_correct: auto_correct, &block)
+      end
+      result
+    end
+
+    # :call-seq:
     #   doc.write(filename, validate: true, update_fields: true)
     #   doc.write(io, validate: true, update_fields: true)
     #
     # Writes the document to the give file (in case +io+ is a String) or IO stream.
     #
-    # Before the document is written, it is validated using the 'validate' task, and an error is
-    # raised if the document is not valid. However, this step can be skipped if needed.
+    # Before the document is written, it is validated using #validate and an error is raised if the
+    # document is not valid. However, this step can be skipped if needed.
     #
     # Options:
     #
@@ -470,7 +488,7 @@ module HexaPDF
     #   trailer's /Info dictionary so that it is clear that the document has been updated.
     def write(file_or_io, validate: true, update_fields: true)
       if validate
-        task(:validate) do |msg, correctable|
+        self.validate(auto_correct: true) do |msg, correctable|
           next if correctable
           raise HexaPDF::Error, "Validation error: #{msg}"
         end

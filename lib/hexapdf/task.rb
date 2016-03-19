@@ -31,7 +31,6 @@ module HexaPDF
     autoload(:SetMinPDFVersion, 'hexapdf/task/set_min_pdf_version')
     autoload(:Optimize, 'hexapdf/task/optimize')
     autoload(:Dereference, 'hexapdf/task/dereference')
-    autoload(:Validate, 'hexapdf/task/validate')
 
   end
 
