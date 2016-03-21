@@ -82,8 +82,6 @@ module HexaPDF
     define_field :FDecodeParms, type: [Dictionary, Hash, Array], version: '1.2'
     define_field :DL,           type: Integer
 
-    define_validator(:validate_stream_filter)
-
     # Stream objects must always be indirect.
     def must_be_indirect?
       true
@@ -221,7 +219,8 @@ module HexaPDF
                   Fl: :FlateDecode, RL: :RunLengthDecode, CCF: :CCITTFaxDecode, DCT: :DCTDecode}
 
     # Validates the /Filter entry so that it contains only long-name filter names.
-    def validate_stream_filter
+    def perform_validation
+      super
       if value[:Filter].kind_of?(Symbol) && FILTER_MAP.key?(value[:Filter])
         yield("A stream's /Filter entry may only use long-form filter names", true)
         value[:Filter] = FILTER_MAP[value[:Filter]]

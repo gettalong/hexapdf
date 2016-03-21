@@ -22,12 +22,11 @@ module HexaPDF
       define_field :Perms,           type: PDFByteString, version: '2.0'
       define_field :EncryptMetadata, type: Boolean, default: true, version: '1.5'
 
-      define_validator(:validate_standard_encrypt_dict)
-
       private
 
       # Validates the fields special for this encryption dictionary.
-      def validate_standard_encrypt_dict
+      def perform_validation
+        super
         case value[:R]
         when 2, 3, 4
           if value[:U].length != 32 || value[:O].length != 32

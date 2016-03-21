@@ -107,8 +107,6 @@ module HexaPDF
       define_field :UserUnit,             type: Numeric, version: '1.6'
       define_field :VP,                   type: Dictionary, version: '1.6'
 
-      define_validator(:validate_page)
-
       must_be_indirect
 
       # Returns the value for the entry +name+.
@@ -235,7 +233,8 @@ module HexaPDF
       private
 
       # Ensures that the required inheritable fields are set.
-      def validate_page(&block)
+      def perform_validation(&block)
+        super
         REQUIRED_INHERITABLE_FIELDS.each do |name|
           if self[name].nil?
             yield("Inheritable page field #{name} not set", name == :Resources)

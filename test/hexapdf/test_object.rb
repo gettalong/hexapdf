@@ -92,74 +92,31 @@ describe HexaPDF::Object do
     end
   end
 
-  describe "validation" do
-    it "allows nesting validate calls" do
-      nested_klass = Class.new(HexaPDF::Object)
-      nested_klass.define_validator do |_obj, &block|
-        block.call("error", false)
-      end
-      klass = Class.new(HexaPDF::Object)
-      klass.define_validator do |_obj, &block|
-        nested_klass.new(5).validate do |msg, correctable|
-          block.call("nested:#{msg}", correctable)
-        end
-      end
-      obj = klass.new(5)
-      obj.validate do |msg, correctable|
-        assert_equal("nested:error", msg)
-        refute(correctable)
-      end
-    end
-
-    it "allows adding and retrieving class level validators for instance methods" do
-      klass = Class.new(HexaPDF::Object)
-      klass.define_validator(:validate_me)
-      assert_equal([:validate_basic_object, :validate_me], klass.each_validator.to_a)
-    end
-
-    it "allows adding and retrieving arbitrary class level validators" do
-      klass = Class.new(HexaPDF::Object)
-      validate_me = lambda {|*|}
-      klass.define_validator(&validate_me)
-      assert_equal([:validate_basic_object, validate_me], klass.each_validator.to_a)
-    end
-
-    it "uses validators defined for the class or one of its superclasses" do
-      klass = Class.new(HexaPDF::Object)
-      klass.define_validator(:validate_me)
-      subklass = Class.new(klass)
-      subklass.define_validator(:validate_me_too)
-      assert_equal([:validate_basic_object, :validate_me, :validate_me_too],
-                   subklass.each_validator.to_a)
-    end
-
-    it "invokes the validators correctly via #validate" do
+  describe "validate" do
+    it "invokes perform_validation correctly via #validate" do
+      obj = HexaPDF::Object.new(5)
       invoked = {}
-      klass = Class.new(HexaPDF::Object)
-      klass.send(:define_method, :validate_me) do |&block|
+      obj.define_singleton_method(:perform_validation) do |&block|
         invoked[:method] = true
         block.call("error", true)
       end
-      klass.define_validator(:validate_me)
-      klass.define_validator do |obj|
-        assert_kind_of(HexaPDF::Object, obj)
-        invoked[:block] = true
-      end
-      assert(klass.new(:test).validate)
-      assert_equal({method: true, block: true}, invoked)
+      assert(obj.validate {|*a| invoked[:block] = a})
+      assert_equal([:method, :block], invoked.keys)
+      assert_equal(["error", true], invoked[:block])
 
-      invoked = {}
-      refute(klass.new(:test).validate(auto_correct: false))
-      assert_equal({method: true}, invoked)
+      refute(obj.validate(auto_correct: false))
+    end
 
+    it "stops validating on an uncorrectable problem" do
+      obj = HexaPDF::Object.new(5)
       invoked = {}
-      klass.send(:undef_method, :validate_me)
-      klass.send(:define_method, :validate_me) do |&block|
-        invoked[:klass] = true
+      obj.define_singleton_method(:perform_validation) do |&block|
+        invoked[:before] = true
         block.call("error", false)
+        invoked[:after] = true
       end
-      refute(klass.new(:test).validate(auto_correct: true))
-      assert_equal({klass: true}, invoked)
+      refute(obj.validate {|*a| invoked[:block] = a})
+      refute(invoked.key?(:after))
     end
   end
 

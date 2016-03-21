@@ -32,9 +32,6 @@ module HexaPDF
       define_field :ID,      type: Array
       define_field :XRefStm, type: Integer, version: '1.5'
 
-      define_validator(:validate_trailer)
-
-
       # Sets the /ID field to an array of two copies of a random string and returns this array.
       #
       # See: PDF1.7 14.4
@@ -55,7 +52,8 @@ module HexaPDF
       private
 
       # Validates the trailer.
-      def validate_trailer
+      def perform_validation
+        super
         unless value[:ID]
           msg = if value[:Encrypt]
                   "ID field is required when an Encrypt dictionary is present"

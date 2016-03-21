@@ -87,9 +87,6 @@ module HexaPDF
     end
 
 
-    define_validator(:validate_dictionary)
-
-
     # Returns the value for the given dictionary entry.
     #
     # This method should be used instead of direct access to the value because it provides
@@ -209,9 +206,8 @@ module HexaPDF
     end
 
     # Performs validation tasks based on the currently set keys and defined fields.
-    #
-    # See: Object#validate for information on the available arguments.
-    def validate_dictionary(&block)
+    def perform_validation(&block)
+      super
       each_set_key_or_required_field do |name, field|
         obj = key?(name) && self[name] || nil
 

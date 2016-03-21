@@ -70,8 +70,6 @@ module HexaPDF
       define_field :First,   type: Integer # not required, will be auto-filled on #write_objects
       define_field :Extends, type: Stream
 
-      define_validator(:validate_gen_number)
-
       # Parses the stream and returns a Data object that can be used for retrieving the objects
       # defined by this object stream.
       #
@@ -175,7 +173,8 @@ module HexaPDF
       end
 
       # Validates that the generation number of the object stream is zero.
-      def validate_gen_number
+      def perform_validation
+        super
         yield("Object stream has invalid generation number > 0", false) if gen != 0
       end
 

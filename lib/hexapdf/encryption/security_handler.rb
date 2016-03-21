@@ -25,12 +25,11 @@ module HexaPDF
       define_field :StrF,      type: Symbol, default: :Identity, version: '1.5'
       define_field :EFF,       type: Symbol, version: '1.6'
 
-      define_validator(:validate_encrypt_dict)
-
       private
 
       # Ensures that the encryption dictionary's content is valid.
-      def validate_encrypt_dict
+      def perform_validation
+        super
         unless [1, 2, 4, 5].include?(value[:V])
           yield("Value of /V is not one of 1, 2, 4 or 5", false)
         end

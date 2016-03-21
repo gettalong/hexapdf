@@ -18,7 +18,7 @@ module HexaPDF
       define_field :Type,              type: Symbol,     required: true, default: :Catalog
       define_field :Version,           type: Symbol,     version: '1.4'
       define_field :Extensions,        type: Dictionary, version: '1.7'
-      # Pages field is required but this is handled in validator
+      # Pages field is required but this is handled in #perform_validation
       define_field :Pages,             type: :Pages, indirect: true
       define_field :PageLabels,        type: NumberTreeNode, version: '1.3'
       define_field :Names,             type: :Names, version: '1.2'
@@ -46,8 +46,6 @@ module HexaPDF
       define_field :Collection,        type: Dictionary, version: '1.7'
       define_field :NeedsRendering,    type: Boolean,    version: '1.7'
 
-      define_validator(:validate_catalog)
-
       must_be_indirect
 
       # Returns the root node of the page tree.
@@ -60,7 +58,8 @@ module HexaPDF
       private
 
       # Ensures that there is a valid page tree.
-      def validate_catalog
+      def perform_validation
+        super
         unless key?(:Pages)
           yield("A PDF document needs a page tree", true)
           value[:Pages] = document.add(Type: :Pages)

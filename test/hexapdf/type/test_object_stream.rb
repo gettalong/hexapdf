@@ -26,7 +26,7 @@ describe HexaPDF::Type::ObjectStream do
     def (@doc).trailer
       @trailer ||= {Encrypt: HexaPDF::Object.new({}, oid: 9)}
     end
-    @obj = HexaPDF::Type::ObjectStream.new({}, document: @doc)
+    @obj = HexaPDF::Type::ObjectStream.new({}, oid: 1, document: @doc)
   end
 
   it "correctly parses stream data" do
@@ -73,12 +73,11 @@ describe HexaPDF::Type::ObjectStream do
   end
 
   it "fails validation if gen != 0" do
-    invocations = 0
-    @obj.send(:validate_gen_number) {|*| invocations += 1}
-    assert_equal(0, invocations)
-
+    assert(@obj.validate(auto_correct: false))
     @obj.gen = 1
-    @obj.send(:validate_gen_number) {|_msg, correctable| refute(correctable); invocations += 1}
-    assert_equal(1, invocations)
+    refute(@obj.validate(auto_correct: false) do |msg, correctable|
+             assert_match(/invalid generation/, msg)
+             refute(correctable)
+           end)
   end
 end

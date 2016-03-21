@@ -39,8 +39,6 @@ module HexaPDF
       define_field :CropBox,   type: Rectangle
       define_field :Rotate,    type: Integer
 
-      define_validator(:validate_page_tree)
-
       must_be_indirect
 
       # Returns the number of pages under this page tree.
@@ -195,7 +193,8 @@ module HexaPDF
       # Ensures that the /Count and /Parent fields of the whole page tree are set up correctly and
       # that there is at least one page node. This is therefore only done for the root node of the
       # page tree!
-      def validate_page_tree
+      def perform_validation
+        super
         return if key?(:Parent)
 
         validate_node = lambda do |node|
