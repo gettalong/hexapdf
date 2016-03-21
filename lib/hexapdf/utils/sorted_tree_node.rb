@@ -23,10 +23,16 @@ module HexaPDF
     # See: HexaPDF::NameTreeNode, HexaPDF::NumberTreeNode
     module SortedTreeNode
 
-      # Adds a new key-data pair to the sorted tree.
+      # :call-seq:
+      #   tree.add_to_tree(key, data, overwrite: true)           -> true or false
+      #
+      # Adds a new key-data pair to the sorted tree and returns +true+ if it was successfully added.
+      #
+      # If the option +overwrite+ is +true+, an existing key-data pair is overwritten. Otherwise an
+      # error is raised.
       #
       # This method has to be invoked on the root node of the tree!
-      def add_to_tree(key, data)
+      def add_to_tree(key, data, overwrite: true)
         if key?(:Limits)
           raise HexaPDF::Error, "Adding a new tree entry is only allowed via the root node"
         elsif !key.kind_of?(key_type)
@@ -42,13 +48,13 @@ module HexaPDF
         end
 
         if key?(container_name)
-          insert_pair(self[container_name], key, data)
+          result = insert_pair(self[container_name], key, data, overwrite: overwrite)
           split_if_needed(self, self)
         else
           stack = []
           path_to_key(self, key, stack)
 
-          insert_pair(stack.last[container_name], key, data)
+          result = insert_pair(stack.last[container_name], key, data, overwrite: overwrite)
           stack.last[:Limits] = stack.last[container_name].values_at(0, -2)
           stack.reverse_each.inject do |nested_node, node|
             nested_lower = nested_node[:Limits][0]
@@ -63,6 +69,8 @@ module HexaPDF
 
           split_if_needed(stack[-2] || self, stack[-1])
         end
+
+        result
       end
 
       # Deletes the key-data pair from the tree and returns the data. If the tree doesn't contain
@@ -172,10 +180,14 @@ module HexaPDF
         left
       end
 
-      # Inserts the key-data pair into array at the correct position. An existing entry for the
-      # key is deleted.
-      def insert_pair(array, key, data)
+      # Inserts the key-data pair into array at the correct position and returns +true+ if the
+      # key-data pair was successfully inserted.
+      #
+      # An existing entry for the key is only overwritten if the option +overwrite+ is +true+.
+      def insert_pair(array, key, data, overwrite: true)
         index = find_in_leaf_node(array, key)
+        return false if array[index] == key && !overwrite
+
         if array[index] == key
           old_data = array[index + 1]
           document.delete(old_data) if old_data.kind_of?(HexaPDF::Object)
@@ -183,6 +195,8 @@ module HexaPDF
         else
           array.insert(index, key, data)
         end
+
+        true
       end
 
       # Returns the index into the array where the entry for +key+ is located or, if not present,

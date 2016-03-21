@@ -38,10 +38,16 @@ describe HexaPDF::Utils::SortedTreeNode do
       refute(@root[:Limits])
     end
 
-    it "replaces an existing entry" do
-      @root.add_name('a', 2)
-      @root.add_name('a', 5)
+    it "replaces an existing entry if overwrite is true" do
+      assert(@root.add_name('a', 2))
+      assert(@root.add_name('a', 5))
       assert_equal(['a', 5], @root[:Names])
+    end
+
+    it "doesn't replace an existing entry if overwrite is false" do
+      assert(@root.add_name('a', 2))
+      refute(@root.add_name('a', 5, overwrite: false))
+      assert_equal(['a', 2], @root[:Names])
     end
 
     it "works with one level of intermediate nodes" do
