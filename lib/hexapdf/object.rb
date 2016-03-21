@@ -55,6 +55,33 @@ module HexaPDF
   # keys. Furthermore the implementation is compatible to the one of Reference, i.e. the hash of a
   # PDF Object is the same as the hash of its corresponding Reference object.
   #
+  # == Allowed PDF Object Values
+  #
+  # The PDF specification knows of the following object types:
+  #
+  # * Boolean (mapped to +true+ and +false+),
+  # * Integer (mapped to Integer object)
+  # * Real (mapped to Float objects)
+  # * String (mapped to String objects with UTF-8 or binary encoding)
+  # * Names (mapped to Symbol objects)
+  # * Array (mapped to Array objects)
+  # * Dictionary (mapped to Hash objects)
+  # * Stream (mapped to the Stream class which is a Dictionary with the associated stream data)
+  # * Null (mapped to +nil+)
+  # * Indirect Object (mapped to this class)
+  #
+  # So working with PDF objects in HexaPDF is rather straightforward since the common Ruby objects
+  # can be used for most things, i.e. wrapping an plain Ruby object into an object of this class is
+  # not necessary (except if it should become an indirect object).
+  #
+  # There are also some additional data structures built from these primitive ones. For example,
+  # Time objects are represented as specially formatted string objects and conversion from and to
+  # the string representation is handled automatically.
+  #
+  # *Important*: Users of HexaPDF may use other plain Ruby objects but then there is no guarantee
+  # that everything will work correctly, especially when using other collection types than arrays
+  # and hashes.
+  #
   # See: Dictionary, Stream, Reference, Document
   # See: PDF1.7 s7.3.10, s7.3.8
   class Object
