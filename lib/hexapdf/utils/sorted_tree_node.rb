@@ -241,6 +241,43 @@ module HexaPDF
         end
       end
 
+      # Validates the sorted tree node.
+      def perform_validation
+        super
+        container_name = leaf_node_container_name
+
+        # All kids entries must be indirect objects
+        if key?(:Kids)
+          self[:Kids].each do |kid|
+            unless (kid.kind_of?(HexaPDF::Object) && kid.indirect?) ||
+                kid.kind_of?(HexaPDF::Reference)
+              yield("Child entries of sorted tree nodes must be indirect objects", false)
+            end
+          end
+        end
+
+        # All keys of the container must be lexically ordered strings and the container must be
+        # correctly formatted
+        if key?(container_name)
+          container = self[container_name]
+          if container.length.odd?
+            yield("Sorted tree leaf node contains odd number of entries", false)
+          end
+          index = 0
+          old = nil
+          while index < container.length
+            key = document.unwrap(container[index])
+            if !key.kind_of?(key_type)
+              yield("A key must be a #{key_type} object, not a #{key.class}", false)
+            elsif old && old > key
+              yield("Sorted tree leaf node entries are not correctly sorted", false)
+            end
+            old = key
+            index += 2
+          end
+        end
+      end
+
     end
 
   end

@@ -8,24 +8,17 @@ require 'hexapdf/number_tree_node'
 describe HexaPDF::Utils::SortedTreeNode do
   before do
     @doc = HexaPDF::Document.new
-    @root = HexaPDF::NameTreeNode.new({}, document: @doc)
+    @root = @doc.add({}, type: HexaPDF::NameTreeNode)
   end
 
   def add_multilevel_entries
-    @kid11 = HexaPDF::NameTreeNode.new({Limits: ['c', 'f'], Names: ['c', 1, 'f', 1]},
-                                       document: @doc)
-    @kid12 = HexaPDF::NameTreeNode.new({Limits: ['i', 'm'], Names: ['i', 1, 'm', 1]},
-                                       document: @doc)
-    @kid1 = HexaPDF::NameTreeNode.new({Limits: ['c', 'm'], Kids: [@kid11, @kid12]},
-                                      document: @doc)
-    @kid21 = HexaPDF::NameTreeNode.new({Limits: ['o', 'q'], Names: ['o', 1, 'q', 1]},
-                                       document: @doc)
-    @kid221 = HexaPDF::NameTreeNode.new({Limits: ['s', 'u'], Names: ['s', 1, 'u', 1]},
-                                        document: @doc)
-    @kid22 = HexaPDF::NameTreeNode.new({Limits: ['s', 'u'], Kids: [@kid221]},
-                                       document: @doc)
-    @kid2 = HexaPDF::NameTreeNode.new({Limits: ['o', 'u'], Kids: [@kid21, @kid22]},
-                                      document: @doc)
+    @kid11 = @doc.add({Limits: ['c', 'f'], Names: ['c', 1, 'f', 1]}, type: HexaPDF::NameTreeNode)
+    @kid12 = @doc.add({Limits: ['i', 'm'], Names: ['i', 1, 'm', 1]}, type: HexaPDF::NameTreeNode)
+    @kid1 = @doc.add({Limits: ['c', 'm'], Kids: [@kid11, @kid12]}, type: HexaPDF::NameTreeNode)
+    @kid21 = @doc.add({Limits: ['o', 'q'], Names: ['o', 1, 'q', 1]}, type: HexaPDF::NameTreeNode)
+    @kid221 = @doc.add({Limits: ['s', 'u'], Names: ['s', 1, 'u', 1]}, type: HexaPDF::NameTreeNode)
+    @kid22 = @doc.add({Limits: ['s', 'u'], Kids: [@kid221]}, type: HexaPDF::NameTreeNode)
+    @kid2 = @doc.add({Limits: ['o', 'u'], Kids: [@kid21, @kid22]}, type: HexaPDF::NameTreeNode)
     @root[:Kids] = [@kid1, @kid2]
   end
 
@@ -166,6 +159,48 @@ describe HexaPDF::Utils::SortedTreeNode do
 
     it "works on an uninitalized tree" do
       assert_equal([], @root.each_tree_entry.to_a)
+    end
+  end
+
+  describe "perform_validation" do
+    before do
+      add_multilevel_entries
+    end
+
+    it "checks that all kid objects are indirect objects" do
+      @root[:Kids][0] = HexaPDF::Reference.new(@kid1.oid, @kid1.gen)
+      assert(@root.validate)
+
+      @root[:Kids][0] = @kid1
+      @kid1.oid = 0
+      refute(@root.validate do |message, c|
+               assert_match(/must be indirect objects/, message)
+               refute(c)
+             end)
+    end
+
+    it "checks that leaf node containers have an even number of entries" do
+      @kid11[:Names].delete_at(0)
+      refute(@kid11.validate do |message, c|
+               assert_match(/odd number/, message)
+               refute(c)
+             end)
+    end
+
+    it "checks that the keys are of the correct type" do
+      @kid11[:Names][2] = 5
+      refute(@kid11.validate do |message, c|
+               assert_match(/must be a String object/, message)
+               refute(c)
+             end)
+    end
+
+    it "checks that the keys are correctly sorted" do
+      @kid11[:Names][2] = 'a'
+      refute(@kid11.validate do |message, c|
+               assert_match(/not correctly sorted/, message)
+               refute(c)
+             end)
     end
   end
 
