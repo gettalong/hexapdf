@@ -93,7 +93,6 @@ module HexaPDF
         value = stack.last[container_name].delete_at(index)
         document.delete(value) if value.kind_of?(HexaPDF::Object)
         value = stack.last[container_name].delete_at(index)
-        document.delete(value) if value.kind_of?(HexaPDF::Object)
 
         stack.last[:Limits] = stack.last[container_name].values_at(0, -2) if stack.last[:Limits]
 
@@ -189,8 +188,6 @@ module HexaPDF
         return false if array[index] == key && !overwrite
 
         if array[index] == key
-          old_data = array[index + 1]
-          document.delete(old_data) if old_data.kind_of?(HexaPDF::Object)
           array[index + 1] = data
         else
           array.insert(index, key, data)
