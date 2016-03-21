@@ -22,14 +22,14 @@ module HexaPDF
             begin
               data = inflater.inflate(data)
             rescue
-              raise HexaPDF::Error, "Problem while decoding Flate encoded stream: #{$!}"
+              raise FilterError, "Problem while decoding Flate encoded stream: #{$!}"
             end
             Fiber.yield(data)
           end
           begin
             inflater.finish
           rescue
-            raise HexaPDF::Error, "Problem while decoding Flate encoded stream: #{$!}"
+            raise FilterError, "Problem while decoding Flate encoded stream: #{$!}"
           end
         end
 

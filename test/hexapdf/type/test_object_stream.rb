@@ -14,8 +14,8 @@ describe HexaPDF::Type::ObjectStream::Data do
   end
 
   it "fails if the index is out of bounds" do
-    assert_raises(HexaPDF::Error) { @data.object_by_index(5) }
-    assert_raises(HexaPDF::Error) { @data.object_by_index(-1) }
+    assert_raises(ArgumentError) { @data.object_by_index(5) }
+    assert_raises(ArgumentError) { @data.object_by_index(-1) }
   end
 end
 

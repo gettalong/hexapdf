@@ -716,7 +716,7 @@ module HexaPDF
           end
           self
         elsif block_given?
-          raise HexaPDF::Error, "Block only allowed with an argument"
+          raise ArgumentError, "Block only allowed with an argument"
         else
           {fill_alpha: graphics_state.fill_alpha, stroke_alpha: graphics_state.stroke_alpha}
         end
@@ -798,7 +798,7 @@ module HexaPDF
         elsif p2
           invoke(:v, *p2, *point)
         else
-          raise HexaPDF::Error, "At least one control point must be specified for Bézier curves"
+          raise ArgumentError, "At least one control point must be specified for Bézier curves"
         end
         self
       end
@@ -1487,7 +1487,7 @@ module HexaPDF
         when :replace
           context.contents = @contents = ''.force_encoding(Encoding::BINARY)
         else
-          raise HexaPDF::Error, "Unknown content handling strategy"
+          raise ArgumentError, "Unknown content handling strategy: #{strategy}"
         end
       end
 
@@ -1573,7 +1573,7 @@ module HexaPDF
 
           self
         elsif block_given?
-          raise HexaPDF::Error, "Block only allowed with arguments"
+          raise ArgumentError, "Block only allowed with arguments"
         else
           graphics_state.send(name)
         end
@@ -1599,7 +1599,8 @@ module HexaPDF
         when 3 then :DeviceRGB
         when 4 then :DeviceCMYK
         else
-          raise HexaPDF::Error, "Invalid number of color components"
+          raise ArgumentError, "Invalid number of color components, 1|3|4 expected, " \
+            "#{components.length} given"
         end
       end
 
@@ -1634,7 +1635,7 @@ module HexaPDF
           end
           self
         elsif block_given?
-          raise HexaPDF::Error, "Block only allowed with an argument"
+          raise ArgumentError, "Block only allowed with an argument"
         else
           graphics_state.send(name)
         end
@@ -1644,9 +1645,9 @@ module HexaPDF
       def check_poly_points(points)
         points.flatten!
         if points.length < 4
-          raise HexaPDF::Error, "At least two points needed to make one line segment"
+          raise ArgumentError, "At least two points needed to make one line segment"
         elsif points.length.odd?
-          raise HexaPDF::Error, "Missing y-coordinate for last point"
+          raise ArgumentError, "Missing y-coordinate for last point"
         end
       end
 

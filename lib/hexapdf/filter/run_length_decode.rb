@@ -33,7 +33,7 @@ module HexaPDF
               if source.alive? && (new_data = source.resume)
                 data = data[i..-1] << new_data
               else
-                raise MalformedPDFError, "Missing data for run length encoded stream"
+                raise FilterError, "Missing data for run length encoded stream"
               end
               i = 0
               result = ''.force_encoding(Encoding::BINARY)

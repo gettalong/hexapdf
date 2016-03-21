@@ -89,7 +89,7 @@ describe HexaPDF::Filter::Predictor do
       end
 
       it "fails if data is missing" do
-        assert_raises(HexaPDF::Error) do
+        assert_raises(HexaPDF::FilterError) do
           data = @testcases['up']
           encoder = @obj.png_execute(:encoder, feeder(data[:source][0..-2], 1), data[:Predictor],
                                      data[:Colors], data[:BitsPerComponent], data[:Columns])
@@ -108,7 +108,7 @@ describe HexaPDF::Filter::Predictor do
       end
 
       it "fails if data is missing" do
-        assert_raises(HexaPDF::Error) do
+        assert_raises(HexaPDF::FilterError) do
           data = @testcases['up']
           encoder = @obj.png_execute(:decoder, feeder(data[:result][0..-2], 1), data[:Predictor], data[:Colors],
                                      data[:BitsPerComponent], data[:Columns])
@@ -152,7 +152,7 @@ describe HexaPDF::Filter::Predictor do
       end
 
       it "fails if data is missing" do
-        assert_raises(HexaPDF::Error) do
+        assert_raises(HexaPDF::FilterError) do
           data = @testcases['simple']
           encoder = @obj.tiff_execute(:encoder, feeder(data[:source][0..-2], 1), data[:Colors],
                                       data[:BitsPerComponent], data[:Columns])
@@ -171,7 +171,7 @@ describe HexaPDF::Filter::Predictor do
       end
 
       it "fails if data is missing" do
-        assert_raises(HexaPDF::Error) do
+        assert_raises(HexaPDF::FilterError) do
           data = @testcases['simple']
           decoder = @obj.tiff_execute(:decoder, feeder(data[:result][0..-2], 1), data[:Colors],
                                       data[:BitsPerComponent], data[:Columns])

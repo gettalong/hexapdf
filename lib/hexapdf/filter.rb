@@ -104,7 +104,7 @@ module HexaPDF
           Fiber.yield(data)
         end
         if length > 0 && orig_length >= 0
-          raise HexaPDF::Error, "Couldn't read all requested bytes before encountering EOF"
+          raise FilterError, "Couldn't read all requested bytes before encountering EOF"
         end
       end
     end

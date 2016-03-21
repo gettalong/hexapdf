@@ -184,7 +184,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     end
 
     it "fails for unknown keywords" do
-      assert_raises(HexaPDF::Error) { @handler.set_up_encryption(unknown: 'test') }
+      assert_raises(ArgumentError) { @handler.set_up_encryption(unknown: 'test') }
     end
   end
 

@@ -186,7 +186,7 @@ EOF
     end
 
     it "fails if the specified revision index is invalid" do
-      assert_raises(HexaPDF::Error) { @doc.add(5, revision: 5) }
+      assert_raises(ArgumentError) { @doc.add(5, revision: 5) }
     end
 
     it "fails if the object to be added is associated with another document" do
@@ -240,7 +240,7 @@ EOF
     end
 
     it "fails if the revision argument is invalid" do
-      assert_raises(HexaPDF::Error) { @doc.delete(1, revision: :invalid) }
+      assert_raises(ArgumentError) { @doc.delete(1, revision: :invalid) }
     end
   end
 
@@ -252,13 +252,13 @@ EOF
     end
 
     it "fails if the given object is not a PDF object" do
-      assert_raises(HexaPDF::Error) { @doc.import(5) }
+      assert_raises(ArgumentError) { @doc.import(5) }
     end
 
     it "fails if the given object is associated with no or the destination document" do
-      assert_raises(HexaPDF::Error) { @doc.import(HexaPDF::Object.new(5)) }
+      assert_raises(ArgumentError) { @doc.import(HexaPDF::Object.new(5)) }
       obj = @doc.add(5)
-      assert_raises(HexaPDF::Error) { @doc.import(obj) }
+      assert_raises(ArgumentError) { @doc.import(obj) }
     end
   end
 
@@ -505,7 +505,7 @@ EOF
     end
 
     it "fails setting a version with an invalid format" do
-      assert_raises(HexaPDF::Error) { @doc.version = 'bla' }
+      assert_raises(ArgumentError) { @doc.version = 'bla' }
     end
   end
 

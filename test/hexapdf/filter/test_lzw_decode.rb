@@ -23,11 +23,11 @@ describe HexaPDF::Filter::LZWDecode do
     end
 
     it "fails if an unknown code is found after CLEAR_TABLE" do
-      assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder("\xff\xff")).resume }
+      assert_raises(HexaPDF::FilterError) { @obj.decoder(feeder("\xff\xff")).resume }
     end
 
     it "fails if an unknown code is found elsewhere" do
-      assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder("\x00\x7f\xff\xf0")).resume }
+      assert_raises(HexaPDF::FilterError) { @obj.decoder(feeder("\x00\x7f\xff\xf0")).resume }
     end
 
     it "fails if the code size would be more than 12bit" do
@@ -40,7 +40,7 @@ describe HexaPDF::Filter::LZWDecode do
       2047.upto(4095) {|i| result << stream.write(i, 12)}
       result << stream.write(96, 12)
       result << stream.finalize
-      assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder(result)).resume }
+      assert_raises(HexaPDF::FilterError) { @obj.decoder(feeder(result)).resume }
     end
   end
 

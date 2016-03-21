@@ -64,14 +64,14 @@ describe HexaPDF::Content::Canvas do
       end
 
       it "content strategy append: new content is appended" do
-        assert_raises(HexaPDF::Error) do
+        assert_raises(ArgumentError) do
           HexaPDF::Content::Canvas.new(@context, content: :append)
         end
         skip
       end
 
       it "content strategy prepend: new content is prepended" do
-        assert_raises(HexaPDF::Error) do
+        assert_raises(ArgumentError) do
           HexaPDF::Content::Canvas.new(@context, content: :prepend)
         end
         skip
@@ -251,7 +251,7 @@ describe HexaPDF::Content::Canvas do
     end
 
     it "fails if a block is given without an argument" do
-      assert_raises(HexaPDF::Error) { @canvas.send(:gs_getter_setter, :line_width, :w, nil) {} }
+      assert_raises(ArgumentError) { @canvas.send(:gs_getter_setter, :line_width, :w, nil) {} }
     end
 
     it "fails if invoked while in an unsupported graphics objects" do
@@ -375,7 +375,7 @@ describe HexaPDF::Content::Canvas do
     end
 
     it "fails if a block is given without an argument" do
-      assert_raises(HexaPDF::Error) { @canvas.opacity {} }
+      assert_raises(ArgumentError) { @canvas.opacity {} }
     end
 
     it "fails if invoked while in an unsupported graphics objects" do
@@ -436,11 +436,11 @@ describe HexaPDF::Content::Canvas do
     end
 
     it "fails if a block is given without an argument" do
-      assert_raises(HexaPDF::Error) { invoke {} }
+      assert_raises(ArgumentError) { invoke {} }
     end
 
     it "fails if an unsupported number of component values is provided" do
-      assert_raises(HexaPDF::Error) { invoke(5, 5) }
+      assert_raises(ArgumentError) { invoke(5, 5) }
     end
 
     it "fails if invoked while in an unsupported graphics objects" do
@@ -520,7 +520,7 @@ describe HexaPDF::Content::Canvas do
     end
 
     it "raises an error if both control points are omitted" do
-      assert_raises(HexaPDF::Error) { @canvas.curve_to(9, 10) }
+      assert_raises(ArgumentError) { @canvas.curve_to(9, 10) }
     end
 
     it "fails if invoked while in an unsupported graphics objects" do
@@ -592,11 +592,11 @@ describe HexaPDF::Content::Canvas do
     end
 
     it "fails if not enought points are supplied" do
-      assert_raises(HexaPDF::Error) { @canvas.polyline(5, 6) }
+      assert_raises(ArgumentError) { @canvas.polyline(5, 6) }
     end
 
     it "fails if a y-coordinate is missing" do
-      assert_raises(HexaPDF::Error) { @canvas.polyline(5, 6, 7, 8, 9) }
+      assert_raises(ArgumentError) { @canvas.polyline(5, 6, 7, 8, 9) }
     end
   end
 

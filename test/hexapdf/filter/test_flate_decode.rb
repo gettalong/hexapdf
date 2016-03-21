@@ -22,8 +22,8 @@ describe HexaPDF::Filter::FlateDecode do
     end
 
     it "fails on invalid input" do
-      assert_raises(HexaPDF::Error) { collector(@obj.decoder(feeder("some test"))) }
-      assert_raises(HexaPDF::Error) { collector(@obj.decoder(Fiber.new {})) }
+      assert_raises(HexaPDF::FilterError) { collector(@obj.decoder(feeder("some test"))) }
+      assert_raises(HexaPDF::FilterError) { collector(@obj.decoder(Fiber.new {})) }
     end
   end
 

@@ -57,7 +57,7 @@ module HexaPDF
         when :round, 1 then ROUND_CAP
         when :projecting_square, 2 then PROJECTING_SQUARE_CAP
         else
-          raise HexaPDF::Error, "Unknown line cap style: #{style}"
+          raise ArgumentError, "Unknown line cap style: #{style}"
         end
       end
 
@@ -91,7 +91,7 @@ module HexaPDF
         when :round, 1 then ROUND_JOIN
         when :bevel, 2 then BEVEL_JOIN
         else
-          raise HexaPDF::Error, "Unknown line join style: #{style}"
+          raise ArgumentError, "Unknown line join style: #{style}"
         end
       end
 
@@ -141,7 +141,7 @@ module HexaPDF
       def initialize(array = [], phase = 0)
         if phase < 0 || (!array.empty? &&
           array.inject(0) {|m, n| m < 0 ? m : (n < 0 ? -1 : m + n)} <= 0)
-          raise HexaPDF::Error, "Invalid line dash pattern: #{array.inspect} #{phase.inspect}"
+          raise ArgumentError, "Invalid line dash pattern: #{array.inspect} #{phase.inspect}"
         end
         @array = array.freeze
         @phase = phase
@@ -176,7 +176,7 @@ module HexaPDF
         when ABSOLUTE_COLORIMETRIC, RELATIVE_COLORIMETRIC, SATURATION, PERCEPTUAL
           intent
         else
-          raise HexaPDF::Error, "Invalid rendering intent: #{intent}"
+          raise ArgumentError, "Invalid rendering intent: #{intent}"
         end
       end
 
@@ -224,7 +224,7 @@ module HexaPDF
         when :fill_stroke_clip, 6 then FILL_STROKE_CLIP
         when :clip, 7 then CLIP
         else
-          raise HexaPDF::Error, "Unknown text rendering mode: #{style}"
+          raise ArgumentError, "Unknown text rendering mode: #{style}"
         end
       end
 

@@ -16,7 +16,7 @@ describe HexaPDF::Filter::RunLengthDecode do
 
   describe "decoder" do
     it "fails if data is missing from the source stream" do
-      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder(@encoded.chop.chop))) }
+      assert_raises(HexaPDF::FilterError) { collector(@obj.decoder(feeder(@encoded.chop.chop))) }
     end
   end
 

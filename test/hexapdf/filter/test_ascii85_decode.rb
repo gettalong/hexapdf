@@ -38,23 +38,23 @@ describe HexaPDF::Filter::ASCII85Decode do
     end
 
     it "fails if the input contains invalid characters" do
-      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder(':2bwx!'))) }
+      assert_raises(HexaPDF::FilterError) { collector(@obj.decoder(feeder(':2bwx!'))) }
     end
 
     it "fails if the input contains values outside the BASE85 range" do
-      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder('uuuuu'))) }
+      assert_raises(HexaPDF::FilterError) { collector(@obj.decoder(feeder('uuuuu'))) }
     end
 
     it "fails if the last rest contains a 'z' character" do
-      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder('uuz'))) }
+      assert_raises(HexaPDF::FilterError) { collector(@obj.decoder(feeder('uuz'))) }
     end
 
     it "fails if the last rest contains a '~' character" do
-      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder('uu~'))) }
+      assert_raises(HexaPDF::FilterError) { collector(@obj.decoder(feeder('uu~'))) }
     end
 
     it "fails if the last rest contains values outside the BASE85 range" do
-      assert_raises(HexaPDF::MalformedPDFError) { collector(@obj.decoder(feeder('uuu>', 1))) }
+      assert_raises(HexaPDF::FilterError) { collector(@obj.decoder(feeder('uuu>', 1))) }
     end
   end
 end

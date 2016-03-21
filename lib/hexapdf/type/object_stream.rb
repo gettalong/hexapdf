@@ -55,7 +55,7 @@ module HexaPDF
         # data is parsed and a new object returned.
         def object_by_index(index)
           if index >= @offsets.size || index < 0
-            raise HexaPDF::Error, "Invalid index into object stream given"
+            raise ArgumentError, "Invalid index into object stream given"
           end
 
           @tokenizer.pos = @offsets[index]

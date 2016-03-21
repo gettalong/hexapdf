@@ -101,7 +101,7 @@ describe HexaPDF::Utils::SortedTreeNode do
     end
 
     it "fails if the key is not a string" do
-      assert_raises(HexaPDF::Error) { @root.add_name(5, 1) }
+      assert_raises(ArgumentError) { @root.add_name(5, 1) }
     end
   end
 

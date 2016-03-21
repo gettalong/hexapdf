@@ -70,7 +70,7 @@ describe HexaPDF::Dictionary do
 
   describe "after_data_change" do
     it "fails if the value is not a hash" do
-      assert_raises(HexaPDF::Error) { HexaPDF::Dictionary.new(:Name) }
+      assert_raises(ArgumentError) { HexaPDF::Dictionary.new(:Name) }
     end
 
     it "sets the default value for a required field that has one" do
@@ -155,7 +155,7 @@ describe HexaPDF::Dictionary do
     end
 
     it "raises an error if the key is not a symbol object" do
-      assert_raises(HexaPDF::Error) { @dict[5] = 6 }
+      assert_raises(ArgumentError) { @dict[5] = 6 }
     end
   end
 

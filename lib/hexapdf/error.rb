@@ -27,6 +27,9 @@ module HexaPDF
 
   end
 
+  # Raised when a filter encounters a problem during decoding or encoding.
+  class FilterError < Error; end
+
   # Raised when a PDF object contains invalid data.
   class InvalidPDFObjectError < Error; end
 

@@ -108,7 +108,7 @@ module HexaPDF
           end
 
           unless pos == data.length
-            raise HexaPDF::Error, "Data is missing for TIFF predictor"
+            raise FilterError, "Data is missing for TIFF predictor"
           end
         end
       end
@@ -225,7 +225,7 @@ module HexaPDF
           end
 
           unless pos == data.length
-            raise HexaPDF::Error, "Data is missing for PNG predictor"
+            raise FilterError, "Data is missing for PNG predictor"
           end
         end
       end

@@ -86,7 +86,7 @@ describe HexaPDF::Type::Page do
     end
 
     it "fails if an unknown box type is supplied" do
-      assert_raises(HexaPDF::Error) { @page.box(:undefined) }
+      assert_raises(ArgumentError) { @page.box(:undefined) }
     end
   end
 

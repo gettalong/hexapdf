@@ -200,7 +200,7 @@ module HexaPDF
       super
       data.stream ||= ''.force_encoding(Encoding::BINARY)
       unless data.stream.kind_of?(StreamData) || data.stream.kind_of?(String)
-        raise HexaPDF::Error, "Object of class #{data.stream.class} cannot be used as stream value"
+        raise ArgumentError, "Object of class #{data.stream.class} cannot be used as stream value"
       end
     end
 

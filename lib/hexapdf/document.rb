@@ -150,7 +150,7 @@ module HexaPDF
 
       revision = (revision == :current ? @revisions.current : @revisions.revision(revision))
       if revision.nil?
-        raise HexaPDF::Error, "Invalid revision index specified"
+        raise ArgumentError, "Invalid revision index specified"
       end
 
       if obj.document? && obj.document != self
@@ -195,7 +195,7 @@ module HexaPDF
       when :all
         @revisions.each {|rev| rev.delete(ref, mark_as_free: mark_as_free)}
       else
-        raise HexaPDF::Error, "Unsupported option revision=#{revision}"
+        raise ArgumentError, "Unsupported option revision: #{revision}"
       end
     end
 
@@ -211,7 +211,7 @@ module HexaPDF
     # See: Importer
     def import(obj)
       if !obj.kind_of?(HexaPDF::Object) || !obj.document? || obj.document == self
-        raise HexaPDF::Error, "Importing only works for PDF objects associated " \
+        raise ArgumentError, "Importing only works for PDF objects associated " \
           "with another document"
       end
       HexaPDF::Importer.for(source: obj.document, destination: self).import(obj)
@@ -407,7 +407,7 @@ module HexaPDF
     # Sets the version of the PDF document. The argument must be a string in the format 'M.N'
     # where M is the major version and N the minor version (e.g. '1.4' or '2.0').
     def version=(value)
-      raise HexaPDF::Error, "PDF version must follow format M.N" unless value.to_s =~ /\A\d\.\d\z/
+      raise ArgumentError, "PDF version must follow format M.N" unless value.to_s =~ /\A\d\.\d\z/
       @version = value.to_s
     end
 

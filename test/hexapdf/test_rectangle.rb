@@ -6,7 +6,7 @@ require 'hexapdf/rectangle'
 describe HexaPDF::Rectangle do
   describe "after_data_change" do
     it "fails if the value is not a array" do
-      assert_raises(HexaPDF::Error) { HexaPDF::Rectangle.new(:Name) }
+      assert_raises(ArgumentError) { HexaPDF::Rectangle.new(:Name) }
     end
 
     it "normalizes the array values" do

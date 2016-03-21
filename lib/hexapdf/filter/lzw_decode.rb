@@ -57,7 +57,7 @@ module HexaPDF
                 code_length += 1
               when 4095
                 if code != CLEAR_TABLE
-                  raise HexaPDF::MalformedPDFError, "Maximum of 12bit for codes in LZW stream exceeded"
+                  raise FilterError, "Maximum of 12bit for codes in LZW stream exceeded"
                 end
               end
 
@@ -70,12 +70,12 @@ module HexaPDF
                 table = INITIAL_DECODER_TABLE.dup
               elsif last_code == CLEAR_TABLE
                 unless table.key?(code)
-                  raise HexaPDF::MalformedPDFError, "Unknown code in LZW encoded stream found"
+                  raise FilterError, "Unknown code in LZW encoded stream found"
                 end
                 result << table[code]
               else
                 unless table.key?(last_code)
-                  raise HexaPDF::MalformedPDFError, "Unknown code in LZW encoded stream found"
+                  raise FilterError, "Unknown code in LZW encoded stream found"
                 end
                 last_str = table[last_code]
 

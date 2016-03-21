@@ -36,7 +36,7 @@ module HexaPDF
         if key?(:Limits)
           raise HexaPDF::Error, "Adding a new tree entry is only allowed via the root node"
         elsif !key.kind_of?(key_type)
-          raise HexaPDF::Error, "A key must be a #{key_type} object, not a #{key.class}"
+          raise ArgumentError, "A key must be a #{key_type} object, not a #{key.class}"
         end
 
         container_name = leaf_node_container_name

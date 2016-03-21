@@ -35,7 +35,7 @@ describe HexaPDF::Content::LineCapStyle do
   end
 
   it "fails when trying to normalize an invalid argument" do
-    assert_raises(HexaPDF::Error) { HexaPDF::Content::LineCapStyle.normalize(:invalid) }
+    assert_raises(ArgumentError) { HexaPDF::Content::LineCapStyle.normalize(:invalid) }
   end
 end
 
@@ -51,7 +51,7 @@ describe HexaPDF::Content::LineJoinStyle do
   end
 
   it "fails when trying to normalize an invalid argument" do
-    assert_raises(HexaPDF::Error) { HexaPDF::Content::LineJoinStyle.normalize(:invalid) }
+    assert_raises(ArgumentError) { HexaPDF::Content::LineJoinStyle.normalize(:invalid) }
   end
 end
 
@@ -68,21 +68,21 @@ describe HexaPDF::Content::RenderingIntent do
   end
 
   it "fails when trying to normalize an invalid argument" do
-    assert_raises(HexaPDF::Error) { HexaPDF::Content::RenderingIntent.normalize(:invalid) }
+    assert_raises(ArgumentError) { HexaPDF::Content::RenderingIntent.normalize(:invalid) }
   end
 end
 
 describe HexaPDF::Content::LineDashPattern do
   it "fails on initialization if the phase is negative" do
-    assert_raises(HexaPDF::Error) { HexaPDF::Content::LineDashPattern.new([], -1) }
+    assert_raises(ArgumentError) { HexaPDF::Content::LineDashPattern.new([], -1) }
   end
 
   it "fails on initialization if all the dash array values are zero " do
-    assert_raises(HexaPDF::Error) { HexaPDF::Content::LineDashPattern.new([0, 0], 0) }
+    assert_raises(ArgumentError) { HexaPDF::Content::LineDashPattern.new([0, 0], 0) }
   end
 
   it "fails on initialization if a dash array value is negative" do
-    assert_raises(HexaPDF::Error) { HexaPDF::Content::LineDashPattern.new([-2, 0], 0) }
+    assert_raises(ArgumentError) { HexaPDF::Content::LineDashPattern.new([-2, 0], 0) }
   end
 
   it "can be compared to another line dash pattern object" do
@@ -111,7 +111,7 @@ describe HexaPDF::Content::TextRenderingMode do
   end
 
   it "fails when trying to normalize an invalid argument" do
-    assert_raises(HexaPDF::Error) { HexaPDF::Content::TextRenderingMode.normalize(:invalid) }
+    assert_raises(ArgumentError) { HexaPDF::Content::TextRenderingMode.normalize(:invalid) }
   end
 end
 

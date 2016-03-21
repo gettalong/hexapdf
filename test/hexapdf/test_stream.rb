@@ -105,7 +105,7 @@ describe HexaPDF::Stream do
     end
 
     it "fails on any object class other than String, StreamData, NilClass" do
-      assert_raises(HexaPDF::Error) { @stm.stream = 5 }
+      assert_raises(ArgumentError) { @stm.stream = 5 }
     end
   end
 

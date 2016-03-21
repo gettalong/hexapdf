@@ -169,7 +169,7 @@ module HexaPDF
           @algorithm = data.delete(:algorithm) { :arc4 }
           @encrypt_metadata = data.delete(:encrypt_metadata) { true }
           if data.size > 0
-            raise HexaPDF::Error, "Invalid encryption options: #{data.keys.join(', ')}"
+            raise ArgumentError, "Invalid encryption options: #{data.keys.join(', ')}"
           end
         end
 

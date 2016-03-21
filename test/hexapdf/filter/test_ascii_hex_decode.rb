@@ -27,7 +27,7 @@ describe HexaPDF::Filter::ASCIIHexDecode do
     end
 
     it "fails on invalid characters" do
-      assert_raises(HexaPDF::MalformedPDFError) { @obj.decoder(feeder('f0f0z')).resume }
+      assert_raises(HexaPDF::FilterError) { @obj.decoder(feeder('f0f0z')).resume }
     end
   end
 end

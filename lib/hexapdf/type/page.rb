@@ -117,7 +117,7 @@ module HexaPDF
       # See: Dictionary#[]
       def [](name)
         if value[name].nil? && INHERITABLE_FIELDS.include?(name)
-          node = self[:Parent] || (raise HexaPDF::Error, "Page has no parent node")
+          node = self[:Parent] || (raise InvalidPDFObjectError, "Page has no parent node")
           node = node[:Parent] while node.value[name].nil? && node.key?(:Parent)
           node[name] || super
         else
@@ -160,7 +160,7 @@ module HexaPDF
         when :trim then self[:TrimBox] || self[:CropBox] || self[:MediaBox]
         when :art then self[:ArtBox] || self[:CropBox] || self[:MediaBox]
         else
-          raise HexaPDF::Error, "Unknown kind of page box: #{type}"
+          raise ArgumentError, "Unsupported page box type provided: #{type}"
         end
       end
 

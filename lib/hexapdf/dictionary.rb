@@ -122,7 +122,7 @@ module HexaPDF
     # HexaPDF::Object.
     def []=(name, data)
       unless name.kind_of?(Symbol)
-        raise HexaPDF::Error, "Only Symbol (Name) keys are allowed to be used in PDF dictionaries"
+        raise ArgumentError, "Only Symbol (Name) keys are allowed to be used in PDF dictionaries"
       end
 
       if value[name].class == HexaPDF::Object && !data.kind_of?(HexaPDF::Object) &&
@@ -182,7 +182,7 @@ module HexaPDF
       super
       data.value ||= {}
       unless value.kind_of?(Hash)
-        raise HexaPDF::Error, "A PDF dictionary object needs a hash value, not a #{value.class}"
+        raise ArgumentError, "A PDF dictionary object needs a hash value, not a #{value.class}"
       end
       set_required_fields_with_defaults
     end
