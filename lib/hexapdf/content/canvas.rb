@@ -24,6 +24,12 @@ module HexaPDF
     # API. There are methods for moving the current point, drawing lines and curves, setting the
     # color, line width and so on.
     #
+    # The PDF operators themselves are implemented as classes, see Operator. The canvas class uses
+    # the Operator::BaseOperator#invoke and Operator::BaseOperator#serialize methods for applying
+    # changes and serialization, with one exception: color setters don't invoke the corresponding
+    # operator implementation but directly work on the graphics state.
+    #
+    #
     # == PDF Graphics
     #
     # === Graphics Operators and Objects
@@ -63,16 +69,22 @@ module HexaPDF
     # A PDF path object consists of one or more subpaths. Each subpath can be a rectangle or can
     # consist of lines and cubic bézier curves. No other types of subpaths are known to PDF.
     # However, the Canvas class contains additional methods that use the basic path construction
-    # methods for drawing other standard paths like circles.
+    # methods for drawing other paths like circles.
     #
-    # When a subpath is started, the current graphics object is changed to path object. After all
-    # path constructions are finished, a path painting methods needs to be invoked to change back
-    # to the page description level. Optionally, the path painting method may be preceeded by a
-    # clipping path method to change the current clipping path (see TODO).
+    # When a subpath is started, the current graphics object is changed to 'path object'. After all
+    # path constructions are finished, a path painting method needs to be invoked to change back to
+    # the page description level. Optionally, the path painting method may be preceeded by a
+    # clipping path method to change the current clipping path (see #clip_path).
     #
-    # There are three kinds of path painting methods: Those that stroke the path, those that fill
-    # the path and those that stroke and fill the path. In addition filling may be done using
-    # either the nonzero winding number rule or the even-odd rule.
+    # There are four kinds of path painting methods:
+    #
+    # * Those that stroke the path,
+    # * those that fill the path,
+    # * those that stroke and fill the path and
+    # * one to neither stroke or fill the path (used, for example, to just set the clipping path).
+    #
+    # In addition filling may be done using either the nonzero winding number rule or the even-odd
+    # rule.
     #
     #
     # = Special Graphics State Methods
@@ -795,8 +807,9 @@ module HexaPDF
       #   canvas.rectangle(x, y, width, height, radius: 0)       => canvas
       #   canvas.rectangle([x, y], width, height, radius: 0)     => canvas
       #
-      # Appends a rectangle to the current path as a complete subpath, with the lower-left corner
-      # specified by +x+ and +y+ and the given +width+ and +height+.
+      # Appends a rectangle to the current path as a complete subpath (drawn in counterclockwise
+      # direction), with the lower-left corner specified by +x+ and +y+ and the given +width+ and
+      # +height+.
       #
       # If +radius+ is greater than 0, the corners are rounded with the given radius.
       #
@@ -912,12 +925,14 @@ module HexaPDF
       #   canvas.circle([cx, cy], radius)    => canvas
       #
       # Appends a circle with center (cx, cy) and the given +radius+ (in degrees) to the path as a
-      # complete subpath.
+      # complete subpath (drawn in counterclockwise direction).
       #
       # If there is no current path when the method is invoked, a new path is automatically begun.
       #
       # The center point can either be specified as +x+ and +y+ arguments or as an array
       # containing two numbers.
+      #
+      # After the circle has been appended, the current point is at (center_x + radius, center_y).
       #
       # Examples:
       #
@@ -941,6 +956,9 @@ module HexaPDF
       #
       # The center point can either be specified as +x+ and +y+ arguments or as an array
       # containing two numbers.
+      #
+      # After the ellipse has been appended, the current point is the outer-most point on the
+      # semi-major axis.
       #
       # Examples:
       #
@@ -998,7 +1016,7 @@ module HexaPDF
       #
       # Since PDF doesn't have operators for drawing elliptical or circular arcs, they have to be
       # approximated using Bezier curves (see #curve_to). The accuracy of the approximation can be
-      # controlled using the configuration option 'canvas.max_ellipse_curves'.
+      # controlled using the configuration option 'graphic_object.arc.max_curves'.
       #
       # Examples:
       #
