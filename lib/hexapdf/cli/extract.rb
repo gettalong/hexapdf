@@ -13,7 +13,7 @@ module HexaPDF
       def initialize #:nodoc:
         super('extract', takes_commands: false)
         short_desc("Extracts files")
-        long_desc(<<-EOF.gsub!(/^\s*/, ''))
+        long_desc(<<-EOF.gsub!(/^ */, ''))
           This command extracts files embedded in a PDF file. If the option --indices is not given,
           the available files are listed with their names and indices. The --indices option can then
           be used to extract one or more files.

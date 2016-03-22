@@ -18,7 +18,7 @@ module HexaPDF
       def initialize #:nodoc:
         super('info', takes_commands: false)
         short_desc("Shows document information")
-        long_desc(<<-EOF.gsub!(/^\s*/, ''))
+        long_desc(<<-EOF.gsub!(/^ */, ''))
           This command extracts information from the Info dictionary of a PDF file as well
           as some other useful information like the used PDF version and encryption information.
         EOF
