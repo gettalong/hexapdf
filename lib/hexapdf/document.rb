@@ -2,6 +2,7 @@
 
 require 'stringio'
 require 'hexapdf/error'
+require 'hexapdf/content'
 require 'hexapdf/configuration'
 require 'hexapdf/reference'
 require 'hexapdf/object'
