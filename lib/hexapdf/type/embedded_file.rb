@@ -22,6 +22,11 @@ module HexaPDF
         define_field :Creator, type: Integer
         define_field :ResFork, type: Stream
 
+        # Returns :XXEmbeddedFileParametersMacInfo
+        def type
+          :XXEmbeddedFileParametersMacInfo
+        end
+
       end
 
       # The type used for the /Params field of an EmbeddedFileStream.
@@ -30,15 +35,20 @@ module HexaPDF
         define_field :Size,         type: Integer
         define_field :CreationDate, type: PDFDate
         define_field :ModDate,      type: PDFDate
-        define_field :Mac,          type: MacInfo
+        define_field :Mac,          type: :XXEmbeddedFileParametersMacInfo
         define_field :CheckSum,     type: PDFByteString
+
+        # Returns :XXEmbeddedFileParameters
+        def type
+          :XXEmbeddedFileParameters
+        end
 
       end
 
 
-      define_field :Type,    type: Symbol, default: :EmbeddedFile
+      define_field :Type,    type: Symbol, default: :EmbeddedFile, version: '1.3'
       define_field :Subtype, type: Symbol
-      define_field :Params,  type: Parameters, version: '1.7'
+      define_field :Params,  type: :XXEmbeddedFileParameters
 
     end
 

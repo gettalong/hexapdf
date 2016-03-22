@@ -3,7 +3,6 @@
 require 'uri'
 require 'hexapdf/dictionary'
 require 'hexapdf/stream'
-require 'hexapdf/type/embedded_file'
 
 module HexaPDF
   module Type
@@ -31,13 +30,18 @@ module HexaPDF
     class FileSpecification < Dictionary
 
       # The type used for the /EF field of a FileSpecification
-      class EmbeddedFileParams < Dictionary
+      class EFDictionary < Dictionary
 
-        define_field :F,    type: EmbeddedFile
-        define_field :UF,   type: EmbeddedFile
-        define_field :DOS,  type: EmbeddedFile
-        define_field :Mac,  type: EmbeddedFile
-        define_field :Unix, type: EmbeddedFile
+        define_field :F,    type: :EmbeddedFile
+        define_field :UF,   type: :EmbeddedFile
+        define_field :DOS,  type: :EmbeddedFile
+        define_field :Mac,  type: :EmbeddedFile
+        define_field :Unix, type: :EmbeddedFile
+
+        # Returns :XXFilespecEFDictionary
+        def type
+          :XXFilespecEFDictionary
+        end
 
       end
 
@@ -51,7 +55,7 @@ module HexaPDF
       define_field :Unix, type: PDFByteString
       define_field :ID,   type: Array
       define_field :V,    type: Boolean, version: '1.2'
-      define_field :EF,   type: EmbeddedFileParams, version: '1.7'
+      define_field :EF,   type: :XXFilespecEFDictionary, version: '1.7'
       define_field :RF,   type: Dictionary, version: '1.3'
       define_field :Desc, type: String, version: '1.6'
       define_field :CI,   type: Dictionary, version: '1.7'
@@ -103,10 +107,17 @@ module HexaPDF
         self[:FS] = :URL
       end
 
+      # Returns +true+ if this file specification contains an embedded file.
+      #
+      # See: #embedded_file_stream
+      def embedded_file?
+        key?(:EF) && !self[:EF].empty?
+      end
+
       # Returns the embedded file associated with this file specification, or +nil+ if this file
       # specification references no embedded file.
       #
-      # If there are multiple possible embedded files, the /EF fields are search in the following
+      # If there are multiple possible embedded files, the /EF fields are searched in the following
       # order and the first one with a value is used: /UF, /F, /Unix, /Mac, /DOS.
       def embedded_file_stream
         return unless key?(:EF)
@@ -114,19 +125,25 @@ module HexaPDF
         ef[:UF] || ef[:F] || ef[:Unix] || ef[:Mac] || ef[:DOS]
       end
 
-      # Embeds the given file into the PDF file, sets the path accordingly and returns the created
-      # EmbeddedFileStream object. If there was already a file embedded for this file
-      # specification, it is unembedded first.
+      # :call-seq:
+      #   file_spec.embed(filename, name: File.basename(filename), register: true)   -> ef_stream
+      #   file_spec.embed(io, name:, register: true)                                 -> ef_stream
+      #
+      # Embeds the given file or IO stream into the PDF file, sets the path accordingly and returns
+      # the created EmbeddedFileStream object.
+      #
+      # If a file is given, the +name+ option defaults to the basename of the file. However, if an
+      # IO object is given, the +name+ argument is mandatory.
+      #
+      # If there already was a file embedded for this file specification, it is unembedded first.
+      #
+      # The embedded file stream automatically uses the FlateEncode filter for compressing the
+      # embedded file.
       #
       # Options:
       #
       # name::
-      #     The name that should be used as path value and when registering. Defaults to the
-      #     basename of the filename if not explicitly set.
-      #
-      # filter::
-      #     A stream filter name or an array of such that should be used for the embedded file
-      #     stream. See PDF1.7 s7.4.1
+      #     The name that should be used as path value and when registering.
       #
       # register::
       #     Specifies whether the embedded file will be added to the EmbeddedFiles name tree under
@@ -134,18 +151,26 @@ module HexaPDF
       #
       # The file has to be available until the PDF document gets written because reading and
       # writing is done lazily.
-      def embed(filename, name: File.basename(filename), filter: :FlateDecode, register: true)
-        unless File.exist?(filename)
-          raise HexaPDF::Error, "No file named '#{filename}' exists"
+      def embed(file_or_io, name: nil, register: true)
+        name ||= File.basename(file_or_io) if file_or_io.kind_of?(String)
+        if name.nil?
+          raise ArgumentError, "The name argument is mandatory when given an IO object"
         end
+
         unembed
         self.path = name
 
-        stat = File.stat(filename)
-        ef_stream = (self[:EF] ||= {})[:F] = document.add({}, type: :EmbeddedFile)
-        ef_stream[:Params] = {Size: stat.size, CreationDate: stat.ctime, ModDate: stat.mtime}
-        ef_stream.set_filter(filter)
-        ef_stream.stream = HexaPDF::StreamData.new(filename)
+        ef_stream = (self[:EF] ||= {})[:UF] = document.add(Type: :EmbeddedFile)
+        stat = if file_or_io.kind_of?(String)
+                 File.stat(file_or_io)
+               elsif file_or_io.respond_to?(:stat)
+                 file_or_io.stat
+               end
+        if stat
+          ef_stream[:Params] = {Size: stat.size, CreationDate: stat.ctime, ModDate: stat.mtime}
+        end
+        ef_stream.set_filter(:FlateDecode)
+        ef_stream.stream = HexaPDF::StreamData.new(file_or_io)
 
         if register
           (document.catalog[:Names] ||= {})[:EmbeddedFiles] = {}
@@ -155,7 +180,7 @@ module HexaPDF
         ef_stream
       end
 
-      # Deletes any embedded file stream associated with this file specification. A possible entry
+      # Deletes any embedded file streams associated with this file specification. A possible entry
       # in the EmbeddedFiles name tree is also deleted.
       def unembed
         return unless key?(:EF)

@@ -2,8 +2,16 @@
 
 require 'test_helper'
 require 'tempfile'
+require 'stringio'
 require 'hexapdf/type/file_specification'
 require 'hexapdf/document'
+
+describe HexaPDF::Type::FileSpecification::EFDictionary do
+  it "uses a custom type" do
+    obj = HexaPDF::Type::FileSpecification::EFDictionary.new({})
+    assert_equal(:XXFilespecEFDictionary, obj.type)
+  end
+end
 
 describe HexaPDF::Type::FileSpecification do
   before do
@@ -63,6 +71,14 @@ describe HexaPDF::Type::FileSpecification do
     end
   end
 
+  describe "embedded_file?" do
+    it "checks whether the specification has an embedded file" do
+      refute(@obj.embedded_file?)
+      @obj[:EF] = {UF: {}}
+      assert(@obj.embedded_file?)
+    end
+  end
+
   describe "embedded_file_stream" do
     it "returns the associated embedded file stream" do
       assert_nil(@obj.embedded_file_stream)
@@ -82,17 +98,26 @@ describe HexaPDF::Type::FileSpecification do
       @file.unlink
     end
 
-    it "fails if the given file does not exist" do
-      assert_raises(HexaPDF::Error) { @obj.embed("some non-existing #{$$} file") }
+    it "requires the name argument when given an IO object" do
+      assert_raises(ArgumentError) { @obj.embed(StringIO.new) }
     end
 
     it "embeds the given file and registers it with the global name registry" do
       stream = @obj.embed(@file.path)
-      assert_equal(stream, @obj[:EF][:F])
+      assert_equal(stream, @obj[:EF][:UF])
       assert_equal(File.basename(@file.path), @obj.path)
       assert_equal(@obj, @doc.catalog[:Names][:EmbeddedFiles].find_name(@obj.path))
       assert_equal(:FlateDecode, stream[:Filter])
       assert_equal('embed-test', stream.stream)
+    end
+
+    it "embeds the given IO object" do
+      @file.open
+      stream = @obj.embed(@file, name: 'test')
+      assert_equal('embed-test', stream.stream)
+
+      stream = @obj.embed(StringIO.new('test'), name: 'test')
+      assert_equal('test', stream.stream)
     end
 
     it "allows overriding the name" do
@@ -111,11 +136,6 @@ describe HexaPDF::Type::FileSpecification do
       @doc.catalog[:Names][:EmbeddedFiles].add_name('test', 'data')
       @obj.embed(@file.path, name: 'test')
       assert_equal(@obj, @doc.catalog[:Names][:EmbeddedFiles].find_name('test'))
-    end
-
-    it "modifies the embedded file stream's filter" do
-      stream = @obj.embed(@file.path, filter: nil)
-      assert_nil(stream[:Filter])
     end
 
     it "unembeds an already embedded file before embedding the new one" do
