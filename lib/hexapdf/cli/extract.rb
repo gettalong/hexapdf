@@ -18,6 +18,10 @@ module HexaPDF
           the available files are listed with their names and indices. The --indices option can then
           be used to extract one or more files.
         EOF
+        options.on("--[no-]search", "-s", "Search the whole PDF instead of the " \
+                   "standard locations (default: false)") do |search|
+          @search = search
+        end
         options.on("--password PASSWORD", "-p", String, "The password for decryption") do |pwd|
           @password = pwd
         end
@@ -27,9 +31,10 @@ module HexaPDF
         end
         @indices = []
         @password = ''
+        @search = false
       end
 
-      def execute(file) #:nodoc:
+      def execute(*files) #:nodoc:
         HexaPDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
           if @indices.empty?
             list_files(doc)
@@ -43,7 +48,7 @@ module HexaPDF
 
       # Outputs the list of files embedded in the given PDF document.
       def list_files(doc)
-        each_file(doc) do |index, obj|
+        each_file(doc) do |obj, index|
           $stdout.write(sprintf("%4i: %s", index, obj.path))
           ef_stream = obj.embedded_file_stream
           if (params = ef_stream[:Params]) && !params.empty?
@@ -61,7 +66,7 @@ module HexaPDF
 
       # Extracts the files with the given indices.
       def extract_files(doc)
-        each_file(doc) do |index, obj|
+        each_file(doc) do |obj, index|
           next unless @indices.include?(index)
           puts "Extracting #{obj.path}..."
           File.open(obj.path, 'wb') do |file|
@@ -74,14 +79,8 @@ module HexaPDF
       end
 
       # Iterates over all embedded files.
-      def each_file(doc) # :yields: index, obj
-        index = 0
-        doc.each(current: false) do |obj|
-          if obj.type == :Filespec && obj.key?(:EF) && !obj[:EF].empty?
-            index += 1
-            yield(index, obj)
-          end
-        end
+      def each_file(doc, &block) # :yields: obj, index
+        doc.utils.each_file(search: @search).select(&:embedded_file?).each_with_index(&block)
       end
 
     end
