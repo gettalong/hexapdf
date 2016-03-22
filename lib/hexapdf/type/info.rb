@@ -23,6 +23,11 @@ module HexaPDF
       define_field :ModDate,      type: PDFDate
       define_field :Trapped,      type: Symbol, version: '1.3'
 
+      # Returns :XXInfo
+      def type
+        :XXInfo
+      end
+
     end
 
   end

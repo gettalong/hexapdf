@@ -33,7 +33,7 @@ module HexaPDF
         object_loader = lambda {|xref_entry| parser.load_object(xref_entry)}
         revision_loader = lambda do |offset|
           xref_section, trailer = parser.load_revision(offset)
-          Revision.new(document.wrap(trailer, type: :Trailer), xref_section: xref_section,
+          Revision.new(document.wrap(trailer, type: :XXTrailer), xref_section: xref_section,
             loader: object_loader)
         end
 
@@ -102,7 +102,7 @@ module HexaPDF
         trailer.delete(:XRefStm)
       end
 
-      rev = Revision.new(@document.wrap(trailer, type: :Trailer))
+      rev = Revision.new(@document.wrap(trailer, type: :XXTrailer))
       @revisions.push(rev)
       rev
     end

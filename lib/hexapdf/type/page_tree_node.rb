@@ -34,7 +34,7 @@ module HexaPDF
       define_field :Count,  type: Integer, required: true, default: 0
 
       # Inheritable page fields
-      define_field :Resources, type: :Resources
+      define_field :Resources, type: :XXResources
       define_field :MediaBox,  type: Rectangle
       define_field :CropBox,   type: Rectangle
       define_field :Rotate,    type: Integer

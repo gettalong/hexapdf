@@ -21,9 +21,9 @@ module HexaPDF
       # Pages field is required but this is handled in #perform_validation
       define_field :Pages,             type: :Pages, indirect: true
       define_field :PageLabels,        type: NumberTreeNode, version: '1.3'
-      define_field :Names,             type: :Names, version: '1.2'
+      define_field :Names,             type: :XXNames, version: '1.2'
       define_field :Dests,             type: Dictionary, version: '1.1'
-      define_field :ViewerPreferences, type: :ViewerPreferences, version: '1.2'
+      define_field :ViewerPreferences, type: :XXViewerPreferences, version: '1.2'
       define_field :PageLayout,        type: Symbol,     default: :SinglePage
       define_field :PageMode,          type: Symbol,     default: :UseNone
       define_field :Outlines,          type: Dictionary, indirect: true

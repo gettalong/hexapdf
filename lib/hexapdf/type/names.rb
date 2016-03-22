@@ -27,6 +27,11 @@ module HexaPDF
       define_field :AlternatePresentations, type: NameTreeNode, version: '1.4'
       define_field :Renditions,             type: NameTreeNode, version: '1.5'
 
+      # Returns :XXNames.
+      def type
+        :XXNames
+      end
+
     end
 
   end

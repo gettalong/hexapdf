@@ -14,6 +14,10 @@ describe HexaPDF::Type::Trailer do
     @obj = HexaPDF::Type::Trailer.new({Size: 10, Root: root}, document: @doc)
   end
 
+  it "uses a custom type" do
+    assert_equal(:XXTrailer, @obj.type)
+  end
+
   describe "ID field" do
     it "sets a random ID" do
       @obj.set_random_id

@@ -28,9 +28,14 @@ module HexaPDF
       define_field :Prev,    type: Integer
       define_field :Root,    type: :Catalog, indirect: true
       define_field :Encrypt, type: Dictionary
-      define_field :Info,    type: :Info, indirect: true
+      define_field :Info,    type: :XXInfo, indirect: true
       define_field :ID,      type: Array
       define_field :XRefStm, type: Integer, version: '1.5'
+
+      # Returns :XXTrailer.
+      def type
+        :XXTrailer
+      end
 
       # Sets the /ID field to an array of two copies of a random string and returns this array.
       #

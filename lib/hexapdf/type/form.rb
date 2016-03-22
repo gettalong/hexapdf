@@ -15,7 +15,7 @@ module HexaPDF
       define_field :FormType,      type: Integer,    default: 1
       define_field :BBox,          type: Rectangle,  required: true
       define_field :Matrix,        type: Array
-      define_field :Resources,     type: :Resources, version: '1.2'
+      define_field :Resources,     type: :XXResources, version: '1.2'
       define_field :Group,         type: Dictionary, version: '1.4'
       define_field :Ref,           type: Dictionary, version: '1.4'
       define_field :Metadata,      type: Stream,     version: '1.4'
@@ -55,7 +55,7 @@ module HexaPDF
 
       # Returns the resource dictionary which is automatically created if it doesn't exist.
       def resources
-        self[:Resources] ||= document.wrap({}, type: :Resources)
+        self[:Resources] ||= document.wrap({}, type: :XXResources)
       end
 
     end

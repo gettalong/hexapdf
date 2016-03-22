@@ -207,7 +207,11 @@ module HexaPDF
     #
     # Since the type system is implemented in such a way as to allow exchanging implementations of
     # specific types, the class of an object can't be reliably used for determining the actual
-    # type. However, the Type field can easily be used for this.
+    # type.
+    #
+    # However, the Type and Subtype fields can easily be used for this. Subclasses for PDF objects
+    # that don't have such fields may use a unique name that has to begin with XX (see PDF1.7 sE.2)
+    # and therefore doesn't clash with names defined by the PDF specification.
     #
     # For basic objects this always returns :Unknown.
     def type

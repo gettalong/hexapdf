@@ -31,6 +31,11 @@ module HexaPDF
       define_field :PrintPageRange,        type: Array,   version: '1.7'
       define_field :NumCopies,             type: Integer, version: '1.7'
 
+      # Returns :XXViewerPreferences
+      def type
+        :XXViewerPreferences
+      end
+
     end
 
   end

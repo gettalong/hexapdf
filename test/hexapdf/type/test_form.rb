@@ -34,14 +34,14 @@ describe HexaPDF::Type::Form do
   describe "resources" do
     it "creates the resource dictionary if it is not found" do
       resources = @form.resources
-      assert_kind_of(HexaPDF::Type::Resources, resources)
+      assert_equal(:XXResources, resources.type)
       assert_equal({}, resources.value)
     end
 
     it "returns the already used resource dictionary" do
       @form[:Resources] = {Font: nil}
       resources = @form.resources
-      assert_kind_of(HexaPDF::Type::Resources, resources)
+      assert_equal(:XXResources, resources.type)
       assert_equal(@form[:Resources], resources)
     end
   end

@@ -22,6 +22,11 @@ module HexaPDF
       define_field :ProcSet, type: Array
       define_field :Properties, type: Dictionary, version: '1.2'
 
+      # Returns :XXResources.
+      def type
+        :XXResources
+      end
+
       # Returns the color space stored under the given name.
       #
       # If the color space is not found, an error is raised.
