@@ -487,15 +487,15 @@ module HexaPDF
     #   Updates the /ID field in the trailer dictionary as well as the /ModDate field in the
     #   trailer's /Info dictionary so that it is clear that the document has been updated.
     def write(file_or_io, validate: true, update_fields: true)
+      if update_fields
+        trailer.update_id
+        trailer[:Info] = add(ModDate: Time.now)
+      end
       if validate
         self.validate(auto_correct: true) do |msg, correctable|
           next if correctable
           raise HexaPDF::Error, "Validation error: #{msg}"
         end
-      end
-      if update_fields
-        trailer.update_id
-        (trailer[:Info] ||= {})[:ModDate] = Time.now
       end
 
       if file_or_io.kind_of?(String)
