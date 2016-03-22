@@ -24,15 +24,16 @@ module HexaPDF
     module SortedTreeNode
 
       # :call-seq:
-      #   tree.add_to_tree(key, data, overwrite: true)           -> true or false
+      #   tree.add_entry(key, data, overwrite: true)           -> true or false
       #
-      # Adds a new key-data pair to the sorted tree and returns +true+ if it was successfully added.
+      # Adds a new tree entry (key-data pair) to the sorted tree and returns +true+ if it was
+      # successfully added.
       #
-      # If the option +overwrite+ is +true+, an existing key-data pair is overwritten. Otherwise an
-      # error is raised.
+      # If the option +overwrite+ is +true+, an existing entry is overwritten. Otherwise an error is
+      # raised.
       #
       # This method has to be invoked on the root node of the tree!
-      def add_to_tree(key, data, overwrite: true)
+      def add_entry(key, data, overwrite: true)
         if key?(:Limits)
           raise HexaPDF::Error, "Adding a new tree entry is only allowed via the root node"
         elsif !key.kind_of?(key_type)
@@ -73,11 +74,11 @@ module HexaPDF
         result
       end
 
-      # Deletes the key-data pair from the tree and returns the data. If the tree doesn't contain
-      # the key, +nil+ is returned.
+      # Deletes the entry specified by the +key+ from the tree and returns the data. If the tree
+      # doesn't contain the key, +nil+ is returned.
       #
       # This method has to be invoked on the root node of the tree!
-      def delete_from_tree(key)
+      def delete_entry(key)
         if key?(:Limits)
           raise HexaPDF::Error, "Deleting a tree entry is only allowed via the root node"
         end
@@ -112,38 +113,53 @@ module HexaPDF
         value
       end
 
-      # Finds and returns the associated data for the key, or returns +nil+ if no such key is
+      # Finds and returns the associated entry for the key, or returns +nil+ if no such key is
       # found.
-      def find_in_tree(key)
+      def find_entry(key)
         container_name = leaf_node_container_name
-        if key?(container_name)
-          index = find_in_leaf_node(self[container_name], key)
-          self[container_name][index + 1] if self[container_name][index] == key
-        elsif key?(:Kids)
-          index = find_in_intermediate_node(self[:Kids], key)
-          kid = self[:Kids][index]
-          kid.find_in_tree(key) if key >= kid[:Limits][0] && key <= kid[:Limits][1]
+        node = self
+        result = nil
+
+        while result.nil?
+          if node.key?(container_name)
+            index = find_in_leaf_node(node[container_name], key)
+            if node[container_name][index] == key
+              result = document.deref(node[container_name][index + 1])
+            end
+          elsif node.key?(:Kids)
+            index = find_in_intermediate_node(node[:Kids], key)
+            node = document.deref(node[:Kids][index])
+            break unless key >= node[:Limits][0] && key <= node[:Limits][1]
+          else
+            break
+          end
         end
+
+        result
       end
 
       # :call-seq:
-      #   node.each_tree_entry {|key, data| block }   -> node
-      #   node.each_tree_entry                        -> Enumerator
+      #   node.each_entry {|key, data| block }   -> node
+      #   node.each_entry                        -> Enumerator
       #
-      # Calls the given block once for each key-data of the sorted tree.
-      def each_tree_entry(&block)
+      # Calls the given block once for each entry (key-data pair) of the sorted tree.
+      def each_entry(&block)
         return to_enum(__method__) unless block_given?
 
         container_name = leaf_node_container_name
-        if key?(container_name)
-          data = self[container_name]
-          index = 0
-          while index < data.length
-            yield(data[index], data[index + 1])
-            index += 2
+        stack = [self]
+        while !stack.empty?
+          node = document.deref(stack.pop)
+          if node.key?(container_name)
+            data = node[container_name]
+            index = 0
+            while index < data.length
+              yield(data[index], document.deref(data[index + 1]))
+              index += 2
+            end
+          elsif node.key?(:Kids)
+            stack.concat(node[:Kids].reverse)
           end
-        elsif key?(:Kids)
-          self[:Kids].each {|kid| kid.each_tree_entry(&block)}
         end
 
         self

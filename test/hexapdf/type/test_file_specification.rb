@@ -106,7 +106,7 @@ describe HexaPDF::Type::FileSpecification do
       stream = @obj.embed(@file.path)
       assert_equal(stream, @obj[:EF][:UF])
       assert_equal(File.basename(@file.path), @obj.path)
-      assert_equal(@obj, @doc.catalog[:Names][:EmbeddedFiles].find_name(@obj.path))
+      assert_equal(@obj, @doc.catalog[:Names][:EmbeddedFiles].find_entry(@obj.path))
       assert_equal(:FlateDecode, stream[:Filter])
       assert_equal('embed-test', stream.stream)
     end
@@ -123,7 +123,7 @@ describe HexaPDF::Type::FileSpecification do
     it "allows overriding the name" do
       @obj.embed(@file.path, name: 'test')
       assert_equal('test', @obj.path)
-      assert_equal(@obj, @doc.catalog[:Names][:EmbeddedFiles].find_name('test'))
+      assert_equal(@obj, @doc.catalog[:Names][:EmbeddedFiles].find_entry('test'))
     end
 
     it "doesn't register the embedded file if instructed to do so" do
@@ -133,15 +133,15 @@ describe HexaPDF::Type::FileSpecification do
 
     it "replaces the value of an already registered name" do
       (@doc.catalog[:Names] ||= {})[:EmbeddedFiles] = {}
-      @doc.catalog[:Names][:EmbeddedFiles].add_name('test', 'data')
+      @doc.catalog[:Names][:EmbeddedFiles].add_entry('test', 'data')
       @obj.embed(@file.path, name: 'test')
-      assert_equal(@obj, @doc.catalog[:Names][:EmbeddedFiles].find_name('test'))
+      assert_equal(@obj, @doc.catalog[:Names][:EmbeddedFiles].find_entry('test'))
     end
 
     it "unembeds an already embedded file before embedding the new one" do
       @obj.embed(@file.path, name: 'test1')
       @obj.embed(@file.path, name: 'test2')
-      assert_equal([['test2', @obj]], @doc.catalog[:Names][:EmbeddedFiles].each_tree_entry.to_a)
+      assert_equal([['test2', @obj]], @doc.catalog[:Names][:EmbeddedFiles].each_entry.to_a)
     end
   end
 end

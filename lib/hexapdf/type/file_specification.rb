@@ -174,7 +174,7 @@ module HexaPDF
 
         if register
           (document.catalog[:Names] ||= {})[:EmbeddedFiles] = {}
-          document.catalog[:Names][:EmbeddedFiles].add_name(name, self)
+          document.catalog[:Names][:EmbeddedFiles].add_entry(name, self)
         end
 
         ef_stream
@@ -188,8 +188,8 @@ module HexaPDF
 
         if document.catalog.key?(:Names) && document.catalog[:Names].key?(:EmbeddedFiles)
           tree = document.catalog[:Names][:EmbeddedFiles]
-          tree.each_tree_entry.find_all {|_, spec| document.deref(spec) == self}.each do |name, _|
-            tree.delete_name(name)
+          tree.each_entry.find_all {|_, spec| document.deref(spec) == self}.each do |name, _|
+            tree.delete_entry(name)
           end
         end
       end
