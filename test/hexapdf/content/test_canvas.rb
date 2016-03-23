@@ -694,7 +694,7 @@ describe HexaPDF::Content::Canvas do
   describe "arc" do
     it "serializes correctly" do
       @canvas.arc(0, 0, a: 1, b: 1, start_angle: 0, end_angle: 360, inclination: 0)
-      @canvas.arc(0, 0, a: 1, b: 1, start_angle: 0, end_angle: 360, sweep: false, inclination: 0)
+      @canvas.arc(0, 0, a: 1, b: 1, start_angle: 0, end_angle: 360, clockwise: true, inclination: 0)
       assert_operators(@page.contents, [[:move_to, [1, 0]],
                                         [:curve_to, [1, 0.548584, 0.548584, 1, 0, 1]],
                                         [:curve_to, [-0.548584, 1, -1, 0.548584, -1, 0]],

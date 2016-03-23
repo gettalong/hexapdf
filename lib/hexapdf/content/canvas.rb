@@ -993,8 +993,8 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   canvas.arc(cx, cy, a:, b: a, start_angle: 0, end_angle: 360, sweep: true, inclination: 0)   => canvas
-      #   canvas.arc([cx, cy], a:, b: a, start_angle: 0, end_angle: 360, sweep: true, inclination: 0) => canvas
+      #   canvas.arc(cx, cy, a:, b: a, start_angle: 0, end_angle: 360, clockwise: false, inclination: 0)   => canvas
+      #   canvas.arc([cx, cy], a:, b: a, start_angle: 0, end_angle: 360, clockwise: false, inclination: 0) => canvas
       #
       # Appends an elliptical arc to the path. The endpoint of the arc becomes the new current
       # point.
@@ -1017,8 +1017,8 @@ module HexaPDF
       # +end_angle+::
       #   Angle in degrees at which to end the arc (default: 360)
       #
-      # +sweep+::
-      #   If +true+ the arc is drawn in a positive-angle direction, otherwise in a negative-angle
+      # +clockwise+::
+      #   If +true+ the arc is drawn in clockwise direction, otherwise in counterclockwise
       #   direction.
       #
       # +inclination+::
@@ -1046,16 +1046,17 @@ module HexaPDF
       #   canvas.arc(0, 0, a: 10, start_angle: 45, end_angle: 135)
       #   canvas.arc(0, 0, a: 10, b: 5, start_angle: 45, end_angle: 135)
       #
-      #   # Arcs from 135 degrees to 15 degrees, the first in positive direction (i.e. to 15 + 360
-      #   # degrees, the big arc), the other in negative direction (the small arc)
+      #   # Arcs from 135 degrees to 15 degrees, the first in counterclockwise direction (i.e. the
+      #   # big arc), the other in clockwise direction (i.e. the small arc)
       #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15)
-      #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15, sweep: false)
+      #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15, clockwise: true)
       #
       # See: GraphicObject::Arc
-      def arc(*center, a:, b: a, start_angle: 0, end_angle: 360, sweep: true, inclination: 0)
+      def arc(*center, a:, b: a, start_angle: 0, end_angle: 360, clockwise: false, inclination: 0)
         center.flatten!
         arc = GraphicObject::Arc.configure(cx: center[0], cy: center[1], a: a, b: b,
-          start_angle: start_angle, end_angle: end_angle, sweep: sweep, inclination: inclination)
+                                           start_angle: start_angle, end_angle: end_angle,
+                                           clockwise: clockwise, inclination: inclination)
         arc.draw(self)
         self
       end

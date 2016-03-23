@@ -51,8 +51,8 @@ module HexaPDF
         # Inclination in degrees of semi-major axis in respect to x-axis
         attr_reader :inclination
 
-        # Direction of arc - if +true+ counterclockwise direction, else clockwise direction
-        attr_reader :sweep
+        # Direction of arc - if +true+ in clockwise direction, else in counterclockwise direction
+        attr_reader :clockwise
 
         # Creates an elliptical arc with default values (a counterclockwise unit circle at the
         # origin).
@@ -63,7 +63,7 @@ module HexaPDF
           @start_angle = 0
           @end_angle = 360
           @inclination = 0
-          @sweep = true
+          @clockwise = false
           calculate_cached_values
         end
 
@@ -76,15 +76,15 @@ module HexaPDF
         # * end angle of +end_angle+ degrees and
         # * an inclination in respect to the x-axis of +inclination+ degrees.
         #
-        # The +sweep+ argument determines if the arc is drawn in the counterclockwise direction
-        # (+true+) or in the clockwise direction (+false+).
+        # The +clockwise+ argument determines if the arc is drawn in the counterclockwise direction
+        # (+false+) or in the clockwise direction (+true+).
         #
         # Any arguments not specified are not modified and retain their old value, see #initialize
         # for the inital values.
         #
         # Returns self.
         def configure(cx: nil, cy: nil, a: nil, b: nil, start_angle: nil, end_angle: nil,
-                      inclination: nil, sweep: nil)
+                      inclination: nil, clockwise: nil)
           @cx = cx if cx
           @cy = cy if cy
           @a = a.abs if a
@@ -95,7 +95,7 @@ module HexaPDF
           @start_angle = start_angle if start_angle
           @end_angle = end_angle if end_angle
           @inclination = inclination if inclination
-          @sweep = sweep unless sweep.nil?
+          @clockwise = clockwise unless clockwise.nil?
           calculate_cached_values
           self
         end
@@ -185,13 +185,13 @@ module HexaPDF
           @sin_theta = Math.sin(theta)
 
           # (see ELL s2.2.1) Calculating start_eta and end_eta so that
-          #   start_eta < end_eta   <= start_eta + 2*PI if sweep
-          #   end_eta   < start_eta <= end_eta + 2*PI   if not sweep
+          #   start_eta < end_eta   <= start_eta + 2*PI if counterclockwise
+          #   end_eta   < start_eta <= end_eta + 2*PI   if clockwise
           @start_eta = angle_to_param(@start_angle)
           @end_eta = angle_to_param(@end_angle)
-          if @sweep && @end_eta <= @start_eta
+          if !@clockwise && @end_eta <= @start_eta
             @end_eta += 2 * Math::PI
-          elsif !@sweep && @end_eta >= @start_eta
+          elsif @clockwise && @end_eta >= @start_eta
             @start_eta += 2 * Math::PI
           end
         end

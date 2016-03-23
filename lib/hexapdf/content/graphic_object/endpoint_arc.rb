@@ -40,17 +40,17 @@ module HexaPDF
         # degrees), else the small arc
         attr_reader :large_arc
 
-        # Direction of arc - if +true+ counterclockwise direction, else clockwise direction
-        attr_reader :sweep
+        # Direction of arc - if +true+ in clockwise direction, else in counterclockwise direction
+        attr_reader :clockwise
 
         # Creates an endpoint arc with default values x=0, y=0, a=0, b=0, inclination=0,
-        # large_arc=true, sweep=true (a line to the origin).
+        # large_arc=true, clockwise=false (a line to the origin).
         def initialize
           @x = @y = 0
           @a = @b = 0
           @inclination = 0
           @large_arc = true
-          @sweep = true
+          @clockwise = false
         end
 
         # Configures the endpoint arc with
@@ -60,26 +60,27 @@ module HexaPDF
         # * semi-minor axis +b+,
         # * an inclination in respect to the x-axis of +inclination+ degrees,
         # * the given large_arc flag and
-        # * the given sweep flag.
+        # * the given clockwise flag.
         #
         # The +large_arc+ option determines whether the large arc, i.e. the one spanning more than
         # 180 degrees, is used (+true+) or the small arc (+false+).
         #
-        # The +sweep+ option determines if the arc is drawn in the counterclockwise direction
-        # (+true+) or in the clockwise direction (+false+).
+        # The +clockwise+ option determines if the arc is drawn in the counterclockwise direction
+        # (+false+) or in the clockwise direction (+true+).
         #
         # Any arguments not specified are not modified and retain their old value, see #initialize
         # for the inital values.
         #
         # Returns self.
-        def configure(x: nil, y: nil, a: nil, b: nil, inclination: nil, large_arc: nil, sweep: nil)
+        def configure(x: nil, y: nil, a: nil, b: nil, inclination: nil, large_arc: nil,
+                      clockwise: nil)
           @x = x if x
           @y = y if y
           @a = a.abs if a
           @b = b.abs if b
           @inclination = inclination % 360 if inclination
           @large_arc = large_arc unless large_arc.nil?
-          @sweep = sweep unless sweep.nil?
+          @clockwise = clockwise unless clockwise.nil?
 
           self
         end
@@ -137,7 +138,7 @@ module HexaPDF
 
           # F.6.5.2
           sqrt = Math.sqrt((rxs * rys - rxs * y1ps - rys * x1ps) / (rxs * y1ps + rys * x1ps))
-          sqrt *= -1 if @large_arc == @sweep
+          sqrt *= -1 unless @large_arc == @clockwise
           cxp = sqrt * rx * y1p / ry
           cyp = - sqrt * ry * x1p / rx
 
@@ -152,7 +153,7 @@ module HexaPDF
           end_angle = compute_angle_to_x_axis((-x1p - cxp) / rx, (-y1p - cyp) / ry)
 
           {cx: cx, cy: cy, a: rx, b: ry, start_angle: start_angle, end_angle: end_angle,
-           inclination: @inclination, sweep: @sweep}
+           inclination: @inclination, clockwise: @clockwise}
         end
 
         # Compares two float numbers if they are within a certain delta.
