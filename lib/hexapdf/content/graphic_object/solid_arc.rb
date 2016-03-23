@@ -103,8 +103,8 @@ module HexaPDF
           angle_difference = (@end_angle - @start_angle).abs
           if @inner_a == 0 && @inner_b == 0
             arc = canvas.graphic_object(:arc, cx: @cx, cy: @cy, a: @outer_a, b: @outer_b,
-              start_angle: @start_angle, end_angle: @end_angle,
-              theta: @theta, sweep: true)
+                                        start_angle: @start_angle, end_angle: @end_angle,
+                                        theta: @theta, sweep: true)
             if angle_difference == 0
               arc.draw(canvas)
               canvas.close_subpath
@@ -116,11 +116,11 @@ module HexaPDF
             end
           else
             inner = canvas.graphic_object(:arc, cx: @cx, cy: @cy, a: @inner_a, b: @inner_b,
-              start_angle: @end_angle, end_angle: @start_angle,
-              theta: @theta, sweep: false)
+                                          start_angle: @end_angle, end_angle: @start_angle,
+                                          theta: @theta, sweep: false)
             outer = canvas.graphic_object(:arc, cx: @cx, cy: @cy, a: @outer_a, b: @outer_b,
-              start_angle: @start_angle, end_angle: @end_angle,
-              theta: @theta, sweep: true)
+                                          start_angle: @start_angle, end_angle: @end_angle,
+                                          theta: @theta, sweep: true)
             if angle_difference == 0
               outer.draw(canvas)
               canvas.close_subpath
