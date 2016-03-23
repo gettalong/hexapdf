@@ -56,7 +56,7 @@ module HexaPDF
         attr_reader :end_angle
 
         # Inclination in degrees of semi-major axis in respect to x-axis
-        attr_reader :theta
+        attr_reader :inclination
 
         # Creates a solid arc with default values (a unit disk at the origin).
         def initialize
@@ -65,7 +65,7 @@ module HexaPDF
           @outer_a = @outer_b = 1
           @start_angle = 0
           @end_angle = 0
-          @theta = 0
+          @inclination = 0
         end
 
         # Configures the solid arc with
@@ -77,14 +77,14 @@ module HexaPDF
         # * outer semi-minor axis +outer_b+,
         # * start angle of +start_angle+ degrees,
         # * end angle of +end_angle+ degrees and
-        # * an inclination in respect to the x-axis of +theta+ degrees.
+        # * an inclination in respect to the x-axis of +inclination+ degrees.
         #
         # Any arguments not specified are not modified and retain their old value, see #initialize
         # for the inital values.
         #
         # Returns self.
         def configure(cx: nil, cy: nil, inner_a: nil, inner_b: nil, outer_a: nil, outer_b: nil,
-                      start_angle: nil, end_angle: nil, theta: nil)
+                      start_angle: nil, end_angle: nil, inclination: nil)
           @cx = cx if cx
           @cy = cy if cy
           @inner_a = inner_a.abs if inner_a
@@ -93,7 +93,7 @@ module HexaPDF
           @outer_b = outer_b.abs if outer_b
           @start_angle = start_angle % 360 if start_angle
           @end_angle = end_angle % 360 if end_angle
-          @theta = theta if theta
+          @inclination = inclination if inclination
 
           self
         end
@@ -104,7 +104,7 @@ module HexaPDF
           if @inner_a == 0 && @inner_b == 0
             arc = canvas.graphic_object(:arc, cx: @cx, cy: @cy, a: @outer_a, b: @outer_b,
                                         start_angle: @start_angle, end_angle: @end_angle,
-                                        theta: @theta, sweep: true)
+                                        inclination: @inclination, sweep: true)
             if angle_difference == 0
               arc.draw(canvas)
               canvas.close_subpath
@@ -117,10 +117,10 @@ module HexaPDF
           else
             inner = canvas.graphic_object(:arc, cx: @cx, cy: @cy, a: @inner_a, b: @inner_b,
                                           start_angle: @end_angle, end_angle: @start_angle,
-                                          theta: @theta, sweep: false)
+                                          inclination: @inclination, sweep: false)
             outer = canvas.graphic_object(:arc, cx: @cx, cy: @cy, a: @outer_a, b: @outer_b,
                                           start_angle: @start_angle, end_angle: @end_angle,
-                                          theta: @theta, sweep: true)
+                                          inclination: @inclination, sweep: true)
             if angle_difference == 0
               outer.draw(canvas)
               canvas.close_subpath

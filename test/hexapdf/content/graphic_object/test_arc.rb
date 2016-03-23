@@ -7,7 +7,7 @@ require 'hexapdf/document'
 describe HexaPDF::Content::GraphicObject::Arc do
   before do
     @arc = HexaPDF::Content::GraphicObject::Arc.configure(start_angle: -30, end_angle: 30,
-                                                               theta: 90)
+                                                          inclination: 90)
   end
 
   describe "initialize" do
@@ -19,7 +19,7 @@ describe HexaPDF::Content::GraphicObject::Arc do
       assert_equal(1, arc.b)
       assert_equal(0, arc.start_angle)
       assert_equal(360, arc.end_angle)
-      assert_equal(0, arc.theta)
+      assert_equal(0, arc.inclination)
     end
   end
 

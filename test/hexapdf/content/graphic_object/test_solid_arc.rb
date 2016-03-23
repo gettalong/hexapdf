@@ -18,7 +18,7 @@ describe HexaPDF::Content::GraphicObject::SolidArc do
       assert_equal(1, arc.outer_b)
       assert_equal(0, arc.start_angle)
       assert_equal(0, arc.end_angle)
-      assert_equal(0, arc.theta)
+      assert_equal(0, arc.inclination)
     end
   end
 
@@ -26,7 +26,7 @@ describe HexaPDF::Content::GraphicObject::SolidArc do
     it "changes the values" do
       arc = HexaPDF::Content::GraphicObject::SolidArc.new
       arc.configure(cx: 1, cy: 2, inner_a: 3, inner_b: 4, outer_a: 5, outer_b: 6,
-                    start_angle: 7, end_angle: 8, theta: 9)
+                    start_angle: 7, end_angle: 8, inclination: 9)
       assert_equal(1, arc.cx)
       assert_equal(2, arc.cy)
       assert_equal(3, arc.inner_a)
@@ -35,7 +35,7 @@ describe HexaPDF::Content::GraphicObject::SolidArc do
       assert_equal(6, arc.outer_b)
       assert_equal(7, arc.start_angle)
       assert_equal(8, arc.end_angle)
-      assert_equal(9, arc.theta)
+      assert_equal(9, arc.inclination)
     end
   end
 

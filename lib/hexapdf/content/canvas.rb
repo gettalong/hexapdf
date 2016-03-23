@@ -1055,7 +1055,7 @@ module HexaPDF
       def arc(*center, a:, b: a, start_angle: 0, end_angle: 360, sweep: true, inclination: 0)
         center.flatten!
         arc = GraphicObject::Arc.configure(cx: center[0], cy: center[1], a: a, b: b,
-          start_angle: start_angle, end_angle: end_angle, sweep: sweep, theta: inclination)
+          start_angle: start_angle, end_angle: end_angle, sweep: sweep, inclination: inclination)
         arc.draw(self)
         self
       end

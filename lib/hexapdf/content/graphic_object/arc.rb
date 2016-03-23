@@ -49,7 +49,7 @@ module HexaPDF
         attr_reader :end_angle
 
         # Inclination in degrees of semi-major axis in respect to x-axis
-        attr_reader :theta
+        attr_reader :inclination
 
         # Direction of arc - if +true+ counterclockwise direction, else clockwise direction
         attr_reader :sweep
@@ -62,7 +62,7 @@ module HexaPDF
           @a = @b = 1
           @start_angle = 0
           @end_angle = 360
-          @theta = 0
+          @inclination = 0
           @sweep = true
           calculate_cached_values
         end
@@ -74,7 +74,7 @@ module HexaPDF
         # * semi-minor axis +b+,
         # * start angle of +start_angle+ degrees,
         # * end angle of +end_angle+ degrees and
-        # * an inclination in respect to the x-axis of +theta+ degrees.
+        # * an inclination in respect to the x-axis of +inclination+ degrees.
         #
         # The +sweep+ argument determines if the arc is drawn in the counterclockwise direction
         # (+true+) or in the clockwise direction (+false+).
@@ -84,7 +84,7 @@ module HexaPDF
         #
         # Returns self.
         def configure(cx: nil, cy: nil, a: nil, b: nil, start_angle: nil, end_angle: nil,
-                      theta: nil, sweep: nil)
+                      inclination: nil, sweep: nil)
           @cx = cx if cx
           @cy = cy if cy
           @a = a.abs if a
@@ -94,7 +94,7 @@ module HexaPDF
           end
           @start_angle = start_angle if start_angle
           @end_angle = end_angle if end_angle
-          @theta = theta if theta
+          @inclination = inclination if inclination
           @sweep = sweep unless sweep.nil?
           calculate_cached_values
           self
@@ -180,7 +180,7 @@ module HexaPDF
         # Calculates the values that are derived from the input values and needed for the
         # calculations
         def calculate_cached_values
-          theta = deg_to_rad(@theta)
+          theta = deg_to_rad(@inclination)
           @cos_theta = Math.cos(theta)
           @sin_theta = Math.sin(theta)
 
