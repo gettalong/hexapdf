@@ -6,9 +6,10 @@ module HexaPDF
   module Content
     module GraphicObject
 
-      # This class describes an elliptical arc that is approximated using Bezier curves. It can be
-      # used to draw circles, circular arcs, ellipses and elliptical arcs, all either in clockwise
-      # or counterclockwise direction and optionally inclined in respect to the x-axis.
+      # This class describes an elliptical in center parameterization arc that is approximated using
+      # Bezier curves. It can be used to draw circles, circular arcs, ellipses and elliptical arcs,
+      # all either in clockwise or counterclockwise direction and optionally inclined in respect to
+      # the x-axis.
       #
       # See: ELL - https://www.spaceroots.org/documents/ellipse/elliptical-arc.pdf
       class Arc
@@ -83,11 +84,11 @@ module HexaPDF
         #
         # Returns self.
         def configure(cx: nil, cy: nil, a: nil, b: nil, start_angle: nil, end_angle: nil,
-          theta: nil, sweep: nil)
+                      theta: nil, sweep: nil)
           @cx = cx if cx
           @cy = cy if cy
-          @a = a if a
-          @b = b if b
+          @a = a.abs if a
+          @b = b.abs if b
           if @a == 0 || @b == 0
             raise HexaPDF::Error, "Semi-major and semi-minor axes must be greater than zero"
           end

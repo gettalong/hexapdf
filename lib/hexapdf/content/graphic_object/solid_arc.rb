@@ -84,13 +84,13 @@ module HexaPDF
         #
         # Returns self.
         def configure(cx: nil, cy: nil, inner_a: nil, inner_b: nil, outer_a: nil, outer_b: nil,
-          start_angle: nil, end_angle: nil, theta: nil)
+                      start_angle: nil, end_angle: nil, theta: nil)
           @cx = cx if cx
           @cy = cy if cy
-          @inner_a = inner_a if inner_a
-          @inner_b = inner_b if inner_b
-          @outer_a = outer_a if outer_a
-          @outer_b = outer_b if outer_b
+          @inner_a = inner_a.abs if inner_a
+          @inner_b = inner_b.abs if inner_b
+          @outer_a = outer_a.abs if outer_a
+          @outer_b = outer_b.abs if outer_b
           @start_angle = start_angle % 360 if start_angle
           @end_angle = end_angle % 360 if end_angle
           @theta = theta if theta
