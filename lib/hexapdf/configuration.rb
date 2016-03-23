@@ -155,6 +155,7 @@ module HexaPDF
     Configuration.new('document.auto_decrypt' => true,
                       'graphic_object.map' => {
                         arc: 'HexaPDF::Content::GraphicObject::Arc',
+                        endpoint_arc: 'HexaPDF::Content::GraphicObject::EndpointArc',
                         solid_arc: 'HexaPDF::Content::GraphicObject::SolidArc',
                       },
                       'graphic_object.arc.max_curves' => 6,
