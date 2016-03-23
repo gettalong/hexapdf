@@ -13,6 +13,11 @@ module HexaPDF
         degrees * Math::PI / 180
       end
 
+      # Converts radians to degress.
+      def rad_to_deg(radians)
+        radians * 180 / Math::PI
+      end
+
     end
 
   end
