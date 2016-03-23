@@ -480,6 +480,11 @@ describe HexaPDF::Content::Canvas do
       assert_equal(@canvas, @canvas.move_to(5, 6))
     end
 
+    it "sets the current point correctly" do
+      @canvas.move_to(5, 6)
+      assert_equal([5, 6], @canvas.current_point)
+    end
+
     it "fails if invoked while in an unsupported graphics objects" do
       assert_raises_in_graphics_object(:clipping_path) { @canvas.move_to(5, 6) }
     end
@@ -497,6 +502,11 @@ describe HexaPDF::Content::Canvas do
 
     it "returns the canvas object" do
       assert_equal(@canvas, @canvas.line_to(5, 6))
+    end
+
+    it "sets the current point correctly" do
+      @canvas.line_to(5, 6)
+      assert_equal([5, 6], @canvas.current_point)
     end
 
     it "fails if invoked while in an unsupported graphics objects" do
@@ -517,6 +527,11 @@ describe HexaPDF::Content::Canvas do
 
     it "returns the canvas object" do
       assert_equal(@canvas, @canvas.curve_to(5, 6, p1: [7, 8]))
+    end
+
+    it "sets the current point correctly" do
+      @canvas.curve_to(5, 6, p1: [9, 10])
+      assert_equal([5, 6], @canvas.current_point)
     end
 
     it "raises an error if both control points are omitted" do
@@ -547,6 +562,11 @@ describe HexaPDF::Content::Canvas do
       assert_equal(@canvas, @canvas.rectangle(5, 6, 7, 8))
     end
 
+    it "sets the current point correctly" do
+      @canvas.rectangle(5, 6, 7, 8)
+      assert_equal([5, 6], @canvas.current_point)
+    end
+
     it "fails if invoked while in an unsupported graphics objects" do
       assert_raises_in_graphics_object(:clipping_path) { @canvas.rectangle(5, 6, 7, 8) }
     end
@@ -563,6 +583,13 @@ describe HexaPDF::Content::Canvas do
 
     it "returns the canvas object" do
       assert_equal(@canvas, @canvas.close_subpath)
+    end
+
+    it "sets the current point correctly" do
+      @canvas.move_to(1, 1)
+      @canvas.line_to(10, 10)
+      @canvas.close_subpath
+      assert_equal([1, 1], @canvas.current_point)
     end
 
     it "fails if invoked while in an unsupported graphics objects" do

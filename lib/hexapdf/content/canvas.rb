@@ -125,6 +125,12 @@ module HexaPDF
       # See: PDF1.7 s8.2
       attr_accessor :graphics_object
 
+      # The current point [x, y] of the path.
+      #
+      # This attribute holds the current point which is only valid if the current graphics objects
+      # is :path.
+      attr_reader :current_point
+
       # The operator name/implementation map used when invoking or serializing an operator.
       attr_reader :operators
 
@@ -139,6 +145,8 @@ module HexaPDF
         @graphics_state = GraphicsState.new
         @graphics_object = :none
         @serializer = HexaPDF::Serializer.new
+        @current_point = nil
+        @start_point = nil
         init_contents(content)
       end
 
@@ -740,6 +748,7 @@ module HexaPDF
         raise_unless_at_page_description_level_or_in_path
         point.flatten!
         invoke(:m, *point)
+        @current_point = @start_point = point
         self
       end
 
@@ -747,8 +756,8 @@ module HexaPDF
       #   canvas.line_to(x, y)       => canvas
       #   canvas.line_to([x, y])     => canvas
       #
-      # Appends a straight line segment from the current point to the given point to the current
-      # subpath.
+      # Appends a straight line segment from the current point to the given point (which becomes the
+      # new current point) to the current subpath.
       #
       # The point can either be specified as +x+ and +y+ arguments or as an array containing two
       # numbers.
@@ -761,6 +770,7 @@ module HexaPDF
         raise_unless_in_path
         point.flatten!
         invoke(:l, *point)
+        @current_point = point
         self
       end
 
@@ -772,7 +782,8 @@ module HexaPDF
       #   canvas.curve_to(x, y, p2:)            => canvas
       #   canvas.curve_to([x, y], p2:)          => canvas
       #
-      # Appends a cubic Bezier curve to the current subpath starting from the current point.
+      # Appends a cubic Bezier curve to the current subpath starting from the current point. The end
+      # point becomes the new current point.
       #
       # A Bezier curve consists of the start point, the end point and the two control points +p1+
       # and +p2+. The start point is always the current point and the end point is specified as
@@ -800,6 +811,7 @@ module HexaPDF
         else
           raise ArgumentError, "At least one control point must be specified for Bézier curves"
         end
+        @current_point = point
         self
       end
 
@@ -815,6 +827,9 @@ module HexaPDF
       #
       # If there is no current path when the method is invoked, a new path is automatically begun.
       #
+      # The current point is set to the lower-left corner if +radius+ is zero, otherwise it is set
+      # to (x, y + radius).
+      #
       # Examples:
       #
       #   canvas.rectangle(100, 100, 100, 50)
@@ -826,6 +841,7 @@ module HexaPDF
         point.flatten!
         if radius == 0
           invoke(:re, *point, width, height)
+          @current_point = @start_point = point
           self
         else
           x, y = point
@@ -837,10 +853,11 @@ module HexaPDF
       #   canvas.close_subpath      => canvas
       #
       # Closes the current subpath by appending a straight line from the current point to the
-      # start point of the subpath.
+      # start point of the subpath which also becomes the new current point.
       def close_subpath
         raise_unless_in_path
         invoke(:h)
+        @current_point = @start_point
         self
       end
 
@@ -852,6 +869,8 @@ module HexaPDF
       #
       # The points can either be specified as +x+ and +y+ arguments or as arrays containing two
       # numbers.
+      #
+      # This method is equal to "canvas.move_to(x0, y0).line_to(x1, y1)".
       #
       # Examples:
       #
@@ -869,7 +888,7 @@ module HexaPDF
       #
       # Moves the current point to (x0, y0) and appends line segments between all given
       # consecutive points, i.e. between (x0, y0) and (x1, y1), between (x1, y1) and (x2, y2) and
-      # so on.
+      # so on. The last point becomes the new current point.
       #
       # The points can either be specified as +x+ and +y+ arguments or as arrays containing two
       # numbers.
@@ -893,7 +912,8 @@ module HexaPDF
       #   canvas.polygon(x0, y0, x1, y1, x2, y2, ..., radius: 0)          => canvas
       #   canvas.polygon([x0, y0], [x1, y1], [x2, y2], ..., radius: 0)    => canvas
       #
-      # Appends a polygon consisting of the given points to the path as a complete subpath.
+      # Appends a polygon consisting of the given points to the path as a complete subpath. The
+      # point (x0, y0 + radius) becomes the new current point.
       #
       # If +radius+ is greater than 0, the corners are rounded with the given radius.
       #
@@ -925,14 +945,13 @@ module HexaPDF
       #   canvas.circle([cx, cy], radius)    => canvas
       #
       # Appends a circle with center (cx, cy) and the given +radius+ (in degrees) to the path as a
-      # complete subpath (drawn in counterclockwise direction).
+      # complete subpath (drawn in counterclockwise direction). The point (center_x + radius,
+      # center_y) becomes the new current point.
       #
       # If there is no current path when the method is invoked, a new path is automatically begun.
       #
       # The center point can either be specified as +x+ and +y+ arguments or as an array
       # containing two numbers.
-      #
-      # After the circle has been appended, the current point is at (center_x + radius, center_y).
       #
       # Examples:
       #
@@ -950,15 +969,13 @@ module HexaPDF
       #   canvas.ellipse([cx, cy], a:, b:, inclination: 0)    => canvas
       #
       # Appends an ellipse with center (cx, cy), semi-major axis +a+, semi-minor axis +b+ and an
-      # inclination from the x-axis of +inclination+ degrees to the path as a complete subpath.
+      # inclination from the x-axis of +inclination+ degrees to the path as a complete subpath. The
+      # outer-most point on the semi-major axis becomes the new current point.
       #
       # If there is no current path when the method is invoked, a new path is automatically begun.
       #
       # The center point can either be specified as +x+ and +y+ arguments or as an array
       # containing two numbers.
-      #
-      # After the ellipse has been appended, the current point is the outer-most point on the
-      # semi-major axis.
       #
       # Examples:
       #
@@ -979,7 +996,8 @@ module HexaPDF
       #   canvas.arc(cx, cy, a:, b: a, start_angle: 0, end_angle: 360, sweep: true, inclination: 0)   => canvas
       #   canvas.arc([cx, cy], a:, b: a, start_angle: 0, end_angle: 360, sweep: true, inclination: 0) => canvas
       #
-      # Appends an elliptical arc to the path.
+      # Appends an elliptical arc to the path. The endpoint of the arc becomes the new current
+      # point.
       #
       # +cx+::
       #   x-coordinate of the center point of the arc
