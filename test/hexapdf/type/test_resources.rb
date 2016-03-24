@@ -26,7 +26,7 @@ describe HexaPDF::Type::Resources do
     end
 
     it "returns the universal color space for unknown color spaces, with resolved references" do
-      data = @doc.add({Some: :data})
+      data = @doc.add(Some: :data)
       @res[:ColorSpace] = {CSName: [:SomeUnknownColorSpace,
                                     HexaPDF::Reference.new(data.oid, data.gen)]}
       color_space = @res.color_space(:CSName)

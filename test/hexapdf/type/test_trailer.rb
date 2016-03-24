@@ -46,7 +46,7 @@ describe HexaPDF::Type::Trailer do
     end
 
     it "validates and corrects a missing ID entry when an Encrypt dictionary is set" do
-      def (@doc).security_handler;
+      def (@doc).security_handler
         obj = Object.new
         def obj.encryption_key_valid?; true; end
         obj

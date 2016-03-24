@@ -119,8 +119,8 @@ module HexaPDF
 
         object[:Length] = length
         stream = StreamData.new(@tokenizer.io, offset: pos, length: length,
-          filter: @document.unwrap(object[:Filter]),
-          decode_parms: @document.unwrap(object[:DecodeParms]))
+                                filter: @document.unwrap(object[:Filter]),
+                                decode_parms: @document.unwrap(object[:DecodeParms]))
       end
 
       unless tok.kind_of?(Tokenizer::Token) && tok == 'endobj'.freeze
@@ -261,10 +261,10 @@ module HexaPDF
 
       if eof_not_found
         maybe_raise("PDF file trailer with end-of-file marker not found", pos: pos,
-          force: !eof_index)
+                    force: !eof_index)
       elsif startxref_missing
         maybe_raise("PDF file trailer is missing startxref keyword", pos: pos,
-          force: eof_index < 2 || lines[eof_index - 2].strip != "startxref")
+                    force: eof_index < 2 || lines[eof_index - 2].strip != "startxref")
       end
 
       lines[eof_index - 1].to_i

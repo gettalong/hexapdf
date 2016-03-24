@@ -385,7 +385,7 @@ EOF
     end
 
     it "load_revision fails if the cross-reference stream doesn't contain an entry for itself" do
-      create_parser("2 0 obj\n<</Type/XRef/Length 3/W [1 1 1]/Size 1>>" <<
+      create_parser("2 0 obj\n<</Type/XRef/Length 3/W [1 1 1]/Size 1>>" \
                     "stream\n\x01\x0A\x00\nendstream endobj")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.load_revision(0) }
       assert_match(/entry for itself/, exp.message)

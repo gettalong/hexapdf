@@ -34,7 +34,7 @@ module HexaPDF
         revision_loader = lambda do |offset|
           xref_section, trailer = parser.load_revision(offset)
           Revision.new(document.wrap(trailer, type: :XXTrailer), xref_section: xref_section,
-            loader: object_loader)
+                       loader: object_loader)
         end
 
         revisions = [revision_loader.call(parser.startxref_offset)]

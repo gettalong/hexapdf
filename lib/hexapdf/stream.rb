@@ -49,10 +49,10 @@ module HexaPDF
         FiberWithLength.new(@length, &@source)
       elsif @source.kind_of?(String)
         HexaPDF::Filter.source_from_file(@source, pos: @offset || 0, length: @length || -1,
-          chunk_size: chunk_size)
+                                         chunk_size: chunk_size)
       else
         HexaPDF::Filter.source_from_io(@source, pos: @offset || 0, length: @length || -1,
-          chunk_size: chunk_size)
+                                       chunk_size: chunk_size)
       end
     end
 

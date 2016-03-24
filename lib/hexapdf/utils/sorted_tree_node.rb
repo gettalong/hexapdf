@@ -143,12 +143,12 @@ module HexaPDF
       #   node.each_entry                        -> Enumerator
       #
       # Calls the given block once for each entry (key-data pair) of the sorted tree.
-      def each_entry(&block)
+      def each_entry
         return to_enum(__method__) unless block_given?
 
         container_name = leaf_node_container_name
         stack = [self]
-        while !stack.empty?
+        until stack.empty?
           node = document.deref(stack.pop)
           if node.key?(container_name)
             data = node[container_name]

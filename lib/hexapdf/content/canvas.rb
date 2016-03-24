@@ -67,7 +67,7 @@ module HexaPDF
     # === Paths
     #
     # A PDF path object consists of one or more subpaths. Each subpath can be a rectangle or can
-    # consist of lines and cubic bézier curves. No other types of subpaths are known to PDF.
+    # consist of lines and cubic bezier curves. No other types of subpaths are known to PDF.
     # However, the Canvas class contains additional methods that use the basic path construction
     # methods for drawing other paths like circles.
     #
