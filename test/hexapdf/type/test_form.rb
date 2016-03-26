@@ -18,13 +18,15 @@ describe HexaPDF::Type::Form do
   end
 
   describe "contents" do
-    it "just returns the stream" do
+    it "returns a duplicate of the stream" do
       @form.stream = 'test'
+      assert_equal(@form.stream, @form.contents)
+      @form.contents.gsub!(/test/, 'other')
       assert_equal(@form.stream, @form.contents)
     end
   end
 
-  describe "contents" do
+  describe "contents=" do
     it "set the stream contents" do
       @form.contents = 'test'
       assert_equal('test', @form.stream)
