@@ -47,7 +47,6 @@ module HexaPDF
 
       # Replaces the contents of the form XObject with the given string.
       #
-      #
       # Note: This is the same as #stream= but here for interface compatibility with Page.
       def contents=(data)
         self.stream = data

@@ -151,8 +151,8 @@ module HexaPDF
       #     value is the crop box.
       #
       # :art::
-      #     The art box defines the region of page's meaningful content as intended by the author.
-      #     The default is the crop box.
+      #     The art box defines the region of the page's meaningful content as intended by the
+      #     author. The default is the crop box.
       #
       # See: PDF1.7 s14.11.2
       def box(type = :media)
@@ -170,7 +170,7 @@ module HexaPDF
       # Returns the concatenated stream data from the content streams as binary string.
       #
       # Note: Any modifications done to the returned value *won't* be reflected in any of the
-      # stream's data!
+      # streams' data!
       def contents
         Array(self[:Contents]).each_with_object("".b) do |content_stream, content|
           content << " ".freeze unless content.empty?
@@ -180,7 +180,7 @@ module HexaPDF
 
       # Replaces the contents of the page with the given string.
       #
-      # This is done by deleting all but the first content stream and reuses this content stream;
+      # This is done by deleting all but the first content stream and reusing this content stream;
       # or by creating a new one if no content stream exists.
       def contents=(data)
         first, *rest = self[:Contents]
