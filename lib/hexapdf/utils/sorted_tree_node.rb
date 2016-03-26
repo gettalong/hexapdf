@@ -23,6 +23,14 @@ module HexaPDF
     # See: HexaPDF::NameTreeNode, HexaPDF::NumberTreeNode
     module SortedTreeNode
 
+      # Tree nodes must always be indirect.
+      #
+      # Note: There is no requirement that the root node of a tree must be indirect. However, making
+      # it indirect simplifies the implementation and is not against the spec.
+      def must_be_indirect?
+        true
+      end
+
       # :call-seq:
       #   tree.add_entry(key, data, overwrite: true)           -> true or false
       #

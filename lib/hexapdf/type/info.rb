@@ -23,6 +23,11 @@ module HexaPDF
       define_field :ModDate,      type: PDFDate
       define_field :Trapped,      type: Symbol, version: '1.3'
 
+      # Info dictionaries must always be indirect.
+      def must_be_indirect?
+        true
+      end
+
       # Returns :XXInfo
       def type
         :XXInfo

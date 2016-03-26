@@ -23,6 +23,10 @@ describe HexaPDF::Utils::SortedTreeNode do
     @root[:Kids] = [@kid1, @kid2]
   end
 
+  it "must always be indirect" do
+    assert(@root.must_be_indirect?)
+  end
+
   describe "add" do
     it "works with the root node alone" do
       @root.add_entry('c', 1)
