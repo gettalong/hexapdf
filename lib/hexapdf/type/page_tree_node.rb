@@ -39,7 +39,11 @@ module HexaPDF
       define_field :CropBox,   type: Rectangle
       define_field :Rotate,    type: Integer
 
-      must_be_indirect
+
+      # Page tree objects must always be indirect.
+      def must_be_indirect?
+        true
+      end
 
       # Returns the number of pages under this page tree.
       #

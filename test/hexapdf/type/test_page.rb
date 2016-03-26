@@ -10,6 +10,12 @@ describe HexaPDF::Type::Page do
     @doc = HexaPDF::Document.new
   end
 
+  it "must always be indirect" do
+    page = @doc.add(Type: :Page)
+    page.must_be_indirect = false
+    assert(page.must_be_indirect?)
+  end
+
   describe "[]" do
     before do
       @root = @doc.add(Type: :Pages)

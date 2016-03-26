@@ -91,12 +91,6 @@ module HexaPDF
     # A list of classes whose objects cannot be duplicated.
     NOT_DUPLICATABLE_CLASSES = [NilClass, FalseClass, TrueClass, Symbol, Integer, Float]
 
-    # Ensures that an object of this class is *always* an indirect object once it is written. This
-    # overrides any value set via #must_be_indirect=.
-    def self.must_be_indirect
-      define_method(:must_be_indirect?) { true }
-    end
-
     # :call-seq:
     #   HexaPDF::Object.deep_copy(object)    -> copy
     #

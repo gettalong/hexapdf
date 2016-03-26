@@ -10,6 +10,11 @@ describe HexaPDF::Type::Catalog do
     @catalog = @doc.add(Type: :Catalog)
   end
 
+  it "must always be indirect" do
+    @catalog.must_be_indirect = false
+    assert(@catalog.must_be_indirect?)
+  end
+
   it "creates the page tree on access" do
     assert_nil(@catalog[:Pages])
     pages = @catalog.pages

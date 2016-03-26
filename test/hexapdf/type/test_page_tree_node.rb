@@ -48,6 +48,12 @@ describe HexaPDF::Type::PageTreeNode do
     @root[:Count] = 8
   end
 
+  it "must always be indirect" do
+    pages = @doc.add(Type: :Pages)
+    pages.must_be_indirect = false
+    assert(pages.must_be_indirect?)
+  end
+
   describe "page" do
     before do
       define_multilevel_page_tree

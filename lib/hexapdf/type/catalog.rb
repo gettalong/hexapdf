@@ -46,7 +46,10 @@ module HexaPDF
       define_field :Collection,        type: Dictionary, version: '1.7'
       define_field :NeedsRendering,    type: Boolean,    version: '1.7'
 
-      must_be_indirect
+      # Catalog objects must always be indirect.
+      def must_be_indirect?
+        true
+      end
 
       # Returns the root node of the page tree.
       #
