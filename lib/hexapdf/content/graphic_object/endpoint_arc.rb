@@ -12,6 +12,8 @@ module HexaPDF
       # See: Arc, ARC - https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
       class EndpointArc
 
+        EPSILON = 1e-10
+
         include Utils::MathHelpers
 
         # Creates and configures a new endpoint arc object.
@@ -137,7 +139,9 @@ module HexaPDF
           end
 
           # F.6.5.2
-          sqrt = Math.sqrt((rxs * rys - rxs * y1ps - rys * x1ps) / (rxs * y1ps + rys * x1ps))
+          sqrt = (rxs * rys - rxs * y1ps - rys * x1ps) / (rxs * y1ps + rys * x1ps)
+          sqrt = 0 if sqrt.abs < EPSILON
+          sqrt = Math.sqrt(sqrt)
           sqrt *= -1 unless @large_arc == @clockwise
           cxp = sqrt * rx * y1p / ry
           cyp = - sqrt * ry * x1p / rx
@@ -158,7 +162,7 @@ module HexaPDF
 
         # Compares two float numbers if they are within a certain delta.
         def float_equal(a, b)
-          (a - b).abs < 1e-8
+          (a - b).abs < EPSILON
         end
 
         # Computes the angle in degrees between the x-axis and the vector.
