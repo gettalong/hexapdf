@@ -123,24 +123,22 @@ describe HexaPDF::DictionaryFields do
       refute(@field.convert?('test'.b))
       assert(@field.convert?(date))
 
-      obj = @field.convert(date, self)
-      assert_equal(1998, obj.year)
-      assert_equal(12, obj.month)
-      assert_equal(23, obj.day)
-      assert_equal(19, obj.hour)
-      assert_equal(52, obj.min)
-      assert_equal(0, obj.sec)
-      assert_equal(-8 * 60 * 60, obj.utc_offset)
-
-      date = "D:19981223".b
-      obj = @field.convert(date, self)
-      assert_equal(1998, obj.year)
-      assert_equal(12, obj.month)
-      assert_equal(23, obj.day)
-      assert_equal(0, obj.hour)
-      assert_equal(0, obj.min)
-      assert_equal(0, obj.sec)
-      assert_equal(0, obj.utc_offset)
+      [["D:1998", [1998, 01, 01, 00, 00, 00, "-00:00"]],
+       ["D:199812", [1998, 12, 01, 00, 00, 00, "-00:00"]],
+       ["D:19981223", [1998, 12, 23, 00, 00, 00, "-00:00"]],
+       ["D:1998122319", [1998, 12, 23, 19, 00, 00, "+00:00"]],
+       ["D:199812231952", [1998, 12, 23, 19, 52, 00, "+00:00"]],
+       ["D:19981223195210", [1998, 12, 23, 19, 52, 10, "+00:00"]],
+       ["D:19981223195210-08'00", [1998, 12, 23, 19, 52, 10, "-08:00"]],
+       ["D:1998122319-08'00", [1998, 12, 23, 19, 00, 00, "-08:00"]],
+       ["D:19981223-08'00", [1998, 12, 23, 00, 00, 00, "-08:00"]],
+       ["D:199812-08'00", [1998, 12, 01, 00, 00, 00, "-08:00"]],
+       ["D:1998-08'00", [1998, 01, 01, 00, 00, 00, "-08:00"]],
+       ["D:19981223195210-08", [1998, 12, 23, 19, 52, 10, "-08:00"]], # non-standard bc missing '
+       ].each do |str, data|
+        obj = @field.convert(str, self)
+        assert_equal(Time.new(*data), obj, "date str used: #{str}")
+      end
     end
   end
 

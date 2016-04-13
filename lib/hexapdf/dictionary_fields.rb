@@ -272,7 +272,7 @@ module HexaPDF
       end
 
       # :nodoc:
-      DATE_RE = /\AD:(\d{4})(\d\d)?(\d\d)?(\d\d)?(\d\d)?(\d\d)?([Z+-])?(?:(\d\d)')?(\d\d)?'?\z/n
+      DATE_RE = /\AD:(\d{4})(\d\d)?(\d\d)?(\d\d)?(\d\d)?(\d\d)?([Z+-])?(?:(\d\d)(?:'|'(\d\d)|\z)?)?\z/n
 
       # Returns +true+ if the given data should be converted to a Time object.
       def self.convert?(data, _type)
@@ -281,10 +281,10 @@ module HexaPDF
 
       # Converts the string into a Time object.
       def self.convert(str, _type, _document)
-        match = DATE_RE.match(str)
-        utc_offset = (match[7].nil? || match[7] == 'Z' ? 0 : "#{match[7]}#{match[8]}:#{match[9]}")
-        Time.new(match[1].to_i, (match[2] ? match[2].to_i : 1), (match[3] ? match[3].to_i : 1),
-                 match[4].to_i, match[5].to_i, match[6].to_i, utc_offset)
+        m = DATE_RE.match(str)
+        utc_offset = (m[7].nil? || m[7] == 'Z' ? 0 : "#{m[7]}#{m[8]}:#{m[9] || '00'}")
+        Time.new(m[1].to_i, (m[2] ? m[2].to_i : 1), (m[3] ? m[3].to_i : 1),
+                 m[4].to_i, m[5].to_i, m[6].to_i, utc_offset)
       end
 
     end
