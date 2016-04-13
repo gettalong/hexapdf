@@ -52,7 +52,7 @@ describe HexaPDF::Filter do
     end
 
     it "fails if not all requested bytes could be read" do
-      assert_raises(HexaPDF::Error) do
+      assert_raises(HexaPDF::FilterError) do
         collector(@obj.source_from_io(@io, length: 200))
       end
     end
@@ -81,7 +81,7 @@ describe HexaPDF::Filter do
     end
 
     it "fails if more bytes are requested than stored in the file" do
-      assert_raises(HexaPDF::Error) do
+      assert_raises(HexaPDF::FilterError) do
         collector(@obj.source_from_file(@file.path, length: 200))
       end
     end

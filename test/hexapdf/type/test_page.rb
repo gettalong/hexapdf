@@ -47,7 +47,7 @@ describe HexaPDF::Type::Page do
 
     it "fails if no parent node is associated" do
       page = @doc.add(Type: :Page)
-      assert_raises(HexaPDF::Error) { page[:Resources] }
+      assert_raises(HexaPDF::InvalidPDFObjectError) { page[:Resources] }
     end
   end
 
