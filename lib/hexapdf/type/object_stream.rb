@@ -114,7 +114,11 @@ module HexaPDF
         objects[obj]
       end
 
-      # Writes the added objects to the stream.
+      # :call-seq:
+      #   objstm.write_objects(revision)    -> obj_to_stm_hash
+      #
+      # Writes the added objects to the stream and returns a hash mapping all written objects to
+      # this object stream.
       #
       # There are some reasons why an added object may not be stored in the stream:
       #
@@ -129,6 +133,7 @@ module HexaPDF
         object_info = ''.force_encoding(Encoding::BINARY)
         data = ''.force_encoding(Encoding::BINARY)
         serializer = Serializer.new
+        obj_to_stm = {}
 
         encrypt_dict = document.trailer[:Encrypt]
         while index < objects.size / 2
@@ -138,6 +143,7 @@ module HexaPDF
             next
           end
 
+          obj_to_stm[obj] = self
           object_info << "#{obj.oid} #{data.size} "
           data << serializer.serialize(obj) << " "
           index += 1
@@ -148,6 +154,8 @@ module HexaPDF
         value[:First] = object_info.size
         self.stream = object_info << data
         set_filter(:FlateDecode)
+
+        obj_to_stm
       end
 
       private

@@ -54,14 +54,14 @@ module HexaPDF
     # cross-reference section or stream if applicable.
     def write_revision(rev, previous_xref_pos = nil)
       xref_stream, object_streams = xref_and_object_streams(rev)
-      object_streams.each {|stm| stm.write_objects(rev)}
+      obj_to_stm = object_streams.each_with_object({}) {|stm, m| m.update(stm.write_objects(rev))}
 
       xref_section = XRefSection.new
       xref_section.add_free_entry(0, 65535) if previous_xref_pos.nil?
       rev.each do |obj|
         if obj.null?
           xref_section.add_free_entry(obj.oid, obj.gen)
-        elsif (objstm = object_streams.find {|stm| stm.object_index(obj)})
+        elsif (objstm = obj_to_stm[obj])
           xref_section.add_compressed_entry(obj.oid, objstm.oid, objstm.object_index(obj))
         elsif obj != xref_stream
           xref_section.add_in_use_entry(obj.oid, obj.gen, @io.pos)
