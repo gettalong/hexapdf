@@ -13,23 +13,23 @@ describe HexaPDF::Font::TTF::File do
     @file.config['font.ttf.table_mapping'][:TEST] = TestHelper::TTFTestTable.name
   end
 
-  describe "table" do
+  describe "[]" do
     it "returns a named table" do
-      table = @file.table(:TEST)
+      table = @file[:TEST]
       assert_equal('ENTRY', table.data)
     end
 
     it "always returns the same table instance" do
-      assert_same(@file.table(:TEST), @file.table(:TEST))
+      assert_same(@file[:TEST], @file[:TEST])
     end
 
     it "returns a generic table if no mapping exists" do
       @file.config['font.ttf.table_mapping'].delete(:TEST)
-      assert_kind_of(HexaPDF::Font::TTF::Table, @file.table(:TEST))
+      assert_kind_of(HexaPDF::Font::TTF::Table, @file[:TEST])
     end
 
     it "returns nil if the named table doesn't exist in the file" do
-      assert_nil(@file.table(:OTHE))
+      assert_nil(@file[:OTHE])
     end
   end
 end

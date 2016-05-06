@@ -45,7 +45,7 @@ module HexaPDF
         end
 
         # Returns the table instance for the given tag (a symbol), or +nil+ if no such table exists.
-        def table(tag)
+        def [](tag)
           return @tables[tag] if @tables.key?(tag)
 
           klass = config['font.ttf.table_mapping'].fetch(tag, 'HexaPDF::Font::TTF::Table')
