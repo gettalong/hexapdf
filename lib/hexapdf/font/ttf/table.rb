@@ -14,6 +14,7 @@ module HexaPDF
         autoload(:Directory, 'hexapdf/font/ttf/table/directory')
         autoload(:Head, 'hexapdf/font/ttf/table/head')
         autoload(:Cmap, 'hexapdf/font/ttf/table/cmap')
+        autoload(:Hhea, 'hexapdf/font/ttf/table/hhea')
 
 
         # The time Epoch used in sfnt-formatted font files.
