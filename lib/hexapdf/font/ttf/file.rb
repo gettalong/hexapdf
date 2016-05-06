@@ -9,9 +9,15 @@ module HexaPDF
       # Represents a file in the TrueType font file format.
       class File
 
-        # The default mapping from table tag as symbol to table class name.
-        DEFAULT_MAPPING = {
-          head: 'HexaPDF::Font::TTF::Table::Head',
+        # The default configuration:
+        #
+        # font.ttf.table_mapping::
+        #     The default mapping from table tag as symbol to table class name.
+        DEFAULT_CONFIG = {
+          'font.ttf.table_mapping' => {
+            head: 'HexaPDF::Font::TTF::Table::Head',
+            cmap: 'HexaPDF::Font::TTF::Table::Cmap',
+          },
         }
 
 
@@ -19,14 +25,16 @@ module HexaPDF
         # originally read from an IO stream.
         attr_reader :io
 
-        # The mapping from table tag as symbol to table class name.
-        attr_reader :table_mapping
+        # The configuration for the TTF font.
+        attr_reader :config
 
         # Creates a new TrueType font file object. If an IO object is given, the TTF font data is
         # read from it.
-        def initialize(io = nil)
+        #
+        # The +config+ hash can contain configuration options.
+        def initialize(io = nil, config = {})
           @io = io
-          @table_mapping = DEFAULT_MAPPING.dup
+          @config = DEFAULT_CONFIG.merge(config)
           @tables = {}
         end
 
@@ -34,7 +42,7 @@ module HexaPDF
         def table(tag)
           return @tables[tag] if @tables.key?(tag)
 
-          klass = table_mapping.fetch(tag, 'HexaPDF::Font::TTF::Table')
+          klass = config['font.ttf.table_mapping'].fetch(tag, 'HexaPDF::Font::TTF::Table')
           entry = directory.entry(tag.to_s.b)
           entry ? @tables[tag] = ::Object.const_get(klass).new(self, entry) : nil
         end

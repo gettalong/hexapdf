@@ -10,7 +10,7 @@ describe HexaPDF::Font::TTF::File do
     @io = StringIO.new("TEST\x00\x01\x00\x00\x00\x00\x00\x00" \
                        "TEST----\x00\x00\x00\x1C\x00\x00\x00\x05ENTRY".b)
     @file = HexaPDF::Font::TTF::File.new(@io)
-    @file.table_mapping[:TEST] = TestHelper::TTFTestTable.name
+    @file.config['font.ttf.table_mapping'][:TEST] = TestHelper::TTFTestTable.name
   end
 
   describe "table" do
@@ -24,7 +24,7 @@ describe HexaPDF::Font::TTF::File do
     end
 
     it "returns a generic table if no mapping exists" do
-      @file.table_mapping.delete(:TEST)
+      @file.config['font.ttf.table_mapping'].delete(:TEST)
       assert_kind_of(HexaPDF::Font::TTF::Table, @file.table(:TEST))
     end
 
