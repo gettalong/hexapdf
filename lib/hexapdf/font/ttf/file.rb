@@ -22,6 +22,7 @@ module HexaPDF
             head: 'HexaPDF::Font::TTF::Table::Head',
             cmap: 'HexaPDF::Font::TTF::Table::Cmap',
             hhea: 'HexaPDF::Font::TTF::Table::Hhea',
+            hmtx: 'HexaPDF::Font::TTF::Table::Hmtx',
           },
           'font.ttf.cmap.unknown_format' => :ignore,
         }
