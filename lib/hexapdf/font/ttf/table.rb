@@ -17,6 +17,7 @@ module HexaPDF
         autoload(:Hhea, 'hexapdf/font/ttf/table/hhea')
         autoload(:Hmtx, 'hexapdf/font/ttf/table/hmtx')
         autoload(:Loca, 'hexapdf/font/ttf/table/loca')
+        autoload(:Maxp, 'hexapdf/font/ttf/table/maxp')
 
 
         # The time Epoch used in sfnt-formatted font files.

@@ -24,6 +24,7 @@ module HexaPDF
             hhea: 'HexaPDF::Font::TTF::Table::Hhea',
             hmtx: 'HexaPDF::Font::TTF::Table::Hmtx',
             loca: 'HexaPDF::Font::TTF::Table::Loca',
+            maxp: 'HexaPDF::Font::TTF::Table::Maxp',
           },
           'font.ttf.cmap.unknown_format' => :ignore,
         }
