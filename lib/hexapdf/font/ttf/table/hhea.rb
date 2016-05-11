@@ -57,10 +57,10 @@ module HexaPDF
           private
 
           def parse_table #:nodoc:
-            @version = Rational(io.read(4).unpack('N').first, 65536)
+            @version = read_fixed
             @ascent, @descent, @line_gap, @advance_width_max, @min_left_side_bearing,
               @min_right_side_bearing, @x_max_extent, @caret_slope_rise, @caret_slope_run,
-              @caret_offset, @num_of_long_hor_metrics = read_formatted(36, 's>3ns>6x10n')
+              @caret_offset, @num_of_long_hor_metrics = read_formatted(32, 's>3ns>6x10n')
           end
 
           def load_default #:nodoc:

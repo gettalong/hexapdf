@@ -58,7 +58,7 @@ module HexaPDF
           private
 
           def parse_table #:nodoc:
-            @version = Rational(read_formatted(4, 'N').first, 65536)
+            @version = read_fixed
             @num_glyphs, @max_points, @max_contours, @max_component_points, @max_component_contours,
               _unuse, @max_twilight_points, @max_storage, @max_function_defs, @max_instruction_defs,
               @max_stack_elements, @max_size_of_instructions, @max_component_elements,

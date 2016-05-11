@@ -73,26 +73,26 @@ module HexaPDF
           private
 
           def parse_table #:nodoc:
-            data = read_formatted(54, 'L>L>N2n2q>2s>4n2s>3')
-            @version = Rational(data[0], 2**16)
-            @font_revision = Rational(data[1], 2**16)
-            @checksum_adjustment = data[2]
-            if data[3] != 0x5F0F3CF5 # the magic number
-              raise HexaPDF::Error, "Invalid magic number in 'head' table: #{data[3].to_s(16)}"
+            @version = read_fixed
+            @font_revision = read_fixed
+            data = read_formatted(46, 'N2n2q>2s>4n2s>3')
+            @checksum_adjustment = data[0]
+            if data[1] != 0x5F0F3CF5 # the magic number
+              raise HexaPDF::Error, "Invalid magic number in 'head' table: #{data[1].to_s(16)}"
             end
-            @flags, @units_per_em = data[4], data[5]
-            @created, @modified = TIME_EPOCH + data[6], TIME_EPOCH + data[7]
-            @bbox = data[8..11]
+            @flags, @units_per_em = data[2], data[3]
+            @created, @modified = TIME_EPOCH + data[4], TIME_EPOCH + data[5]
+            @bbox = data[6..9]
             @mac_style, @smallest_readable_size, @font_direction_hint, @index_to_loc_format =
-              *data[12..15]
-            if data[16] != 0 # glyphDataFormat
-              raise HexaPDF::Error, "Invalid glyph data format value (should be 0): #{data[16]}"
+              *data[10..13]
+            if data[14] != 0 # glyphDataFormat
+              raise HexaPDF::Error, "Invalid glyph data format value (should be 0): #{data[14]}"
             end
           end
 
           def load_default #:nodoc:
-            @version = Rational(1, 1)
-            @font_revision = Rational(1, 1)
+            @version = 1.to_r
+            @font_revision = 1.to_r
             @checksum_adjustment = @flags = @mac_style = @smallest_readable_size =
               @font_direction_hint =  @index_to_loc_format = 0
             @units_per_em = 64
