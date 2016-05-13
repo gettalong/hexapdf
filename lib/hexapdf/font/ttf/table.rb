@@ -20,6 +20,7 @@ module HexaPDF
         autoload(:Maxp, 'hexapdf/font/ttf/table/maxp')
         autoload(:Name, 'hexapdf/font/ttf/table/name')
         autoload(:Post, 'hexapdf/font/ttf/table/post')
+        autoload(:Glyf, 'hexapdf/font/ttf/table/glyf')
 
 
         # The time Epoch used in sfnt-formatted font files.

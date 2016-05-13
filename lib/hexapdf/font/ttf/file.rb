@@ -27,6 +27,7 @@ module HexaPDF
             maxp: 'HexaPDF::Font::TTF::Table::Maxp',
             name: 'HexaPDF::Font::TTF::Table::Name',
             post: 'HexaPDF::Font::TTF::Table::Post',
+            glyf: 'HexaPDF::Font::TTF::Table::Glyf',
           },
           'font.ttf.cmap.unknown_format' => :ignore,
         }
