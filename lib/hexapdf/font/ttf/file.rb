@@ -28,6 +28,7 @@ module HexaPDF
             name: 'HexaPDF::Font::TTF::Table::Name',
             post: 'HexaPDF::Font::TTF::Table::Post',
             glyf: 'HexaPDF::Font::TTF::Table::Glyf',
+            'OS/2': 'HexaPDF::Font::TTF::Table::OS2',
           },
           'font.ttf.cmap.unknown_format' => :ignore,
         }
