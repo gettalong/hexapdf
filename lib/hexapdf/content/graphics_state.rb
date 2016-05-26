@@ -315,6 +315,16 @@ module HexaPDF
       attr_accessor :alpha_source
 
 
+      # The text matrix.
+      #
+      # This attribute is non-nil only when inside a text object.
+      attr_accessor :tm
+
+      # The text line matrix which captures the state of the text matrix at the beginning of a line.
+      #
+      # As with the text matrix the text line matrix is non-nil only when inside a text object.
+      attr_accessor :tlm
+
       # The character spacing in unscaled text units.
       #
       # It specifies the additional spacing used for the horizontal or vertical displacement of
@@ -380,6 +390,8 @@ module HexaPDF
         @stroke_alpha = @fill_alpha = 1.0
         @alpha_source = false
 
+        @tm = nil
+        @tlm = nil
         @character_spacing = 0
         @word_spacing = 0
         @horizontal_scaling = 100
