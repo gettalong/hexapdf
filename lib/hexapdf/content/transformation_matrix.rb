@@ -56,14 +56,14 @@ module HexaPDF
       # The value at the position (3,2) in the matrix.
       attr_reader :f
 
-      # Initializes the transformation matrix to the indenty matrix.
-      def initialize
-        @a = 1
-        @b = 0
-        @c = 0
-        @d = 1
-        @e = 0
-        @f = 0
+      # Initializes the transformation matrix with the given values.
+      def initialize(a = 1, b = 0, c = 0, d = 1, e = 0, f = 0)
+        @a = a
+        @b = b
+        @c = c
+        @d = d
+        @e = e
+        @f = f
       end
 
       # Returns the untransformed coordinates of the given point.
@@ -123,6 +123,13 @@ module HexaPDF
         @d = d1
         self
       end
+
+      # Returns +true+ if the other object is a transformation matrix with the same values.
+      def ==(other)
+        (other.kind_of?(self.class) && @a == other.a && @b == other.b && @c == other.c &&
+          @d == other.d && @e == other.e && @f == other.f)
+      end
+
 
     end
 
