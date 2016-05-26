@@ -2,6 +2,7 @@
 
 require 'hexapdf/error'
 require 'hexapdf/content/graphics_state'
+require 'hexapdf/content/transformation_matrix'
 
 module HexaPDF
   module Content
@@ -773,6 +774,8 @@ module HexaPDF
 
         def invoke(processor) #:nodoc:
           processor.graphics_object = :text
+          processor.graphics_state.tm = TransformationMatrix.new
+          processor.graphics_state.tlm = TransformationMatrix.new
         end
 
       end
@@ -789,6 +792,8 @@ module HexaPDF
 
         def invoke(processor) #:nodoc:
           processor.graphics_object = :none
+          processor.graphics_state.tm = nil
+          processor.graphics_state.tlm = nil
         end
 
       end
@@ -804,7 +809,8 @@ module HexaPDF
         end
 
         def invoke(processor, tx, ty) #:nodoc:
-          :todo # TODO
+          processor.graphics_state.tlm.translate(tx, ty)
+          processor.graphics_state.tm = processor.graphics_state.tlm.dup
         end
 
         def serialize(serializer, tx, ty) #:nodoc:
@@ -845,7 +851,8 @@ module HexaPDF
         end
 
         def invoke(processor, a, b, c, d, e, f) #:nodoc:
-          :todo # TODO
+          processor.graphics_state.tm = TransformationMatrix.new(a, b, c, d, e, f)
+          processor.graphics_state.tlm = processor.graphics_state.tm.dup
         end
 
         def serialize(serializer, a, b, c, d, e, f) #:nodoc:

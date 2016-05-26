@@ -459,22 +459,36 @@ describe_operator :SetTextRise, :Ts do
 end
 
 describe_operator :BeginText, :BT do
-  it "changes the graphics object to text" do
+  it "changes the graphics object to text and the tm/tlm to the identity matrix" do
     @processor.graphics_object = :none
     invoke
     assert_equal(:text, @processor.graphics_object)
+    assert_equal(HexaPDF::Content::TransformationMatrix.new, @processor.graphics_state.tm)
+    assert_equal(HexaPDF::Content::TransformationMatrix.new, @processor.graphics_state.tlm)
   end
 end
 
 describe_operator :EndText, :ET do
-  it "changes the graphics object to :none" do
+  it "changes the graphics object to :none and undefines the text and text line matrices" do
     @processor.graphics_object = :text
     invoke
     assert_equal(:none, @processor.graphics_object)
+    assert_nil(@processor.graphics_state.tm)
+    assert_nil(@processor.graphics_state.tlm)
   end
 end
 
 describe_operator :MoveText, :Td do
+  it "correctly updates the text and text line matrices" do
+    @processor.graphics_state.tm = HexaPDF::Content::TransformationMatrix.new
+    @processor.graphics_state.tlm = HexaPDF::Content::TransformationMatrix.new
+    invoke(5, 10)
+    assert_equal(HexaPDF::Content::TransformationMatrix.new(1, 0, 0, 1, 5, 10),
+                 @processor.graphics_state.tm)
+    assert_equal(HexaPDF::Content::TransformationMatrix.new(1, 0, 0, 1, 5, 10),
+                 @processor.graphics_state.tlm)
+  end
+
   it "serializes correctly" do
     assert_serialized(1.54, 1.78)
   end
@@ -500,6 +514,16 @@ describe_operator :MoveTextAndSetLeading, :TD do
 end
 
 describe_operator :SetTextMatrix, :Tm do
+  it "correctly sets the text and text line matrices" do
+    @processor.graphics_state.tm = HexaPDF::Content::TransformationMatrix.new
+    @processor.graphics_state.tlm = HexaPDF::Content::TransformationMatrix.new
+    invoke(2, 3, 4, 5, 6, 7)
+    assert_equal(HexaPDF::Content::TransformationMatrix.new(2, 3, 4, 5, 6, 7),
+                 @processor.graphics_state.tm)
+    assert_equal(HexaPDF::Content::TransformationMatrix.new(2, 3, 4, 5, 6, 7),
+                 @processor.graphics_state.tlm)
+  end
+
   it "serializes correctly" do
     assert_serialized(1, 2, 3, 4, 5, 6)
   end
