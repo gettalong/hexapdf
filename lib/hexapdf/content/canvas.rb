@@ -1499,6 +1499,29 @@ module HexaPDF
         self
       end
 
+      # :call-seq:
+      #   canvas.text_matrix(a, b, c, d, e, f)     => canvas
+      #
+      # Sets the text matrix (and the text line matrix) to the given matrix and returns self.
+      #
+      # The given values are interpreted as a matrix in the following way:
+      #
+      #   a b 0
+      #   c d 0
+      #   e f 1
+      #
+      # Examples:
+      #
+      #   canvas.begin_text
+      #   canvas.text_matrix(1, 0, 0, 1, 100, 100)
+      #
+      # See: PDF1.7 s9.4.2
+      def text_matrix(a, b, c, d, e, f)
+        raise_unless_in_text
+        invoke(:Tm, a, b, c, d, e, f)
+        self
+      end
+
       private
 
       def init_contents(strategy)
@@ -1558,8 +1581,16 @@ module HexaPDF
       def raise_unless_at_page_description_level_or_in_path
         end_text if graphics_object == :text
         if graphics_object != :none && graphics_object != :path
-          raise HexaPDF::Error, "Operation only allowed when current graphics object is a" \
+          raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
             "path object or if there is no current object"
+        end
+      end
+
+      # Raises an error unless the current graphics object is a text object.
+      def raise_unless_in_text
+        if graphics_object != :text
+          raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
+            "text object"
         end
       end
 

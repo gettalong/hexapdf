@@ -981,4 +981,22 @@ describe HexaPDF::Content::Canvas do
       assert_raises_in_graphics_object(:path, :clipping_path) { @canvas.end_text }
     end
   end
+
+  describe "text_matrix" do
+    it "invokes the operator implementation" do
+      @canvas.begin_text
+      assert_operator_invoked(:Tm, 1, 2, 3, 4, 5, 6) { @canvas.text_matrix(1, 2, 3, 4, 5, 6) }
+    end
+
+    it "returns the canvas object" do
+      @canvas.begin_text
+      assert_equal(@canvas, @canvas.text_matrix(1, 1, 1, 1, 1, 1))
+    end
+
+    it "fails if invoked while not in a text object" do
+      assert_raises_in_graphics_object(:none, :path, :clipping_path) do
+        @canvas.text_matrix(1, 1, 1, 1, 1, 1)
+      end
+    end
+  end
 end
