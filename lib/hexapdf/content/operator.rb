@@ -890,10 +890,6 @@ module HexaPDF
           super('Tj')
         end
 
-        def invoke(processor, text) #:nodoc:
-          :todo # TODO
-        end
-
         def serialize(serializer, text) #:nodoc:
           "#{serializer.serialize_string(text)} Tj\n".freeze
         end
@@ -953,10 +949,6 @@ module HexaPDF
         # Creates the operator.
         def initialize
           super('TJ')
-        end
-
-        def invoke(processor, array) #:nodoc:
-          :todo # TODO
         end
 
         def serialize(serializer, array) #:nodoc:
