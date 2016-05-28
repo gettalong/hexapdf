@@ -291,6 +291,7 @@ module HexaPDF
                         Filespec: 'HexaPDF::Type::FileSpecification',
                         EmbeddedFile: 'HexaPDF::Type::EmbeddedFile',
                         ExtGState: 'HexaPDF::Type::GraphicsStateParameter',
+                        FontDescriptor: 'HexaPDF::Type::FontDescriptor',
                         XXEmbeddedFileParameters: 'HexaPDF::Type::EmbeddedFile::Parameters',
                         XXEmbeddedFileParametersMacInfo: 'HexaPDF::Type::EmbeddedFile::MacInfo',
                         XXFilespecEFDictionary: 'HexaPDF::Type::FileSpecification::EFDictionary',
