@@ -33,7 +33,4 @@ describe HexaPDF::Rectangle do
     assert_equal(2, rect.width)
     assert_equal(4, rect.height)
   end
-
-  it "returns the height of the rectangle" do
-  end
 end
