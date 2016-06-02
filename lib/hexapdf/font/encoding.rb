@@ -15,6 +15,7 @@ module HexaPDF
       autoload(:MacExpertEncoding, 'hexapdf/font/encoding/mac_expert_encoding')
       autoload(:SymbolEncoding, 'hexapdf/font/encoding/symbol_encoding')
       autoload(:ZapfDingbatsEncoding, 'hexapdf/font/encoding/zapf_dingbats_encoding')
+      autoload(:DifferenceEncoding, 'hexapdf/font/encoding/difference_encoding')
       autoload(:GlyphList, 'hexapdf/font/encoding/glyph_list')
 
       # Returns the encoding object for the given name, or +nil+ if no such encoding is available.
