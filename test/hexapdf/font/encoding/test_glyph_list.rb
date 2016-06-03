@@ -36,9 +36,9 @@ describe HexaPDF::Font::Encoding::GlyphList do
       assert_equal("\u275e", @list.name_to_unicode(:a100, zapf_dingbats: true))
     end
 
-    it "returns nil for unknown glyph names" do
-      assert_nil(@list.name_to_unicode(:MyUnknownGlyphName))
-      assert_nil(@list.name_to_unicode(:a100))
+    it "returns an empty string for unknown glyph names" do
+      assert_equal('', @list.name_to_unicode(:MyUnknownGlyphName))
+      assert_equal('', @list.name_to_unicode(:a100))
     end
   end
 
