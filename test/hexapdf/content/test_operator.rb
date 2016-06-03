@@ -194,21 +194,27 @@ describe_operator :SetGraphicsStateParameters, :gs do
   it "applies parameters from an ExtGState dictionary" do
     @processor.resources[:ExtGState] = {Name: {LW: 10, LC: 2, LJ: 2, ML: 2, D: [[3, 5], 2],
                                                RI: 2, SA: true, BM: :Multiply, CA: 0.5, ca: 0.5,
-                                               AIS: true, TK: false}}
+                                               AIS: true, TK: false, Font: [:Test, 10]}}
+    @processor.resources.define_singleton_method(:document) do
+      Object.new.tap {|obj| obj.define_singleton_method(:deref) {|o| o}}
+    end
+
     invoke(:Name)
-    assert_equal(10, @processor.graphics_state.line_width)
-    assert_equal(2, @processor.graphics_state.line_cap_style)
-    assert_equal(2, @processor.graphics_state.line_join_style)
-    assert_equal(2, @processor.graphics_state.miter_limit)
-    assert_equal(HexaPDF::Content::LineDashPattern.new([3, 5], 2),
-                 @processor.graphics_state.line_dash_pattern)
-    assert_equal(2, @processor.graphics_state.rendering_intent)
-    assert(@processor.graphics_state.stroke_adjustment)
-    assert_equal(:Multiply, @processor.graphics_state.blend_mode)
-    assert_equal(0.5, @processor.graphics_state.stroke_alpha)
-    assert_equal(0.5, @processor.graphics_state.fill_alpha)
-    assert(@processor.graphics_state.alpha_source)
-    refute(@processor.graphics_state.text_knockout)
+    gs = @processor.graphics_state
+    assert_equal(10, gs.line_width)
+    assert_equal(2, gs.line_cap_style)
+    assert_equal(2, gs.line_join_style)
+    assert_equal(2, gs.miter_limit)
+    assert_equal(HexaPDF::Content::LineDashPattern.new([3, 5], 2), gs.line_dash_pattern)
+    assert_equal(2, gs.rendering_intent)
+    assert(gs.stroke_adjustment)
+    assert_equal(:Multiply, gs.blend_mode)
+    assert_equal(0.5, gs.stroke_alpha)
+    assert_equal(0.5, gs.fill_alpha)
+    assert(gs.alpha_source)
+    assert_equal(:Test, gs.font)
+    assert_equal(10, gs.font_size)
+    refute(gs.text_knockout)
   end
 
   it "fails if the resources dictionary doesn't have an ExtGState entry" do
@@ -439,6 +445,17 @@ describe_operator :SetLeading, :TL do
 end
 
 describe_operator :SetFontAndSize, :Tf do
+  it "sets the font and size correctly" do
+    @processor.resources.define_singleton_method(:font) do |name|
+      self[:Font] && self[:Font][name]
+    end
+
+    @processor.resources[:Font] = {F1: :test}
+    invoke(:F1, 10)
+    assert_equal(@processor.resources.font(:F1), @processor.graphics_state.font)
+    assert_equal(10, @processor.graphics_state.font_size)
+  end
+
   it "serializes correctly" do
     assert_serialized(:Font, 1.78)
   end

@@ -301,6 +301,10 @@ module HexaPDF
           gs.fill_alpha = dict[:ca] if dict.key?(:ca)
           gs.alpha_source = dict[:AIS] if dict.key?(:AIS)
           gs.text_knockout = dict[:TK] if dict.key?(:TK)
+          if dict.key?(:Font)
+            gs.font = processor.resources.document.deref(dict[:Font][0])
+            gs.font_size = processor.resources.document.deref(dict[:Font][1])
+          end
         end
 
         def serialize(serializer, name) #:nodoc:
@@ -722,7 +726,8 @@ module HexaPDF
         end
 
         def invoke(processor, font, size) #:nodoc:
-          :todo # TODO
+          processor.graphics_state.font = processor.resources.font(font)
+          processor.graphics_state.font_size = size
         end
 
         def serialize(serializer, font, size) #:nodoc:
