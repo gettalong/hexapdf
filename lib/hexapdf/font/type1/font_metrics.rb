@@ -48,10 +48,10 @@ module HexaPDF
         attr_accessor :descender
 
         # Dominant width of horizontal stems.
-        attr_accessor :std_hw
+        attr_accessor :dominant_horizontal_stem_width
 
         # Dominant width of vertical stems.
-        attr_accessor :std_vw
+        attr_accessor :dominant_vertical_stem_width
 
 
         # Distance from the baseline for centering underlining strokes.

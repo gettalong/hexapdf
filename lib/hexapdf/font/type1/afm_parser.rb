@@ -92,8 +92,8 @@ module HexaPDF
           when :XHeight then @metrics.x_height = parse_number
           when :Ascender then @metrics.ascender = parse_number
           when :Descender then @metrics.descender = parse_number
-          when :StdHW then @metrics.std_hw = parse_number
-          when :StdVW then @metrics.std_vw = parse_number
+          when :StdHW then @metrics.dominant_horizontal_stem_width = parse_number
+          when :StdVW then @metrics.dominant_vertical_stem_width = parse_number
           when :UnderlinePosition then @metrics.underline_position = parse_number
           when :UnderlineThickness then @metrics.underline_thickness = parse_number
           when :ItalicAngle then @metrics.italic_angle = parse_number
