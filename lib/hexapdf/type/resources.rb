@@ -109,6 +109,20 @@ module HexaPDF
         object_setter(:ExtGState, 'GS'.freeze, object)
       end
 
+      # Returns the font dictionary stored under the given name.
+      #
+      # If the dictionary is not found, an error is raised.
+      def font(name)
+        object_getter(:Font, name)
+      end
+
+      # Adds the font dictionary to the resources and returns the name under which it is stored.
+      #
+      # If there already exists a name for the given dictionary, it is just returned.
+      def add_font(object)
+        object_setter(:Font, 'F'.freeze, object)
+      end
+
       private
 
       # Helper method for returning an entry of a subdictionary.

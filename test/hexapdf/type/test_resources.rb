@@ -136,6 +136,22 @@ describe HexaPDF::Type::Resources do
     end
   end
 
+  describe "find" do
+    it "invokes the object_getter method" do
+      assert_method_invoked(@res, :object_getter, [:Font, :test]) do
+        @res.font(:test)
+      end
+    end
+  end
+
+  describe "add_font" do
+    it "invokes the object_setter method" do
+      assert_method_invoked(@res, :object_setter, [:Font, 'F', :test]) do
+        @res.add_font(:test)
+      end
+    end
+  end
+
   describe "validation" do
     it "assigns the default value if ProcSet is not set" do
       @res.validate
