@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require_relative 'common'
 require 'hexapdf/content/canvas'
 require 'hexapdf/document'
 require 'hexapdf/content/processor'
@@ -8,9 +9,7 @@ require 'hexapdf/content/parser'
 
 describe HexaPDF::Content::Canvas do
   before do
-    @recorder = TestHelper::OperatorRecorder.new
-    @processor = HexaPDF::Content::Processor.new({}, renderer: @recorder)
-    @processor.operators.clear
+    @processor = TestHelper::OperatorRecorder.new
     @parser = HexaPDF::Content::Parser.new
 
     @doc = HexaPDF::Document.new
@@ -21,9 +20,9 @@ describe HexaPDF::Content::Canvas do
 
   # Asserts that the content string contains the operators.
   def assert_operators(content, operators)
-    @recorder.operations.clear
+    @processor.recorded_ops.clear
     @parser.parse(content, @processor)
-    assert_equal(operators, @recorder.operators)
+    assert_equal(operators, @processor.recorded_ops)
   end
 
   # Asserts that a specific operator is invoked when the block is executed.
@@ -660,10 +659,10 @@ describe HexaPDF::Content::Canvas do
 
     it "serializes correctly" do
       @canvas.circle(0, 0, 1)
-      @recorder.operations.clear
+      @processor.recorded_ops.clear
       @parser.parse(@page.contents, @processor)
       assert_equal([:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
-                   @recorder.operators.map(&:first))
+                   @processor.recorded_ops.map(&:first))
     end
 
     it "returns the canvas object" do
@@ -680,10 +679,10 @@ describe HexaPDF::Content::Canvas do
 
     it "serializes correctly" do
       @canvas.ellipse(0, 0, a: 10, b: 5, inclination: 10)
-      @recorder.operations.clear
+      @processor.recorded_ops.clear
       @parser.parse(@page.contents, @processor)
       assert_equal([:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
-                   @recorder.operators.map(&:first))
+                   @processor.recorded_ops.map(&:first))
     end
 
     it "returns the canvas object" do
@@ -939,7 +938,7 @@ describe HexaPDF::Content::Canvas do
       @canvas.begin_text
       @canvas.begin_text(force_new: true)
       @parser.parse(@page.contents, @processor)
-      assert_equal([:begin_text, :end_text, :begin_text], @recorder.operators.map(&:first))
+      assert_equal([:begin_text, :end_text, :begin_text], @processor.recorded_ops.map(&:first))
     end
 
     it "returns the canvas object" do
@@ -970,7 +969,7 @@ describe HexaPDF::Content::Canvas do
       @canvas.end_text
       @canvas.end_text
       @parser.parse(@page.contents, @processor)
-      assert_equal([:begin_text, :end_text], @recorder.operators.map(&:first))
+      assert_equal([:begin_text, :end_text], @processor.recorded_ops.map(&:first))
     end
 
     it "returns the canvas object" do

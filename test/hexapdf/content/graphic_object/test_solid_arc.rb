@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require_relative '../common'
 require 'hexapdf/content/canvas'
 require 'hexapdf/content/parser'
 require 'hexapdf/content/processor'
@@ -41,12 +42,10 @@ describe HexaPDF::Content::GraphicObject::SolidArc do
 
   describe "draw" do
     def operators(content)
-      recorder = TestHelper::OperatorRecorder.new
-      processor = HexaPDF::Content::Processor.new({}, renderer: recorder)
-      processor.operators.clear
+      processor = TestHelper::OperatorRecorder.new
       parser = HexaPDF::Content::Parser.new
       parser.parse(content, processor)
-      recorder.operators
+      processor.recorded_ops
     end
 
     before do

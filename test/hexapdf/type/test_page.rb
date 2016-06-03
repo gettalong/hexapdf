@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require_relative '../content/common'
 require 'stringio'
 require 'hexapdf/document'
 require 'hexapdf/type/page'
@@ -155,10 +156,10 @@ describe HexaPDF::Type::Page do
     it "parses the contents and processes it" do
       page = @doc.pages.add_page
       page[:Contents] = @doc.wrap({}, stream: 'q 10 w Q')
-      renderer = TestHelper::OperatorRecorder.new
-      page.process_contents(renderer) {|processor| processor.operators.clear}
+      processor = TestHelper::OperatorRecorder.new
+      page.process_contents(processor)
       assert_equal([[:save_graphics_state], [:set_line_width, [10]], [:restore_graphics_state]],
-                   renderer.operators)
+                   processor.recorded_ops)
     end
   end
 

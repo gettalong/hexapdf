@@ -49,25 +49,6 @@ module TestHelper
     end
     str
   end
-
-  # Can be used to record operators parsed from content streams.
-  class OperatorRecorder
-
-    attr_reader :operators
-
-    def initialize
-      @operators = []
-    end
-
-    def respond_to_missing?(*)
-      true
-    end
-
-    def method_missing(msg, *params)
-      @operators << (params.empty? ? [msg] : [msg, params])
-    end
-  end
-
 end
 
 class Minitest::Spec

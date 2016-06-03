@@ -338,9 +338,9 @@ end
 
 describe_operator :MoveTo, :m do
   it "changes the graphics object to path" do
-    refute(@processor.in_path?)
+    refute_equal(:path, @processor.graphics_object)
     invoke(128, 0)
-    assert(@processor.in_path?)
+    assert_equal(:path, @processor.graphics_object)
   end
 
   it "serializes correctly" do
@@ -350,9 +350,9 @@ end
 
 describe_operator :AppendRectangle, :re do
   it "changes the graphics object to path" do
-    refute(@processor.in_path?)
+    refute_equal(:path, @processor.graphics_object)
     invoke(128, 0, 10, 10)
-    assert(@processor.in_path?)
+    assert_equal(:path, @processor.graphics_object)
   end
 
   it "serializes correctly" do
@@ -389,7 +389,7 @@ end
     it "changes the graphics object to none" do
       @processor.graphics_object = :path
       invoke
-      refute(@processor.in_path?)
+      refute_equal(:path, @processor.graphics_object)
     end
   end
 end

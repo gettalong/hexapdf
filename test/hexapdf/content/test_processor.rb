@@ -5,7 +5,7 @@ require 'hexapdf/content/processor'
 
 describe HexaPDF::Content::Processor do
   before do
-    @processor = HexaPDF::Content::Processor.new({})
+    @processor = HexaPDF::Content::Processor.new
   end
 
   describe "initialization" do
@@ -18,20 +18,6 @@ describe HexaPDF::Content::Processor do
     it "default to :none on initialization" do
       assert_equal(:none, @processor.graphics_object)
     end
-
-    it "can be checked if we are in a text object" do
-      refute(@processor.in_text?)
-      @processor.graphics_object = :text
-      assert(@processor.in_text?)
-    end
-
-    it "can be checked if we are in a path object" do
-      refute(@processor.in_path?)
-      @processor.graphics_object = :path
-      assert(@processor.in_path?)
-      @processor.graphics_object = :clipping_path
-      assert(@processor.in_path?)
-    end
   end
 
   describe "process" do
@@ -43,11 +29,10 @@ describe HexaPDF::Content::Processor do
       op.verify
     end
 
-    it "invokes the renderer with the mapped message name" do
+    it "invokes the mapped message name" do
       val = nil
-      renderer = Object.new
-      renderer.define_singleton_method(:save_graphics_state) { val = :arg }
-      @processor = HexaPDF::Content::Processor.new({}, renderer: renderer)
+      @processor = HexaPDF::Content::Processor.new
+      @processor.define_singleton_method(:save_graphics_state) { val = :arg }
       @processor.process(:q)
       assert_equal(:arg, val)
     end

@@ -198,15 +198,12 @@ module HexaPDF
         self[:Resources] ||= document.wrap({}, type: :XXResources)
       end
 
-      # Processes the content streams associated with the page with a Content::Processor object
-      # and calls the callback methods for the found operators in the given +renderer+ object.
+      # Processes the content streams associated with the page with the given processor object.
       #
-      # The processor object is yielded if a block is given so that it can be customized before
-      # use.
-      def process_contents(renderer)
+      # See: HexaPDF::Content::Processor
+      def process_contents(processor)
         self[:Resources] = {} if self[:Resources].nil?
-        processor = Content::Processor.new(self[:Resources], renderer: renderer)
-        yield(processor) if block_given?
+        processor.resources = self[:Resources]
         Content::Parser.parse(contents, processor)
       end
 

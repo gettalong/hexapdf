@@ -4,6 +4,7 @@ require 'test_helper'
 require 'hexapdf/content/parser'
 require 'hexapdf/content/processor'
 require_relative '../common_tokenizer_tests'
+require_relative 'common'
 
 describe HexaPDF::Content::Tokenizer do
   include CommonTokenizerTests
@@ -15,9 +16,7 @@ end
 
 describe HexaPDF::Content::Parser do
   before do
-    @recorder = TestHelper::OperatorRecorder.new
-    @processor = HexaPDF::Content::Processor.new({}, renderer: @recorder)
-    @processor.operators.clear
+    @processor = TestHelper::OperatorRecorder.new
     @parser = HexaPDF::Content::Parser.new
   end
 
@@ -26,14 +25,14 @@ describe HexaPDF::Content::Parser do
       @parser.parse("0 0.500 m q Q /Name SCN", @processor)
       assert_equal([[:move_to, [0, 0.5]], [:save_graphics_state],
                     [:restore_graphics_state],
-                    [:set_stroking_color, [:Name]]], @recorder.operators)
+                    [:set_stroking_color, [:Name]]], @processor.recorded_ops)
     end
 
     it "parses a content stream with inline images" do
       @parser.parse("q BI /Name 0.5/Other 1 ID some dataEI Q", @processor)
       assert_equal([[:save_graphics_state],
                     [:inline_image, [{Name: 0.5, Other: 1}, "some data"]],
-                    [:restore_graphics_state]], @recorder.operators)
+                    [:restore_graphics_state]], @processor.recorded_ops)
     end
 
     it "fails parsing inline images if the dictionary keys are not PDF names" do

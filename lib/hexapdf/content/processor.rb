@@ -6,43 +6,34 @@ require 'hexapdf/content/graphics_state'
 module HexaPDF
   module Content
 
-    # This class is used for processing content operators.
+    # This class is used for processing content operators extracted from a content stream.
     #
     # == General Information
     #
-    # When a content stream is read, operators and their operands are extracted. Similarily when a
-    # content stream is created, operators and their operands are written to it. After extracting
-    # or before writing these operators are processed with a processor that ensures that the
-    # needed setup (like modifying the graphics state) is done before a renderer is called.
+    # When a content stream is read, operators and their operands are extracted. After extracting
+    # these operators are normally processed with a Processor instance that ensures that the needed
+    # setup (like modifying the graphics state) is done before further processing.
     #
     # == How Processing Works
     #
-    # Operators are processed with two kinds of objects: operator implementations and renderers.
-    #
     # The operator implementations (see the Operator module) are called first and they ensure that
     # the processing state is consistent. For example, operators that modify the graphics state do
-    # actually modify the #graphics_state object. However, operator implementations are *only*
-    # used for this task and not more, so they are very specific and are provided by HexaPDF.
+    # actually modify the #graphics_state object. However, operator implementations are *only* used
+    # for this task and not more, so they are very specific and normally don't need to be changed.
     #
-    # A renderer is an user provided object that can respond to one or all operator messages. Its
-    # task is to do something useful with the content itself, it doesn't need to concern itself
-    # with ensuring the consistency of the processing state. For example, a renderer could use the
-    # processing state to extract the text. Or paint the content on a canvas.
+    # After that methods corresponding to the operator names are invoked on the processor object (if
+    # they exist). Each PDF operator name is mapped to a nicer message name via the
+    # OPERATOR_MESSAGE_NAME_MAP constant. For example, the operator 'q' is mapped to
+    # 'save_graphics_state".
     #
-    # == Renderer Implementations
-    #
-    # Each PDF operator name is mapped to a nicer message name via the OPERATOR_MESSAGE_NAME_MAP
-    # constant. For example, the operator 'q' is mapped to 'save_graphics_state".
+    # The task of these methods is to do something useful with the content itself, it doesn't need
+    # to concern itself with ensuring the consistency of the processing state. For example, the
+    # processor could use the processing state to extract the text. Or paint the content on a
+    # canvas.
     #
     # For inline images only the 'BI' operator mapped to 'inline_image' is used. Although also the
     # operators 'ID' and 'EI' exist for inline images, they are not used because they are consumed
     # while parsing inline images and do not reflect separate operators.
-    #
-    # When the processor encounters an operator and the renderer responds to the equivalent
-    # message, the renderer is sent the message with the operands as method arguments.
-    #
-    # Therefore a renderer implementation is just a plain old Ruby object that responds to certain
-    # messages.
     class Processor
 
       # Mapping of PDF operator names to message names that are sent to renderer implementations.
@@ -128,7 +119,7 @@ module HexaPDF
       attr_reader :operators
 
       # The resources dictionary used during processing.
-      attr_reader :resources
+      attr_accessor :resources
 
       # The GraphicsState object containing the current graphics state.
       #
@@ -153,32 +144,24 @@ module HexaPDF
 
       # Initializes a new processor that uses the +resources+ PDF dictionary for resolving
       # resources while processing operators.
-      def initialize(resources, renderer: nil)
+      #
+      # It is not mandatory to set the resources dictionary on initialization but it needs to be set
+      # prior to processing operators!
+      def initialize(resources = nil)
         @operators = Operator::DEFAULT_OPERATORS.dup
         @graphics_state = GraphicsState.new
         @resources = resources
-        @renderer = renderer
         @graphics_object = :none
       end
 
       # Processes the operator with the given operands.
       #
       # The operator is first processed with an operator implementation (if any) to ensure correct
-      # operations and then the corresponding method on the renderer is invoked.
+      # operations and then the corresponding method on this object is invoked.
       def process(operator, operands = [])
         @operators[operator].invoke(self, *operands) if @operators.key?(operator)
         msg = OPERATOR_MESSAGE_NAME_MAP[operator]
-        @renderer.send(msg, *operands) if @renderer && @renderer.respond_to?(msg)
-      end
-
-      # Returns +true+ if the current graphics object is a text object.
-      def in_text?
-        @graphics_object == :text
-      end
-
-      # Returns +true+ if the current graphics object is a path or clipping path object.
-      def in_path?
-        @graphics_object == :path || @graphics_object == :clipping_path
+        send(msg, *operands) if msg && respond_to?(msg)
       end
 
     end
