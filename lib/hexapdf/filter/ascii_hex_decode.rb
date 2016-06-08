@@ -46,7 +46,7 @@ module HexaPDF
           while source.alive? && (data = source.resume)
             Fiber.yield(data.unpack('H*').first.force_encoding(Encoding::BINARY))
           end
-          '>'.force_encoding(Encoding::BINARY)
+          '>'.b
         end
       end
 

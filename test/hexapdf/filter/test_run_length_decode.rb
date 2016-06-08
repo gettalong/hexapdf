@@ -8,8 +8,8 @@ describe HexaPDF::Filter::RunLengthDecode do
 
   before do
     @obj = HexaPDF::Filter::RunLengthDecode
-    @all_test_cases ||= [['abcabcaaaabbbcdeffffffagggggg', "\x05abcabc\xFDa\xFEb\x02cde\xFBf\x00a\xFBg\x80"]].
-      each {|a, b| a.force_encoding(Encoding::BINARY); b.force_encoding(Encoding::BINARY)}
+    @all_test_cases ||= [['abcabcaaaabbbcdeffffffagggggg'.b,
+                          "\x05abcabc\xFDa\xFEb\x02cde\xFBf\x00a\xFBg\x80".b]]
     @decoded = @all_test_cases[0][0]
     @encoded = @all_test_cases[0][1]
   end

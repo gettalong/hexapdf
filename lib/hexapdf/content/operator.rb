@@ -68,7 +68,7 @@ module HexaPDF
         #
         #   operand1 operand2 operand3 name
         def serialize(serializer, *operands)
-          result = ''.force_encoding(Encoding::BINARY)
+          result = ''.b
           operands.each do |operand|
             result << serializer.serialize(operand) << " ".freeze
           end

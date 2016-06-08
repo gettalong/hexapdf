@@ -143,7 +143,7 @@ module HexaPDF
         attr_reader :result #:nodoc:
 
         def initialize #:nodoc:
-          @result = ''.force_encoding(Encoding::BINARY)
+          @result = ''.b
           @serializer = HexaPDF::Serializer.new
         end
 

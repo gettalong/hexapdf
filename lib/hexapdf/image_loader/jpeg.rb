@@ -11,7 +11,7 @@ module HexaPDF
     module JPEG
 
       # The magic marker that tells us if the file/IO contains an image in JPEG format.
-      MAGIC_FILE_MARKER = "\xFF\xD8\xFF".force_encoding(Encoding::BINARY)
+      MAGIC_FILE_MARKER = "\xFF\xD8\xFF".b
 
       # The various start-of-frame markers that tell us which kind of JPEG it is. The marker
       # segment itself contains all the needed information needed for creating the PDF image

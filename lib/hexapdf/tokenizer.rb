@@ -49,7 +49,7 @@ module HexaPDF
     # Creates a new tokenizer.
     def initialize(io)
       @io = io
-      @ss = StringScanner.new(''.force_encoding(Encoding::BINARY))
+      @ss = StringScanner.new(''.b)
       @original_pos = -1
       self.pos = 0
     end
@@ -252,7 +252,7 @@ module HexaPDF
     # See: PDF1.7 s7.3.4.2
     def parse_literal_string
       @ss.pos += 1
-      str = "".force_encoding(Encoding::BINARY)
+      str = "".b
       parentheses = 1
 
       while parentheses != 0

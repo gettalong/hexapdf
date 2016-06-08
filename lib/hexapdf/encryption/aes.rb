@@ -61,7 +61,7 @@ module HexaPDF
             algorithm = new(key, data, :encrypt)
             Fiber.yield(data)
 
-            data = ''.force_encoding(Encoding::BINARY)
+            data = ''.b
             while source.alive? && (new_data = source.resume)
               data << new_data
               next if data.length < BLOCK_SIZE
@@ -92,7 +92,7 @@ module HexaPDF
         # Padding and the initialization vector are handled like in #decrypt.
         def decryption_fiber(key, source)
           Fiber.new do
-            data = ''.force_encoding(Encoding::BINARY)
+            data = ''.b
             while data.length < BLOCK_SIZE && source.alive? && (new_data = source.resume)
               data << new_data
             end

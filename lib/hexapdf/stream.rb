@@ -208,7 +208,7 @@ module HexaPDF
     # Makes sure that the stream data is either a String or a StreamData object.
     def after_data_change
       super
-      data.stream ||= ''.force_encoding(Encoding::BINARY)
+      data.stream ||= ''.b
       unless data.stream.kind_of?(StreamData) || data.stream.kind_of?(String)
         raise ArgumentError, "Object of class #{data.stream.class} cannot be used as stream value"
       end

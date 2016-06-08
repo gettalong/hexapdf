@@ -98,7 +98,7 @@ module HexaPDF
             rest = (rlen != 0 ? data.slice!(-rlen, rlen) : nil)
             next if data.length < 4
 
-            data = data.unpack('N*').inject(''.force_encoding(Encoding::BINARY)) do |memo, num|
+            data = data.unpack('N*').inject(''.b) do |memo, num|
               memo << if num == 0
                         'z'
                       else

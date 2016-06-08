@@ -24,7 +24,7 @@ module HexaPDF
       # The magic marker that tells us if the file/IO contains an image in PNG format.
       #
       # See: PNG s5.2
-      MAGIC_FILE_MARKER = "\x89PNG\r\n\x1A\n".force_encoding(Encoding::BINARY)
+      MAGIC_FILE_MARKER = "\x89PNG\r\n\x1A\n".b
 
       # The color type for PNG greyscale images without alpha, see PNG s11.2.2
       GREYSCALE = 0
@@ -313,13 +313,13 @@ module HexaPDF
         bytes_per_alpha = (decode_parms[:BitsPerComponent] + 7) / 8
         bytes_per_row = (decode_parms[:Columns] * decode_parms[:BitsPerComponent] *
           (decode_parms[:Colors] + 1) + 7) / 8 + 1
-        image_data = ''.force_encoding(Encoding::BINARY)
-        mask_data = ''.force_encoding(Encoding::BINARY)
+        image_data = ''.b
+        mask_data = ''.b
 
         flate_decode = GlobalConfiguration.constantize('filter.map', :FlateDecode)
         source = flate_decode.decoder(Fiber.new(&image_data_proc(offset)))
 
-        data = ''.force_encoding(Encoding::BINARY)
+        data = ''.b
         while source.alive? && (new_data = source.resume)
           data << new_data
           while data.length >= bytes_per_row
@@ -353,7 +353,7 @@ module HexaPDF
         flate_decode = GlobalConfiguration.constantize('filter.map', :FlateDecode)
         source = flate_decode.decoder(Fiber.new(&image_data_proc(offset)))
 
-        mask_data = ''.force_encoding(Encoding::BINARY)
+        mask_data = ''.b
         stream = HexaPDF::Utils::BitStreamReader.new
         while source.alive? && (data = source.resume)
           stream.append_data(data)

@@ -26,7 +26,7 @@ module HexaPDF
       INITIAL_ENCODER_TABLE[EOD] = EOD
 
       INITIAL_DECODER_TABLE = {} #:nodoc:
-      0.upto(255) {|i| INITIAL_DECODER_TABLE[i] = i.chr.force_encoding(Encoding::BINARY)}
+      0.upto(255) {|i| INITIAL_DECODER_TABLE[i] = i.chr}
       INITIAL_DECODER_TABLE[CLEAR_TABLE] = CLEAR_TABLE
       INITIAL_DECODER_TABLE[EOD] = EOD
 
@@ -38,7 +38,7 @@ module HexaPDF
           table = INITIAL_DECODER_TABLE.dup
 
           stream = HexaPDF::Utils::BitStreamReader.new
-          result = ''.force_encoding(Encoding::BINARY)
+          result = ''.b
           finished = false
           last_code = CLEAR_TABLE
 
@@ -92,7 +92,7 @@ module HexaPDF
             end
 
             Fiber.yield(result)
-            result = ''.force_encoding(Encoding::BINARY)
+            result = ''.b
           end
         end
 
@@ -117,7 +117,7 @@ module HexaPDF
           # initialize the bit stream with the clear-table marker
           stream = HexaPDF::Utils::BitStreamWriter.new
           result = stream.write(CLEAR_TABLE, 9)
-          str = ''.force_encoding(Encoding::BINARY)
+          str = ''.b
 
           while source.alive? && (data = source.resume)
             data.each_char do |char|
@@ -143,7 +143,7 @@ module HexaPDF
             end
 
             Fiber.yield(result)
-            result = ''.force_encoding(Encoding::BINARY)
+            result = ''.b
           end
 
           result = stream.write(table[str], code_length)

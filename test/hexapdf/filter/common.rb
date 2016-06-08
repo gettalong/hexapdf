@@ -9,7 +9,7 @@ require 'test_helper'
 module CommonFilterTests
   include TestHelper
 
-  TEST_BIG_STR = ''.force_encoding('BINARY')
+  TEST_BIG_STR = ''.b
   TEST_BIG_STR << [rand(2**32)].pack('N') while TEST_BIG_STR.length < 2**16
   TEST_BIG_STR.freeze
 

@@ -100,7 +100,7 @@ module HexaPDF
           @bit_cache = (@bit_cache & 0xFFFF) << 16
           result
         else
-          ''.force_encoding(Encoding::BINARY)
+          ''.b
         end
       end
 

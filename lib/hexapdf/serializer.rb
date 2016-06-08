@@ -204,8 +204,7 @@ module HexaPDF
       if @encrypter && @object.kind_of?(HexaPDF::Object) && @object.indirect?
         obj = encrypter.encrypt_string(obj, @object)
       elsif obj.encoding != Encoding::BINARY && obj =~ /[^ -~\t\r\n]/
-        obj = ("\xFE\xFF".force_encoding(Encoding::UTF_16BE) << obj.encode(Encoding::UTF_16BE)).
-          force_encoding(Encoding::BINARY)
+        obj = "\xFE\xFF".b << obj.encode(Encoding::UTF_16BE).force_encoding(Encoding::BINARY)
       elsif obj.encoding != Encoding::BINARY
         obj = obj.b
       end

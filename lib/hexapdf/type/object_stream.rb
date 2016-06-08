@@ -131,8 +131,8 @@ module HexaPDF
       # written as indirect objects.
       def write_objects(revision)
         index = 0
-        object_info = ''.force_encoding(Encoding::BINARY)
-        data = ''.force_encoding(Encoding::BINARY)
+        object_info = ''.b
+        data = ''.b
         serializer = Serializer.new
         obj_to_stm = {}
 

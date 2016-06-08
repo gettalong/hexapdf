@@ -16,7 +16,7 @@ module HexaPDF
     module PDF
 
       # The magic marker that tells us if the file/IO contains an PDF file.
-      MAGIC_FILE_MARKER = "%PDF-".force_encoding(Encoding::BINARY)
+      MAGIC_FILE_MARKER = "%PDF-".b
 
       # :call-seq:
       #   PDF.handles?(filename)     -> true or false

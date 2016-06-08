@@ -133,7 +133,7 @@ module HexaPDF
     #
     # The returned string is always a string with +BINARY+ (= +ASCII-8BIT+) encoding.
     def self.string_from_source(source)
-      str = ''.force_encoding(Encoding::BINARY)
+      str = ''.b
       while source.alive? && (data = source.resume)
         str << data
       end
