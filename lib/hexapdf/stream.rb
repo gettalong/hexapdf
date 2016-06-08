@@ -108,13 +108,14 @@ module HexaPDF
 
     # Returns the (possibly decoded) stream data as string.
     #
-    # After this method has been called, the original, possibly encoded stream data is not
-    # available anymore!
+    # Note that modifications done to the returned string are not reflected in the Stream object
+    # itself. The modified string must explicitly be assigned via #stream= to take effect.
     def stream
-      unless data.stream.kind_of?(String)
-        data.stream = HexaPDF::Filter.string_from_source(stream_decoder)
+      if data.stream.kind_of?(String)
+        data.stream.dup
+      else
+        HexaPDF::Filter.string_from_source(stream_decoder)
       end
-      data.stream
     end
 
     # Returns the raw stream object.

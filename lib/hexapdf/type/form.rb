@@ -40,9 +40,9 @@ module HexaPDF
 
       # Returns the contents of the form XObject.
       #
-      # Note: This is the same as #stream.dup but here for interface compatibility with Page.
+      # Note: This is the same as #stream but here for interface compatibility with Page.
       def contents
-        stream.dup
+        stream
       end
 
       # Replaces the contents of the form XObject with the given string.

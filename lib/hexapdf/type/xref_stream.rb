@@ -88,18 +88,19 @@ module HexaPDF
         xref = XRefSection.new
 
         entry_size = w.inject(:+)
-        pos_in_stream = 0
+        data = stream
+        pos_in_data = 0
 
         index.each_slice(2) do |first_oid, number_of_entries|
           number_of_entries.times do |i|
             oid = first_oid + i
 
             # Default for first field: type 1
-            type_field = (w[0] == 0 ? TYPE_IN_USE : bytes_to_int(stream, pos_in_stream, w[0]))
+            type_field = (w[0] == 0 ? TYPE_IN_USE : bytes_to_int(data, pos_in_data, w[0]))
             # No default available for second field
-            field2 = bytes_to_int(stream, pos_in_stream + w[0], w[1])
+            field2 = bytes_to_int(data, pos_in_data + w[0], w[1])
             # Default for third field is 0 for type 1, otherwise it needs to be specified!
-            field3 = bytes_to_int(stream, pos_in_stream + w[0] + w[1], w[2])
+            field3 = bytes_to_int(data, pos_in_data + w[0] + w[1], w[2])
 
             case type_field
             when TYPE_IN_USE
@@ -111,7 +112,7 @@ module HexaPDF
             else
               nil # Ignore entry as per PDF1.7 s7.5.8.3
             end
-            pos_in_stream += entry_size
+            pos_in_data += entry_size
           end
         end
 
@@ -137,7 +138,7 @@ module HexaPDF
         value[:W], pack_string = calculate_w_entry_and_pack_string(xref_section[oid, gen].pos)
         value[:Index] = []
 
-        self.stream = ''
+        stream = ''.b
         xref_section.each_subsection do |entries|
           value[:Index] << entries.first.oid << entries.length
           entries.each do |entry|
@@ -153,6 +154,7 @@ module HexaPDF
             stream << data.pack(pack_string)
           end
         end
+        self.stream = stream
       end
 
       # Returns the /W entry depending on the given maximal number for the second field as well as

@@ -118,6 +118,18 @@ describe HexaPDF::Stream do
     end
   end
 
+  describe "stream" do
+    it "doesn't allow changing the returned value directly" do
+      @stm.stream = 'data'
+      @stm.stream.upcase!
+      assert_equal('data', @stm.stream)
+
+      @stm.stream = HexaPDF::StreamData.new { "data" }
+      @stm.stream.upcase!
+      assert_equal('data', @stm.stream)
+    end
+  end
+
   def encoded_data(str, encoders = [])
     map = HexaPDF::GlobalConfiguration['filter.map']
     tmp = feeder(str)
