@@ -15,7 +15,7 @@ describe HexaPDF::Content::Canvas do
     @doc = HexaPDF::Document.new
     @doc.config['graphic_object.arc.max_curves'] = 4
     @page = @doc.pages.add_page
-    @canvas = HexaPDF::Content::Canvas.new(@page, content: :replace)
+    @canvas = @page.canvas
   end
 
   # Asserts that the content string contains the operators.
@@ -51,46 +51,10 @@ describe HexaPDF::Content::Canvas do
     end
   end
 
-  describe "initialize" do
-    module ContentStrategyTests
-      extend Minitest::Spec::DSL
-
-      it "content strategy replace: new content replaces existing content" do
-        @context.contents = 'Some content here'
-        canvas = HexaPDF::Content::Canvas.new(@context, content: :replace)
-        canvas.save_graphics_state
-        assert_operators(@context.contents, [[:save_graphics_state]])
-      end
-
-      it "content strategy append: new content is appended" do
-        assert_raises(ArgumentError) do
-          HexaPDF::Content::Canvas.new(@context, content: :append)
-        end
-        skip
-      end
-
-      it "content strategy prepend: new content is prepended" do
-        assert_raises(ArgumentError) do
-          HexaPDF::Content::Canvas.new(@context, content: :prepend)
-        end
-        skip
-      end
-    end
-
-    describe "with Page as context" do
-      include ContentStrategyTests
-
-      before do
-        @context = @doc.pages.page(0)
-      end
-    end
-
-    describe "with Form as context" do
-      include ContentStrategyTests
-
-      before do
-        @context = @doc.add(Subtype: :Form)
-      end
+  describe "contents" do
+    it "returns the serialized contents of the canvas operations" do
+      @canvas.save_graphics_state {}
+      assert_equal("q\nQ\n", @canvas.contents)
     end
   end
 

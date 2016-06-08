@@ -1,8 +1,9 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/content/canvas'
 require 'hexapdf/document'
+require 'hexapdf/content'
+require 'hexapdf/content/graphic_object'
 
 describe HexaPDF::Content::GraphicObject::Arc do
   before do
@@ -82,7 +83,7 @@ describe HexaPDF::Content::GraphicObject::Arc do
     it "draws the arc onto the canvas" do
       doc = HexaPDF::Document.new
       page = doc.pages.add_page
-      canvas = HexaPDF::Content::Canvas.new(page, content: :replace)
+      canvas = page.canvas
       @arc.max_curves = 4
       @arc.draw(canvas)
       assert_equal(doc.config['graphic_object.arc.max_curves'], @arc.max_curves)

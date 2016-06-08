@@ -104,6 +104,12 @@ module HexaPDF
       # The context for which the canvas was created (a Type::Page or Type::Form object).
       attr_reader :context
 
+      # The serialized contents produced by the various canvas operations.
+      #
+      # It is used after all canvas operations are done to get the serialized result for inclusion
+      # in a page or form xobject.
+      attr_reader :contents
+
       # The GraphicsState object containing the current graphics state.
       #
       # The graphics state must not be changed directly, only by using the provided methods. If it
@@ -134,12 +140,12 @@ module HexaPDF
       # The operator name/implementation map used when invoking or serializing an operator.
       attr_reader :operators
 
-      # Create a new Canvas object for the given context object (either a Page or a Form).
+      # Creates a new Canvas object for the given context object (either a Page or a Form).
       #
       # content::
       #   Specifies if the new contents should be appended (:append, default), prepended
       #   (:prepend) or if the new contents should replace the old one (:replace).
-      def initialize(context, content: :append)
+      def initialize(context)
         @context = context
         @operators = Operator::DEFAULT_OPERATORS.dup
         @graphics_state = GraphicsState.new
@@ -147,7 +153,7 @@ module HexaPDF
         @serializer = HexaPDF::Serializer.new
         @current_point = nil
         @start_point = nil
-        init_contents(content)
+        @contents = ''.b
       end
 
       # Returns the resource dictionary of the context object.
@@ -1523,15 +1529,6 @@ module HexaPDF
       end
 
       private
-
-      def init_contents(strategy)
-        case strategy
-        when :replace
-          context.contents = @contents = ''.force_encoding(Encoding::BINARY)
-        else
-          raise ArgumentError, "Unknown content handling strategy: #{strategy}"
-        end
-      end
 
       # Invokes the given operator with the operands and serializes it.
       def invoke(operator, *operands)

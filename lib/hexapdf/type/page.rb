@@ -3,8 +3,7 @@
 require 'hexapdf/dictionary'
 require 'hexapdf/stream'
 require 'hexapdf/type/page_tree_node'
-require 'hexapdf/content/parser'
-require 'hexapdf/content/processor'
+require 'hexapdf/content'
 
 module HexaPDF
   module Type
@@ -205,6 +204,57 @@ module HexaPDF
         self[:Resources] = {} if self[:Resources].nil?
         processor.resources = self[:Resources]
         Content::Parser.parse(contents, processor)
+      end
+
+      # Returns the requested type of canvas for the page.
+      #
+      # The canvas object is cached once it is created so that its graphics state is correctly
+      # retained without the need for parsing its contents.
+      #
+      # type::
+      #    Can either be
+      #    * :page for getting the canvas for the page itself (only valid for initially empty pages)
+      #    * :overlay for getting the canvas for drawing over the page contents
+      #    * :underlay for getting the canvas for drawing unter the page contents
+      def canvas(type: :page)
+        unless [:page, :overlay, :underlay].include?(type)
+          raise ArgumentError, "Invalid value for 'type', expected: :page, :underlay or :overlay"
+        end
+        @canvas_cache ||= {}
+        return @canvas_cache[type] if @canvas_cache.key?(type)
+
+        if type == :page && key?(:Contents)
+          raise HexaPDF::Error, "Cannot get the canvas for a page with contents"
+        end
+
+        contents = self[:Contents]
+        if contents.nil?
+          @canvas_cache[:page] = Content::Canvas.new(self)
+          stream = HexaPDF::StreamData.new { @canvas_cache[:page].contents }
+          self[:Contents] = document.add({Filter: :FlateDecode}, stream: stream)
+        end
+
+        if type == :overlay || type == :underlay
+          @canvas_cache[:overlay] = Content::Canvas.new(self)
+          @canvas_cache[:underlay] = Content::Canvas.new(self)
+
+          stream = HexaPDF::StreamData.new do
+            Fiber.yield(" q ")
+            Fiber.yield(@canvas_cache[:underlay].contents)
+            " Q q "
+          end
+          underlay = document.add({Filter: :FlateDecode}, stream: stream)
+
+          stream = HexaPDF::StreamData.new do
+            Fiber.yield(" Q ")
+            @canvas_cache[:overlay].contents
+          end
+          overlay = document.add({Filter: :FlateDecode}, stream: stream)
+
+          self[:Contents] = [underlay, *self[:Contents], overlay]
+        end
+
+        @canvas_cache[type]
       end
 
       # Creates an independent Form XObject from the page's dictionary and contents for the given

@@ -11,6 +11,13 @@ describe HexaPDF::Type::Page do
     @doc = HexaPDF::Document.new
   end
 
+  # Asserts that the page's contents contains the operators.
+  def assert_operators(page, operators)
+    processor = TestHelper::OperatorRecorder.new
+    page.process_contents(processor)
+    assert_equal(operators, processor.recorded_ops)
+  end
+
   it "must always be indirect" do
     page = @doc.add(Type: :Page)
     page.must_be_indirect = false
@@ -156,10 +163,72 @@ describe HexaPDF::Type::Page do
     it "parses the contents and processes it" do
       page = @doc.pages.add_page
       page[:Contents] = @doc.wrap({}, stream: 'q 10 w Q')
-      processor = TestHelper::OperatorRecorder.new
-      page.process_contents(processor)
-      assert_equal([[:save_graphics_state], [:set_line_width, [10]], [:restore_graphics_state]],
-                   processor.recorded_ops)
+      assert_operators(page, [[:save_graphics_state], [:set_line_width, [10]],
+                              [:restore_graphics_state]])
+    end
+  end
+
+  describe "canvas" do
+    before do
+      @page = @doc.pages.add_page
+    end
+
+    it "works correctly if invoked on an empty page, using type :page in first invocation" do
+      @page.canvas.line_width = 10
+      assert_operators(@page, [[:set_line_width, [10]]])
+
+      @page.canvas(type: :overlay).line_width = 5
+      assert_operators(@page, [[:save_graphics_state], [:restore_graphics_state],
+                               [:save_graphics_state], [:set_line_width, [10]],
+                               [:restore_graphics_state], [:set_line_width, [5]]])
+
+      @page.canvas(type: :underlay).line_width = 2
+      assert_operators(@page, [[:save_graphics_state], [:set_line_width, [2]],
+                               [:restore_graphics_state], [:save_graphics_state],
+                               [:set_line_width, [10]],
+                               [:restore_graphics_state], [:set_line_width, [5]]])
+    end
+
+    it "works correctly if invoked on an empty page, using type :underlay in first invocation" do
+      @page.canvas(type: :underlay).line_width = 2
+      assert_operators(@page, [[:save_graphics_state], [:set_line_width, [2]],
+                               [:restore_graphics_state], [:save_graphics_state],
+                               [:restore_graphics_state]])
+
+      @page.canvas.line_width = 10
+      assert_operators(@page, [[:save_graphics_state], [:set_line_width, [2]],
+                               [:restore_graphics_state], [:save_graphics_state],
+                               [:set_line_width, [10]], [:restore_graphics_state]])
+
+      @page.canvas(type: :overlay).line_width = 5
+      assert_operators(@page, [[:save_graphics_state], [:set_line_width, [2]],
+                               [:restore_graphics_state], [:save_graphics_state],
+                               [:set_line_width, [10]],
+                               [:restore_graphics_state], [:set_line_width, [5]]])
+    end
+
+    it "works correctly if invoked on a page with existing contents" do
+      @page.contents = "10 w"
+
+      @page.canvas(type: :overlay).line_width = 5
+      assert_operators(@page, [[:save_graphics_state], [:restore_graphics_state],
+                               [:save_graphics_state], [:set_line_width, [10]],
+                               [:restore_graphics_state], [:set_line_width, [5]]])
+
+      @page.canvas(type: :underlay).line_width = 2
+      assert_operators(@page, [[:save_graphics_state], [:set_line_width, [2]],
+                               [:restore_graphics_state], [:save_graphics_state],
+                               [:set_line_width, [10]],
+                               [:restore_graphics_state], [:set_line_width, [5]]])
+    end
+
+    it "fails if the page canvas is requested for a page with existing contents" do
+      @page.contents = "q Q"
+      assert_raises(HexaPDF::Error) { @page.canvas }
+    end
+
+    it "fails if called with an incorrect type argument" do
+      assert_raises(ArgumentError) { @page.canvas(type: :something) }
     end
   end
 

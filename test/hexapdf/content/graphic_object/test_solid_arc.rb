@@ -2,10 +2,9 @@
 
 require 'test_helper'
 require_relative '../common'
-require 'hexapdf/content/canvas'
-require 'hexapdf/content/parser'
-require 'hexapdf/content/processor'
 require 'hexapdf/document'
+require 'hexapdf/content'
+require 'hexapdf/content/graphic_object'
 
 describe HexaPDF::Content::GraphicObject::SolidArc do
   describe "initialize" do
@@ -52,7 +51,7 @@ describe HexaPDF::Content::GraphicObject::SolidArc do
       @doc = HexaPDF::Document.new
       @doc.config['graphic_object.arc.max_curves'] = 4
       @page = @doc.pages.add_page
-      @canvas = HexaPDF::Content::Canvas.new(@page, content: :replace)
+      @canvas = @page.canvas
     end
 
     it "draws a disk" do

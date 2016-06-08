@@ -2,6 +2,7 @@
 
 require 'test_helper'
 require 'hexapdf/content/canvas'
+require 'hexapdf/content/graphic_object'
 require 'hexapdf/document'
 
 describe HexaPDF::Content::GraphicObject::EndpointArc do
@@ -40,14 +41,14 @@ describe HexaPDF::Content::GraphicObject::EndpointArc do
     end
 
     it "draws nothing if the endpoint is the same as the current point" do
-      canvas = HexaPDF::Content::Canvas.new(@page, content: :replace)
+      canvas = @page.canvas
       canvas.move_to(50, 50)
       canvas.draw(:endpoint_arc, x: 50, y: 50, a: 50, b: 25)
       assert_equal("50 50 m\n", @page.contents)
     end
 
     it "draws only a straight line if either one of the semi-axis is zero" do
-      canvas = HexaPDF::Content::Canvas.new(@page, content: :replace)
+      canvas = @page.canvas
       canvas.move_to(50, 50)
       canvas.draw(:endpoint_arc, x: 100, y: 50, a: 0, b: 25)
       assert_equal("50 50 m\n100 50 l\n", @page.contents)
@@ -60,11 +61,12 @@ describe HexaPDF::Content::GraphicObject::EndpointArc do
         [true, false] => {cx: 50, cy: 25, start_angle: 90, end_angle: 360, clockwise: false},
         [true, true] => {cx: 100, cy: 50, start_angle: 180, end_angle: -90, clockwise: true},
       }.each do |(large_arc, clockwise), data|
-        canvas = HexaPDF::Content::Canvas.new(@page, content: :replace)
+        @page.delete(:Contents)
+        canvas = @page.canvas
         canvas.draw(:arc, a: 50, b: 25, inclination: 0, **data)
         arc_data = @page.contents
 
-        canvas = HexaPDF::Content::Canvas.new(@page, content: :replace)
+        canvas.contents.clear
         assert(@page.contents.empty?)
         canvas.move_to(50.0, 50.0)
         canvas.draw(:endpoint_arc, x: 100, y: 25, a: 50, b: 25, inclination: 0,
@@ -74,11 +76,12 @@ describe HexaPDF::Content::GraphicObject::EndpointArc do
     end
 
     it "draws the correct arc even if it is inclined" do
-      canvas = HexaPDF::Content::Canvas.new(@page, content: :replace)
+      canvas = @page.canvas
       canvas.draw(:arc, cx: 25, cy: 0, a: 50, b: 25, start_angle: 90, end_angle: 270,
                   inclination: 90, clockwise: false)
       arc_data = @page.contents
-      canvas = HexaPDF::Content::Canvas.new(@page, content: :replace)
+
+      canvas.contents.clear
       canvas.move_to(0.0, 1e-15)
       canvas.draw(:endpoint_arc, x: 50, y: 0, a: 20, b: 10, inclination: 90, large_arc: false,
                   clockwise: false)
