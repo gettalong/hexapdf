@@ -9,6 +9,10 @@ require 'hexapdf/stream'
 
 
 describe HexaPDF::StreamData do
+  it "fails if no valid source is specified on creation" do
+    assert_raises(ArgumentError) { HexaPDF::StreamData.new }
+  end
+
   it "normalizes the filter value" do
     s = HexaPDF::StreamData.new(:source, filter: :test)
     assert_equal([:test], s.filter)
@@ -30,6 +34,11 @@ describe HexaPDF::StreamData do
   describe "fiber" do
     it "returns a fiber for a Proc source" do
       s = HexaPDF::StreamData.new(proc { :source })
+      assert_equal(:source, s.fiber.resume)
+    end
+
+    it "returns a fiber for a source specified via a block" do
+      s = HexaPDF::StreamData.new { :source }
       assert_equal(:source, s.fiber.resume)
     end
 

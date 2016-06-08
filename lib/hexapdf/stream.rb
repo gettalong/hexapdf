@@ -23,6 +23,12 @@ module HexaPDF
     # The decoding parameters associated with the +filter+(s).
     attr_reader :decode_parms
 
+    # :call-seq:
+    #   StreamData.new(io)          -> stream_data
+    #   StreamData.new(str)         -> stream_data
+    #   StreamData.new(proc)        -> stream_data
+    #   StreamData.new { block }    -> stream_data
+    #
     # Creates a new StreamData object for the given +source+ and with the given options.
     #
     # The +source+ can be:
@@ -33,9 +39,12 @@ module HexaPDF
     # * and for a specific +length+
     #
     # * A Proc object (that is converted to a Fiber when needed) in which case the +offset+ and
-    #   +length+ values are ignored.
-    def initialize(source, offset: nil, length: nil, filter: nil, decode_parms: nil)
-      @source = source
+    #   value is ignored. The Proc object can also be passed by using a block.
+    def initialize(source =  nil, offset: nil, length: nil, filter: nil, decode_parms: nil, &block)
+      if source.nil? && !block_given?
+        raise ArgumentError, "Either a source object or a block must be given"
+      end
+      @source = source || block
       @offset = offset
       @length = length
       @filter = [filter].flatten.compact
