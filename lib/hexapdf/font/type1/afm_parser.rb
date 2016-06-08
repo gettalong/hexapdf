@@ -87,7 +87,7 @@ module HexaPDF
           when :EncodingScheme then @metrics.encoding_scheme = parse_string
           when :Weight then @metrics.weight = parse_string
           when :FontBBox then
-            @metrics.font_bbox = [parse_number, parse_number, parse_number, parse_number]
+            @metrics.bounding_box = [parse_number, parse_number, parse_number, parse_number]
           when :CapHeight then @metrics.cap_height = parse_number
           when :XHeight then @metrics.x_height = parse_number
           when :Ascender then @metrics.ascender = parse_number
