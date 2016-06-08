@@ -38,6 +38,12 @@ describe HexaPDF::Font::Type1::AFMParser do
     end
   end
 
+  it "calculates an ascender and descender value from the font bounding box if necessary" do
+    metrics = HexaPDF::Font::Type1::AFMParser.parse(File.join(HexaPDF.data_dir, 'afm/Symbol.afm'))
+    assert_equal(metrics.bounding_box[1], metrics.descender)
+    assert_equal(metrics.bounding_box[3], metrics.ascender)
+  end
+
   it "fails if the file doesn't start with the correct line" do
     file = StringIO.new("some\nthing")
     assert_raises(HexaPDF::Error) { HexaPDF::Font::Type1::AFMParser.parse(file) }

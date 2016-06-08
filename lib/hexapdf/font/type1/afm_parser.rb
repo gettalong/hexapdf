@@ -67,6 +67,14 @@ module HexaPDF
               end
             end
           end
+
+          if @metrics.bounding_box && !@metrics.descender
+            @metrics.descender = @metrics.bounding_box[1]
+          end
+          if @metrics.bounding_box && !@metrics.ascender
+            @metrics.ascender = @metrics.bounding_box[3]
+          end
+
           @metrics
         end
 
