@@ -13,6 +13,7 @@ module HexaPDF
       autoload(:FontMetrics, 'hexapdf/font/type1/font_metrics')
       autoload(:CharacterMetrics, 'hexapdf/font/type1/character_metrics')
       autoload(:PFBParser, 'hexapdf/font/type1/pfb_parser')
+      autoload(:Font, 'hexapdf/font/type1/font')
 
     end
 
