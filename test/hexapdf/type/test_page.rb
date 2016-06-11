@@ -252,6 +252,9 @@ describe HexaPDF::Type::Page do
       page.contents = HexaPDF::StreamData.new(StringIO.new("test"))
       form = page.to_form_xobject
       assert_same(form.raw_stream, page[:Contents].raw_stream)
+
+      form = page.to_form_xobject(reference: false)
+      refute_same(form.raw_stream, page[:Contents].raw_stream)
     end
   end
 end

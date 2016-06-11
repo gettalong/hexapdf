@@ -257,15 +257,17 @@ module HexaPDF
         @canvas_cache[type]
       end
 
-      # Creates an independent Form XObject from the page's dictionary and contents for the given
-      # PDF document.
+      # Creates a Form XObject from the page's dictionary and contents for the given PDF document.
+      #
+      # If +reference+ is true, the page's contents is referenced when possible to avoid unnecessary
+      # decoding/encoding.
       #
       # Note: The created Form XObject is *not* added to the document automatically!
-      def to_form_xobject
+      def to_form_xobject(reference: true)
         first, *rest = self[:Contents]
         stream = if !first
                    nil
-                 elsif !rest.empty? || first.raw_stream.kind_of?(String)
+                 elsif !reference || !rest.empty? || first.raw_stream.kind_of?(String)
                    contents
                  else
                    first.raw_stream
