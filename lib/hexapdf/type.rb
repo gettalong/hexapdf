@@ -26,6 +26,7 @@ module HexaPDF
     autoload(:Image, 'hexapdf/type/image')
     autoload(:Form, 'hexapdf/type/form')
     autoload(:FontDescriptor, 'hexapdf/type/font_descriptor')
+    autoload(:FontType1, 'hexapdf/type/font_type1')
 
   end
 
