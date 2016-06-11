@@ -338,8 +338,7 @@ module HexaPDF
 
       # The horizontal text scaling.
       #
-      # It is a value between 0 and 100 specifying the percentage of the normal width that should
-      # be used.
+      # The value specifies the percentage of the normal width that should be used.
       attr_accessor :horizontal_scaling
 
       # The leading in unscaled text units.
