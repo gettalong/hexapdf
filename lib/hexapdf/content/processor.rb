@@ -34,7 +34,153 @@ module HexaPDF
     # For inline images only the 'BI' operator mapped to 'inline_image' is used. Although also the
     # operators 'ID' and 'EI' exist for inline images, they are not used because they are consumed
     # while parsing inline images and do not reflect separate operators.
+    #
+    # == Text Processing
+    #
+    # Two utility methods #decode_text and #decode_text_with_positioning for extracting text are
+    # provided. Both can directly be invoked from the 'show_text' and 'show_text_with_positioning'
+    # methods.
+    #
     class Processor
+
+      # Represents an (immutable) glyph box with positioning information.
+      #
+      # Since the glyph may have been transformed by an affine matrix, the bounding may not be a
+      # rectangle in all cases but it is always a parallelogram.
+      class GlyphBox
+
+        # The code point representing the glyph.
+        attr_reader :code_point
+
+        # The unicode value of the code point.
+        attr_reader :string
+
+        # Creates a new glyph box for the given code point/unicode value pair with the lower left
+        # coordinate [llx, lly], the lower right coordinate [lrx, lry], and the upper left
+        # coordinate [ulx, uly].
+        def initialize(code_point, string, llx, lly, lrx, lry, ulx, uly)
+          @code_point = code_point
+          @string = string.freeze
+          @llx = llx
+          @lly = lly
+          @lrx = lrx
+          @lry = lry
+          @ulx = ulx
+          @uly = uly
+          freeze
+        end
+
+        # :call-seq:
+        #   fragment.lower_left    -> [llx, lly]
+        #
+        # Returns the lower left coordinate
+        def lower_left
+          [@llx, @lly]
+        end
+
+        # :call-seq:
+        #    fragment.lower_right   -> [lrx, lry]
+        #
+        # Returns the lower right coordinate
+        def lower_right
+          [@lrx, @lry]
+        end
+
+        # :call-seq:
+        #    fragment.upper_left    -> [ulx, uly]
+        #
+        # Returns the upper left coordinate
+        def upper_left
+          [@ulx, @uly]
+        end
+
+        # :call-seq:
+        #    fragment.upper_right    -> [urx, ury]
+        #
+        # Returns the upper right coordinate which is computed by using the other three points of
+        # the parallelogram.
+        def upper_right
+          [@ulx + (@lrx - @llx), @uly + (@lry - @lly)]
+        end
+
+      end
+
+
+      # Represents a box composed of GlyphBox objects.
+      #
+      # The bounding box methods #lower_left, #lower_right, #upper_left, #upper_right are computed
+      # by just using the first and last boxes, assuming the boxes are arranged from left to right
+      # in a straight line.
+      class CompositeBox
+
+        # The text boxes contained in this positioned text object.
+        attr_reader :boxes
+
+        # Creates an empty object.
+        def initialize
+          @boxes = []
+        end
+
+        # Appends the given text glyph box.
+        def <<(glyph_box)
+          @boxes << glyph_box
+          self
+        end
+
+        # Returns the glyph box at the given index, or +nil+ if the index is out of range.
+        def [](index)
+          @boxes[index]
+        end
+
+        # :call-seq:
+        #   composite.each {|glyph_box| block}       -> text
+        #   composite.each                           -> Enumerator
+        #
+        # Iterates over all contained glyph boxes.
+        def each(&block)
+          return to_enum(__method__) unless block_given?
+          @boxes.each(&block)
+          self
+        end
+
+        # Returns the concatenated text of the boxes.
+        def string
+          @boxes.map(&:string).join('')
+        end
+
+        # :call-seq:
+        #   text.lower_left    -> [llx, lly]
+        #
+        # Returns the lower left coordinate
+        def lower_left
+          @boxes[0].lower_left
+        end
+
+        # :call-seq:
+        #    text.lower_right   -> [lrx, lry]
+        #
+        # Returns the lower right coordinate
+        def lower_right
+          @boxes[-1].lower_right
+        end
+
+        # :call-seq:
+        #    text.upper_left    -> [ulx, uly]
+        #
+        # Returns the upper left coordinate
+        def upper_left
+          @boxes[0].upper_left
+        end
+
+        # :call-seq:
+        #    text.upper_right    -> [urx, ury]
+        #
+        # Returns the upper right coordinate.
+        def upper_right
+          @boxes[-1].upper_right
+        end
+
+      end
 
       # Mapping of PDF operator names to message names that are sent to renderer implementations.
       OPERATOR_MESSAGE_NAME_MAP = {
@@ -114,8 +260,8 @@ module HexaPDF
       # Mapping from operator name (Symbol) to a callable object.
       #
       # This hash is prepopulated with the default operator implementations (see
-      # DEFAULT_OPERATORS). If a default operator implementation is not satisfactory, it can
-      # easily be changed by modifying this hash.
+      # Operator::DEFAULT_OPERATORS). If a default operator implementation is not satisfactory, it
+      # can easily be changed by modifying this hash.
       attr_reader :operators
 
       # The resources dictionary used during processing.
@@ -142,8 +288,8 @@ module HexaPDF
       # See: PDF1.7 s8.2
       attr_accessor :graphics_object
 
-      # Initializes a new processor that uses the +resources+ PDF dictionary for resolving
-      # resources while processing operators.
+      # Initializes a new processor that uses the resources PDF dictionary for resolving resources
+      # while processing operators.
       #
       # It is not mandatory to set the resources dictionary on initialization but it needs to be set
       # prior to processing operators!
@@ -161,7 +307,100 @@ module HexaPDF
       def process(operator, operands = [])
         @operators[operator].invoke(self, *operands) if @operators.key?(operator)
         msg = OPERATOR_MESSAGE_NAME_MAP[operator]
-        send(msg, *operands) if msg && respond_to?(msg)
+        send(msg, *operands) if msg && respond_to?(msg, true)
+      end
+
+      protected
+
+      # Provides a default implementation for the 'Do' operator.
+      #
+      # It checks if the XObject is a Form XObject and if so, processes the contents of the Form
+      # XObject.
+      def paint_xobject(name)
+        xobject = resources.xobject(name)
+        return unless xobject[:Subtype] == :Form
+
+        res = resources
+        graphics_state.save
+
+        graphics_state.ctm.premultiply(*xobject[:Matrix]) if xobject.key?(:Matrix)
+        xobject.process_contents(self)
+
+        graphics_state.restore
+        self.resources = res
+      end
+
+      # Decodes the given text object and returns it as UTF-8 string.
+      #
+      # The argument may either be a simple text string (+Tj+ operator) or an array that contains
+      # text strings together with positioning information (+TJ+ operator).
+      def decode_text(data)
+        if data.kind_of?(Array)
+          data = data.each_with_object(''.b) {|obj, result| result << obj if obj.kind_of?(String)}
+        end
+        font = graphics_state.font
+        font.decode(data).map {|code_point| font.to_utf8(code_point)}.join('')
+      end
+
+      # Decodes the given text object and returns it as a CompositeBox object.
+      #
+      # The argument may either be a simple text string (+Tj+ operator) or an array that contains
+      # text strings together with positioning information (+TJ+ operator).
+      #
+      # For each glyph a GlyphBox object is computed. For horizontal fonts the width is
+      # predetermined but not the height. The latter is chosen to be the height and offset of the
+      # font's bounding box.
+      def decode_text_with_positioning(data)
+        data = Array(data)
+        if graphics_state.font.writing_mode == :horizontal
+          decode_horizontal_text(data)
+        else
+          decode_vertical_text(data)
+        end
+      end
+
+      private
+
+      # Decodes the given array containing text and positioning information while assuming that the
+      # writing direction is horizontal.
+      #
+      # See: PDF1.7 s9.4.4
+      def decode_horizontal_text(array)
+        font = graphics_state.font
+        horizontal_scaling = graphics_state.horizontal_scaling / 100.0
+        scaled_char_space = graphics_state.character_spacing * horizontal_scaling
+        scaled_word_space = graphics_state.word_spacing * horizontal_scaling
+        scaled_font_size = graphics_state.font_size / 1000.0
+        below_baseline = font.bounding_box[1] * scaled_font_size + graphics_state.text_rise
+        above_baseline = font.bounding_box[3] * scaled_font_size + graphics_state.text_rise
+
+        text = CompositeBox.new
+        array.each do |item|
+          if item.kind_of?(Numeric)
+            graphics_state.tm.translate(-item * scaled_font_size * horizontal_scaling, 0)
+          else
+            font.decode(item).each do |code_point|
+              char = font.to_utf8(code_point)
+              width = (font.width(code_point) || 0) * scaled_font_size * horizontal_scaling
+              matrix = graphics_state.ctm.dup.premultiply(*graphics_state.tm)
+              fragment = GlyphBox.new(code_point, char,
+                                      *matrix.evaluate(0, below_baseline),
+                                      *matrix.evaluate(width, below_baseline),
+                                      *matrix.evaluate(0, above_baseline))
+              text << fragment
+              graphics_state.tm.translate(width + scaled_char_space + \
+                                          (char == ' ' ? scaled_word_space : 0), 0)
+            end
+          end
+        end
+
+        text.freeze
+      end
+
+      # Decodes the given array containing text and positioning information while assuming that the
+      # writing direction is vertical.
+      def decode_vertical_text(_data)
+        raise NotImplementedError
       end
 
     end

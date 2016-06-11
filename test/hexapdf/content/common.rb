@@ -8,6 +8,8 @@ module TestHelper
   # Can be used to to record operators parsed from content streams.
   class OperatorRecorder < HexaPDF::Content::Processor
 
+    undef :paint_xobject
+
     attr_reader :recorded_ops
 
     def initialize
