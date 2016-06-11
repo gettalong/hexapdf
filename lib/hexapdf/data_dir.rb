@@ -8,7 +8,7 @@ module HexaPDF
       require 'rbconfig'
       @data_dir = File.expand_path(File.join(__dir__, '..', '..', 'data', 'hexapdf'))
       unless File.directory?(@data_dir)
-        @data_dir = File.expand_path(File.join(Config::CONFIG["datadir"], "hexapdf"))
+        @data_dir = File.expand_path(File.join(RbConfig::CONFIG["datadir"], "hexapdf"))
       end
       unless File.directory?(@data_dir)
         raise "HexaPDF data directory not found! This is a bug, please report it!"
