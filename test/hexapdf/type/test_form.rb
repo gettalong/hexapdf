@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require_relative '../content/common'
 require 'hexapdf/document'
 require 'hexapdf/type/form'
 
@@ -45,6 +46,15 @@ describe HexaPDF::Type::Form do
       resources = @form.resources
       assert_equal(:XXResources, resources.type)
       assert_equal(@form[:Resources], resources)
+    end
+  end
+
+  describe "process_contents" do
+    it "parses the contents and processes it" do
+      @form.stream = '10 w'
+      processor = TestHelper::OperatorRecorder.new
+      @form.process_contents(processor)
+      assert_equal([[:set_line_width, [10]]], processor.recorded_ops)
     end
   end
 end

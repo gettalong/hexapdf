@@ -57,6 +57,15 @@ module HexaPDF
         self[:Resources] ||= document.wrap({}, type: :XXResources)
       end
 
+      # Processes the content streams associated with the page with the given processor object.
+      #
+      # See: HexaPDF::Content::Processor
+      def process_contents(processor)
+        self[:Resources] = {} if self[:Resources].nil?
+        processor.resources = self[:Resources]
+        Content::Parser.parse(contents, processor)
+      end
+
     end
 
   end
