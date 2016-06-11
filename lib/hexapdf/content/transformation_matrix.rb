@@ -130,6 +130,10 @@ module HexaPDF
           @d == other.d && @e == other.e && @f == other.f)
       end
 
+      # Creates an array [a, b, c, d, e, f] from the transformation matrix.
+      def to_a
+        [@a, @b, @c, @d, @e, @f]
+      end
 
     end
 

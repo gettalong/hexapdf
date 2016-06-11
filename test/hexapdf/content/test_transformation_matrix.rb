@@ -57,4 +57,8 @@ describe HexaPDF::Content::TransformationMatrix do
     assert_equal(HexaPDF::Content::TransformationMatrix.new, @matrix)
     refute_equal(HexaPDF::Content::TransformationMatrix.new(5), @matrix)
   end
+
+  it "allows the conversion of the matrix into an array" do
+    assert_equal([1, 0, 0, 1, 0, 0], @matrix.to_a)
+  end
 end
