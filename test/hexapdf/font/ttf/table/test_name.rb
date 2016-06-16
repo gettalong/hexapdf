@@ -36,6 +36,7 @@ describe HexaPDF::Font::TTF::Table::Name do
       assert_equal(0, table[:font_family][0].platform_id)
       assert_equal(3, table[:font_family][0].encoding_id)
       assert_equal(2, table[:font_family][0].language_id)
+      assert_equal(table[:copyright][0], table[:copyright].preferred_record)
     end
 
     it "reads the data in format 1 from the associated file" do
@@ -55,19 +56,40 @@ describe HexaPDF::Font::TTF::Table::Name do
     end
   end
 
-  describe "NameRecord#platform?" do
+  describe "add" do
+    it "adds a new record for a name" do
+      table = HexaPDF::Font::TTF::Table::Name.new(@file)
+      table.add(:postscript_name, "test")
+      record = table[:postscript_name][0]
+      assert_equal("test", record)
+      assert_equal(HexaPDF::Font::TTF::Table::Name::Record::PLATFORM_MACINTOSH, record.platform_id)
+      assert_equal(0, record.encoding_id)
+      assert_equal(0, record.language_id)
+    end
+  end
+
+  describe "NameRecord" do
     before do
       @table = HexaPDF::Font::TTF::Table::Name.new(@file, @entry)
     end
 
-    it "returns the correct value" do
-      assert(@table[:copyright][0].platform?(:macintosh))
-      assert(@table[:copyright][1].platform?(:unicode))
-      refute(@table[:copyright][0].platform?(:microsoft))
+    describe "platform?" do
+      it "returns the correct value" do
+        assert(@table[:copyright][0].platform?(:macintosh))
+        assert(@table[:copyright][1].platform?(:unicode))
+        refute(@table[:copyright][0].platform?(:microsoft))
+      end
+
+      it "raises an error when called with an unknown identifier" do
+        assert_raises(ArgumentError) { @table[:copyright][0].platform?(:testing) }
+      end
     end
 
-    it "raises an error when called with an unknown identifier" do
-      assert_raises(ArgumentError) { @table[:copyright][0].platform?(:testing) }
+    describe "preferred?" do
+      it "returns true for names in US English that had been converted to UTF-8" do
+        assert(@table[:copyright][0].preferred?)
+        refute(@table[:copyright][1].preferred?)
+      end
     end
   end
 end
