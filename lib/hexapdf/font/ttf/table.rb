@@ -33,16 +33,15 @@ module HexaPDF
         end
 
 
-        # The TTF file object associated with this table.
-        attr_reader :file
+        # The TTF font object associated with this table.
+        attr_reader :font
 
-        # Creates a new Table object for the given sfnt-formatted font file and initializes it by
-        # either reading the data from the associated file's IO stream if +entry+ is given or by
-        # using default values.
+        # Creates a new Table object for the given font and initializes it by either reading the
+        # data from the font's associated IO stream if +entry+ is given or by using default values.
         #
         # See: #parse_table, #load_default
-        def initialize(file, entry = nil)
-          @file = file
+        def initialize(font, entry = nil)
+          @font = font
           @directory_entry = entry
           entry ? load_from_io : load_default
         end
@@ -67,12 +66,13 @@ module HexaPDF
 
         private
 
-        # The IO stream of the associated file.
+        # The IO stream of the associated font object.
         def io
-          @file.io
+          @font.io
         end
 
-        # Loads the data for this table from the associated file object into this object.
+        # Loads the data for this table from the IO stream of the associated font object into this
+        # object.
         #
         # See #parse_table for more information.
         def load_from_io
@@ -106,7 +106,7 @@ module HexaPDF
           io.pos = old_pos
         end
 
-        # Reads +count+ bytes from the current position of the associated file's IO stream, unpacks
+        # Reads +count+ bytes from the current position of the font's associated IO stream, unpacks
         # them using the provided format specifier and returns the result.
         def read_formatted(count, format)
           io.read(count).unpack(format)

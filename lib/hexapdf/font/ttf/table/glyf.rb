@@ -105,8 +105,8 @@ module HexaPDF
               return nil
             end
 
-            offset = file[:loca].offset(glyph_id)
-            length = file[:loca].length(glyph_id)
+            offset = font[:loca].offset(glyph_id)
+            length = font[:loca].length(glyph_id)
 
             if length == 0
               @glyphs[glyph_id] = Glyph.new('')

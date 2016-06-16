@@ -28,7 +28,7 @@ module HexaPDF
           private
 
           def parse_table #:nodoc:
-            nr_entries = file[:hhea].num_of_long_hor_metrics
+            nr_entries = font[:hhea].num_of_long_hor_metrics
             @horizontal_metrics = nr_entries.times.map { Metric.new(*read_formatted(4, 'ns>')) }
             last_advance_width = @horizontal_metrics[-1].advance_width
             read_formatted(directory_entry.length - 4 * nr_entries, 's>*').map do |lsb|

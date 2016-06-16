@@ -26,7 +26,7 @@ module HexaPDF
           def parse_table #:nodoc:
             @version, num_tables  = read_formatted(4, 'n2')
             @tables = []
-            handle_unknown = file.config['font.ttf.cmap.unknown_format']
+            handle_unknown = font.config['font.ttf.cmap.unknown_format']
 
             num_tables.times { @tables << read_formatted(8, 'n2N') }
             @tables.map! do |platform_id, encoding_id, offset|

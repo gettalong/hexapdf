@@ -31,7 +31,7 @@ module HexaPDF
           private
 
           def parse_table #:nodoc:
-            entry_size = file[:head].index_to_loc_format
+            entry_size = font[:head].index_to_loc_format
             @offsets = read_formatted(directory_entry.length, (entry_size == 0 ? 'n*' : 'N*'))
             @offsets.map! {|offset| offset * 2} if entry_size == 0
           end

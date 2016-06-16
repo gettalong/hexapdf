@@ -6,8 +6,8 @@ module HexaPDF
   module Font
     module TTF
 
-      # Represents a file in the TrueType font file format.
-      class File
+      # Represents a font in the TrueType font file format.
+      class Font
 
         # The default configuration:
         #
@@ -45,7 +45,7 @@ module HexaPDF
         # read from it.
         #
         # The +config+ hash can contain configuration options.
-        def initialize(io = nil, config = {})
+        def initialize(io: nil, config: {})
           @io = io
           @config = DEFAULT_CONFIG.merge(config)
           @tables = {}
