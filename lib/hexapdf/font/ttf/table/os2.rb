@@ -129,6 +129,8 @@ module HexaPDF
               @strikeout_position, @family_class, @panose =
               read_formatted(42, 'ns>n2s>12a10')
 
+            @weight_class *= 100 if @weight_class < 100 # Normalize to standard weights
+
             @char_range, temp = read_formatted(16, 'Q>2')
             @char_range = @char_range << 64 & temp
 

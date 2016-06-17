@@ -19,7 +19,7 @@ describe HexaPDF::Font::TTF::Table::OS2 do
       table = HexaPDF::Font::TTF::Table::OS2.new(@file, @entry)
       assert_equal(5, table.version)
       assert_equal(-1, table.x_avg_char_width)
-      assert_equal(2, table.weight_class)
+      assert_equal(200, table.weight_class)
       assert_equal(3, table.width_class)
       assert_equal(-4, table.type)
       assert_equal(-5, table.subscript_x_size)
