@@ -70,6 +70,64 @@ module HexaPDF
           @directory ||= Table::Directory.new(self, io ? Table::Directory::SELF_ENTRY : nil)
         end
 
+        # Returns the PostScript font name.
+        def font_name
+          self[:name][:postscript_name].preferred_record
+        end
+
+        # Returns the full name of the font.
+        def full_name
+          self[:name][:font_name].preferred_record
+        end
+
+        # Returns the family name of the font.
+        def family_name
+          self[:name][:font_family].preferred_record
+        end
+
+        # Returns the weight of the font.
+        def weight
+          self[:"OS/2"]&.weight_class || 0
+        end
+
+        # Returns the bounding of the font.
+        def bounding_box
+          self[:head].bbox
+        end
+
+        # Returns the cap height of the font.
+        def cap_height
+          self[:"OS/2"]&.cap_height
+        end
+
+        # Returns the x-height of the font.
+        def x_height
+          self[:"OS/2"]&.x_height
+        end
+
+        # Returns the ascender of the font.
+        def ascender
+          self[:"OS/2"]&.typo_ascender || self[:hhea].ascent
+        end
+
+        # Returns the descender of the font.
+        def descender
+          self[:"OS/2"]&.typo_descender || self[:hhea].descent
+        end
+
+        # Returns the italic angle of the font, in degrees counter-clockwise from the vertical.
+        def italic_angle
+          self[:post].italic_angle.to_f
+        end
+
+        # Returns the dominant width of vertical stems.
+        #
+        # Note: This attribute does not actually exist in TrueType fonts, so it is estimated based
+        # on the #weight.
+        def dominant_vertical_stem_width
+          weight / 5
+        end
+
         private
 
         # Returns the class that is used for handling tables of the given tag.
