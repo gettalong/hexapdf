@@ -32,4 +32,14 @@ describe HexaPDF::Font::TTF::Font do
       assert_nil(@font[:OTHE])
     end
   end
+
+  describe "add_table" do
+    it "returns the existing table if one exists" do
+      assert_same(@font[:TEST], @font.add_table(:TEST))
+    end
+
+    it "creates a new table instance if needed" do
+      assert_kind_of(HexaPDF::Font::TTF::Table::Head, @font.add_table(:head))
+    end
+  end
 end

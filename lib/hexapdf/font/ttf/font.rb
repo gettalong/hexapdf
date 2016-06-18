@@ -55,14 +55,27 @@ module HexaPDF
         def [](tag)
           return @tables[tag] if @tables.key?(tag)
 
-          klass = config['font.ttf.table_mapping'].fetch(tag, 'HexaPDF::Font::TTF::Table')
           entry = directory.entry(tag.to_s.b)
-          entry ? @tables[tag] = ::Object.const_get(klass).new(self, entry) : nil
+          entry ? @tables[tag] = table_class(tag).new(self, entry) : nil
+        end
+
+        # Adds a new table instance for the given tag (a symbol) to the font if such a table
+        # instance doesn't already exist. Returns the table instance for the tag.
+        def add_table(tag)
+          @tables[tag] ||= table_class(tag).new(self)
         end
 
         # Returns the font directory.
         def directory
           @directory ||= Table::Directory.new(self, io ? Table::Directory::SELF_ENTRY : nil)
+        end
+
+        private
+
+        # Returns the class that is used for handling tables of the given tag.
+        def table_class(tag)
+          klass = config['font.ttf.table_mapping'].fetch(tag, 'HexaPDF::Font::TTF::Table')
+          ::Object.const_get(klass)
         end
 
       end
