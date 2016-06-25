@@ -25,6 +25,16 @@ module HexaPDF
           @instance ||= super
         end
 
+        # See #name_to_unicode
+        def self.name_to_unicode(name, zapf_dingbats: false)
+          new.name_to_unicode(name, zapf_dingbats: zapf_dingbats)
+        end
+
+        # See #unicode_to_name
+        def self.unicode_to_name(unicode, zapf_dingbats: false)
+          new.unicode_to_name(unicode, zapf_dingbats: zapf_dingbats)
+        end
+
         def initialize #:nodoc:
           load
         end

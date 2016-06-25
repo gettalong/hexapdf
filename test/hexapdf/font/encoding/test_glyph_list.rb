@@ -17,7 +17,7 @@ describe HexaPDF::Font::Encoding::GlyphList do
   describe "name_to_unicode" do
     it "maps known glyph names to their unicode equivalent" do
       assert_equal("A", @list.name_to_unicode(:A))
-      assert_equal("9", @list.name_to_unicode(:nine))
+      assert_equal("9", HexaPDF::Font::Encoding::GlyphList.name_to_unicode(:nine))
       assert_equal("\u05da\u05b8", @list.name_to_unicode(:finalkafqamats))
     end
 
@@ -45,7 +45,7 @@ describe HexaPDF::Font::Encoding::GlyphList do
   describe "unicode_to_name" do
     it "maps codepoints to names" do
       assert_equal(:space, @list.unicode_to_name(" "))
-      assert_equal(:A, @list.unicode_to_name("A"))
+      assert_equal(:A, HexaPDF::Font::Encoding::GlyphList.unicode_to_name("A"))
       assert_equal(:odieresis, @list.unicode_to_name("ö"))
       assert_equal(:finalkafqamats, @list.unicode_to_name("\u05da\u05b8"))
     end
