@@ -12,6 +12,7 @@ module HexaPDF
       class WinAnsiEncoding < Base
 
         def initialize #:nodoc:
+          super
           @code_to_name = {
             0101 => :A,
             0306 => :AE,

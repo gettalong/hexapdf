@@ -12,6 +12,7 @@ module HexaPDF
       class MacExpertEncoding < Base
 
         def initialize #:nodoc:
+          super
           @code_to_name = {
             0276  => :AEsmall,
             0207  => :Aacutesmall,

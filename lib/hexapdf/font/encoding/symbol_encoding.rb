@@ -12,6 +12,7 @@ module HexaPDF
       class SymbolEncoding < Base
 
         def initialize #:nodoc:
+          super
           @code_to_name = {
             0101 => :Alpha,
             0102 => :Beta,

@@ -12,6 +12,7 @@ module HexaPDF
       class ZapfDingbatsEncoding < Base
 
         def initialize #:nodoc:
+          super
           @code_to_name = {
             0040 => :space,
             0041 => :a1,
@@ -202,6 +203,13 @@ module HexaPDF
             0375 => :a190,
             0376 => :a191,
           }
+        end
+
+        # The ZapfDingbats font uses a special glyph list, so we need to specialize this method.
+        #
+        # See: Encoding#unicode
+        def unicode(code)
+          @unicode_cache[code] ||= GlyphList.name_to_unicode(name(code), zapf_dingbats: true)
         end
 
       end
