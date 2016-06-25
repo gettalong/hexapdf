@@ -436,7 +436,6 @@ describe HexaPDF::Content::Canvas do
   describe "move_to" do
     it "invokes the operator implementation" do
       assert_operator_invoked(:m, 5, 6) { @canvas.move_to(5, 6) }
-      assert_operator_invoked(:m, 5, 6) { @canvas.move_to([5, 6]) }
     end
 
     it "returns the canvas object" do
@@ -460,7 +459,6 @@ describe HexaPDF::Content::Canvas do
 
     it "invokes the operator implementation" do
       assert_operator_invoked(:l, 5, 6) { @canvas.line_to(5, 6) }
-      assert_operator_invoked(:l, 5, 6) { @canvas.line_to([5, 6]) }
     end
 
     it "returns the canvas object" do
@@ -511,7 +509,6 @@ describe HexaPDF::Content::Canvas do
   describe "rectangle" do
     it "invokes the operator implementation when radius == 0" do
       assert_operator_invoked(:re, 5, 10, 15, 20) { @canvas.rectangle(5, 10, 15, 20) }
-      assert_operator_invoked(:re, 5, 10, 15, 20) { @canvas.rectangle([5, 10], 15, 20) }
     end
 
     it "invokes the polygon method when radius != 0" do
@@ -573,7 +570,7 @@ describe HexaPDF::Content::Canvas do
 
   describe "polyline" do
     it "serializes correctly" do
-      @canvas.polyline(1, 2, 3, 4, [5, 6])
+      @canvas.polyline(1, 2, 3, 4, 5, 6)
       assert_operators(@page.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]], [:line_to, [5, 6]]])
     end
 
@@ -592,7 +589,7 @@ describe HexaPDF::Content::Canvas do
 
   describe "polygon" do
     it "serializes correctly with no radius" do
-      @canvas.polygon(1, 2, 3, 4, [5, 6])
+      @canvas.polygon(1, 2, 3, 4, 5, 6)
       assert_operators(@page.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]],
                                         [:line_to, [5, 6]], [:close_subpath]])
     end

@@ -55,12 +55,12 @@ describe HexaPDF::Content::GraphicObject::Arc do
 
   describe "curves" do
     def assert_curve_values(exp, act)
-      assert_in_delta(exp[0][0], act[0][0], 0.00001)
-      assert_in_delta(exp[0][1], act[0][1], 0.00001)
-      assert_in_delta(exp[1][:p1][0], act[1][:p1][0], 0.00001)
-      assert_in_delta(exp[1][:p1][1], act[1][:p1][1], 0.00001)
-      assert_in_delta(exp[1][:p2][0], act[1][:p2][0], 0.00001)
-      assert_in_delta(exp[1][:p2][1], act[1][:p2][1], 0.00001)
+      assert_in_delta(exp[0], act[0], 0.00001)
+      assert_in_delta(exp[1], act[1], 0.00001)
+      assert_in_delta(exp[2][:p1][0], act[2][:p1][0], 0.00001)
+      assert_in_delta(exp[2][:p1][1], act[2][:p1][1], 0.00001)
+      assert_in_delta(exp[2][:p2][0], act[2][:p2][0], 0.00001)
+      assert_in_delta(exp[2][:p2][1], act[2][:p2][1], 0.00001)
     end
 
     it "returns the curves for the arc" do
@@ -68,14 +68,14 @@ describe HexaPDF::Content::GraphicObject::Arc do
       arc.max_curves = 4
       curves = arc.curves
       assert_equal(2, curves.size)
-      assert_curve_values([[0, 1], p1: [1, 0.548584], p2: [0.548584, 1]], curves[0])
-      assert_curve_values([[-1, 0], p1: [-0.548584, 1], p2: [-1, 0.548584]], curves[1])
+      assert_curve_values([0, 1, p1: [1, 0.548584], p2: [0.548584, 1]], curves[0])
+      assert_curve_values([-1, 0, p1: [-0.548584, 1], p2: [-1, 0.548584]], curves[1])
 
       arc.configure(clockwise: true)
       curves = arc.curves
       assert_equal(2, curves.size)
-      assert_curve_values([[0, -1], p1: [1, -0.548584], p2: [0.548584, -1]], curves[0])
-      assert_curve_values([[-1, 0], p1: [-0.548584, -1], p2: [-1, -0.548584]], curves[1])
+      assert_curve_values([0, -1, p1: [1, -0.548584], p2: [0.548584, -1]], curves[0])
+      assert_curve_values([-1, 0, p1: [-0.548584, -1], p2: [-1, -0.548584]], curves[1])
     end
   end
 

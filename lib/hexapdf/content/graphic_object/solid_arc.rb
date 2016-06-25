@@ -110,7 +110,7 @@ module HexaPDF
               canvas.close_subpath
             else
               canvas.move_to(@cx, @cy)
-              canvas.line_to(arc.start_point)
+              canvas.line_to(*arc.start_point)
               arc.draw(canvas, move_to_start: false)
               canvas.close_subpath
             end
@@ -128,7 +128,7 @@ module HexaPDF
               canvas.close_subpath
             else
               outer.draw(canvas)
-              canvas.line_to(inner.start_point)
+              canvas.line_to(*inner.start_point)
               inner.draw(canvas, move_to_start: false)
               canvas.close_subpath
             end

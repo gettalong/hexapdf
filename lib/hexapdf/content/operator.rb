@@ -86,6 +86,9 @@ module HexaPDF
           @serialized = "#{name}\n".freeze
         end
 
+        def invoke(_processor) # :nodoc:
+        end
+
         # An optimized version of the serialization algorithm.
         #
         # See: BaseOperator#serialize
@@ -547,6 +550,9 @@ module HexaPDF
         # Creates the operator.
         def initialize
           super('l')
+        end
+
+        def invoke(_processor, _x, _y) #:nodoc:
         end
 
         def serialize(serializer, x, y) #:nodoc:

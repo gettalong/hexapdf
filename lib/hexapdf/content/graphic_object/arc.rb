@@ -127,7 +127,7 @@ module HexaPDF
         # 'graphic_object.arc.max_curves' before drawing.
         def draw(canvas, move_to_start: true)
           @max_curves = canvas.context.document.config['graphic_object.arc.max_curves']
-          canvas.move_to(start_point) if move_to_start
+          canvas.move_to(*start_point) if move_to_start
           curves.each {|curve| canvas.curve_to(*curve)}
         end
 
@@ -136,7 +136,7 @@ module HexaPDF
         #
         # One subarray consists of
         #
-        #   [end_point, p1: control_point_1, p2: control_point_2]
+        #   [end_point_x, end_point_y, p1: control_point_1, p2: control_point_2]
         #
         # The first start point is the one returned by #start_point, the other start points are
         # the end points of the curve before.
@@ -167,7 +167,7 @@ module HexaPDF
             p2x, p2y = evaluate(eta2)
             p2x_prime, p2y_prime = derivative_evaluate(eta2)
 
-            result << [[p2x, p2y],
+            result << [p2x, p2y,
                        p1: [p1x + alpha * p1x_prime, p1y + alpha * p1y_prime],
                        p2: [p2x - alpha * p2x_prime, p2y - alpha * p2y_prime]]
           end

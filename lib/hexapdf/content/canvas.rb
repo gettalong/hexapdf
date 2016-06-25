@@ -135,6 +135,9 @@ module HexaPDF
       #
       # This attribute holds the current point which is only valid if the current graphics objects
       # is :path.
+      #
+      # When the current point changes, the array is modified in place instead of creating a new
+      # array!
       attr_reader :current_point
 
       # The operator name/implementation map used when invoking or serializing an operator.
@@ -151,8 +154,8 @@ module HexaPDF
         @graphics_state = GraphicsState.new
         @graphics_object = :none
         @serializer = HexaPDF::Serializer.new
-        @current_point = nil
-        @start_point = nil
+        @current_point = [0, 0]
+        @start_point = [0, 0]
         @contents = ''.b
       end
 
@@ -187,7 +190,7 @@ module HexaPDF
       # See: PDF1.7 s8.4.2, #restore_graphics_state
       def save_graphics_state
         raise_unless_at_page_description_level
-        invoke(:q)
+        invoke0(:q)
         if block_given?
           yield
           restore_graphics_state
@@ -205,7 +208,7 @@ module HexaPDF
       # See: PDF1.7 s8.4.2, #save_graphics_state
       def restore_graphics_state
         raise_unless_at_page_description_level
-        invoke(:Q)
+        invoke0(:Q)
         self
       end
 
@@ -722,7 +725,7 @@ module HexaPDF
             dict[:CA] = stroke_alpha unless stroke_alpha.nil?
             dict[:ca] = fill_alpha unless fill_alpha.nil?
             dict[:AIS] = false if graphics_state.alpha_source
-            invoke(:gs, resources.add_ext_gstate(dict))
+            invoke1(:gs, resources.add_ext_gstate(dict))
           end
           if block_given?
             yield
@@ -738,62 +741,49 @@ module HexaPDF
 
       # :call-seq:
       #   canvas.move_to(x, y)       => canvas
-      #   canvas.move_to([x, y])     => canvas
       #
       # Begins a new subpath (and possibly a new path) by moving the current point to the given
       # point.
       #
-      # The point can either be specified as +x+ and +y+ arguments or as an array containing two
-      # numbers.
-      #
       # Examples:
       #
       #   canvas.move_to(100, 50)
-      #   canvas.move_to([100, 50]
-      def move_to(*point)
+      def move_to(x, y)
         raise_unless_at_page_description_level_or_in_path
-        point.flatten!
-        invoke(:m, *point)
-        @current_point = @start_point = point
+        invoke2(:m, x, y)
+        @current_point[0] = @start_point[0] = x
+        @current_point[1] = @start_point[1] = y
         self
       end
 
       # :call-seq:
       #   canvas.line_to(x, y)       => canvas
-      #   canvas.line_to([x, y])     => canvas
       #
       # Appends a straight line segment from the current point to the given point (which becomes the
       # new current point) to the current subpath.
       #
-      # The point can either be specified as +x+ and +y+ arguments or as an array containing two
-      # numbers.
-      #
       # Examples:
       #
       #   canvas.line_to(100, 100)
-      #   canvas.line_to([100, 100])
-      def line_to(*point)
+      def line_to(x, y)
         raise_unless_in_path
-        point.flatten!
-        invoke(:l, *point)
-        @current_point = point
+        invoke2(:l, x, y)
+        @current_point[0] = x
+        @current_point[1] = y
         self
       end
 
       # :call-seq:
       #   canvas.curve_to(x, y, p1:, p2:)       => canvas
-      #   canvas.curve_to([x, y], p1:, p2:)     => canvas
       #   canvas.curve_to(x, y, p1:)            => canvas
-      #   canvas.curve_to([x, y], p1:)          => canvas
       #   canvas.curve_to(x, y, p2:)            => canvas
-      #   canvas.curve_to([x, y], p2:)          => canvas
       #
       # Appends a cubic Bezier curve to the current subpath starting from the current point. The end
       # point becomes the new current point.
       #
       # A Bezier curve consists of the start point, the end point and the two control points +p1+
       # and +p2+. The start point is always the current point and the end point is specified as
-      # +x+ and +y+ arguments or as an array containing two numbers.
+      # +x+ and +y+ arguments.
       #
       # Additionally, either the first control point +p1+ or the second control +p2+ or both
       # control points have to be specified (as arrays containing two numbers). If the first
@@ -803,27 +793,26 @@ module HexaPDF
       # Examples:
       #
       #   canvas.curve_to(100, 100, p1: [100, 50], p2: [50, 100])
-      #   canvas.curve_to([100, 100], p1: [100, 50])
+      #   canvas.curve_to(100, 100, p1: [100, 50])
       #   canvas.curve_to(100, 100, p2: [50, 100])
-      def curve_to(*point, p1: nil, p2: nil)
+      def curve_to(x, y, p1: nil, p2: nil)
         raise_unless_in_path
-        point.flatten!
         if p1 && p2
-          invoke(:c, *p1, *p2, *point)
+          invoke(:c, *p1, *p2, x, y)
         elsif p1
-          invoke(:y, *p1, *point)
+          invoke(:y, *p1, x, y)
         elsif p2
-          invoke(:v, *p2, *point)
+          invoke(:v, *p2, x, y)
         else
           raise ArgumentError, "At least one control point must be specified for Bézier curves"
         end
-        @current_point = point
+        @current_point[0] = x
+        @current_point[1] = y
         self
       end
 
       # :call-seq:
       #   canvas.rectangle(x, y, width, height, radius: 0)       => canvas
-      #   canvas.rectangle([x, y], width, height, radius: 0)     => canvas
       #
       # Appends a rectangle to the current path as a complete subpath (drawn in counterclockwise
       # direction), with the lower-left corner specified by +x+ and +y+ and the given +width+ and
@@ -839,18 +828,15 @@ module HexaPDF
       # Examples:
       #
       #   canvas.rectangle(100, 100, 100, 50)
-      #   canvas.rectangle([100, 100], 100, 50)
-      #
-      #   canvas.rectangle([100, 100], 100, 50, radius: 10)
-      def rectangle(*point, width, height, radius: 0)
+      #   canvas.rectangle(100, 100, 100, 50, radius: 10)
+      def rectangle(x, y, width, height, radius: 0)
         raise_unless_at_page_description_level_or_in_path
-        point.flatten!
         if radius == 0
-          invoke(:re, *point, width, height)
-          @current_point = @start_point = point
+          invoke(:re, x, y, width, height)
+          @current_point[0] = @start_point[0] = x
+          @current_point[1] = @start_point[1] = y
           self
         else
-          x, y = point
           polygon(x, y, x + width, y, x + width, y + height, x, y + height, radius: radius)
         end
       end
@@ -862,47 +848,36 @@ module HexaPDF
       # start point of the subpath which also becomes the new current point.
       def close_subpath
         raise_unless_in_path
-        invoke(:h)
+        invoke0(:h)
         @current_point = @start_point
         self
       end
 
       # :call-seq:
       #   canvas.line(x0, y0, x1, y1)        => canvas
-      #   canvas.line([x0, y0], [x1, y1])    => canvas
       #
       # Moves the current point to (x0, y0) and appends a line to (x1, y1) to the current path.
-      #
-      # The points can either be specified as +x+ and +y+ arguments or as arrays containing two
-      # numbers.
       #
       # This method is equal to "canvas.move_to(x0, y0).line_to(x1, y1)".
       #
       # Examples:
       #
       #   canvas.line(10, 10, 100, 100)
-      #   canvas.line([10, 10], [100, 100])
-      def line(*points)
-        points.flatten!
-        move_to(points[0], points[1])
-        line_to(points[2], points[3])
+      def line(x0, y0, x1, y1)
+        move_to(x0, y0)
+        line_to(x1, y1)
       end
 
       # :call-seq:
       #   canvas.polyline(x0, y0, x1, y1, x2, y2, ...)          => canvas
-      #   canvas.polyline([x0, y0], [x1, y1], [x2, y2], ...)    => canvas
       #
       # Moves the current point to (x0, y0) and appends line segments between all given
       # consecutive points, i.e. between (x0, y0) and (x1, y1), between (x1, y1) and (x2, y2) and
       # so on. The last point becomes the new current point.
       #
-      # The points can either be specified as +x+ and +y+ arguments or as arrays containing two
-      # numbers.
-      #
       # Examples:
       #
       #   canvas.polyline(0, 0, 100, 0, 100, 100, 0, 100, 0, 0)
-      #   canvas.polyline([0, 0], [100, 0], [100, 100], [0, 100], [0, 0])
       def polyline(*points)
         check_poly_points(points)
         move_to(points[0], points[1])
@@ -916,7 +891,6 @@ module HexaPDF
 
       # :call-seq:
       #   canvas.polygon(x0, y0, x1, y1, x2, y2, ..., radius: 0)          => canvas
-      #   canvas.polygon([x0, y0], [x1, y1], [x2, y2], ..., radius: 0)    => canvas
       #
       # Appends a polygon consisting of the given points to the path as a complete subpath. The
       # point (x0, y0 + radius) becomes the new current point.
@@ -925,21 +899,16 @@ module HexaPDF
       #
       # If there is no current path when the method is invoked, a new path is automatically begun.
       #
-      # The points can either be specified as +x+ and +y+ arguments or as arrays containing two
-      # numbers.
-      #
       # Examples:
       #
       #   canvas.polygon(0, 0, 100, 0, 100, 100, 0, 100)
-      #   canvas.polygon([0, 0], [100, 0], [100, 100], [0, 100])
-      #
       #   canvas.polygon(0, 0, 100, 0, 100, 100, 0, 100, radius: 10)
       def polygon(*points, radius: 0)
         if radius == 0
           polyline(*points)
         else
           check_poly_points(points)
-          move_to(point_on_line(points[0], points[1], points[2], points[3], distance: radius))
+          move_to(*point_on_line(points[0], points[1], points[2], points[3], distance: radius))
           points.concat(points[0, 4])
           0.step(points.length - 6, 2) {|i| line_with_rounded_corner(*points[i, 6], radius)}
         end
@@ -948,7 +917,6 @@ module HexaPDF
 
       # :call-seq:
       #   canvas.circle(cx, cy, radius)      => canvas
-      #   canvas.circle([cx, cy], radius)    => canvas
       #
       # Appends a circle with center (cx, cy) and the given +radius+ (in degrees) to the path as a
       # complete subpath (drawn in counterclockwise direction). The point (center_x + radius,
@@ -956,23 +924,18 @@ module HexaPDF
       #
       # If there is no current path when the method is invoked, a new path is automatically begun.
       #
-      # The center point can either be specified as +x+ and +y+ arguments or as an array
-      # containing two numbers.
-      #
       # Examples:
       #
       #   canvas.circle(100, 100, 10)
-      #   canvas.circle([100, 100], 10)
       #
       # See: #arc (for approximation accuracy)
-      def circle(*center, radius)
-        arc(*center, a: radius)
+      def circle(cx, cy, radius)
+        arc(cx, cy, a: radius)
         close_subpath
       end
 
       # :call-seq:
       #   canvas.ellipse(cx, cy, a:, b:, inclination: 0)      => canvas
-      #   canvas.ellipse([cx, cy], a:, b:, inclination: 0)    => canvas
       #
       # Appends an ellipse with center (cx, cy), semi-major axis +a+, semi-minor axis +b+ and an
       # inclination from the x-axis of +inclination+ degrees to the path as a complete subpath. The
@@ -980,27 +943,22 @@ module HexaPDF
       #
       # If there is no current path when the method is invoked, a new path is automatically begun.
       #
-      # The center point can either be specified as +x+ and +y+ arguments or as an array
-      # containing two numbers.
-      #
       # Examples:
       #
       #   # Ellipse aligned to x-axis and y-axis
       #   canvas.ellipse(100, 100, a: 10, b: 5)
-      #   canvas.ellipse([100, 100], a: 10, b: 5)
       #
       #   # Inclined ellipse
       #   canvas.ellipse(100, 100, a: 10, b: 5, inclination: 45)
       #
       # See: #arc (for approximation accuracy)
-      def ellipse(*center, a:, b:, inclination: 0)
-        arc(*center, a: a, b: b, inclination: inclination)
+      def ellipse(cx, cy, a:, b:, inclination: 0)
+        arc(cx, cy, a: a, b: b, inclination: inclination)
         close_subpath
       end
 
       # :call-seq:
       #   canvas.arc(cx, cy, a:, b: a, start_angle: 0, end_angle: 360, clockwise: false, inclination: 0)   => canvas
-      #   canvas.arc([cx, cy], a:, b: a, start_angle: 0, end_angle: 360, clockwise: false, inclination: 0) => canvas
       #
       # Appends an elliptical arc to the path. The endpoint of the arc becomes the new current
       # point.
@@ -1035,9 +993,6 @@ module HexaPDF
       #
       # If there is no current path when the method is invoked, a new path is automatically begun.
       #
-      # The center point can either be specified as +x+ and +y+ arguments or as an array
-      # containing two numbers.
-      #
       # Since PDF doesn't have operators for drawing elliptical or circular arcs, they have to be
       # approximated using Bezier curves (see #curve_to). The accuracy of the approximation can be
       # controlled using the configuration option 'graphic_object.arc.max_curves'.
@@ -1058,9 +1013,8 @@ module HexaPDF
       #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15, clockwise: true)
       #
       # See: GraphicObject::Arc
-      def arc(*center, a:, b: a, start_angle: 0, end_angle: 360, clockwise: false, inclination: 0)
-        center.flatten!
-        arc = GraphicObject::Arc.configure(cx: center[0], cy: center[1], a: a, b: b,
+      def arc(cx, cy, a:, b: a, start_angle: 0, end_angle: 360, clockwise: false, inclination: 0)
+        arc = GraphicObject::Arc.configure(cx: cx, cy: cy, a: a, b: b,
                                            start_angle: start_angle, end_angle: end_angle,
                                            clockwise: clockwise, inclination: inclination)
         arc.draw(self)
@@ -1113,7 +1067,7 @@ module HexaPDF
       # See: PDF1.7 s8.5.3.1, s8.5.3.2
       def stroke
         raise_unless_in_path_or_clipping_path
-        invoke(:S)
+        invoke0(:S)
         self
       end
 
@@ -1125,7 +1079,7 @@ module HexaPDF
       # See: PDF1.7 s8.5.3.1, s8.5.3.2
       def close_stroke
         raise_unless_in_path_or_clipping_path
-        invoke(:s)
+        invoke0(:s)
         self
       end
 
@@ -1142,7 +1096,7 @@ module HexaPDF
       # See: PDF1.7 s8.5.3.1, s8.5.3.3
       def fill(rule = :nonzero)
         raise_unless_in_path_or_clipping_path
-        invoke(rule == :nonzero ? :f : :'f*')
+        invoke0(rule == :nonzero ? :f : :'f*')
         self
       end
 
@@ -1157,7 +1111,7 @@ module HexaPDF
       # See: PDF1.7 s8.5.3
       def fill_stroke(rule = :nonzero)
         raise_unless_in_path_or_clipping_path
-        invoke(rule == :nonzero ? :B : :'B*')
+        invoke0(rule == :nonzero ? :B : :'B*')
         self
       end
 
@@ -1172,7 +1126,7 @@ module HexaPDF
       # See: PDF1.7 s8.5.3
       def close_fill_stroke(rule = :nonzero)
         raise_unless_in_path_or_clipping_path
-        invoke(rule == :nonzero ? :b : :'b*')
+        invoke0(rule == :nonzero ? :b : :'b*')
         self
       end
 
@@ -1187,7 +1141,7 @@ module HexaPDF
       # See: PDF1.7 s8.5.3.1 #clip
       def end_path
         raise_unless_in_path_or_clipping_path
-        invoke(:n)
+        invoke0(:n)
         self
       end
 
@@ -1206,7 +1160,7 @@ module HexaPDF
       # See: PDF1.7 s8.5.4
       def clip_path(rule = :nonzero)
         raise_unless_in_path
-        invoke(rule == :nonzero ? :W : :'W*')
+        invoke0(rule == :nonzero ? :W : :'W*')
         self
       end
 
@@ -1271,7 +1225,7 @@ module HexaPDF
         end
 
         transform(width, 0, 0, height, at[0], at[1]) do
-          invoke(:Do, resources.add_xobject(obj))
+          invoke1(:Do, resources.add_xobject(obj))
         end
 
         obj
@@ -1489,7 +1443,7 @@ module HexaPDF
       def begin_text(force_new: false)
         raise_unless_at_page_description_level_or_in_text
         end_text if force_new
-        invoke(:BT) if graphics_object == :none
+        invoke0(:BT) if graphics_object == :none
         self
       end
 
@@ -1501,7 +1455,7 @@ module HexaPDF
       # See: PDF1.7 s9.4.1
       def end_text
         raise_unless_at_page_description_level_or_in_text
-        invoke(:ET) if graphics_object == :text
+        invoke0(:ET) if graphics_object == :text
         self
       end
 
@@ -1539,6 +1493,24 @@ module HexaPDF
       # Serializes the operator with the operands to the content stream.
       def serialize(operator, *operands)
         @contents << @operators[operator].serialize(@serializer, *operands)
+      end
+
+      # Optimized method for zero operands.
+      def invoke0(operator)
+        @operators[operator].invoke(self)
+        @contents << @operators[operator].serialize(@serializer)
+      end
+
+      # Optimized method for one operand.
+      def invoke1(operator, op1)
+        @operators[operator].invoke(self, op1)
+        @contents << @operators[operator].serialize(@serializer, op1)
+      end
+
+      # Optimized method for two operands.
+      def invoke2(operator, op1, op2)
+        @operators[operator].invoke(self, op1, op2)
+        @contents << @operators[operator].serialize(@serializer, op1, op2)
       end
 
       # Raises an error unless the current graphics object is a path.
@@ -1674,7 +1646,7 @@ module HexaPDF
           raise_unless_at_page_description_level_or_in_text
           save_graphics_state if block_given?
           if graphics_state.send(name) != value
-            value.respond_to?(:to_operands) ? invoke(op, *value.to_operands) : invoke(op, value)
+            value.respond_to?(:to_operands) ? invoke(op, *value.to_operands) : invoke1(op, value)
           end
           if block_given?
             yield
@@ -1690,7 +1662,6 @@ module HexaPDF
 
       # Modifies and checks the array +points+ so that polylines and polygons work correctly.
       def check_poly_points(points)
-        points.flatten!
         if points.length < 4
           raise ArgumentError, "At least two points needed to make one line segment"
         elsif points.length.odd?
@@ -1710,8 +1681,8 @@ module HexaPDF
         p3 = point_on_line(x1, y1, x2, y2, distance: radius)
         p1 = point_on_line(p0[0], p0[1], x1, y1, distance: KAPPA * radius)
         p2 = point_on_line(p3[0], p3[1], x1, y1, distance: KAPPA * radius)
-        line_to(p0)
-        curve_to(p3, p1: p1, p2: p2)
+        line_to(p0[0], p0[1])
+        curve_to(p3[0], p3[1], p1: p1, p2: p2)
       end
 
       # Given two points p0 = (x0, y0) and p1 = (x1, y1), returns the point on the line through
