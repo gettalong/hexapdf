@@ -48,7 +48,7 @@ module HexaPDF
             @language = 0
           end
 
-          # Returns +true+ if this subtable contains a unicode cmap.
+          # Returns +true+ if this subtable contains a Unicode cmap.
           def unicode?
             (platform_id == PLATFORM_MICROSOFT && (encoding_id == 1 || encoding_id == 10)) ||
               platform_id == PLATFORM_UNICODE

@@ -52,10 +52,10 @@ module HexaPDF
         # The code point representing the glyph.
         attr_reader :code_point
 
-        # The unicode value of the code point.
+        # The Unicode value of the code point.
         attr_reader :string
 
-        # Creates a new glyph box for the given code point/unicode value pair with the lower left
+        # Creates a new glyph box for the given code point/Unicode value pair with the lower left
         # coordinate [llx, lly], the lower right coordinate [lrx, lry], and the upper left
         # coordinate [ulx, uly].
         def initialize(code_point, string, llx, lly, lrx, lry, ulx, uly)

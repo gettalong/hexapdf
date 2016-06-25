@@ -8,12 +8,13 @@ module HexaPDF
 
       # Provides access to and mapping functionality for the Adobe Glyph List.
       #
-      # The Adobe Glyph List is used for mapping glyph names to unicode values. The mapping itself
-      # is not a one-to-one mapping because some glyphs are mapped to the same unicode sequence,
+      # The Adobe Glyph List is used for mapping glyph names to Unicode values. The mapping itself
+      # is not a one-to-one mapping because some glyphs are mapped to the same Unicode sequence,
       # e.g. the glyph name for 'A' and the glyph name for 'small capital A'.
       #
-      # A (not unique) reverse mapping is also available which allows mapping a unicode sequence to
-      # a glyph name.
+      # Since a reverse mapping is needed for converting UTF-8 strings to glyph names when encoding
+      # text, this (not unique) reverse mapping is also available. However, only the first occurence
+      # of a particular Unicode string is reverse-mapped.
       #
       # See:
       # * https://github.com/adobe-type-tools/agl-aglfn
@@ -62,7 +63,7 @@ module HexaPDF
           end
         end
 
-        # Maps the given unicode codepoint/string to a name in the Adobe Glyph List.
+        # Maps the given Unicode codepoint/string to a name in the Adobe Glyph List.
         #
         # If this method is invoked when dealing with the ZapfDingbats font, the +zapf_dingbats+
         # option needs to be set to +true+.
@@ -89,7 +90,7 @@ module HexaPDF
         #   more characters.
         #
         # * The unicode-to-name mapping is *not* unique! It only uses the first occurence of a
-        #   unicode sequence.
+        #   Unicode sequence.
         def load_file(file)
           name2uni = {}
           uni2name = {}
