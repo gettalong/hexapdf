@@ -22,6 +22,16 @@ describe HexaPDF::Font::Type1::Font do
       assert_equal(HexaPDF::Font::Encoding.for_name(:StandardEncoding), @font.encoding)
     end
 
+    it "handles the special case of the ZapfDingbats font" do
+      @font.metrics.font_name = "ZapfDingbats"
+      assert_equal(HexaPDF::Font::Encoding.for_name(:ZapfDingbatsEncoding), @font.encoding)
+    end
+
+    it "handles the special case of the Symbol font" do
+      @font.metrics.font_name = "Symbol"
+      assert_equal(HexaPDF::Font::Encoding.for_name(:SymbolEncoding), @font.encoding)
+    end
+
     it "generates an encoding object if necessary" do
       char_metrics = HexaPDF::Font::Type1::CharacterMetrics.new
       char_metrics.code = 5

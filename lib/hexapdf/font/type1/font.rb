@@ -55,6 +55,8 @@ module HexaPDF
             begin
               if @metrics.encoding_scheme == 'AdobeStandardEncoding'.freeze
                 Encoding.for_name(:StandardEncoding)
+              elsif font_name == 'ZapfDingbats' || font_name == 'Symbol'
+                Encoding.for_name((font_name + "Encoding").to_sym)
               else
                 encoding = Encoding::Base.new
                 @metrics.character_metrics.each do |key, char_metric|
