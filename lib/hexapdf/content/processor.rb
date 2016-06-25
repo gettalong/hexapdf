@@ -103,6 +103,15 @@ module HexaPDF
           [@ulx + (@lrx - @llx), @uly + (@lry - @lly)]
         end
 
+        # :call-seq:
+        #    fragment.points         -> [llx, lly, lrx, lry, urx, ury, ulx, uly]
+        #
+        # Returns the four corners of the box as an array of coordinates, starting with the lower
+        # left corner and going counterclockwise.
+        def points
+          [@llx, @lly, @lrx, @lry, @ulx + (@lrx - @llx), @uly + (@lry - @lly), @ulx, @uly]
+        end
+
       end
 
 

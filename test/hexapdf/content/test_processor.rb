@@ -5,12 +5,19 @@ require 'hexapdf/content/processor'
 require 'hexapdf/document'
 
 describe HexaPDF::Content::Processor::GlyphBox do
+  before do
+    @box = HexaPDF::Content::Processor::GlyphBox.new(5, "5", 1, 2, 3, 4, 5, 6)
+  end
+
   it "returns the correct bounding box coordinates" do
-    box = HexaPDF::Content::Processor::GlyphBox.new(5, "5", 1, 2, 3, 4, 5, 6)
-    assert_equal([1, 2], box.lower_left)
-    assert_equal([3, 4], box.lower_right)
-    assert_equal([5, 6], box.upper_left)
-    assert_equal([7, 8], box.upper_right)
+    assert_equal([1, 2], @box.lower_left)
+    assert_equal([3, 4], @box.lower_right)
+    assert_equal([5, 6], @box.upper_left)
+    assert_equal([7, 8], @box.upper_right)
+  end
+
+  it "returns all box corners in one array when using #points" do
+    assert_equal([1, 2, 3, 4, 7, 8, 5, 6], @box.points)
   end
 end
 
