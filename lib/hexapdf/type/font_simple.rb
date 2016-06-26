@@ -1,8 +1,7 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/stream'
+require 'hexapdf/type/font'
 require 'hexapdf/font/encoding'
-require 'hexapdf/font/cmap'
 
 module HexaPDF
   module Type
@@ -12,16 +11,13 @@ module HexaPDF
     # A simple font has only single-byte character codes and only supports horizontal metrics.
     #
     # See: PDF1.7 s9.6
-    class FontSimple < Dictionary
+    class FontSimple < Font
 
-      define_field :Type, type: Symbol, required: true, default: :Font
-      define_field :BaseFont, type: Symbol, required: true
       define_field :FirstChar, type: Integer
       define_field :LastChar, type: Integer
       define_field :Widths, type: Array
       define_field :FontDescriptor, type: :FontDescriptor, indirect: true
       define_field :Encoding, type: [Symbol, Dictionary]
-      define_field :ToUnicode, type: Stream, version: '1.2'
 
       # Returns the encoding object used for this font.
       #
@@ -62,11 +58,9 @@ module HexaPDF
       # Returns the UTF-8 string for the given character code, or an empty string if no mapping was
       # found.
       def to_utf8(code)
-        if to_unicode_cmap
-          to_unicode_cmap.to_unicode(code)
-        else
-          encoding.unicode(code)
-        end
+        str = super
+        str = encoding.unicode(code) if str.empty?
+        str
       end
 
       # Returns the unscaled width of the given code point in glyph units, or 0 if the width for
@@ -141,18 +135,6 @@ module HexaPDF
           end
         end
         encoding
-      end
-
-      # Parses and caches the ToUnicode CMap.
-      def to_unicode_cmap
-        unless defined?(@to_unicode_cmap)
-          @to_unicode_cmap = if key?(:ToUnicode)
-                               HexaPDF::Font::CMap.parse(self[:ToUnicode].stream)
-                             else
-                               nil
-                             end
-        end
-        @to_unicode_cmap
       end
 
       # Validates the simple font dictionary.

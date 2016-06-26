@@ -105,15 +105,15 @@ describe HexaPDF::Type::FontSimple do
   describe "to_utf" do
     it "uses a /ToUnicode CMap if it is available" do
       assert_equal("A", @font.to_utf8(32))
-      assert_equal("B", @font.to_utf8(34))
     end
 
-    it "uses the font's encoding to map the code to an UTF-8 string" do
+    it "uses the font's encoding to map the code to an UTF-8 string if the /ToUnicode is missing" do
       @font.delete(:ToUnicode)
       assert_equal(" ", @font.to_utf8(32))
     end
 
     it "returns an empty string if no correct mapping could be found" do
+      @font.delete(:ToUnicode)
       assert_equal("", @font.to_utf8(0))
     end
   end
