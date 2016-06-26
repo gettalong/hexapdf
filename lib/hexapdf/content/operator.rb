@@ -293,7 +293,6 @@ module HexaPDF
           ops[:M].invoke(processor, dict[:ML]) if dict.key?(:ML)
           ops[:d].invoke(processor, *dict[:D]) if dict.key?(:D)
           ops[:ri].invoke(processor, dict[:RI]) if dict.key?(:RI)
-          # TODO: dict[:Font] for font and font_size
           # TODO: dict[:SMask] works differently than operator!
 
           # No content operator exists for the following parameters
