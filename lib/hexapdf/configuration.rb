@@ -305,6 +305,7 @@ module HexaPDF
                         Image: 'HexaPDF::Type::Image',
                         Form: 'HexaPDF::Type::Form',
                         Type1: 'HexaPDF::Type::FontType1',
+                        TrueType: 'HexaPDF::Type::FontTrueType',
                       },
                       'task.map' => {
                         set_min_pdf_version: 'HexaPDF::Task::SetMinPDFVersion',

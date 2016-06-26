@@ -28,6 +28,7 @@ module HexaPDF
     autoload(:FontDescriptor, 'hexapdf/type/font_descriptor')
     autoload(:FontSimple, 'hexapdf/type/font_simple')
     autoload(:FontType1, 'hexapdf/type/font_type1')
+    autoload(:FontTrueType, 'hexapdf/type/font_true_type')
 
   end
 
