@@ -35,10 +35,11 @@ module HexaPDF
 
       # Creates a new CMap object.
       def initialize
-        @unicode_mapping = {}
+        @unicode_mapping = Hash.new("".freeze)
       end
 
-      # Returns the Unicode string in UTF-8 encoding for the given character code.
+      # Returns the Unicode string in UTF-8 encoding for the given character code, or an empty
+      # string if no mapping was found.
       def to_unicode(code)
         unicode_mapping[code]
       end
