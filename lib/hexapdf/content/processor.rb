@@ -390,7 +390,7 @@ module HexaPDF
           else
             font.decode(item).each do |code_point|
               char = font.to_utf8(code_point)
-              width = (font.width(code_point) || 0) * scaled_font_size * horizontal_scaling
+              width = font.width(code_point) * scaled_font_size * horizontal_scaling
               matrix = graphics_state.ctm.dup.premultiply(*graphics_state.tm)
               fragment = GlyphBox.new(code_point, char,
                                       *matrix.evaluate(0, below_baseline),
