@@ -15,6 +15,7 @@ require 'hexapdf/writer'
 require 'hexapdf/importer'
 require 'hexapdf/image_loader'
 require 'hexapdf/document_utils'
+require 'hexapdf/font_utils'
 
 module HexaPDF
 
@@ -379,6 +380,11 @@ module HexaPDF
     # functionality like adding images.
     def utils
       @utils ||= DocumentUtils.new(self)
+    end
+
+    # Returns the FontUtils object that provides convenience methods for working with fonts.
+    def fonts
+      @font_utils ||= FontUtils.new(self)
     end
 
     # Executes the given task and returns its result.

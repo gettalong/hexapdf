@@ -104,6 +104,15 @@ module HexaPDF
   #
   #    In nearly all cases this option should not be changed from its default setting!
   #
+  # font_loader::
+  #    An array with font loader implementations. When a font should be loaded, the array is
+  #    iterated in sequence and the first valid font returned by a font loader is used.
+  #
+  #    If a value is a String, it should contain the name of a constant that is a font loader
+  #    object.
+  #
+  #    See the FontLoader module for information on how to implement a font loader object.
+  #
   # graphic_object.map::
   #    A mapping from graphic object names to graphic object factories.
   #
@@ -153,6 +162,8 @@ module HexaPDF
   #    The maximum number of nodes that should be in a leaf node of a node tree.
   DefaultDocumentConfiguration =
     Configuration.new('document.auto_decrypt' => true,
+                      'font_loader' => [
+                      ],
                       'graphic_object.map' => {
                         arc: 'HexaPDF::Content::GraphicObject::Arc',
                         endpoint_arc: 'HexaPDF::Content::GraphicObject::EndpointArc',
