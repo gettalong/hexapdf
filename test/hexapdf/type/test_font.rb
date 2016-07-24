@@ -16,6 +16,10 @@ describe HexaPDF::Type::Font do
     @font = @doc.add({Type: :Font, BaseFont: :TestFont, ToUnicode: cmap})
   end
 
+  it "must always be an indirect" do
+    assert(@font.must_be_indirect?)
+  end
+
   describe "to_utf" do
     it "uses the /ToUnicode CMap if it is available" do
       assert_equal("A", @font.to_utf8(32))

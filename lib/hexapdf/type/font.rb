@@ -15,6 +15,11 @@ module HexaPDF
       define_field :BaseFont, type: Symbol, required: true
       define_field :ToUnicode, type: Stream, version: '1.2'
 
+      # Font objects must always be indirect.
+      def must_be_indirect?
+        true
+      end
+
       # Returns the UTF-8 string for the given character code, or an empty string if no mapping was
       # found.
       def to_utf8(code)
