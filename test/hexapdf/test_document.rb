@@ -541,4 +541,15 @@ EOF
       assert_equal(:Pages, pages.type)
     end
   end
+
+  describe "listener interface" do
+    it "allows registering and dispatching messages" do
+      args = []
+      callable = lambda {|*a| args << [:callable, a]}
+      @doc.register_listener(:something, callable)
+      @doc.register_listener(:something) {|*a| args << [:block, a]}
+      @doc.dispatch_message(:something, :arg)
+      assert_equal([[:callable, [:arg]], [:block, [:arg]]], args)
+    end
+  end
 end

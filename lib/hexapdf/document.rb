@@ -90,6 +90,8 @@ module HexaPDF
       else
         @security_handler = nil
       end
+
+      @listeners = {}
     end
 
     # :call-seq:
@@ -357,6 +359,22 @@ module HexaPDF
       self
     end
 
+    # :call-seq:
+    #    doc.register_listener(name, callable)             -> callable
+    #    doc.register_listener(name) {|*args| block}       -> block
+    #
+    # Registers the given listener for the message +name+.
+    def register_listener(name, callable = nil, &block)
+      callable ||= block
+      (@listeners[name] ||= []) << callable
+      callable
+    end
+
+    # Dispatches the message +name+ with the given arguments to all registered listeners.
+    def dispatch_message(name, *args)
+      @listeners[name] && @listeners[name].each {|obj| obj.call(*args)}
+    end
+
     # Returns a DocumentUtils object that provides convenience methods for often used
     # functionality like adding images.
     def utils
@@ -488,16 +506,21 @@ module HexaPDF
     #   Updates the /ID field in the trailer dictionary as well as the /ModDate field in the
     #   trailer's /Info dictionary so that it is clear that the document has been updated.
     def write(file_or_io, validate: true, update_fields: true)
+      dispatch_message(:complete_objects)
+
       if update_fields
         trailer.update_id
         trailer[:Info] = add(ModDate: Time.now)
       end
+
       if validate
         self.validate(auto_correct: true) do |msg, correctable|
           next if correctable
           raise HexaPDF::Error, "Validation error: #{msg}"
         end
       end
+
+      dispatch_message(:before_write)
 
       if file_or_io.kind_of?(String)
         File.open(file_or_io, 'w+') {|file| Writer.write(self, file)}
