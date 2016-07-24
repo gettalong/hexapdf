@@ -17,7 +17,7 @@ module HexaPDF
       define_field :LastChar, type: Integer
       define_field :Widths, type: Array
       define_field :FontDescriptor, type: :FontDescriptor, indirect: true
-      define_field :Encoding, type: [Symbol, Dictionary]
+      define_field :Encoding, type: [Symbol, Dictionary, Hash]
 
       # Returns the encoding object used for this font.
       #
