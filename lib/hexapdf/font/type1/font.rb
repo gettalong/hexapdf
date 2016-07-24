@@ -42,7 +42,7 @@ module HexaPDF
         def_delegators :@metrics, :font_name, :full_name, :family_name
         def_delegators :@metrics, :weight, :bounding_box, :italic_angle
         def_delegators :@metrics, :ascender, :descender, :cap_height, :x_height
-        def_delegators :@metrics, :horizontal_dominant_width, :vertical_dominant_width
+        def_delegators :@metrics, :dominant_horizontal_stem_width, :dominant_vertical_stem_width
 
         # Creates a new Type1 font object with the given font metrics.
         def initialize(metrics)
