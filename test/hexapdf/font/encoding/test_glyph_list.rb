@@ -48,10 +48,11 @@ describe HexaPDF::Font::Encoding::GlyphList do
       assert_equal(:A, HexaPDF::Font::Encoding::GlyphList.unicode_to_name("A"))
       assert_equal(:odieresis, @list.unicode_to_name("ö"))
       assert_equal(:finalkafqamats, @list.unicode_to_name("\u05da\u05b8"))
+      assert_equal(:'.notdef', @list.unicode_to_name("ABCDEFG"))
     end
 
     it "maps Zapf Dingbats codepoints to names" do
-      assert_nil(@list.unicode_to_name("\u2710"))
+      assert_equal(:'.notdef', @list.unicode_to_name("\u2710"))
       assert_equal(:a105, @list.unicode_to_name("\u2710", zapf_dingbats: true))
     end
   end

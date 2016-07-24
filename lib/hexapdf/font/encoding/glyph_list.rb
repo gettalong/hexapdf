@@ -63,12 +63,17 @@ module HexaPDF
           end
         end
 
-        # Maps the given Unicode codepoint/string to a name in the Adobe Glyph List.
+        # Maps the given Unicode codepoint/string to a name in the Adobe Glyph List, or to .notdef
+        # if there is no mapping.
         #
         # If this method is invoked when dealing with the ZapfDingbats font, the +zapf_dingbats+
         # option needs to be set to +true+.
         def unicode_to_name(unicode, zapf_dingbats: false)
-          zapf_dingbats ? @zapf_uni_to_name[unicode] : @standard_uni_to_name[unicode]
+          if zapf_dingbats
+            @zapf_uni_to_name.fetch(unicode, :'.notdef')
+          else
+            @standard_uni_to_name.fetch(unicode, :'.notdef')
+          end
         end
 
         private
