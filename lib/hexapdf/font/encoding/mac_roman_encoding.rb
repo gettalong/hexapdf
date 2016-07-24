@@ -13,6 +13,7 @@ module HexaPDF
 
         def initialize #:nodoc:
           super
+          @encoding_name = :MacRomanEncoding
           @code_to_name = {
             0101 => :A,
             0256 => :AE,

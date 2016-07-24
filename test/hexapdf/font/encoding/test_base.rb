@@ -9,6 +9,10 @@ describe HexaPDF::Font::Encoding::Base do
     @base.code_to_name[65] = :A
   end
 
+  it "returns nil for the encoding_name" do
+    assert_nil(@base.encoding_name)
+  end
+
   describe "name" do
     it "returns a mapped code" do
       assert_equal(:A, @base.name(65))

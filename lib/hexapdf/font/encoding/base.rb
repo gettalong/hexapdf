@@ -10,6 +10,9 @@ module HexaPDF
       # names.
       class Base
 
+        # The name of the encoding or +nil+ if the encoding has not been assigned a name.
+        attr_reader :encoding_name
+
         # The hash mapping codes to names.
         attr_reader :code_to_name
 
@@ -17,6 +20,7 @@ module HexaPDF
         def initialize
           @code_to_name = {}
           @unicode_cache = {}
+          @encoding_name = nil
         end
 
         # Returns the name for the given code, or .notdef if no glyph for the code is defined.

@@ -13,6 +13,7 @@ module HexaPDF
 
         def initialize #:nodoc:
           super
+          @encoding_name = :StandardEncoding
           @code_to_name = {
             0101 => :A,
             0341 => :AE,
