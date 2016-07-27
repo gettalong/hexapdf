@@ -104,6 +104,13 @@ module HexaPDF
   #
   #    In nearly all cases this option should not be changed from its default setting!
   #
+  # font.on_missing_glyph::
+  #    Callback hook when an UTF-8 character cannot be mapped to a glyph of a font.
+  #
+  #    The value needs to be an object that responds to \#call(char_or_name, font) where
+  #    +char_or_name+ is the UTF-8 character or the glyph name for the missing glyph and returns a
+  #    substitute glyph name/ID to be used instead.
+  #
   # font_loader::
   #    An array with font loader implementations. When a font should be loaded, the array is
   #    iterated in sequence and the first valid font returned by a font loader is used.
@@ -162,6 +169,9 @@ module HexaPDF
   #    The maximum number of nodes that should be in a leaf node of a node tree.
   DefaultDocumentConfiguration =
     Configuration.new('document.auto_decrypt' => true,
+                      'font.on_missing_glyph' => proc do |n, f|
+                        raise HexaPDF::Error, "No glyph for '#{n}' in font #{f.font_name} found"
+                      end,
                       'font_loader' => [
                       ],
                       'graphic_object.map' => {
