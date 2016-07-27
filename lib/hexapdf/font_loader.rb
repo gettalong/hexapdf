@@ -25,6 +25,9 @@ module HexaPDF
   #
   # variant:: The font variant that should be used (e.g. :none, :bold, :italic, :bold_italic).
   module FontLoader
+
+    autoload(:Standard14, 'hexapdf/font_loader/standard14')
+
   end
 
 end

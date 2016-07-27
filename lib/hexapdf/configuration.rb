@@ -173,6 +173,7 @@ module HexaPDF
                         raise HexaPDF::Error, "No glyph for '#{n}' in font #{f.font_name} found"
                       end,
                       'font_loader' => [
+                        'HexaPDF::FontLoader::Standard14',
                       ],
                       'graphic_object.map' => {
                         arc: 'HexaPDF::Content::GraphicObject::Arc',
