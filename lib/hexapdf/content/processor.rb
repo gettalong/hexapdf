@@ -376,21 +376,23 @@ module HexaPDF
       # See: PDF1.7 s9.4.4
       def decode_horizontal_text(array)
         font = graphics_state.font
-        horizontal_scaling = graphics_state.horizontal_scaling / 100.0
-        scaled_char_space = graphics_state.character_spacing * horizontal_scaling
-        scaled_word_space = graphics_state.word_spacing * horizontal_scaling
-        scaled_font_size = graphics_state.font_size / 1000.0
-        below_baseline = font.bounding_box[1] * scaled_font_size + graphics_state.text_rise
-        above_baseline = font.bounding_box[3] * scaled_font_size + graphics_state.text_rise
+        scaled_char_space = graphics_state.scaled_character_spacing
+        scaled_word_space = graphics_state.scaled_word_spacing
+        scaled_font_size = graphics_state.scaled_font_size
+
+        below_baseline = font.bounding_box[1] * scaled_font_size / \
+          graphics_state.scaled_horizontal_scaling + graphics_state.text_rise
+        above_baseline = font.bounding_box[3] * scaled_font_size / \
+          graphics_state.scaled_horizontal_scaling + graphics_state.text_rise
 
         text = CompositeBox.new
         array.each do |item|
           if item.kind_of?(Numeric)
-            graphics_state.tm.translate(-item * scaled_font_size * horizontal_scaling, 0)
+            graphics_state.tm.translate(-item * scaled_font_size, 0)
           else
             font.decode(item).each do |code_point|
               char = font.to_utf8(code_point)
-              width = font.width(code_point) * scaled_font_size * horizontal_scaling
+              width = font.width(code_point) * scaled_font_size
               matrix = graphics_state.ctm.dup.premultiply(*graphics_state.tm)
               fragment = GlyphBox.new(code_point, char,
                                       *matrix.evaluate(0, below_baseline),

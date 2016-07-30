@@ -329,17 +329,17 @@ module HexaPDF
       #
       # It specifies the additional spacing used for the horizontal or vertical displacement of
       # glyphs.
-      attr_accessor :character_spacing
+      attr_reader :character_spacing
 
       # The word spacing in unscaled text units.
       #
       # It works like the character spacing but is only applied to the ASCII space character.
-      attr_accessor :word_spacing
+      attr_reader :word_spacing
 
       # The horizontal text scaling.
       #
       # The value specifies the percentage of the normal width that should be used.
-      attr_accessor :horizontal_scaling
+      attr_reader :horizontal_scaling
 
       # The leading in unscaled text units.
       #
@@ -350,7 +350,7 @@ module HexaPDF
       attr_accessor :font
 
       # The font size.
-      attr_accessor :font_size
+      attr_reader :font_size
 
       # The text rendering mode.
       #
@@ -370,6 +370,36 @@ module HexaPDF
       # purpose of color compositing in the transparent imaging model (knockout = +false+) or if
       # all glyphs together are treated as one elementary object (knockout = +true+).
       attr_accessor :text_knockout
+
+
+      # The scaled character spacing used in glyph displacement calculations.
+      #
+      # This returns the value T_c multiplied by #scaled_horizontal_scaling.
+      #
+      # See PDF1.7 s9.4.4
+      attr_reader :scaled_character_spacing
+
+      # The scaled word spacing used in glyph displacement calculations.
+      #
+      # This returns the value T_w  multiplied by #scaled_horizontal_scaling.
+      #
+      # See PDF1.7 s9.4.4
+      attr_reader :scaled_word_spacing
+
+      # The scaled font size used in glyph displacement calculations.
+      #
+      # This returns the value T_fs / 1000 multiplied by #scaled_horizontal_scaling.
+      #
+      # See PDF1.7 s9.4.4
+      attr_reader :scaled_font_size
+
+      # The scaled horizontal scaling used in glyph displacement calculations.
+      #
+      # Since the horizontal scaling attribute is stored in percent of 100, this method returns the
+      # correct value for calculations.
+      #
+      # See PDF1.7 s9.4.4
+      attr_reader :scaled_horizontal_scaling
 
 
       # Initializes the graphics state parameters to their default values.
@@ -396,10 +426,15 @@ module HexaPDF
         @horizontal_scaling = 100
         @leading = 0
         @font = nil
-        @font_size = nil
+        @font_size = 10
         @text_rendering_mode = TextRenderingMode::FILL
         @text_rise = 0
         @text_knockout = true
+
+        @scaled_character_spacing = 0
+        @scaled_word_spacing = 0
+        @scaled_font_size = 0
+        @scaled_horizontal_scaling = 1
 
         @stack = []
       end
@@ -411,7 +446,9 @@ module HexaPDF
                      @line_dash_pattern, @rendering_intent, @stroke_adjustment, @blend_mode,
                      @soft_mask, @stroke_alpha, @fill_alpha, @alpha_source,
                      @character_spacing, @word_spacing, @horizontal_scaling, @leading,
-                     @font, @font_size, @text_rendering_mode, @text_rise, @text_knockout])
+                     @font, @font_size, @text_rendering_mode, @text_rise, @text_knockout,
+                     @scaled_character_spacing, @scaled_word_spacing, @scaled_font_size,
+                     @scaled_horizontal_scaling])
         @ctm = @ctm.dup
       end
 
@@ -427,7 +464,9 @@ module HexaPDF
           @rendering_intent, @stroke_adjustment, @blend_mode,
           @soft_mask, @stroke_alpha, @fill_alpha, @alpha_source,
           @character_spacing, @word_spacing, @horizontal_scaling, @leading,
-          @font, @font_size, @text_rendering_mode, @text_rise, @text_knockout = @stack.pop
+          @font, @font_size, @text_rendering_mode, @text_rise, @text_knockout,
+          @scaled_character_spacing, @scaled_word_spacing, @scaled_font_size,
+          @scaled_horizontal_scaling = @stack.pop
       end
 
       ##
@@ -456,6 +495,46 @@ module HexaPDF
 
       def fill_color_space=(color_space) #:nodoc:
         self.fill_color = color_space.default_color
+      end
+
+      ##
+      # :attr_writer: character_spacing
+      #
+      # Sets the character spacing and updates the scaled character spacing.
+      def character_spacing=(space)
+        @character_spacing = space
+        @scaled_character_spacing = space * @scaled_horizontal_scaling
+      end
+
+      ##
+      # :attr_writer: word_spacing
+      #
+      # Sets the word spacing and updates the scaled word spacing.
+      def word_spacing=(space)
+        @word_spacing = space
+        @scaled_word_spacing = space * @scaled_horizontal_scaling
+      end
+
+      ##
+      # :attr_writer: font_size
+      #
+      # Sets the font size and updates the scaled font size.
+      def font_size=(size)
+        @font_size = size
+        @scaled_font_size = size / 1000.0 * @scaled_horizontal_scaling
+      end
+
+      ##
+      # :attr_writer: horizontal_scaling
+      #
+      # Sets the horizontal scaling and updates the scaled character spacing, scaled word spacing
+      # and scaled font size.
+      def horizontal_scaling=(scaling)
+        @horizontal_scaling = scaling
+        @scaled_horizontal_scaling = scaling / 100.0
+        @scaled_character_spacing = @character_spacing * @scaled_horizontal_scaling
+        @scaled_word_spacing = @word_spacing * @scaled_horizontal_scaling
+        @scaled_font_size = @font_size / 1000.0 * @scaled_horizontal_scaling
       end
 
     end
