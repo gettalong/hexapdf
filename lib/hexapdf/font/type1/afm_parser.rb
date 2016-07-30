@@ -116,17 +116,15 @@ module HexaPDF
           parse_integer.times do
             read_line
             char = CharacterMetrics.new
-            while true
-              case parse_name.to_sym
-              when :C then char.code = parse_integer
-              when :WX then char.width = parse_number
-              when :N then char.name = parse_name.to_sym
-              when :B then char.bbox = [parse_number, parse_number, parse_number, parse_number]
-              when :L then char.ligatures[parse_name] = parse_name
-              when :"" then break
-              end
-              while parse_name != ';'.freeze
-                # ignore unknown keywords and consume separator semicolon
+            if @line =~ /C (\S+) ; WX (\S+) ; N (\S+) ; B (\S+) (\S+) (\S+) (\S+) ;((?: L \S+ \S+ ;)+)?/
+              char.code = $1.to_i
+              char.width = $2.to_f
+              char.name = $3.to_sym
+              char.bbox = [$4.to_i, $5.to_i, $6.to_i, $7.to_i]
+              if $8
+                $8.scan(/L (\S+) (\S+)/).each do |name, ligature|
+                  char.ligatures[name] = ligature
+                end
               end
             end
             @metrics.character_metrics[char.name] = char if char.name
@@ -140,10 +138,8 @@ module HexaPDF
         def parse_kerning_pairs
           parse_integer.times do
             read_line
-            case parse_name.to_sym
-            when :KPX then
-              name1, name2, kerning = @line.scan(/\S+/)
-              @metrics.kerning_pairs[name1][name2] = kerning.to_i
+            if @line =~ /KPX (\S+) (\S+) (\S+)/
+              @metrics.kerning_pairs[$1][$2] = $3.to_i
             end
           end
         end
