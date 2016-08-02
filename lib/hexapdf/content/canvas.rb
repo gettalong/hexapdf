@@ -1477,9 +1477,57 @@ module HexaPDF
       #
       # See: PDF1.7 s9.4.2
       def text_matrix(a, b, c, d, e, f)
-        raise_unless_in_text
+        begin_text
         invoke(:Tm, a, b, c, d, e, f)
         self
+      end
+
+      # :call-seq:
+      #   canvas.move_text_cursor(offset: nil, absolute: true)     -> canvas
+      #
+      # Moves the text cursor by modifying the text and text line matrices.
+      #
+      # If +offset+ is not specified, the text cursor is moved to the start of the next text line
+      # using #leading as vertical offset.
+      #
+      # Otherwise, the arguments +offset+, which has to be an array of the form [x, y], and
+      # +absolute+ work together:
+      #
+      # * If +absolute+ is +true+, then the text and text line matrices are set to [1, 0, 0, 1, x,
+      #   y], placing the origin of text space, and therefore the text cursor, at [x, y].
+      #
+      #   Note that 'absolute' has to be understood in terms of the text matrix since for the actual
+      #   rendering the current transformation matrix is multiplied with the text matrix.
+      #
+      # * If +absolute+ is +false+, then the text cursor is moved to the start of the next line,
+      #   offset from the start of the current line (the origin of the text line matrix) by
+      #   +offset+.
+      #
+      # See: #show_glyphs
+      def move_text_cursor(offset: nil, absolute: true)
+        begin_text
+        if offset
+          if absolute
+            text_matrix(1, 0, 0, 1, offset[0], offset[1])
+          else
+            invoke2(:Td, offset[0], offset[1])
+          end
+        else
+          invoke0(:"T*")
+        end
+        self
+      end
+
+      # :call-seq:
+      #   canvas.text_cursor     -> [x, y]
+      #
+      # Returns the position of the text cursor, i.e. the origin of the current text matrix.
+      #
+      # Note that this method can only be called while the current graphic object is a text object
+      # since the text matrix is otherwise undefined.
+      def text_cursor
+        raise_unless_in_text
+        graphics_state.tm.evaluate(0, 0)
       end
 
       private

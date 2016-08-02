@@ -944,19 +944,50 @@ describe HexaPDF::Content::Canvas do
 
   describe "text_matrix" do
     it "invokes the operator implementation" do
-      @canvas.begin_text
-      assert_operator_invoked(:Tm, 1, 2, 3, 4, 5, 6) { @canvas.text_matrix(1, 2, 3, 4, 5, 6) }
+      @canvas.text_matrix(1, 2, 3, 4, 5, 6)
+      assert_operators(@page.contents, [[:begin_text],
+                                        [:set_text_matrix, [1, 2, 3, 4, 5,6]]])
     end
 
     it "returns the canvas object" do
-      @canvas.begin_text
       assert_equal(@canvas, @canvas.text_matrix(1, 1, 1, 1, 1, 1))
     end
+  end
 
-    it "fails if invoked while not in a text object" do
-      assert_raises_in_graphics_object(:none, :path, :clipping_path) do
-        @canvas.text_matrix(1, 1, 1, 1, 1, 1)
+  describe "move_text_cursor" do
+    describe "invokes the operator implementation" do
+      it "moves to the next line" do
+        @canvas.move_text_cursor
+        assert_operators(@page.contents, [[:begin_text],
+                                          [:move_text_next_line]])
       end
+
+      it "moves to the next line with an offset" do
+        @canvas.move_text_cursor(offset: [5, 10], absolute: false)
+        assert_operators(@page.contents, [[:begin_text],
+                                          [:move_text, [5, 10]]])
+      end
+
+      it "moves to an absolute position" do
+        @canvas.move_text_cursor(offset: [5, 10], absolute: true)
+        assert_operators(@page.contents, [[:begin_text],
+                                          [:set_text_matrix, [1, 0, 0, 1, 5, 10]]])
+      end
+    end
+
+    it "returns the canvas object" do
+      assert_equal(@canvas, @canvas.move_text_cursor)
+    end
+  end
+
+  describe "text_cursor" do
+    it "returns the text cursor position" do
+      @canvas.move_text_cursor(offset: [5, 10])
+      assert_equal([5, 10], @canvas.text_cursor)
+    end
+
+    it "fails if invoked outside a text object" do
+      assert_raises_in_graphics_object(:none, :path, :clipping_path)  { @canvas.text_cursor }
     end
   end
 end
