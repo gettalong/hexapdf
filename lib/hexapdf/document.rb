@@ -495,8 +495,8 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   doc.write(filename, validate: true, update_fields: true)
-    #   doc.write(io, validate: true, update_fields: true)
+    #   doc.write(filename, validate: true, update_fields: true, object_streams: :generate)
+    #   doc.write(io, validate: true, update_fields: true, object_streams: :generate)
     #
     # Writes the document to the give file (in case +io+ is a String) or IO stream.
     #
@@ -511,7 +511,11 @@ module HexaPDF
     # update_fields::
     #   Updates the /ID field in the trailer dictionary as well as the /ModDate field in the
     #   trailer's /Info dictionary so that it is clear that the document has been updated.
-    def write(file_or_io, validate: true, update_fields: true)
+    #
+    # object_streams:
+    #   Specifies what to do about object streams. The default of :generate results in a more
+    #   compact PDF. See HexaPDF::Task::Optimize.call for allowed values.
+    def write(file_or_io, validate: true, update_fields: true, object_streams: :generate)
       dispatch_message(:complete_objects)
 
       if update_fields
@@ -525,6 +529,8 @@ module HexaPDF
           raise HexaPDF::Error, "Validation error: #{msg}"
         end
       end
+
+      task(:optimize, object_streams: object_streams) if object_streams != :preserve
 
       dispatch_message(:before_write)
 

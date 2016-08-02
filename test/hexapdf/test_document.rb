@@ -483,6 +483,20 @@ EOF
       refute_same(id1, @doc.trailer[:ID][1])
       assert(@doc.trailer[:Info].key?(:ModDate))
     end
+
+    it "generates object streams by default" do
+      io = StringIO.new(''.b)
+      @io_doc.write(io)
+      doc = HexaPDF::Document.new(io: io)
+      assert_equal(2, doc.each.count {|o| o.type == :ObjStm})
+    end
+
+    it "allows disabling object stream generation" do
+      io = StringIO.new(''.b)
+      @io_doc.write(io, object_streams: :preserve)
+      doc = HexaPDF::Document.new(io: io)
+      assert_equal(0, doc.each.count {|o| o.type == :ObjStm})
+    end
   end
 
   describe "version" do
