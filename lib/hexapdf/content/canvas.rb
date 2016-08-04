@@ -153,6 +153,8 @@ module HexaPDF
         @operators = Operator::DEFAULT_OPERATORS.dup
         @graphics_state = GraphicsState.new
         @graphics_object = :none
+        @font = nil
+        @font_size = nil
         @serializer = HexaPDF::Serializer.new
         @current_point = [0, 0]
         @start_point = [0, 0]
@@ -1528,6 +1530,69 @@ module HexaPDF
       def text_cursor
         raise_unless_in_text
         graphics_state.tm.evaluate(0, 0)
+      end
+
+      # :call-seq:
+      #   canvas.font                              => current_font
+      #   canvas.font(name, size: nil, **options)  => canvas
+      #
+      # Specifies the font that should be used when showing text.
+      #
+      # *Note* that this method returns the font object itself, not the PDF dictionary representing
+      # the font! And also note that GraphicsState#font is not set on the time of invocation of this
+      # method but later when text is shown.
+      #
+      # The font size can optionally be set using the +size+ argument. All other options are passed
+      # on to the font loaders (see HexaPDF::FontLoader) that are used for loading the specified
+      # font.
+      #
+      # Returns the current font object when no argument is given.
+      #
+      # Examples:
+      #
+      #   canvas.font("Times", variant: :bold, size: 12)
+      #   canvas.font                                          # => font object
+      #
+      # See: PDF1.7 s9.2.2
+      def font(name = nil, size: nil, **options)
+        if name
+          font_size(size)
+          @font = context.document.fonts.load(name, options)
+          self
+        else
+          @font
+        end
+      end
+
+      # :call-seq:
+      #   canvas.font_size                            => font_size
+      #   canvas.font_size(size, leading: size)       => canvas
+      #
+      # Specifies the font size.
+      #
+      # Note that GraphicsState#font_size is not set on the time of invocation of this method but
+      # only later when text is shown.
+      #
+      # The leading can be additionally set and defaults to the font size. If the leading should not
+      # be changed, +nil+ has to be passed for +leading+.
+      #
+      # Returns the current font size when no argument is given.
+      #
+      # Examples:
+      #
+      #   canvas.font_size(12)
+      #   canvas.font_size              # => 12
+      #   canvas.font_size(12, leading: 20)
+      #
+      # See: PDF1.7 s9.2.2
+      def font_size(size = nil, leading: size)
+        if size
+          @font_size = size
+          self.leading(leading) if leading
+          self
+        else
+          @font_size
+        end
       end
 
       private

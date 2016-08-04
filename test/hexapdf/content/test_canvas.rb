@@ -990,4 +990,38 @@ describe HexaPDF::Content::Canvas do
       assert_raises_in_graphics_object(:none, :path, :clipping_path)  { @canvas.text_cursor }
     end
   end
+
+  describe "font" do
+    it "returns the set font" do
+      assert_nil(@canvas.font)
+      @canvas.font("Times")
+      assert_same(@doc.fonts.load("Times"), @canvas.font)
+    end
+
+    it "sets the font and optionally the font size" do
+      @canvas.font("Times", size: 12, variant: :italic)
+      assert_same(@doc.fonts.load("Times", variant: :italic), @canvas.font)
+      assert_equal(12, @canvas.font_size)
+    end
+  end
+
+  describe "font_size" do
+    it "returns the set font size" do
+      assert_nil(@canvas.font_size)
+      @canvas.font_size(10)
+      assert_equal(10, @canvas.font_size)
+    end
+
+    it "sets the font size and, optionally, the leading" do
+      @canvas.font_size(12)
+      assert_equal(12, @canvas.font_size)
+      assert_equal(12, @canvas.leading)
+      @canvas.font_size(10, leading: 20)
+      assert_equal(10, @canvas.font_size)
+      assert_equal(20, @canvas.leading)
+      @canvas.font_size(10, leading: nil)
+      assert_equal(10, @canvas.font_size)
+      assert_equal(20, @canvas.leading)
+    end
+  end
 end
