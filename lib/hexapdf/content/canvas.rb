@@ -1595,6 +1595,89 @@ module HexaPDF
         end
       end
 
+      # :call-seq:
+      #   canvas.text(text)                  -> canvas
+      #   canvas.text(text, at: [x, y])      -> canvas
+      #
+      # Shows the given text string.
+      #
+      # If no position is provided, the text is positioned at the current position of the text
+      # cursor (the origin in case of a new text object or otherwise after the last shown text).
+      #
+      # The text string may contain any valid Unicode newline separator and if so, multiple lines
+      # are shown, using #leading for offsetting the lines.
+      #
+      # Note that there are no provisions to make sure that all text is visible! So if the text
+      # string is too long, it will just flow off the page and be cut off.
+      #
+      # Examples:
+      #
+      #   canvas.font('Times', size: 12)
+      #   canvas.text("This is a \n multiline text", at: [100, 100])
+      #
+      # See: http://www.unicode.org/reports/tr18/#Line_Boundaries
+      def text(text, at: nil)
+        move_text_cursor(offset: at) if at
+        lines = text.split(/\u{D A}|(?!\u{D A})[\u{A}-\u{D}\u{85}\u{2028}\u{2029}]/, -1)
+        lines.each_with_index do |str, index|
+          show_glyphs(@font.decode_utf8(str))
+          move_text_cursor unless index == lines.length - 1
+        end
+        self
+      end
+
+      # :call-seq:
+      #   canvas.show_glyphs(glyphs)      -> canvas
+      #
+      # Low-level method for actually showing text on the canvas.
+      #
+      # The argument +data+ needs to be a an array of Glyph objects, optionally interspersed with
+      # numbers for kerning.
+      #
+      # Text is always shown at the current position of the text cursor, i.e. the origin of the text
+      # matrix. To move the text cursor to somewhere else use #move_text_cursor before calling this
+      # method.
+      #
+      # The text matrix is updated to correctly represent the graphics state after the invocation.
+      #
+      # This method is usually not invoked directly but by higher level methods like #show_text.
+      def show_glyphs(data)
+        begin_text
+
+        graphics_state.font_size = @font_size
+        result = [''.b]
+        offset = 0
+        last_dict = nil
+        data.each do |item|
+          if item.kind_of?(Numeric)
+            result << item << ''.b
+            offset -= item * graphics_state.scaled_font_size
+          else
+            dict, encoded = @font.encode(item)
+            last_dict ||= dict
+            unless dict == last_dict
+              invoke_font_operator(last_dict)
+              invoke1(:TJ, result)
+              last_dict = dict
+              result = [''.b]
+            end
+            result[-1] << encoded
+
+            offset += item.width * graphics_state.scaled_font_size +
+              graphics_state.scaled_character_spacing
+            offset += graphics_state.scaled_word_spacing if encoded.length == 1 && item.space?
+          end
+        end
+
+        if last_dict
+          invoke_font_operator(last_dict)
+          invoke1(:TJ, result)
+        end
+
+        graphics_state.tm.translate(offset, 0)
+        self
+      end
+
       private
 
       # Invokes the given operator with the operands and serializes it.
@@ -1624,6 +1707,13 @@ module HexaPDF
       def invoke2(operator, op1, op2)
         @operators[operator].invoke(self, op1, op2)
         @contents << @operators[operator].serialize(@serializer, op1, op2)
+      end
+
+      # Invokes the font operator using the given PDF font dictionary.
+      def invoke_font_operator(font)
+        if graphics_state.font != font || graphics_state.font_size != @font_size
+          invoke(:Tf, resources.add_font(font), @font_size)
+        end
       end
 
       # Raises an error unless the current graphics object is a path.

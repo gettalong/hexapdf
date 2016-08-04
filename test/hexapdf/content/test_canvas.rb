@@ -1024,4 +1024,61 @@ describe HexaPDF::Content::Canvas do
       assert_equal(20, @canvas.leading)
     end
   end
+
+  describe "show_glyphs" do
+    it "serializes correctly" do
+      @canvas.font("Times", size: 20)
+      @canvas.horizontal_scaling(200)
+      @canvas.character_spacing(1)
+      @canvas.word_spacing(2)
+
+      font = @canvas.font
+      @canvas.show_glyphs(font.decode_utf8("Hal l≥o").insert(2, -45))
+      assert_in_delta(140.64, @canvas.text_cursor[0])
+      assert_equal(0, @canvas.text_cursor[1])
+      assert_operators(@page.contents, [[:set_leading, [20]],
+                                        [:set_horizontal_scaling, [200]],
+                                        [:set_character_spacing, [1]],
+                                        [:set_word_spacing, [2]],
+                                        [:begin_text],
+                                        [:set_font_and_size, [:F1, 20]],
+                                        [:show_text_with_positioning, [["Ha", -45, "l l"]]],
+                                        [:set_font_and_size, [:F2, 20]],
+                                        [:show_text_with_positioning, [["!"]]],
+                                        [:set_font_and_size, [:F1, 20]],
+                                        [:show_text_with_positioning, [["o"]]],
+                                       ])
+    end
+  end
+
+  describe "text" do
+    it "sets the text cursor position if instructed" do
+      @canvas.font("Times", size: 10)
+      @canvas.text("Hallo", at: [100, 100])
+      assert_operators(@page.contents, [[:set_leading, [10]],
+                                        [:begin_text],
+                                        [:set_text_matrix, [1, 0, 0, 1, 100, 100]],
+                                        [:set_font_and_size, [:F1, 10]],
+                                        [:show_text_with_positioning, [["Hallo"]]],
+                                       ])
+    end
+
+    it "shows text, possibly split over multiple lines" do
+      @canvas.font("Times", size: 10)
+      @canvas.text("H\u{D A}H\u{A}H\u{B}H\u{c}H\u{D}H\u{85}H\u{2028}H\u{2029}H")
+      assert_operators(@page.contents, [[:set_leading, [10]],
+                                        [:begin_text],
+                                        [:set_font_and_size, [:F1, 10]],
+                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                        [:show_text_with_positioning, [["H"]]],
+                                       ])
+    end
+  end
 end
