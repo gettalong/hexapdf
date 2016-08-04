@@ -1736,8 +1736,7 @@ module HexaPDF
       def raise_unless_at_page_description_level
         end_text if graphics_object == :text
         if graphics_object != :none
-          raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
-            "path or clipping path"
+          raise HexaPDF::Error, "Operation only allowed when there is no current graphics object"
         end
       end
 
