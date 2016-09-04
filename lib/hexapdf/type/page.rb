@@ -230,8 +230,8 @@ module HexaPDF
         contents = self[:Contents]
         if contents.nil?
           @canvas_cache[:page] = Content::Canvas.new(self)
-          stream = HexaPDF::StreamData.new { @canvas_cache[:page].contents }
-          self[:Contents] = document.add({Filter: :FlateDecode}, stream: stream)
+          self[:Contents] = document.add({Filter: :FlateDecode},
+                                         stream: @canvas_cache[:page].stream_data)
         end
 
         if type == :overlay || type == :underlay
@@ -240,14 +240,20 @@ module HexaPDF
 
           stream = HexaPDF::StreamData.new do
             Fiber.yield(" q ")
-            Fiber.yield(@canvas_cache[:underlay].contents)
+            fiber = @canvas_cache[:underlay].stream_data.fiber
+            while fiber.alive? && (data = fiber.resume)
+              Fiber.yield(data)
+            end
             " Q q "
           end
           underlay = document.add({Filter: :FlateDecode}, stream: stream)
 
           stream = HexaPDF::StreamData.new do
             Fiber.yield(" Q ")
-            @canvas_cache[:overlay].contents
+            fiber = @canvas_cache[:overlay].stream_data.fiber
+            while fiber.alive? && (data = fiber.resume)
+              Fiber.yield(data)
+            end
           end
           overlay = document.add({Filter: :FlateDecode}, stream: stream)
 
@@ -262,7 +268,12 @@ module HexaPDF
       # If +reference+ is true, the page's contents is referenced when possible to avoid unnecessary
       # decoding/encoding.
       #
-      # Note: The created Form XObject is *not* added to the document automatically!
+      # Note 1: The created Form XObject is *not* added to the document automatically!
+      #
+      # Note 2: If +reference+ is false and if a canvas is used on this page (see #canvas), this
+      # method should only be called once the contents of the page has been fully defined. The
+      # reason is that during the copying of the content stream data the contents may be modified to
+      # make it a fully valid content stream.
       def to_form_xobject(reference: true)
         first, *rest = self[:Contents]
         stream = if !first

@@ -44,14 +44,14 @@ describe HexaPDF::Content::GraphicObject::EndpointArc do
       canvas = @page.canvas
       canvas.move_to(50, 50)
       canvas.draw(:endpoint_arc, x: 50, y: 50, a: 50, b: 25)
-      assert_equal("50 50 m\n", @page.contents)
+      assert_equal("50 50 m\n", canvas.contents)
     end
 
     it "draws only a straight line if either one of the semi-axis is zero" do
       canvas = @page.canvas
       canvas.move_to(50, 50)
       canvas.draw(:endpoint_arc, x: 100, y: 50, a: 0, b: 25)
-      assert_equal("50 50 m\n100 50 l\n", @page.contents)
+      assert_equal("50 50 m\n100 50 l\n", canvas.contents)
     end
 
     it "draws the arc onto the canvas" do

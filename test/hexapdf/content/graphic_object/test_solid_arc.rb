@@ -56,21 +56,21 @@ describe HexaPDF::Content::GraphicObject::SolidArc do
 
     it "draws a disk" do
       @canvas.draw(:solid_arc)
-      ops = operators(@page.contents)
+      ops = operators(@canvas.contents)
       assert_equal([:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
                    ops.map(&:first))
     end
 
     it "draws a sector" do
       @canvas.draw(:solid_arc, end_angle: 90)
-      ops = operators(@page.contents)
+      ops = operators(@canvas.contents)
       assert_equal([:move_to, :line_to, :curve_to, :close_subpath],
                    ops.map(&:first))
     end
 
     it "draws an annulus" do
       @canvas.draw(:solid_arc, inner_a: 5, inner_b: 5)
-      ops = operators(@page.contents)
+      ops = operators(@canvas.contents)
       assert_equal([:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath,
                     :move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
                    ops.map(&:first))
@@ -78,7 +78,7 @@ describe HexaPDF::Content::GraphicObject::SolidArc do
 
     it "draws an annular sector" do
       @canvas.draw(:solid_arc, inner_a: 5, inner_b: 5, end_angle: 90)
-      ops = operators(@page.contents)
+      ops = operators(@canvas.contents)
       assert_equal([:move_to, :curve_to, :line_to, :curve_to, :close_subpath],
                    ops.map(&:first))
     end

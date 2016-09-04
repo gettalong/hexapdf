@@ -5,6 +5,7 @@ require 'hexapdf/content/operator'
 require 'hexapdf/serializer'
 require 'hexapdf/utils/math_helpers'
 require 'hexapdf/content/graphic_object'
+require 'hexapdf/stream'
 
 module HexaPDF
   module Content
@@ -104,11 +105,21 @@ module HexaPDF
       # The context for which the canvas was created (a Type::Page or Type::Form object).
       attr_reader :context
 
-      # The serialized contents produced by the various canvas operations.
+      # The serialized contents produced by the various canvas operations up to this point.
       #
-      # It is used after all canvas operations are done to get the serialized result for inclusion
-      # in a page or form xobject.
+      # Note that the returned string may not be a completely valid PDF content stream since a
+      # graphic object may be open or the graphics state not completely restored.
+      #
+      # See: #stream_data
       attr_reader :contents
+
+      # A StreamData object representing the serialized contents produced by the various canvas
+      # operations.
+      #
+      # In contrast to #contents, it is ensured that an open graphics object is closed and all saved
+      # graphics states are restored when the contents of the stream data object is read. *Note*
+      # that this means that reading the stream data object may change the state of the canvas.
+      attr_reader :stream_data
 
       # The GraphicsState object containing the current graphics state.
       #
@@ -159,6 +170,14 @@ module HexaPDF
         @current_point = [0, 0]
         @start_point = [0, 0]
         @contents = ''.b
+        @stream_data = HexaPDF::StreamData.new do
+          case graphics_object
+          when :path, :clipping_path then end_path
+          when :text then end_text
+          end
+          restore_graphics_state while graphics_state.saved_states?
+          @contents
+        end
       end
 
       # Returns the resource dictionary of the context object.

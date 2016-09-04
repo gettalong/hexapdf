@@ -58,6 +58,24 @@ describe HexaPDF::Content::Canvas do
     end
   end
 
+  describe "stream_data" do
+    it "it closes an open path object" do
+      @canvas.move_to(5, 5)
+      assert_equal("5 5 m\nn\n", @canvas.stream_data.fiber.resume)
+    end
+
+    it "it closes an open text object" do
+      @canvas.begin_text
+      assert_equal("BT\nET\n", @canvas.stream_data.fiber.resume)
+    end
+
+    it "rewinds the graphics state stack" do
+      @canvas.save_graphics_state
+      @canvas.begin_text
+      assert_equal("q\nBT\nET\nQ\n", @canvas.stream_data.fiber.resume)
+    end
+  end
+
   describe "resources" do
     it "returns the resources of the context object" do
       assert_equal(@page.resources, @canvas.resources)
@@ -71,12 +89,12 @@ describe HexaPDF::Content::Canvas do
 
     it "is serialized correctly when no block is used" do
       @canvas.save_graphics_state
-      assert_operators(@page.contents, [[:save_graphics_state]])
+      assert_operators(@canvas.contents, [[:save_graphics_state]])
     end
 
     it "is serialized correctly when a block is used" do
       @canvas.save_graphics_state { }
-      assert_operators(@page.contents, [[:save_graphics_state], [:restore_graphics_state]])
+      assert_operators(@canvas.contents, [[:save_graphics_state], [:restore_graphics_state]])
     end
 
     it "fails if invoked while in an unsupported graphics objects" do
@@ -560,7 +578,7 @@ describe HexaPDF::Content::Canvas do
   describe "line" do
     it "serializes correctly" do
       @canvas.line(1, 2, 3, 4)
-      assert_operators(@page.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]]])
+      assert_operators(@canvas.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]]])
     end
 
     it "returns the canvas object" do
@@ -571,7 +589,7 @@ describe HexaPDF::Content::Canvas do
   describe "polyline" do
     it "serializes correctly" do
       @canvas.polyline(1, 2, 3, 4, 5, 6)
-      assert_operators(@page.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]], [:line_to, [5, 6]]])
+      assert_operators(@canvas.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]], [:line_to, [5, 6]]])
     end
 
     it "returns the canvas object" do
@@ -590,19 +608,19 @@ describe HexaPDF::Content::Canvas do
   describe "polygon" do
     it "serializes correctly with no radius" do
       @canvas.polygon(1, 2, 3, 4, 5, 6)
-      assert_operators(@page.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]],
-                                        [:line_to, [5, 6]], [:close_subpath]])
+      assert_operators(@canvas.contents, [[:move_to, [1, 2]], [:line_to, [3, 4]],
+                                          [:line_to, [5, 6]], [:close_subpath]])
     end
 
     it "serializes correctly with a radius" do
       @canvas.polygon(-1, -1, -1, 1, 1, 1, 1, -1, radius: 1)
       k = @canvas.class::KAPPA.round(6)
-      assert_operators(@page.contents, [[:move_to, [-1, 0]],
-                                        [:line_to, [-1, 0]], [:curve_to, [-1, k, -k, 1, 0, 1]],
-                                        [:line_to, [0, 1]], [:curve_to, [k, 1, 1, k, 1, 0]],
-                                        [:line_to, [1, 0]], [:curve_to, [1, -k, k, -1, 0, -1]],
-                                        [:line_to, [0, -1]], [:curve_to, [-k, -1, -1, -k, -1, 0]],
-                                        [:close_subpath]])
+      assert_operators(@canvas.contents, [[:move_to, [-1, 0]],
+                                          [:line_to, [-1, 0]], [:curve_to, [-1, k, -k, 1, 0, 1]],
+                                          [:line_to, [0, 1]], [:curve_to, [k, 1, 1, k, 1, 0]],
+                                          [:line_to, [1, 0]], [:curve_to, [1, -k, k, -1, 0, -1]],
+                                          [:line_to, [0, -1]], [:curve_to, [-k, -1, -1, -k, -1, 0]],
+                                          [:close_subpath]])
     end
 
     it "returns the canvas object" do
@@ -621,7 +639,7 @@ describe HexaPDF::Content::Canvas do
     it "serializes correctly" do
       @canvas.circle(0, 0, 1)
       @processor.recorded_ops.clear
-      @parser.parse(@page.contents, @processor)
+      @parser.parse(@canvas.contents, @processor)
       assert_equal([:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
                    @processor.recorded_ops.map(&:first))
     end
@@ -641,7 +659,7 @@ describe HexaPDF::Content::Canvas do
     it "serializes correctly" do
       @canvas.ellipse(0, 0, a: 10, b: 5, inclination: 10)
       @processor.recorded_ops.clear
-      @parser.parse(@page.contents, @processor)
+      @parser.parse(@canvas.contents, @processor)
       assert_equal([:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
                    @processor.recorded_ops.map(&:first))
     end
@@ -655,16 +673,16 @@ describe HexaPDF::Content::Canvas do
     it "serializes correctly" do
       @canvas.arc(0, 0, a: 1, b: 1, start_angle: 0, end_angle: 360, inclination: 0)
       @canvas.arc(0, 0, a: 1, b: 1, start_angle: 0, end_angle: 360, clockwise: true, inclination: 0)
-      assert_operators(@page.contents, [[:move_to, [1, 0]],
-                                        [:curve_to, [1, 0.548584, 0.548584, 1, 0, 1]],
-                                        [:curve_to, [-0.548584, 1, -1, 0.548584, -1, 0]],
-                                        [:curve_to, [-1, -0.548584, -0.548584, -1, 0, -1]],
-                                        [:curve_to, [0.548584, -1, 1, -0.548584, 1, 0]],
-                                        [:move_to, [1, 0]],
-                                        [:curve_to, [1, -0.548584, 0.548584, -1, 0, -1]],
-                                        [:curve_to, [-0.548584, -1, -1, -0.548584, -1, 0]],
-                                        [:curve_to, [-1, 0.548584, -0.548584, 1, 0, 1]],
-                                        [:curve_to, [0.548584, 1, 1, 0.548584, 1, 0]]])
+      assert_operators(@canvas.contents, [[:move_to, [1, 0]],
+                                          [:curve_to, [1, 0.548584, 0.548584, 1, 0, 1]],
+                                          [:curve_to, [-0.548584, 1, -1, 0.548584, -1, 0]],
+                                          [:curve_to, [-1, -0.548584, -0.548584, -1, 0, -1]],
+                                          [:curve_to, [0.548584, -1, 1, -0.548584, 1, 0]],
+                                          [:move_to, [1, 0]],
+                                          [:curve_to, [1, -0.548584, 0.548584, -1, 0, -1]],
+                                          [:curve_to, [-0.548584, -1, -1, -0.548584, -1, 0]],
+                                          [:curve_to, [-1, 0.548584, -0.548584, 1, 0, 1]],
+                                          [:curve_to, [0.548584, 1, 1, 0.548584, 1, 0]]])
     end
 
     it "returns the canvas object" do
@@ -700,7 +718,7 @@ describe HexaPDF::Content::Canvas do
       obj.define_singleton_method(:configure) {|**kwargs| @options = kwargs; self}
       obj.define_singleton_method(:draw) {|canvas| canvas.move_to(@options[:x], @options[:y])}
       @canvas.draw(obj, x: 5, y: 6)
-      assert_operators(@page.contents, [[:move_to, [5, 6]]])
+      assert_operators(@canvas.contents, [[:move_to, [5, 6]]])
     end
 
     it "returns the canvas object" do
@@ -898,7 +916,7 @@ describe HexaPDF::Content::Canvas do
       @canvas.begin_text
       @canvas.begin_text
       @canvas.begin_text(force_new: true)
-      @parser.parse(@page.contents, @processor)
+      @parser.parse(@canvas.contents, @processor)
       assert_equal([:begin_text, :end_text, :begin_text], @processor.recorded_ops.map(&:first))
     end
 
@@ -945,8 +963,8 @@ describe HexaPDF::Content::Canvas do
   describe "text_matrix" do
     it "invokes the operator implementation" do
       @canvas.text_matrix(1, 2, 3, 4, 5, 6)
-      assert_operators(@page.contents, [[:begin_text],
-                                        [:set_text_matrix, [1, 2, 3, 4, 5,6]]])
+      assert_operators(@canvas.contents, [[:begin_text],
+                                          [:set_text_matrix, [1, 2, 3, 4, 5,6]]])
     end
 
     it "returns the canvas object" do
@@ -958,20 +976,20 @@ describe HexaPDF::Content::Canvas do
     describe "invokes the operator implementation" do
       it "moves to the next line" do
         @canvas.move_text_cursor
-        assert_operators(@page.contents, [[:begin_text],
-                                          [:move_text_next_line]])
+        assert_operators(@canvas.contents, [[:begin_text],
+                                            [:move_text_next_line]])
       end
 
       it "moves to the next line with an offset" do
         @canvas.move_text_cursor(offset: [5, 10], absolute: false)
-        assert_operators(@page.contents, [[:begin_text],
-                                          [:move_text, [5, 10]]])
+        assert_operators(@canvas.contents, [[:begin_text],
+                                            [:move_text, [5, 10]]])
       end
 
       it "moves to an absolute position" do
         @canvas.move_text_cursor(offset: [5, 10], absolute: true)
-        assert_operators(@page.contents, [[:begin_text],
-                                          [:set_text_matrix, [1, 0, 0, 1, 5, 10]]])
+        assert_operators(@canvas.contents, [[:begin_text],
+                                            [:set_text_matrix, [1, 0, 0, 1, 5, 10]]])
       end
     end
 
@@ -1036,18 +1054,18 @@ describe HexaPDF::Content::Canvas do
       @canvas.show_glyphs(font.decode_utf8("Hal l≥o").insert(2, -45))
       assert_in_delta(140.64, @canvas.text_cursor[0])
       assert_equal(0, @canvas.text_cursor[1])
-      assert_operators(@page.contents, [[:set_leading, [20]],
-                                        [:set_horizontal_scaling, [200]],
-                                        [:set_character_spacing, [1]],
-                                        [:set_word_spacing, [2]],
-                                        [:begin_text],
-                                        [:set_font_and_size, [:F1, 20]],
-                                        [:show_text_with_positioning, [["Ha", -45, "l l"]]],
-                                        [:set_font_and_size, [:F2, 20]],
-                                        [:show_text_with_positioning, [["!"]]],
-                                        [:set_font_and_size, [:F1, 20]],
-                                        [:show_text_with_positioning, [["o"]]],
-                                       ])
+      assert_operators(@canvas.contents, [[:set_leading, [20]],
+                                          [:set_horizontal_scaling, [200]],
+                                          [:set_character_spacing, [1]],
+                                          [:set_word_spacing, [2]],
+                                          [:begin_text],
+                                          [:set_font_and_size, [:F1, 20]],
+                                          [:show_text_with_positioning, [["Ha", -45, "l l"]]],
+                                          [:set_font_and_size, [:F2, 20]],
+                                          [:show_text_with_positioning, [["!"]]],
+                                          [:set_font_and_size, [:F1, 20]],
+                                          [:show_text_with_positioning, [["o"]]],
+                                         ])
     end
   end
 
@@ -1055,30 +1073,30 @@ describe HexaPDF::Content::Canvas do
     it "sets the text cursor position if instructed" do
       @canvas.font("Times", size: 10)
       @canvas.text("Hallo", at: [100, 100])
-      assert_operators(@page.contents, [[:set_leading, [10]],
-                                        [:begin_text],
-                                        [:set_text_matrix, [1, 0, 0, 1, 100, 100]],
-                                        [:set_font_and_size, [:F1, 10]],
-                                        [:show_text_with_positioning, [["Hallo"]]],
-                                       ])
+      assert_operators(@canvas.contents, [[:set_leading, [10]],
+                                          [:begin_text],
+                                          [:set_text_matrix, [1, 0, 0, 1, 100, 100]],
+                                          [:set_font_and_size, [:F1, 10]],
+                                          [:show_text_with_positioning, [["Hallo"]]],
+                                         ])
     end
 
     it "shows text, possibly split over multiple lines" do
       @canvas.font("Times", size: 10)
       @canvas.text("H\u{D A}H\u{A}H\u{B}H\u{c}H\u{D}H\u{85}H\u{2028}H\u{2029}H")
-      assert_operators(@page.contents, [[:set_leading, [10]],
-                                        [:begin_text],
-                                        [:set_font_and_size, [:F1, 10]],
-                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
-                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
-                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
-                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
-                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
-                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
-                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
-                                        [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
-                                        [:show_text_with_positioning, [["H"]]],
-                                       ])
+      assert_operators(@canvas.contents, [[:set_leading, [10]],
+                                          [:begin_text],
+                                          [:set_font_and_size, [:F1, 10]],
+                                          [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                          [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                          [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                          [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                          [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                          [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                          [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                          [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
+                                          [:show_text_with_positioning, [["H"]]],
+                                         ])
     end
   end
 end

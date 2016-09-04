@@ -469,6 +469,11 @@ module HexaPDF
           @scaled_horizontal_scaling = @stack.pop
       end
 
+      # Returns +true+ if the internal stack of saved graphic states contains entries.
+      def saved_states?
+        !@stack.empty?
+      end
+
       ##
       # :attr_accessor: stroke_color_space
       #
