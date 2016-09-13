@@ -61,9 +61,10 @@ module HexaPDF
               platform_id == PLATFORM_UNICODE
           end
 
-          # Returns the glyph index for the given character code.
+          # Returns the glyph index for the given character code or +nil+ if the character code is
+          # not mapped.
           def [](code)
-            @code_map[code] || 0
+            @code_map[code]
           end
 
           # Returns a character code for the given glyph index or +nil+ if the given glyph index
