@@ -32,7 +32,7 @@ describe HexaPDF::Font::TTF::Table::CmapSubtable do
 
   describe "inspect" do
     it "can represent itself nicely" do
-      assert_equal("#<#{@klass.name} (3, 1, 0, nil) code_map={}>", @klass.new(3, 1).inspect)
+      assert_equal("#<#{@klass.name} (3, 1, 0, nil)>", @klass.new(3, 1).inspect)
     end
   end
 
@@ -42,23 +42,31 @@ describe HexaPDF::Font::TTF::Table::CmapSubtable do
     end
 
     it "works for format 0" do
-      t = table([0, 262, 0].pack('n3') + (0..255).to_a.pack('C*'))
-      assert_equal(234, t[234])
+      t = table([0, 262, 0].pack('n3') + [255].pack('C*') + (0..254).to_a.pack('C*'))
+      assert_equal(255, t[0])
+      assert_equal(233, t[234])
       assert_equal(0, t[256])
+
+      assert_equal(0, t.gid_to_code(255))
+      assert_equal(234, t.gid_to_code(233))
     end
 
     it "works for format 2" do
-      f2 = ([8] + [0] * 255).pack('n*') + \
+      f2 = ([0, 8] + [0] * 254).pack('n*') + \
         [[0, 256, 0, 2 + 8], [0x33, 3, 5, 2 + 256 * 2]].map {|a| a.pack('n2s>n')}.join('') + \
         ((0..255).to_a + [35, 65534, 0]).pack('n*')
       t = table([2, f2.length + 6, 0].pack('n3') << f2)
-      assert_equal(0, t[0x0032])
-      assert_equal(40, t[0x0033])
-      assert_equal(3, t[0x0034])
-      assert_equal(0, t[0x0035])
-      assert_equal(0, t[0x0036])
+      assert_equal(0, t[0x0132])
+      assert_equal(40, t[0x0133])
+      assert_equal(3, t[0x0134])
+      assert_equal(0, t[0x0135])
+      assert_equal(0, t[0x0136])
       assert_equal(16, t[0x1036])
       assert_equal(0, t[0xfffff])
+
+      assert_equal(0x0133, t.gid_to_code(40))
+      assert_equal(0x0134, t.gid_to_code(3))
+      assert_equal(16, t.gid_to_code(16))
     end
 
     it "works for format 4" do
@@ -74,15 +82,23 @@ describe HexaPDF::Font::TTF::Table::CmapSubtable do
       assert_equal(111, t[134])
       assert_equal(84, t[65535])
       assert_equal(0, t[70000])
+
+      assert_equal(30, t.gid_to_code(130))
+      assert_equal(33, t.gid_to_code(133))
+      assert_equal(35, t.gid_to_code(135))
+      assert_equal(134, t.gid_to_code(111))
+      assert_equal(65535, t.gid_to_code(84))
     end
 
     it "works for format 6" do
       t = table(([6, 30, 0, 1024, 10] + (1..10).to_a).pack('n*'))
-      assert_equal(0, t[234])
+      assert_equal(0, t[0])
       assert_equal(1, t[1024])
       assert_equal(7, t[1030])
       assert_equal(10, t[1033])
       assert_equal(0, t[1034])
+
+      assert_equal(1033, t.gid_to_code(10))
     end
 
     it "works for format 10" do
@@ -92,6 +108,8 @@ describe HexaPDF::Font::TTF::Table::CmapSubtable do
       assert_equal(7, t[1030])
       assert_equal(10, t[1033])
       assert_equal(0, t[1034])
+
+      assert_equal(1033, t.gid_to_code(10))
     end
 
     it "works for format 12" do
@@ -101,6 +119,10 @@ describe HexaPDF::Font::TTF::Table::CmapSubtable do
       assert_equal(1003, t[38])
       assert_equal(100_000, t[90_000])
       assert_equal(0, t[90_001])
+
+      assert_equal(35, t.gid_to_code(1000))
+      assert_equal(38, t.gid_to_code(1003))
+      assert_equal(90_000, t.gid_to_code(100_000))
     end
 
     it "returns false if a format is not supported" do

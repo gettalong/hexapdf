@@ -12,6 +12,9 @@ module HexaPDF
         # cmap format 8.0 is currently not implemented because use of the format is discouraged in
         # the specification and no font with a format 8.0 cmap subtable was available for testing.
         #
+        # The preferred cmap format is 12.0 because it supports all of Unicode and allows for fast
+        # and memory efficient code-to-gid as well as gid-to-code mappings.
+        #
         # See:
         # * Cmap
         # * https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6cmap.html
@@ -38,12 +41,16 @@ module HexaPDF
           # The complete code map.
           attr_accessor :code_map
 
+          # The complete gid map.
+          attr_accessor :gid_map
+
           # Creates a new subtable.
           def initialize(platform_id, encoding_id)
             @platform_id = platform_id
             @encoding_id = encoding_id
             @supported = true
             @code_map = {}
+            @gid_map = {}
             @format = nil
             @language = 0
           end
@@ -57,6 +64,16 @@ module HexaPDF
           # Returns the glyph index for the given character code.
           def [](code)
             @code_map[code] || 0
+          end
+
+          # Returns a character code for the given glyph index or +nil+ if the given glyph index
+          # does not exist or is not mapped to a character code.
+          #
+          # Note that some fonts map multiple character codes to the same glyph (e.g. hyphen and
+          # minus), i.e. the code-to-glyph mapping is surjective but not injective! In such a case
+          # one of the available character codes is returned.
+          def gid_to_code(gid)
+            @gid_map[gid]
           end
 
           # :call-seq:
@@ -76,23 +93,23 @@ module HexaPDF
               length, @language = io.read(4).unpack('n2')
             end
             supported = true
-            @code_map = case @format
-                        when 0 then Format0.parse(io, length)
-                        when 2 then Format2.parse(io, length)
-                        when 4 then Format4.parse(io, length)
-                        when 6 then Format6.parse(io, length)
-                        when 10 then Format10.parse(io, length)
-                        when 12 then Format12.parse(io, length)
-                        else
-                          supported = false
-                          {}
-                        end
+            @code_map, @gid_map = case @format
+                                  when 0 then Format0.parse(io, length)
+                                  when 2 then Format2.parse(io, length)
+                                  when 4 then Format4.parse(io, length)
+                                  when 6 then Format6.parse(io, length)
+                                  when 10 then Format10.parse(io, length)
+                                  when 12 then Format12.parse(io, length)
+                                  else
+                                    supported = false
+                                    [{}, {}]
+                                  end
             supported
           end
 
           def inspect #:nodoc:
             "#<#{self.class.name} (#{platform_id}, #{encoding_id}, #{language}, " \
-              "#{format.inspect}) code_map=#{@code_map}>"
+              "#{format.inspect})>"
           end
 
 
@@ -108,7 +125,10 @@ module HexaPDF
             # It is assumed that the first six bytes of the subtable have already been consumed.
             def self.parse(io, length)
               raise HexaPDF::Error, "Invalid length #{length} for cmap format 0" if length != 262
-              io.read(256).unpack('C*')
+              code_map = io.read(256).unpack('C*')
+              gid_map = {}
+              code_map.each_with_index {|glyph, index| gid_map[glyph] = index}
+              [code_map, gid_map]
             end
 
           end
@@ -134,6 +154,7 @@ module HexaPDF
                 key / 8
               end
               nr_sub_headers = 1 + nr_sub_headers / 8
+
               sub_headers = []
               nr_sub_headers.times do |i|
                 h = SubHeader.new(*io.read(8).unpack('n2s>n'))
@@ -144,18 +165,29 @@ module HexaPDF
                 sub_headers << h
               end
               glyph_indexes = io.read(length - 6 - 512 - 8 * nr_sub_headers).unpack('n*')
-              mapper(sub_header_keys, sub_headers, glyph_indexes)
+
+              gid_map = {}
+              sub_headers.each_with_index do |sub_header, i|
+                sub_header.entry_count.times do |j|
+                  glyph_id = glyph_indexes[sub_header.first_glyph_index + j]
+                  glyph_id = (glyph_id + sub_header.id_delta) % 65536 if glyph_id != 0
+                  gid_map[glyph_id] = (sub_header_keys.index(i) << 8) + j + sub_header.first_code
+                end
+              end
+
+              [mapper(sub_header_keys, sub_headers, glyph_indexes), gid_map]
             end
 
             def self.mapper(sub_header_keys, sub_headers, glyph_indexes) #:nodoc:
               Hash.new do |h, code|
                 i = code
-                i, j = i.divmod(256)
+                i, j = i.divmod(256) if code > 255
                 k = sub_header_keys[i]
                 if !k
                   glyph_id = 0
                 elsif k > 0
                   sub_header = sub_headers[k]
+                  raise HexaPDF::Error, "Second byte of character code missing" if j.nil?
                   j -= sub_header.first_code
                   if 0 <= j && j < sub_header.entry_count
                     glyph_id = glyph_indexes[sub_header.first_glyph_index + j]
@@ -166,9 +198,10 @@ module HexaPDF
                 else
                   glyph_id = glyph_indexes[i]
                 end
-                h[code] = glyph_id
+                h[code] = glyph_id unless glyph_id == 0
               end
             end
+
 
           end
 
@@ -198,21 +231,34 @@ module HexaPDF
             end
 
             def self.mapper(end_codes, start_codes, id_deltas, id_range_offsets, glyph_indexes) #:nodoc:
-              Hash.new do |h, code|
+              compute_glyph_id = lambda do |index, code|
+                offset = id_range_offsets[index]
+                if offset != 0
+                  glyph_id = glyph_indexes[offset - end_codes.length + (code - start_codes[index])]
+                  glyph_id = (glyph_id + id_deltas[index]) % 65536 if glyph_id != 0
+                else
+                  glyph_id = (code + id_deltas[index]) % 65536
+                end
+                glyph_id
+              end
+
+              code_map = Hash.new do |h, code|
                 i = end_codes.bsearch_index {|c| c >= code}
                 if i && start_codes[i] <= code
-                  offset = id_range_offsets[i]
-                  if offset != 0
-                    glyph_id = glyph_indexes[offset - end_codes.length + (code - start_codes[i])]
-                    glyph_id = (glyph_id + id_deltas[i]) % 65536 if glyph_id != 0
-                  else
-                    glyph_id = (code + id_deltas[i]) % 65536
-                  end
+                  glyph_id = compute_glyph_id.call(i, code)
                 else
                   glyph_id = 0
                 end
-                h[code] = glyph_id
+                h[code] = glyph_id unless glyph_id == 0
               end
+
+              gid_map = {}
+              end_codes.length.times do |i|
+                start_codes[i].upto(end_codes[i]) do |code|
+                  gid_map[compute_glyph_id.call(i, code)] = code
+                end
+              end
+              [code_map, gid_map]
             end
 
           end
@@ -231,12 +277,12 @@ module HexaPDF
             def self.parse(io, _length)
               first_code, entry_count = io.read(4).unpack('n2')
               code_map = io.read(2 * entry_count).unpack('n*')
-              if first_code != 0
-                code_map = code_map.each_with_index.with_object({}) do |(g, i), hash|
-                  hash[first_code + i] = g
-                end
+              gid_map = {}
+              code_map = code_map.each_with_index.with_object({}) do |(g, i), hash|
+                hash[first_code + i] = g
+                gid_map[g] = first_code + i
               end
-              code_map
+              [code_map, gid_map]
             end
 
           end
@@ -255,12 +301,12 @@ module HexaPDF
             def self.parse(io, _length)
               first_code, entry_count = io.read(8).unpack('N2')
               code_map = io.read(2 * entry_count).unpack('n*')
-              if first_code != 0
-                code_map = code_map.each_with_index.with_object({}) do |(g, i), hash|
-                  hash[first_code + i] = g
-                end
+              gid_map = {}
+              code_map = code_map.each_with_index.with_object({}) do |(g, i), hash|
+                hash[first_code + i] = g
+                gid_map[g] = first_code + i
               end
-              code_map
+              [code_map, gid_map]
             end
 
           end
@@ -283,10 +329,16 @@ module HexaPDF
             # The parameter +groups+ is an array containing [start_code, end_code, start_glyph_id]
             # arrays.
             def self.mapper(groups) #:nodoc:
-              Hash.new do |h, code|
+              code_map = Hash.new do |h, code|
                 group = groups.bsearch {|g| g[1] >= code}
-                h[code] = (group && group[0] <= code ? group[2] + (code - group[0]) : 0)
+                h[code] = group[2] + (code - group[0]) if group && group[0] <= code
               end
+              groups_by_gid = groups.sort_by {|g| g[2]}
+              gid_map = Hash.new do |h, gid|
+                group = groups_by_gid.bsearch {|g| g[2] + g[1] - g[0] >= gid}
+                h[gid] = group[0] + (gid - group[2]) if group && group[2] <= gid
+              end
+              [code_map, gid_map]
             end
 
           end
