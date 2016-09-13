@@ -21,6 +21,13 @@ module HexaPDF
           # The available cmap subtables.
           attr_accessor :tables
 
+          # Returns the preferred of the available cmap subtables.
+          #
+          # A preferred table is always a table mapping Unicode characters.
+          def preferred_table
+            tables.select(&:unicode?).sort {|a, b| a.format <=> b.format}.last
+          end
+
           private
 
           def parse_table #:nodoc:

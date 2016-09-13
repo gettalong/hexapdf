@@ -44,4 +44,9 @@ describe HexaPDF::Font::TTF::Table::Cmap do
       assert_equal([], table.tables)
     end
   end
+
+  it "returns the preferred table" do
+    table = HexaPDF::Font::TTF::Table::Cmap.new(@file, @entry)
+    assert_equal(table.tables[1], table.preferred_table)
+  end
 end
