@@ -36,11 +36,20 @@ module HexaPDF
             handle_unknown = font.config['font.ttf.cmap.unknown_format']
 
             num_tables.times { @tables << read_formatted(8, 'n2N') }
+            offset_map = {}
             @tables.map! do |platform_id, encoding_id, offset|
               offset += directory_entry.offset
+              if offset_map.key?(offset)
+                subtable = offset_map[offset].dup
+                subtable.platform_id = platform_id
+                subtable.encoding_id = encoding_id
+                next subtable
+              end
+
               subtable = CmapSubtable.new(platform_id, encoding_id)
               supported = subtable.parse(io, offset)
               if supported
+                offset_map[offset] = subtable
                 subtable
               elsif handle_unknown == :raise
                 raise HexaPDF::Error, "Unknown cmap subtable format #{subtable.format}"
