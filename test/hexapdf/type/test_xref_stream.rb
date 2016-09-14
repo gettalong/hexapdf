@@ -20,10 +20,10 @@ describe HexaPDF::Type::XRefStream do
       assert(section[0, 1].free?)
     end
 
-    it "handles the three different field types" do
-      @obj[:Index] = [0, 3]
+    it "handles the three different field types and ignores unknown types" do
+      @obj[:Index] = [0, 4]
       @obj[:W] = [2, 2, 2]
-      @obj.stream = [0, 65535, 1, 1, 200, 0, 2, 1, 5].pack('n*')
+      @obj.stream = [0, 65535, 1, 1, 200, 0, 2, 1, 5, 3, 0, 0].pack('n*')
       section = @obj.xref_section
       assert(section[0, 1].free?)
       assert(section[1, 0].in_use?)
