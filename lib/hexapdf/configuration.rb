@@ -107,9 +107,11 @@ module HexaPDF
   # font.on_missing_glyph::
   #    Callback hook when an UTF-8 character cannot be mapped to a glyph of a font.
   #
-  #    The value needs to be an object that responds to \#call(char_or_name, font) where
-  #    +char_or_name+ is the UTF-8 character or the glyph name for the missing glyph and returns a
+  #    The value needs to be an object that responds to \#call(code_or_name, font) where
+  #    +code_or_name+ is the Unicode value or the glyph name for the missing glyph and returns a
   #    substitute glyph name/ID to be used instead.
+  #
+  #    The default implementation raises an error.
   #
   # font_loader::
   #    An array with font loader implementations. When a font should be loaded, the array is
