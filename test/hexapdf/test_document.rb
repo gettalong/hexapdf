@@ -472,15 +472,21 @@ EOF
     end
 
     it "update the ID and the Info's ModDate field" do
-      _id0, id1 = @doc.trailer.set_random_id
+      _, id1 = @doc.trailer.set_random_id
 
       @doc.write(StringIO.new(''.b), update_fields: false)
       assert_same(id1, @doc.trailer[:ID][1])
       refute(@doc.trailer.key?(:Info))
 
       @doc.write(StringIO.new(''.b))
-      refute_same(id1, @doc.trailer[:ID][1])
-      assert(@doc.trailer[:Info].key?(:ModDate))
+      refute_same(id1, (id2 = @doc.trailer[:ID][1]))
+      assert(@doc.trailer.info.key?(:ModDate))
+
+      @doc.trailer.info[:Author] = 'Me'
+      @doc.write(StringIO.new(''.b))
+      refute_same(id2, @doc.trailer[:ID][1])
+      assert(@doc.trailer.info.key?(:ModDate))
+      assert(@doc.trailer.info.key?(:Author))
     end
 
     it "generates object streams by default" do

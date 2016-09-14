@@ -520,7 +520,7 @@ module HexaPDF
 
       if update_fields
         trailer.update_id
-        trailer[:Info] = add(ModDate: Time.now)
+        trailer.info[:ModDate] = Time.now
       end
 
       if validate
