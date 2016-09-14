@@ -20,6 +20,24 @@ describe HexaPDF::Type::Trailer do
     assert_equal(:XXTrailer, @obj.type)
   end
 
+  it "returns the catalog object, creating it if needed" do
+    doc = Minitest::Mock.new
+    doc.expect(:add, :val, [{Type: :Catalog}])
+    trailer = HexaPDF::Type::Trailer.new({}, document: doc)
+    assert_equal(:val, trailer.catalog)
+    doc.verify
+    assert_equal(:val, trailer.value[:Root])
+  end
+
+  it "returns the info object, creating it if needed" do
+    doc = Minitest::Mock.new
+    doc.expect(:add, :val, [{}, type: :XXInfo])
+    trailer = HexaPDF::Type::Trailer.new({}, document: doc)
+    assert_equal(:val, trailer.info)
+    doc.verify
+    assert_equal(:val, trailer.value[:Info])
+  end
+
   describe "ID field" do
     it "sets a random ID" do
       @obj.set_random_id

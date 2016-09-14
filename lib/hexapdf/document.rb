@@ -407,7 +407,7 @@ module HexaPDF
 
     # Returns the document's catalog, the root of the object tree.
     def catalog
-      trailer[:Root] ||= add(Type: :Catalog)
+      trailer.catalog
     end
 
     # Returns the root node of the document's page tree.

@@ -37,6 +37,16 @@ module HexaPDF
         :XXTrailer
       end
 
+      # Returns the document's Catalog, creating it if needed.
+      def catalog
+        self[:Root] ||= document.add(Type: :Catalog)
+      end
+
+      # Returns the document's information dictionary, creating it if needed.
+      def info
+        self[:Info] ||= document.add({}, type: :XXInfo)
+      end
+
       # Sets the /ID field to an array of two copies of a random string and returns this array.
       #
       # See: PDF1.7 14.4
