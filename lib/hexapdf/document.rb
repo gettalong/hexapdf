@@ -523,14 +523,14 @@ module HexaPDF
         trailer.info[:ModDate] = Time.now
       end
 
+      task(:optimize, object_streams: object_streams) if object_streams != :preserve
+
       if validate
         self.validate(auto_correct: true) do |msg, correctable|
           next if correctable
           raise HexaPDF::Error, "Validation error: #{msg}"
         end
       end
-
-      task(:optimize, object_streams: object_streams) if object_streams != :preserve
 
       dispatch_message(:before_write)
 
