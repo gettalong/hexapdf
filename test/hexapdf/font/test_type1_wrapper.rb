@@ -36,8 +36,7 @@ describe HexaPDF::Font::Type1Wrapper do
     end
 
     it "invokes font.on_missing_glyph for missing glyphs" do
-      @doc.config['font.on_missing_glyph'] = proc { :A }
-      assert_equal(:A, @times_wrapper.glyph(:ffi).name)
+      assert_raises(HexaPDF::Error) { @times_wrapper.glyph(:ffi) }
     end
   end
 
