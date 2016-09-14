@@ -23,6 +23,7 @@ end
 describe HexaPDF::Type::ObjectStream do
   before do
     @doc = Object.new
+    @doc.instance_variable_set(:@version, '1.5')
     def (@doc).trailer
       @trailer ||= {Encrypt: HexaPDF::Object.new({}, oid: 9)}
     end

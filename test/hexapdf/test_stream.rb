@@ -68,6 +68,7 @@ describe HexaPDF::Stream do
   before do
     @document = OpenStruct.new
     @document.config = HexaPDF::Configuration.with_defaults
+    @document.instance_variable_set(:@version, '1.2')
     def (@document).unwrap(obj); obj; end
     def (@document).deref(obj); obj; end
 

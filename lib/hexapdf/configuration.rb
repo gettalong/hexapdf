@@ -331,7 +331,6 @@ module HexaPDF
                         TrueType: 'HexaPDF::Type::FontTrueType',
                       },
                       'task.map' => {
-                        set_min_pdf_version: 'HexaPDF::Task::SetMinPDFVersion',
                         optimize: 'HexaPDF::Task::Optimize',
                         dereference: 'HexaPDF::Task::Dereference',
                       })

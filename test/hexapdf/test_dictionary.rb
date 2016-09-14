@@ -24,7 +24,10 @@ describe HexaPDF::Dictionary do
     type.new(obj, document: self)
   end
 
+  attr_accessor :version
+
   before do
+    @version = '1.2'
     @test_class = Class.new(HexaPDF::Dictionary)
     @test_class.define_field(:Boolean, type: [TrueClass, FalseClass], default: false, version: '1.3')
     @test_class.define_field(:Array, type: Array, required: true, default: [])
@@ -176,6 +179,17 @@ describe HexaPDF::Dictionary do
 
       @obj.value.delete(:Inherited)
       refute(@obj.validate(auto_correct: true))
+    end
+
+    it "updates the PDF version of the document if needed" do
+      @obj.validate
+      assert_equal('1.2', @version)
+
+      @obj[:Boolean] = true
+      refute(@obj.validate(auto_correct: false))
+      assert_equal('1.2', @version)
+      assert(@obj.validate(auto_correct: true))
+      assert_equal('1.3', @version)
     end
 
     it "checks for the correct type of a set field" do

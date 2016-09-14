@@ -431,10 +431,9 @@ EOF
     end
 
     it "validates indirect objects" do
-      obj = @doc.add(Type: :XRef, Size: 100)
-      assert(@doc.validate(auto_correct: false))
+      @doc.add(Type: :Catalog)
+      refute(@doc.validate(auto_correct: false))
 
-      obj.delete(:Type)
       called = false
       assert(@doc.validate { called = true })
       assert(called)

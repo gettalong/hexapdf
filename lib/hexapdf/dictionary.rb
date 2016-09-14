@@ -227,6 +227,12 @@ module HexaPDF
           self[name] = obj = field.default
         end
 
+        # Check if the document version is set high enough
+        if field.version > document.instance_variable_get(:@version)
+          yield("Field #{name} requires document version to be #{field.version}", true)
+          document.version = field.version
+        end
+
         # The checks below assume that the field has a value
         next if obj.nil?
 
