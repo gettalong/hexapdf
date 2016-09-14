@@ -113,4 +113,8 @@ describe HexaPDF::Font::TTF::Font do
       assert_equal(80, @font.dominant_vertical_stem_width)
     end
   end
+
+  it "is able to return the ID of the missing glyph" do
+    assert_equal(0, @font.missing_glyph_id)
+  end
 end

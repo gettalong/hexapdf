@@ -128,6 +128,11 @@ module HexaPDF
           weight / 5
         end
 
+        # Returns th glyph ID of the missing glyph, i.e. 0.
+        def missing_glyph_id
+          0
+        end
+
         private
 
         # Returns the class that is used for handling tables of the given tag.

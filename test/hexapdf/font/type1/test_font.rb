@@ -61,4 +61,8 @@ describe HexaPDF::Font::Type1::Font do
       assert_equal(100, @font.width(:A))
     end
   end
+
+  it "is able to return the ID of the missing glyph" do
+    assert_equal(:'.notdef', @font.missing_glyph_id)
+  end
 end

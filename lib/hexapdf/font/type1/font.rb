@@ -80,6 +80,11 @@ module HexaPDF
           (metric = @metrics.character_metrics[glyph]) && metric.width
         end
 
+        # Returns the name/id of the missing glyph, i.e. .notdef.
+        def missing_glyph_id
+          :'.notdef'
+        end
+
       end
 
     end
