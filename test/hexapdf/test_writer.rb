@@ -100,4 +100,13 @@ EOF
     document.add(Type: :ObjStm)
     assert_raises(HexaPDF::Error) { HexaPDF::Writer.new(document, StringIO.new).write }
   end
+
+  it "raises an error if the class is misused and an xref section contains invalid entries" do
+    document = HexaPDF::Document.new
+    io = StringIO.new
+    writer = HexaPDF::Writer.new(document, io)
+    xref_section = HexaPDF::XRefSection.new
+    xref_section.add_compressed_entry(1, 2, 3)
+    assert_raises(HexaPDF::Error) { writer.send(:write_xref_section, xref_section) }
+  end
 end
