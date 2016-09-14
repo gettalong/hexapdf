@@ -272,7 +272,7 @@ module HexaPDF
       end
 
       # :nodoc:
-      DATE_RE = /\AD:(\d{4})(\d\d)?(\d\d)?(\d\d)?(\d\d)?(\d\d)?([Z+-])?(?:(\d\d)(?:'|'(\d\d)|\z)?)?\z/n
+      DATE_RE = /\AD:(\d{4})(\d\d)?(\d\d)?(\d\d)?(\d\d)?(\d\d)?([Z+-])?(?:(\d\d)(?:'|'(\d\d)'?|\z)?)?\z/n
 
       # Returns +true+ if the given data should be converted to a Time object.
       def self.convert?(data, _type)
