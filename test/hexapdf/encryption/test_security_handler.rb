@@ -170,6 +170,9 @@ describe HexaPDF::Encryption::SecurityHandler do
       assert_equal({version: 4, string_algorithm: :aes, stream_algorithm: :arc4,
                     embedded_file_algorithm: :identity, key_length: 128},
                    @handler.encryption_details)
+      assert_equal(HexaPDF::Encryption::Identity, @handler.send(:embedded_file_algorithm))
+      assert_equal(HexaPDF::Encryption::FastAES, @handler.send(:string_algorithm))
+      assert_equal(HexaPDF::Encryption::FastARC4, @handler.send(:stream_algorithm))
     end
 
     it "fails for unsupported encryption key lengths" do
@@ -237,6 +240,14 @@ describe HexaPDF::Encryption::SecurityHandler do
         @handler.set_up_decryption(dict)
         assert_equal('data', @handler.decrypt(@obj)[:X])
       end
+    end
+
+    it "selects the correct algorithm for string, stream and embedded file decryption" do
+      @handler.set_up_decryption({V: 4, StrF: :Mine, StmF: :Mine, EFF: :Mine,
+                                  CF: {Mine: {CFM: :V2}}})
+      assert_equal(HexaPDF::Encryption::FastARC4, @handler.send(:embedded_file_algorithm))
+      assert_equal(HexaPDF::Encryption::FastARC4, @handler.send(:string_algorithm))
+      assert_equal(HexaPDF::Encryption::FastARC4, @handler.send(:stream_algorithm))
     end
 
     it "provides correct encryption details" do
