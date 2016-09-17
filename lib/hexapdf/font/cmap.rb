@@ -8,14 +8,23 @@ module HexaPDF
     #
     # Currently, only the mapping to the Unicode values is supported.
     #
-    # See: PDF1.7 s9.7.5, s9.10.3
+    # See: PDF1.7 s9.7.5, s9.10.3; Adobe Technical Note #5411
     class CMap
 
       autoload(:Parser, 'hexapdf/font/cmap/parser')
+      autoload(:Writer, 'hexapdf/font/cmap/writer')
 
       # Creates a new CMap object from the given string which needs to contain a valid CMap file.
       def self.parse(string)
         Parser.new.parse(string)
+      end
+
+      # Returns a string containing a ToUnicode CMap that represents the given code to Unicode
+      # codepoint mapping.
+      #
+      # See: Writer#create_to_unicode_cmap
+      def self.create_to_unicode_cmap(mapping)
+        Writer.new.create_to_unicode_cmap(mapping)
       end
 
       # The registry part of the CMap version.
