@@ -22,6 +22,7 @@ begincmap
 endcodespacerange
 2 beginbfrange
 <0000> <005E> <0020>
+<1379> <137B> <90FE>
 <005F> <0061> [ <00660066> <00660069> <00660066006C> ]
 endbfrange
 1 beginbfchar
@@ -40,6 +41,9 @@ EOF
       ((0x20.chr)..(0x7e.chr)).each_with_index do |str, index|
         assert_equal(str, cmap.to_unicode(index))
       end
+      assert_equal("\u{90FE}", cmap.to_unicode(0x13 * 256 + 0x79))
+      assert_equal("\u{90FF}", cmap.to_unicode(0x13 * 256 + 0x7A))
+      assert_equal("\u{9100}", cmap.to_unicode(0x13 * 256 + 0x7B))
       assert_equal("ff", cmap.to_unicode(0x5F))
       assert_equal("fi", cmap.to_unicode(0x60))
       assert_equal("ffl", cmap.to_unicode(0x61))

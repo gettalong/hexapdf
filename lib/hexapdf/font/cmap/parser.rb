@@ -32,7 +32,7 @@ module HexaPDF
 
           cmap
         rescue => e
-          raise HexaPDF::Error, "Error parsing CMap: #{e.message}"
+          raise HexaPDF::Error, "Error parsing CMap: #{e.message}", e.backtrace
         end
 
         private
@@ -60,6 +60,18 @@ module HexaPDF
         end
 
         # Parses the "bfrange" operator at the current position.
+        #
+        #--
+        # PDF1.7 s9.10.3 and Adobe Technical Note #5411 have different views as to how "bfrange"
+        # operators of the form "startCode endCode codePoint" should be handled.
+        #
+        # PDF1.7 mentions that the last byte of "codePoint" should be incremented, up to a maximum
+        # of 255. However #5411 has the range "<1379> <137B> <90FE>" as example which contradicts
+        # this.
+        #
+        # Additionally, #5411 mentions in section 1.4.1 that the first byte of "startCode" and
+        # "endCode" have to be the same. So it seems that this is a mistake in the PDF reference.
+        #++
         def parse_bf_range(tokenizer, cmap)
           until (code1 = tokenizer.next_token).kind_of?(HexaPDF::Tokenizer::Token)
             code1 = bytes_to_int(code1)
@@ -67,12 +79,10 @@ module HexaPDF
             dest = tokenizer.next_object
 
             if dest.kind_of?(String)
-              dest.encode!(::Encoding::UTF_8, ::Encoding::UTF_16BE)
-              index = dest.length - 1
-              value = dest.getbyte(index) - code1
+              codepoint = dest.force_encoding(::Encoding::UTF_16BE).ord
               code1.upto(code2) do |code|
-                dest.setbyte(index, value + code)
-                cmap.unicode_mapping[code] = dest.dup
+                cmap.unicode_mapping[code] = '' << codepoint
+                codepoint += 1
               end
             elsif dest.kind_of?(Array)
               code1.upto(code2) do |code|
