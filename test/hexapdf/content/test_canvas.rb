@@ -1031,8 +1031,8 @@ describe HexaPDF::Content::Canvas do
     end
 
     it "sets the font size and, optionally, the leading" do
-      @canvas.font_size(12)
-      assert_equal(12, @canvas.font_size)
+      @canvas.font_size(10)
+      assert_equal(10, @canvas.font_size)
       assert_equal(12, @canvas.leading)
       @canvas.font_size(10, leading: 20)
       assert_equal(10, @canvas.font_size)
@@ -1054,7 +1054,7 @@ describe HexaPDF::Content::Canvas do
       @canvas.show_glyphs(font.decode_utf8("Hal l≥o").insert(2, -45))
       assert_in_delta(140.64, @canvas.text_cursor[0])
       assert_equal(0, @canvas.text_cursor[1])
-      assert_operators(@canvas.contents, [[:set_leading, [20]],
+      assert_operators(@canvas.contents, [[:set_leading, [24]],
                                           [:set_horizontal_scaling, [200]],
                                           [:set_character_spacing, [1]],
                                           [:set_word_spacing, [2]],
@@ -1073,7 +1073,7 @@ describe HexaPDF::Content::Canvas do
     it "sets the text cursor position if instructed" do
       @canvas.font("Times", size: 10)
       @canvas.text("Hallo", at: [100, 100])
-      assert_operators(@canvas.contents, [[:set_leading, [10]],
+      assert_operators(@canvas.contents, [[:set_leading, [12]],
                                           [:begin_text],
                                           [:set_text_matrix, [1, 0, 0, 1, 100, 100]],
                                           [:set_font_and_size, [:F1, 10]],
@@ -1084,7 +1084,7 @@ describe HexaPDF::Content::Canvas do
     it "shows text, possibly split over multiple lines" do
       @canvas.font("Times", size: 10)
       @canvas.text("H\u{D A}H\u{A}H\u{B}H\u{c}H\u{D}H\u{85}H\u{2028}H\u{2029}H")
-      assert_operators(@canvas.contents, [[:set_leading, [10]],
+      assert_operators(@canvas.contents, [[:set_leading, [12]],
                                           [:begin_text],
                                           [:set_font_and_size, [:F1, 10]],
                                           [:show_text_with_positioning, [["H"]]], [:move_text_next_line],

@@ -1561,9 +1561,9 @@ module HexaPDF
       # the font! And also note that GraphicsState#font is not set on the time of invocation of this
       # method but later when text is shown.
       #
-      # The font size can optionally be set using the +size+ argument. All other options are passed
-      # on to the font loaders (see HexaPDF::FontLoader) that are used for loading the specified
-      # font.
+      # If +size+ is specified, the #font_size method is invoked with it as argument. All other
+      # options are passed on to the font loaders (see HexaPDF::FontLoader) that are used for
+      # loading the specified font.
       #
       # Returns the current font object when no argument is given.
       #
@@ -1571,6 +1571,7 @@ module HexaPDF
       #
       #   canvas.font("Times", variant: :bold, size: 12)
       #   canvas.font                                          # => font object
+      #   canvas.font = "Times"
       #
       # See: PDF1.7 s9.2.2
       def font(name = nil, size: nil, **options)
@@ -1582,29 +1583,31 @@ module HexaPDF
           @font
         end
       end
+      alias :font= :font
 
       # :call-seq:
-      #   canvas.font_size                            => font_size
-      #   canvas.font_size(size, leading: size)       => canvas
+      #   canvas.font_size                                  => font_size
+      #   canvas.font_size(size, leading: size * 1.2)       => canvas
       #
       # Specifies the font size.
       #
       # Note that GraphicsState#font_size is not set on the time of invocation of this method but
       # only later when text is shown.
       #
-      # The leading can be additionally set and defaults to the font size. If the leading should not
-      # be changed, +nil+ has to be passed for +leading+.
+      # The leading can be additionally set and defaults to the font size times 1.2. If the leading
+      # should not be changed, +nil+ has to be passed for +leading+.
       #
       # Returns the current font size when no argument is given.
       #
       # Examples:
       #
       #   canvas.font_size(12)
-      #   canvas.font_size              # => 12
+      #   canvas.font_size                       # => 12
       #   canvas.font_size(12, leading: 20)
+      #   canvas.font_size = 12
       #
       # See: PDF1.7 s9.2.2
-      def font_size(size = nil, leading: size)
+      def font_size(size = nil, leading: size && size * 1.2)
         if size
           @font_size = size
           self.leading(leading) if leading
@@ -1613,6 +1616,7 @@ module HexaPDF
           @font_size
         end
       end
+      alias :font_size= :font_size
 
       # :call-seq:
       #   canvas.text(text)                  -> canvas
