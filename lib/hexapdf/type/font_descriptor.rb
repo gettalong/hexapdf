@@ -2,6 +2,7 @@
 
 require 'hexapdf/dictionary'
 require 'hexapdf/stream'
+require 'hexapdf/utils/bit_field'
 
 module HexaPDF
   module Type
@@ -12,22 +13,7 @@ module HexaPDF
     # See: PDF1.7 s9.8
     class FontDescriptor < Dictionary
 
-      # Mapping of flag names to flag values.
-      FLAGS = {
-        fixed_pitch: 1 << 0,
-        serif: 1 << 1,
-        symbolic: 1 << 2,
-        script: 1 << 3,
-        nonsymbolic: 1 << 5,
-        italic: 1 << 6,
-        all_cap: 1 << 16,
-        small_cap: 1 << 17,
-        force_bold: 1 << 18,
-      }
-      FLAGS.default_proc = lambda do |_hash, name|
-        raise ArgumentError, "Invalid font descriptor flag name: #{name}"
-      end
-      FLAGS.freeze
+      extend Utils::BitField
 
       define_field :Type,         type: Symbol,        required: true, default: :FontDescriptor
       define_field :FontName,     type: Symbol,        required: true
@@ -57,27 +43,22 @@ module HexaPDF
       define_field :FD,           type: Dictionary
       define_field :CIDSet,       type: Stream
 
-      # Returns an array with symbols representing the individual flags.
-      def flags
-        flags_value = self[:Flags] || 0
-        FLAGS.map {|name, value| flags_value & value == value ? name : nil}.compact!
-      end
 
-      # Returns +true+ if the given flag is set.
-      def flagged?(name)
-        (self[:Flags] || 0) & FLAGS[name] == FLAGS[name]
-      end
-
-      # Sets the given flags.
-      #
-      # If +clear_existing+ is +true+, then all existing flags are cleared before setting the given
-      # flags.
-      def flag(*names, clear_existing: true)
-        self[:Flags] = 0 if clear_existing
-        names.each {|name| self[:Flags] |= FLAGS[name]}
-      end
+      bit_field(:raw_flags, {fixed_pitch: 0, serif: 1, symbolic: 2, script: 3, nonsymbolic: 5,
+                             italic: 6, all_cap: 16, small_cap: 17, force_bold: 18},
+                lister: "flags", getter: "flagged?", setter: "flag")
 
       private
+
+      # Helper method for bit field getter access.
+      def raw_flags
+        self[:Flags]
+      end
+
+      # Helper method for bit field setter access.
+      def raw_flags=(value)
+        self[:Flags] = value
+      end
 
       def perform_validation #:nodoc:
         super

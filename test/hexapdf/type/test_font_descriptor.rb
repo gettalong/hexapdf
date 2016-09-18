@@ -29,7 +29,7 @@ describe HexaPDF::Type::FontDescriptor do
 
   describe "flag" do
     it "sets the given flag bits" do
-      @font_desc.flag(:serif, clear_existing: false)
+      @font_desc.flag(:serif)
       assert_equal([:fixed_pitch, :serif, :script, :italic], @font_desc.flags)
       @font_desc.flag(:symbolic, clear_existing: true)
       assert_equal([:symbolic], @font_desc.flags)

@@ -51,12 +51,12 @@ describe HexaPDF::Type::FontSimple do
         end
 
         it "fails for a symbolic non-embedded font because encoding_from_font is not implemented" do
-          @font[:FontDescriptor].flag(:symbolic)
+          @font[:FontDescriptor].flag(:symbolic, clear_existing: true)
           assert_raises(NotImplementedError) { @font.encoding }
         end
 
         it "returns the StandardEncoding for a non-symbolic non-embedded font" do
-          @font[:FontDescriptor].flag
+          @font[:FontDescriptor].flag(clear_existing: true)
           assert_equal(HexaPDF::Font::Encoding.for_name(:StandardEncoding), @font.encoding)
         end
       end
@@ -72,7 +72,7 @@ describe HexaPDF::Type::FontSimple do
       end
 
       it "returns a difference encoding if /Differences is specified" do
-        @font[:FontDescriptor].flag
+        @font[:FontDescriptor].flag(clear_existing: true)
         @font[:Encoding][:Differences] = [32, :A, :B, 34, :Z]
         refute_equal(HexaPDF::Font::Encoding.for_name(:StandardEncoding), @font.encoding)
         assert_equal(:A, @font.encoding.name(32))
@@ -162,7 +162,7 @@ describe HexaPDF::Type::FontSimple do
 
   describe "symbolic?" do
     it "return true if the font is symbolic" do
-      @font[:FontDescriptor].flag
+      @font[:FontDescriptor].flag(clear_existing: true)
       refute(@font.symbolic?)
 
       @font[:FontDescriptor].flag(:symbolic)
