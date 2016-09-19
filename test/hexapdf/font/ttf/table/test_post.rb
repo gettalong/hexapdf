@@ -20,6 +20,7 @@ describe HexaPDF::Font::TTF::Table::Post do
       assert_equal(-142, table.underline_position)
       assert_equal(15, table.underline_thickness)
       assert_equal(0, table.is_fixed_pitch)
+      refute(table.is_fixed_pitch?)
       assert_equal(0, table.min_mem_type42)
       assert_equal(0, table.max_mem_type42)
       assert_equal(0, table.min_mem_type1)

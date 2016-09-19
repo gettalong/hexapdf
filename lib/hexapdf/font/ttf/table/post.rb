@@ -32,6 +32,13 @@ module HexaPDF
           # Specifies whether the font is proportional (value is 0) or monospaced (value is not 0).
           attr_accessor :is_fixed_pitch
 
+          # Returns +true+ if the font is monospaced.
+          #
+          # See: #is_fixed_pitch
+          def is_fixed_pitch?
+            @is_fixed_pitch != 0
+          end
+
           # Minimum memory usage when a font is downloaded.
           attr_accessor :min_mem_type42
 
