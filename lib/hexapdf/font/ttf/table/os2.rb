@@ -66,7 +66,7 @@ module HexaPDF
           attr_accessor :panose
 
           # Describes the Unicode ranges covered by the font.
-          attr_accessor :char_range
+          attr_accessor :unicode_range
 
           # The four character identifier of the font vendor.
           attr_accessor :vendor_id
@@ -131,8 +131,8 @@ module HexaPDF
 
             @weight_class *= 100 if @weight_class < 100 # Normalize to standard weights
 
-            @char_range, temp = read_formatted(16, 'Q>2')
-            @char_range = @char_range << 64 & temp
+            @unicode_range, temp = read_formatted(16, 'Q>2')
+            @unicode_range = @unicode_range << 64 & temp
 
             @vendor_id, @selection,
               @first_char_index, @last_char_index, @typo_ascender, @typo_descender, @typo_line_gap,
@@ -148,7 +148,7 @@ module HexaPDF
             @x_avg_char_width = @weight_class = @width_class = @type = @subscript_x_size =
               @subscript_y_size = @subscript_x_offset = @subscript_y_offset = @superscript_x_size =
               @superscript_y_size = @superscript_x_offset = @superscript_y_offset =
-              @strikeout_size = @strikeout_position = @family_class = @char_range = @selection =
+              @strikeout_size = @strikeout_position = @family_class = @unicode_range = @selection =
               @first_char_index = @last_char_index = @typo_ascender = @typo_descender =
               @typo_line_gap = @win_ascent = @win_descent = @code_page_range = @x_height =
               @cap_height = @default_char = @break_char = @max_context = @lower_point_size =

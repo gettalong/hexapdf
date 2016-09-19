@@ -34,7 +34,7 @@ describe HexaPDF::Font::TTF::Table::OS2 do
       assert_equal(-14, table.strikeout_position)
       assert_equal(-15, table.family_class)
       assert_equal('PANOSPANOS'.b, table.panose)
-      assert_equal(16 << 64 & 17, table.char_range)
+      assert_equal(16 << 64 & 17, table.unicode_range)
       assert_equal('VEND'.b, table.vendor_id)
       assert_equal(16, table.selection)
       assert_equal(17, table.first_char_index)
