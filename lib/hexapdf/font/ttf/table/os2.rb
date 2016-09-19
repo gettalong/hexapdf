@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/font/ttf/table'
+require 'hexapdf/utils/bit_field'
 
 module HexaPDF
   module Font
@@ -13,6 +14,7 @@ module HexaPDF
         #
         # See: https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6OS2.html
         class OS2 < Table
+          extend HexaPDF::Utils::BitField
 
           # The version of the table.
           attr_accessor :version
@@ -28,6 +30,8 @@ module HexaPDF
 
           # Characteristics and properties of this font.
           attr_accessor :type
+          bit_field(:type, restricted_license_embedding: 1, preview_and_print_embedding: 2,
+                    editable_embedding: 3, no_subsetting: 8, bitmap_embedding_only: 9)
 
           # Recommended horizontal size in pixels for subscripts
           attr_accessor :subscript_x_size
@@ -73,6 +77,8 @@ module HexaPDF
 
           # Information concerning the nature of the font patterns.
           attr_accessor :selection
+          bit_field(:selection, italic: 0, underscore: 1, negative: 2, outlined: 3, strikeout: 4,
+                    bold: 5, regular: 6, use_typo_metrics: 7, wws: 8, oblique: 9)
 
           # The minimum Unicode index in this font.
           attr_accessor :first_char_index

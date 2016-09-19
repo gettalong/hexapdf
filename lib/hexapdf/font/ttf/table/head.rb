@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'hexapdf/font/ttf/table'
+require 'hexapdf/utils/bit_field'
 
 module HexaPDF
   module Font
@@ -11,6 +12,7 @@ module HexaPDF
         #
         # See: https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6head.html
         class Head < Table
+          extend HexaPDF::Utils::BitField
 
           # The version of the font (a Rational).
           attr_accessor :version
@@ -39,6 +41,8 @@ module HexaPDF
 
           # Apple Mac style information.
           attr_accessor :mac_style
+          bit_field(:mac_style, bold: 0, italic: 1, underline: 2, outline: 3, shadow: 4,
+                    condensed: 5, extended: 6)
 
           # The smallest readable size in pixels per em for this font.
           attr_accessor :smallest_readable_size
