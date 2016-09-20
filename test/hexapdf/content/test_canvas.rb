@@ -1051,20 +1051,25 @@ describe HexaPDF::Content::Canvas do
       @canvas.word_spacing(2)
 
       font = @canvas.font
-      @canvas.show_glyphs(font.decode_utf8("Hal l≥o").insert(2, -45))
+      @canvas.show_glyphs(font.decode_utf8("Hal l≥o").insert(2, -35).insert(0, -10))
       assert_in_delta(140.64, @canvas.text_cursor[0])
       assert_equal(0, @canvas.text_cursor[1])
+      @canvas.font_size(10)
+      @canvas.show_glyphs(font.decode_utf8("Hal"))
       assert_operators(@canvas.contents, [[:set_leading, [24]],
                                           [:set_horizontal_scaling, [200]],
                                           [:set_character_spacing, [1]],
                                           [:set_word_spacing, [2]],
                                           [:begin_text],
                                           [:set_font_and_size, [:F1, 20]],
-                                          [:show_text_with_positioning, [["Ha", -45, "l l"]]],
+                                          [:show_text_with_positioning, [['', -10, "Ha", -35, "l l"]]],
                                           [:set_font_and_size, [:F2, 20]],
                                           [:show_text_with_positioning, [["!"]]],
                                           [:set_font_and_size, [:F1, 20]],
                                           [:show_text_with_positioning, [["o"]]],
+                                          [:set_leading, [12]],
+                                          [:set_font_and_size, [:F1, 10]],
+                                          [:show_text_with_positioning, [["Hal"]]],
                                          ])
     end
   end

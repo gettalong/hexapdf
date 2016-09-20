@@ -1667,7 +1667,11 @@ module HexaPDF
       def show_glyphs(data)
         begin_text
 
-        graphics_state.font_size = @font_size
+        invoke_font_operator(graphics_state.font) if graphics_state.font
+        if graphics_state.font_size != @font_size
+          graphics_state.font_size = @font_size
+        end
+
         result = [''.b]
         offset = 0
         last_dict = nil
