@@ -433,7 +433,7 @@ module HexaPDF
 
         @scaled_character_spacing = 0
         @scaled_word_spacing = 0
-        @scaled_font_size = 0
+        @scaled_font_size = 10 / 1000.0
         @scaled_horizontal_scaling = 1
 
         @stack = []
