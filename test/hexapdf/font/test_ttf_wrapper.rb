@@ -53,12 +53,13 @@ describe HexaPDF::Font::TTFWrapper do
 
   describe "encode" do
     it "returns the PDF font dictionary and the encoded glyph" do
-      dict1, code = @font_wrapper.encode(@font_wrapper.glyph(3))
+      dict = @font_wrapper.dict
+
+      code = @font_wrapper.encode(@font_wrapper.glyph(3))
       assert_equal([3].pack('n'), code)
       glyph = @font_wrapper.decode_utf8('H').first
-      dict, code = @font_wrapper.encode(glyph)
+      code = @font_wrapper.encode(glyph)
       assert_equal([glyph.id].pack('n'), code)
-      assert_same(dict1, dict)
 
       @doc.dispatch_message(:complete_objects)
 
@@ -90,8 +91,8 @@ describe HexaPDF::Font::TTFWrapper do
       @cmap.stub(:[], nil) do
         @font[:'OS/2'].typo_ascender = 1000
         font_wrapper = HexaPDF::Font::TTFWrapper.new(@doc, @font)
-        dict, _encoded = font_wrapper.encode(glyph)
-        fd = dict[:DescendantFonts][0][:FontDescriptor]
+        font_wrapper.encode(glyph)
+        fd = font_wrapper.dict[:DescendantFonts][0][:FontDescriptor]
         assert_equal(800, fd[:CapHeight])
         assert_equal(500, fd[:XHeight])
       end
@@ -100,8 +101,8 @@ describe HexaPDF::Font::TTFWrapper do
       @font[:'OS/2'].x_height = 500 * @font[:head].units_per_em / 1000
       @font[:'OS/2'].cap_height = 1000 * @font[:head].units_per_em / 1000
       font_wrapper = HexaPDF::Font::TTFWrapper.new(@doc, @font)
-      dict, _encoded = font_wrapper.encode(glyph)
-      fd = dict[:DescendantFonts][0][:FontDescriptor]
+      font_wrapper.encode(glyph)
+      fd = font_wrapper.dict[:DescendantFonts][0][:FontDescriptor]
       assert_equal(1000, fd[:CapHeight])
       assert_equal(500, fd[:XHeight])
     end

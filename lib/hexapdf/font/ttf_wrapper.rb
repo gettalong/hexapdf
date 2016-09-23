@@ -53,6 +53,9 @@ module HexaPDF
       # Returns the wrapped TrueType font object.
       attr_reader :wrapped_font
 
+      # Returns the PDF font dictionary representing the wrapped font.
+      attr_reader :dict
+
       # Creates a new object wrapping the TrueType font for the PDF document.
       def initialize(document, font)
         @document = document
@@ -63,7 +66,7 @@ module HexaPDF
           raise HexaPDF::Error, "No mapping table for Unicode characters found for TTF " \
             "font #{font.full_name}"
         end
-        @font_dict = build_font_dict
+        @dict = build_font_dict
         @document.register_listener(:complete_objects, &method(:complete_font_dict))
 
         @id_to_glyph = {}
@@ -95,9 +98,9 @@ module HexaPDF
         end
       end
 
-      # Encodes the glyph and returns the used PDF font dictionary and the code string.
+      # Encodes the glyph and returns the code string.
       def encode(glyph)
-        @encoded_glyphs[glyph] ||= [@font_dict, [glyph.id].pack('n')]
+        @encoded_glyphs[glyph] ||= [glyph.id].pack('n')
       end
 
       private
@@ -165,7 +168,7 @@ module HexaPDF
 
       # Adds the /DW and /W fields to the CIDFont dictionary.
       def complete_width_information
-        cid_font = @font_dict[:DescendantFonts].first
+        cid_font = @dict[:DescendantFonts].first
         cid_font[:DW] = default_width = glyph(3).width
 
         glyphs = @encoded_glyphs.keys.reject {|g| g.width == default_width}.sort_by(&:id)
@@ -197,7 +200,7 @@ module HexaPDF
         end
         stream_obj = @document.add({}, stream: stream)
         stream_obj.set_filter(:FlateDecode)
-        @font_dict[:ToUnicode] = stream_obj
+        @dict[:ToUnicode] = stream_obj
       end
 
     end

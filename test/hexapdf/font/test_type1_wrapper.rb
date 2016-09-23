@@ -43,26 +43,23 @@ describe HexaPDF::Font::Type1Wrapper do
   describe "encode" do
     describe "uses WinAnsiEncoding as initial encoding for non-symbolic fonts" do
       it "returns the PDF font dictionary using WinAnsiEncoding and encoded glyph" do
-        dict, code = @times_wrapper.encode(@times_wrapper.glyph(:a))
+        code = @times_wrapper.encode(@times_wrapper.glyph(:a))
         @doc.dispatch_message(:complete_objects)
         assert_equal("a", code)
-        assert_equal(:WinAnsiEncoding, dict[:Encoding])
+        assert_equal(:WinAnsiEncoding, @times_wrapper.dict[:Encoding])
       end
 
-      it "returns another PDF font dictionary for glyphs not encoded by WinAnsiEncoding" do
-        dict, code = @times_wrapper.encode(@times_wrapper.glyph(:uring))
-        @doc.dispatch_message(:complete_objects)
-        assert_equal("\x21", code)
-        assert_equal({Differences: [32, :space, :uring]}, dict[:Encoding])
+      it "fails if the encoding does not support the given glyph" do
+        assert_raises(HexaPDF::Error) { @times_wrapper.encode(@times_wrapper.glyph(:uring)) }
       end
     end
 
     describe "uses an empty encoding as initial encoding for symbolic fonts" do
       it "returns the PDF font dictionary and encoded glyph" do
-        dict, code = @symbol_wrapper.encode(@symbol_wrapper.glyph(:plus))
+        code = @symbol_wrapper.encode(@symbol_wrapper.glyph(:plus))
         @doc.dispatch_message(:complete_objects)
         assert_equal("\x21", code)
-        assert_equal({Differences: [32, :space, :plus]}, dict[:Encoding])
+        assert_equal({Differences: [32, :space, :plus]}, @symbol_wrapper.dict[:Encoding])
       end
     end
   end

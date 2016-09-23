@@ -165,7 +165,6 @@ module HexaPDF
         @graphics_state = GraphicsState.new
         @graphics_object = :none
         @font = nil
-        @font_size = nil
         @serializer = HexaPDF::Serializer.new
         @current_point = [0, 0]
         @start_point = [0, 0]
@@ -1557,9 +1556,10 @@ module HexaPDF
       #
       # Specifies the font that should be used when showing text.
       #
+      # A valid font size need to be provided on the first invocation, otherwise an error is raised.
+      #
       # *Note* that this method returns the font object itself, not the PDF dictionary representing
-      # the font! And also note that GraphicsState#font is not set on the time of invocation of this
-      # method but later when text is shown.
+      # the font!
       #
       # If +size+ is specified, the #font_size method is invoked with it as argument. All other
       # options are passed on to the font loaders (see HexaPDF::FontLoader) that are used for
@@ -1576,8 +1576,14 @@ module HexaPDF
       # See: PDF1.7 s9.2.2
       def font(name = nil, size: nil, **options)
         if name
-          font_size(size)
           @font = context.document.fonts.load(name, options)
+          if size
+            font_size(size)
+          else
+            size = font_size
+            raise HexaPDF::Error, "No valid font size set" if size <= 0
+            invoke_font_operator(@font.dict, size)
+          end
           self
         else
           @font
@@ -1591,8 +1597,7 @@ module HexaPDF
       #
       # Specifies the font size.
       #
-      # Note that GraphicsState#font_size is not set on the time of invocation of this method but
-      # only later when text is shown.
+      # Note that an error is raised if no font has been set before!
       #
       # The leading can be additionally set and defaults to the font size times 1.2. If the leading
       # should not be changed, +nil+ has to be passed for +leading+.
@@ -1609,11 +1614,14 @@ module HexaPDF
       # See: PDF1.7 s9.2.2
       def font_size(size = nil, leading: size && size * 1.2)
         if size
-          @font_size = size
+          unless @font
+            raise HexaPDF::Error, "A font needs to be set before the font size can be set"
+          end
+          invoke_font_operator(@font.dict, size)
           self.leading(leading) if leading
           self
         else
-          @font_size
+          graphics_state.font_size
         end
       end
       alias :font_size= :font_size
@@ -1654,8 +1662,8 @@ module HexaPDF
       #
       # Low-level method for actually showing text on the canvas.
       #
-      # The argument +data+ needs to be a an array of Glyph objects, optionally interspersed with
-      # numbers for kerning.
+      # The argument +data+ needs to be a an array of glyph objects valid for the current font,
+      # optionally interspersed with numbers for kerning.
       #
       # Text is always shown at the current position of the text cursor, i.e. the origin of the text
       # matrix. To move the text cursor to somewhere else use #move_text_cursor before calling this
@@ -1667,27 +1675,14 @@ module HexaPDF
       def show_glyphs(data)
         begin_text
 
-        invoke_font_operator(graphics_state.font) if graphics_state.font
-        if graphics_state.font_size != @font_size
-          graphics_state.font_size = @font_size
-        end
-
         result = [''.b]
         offset = 0
-        last_dict = nil
         data.each do |item|
           if item.kind_of?(Numeric)
             result << item << ''.b
             offset -= item * graphics_state.scaled_font_size
           else
-            dict, encoded = @font.encode(item)
-            last_dict ||= dict
-            unless dict == last_dict
-              invoke_font_operator(last_dict)
-              invoke1(:TJ, result)
-              last_dict = dict
-              result = [''.b]
-            end
+            encoded = @font.encode(item)
             result[-1] << encoded
 
             offset += item.width * graphics_state.scaled_font_size +
@@ -1696,11 +1691,7 @@ module HexaPDF
           end
         end
 
-        if last_dict
-          invoke_font_operator(last_dict)
-          invoke1(:TJ, result)
-        end
-
+        invoke1(:TJ, result)
         graphics_state.tm.translate(offset, 0)
         self
       end
@@ -1737,9 +1728,9 @@ module HexaPDF
       end
 
       # Invokes the font operator using the given PDF font dictionary.
-      def invoke_font_operator(font)
-        if graphics_state.font != font || graphics_state.font_size != @font_size
-          invoke(:Tf, resources.add_font(font), @font_size)
+      def invoke_font_operator(font, font_size)
+        if graphics_state.font != font || graphics_state.font_size != font_size
+          invoke(:Tf, resources.add_font(font), font_size)
         end
       end
 

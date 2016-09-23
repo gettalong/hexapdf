@@ -39,84 +39,29 @@ module HexaPDF
       private_constant :Glyph
 
 
-      # Represents a font encoding variant.
-      #
-      # This is similar to how font subsets work but in this case the same font is always used with
-      # different encodings.
-      class FontVariant
-
-        # The PDF font dictionary for this variant.
-        attr_reader :dict
-
-        # Creates a new variant for the given font dictionary and the optionally given encoding.
-        def initialize(dict, encoding: nil)
-          @dict = dict
-          if encoding
-            @encoding = encoding
-            @max_code = 255 # given encodings are not modified
-          else
-            @encoding = Encoding::Base.new
-            @encoding.code_to_name[32] = :space
-            @max_code = 32 # 32 = space
-          end
-        end
-
-        # Encodes the glyph using the encoding of this variant and returns the resulting single byte
-        # code.
-        #
-        # If there is no valid encoding for the given glyph but still space left in the encoding, a
-        # new code to glyph mapping is automatically added to the encoding. Otherwise +nil+ is
-        # returned.
-        def encode(glyph)
-          code = @encoding.code_to_name.key(glyph.name)
-          if code
-            code.chr.freeze
-          elsif @max_code < 255
-            @max_code += 1
-            @encoding.code_to_name[@max_code] = glyph.name
-            @max_code.chr.freeze
-          else
-            nil
-          end
-        end
-
-        # Array of valid encoding names in PDF
-        VALID_ENCODING_NAMES = [:WinAnsiEncoding, :MacRomanEncoding, :MacExpertEncoding]
-
-        # Completes the font dictionary by filling in the values that depend on the used encoding.
-        def complete_dict(wrapper)
-          min, max = @encoding.code_to_name.keys.minmax
-          @dict[:FirstChar] = min
-          @dict[:LastChar] = max
-          @dict[:Widths] = (min..max).map {|code| wrapper.glyph(@encoding.name(code)).width}
-
-          if VALID_ENCODING_NAMES.include?(@encoding.encoding_name)
-            @dict[:Encoding] = @encoding.encoding_name
-          else
-            differences = [min]
-            (min..max).each {|code| differences << @encoding.name(code)}
-            @dict[:Encoding] = {Differences: differences}
-          end
-        end
-
-      end
-
-      private_constant :FontVariant
-
-
       # Returns the wrapped Type1 font object.
       attr_reader :wrapped_font
 
+      # The PDF font dictionary representing the wrapped font.
+      attr_reader :dict
+
       # Creates a new object wrapping the Type1 font for the PDF document.
-      def initialize(document, font)
+      #
+      # The optional argument +custom_encoding+ can be set to +true+ so that a custom encoding
+      # instead of the WinAnsiEncoding is used.
+      def initialize(document, font, custom_encoding: false)
         @document = document
         @wrapped_font = font
 
-        enc = (@wrapped_font.metrics.character_set == 'Special' ? nil :
-               Encoding.for_name(:WinAnsiEncoding))
-        @variants = [FontVariant.new(build_font_dict, encoding: enc)]
-        @document.register_listener(:complete_objects) do
-          @variants.each {|variant| variant.complete_dict(self)}
+        @dict = build_font_dict
+        @document.register_listener(:complete_objects, &method(:complete_font_dict))
+        if @wrapped_font.metrics.character_set == 'Special' || custom_encoding
+          @encoding = Encoding::Base.new
+          @encoding.code_to_name[32] = :space
+          @max_code = 32 # 32 = space
+        else
+          @encoding = Encoding.for_name(:WinAnsiEncoding)
+          @max_code = 255 # Encoding is not modified
         end
 
         @zapf_dingbats_opt = {zapf_dingbats: (@wrapped_font.font_name == 'ZapfDingbats')}
@@ -148,21 +93,20 @@ module HexaPDF
         end
       end
 
-      # Encodes the glyph and returns the used PDF font dictionary and the code string.
+      # Encodes the glyph and returns the code string.
       def encode(glyph)
         @encoded_glyphs[glyph.name] ||=
           begin
-            result = nil
-            @variants.each do |variant|
-              code = variant.encode(glyph)
-              (result = [variant.dict, code]) && break if code
+            code = @encoding.code_to_name.key(glyph.name)
+            if code
+              code.chr.freeze
+            elsif @max_code < 255
+              @max_code += 1
+              @encoding.code_to_name[@max_code] = glyph.name
+              @max_code.chr.freeze
+            else
+              raise HexaPDF::Error, "Type1 encoding has no codepoint for #{glyph.name}"
             end
-            unless result
-              variant = FontVariant.new(build_font_dict)
-              @variants << variant
-              result = [variant.dict, variant.encode(glyph)]
-            end
-            result
           end
       end
 
@@ -191,6 +135,25 @@ module HexaPDF
         @document.wrap(Type: :Font, Subtype: :Type1,
                        BaseFont: @wrapped_font.font_name.intern, Encoding: :WinAnsiEncoding,
                        FontDescriptor: @fd)
+      end
+
+      # Array of valid encoding names in PDF
+      VALID_ENCODING_NAMES = [:WinAnsiEncoding, :MacRomanEncoding, :MacExpertEncoding]
+
+      # Completes the font dictionary by filling in the values that depend on the used encoding.
+      def complete_font_dict
+        min, max = @encoding.code_to_name.keys.minmax
+        @dict[:FirstChar] = min
+        @dict[:LastChar] = max
+        @dict[:Widths] = (min..max).map {|code| glyph(@encoding.name(code)).width}
+
+        if VALID_ENCODING_NAMES.include?(@encoding.encoding_name)
+          @dict[:Encoding] = @encoding.encoding_name
+        else
+          differences = [min]
+          (min..max).each {|code| differences << @encoding.name(code)}
+          @dict[:Encoding] = {Differences: differences}
+        end
       end
 
     end

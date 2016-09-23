@@ -426,14 +426,14 @@ module HexaPDF
         @horizontal_scaling = 100
         @leading = 0
         @font = nil
-        @font_size = 10
+        @font_size = 0
         @text_rendering_mode = TextRenderingMode::FILL
         @text_rise = 0
         @text_knockout = true
 
         @scaled_character_spacing = 0
         @scaled_word_spacing = 0
-        @scaled_font_size = 10 / 1000.0
+        @scaled_font_size = 0
         @scaled_horizontal_scaling = 1
 
         @stack = []
