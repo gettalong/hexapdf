@@ -35,6 +35,10 @@ describe HexaPDF::FontUtils do
       assert_same(@doc.fonts.load(:TestFont), @doc.fonts.load(:TestFont))
     end
 
+    it "fails if the requested font is not found"  do
+      assert_raises(HexaPDF::Error) { @doc.fonts.load("Unknown") }
+    end
+
     it "raises an error if a font loader cannot be correctly retrieved" do
       @doc.config['font_loader'][0] = 'UnknownFontLoader'
       assert_raises(HexaPDF::Error) { @doc.fonts.load(:Other) }

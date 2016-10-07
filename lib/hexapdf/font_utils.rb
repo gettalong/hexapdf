@@ -31,8 +31,11 @@ module HexaPDF
         break if font
       end
 
-      @loaded_fonts_cache[[name, options]] = font if font
-      font
+      if font
+        @loaded_fonts_cache[[name, options]] = font
+      else
+        raise HexaPDF::Error, "The requested font '#{name}' couldn't be found"
+      end
     end
 
     private
