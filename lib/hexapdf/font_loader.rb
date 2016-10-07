@@ -27,6 +27,7 @@ module HexaPDF
   module FontLoader
 
     autoload(:Standard14, 'hexapdf/font_loader/standard14')
+    autoload(:FromConfiguration, 'hexapdf/font_loader/from_configuration')
 
   end
 

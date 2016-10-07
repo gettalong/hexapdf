@@ -1,0 +1,28 @@
+# -*- encoding: utf-8 -*-
+
+require 'test_helper'
+require 'hexapdf/font_loader'
+require 'hexapdf/document'
+
+describe HexaPDF::FontLoader::FromConfiguration do
+  before do
+    @doc = HexaPDF::Document.new
+    font_file = File.join(TEST_DATA_DIR, "fonts", "Ubuntu-Title.ttf")
+    @doc.config['font.map'] = {'font' => {none: font_file}}
+    @klass = HexaPDF::FontLoader::FromConfiguration
+  end
+
+  it "loads the configured font" do
+    wrapper = @klass.call(@doc, "font")
+    assert_equal("Ubuntu-Title", wrapper.wrapped_font.font_name)
+  end
+
+  it "fails if the font file cannot be read" do
+    @doc.config['font.map']['font'][:none] << "unknown"
+    assert_raises(HexaPDF::Error) { @klass.call(@doc, "font") }
+  end
+
+  it "returns nil for unknown fonts" do
+    assert_nil(@klass.call(@doc, "Unknown"))
+  end
+end

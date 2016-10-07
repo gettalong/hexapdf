@@ -104,6 +104,22 @@ module HexaPDF
   #
   #    In nearly all cases this option should not be changed from its default setting!
   #
+  # font.map::
+  #    Defines a mapping from font names and variants to font files.
+  #
+  #    The value needs to be a hash of the form:
+  #      {"font_name": {variant: file_name, variant2: file_name2, ...}, ...}
+  #
+  #    Once a font is registered in this way, the font name together with a variant name can be used
+  #    with the HexaPDF::FontUtils#load method to load the font.
+  #
+  #    For best compatibility, the following variant names should be used:
+  #
+  #    [none] For the normal variant of the font
+  #    [bold] For the bold variant of the font
+  #    [italic] For the italic or oblique variant of the font
+  #    [bold_italic] For the bold and italic/oblique variant of the font
+  #
   # font.on_missing_glyph::
   #    Callback hook when an UTF-8 character cannot be mapped to a glyph of a font.
   #
@@ -171,11 +187,13 @@ module HexaPDF
   #    The maximum number of nodes that should be in a leaf node of a node tree.
   DefaultDocumentConfiguration =
     Configuration.new('document.auto_decrypt' => true,
+                      'font.map' => {},
                       'font.on_missing_glyph' => proc do |n, f|
                         raise HexaPDF::Error, "No glyph for '#{n}' in font #{f.font_name} found"
                       end,
                       'font_loader' => [
                         'HexaPDF::FontLoader::Standard14',
+                        'HexaPDF::FontLoader::FromConfiguration',
                       ],
                       'graphic_object.map' => {
                         arc: 'HexaPDF::Content::GraphicObject::Arc',
