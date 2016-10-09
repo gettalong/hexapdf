@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-require 'hexapdf/font/ttf_wrapper'
+require 'hexapdf/font/true_type_wrapper'
 
 module HexaPDF
   module FontLoader
@@ -29,8 +29,8 @@ module HexaPDF
           raise HexaPDF::Error, "The configured font file #{file} does not exist"
         end
 
-        font = HexaPDF::Font::TTF::Font.new(io: File.open(file))
-        HexaPDF::Font::TTFWrapper.new(document, font)
+        font = HexaPDF::Font::TrueType::Font.new(io: File.open(file))
+        HexaPDF::Font::TrueTypeWrapper.new(document, font)
       end
 
     end
