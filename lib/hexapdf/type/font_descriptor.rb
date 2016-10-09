@@ -65,6 +65,11 @@ module HexaPDF
         if [self[:FontFile], self[:FontFile2], self[:FontFile3]].compact.size > 1
           yield("Only one of /FontFile, /FontFile2 or /FontFile3 may be set", false)
         end
+
+        descent = self[:Descent]
+        if descent && descent > 0
+          yield("The /Descent value needs to be a negative number", false)
+        end
       end
 
     end
