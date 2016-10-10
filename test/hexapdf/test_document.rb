@@ -476,7 +476,7 @@ EOF
 
       @doc.write(StringIO.new(''.b), update_fields: false)
       assert_same(id1, @doc.trailer[:ID][1])
-      refute(@doc.trailer.key?(:Info))
+      refute(@doc.trailer.info.key?(:ModDate))
 
       @doc.write(StringIO.new(''.b))
       refute_same(id1, (id2 = @doc.trailer[:ID][1]))

@@ -39,12 +39,16 @@ trailer
 startxref
 219
 %%EOF
+3 0 obj
+<</Producer(HexaPDF version 0.0.1)>>
+endobj
 xref
-0 0
+3 1
+0000000296 00000 n 
 trailer
-<</Prev 219/Size 3/Root<</Type/Catalog>>>>
+<</Prev 219/Size 4/Root<</Type/Catalog>>/Info 3 0 R>>
 startxref
-296
+348
 %%EOF
 EOF
 
@@ -67,24 +71,28 @@ endobj
 startxref
 141
 %%EOF
+6 0 obj
+<</Producer(HexaPDF version 0.0.1)>>
+endobj
 2 0 obj
 <</Length 10>>stream
 Some data!
 endstream
 endobj
 4 0 obj
-<</Size 6/Prev 141/Root<</Type/Catalog>>/Type/XRef/W[1 2 2]/Index[2 1 4 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 20>>stream
-x\xDAcbd\fb``b`\xB0d`\x00\x00\x03\xD2\x00\x92
+<</Size 7/Prev 141/Root<</Type/Catalog>>/Info 6 0 R/Type/XRef/W[1 2 2]/Index[2 1 4 1 6 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 22>>stream
+x\xDAcbdlc``b`\xB0\x04\x93\x93\x19\x18\x00\f\x0F\x01[
 endstream
 endobj
 startxref
-395
+447
 %%EOF
 EOF
   end
 
   def assert_document_conversion(input_io)
     document = HexaPDF::Document.new(io: input_io)
+    document.trailer.info[:Producer] = "unknown"
     output_io = StringIO.new(''.force_encoding(Encoding::BINARY))
     HexaPDF::Writer.write(document, output_io)
     assert_equal(input_io.string, output_io.string)

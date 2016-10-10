@@ -34,6 +34,7 @@
 require 'hexapdf/error'
 require 'hexapdf/serializer'
 require 'hexapdf/xref_section'
+require 'hexapdf/version'
 
 module HexaPDF
 
@@ -65,6 +66,7 @@ module HexaPDF
       write_file_header
 
       pos = nil
+      @document.trailer.info[:Producer] = "HexaPDF version #{HexaPDF::VERSION}"
       @document.revisions.each do |rev|
         pos = write_revision(rev, pos)
       end
