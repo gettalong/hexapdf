@@ -59,8 +59,8 @@ module HexaPDF
     # Loads the indirect (potentially compressed) object specified by the given cross-reference
     # entry.
     #
-    # For information about the +xref_entry+ argument, have a look at XRefSection and
-    # XRefSection::Entry.
+    # For information about the +xref_entry+ argument, have a look at HexaPDF::XRefSection and
+    # HexaPDF::XRefSection::Entry.
     def load_object(xref_entry)
       obj, oid, gen, stream =
         case xref_entry.type
@@ -177,7 +177,7 @@ module HexaPDF
     # Loads a single revision whose cross-reference section/stream is located at the given
     # position.
     #
-    # Returns an XRefSection object and the accompanying trailer dictionary.
+    # Returns an HexaPDF::XRefSection object and the accompanying trailer dictionary.
     def load_revision(pos)
       if xref_section?(pos)
         xref_section, trailer = parse_xref_section_and_trailer(pos)
@@ -206,7 +206,7 @@ module HexaPDF
     end
 
     # Parses the cross-reference section at the given position and the following trailer and
-    # returns them as an array consisting of an XRefSection instance and a hash.
+    # returns them as an array consisting of an HexaPDF::XRefSection instance and a hash.
     #
     # This method can only parse cross-reference sections, not cross-reference streams!
     #

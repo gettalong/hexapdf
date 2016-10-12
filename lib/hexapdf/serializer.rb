@@ -168,14 +168,12 @@ module HexaPDF
     # mapping from these characters to their escaped form.
     #
     # See PDF1.7 s7.3.5
-    NAME_SUBSTS = {}
+    NAME_SUBSTS = {} # :nodoc:
     [0..32, 127..255, Tokenizer::DELIMITER.bytes, Tokenizer::WHITESPACE.bytes, [35]].each do |a|
       a.each {|c| NAME_SUBSTS[c.chr] = "##{c.to_s(16).rjust(2, "0")}"}
     end
-    # :nodoc:
-    NAME_REGEXP = /[^!-~&&[^##{Regexp.escape(Tokenizer::DELIMITER)}#{Regexp.escape(Tokenizer::WHITESPACE)}]]/
-    # :nodoc:
-    NAME_CACHE = Utils::LRUCache.new(1000)
+    NAME_REGEXP = /[^!-~&&[^##{Regexp.escape(Tokenizer::DELIMITER)}#{Regexp.escape(Tokenizer::WHITESPACE)}]]/ # :nodoc:
+    NAME_CACHE = Utils::LRUCache.new(1000) # :nodoc:
 
     # Serializes a Symbol object (i.e. a PDF name object).
     #
@@ -189,8 +187,7 @@ module HexaPDF
         end
     end
 
-    # :nodoc:
-    BYTE_IS_DELIMITER = {40 => true, 47 => true, 60 => true, 91 => true,
+    BYTE_IS_DELIMITER = {40 => true, 47 => true, 60 => true, 91 => true, # :nodoc:
                          41 => true, 62 => true, 93 => true}
 
     # Serializes an Array object.
@@ -225,8 +222,7 @@ module HexaPDF
       str << ">>".freeze
     end
 
-    # :nodoc:
-    STRING_ESCAPE_MAP = {"(" => "\\(", ")" => "\\)", "\\" => "\\\\", "\r" => "\\r"}
+    STRING_ESCAPE_MAP = {"(" => "\\(", ")" => "\\)", "\\" => "\\\\", "\r" => "\\r"} # :nodoc:
 
     # Serializes a String object.
     #

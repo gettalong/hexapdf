@@ -51,12 +51,12 @@ module HexaPDF
   # selected encryption algorithm (see below). However, security handlers may also provide
   # additional information.
   #
-  # The SecurityHandler is the base class for all such security handlers. It defines the interface
-  # and all common code for encrypting and decrypting strings and streams.
+  # The Encryption::SecurityHandler is the base class for all such security handlers. It defines the
+  # interface and all common code for encrypting and decrypting strings and streams.
   #
   # The PDF specification also defines a password-based standard security handler that
   # additionally allows setting permission information. This security handler is implemented by
-  # the StandardSecurityHandler class.
+  # the Encryption::StandardSecurityHandler class.
   #
   #
   # === Encryption Algorithms

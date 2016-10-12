@@ -169,7 +169,7 @@ module HexaPDF
       end
 
       # This processor is used when compressing pages.
-      class SerializationProcessor
+      class SerializationProcessor #:nodoc:
 
         attr_reader :result #:nodoc:
 
@@ -178,7 +178,7 @@ module HexaPDF
           @serializer = HexaPDF::Serializer.new
         end
 
-        def process(op, operands)
+        def process(op, operands) #:nodoc:
           @result << HexaPDF::Content::Operator::DEFAULT_OPERATORS[op.intern].serialize(@serializer, *operands)
         end
 

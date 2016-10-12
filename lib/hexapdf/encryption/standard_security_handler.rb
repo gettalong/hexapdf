@@ -86,10 +86,12 @@ module HexaPDF
     #
     # The PDF specification defines one security handler that should be implemented by all PDF
     # conform libraries and applications. This standard security handler allows access permissions
-    # and a user password as well as an owner password to be set.
+    # and a user password as well as an owner password to be set. See
+    # StandardSecurityHandler::EncryptionOptions for all valid options that can be used with this
+    # security handler.
     #
-    # The access permissions (see Permissions) can be used to restrict what a user is allowed to
-    # do with a PDF file.
+    # The access permissions (see StandardSecurityHandler::Permissions) can be used to restrict what
+    # a user is allowed to do with a PDF file.
     #
     # When a user or owner password is specified, a PDF file can only be opened when the correct
     # password is supplied.

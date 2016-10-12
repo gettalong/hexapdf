@@ -71,16 +71,16 @@ module HexaPDF
 
 
     # Defines all available line cap styles as constants. Each line cap style is an instance of
-    # NamedValue. For use with GraphicsState#line_cap_style.
+    # NamedValue. For use with Content::GraphicsState#line_cap_style.
     #
     # See: PDF1.7 s8.4.3.3
     module LineCapStyle
 
       # Returns the argument normalized to a valid line cap style.
       #
-      # * 0 or :butt can be used for the BUTT_CAP style.
-      # * 1 or :round can be used for the ROUND_CAP style.
-      # * 2 or :projecting_square can be used for the PROJECTING_SQUARE_CAP style.
+      # * 0 or +:butt+ can be used for the BUTT_CAP style.
+      # * 1 or +:round+ can be used for the ROUND_CAP style.
+      # * 2 or +:projecting_square+ can be used for the PROJECTING_SQUARE_CAP style.
       # * Otherwise an error is raised.
       def self.normalize(style)
         case style
@@ -105,16 +105,16 @@ module HexaPDF
 
 
     # Defines all available line join styles as constants. Each line join style is an instance of
-    # NamedValue. For use with GraphicsState#line_join_style.
+    # NamedValue. For use with Content::GraphicsState#line_join_style.
     #
     # See: PDF1.7 s8.4.3.4
     module LineJoinStyle
 
       # Returns the argument normalized to a valid line join style.
       #
-      # * 0 or :miter can be used for the MITER_JOIN style.
-      # * 1 or :round can be used for the ROUND_JOIN style.
-      # * 2 or :bevel can be used for the BEVEL_JOIN style.
+      # * 0 or +:miter+ can be used for the MITER_JOIN style.
+      # * 1 or +:round+ can be used for the ROUND_JOIN style.
+      # * 2 or +:bevel+ can be used for the BEVEL_JOIN style.
       # * Otherwise an error is raised.
       def self.normalize(style)
         case style
@@ -140,7 +140,7 @@ module HexaPDF
 
 
     # The line dash pattern defines how a line should be dashed. For use with
-    # GraphicsState#line_dash_pattern.
+    # Content::GraphicsState#line_dash_pattern.
     #
     # A dash pattern consists of two parts: the dash array and the dash phase. The dash array
     # defines the length of alternating dashes and gaps (important: starting with dashes). And the
@@ -193,7 +193,7 @@ module HexaPDF
 
 
     # Defines all available rendering intents as constants. For use with
-    # GraphicsState#rendering_intent.
+    # Content::GraphicsState#rendering_intent.
     #
     # See: PDF1.7 s8.6.5.8
     module RenderingIntent
@@ -228,21 +228,21 @@ module HexaPDF
 
 
     # Defines all available text rendering modes as constants. Each text rendering mode is an
-    # instance of NamedValue. For use with GraphicsState#text_rendering_mode.
+    # instance of NamedValue. For use with Content::GraphicsState#text_rendering_mode.
     #
     # See: PDF1.7 s9.3.6
     module TextRenderingMode
 
       # Returns the argument normalized to a valid text rendering mode.
       #
-      # * 0 or :fill can be used for the FILL mode.
-      # * 1 or :stroke can be used for the STROKE mode.
-      # * 2 or :fill_stroke can be used for the FILL_STROKE mode.
-      # * 3 or :invisible can be used for the INVISIBLE mode.
-      # * 4 or :fill_clip can be used for the FILL_CLIP mode.
-      # * 5 or :stroke_clip can be used for the STROKE_CLIP mode.
-      # * 6 or :fill_stroke_clip can be used for the FILL_STROKE_CLIP mode.
-      # * 7 or :clip can be used for the CLIP mode.
+      # * 0 or +:fill+ can be used for the FILL mode.
+      # * 1 or +:stroke+ can be used for the STROKE mode.
+      # * 2 or +:fill_stroke+ can be used for the FILL_STROKE mode.
+      # * 3 or +:invisible+ can be used for the INVISIBLE mode.
+      # * 4 or +:fill_clip+ can be used for the FILL_CLIP mode.
+      # * 5 or +:stroke_clip+ can be used for the STROKE_CLIP mode.
+      # * 6 or +:fill_stroke_clip+ can be used for the FILL_STROKE_CLIP mode.
+      # * 7 or +:clip+ can be used for the CLIP mode.
       # * Otherwise an error is raised.
       def self.normalize(style)
         case style

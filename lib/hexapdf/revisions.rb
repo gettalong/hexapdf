@@ -40,15 +40,15 @@ module HexaPDF
 
   # Manages the revisions of a PDF document.
   #
-  # A PDF document has one revision when it is created. Later new revisions are added when changes
-  # are made. This allows for adding information/content to a PDF file without changing the
-  # original content.
+  # A PDF document has one revision when it is created. Later, new revisions are added when changes
+  # are made. This allows for adding information/content to a PDF file without changing the original
+  # content.
   #
   # The order of the revisions is important. In HexaPDF the oldest revision always has index 0 and
   # the newest revision the highest index. This is also the order in which the revisions get
   # written.
   #
-  # See: PDF1.7 s7.5.6, Revision
+  # See: PDF1.7 s7.5.6, HexaPDF::Revision
   class Revisions
 
     class << self
@@ -118,7 +118,7 @@ module HexaPDF
       @revisions.last
     end
 
-    # Returns the number of Revision objects managed by this object.
+    # Returns the number of HexaPDF::Revision objects managed by this object.
     def size
       @revisions.size
     end

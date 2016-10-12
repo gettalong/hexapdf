@@ -137,7 +137,7 @@ module HexaPDF
       define_field :UserUnit,             type: Numeric, version: '1.6'
       define_field :VP,                   type: Dictionary, version: '1.6'
 
-      # Page objects must always be indirect.
+      # Returns +true+ since page objects must always be indirect.
       def must_be_indirect?
         true
       end

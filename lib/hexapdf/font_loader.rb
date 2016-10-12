@@ -54,7 +54,8 @@ module HexaPDF
   # The +options+ argument is font loader dependent. However, all font loaders should handle the
   # following common options:
   #
-  # variant:: The font variant that should be used (e.g. :none, :bold, :italic, :bold_italic).
+  # variant:: The font variant that should be used (e.g. +:none+, +:bold+, +:italic+,
+  #           +:bold_italic+).
   #
   #
   # == Font Wrappers

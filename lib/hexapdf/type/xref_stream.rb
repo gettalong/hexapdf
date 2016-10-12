@@ -86,14 +86,15 @@ module HexaPDF
       # Returns a hash with the entries that represent the file trailer part of the
       # cross-reference stream's dictionary.
       #
-      # See: Trailer
+      # See: Type::Trailer
       def trailer
         Trailer.each_field.with_object({}) do |(name, _data), hash|
           hash[name] = value[name] if key?(name)
         end
       end
 
-      # Makes this cross-reference stream represent the data in the given XRefSection and Trailer.
+      # Makes this cross-reference stream represent the data in the given HexaPDF::XRefSection and
+      # Type::Trailer.
       #
       # The given cross-reference section is *not* stored but only used to rewrite the associated
       # stream to reflect the cross-reference section. The dictionary is updated with the
@@ -114,7 +115,7 @@ module HexaPDF
       TYPE_IN_USE     = 1 #:nodoc:
       TYPE_COMPRESSED = 2 #:nodoc:
 
-      # Parses the stream and returns the resulting XRefSection object.
+      # Parses the stream and returns the resulting HexaPDF::XRefSection object.
       def parse_xref_section(index, w)
         xref = XRefSection.new
 

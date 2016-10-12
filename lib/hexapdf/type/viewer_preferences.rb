@@ -39,7 +39,7 @@ module HexaPDF
     # Represents the PDF's viewer preferences dictionary which defines how a document should be
     # presented on screen or in print.
     #
-    # This dictionary is linked via the /ViewerPreferences entry from the Catalog.
+    # This dictionary is linked via the /ViewerPreferences entry from the Type::Catalog.
     #
     # See: PDF1.7 s12.2, Catalog
     class ViewerPreferences < Dictionary
@@ -62,7 +62,7 @@ module HexaPDF
       define_field :PrintPageRange,        type: Array,   version: '1.7'
       define_field :NumCopies,             type: Integer, version: '1.7'
 
-      # Returns :XXViewerPreferences
+      # Returns +:XXViewerPreferences+.
       def type
         :XXViewerPreferences
       end

@@ -173,7 +173,7 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   composite.each {|glyph_box| block}       -> text
+        #   composite.each {|glyph_box| block}       -> composite
         #   composite.each                           -> Enumerator
         #
         # Iterates over all contained glyph boxes.

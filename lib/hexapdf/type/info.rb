@@ -59,7 +59,7 @@ module HexaPDF
         true
       end
 
-      # Returns :XXInfo
+      # Returns +:XXInfo+.
       def type
         :XXInfo
       end

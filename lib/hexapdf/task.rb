@@ -38,12 +38,12 @@ module HexaPDF
   # The Task module contains task implementations which are used to perform operations that affect
   # a whole PDF document instead of just a single object.
   #
-  # Normally, such operations would be implemented by using methods on the Document class.
+  # Normally, such operations would be implemented by using methods on the HexaPDF::Document class.
   # However, this would clutter up the document interface with various methods and also isn't very
   # extensible.
   #
-  # A task name that can be used for Document#task is mapped to a task object via the 'task.map'
-  # configuration option.
+  # A task name that can be used for HexaPDF::Document#task is mapped to a task object via the
+  # 'task.map' configuration option.
   #
   #
   # == Implementing a Task

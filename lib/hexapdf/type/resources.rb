@@ -53,7 +53,7 @@ module HexaPDF
       define_field :ProcSet, type: Array
       define_field :Properties, type: Dictionary, version: '1.2'
 
-      # Returns :XXResources.
+      # Returns +:XXResources+.
       def type
         :XXResources
       end
@@ -89,8 +89,8 @@ module HexaPDF
       # Adds the color space to the resources and returns the name under which it is stored.
       #
       # If there already exists a color space with the same definition, it is reused. The device
-      # color spaces :DeviceGray, :DeviceRGB and :DeviceCMYK are never stored, their respective
-      # name is just returned.
+      # color spaces +:DeviceGray+, +:DeviceRGB+ and +:DeviceCMYK+ are never stored, their
+      # respective name is just returned.
       def add_color_space(color_space)
         family = color_space.family
         return family if family == :DeviceRGB || family == :DeviceGray || family == :DeviceCMYK
@@ -124,8 +124,8 @@ module HexaPDF
         object_setter(:XObject, 'XO'.freeze, object)
       end
 
-      # Returns the graphics state parameter dictionary (see GraphicsStateParameter) stored under
-      # the given name.
+      # Returns the graphics state parameter dictionary (see Type::GraphicsStateParameter) stored
+      # under the given name.
       #
       # If the dictionary is not found, an error is raised.
       def ext_gstate(name)

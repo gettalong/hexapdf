@@ -48,6 +48,14 @@ require 'hexapdf/image_loader'
 require 'hexapdf/document_utils'
 require 'hexapdf/font_utils'
 
+
+# == HexaPDF API Documentation
+#
+# Here are some pointers to more in depth information:
+#
+# * For information about the command line application, see the HexaPDF::CLI module.
+# * HexaPDF::Document provides information about how to work with a PDF file.
+# * HexaPDF::Content::Canvas provides the canvas API for drawing/writing on a page or form XObject
 module HexaPDF
 
   # Represents one PDF document.
@@ -484,8 +492,9 @@ module HexaPDF
     # If the document should not be encrypted, the +name+ argument has to be set to +nil+. This
     # removes the security handler and deletes the trailer's Encrypt dictionary.
     #
-    # See: Encryption::SecurityHandler#set_up_encryption and
-    # Encryption::StandardSecurityHandler::EncryptionOptions for possible encryption options.
+    # See: HexaPDF::Encryption::SecurityHandler#set_up_encryption and
+    # HexaPDF::Encryption::StandardSecurityHandler::EncryptionOptions for possible encryption
+    # options.
     def encrypt(name: :Standard, **options)
       if name.nil?
         trailer.delete(:Encrypt)
@@ -516,7 +525,7 @@ module HexaPDF
     #
     # If a block is given, it is called on validation problems.
     #
-    # See Object#validate for more information.
+    # See HexaPDF::Object#validate for more information.
     def validate(auto_correct: true, &block)
       result = trailer.validate(auto_correct: auto_correct, &block)
       each(current: false) do |obj|
@@ -543,7 +552,7 @@ module HexaPDF
     #   Updates the /ID field in the trailer dictionary as well as the /ModDate field in the
     #   trailer's /Info dictionary so that it is clear that the document has been updated.
     #
-    # object_streams:
+    # object_streams::
     #   Specifies what to do about object streams. The default of :generate results in a more
     #   compact PDF. See HexaPDF::Task::Optimize.call for allowed values.
     def write(file_or_io, validate: true, update_fields: true, object_streams: :generate)

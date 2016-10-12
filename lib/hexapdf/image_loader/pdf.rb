@@ -40,8 +40,8 @@ module HexaPDF
     # This module is used for loading the first page of a PDF file.
     #
     # Loaded PDF graphics are represented by form XObjects instead of image XObjects. However, the
-    # image/xobject drawing methods of the Canvas know how to handle them correctly so that this
-    # doesn't matter from a user's point of view.
+    # image/xobject drawing methods of HexaPDF::Content::Canvas know how to handle them correctly so
+    # that this doesn't matter from a user's point of view.
     #
     # See: PDF1.7 s8.10
     module PDF

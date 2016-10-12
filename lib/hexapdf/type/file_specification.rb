@@ -69,7 +69,7 @@ module HexaPDF
         define_field :Mac,  type: :EmbeddedFile
         define_field :Unix, type: :EmbeddedFile
 
-        # Returns :XXFilespecEFDictionary
+        # Returns +:XXFilespecEFDictionary+
         def type
           :XXFilespecEFDictionary
         end
@@ -161,7 +161,7 @@ module HexaPDF
       #   file_spec.embed(io, name:, register: true)                                 -> ef_stream
       #
       # Embeds the given file or IO stream into the PDF file, sets the path accordingly and returns
-      # the created EmbeddedFileStream object.
+      # the created stream object.
       #
       # If a file is given, the +name+ option defaults to the basename of the file. However, if an
       # IO object is given, the +name+ argument is mandatory.

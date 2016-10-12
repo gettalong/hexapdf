@@ -55,7 +55,7 @@ module HexaPDF
 
   # == Overview
   #
-  # A *stream filter* is used to compress a stream or to encode it in an ASCII compatible way; or
+  # A stream filter is used to compress a stream or to encode it in an ASCII compatible way; or
   # to reverse this process. Some filters can be used for any content, like FlateDecode, others
   # are specifically designed for image streams, like DCTDecode.
   #
@@ -70,8 +70,8 @@ module HexaPDF
   #
   # == Implementation of a Filter Object
   #
-  # Each filter is an object (normally a module) that responds to two methods: #encoder and
-  # #decoder. Both of these methods are given a *source* (a Fiber) and *options* (a Hash) and have
+  # Each filter is an object (normally a module) that responds to two methods: \#encoder and
+  # \#decoder. Both of these methods are given a *source* (a Fiber) and *options* (a Hash) and have
   # to return a Fiber object.
   #
   # The returned fiber should resume the *source* fiber to get the next chunk of binary data

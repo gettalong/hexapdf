@@ -40,20 +40,20 @@ module HexaPDF
     #
     # An embedded file stream contains the data of, and optionally some meta data about, a file
     # that is embedded into the PDF file. Each embedded file is either associated with a certain
-    # FileSpecification dictionary or with the document as a whole through the /EmbeddedFiles
+    # Type::FileSpecification dictionary or with the document as a whole through the /EmbeddedFiles
     # entry in the document catalog's /Names dictionary.
     #
     # See: PDF1.7 s7.11.4, FileSpecification
     class EmbeddedFile < Stream
 
-      # The type used for the /Mac field of a Parameters dictionary.
+      # The type used for the /Mac field of an EmbeddedFile::Parameters dictionary.
       class MacInfo < Dictionary
 
         define_field :Subtype, type: Integer
         define_field :Creator, type: Integer
         define_field :ResFork, type: Stream
 
-        # Returns :XXEmbeddedFileParametersMacInfo
+        # Returns +:XXEmbeddedFileParametersMacInfo+
         def type
           :XXEmbeddedFileParametersMacInfo
         end
@@ -69,7 +69,7 @@ module HexaPDF
         define_field :Mac,          type: :XXEmbeddedFileParametersMacInfo
         define_field :CheckSum,     type: PDFByteString
 
-        # Returns :XXEmbeddedFileParameters
+        # Returns +:XXEmbeddedFileParameters+
         def type
           :XXEmbeddedFileParameters
         end

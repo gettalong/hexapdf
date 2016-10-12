@@ -49,7 +49,8 @@ module HexaPDF
   #
   # Since this is a complex structure that must follow several restrictions, it is not advised to
   # build a name tree manually. Instead, use the provided convenience methods (see
-  # Utils::SortedTreeNode) to add or retrieve entries. They ensure that the name tree stays valid.
+  # HexaPDF::Utils::SortedTreeNode) to add or retrieve entries. They ensure that the name tree stays
+  # valid.
   #
   # See: PDF1.7 s7.9.6
   class NameTreeNode < Dictionary

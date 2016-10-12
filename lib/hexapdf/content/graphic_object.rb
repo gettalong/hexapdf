@@ -46,10 +46,11 @@ module HexaPDF
     # A graphic object should only use the path creation methods or other graphic objects when it
     # is drawn. Stroking and filling, or optionally clipping, is left to the user.
     #
-    # The Canvas class provides a Canvas#draw method that can be used to draw complex graphic
-    # objects as well as a Canvas#graphic_object method to retrieve an instance of a graphic
-    # object for custom use. The latter method uses graphic object factories that can be
-    # registered via a name using the document specific 'graphic_object.map' configuration option.
+    # The Content::Canvas class provides a Content::Canvas#draw method that can be used to draw
+    # complex graphic objects as well as a Content::Canvas#graphic_object method to retrieve an
+    # instance of a graphic object for custom use. The latter method uses graphic object factories
+    # that can be registered via a name using the document specific 'graphic_object.map'
+    # configuration option.
     #
     # == Implementation of a Graphic Object
     #

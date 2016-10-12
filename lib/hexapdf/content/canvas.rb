@@ -87,9 +87,9 @@ module HexaPDF
     #
     # === Graphics State
     #
-    # Some operators modify the so called graphics state (see GraphicsState). The graphics state
-    # is a collection of settings that is used during processing or creating a content stream. For
-    # example, the path painting operators don't have operands to specify the line width or the
+    # Some operators modify the so called graphics state (see Content::GraphicsState). The graphics
+    # state is a collection of settings that is used during processing or creating a content stream.
+    # For example, the path painting operators don't have operands to specify the line width or the
     # stroke color but take this information from the graphics state.
     #
     # One important thing about the graphics state is that it is only possible to restore a prior
@@ -103,10 +103,10 @@ module HexaPDF
     # However, the Canvas class contains additional methods that use the basic path construction
     # methods for drawing other paths like circles.
     #
-    # When a subpath is started, the current graphics object is changed to 'path object'. After all
-    # path constructions are finished, a path painting method needs to be invoked to change back to
-    # the page description level. Optionally, the path painting method may be preceeded by a
-    # clipping path method to change the current clipping path (see #clip_path).
+    # When a subpath is started, the current graphics object is changed to :path. After all path
+    # constructions are finished, a path painting method needs to be invoked to change back to the
+    # page description level. Optionally, the path painting method may be preceeded by a clipping
+    # path method to change the current clipping path (see #clip_path).
     #
     # There are four kinds of path painting methods:
     #
@@ -119,10 +119,10 @@ module HexaPDF
     # rule.
     #
     #
-    # = Special Graphics State Methods
+    # == Special Graphics State Methods
     #
-    # These methods are only allowed when the current graphics object is the page description
-    # level.
+    # These methods are only allowed when the current graphics object is :none, i.e. operations are
+    # done on the page description level.
     #
     # * #save_graphics_state
     # * #restore_graphics_state
@@ -133,7 +133,8 @@ module HexaPDF
 
       include HexaPDF::Utils::MathHelpers
 
-      # The context for which the canvas was created (a Type::Page or Type::Form object).
+      # The context for which the canvas was created (a HexaPDF::Type::Page or HexaPDF::Type::Form
+      # object).
       attr_reader :context
 
       # The serialized contents produced by the various canvas operations up to this point.
@@ -152,7 +153,7 @@ module HexaPDF
       # that this means that reading the stream data object may change the state of the canvas.
       attr_reader :stream_data
 
-      # The GraphicsState object containing the current graphics state.
+      # The Content::GraphicsState object containing the current graphics state.
       #
       # The graphics state must not be changed directly, only by using the provided methods. If it
       # is changed directly, the output will not be correct.
@@ -186,10 +187,6 @@ module HexaPDF
       attr_reader :operators
 
       # Creates a new Canvas object for the given context object (either a Page or a Form).
-      #
-      # content::
-      #   Specifies if the new contents should be appended (:append, default), prepended
-      #   (:prepend) or if the new contents should replace the old one (:replace).
       def initialize(context)
         @context = context
         @operators = Operator::DEFAULT_OPERATORS.dup
@@ -439,9 +436,9 @@ module HexaPDF
       #
       # The line width determines the thickness of a stroked path.
       #
-      # Returns the current line width (see GraphicsState#line_width) when no argument is given.
-      # Otherwise sets the line width to the given +width+ and returns self. The setter version
-      # can also be called in the line_width= form.
+      # Returns the current line width (see Content::GraphicsState#line_width) when no argument is
+      # given. Otherwise sets the line width to the given +width+ and returns self. The setter
+      # version can also be called in the line_width= form.
       #
       # If the +width+ and a block are provided, the changed line width is only active during the
       # block by saving and restoring the graphics state.
@@ -469,13 +466,13 @@ module HexaPDF
       #   canvas.line_cap_style(style) { block }   => canvas
       #
       # The line cap style specifies how the ends of stroked open paths should look like. The
-      # +style+ parameter can either be a valid integer or one of the symbols :butt, :round or
-      # :projecting_square (see LineCapStyle.normalize for details). Note that the return value is
-      # always a normalized line cap style.
+      # +style+ parameter can either be a valid integer or one of the symbols +:butt+, +:round+ or
+      # +:projecting_square+ (see Content::LineCapStyle.normalize for details). Note that the return
+      # value is always a normalized line cap style.
       #
-      # Returns the current line cap style (see GraphicsState#line_cap_style) when no argument is
-      # given. Otherwise sets the line cap style to the given +style+ and returns self. The setter
-      # version can also be called in the line_cap_style= form.
+      # Returns the current line cap style (see Content::GraphicsState#line_cap_style) when no
+      # argument is given. Otherwise sets the line cap style to the given +style+ and returns self.
+      # The setter version can also be called in the line_cap_style= form.
       #
       # If the +style+ and a block are provided, the changed line cap style is only active during
       # the block by saving and restoring the graphics state.
@@ -503,13 +500,13 @@ module HexaPDF
       #   canvas.line_join_style(style) { block }   => canvas
       #
       # The line join style specifies the shape that is used at the corners of stroked paths. The
-      # +style+ parameter can either be a valid integer or one of the symbols :miter, :round or
-      # :bevel (see LineJoinStyle.normalize for details). Note that the return value is always a
-      # normalized line join style.
+      # +style+ parameter can either be a valid integer or one of the symbols +:miter+, +:round+ or
+      # +:bevel+ (see Content::LineJoinStyle.normalize for details). Note that the return value is
+      # always a normalized line join style.
       #
-      # Returns the current line join style (see GraphicsState#line_join_style) when no argument
-      # is given. Otherwise sets the line join style to the given +style+ and returns self. The
-      # setter version can also be called in the line_join_style= form.
+      # Returns the current line join style (see Content::GraphicsState#line_join_style) when no
+      # argument is given. Otherwise sets the line join style to the given +style+ and returns self.
+      # The setter version can also be called in the line_join_style= form.
       #
       # If the +style+ and a block are provided, the changed line join style is only active during
       # the block by saving and restoring the graphics state.
@@ -540,9 +537,9 @@ module HexaPDF
       # mitered line joins (see #line_join_style). When the limit is exceeded, a bevel join is
       # used instead of a miter join.
       #
-      # Returns the current miter limit (see GraphicsState#miter_limit) when no argument is given.
-      # Otherwise sets the miter limit to the given +limit+ and returns self. The setter version
-      # can also be called in the miter_limit= form.
+      # Returns the current miter limit (see Content::GraphicsState#miter_limit) when no argument is
+      # given. Otherwise sets the miter limit to the given +limit+ and returns self. The setter
+      # version can also be called in the miter_limit= form.
       #
       # If the +limit+ and a block are provided, the changed miter limit is only active during the
       # block by saving and restoring the graphics state.
@@ -576,7 +573,7 @@ module HexaPDF
       #
       # There are multiple ways to set the line dash pattern:
       #
-      # * By providing a LineDashPattern object
+      # * By providing a Content::LineDashPattern object
       # * By providing a single Integer/Float that is used for both dashes and gaps
       # * By providing an array of Integers/Floats that specify the alternating dashes and gaps
       #
@@ -585,10 +582,10 @@ module HexaPDF
       #
       # A solid line can be achieved by using 0 for the length or by using an empty array.
       #
-      # Returns the current line dash pattern (see GraphicsState#line_dash_pattern) when no
+      # Returns the current line dash pattern (see Content::GraphicsState#line_dash_pattern) when no
       # argument is given. Otherwise sets the line dash pattern using the given arguments and
-      # returns self. The setter version can also be called in the line_dash_pattern= form (but
-      # only without the second argument!).
+      # returns self. The setter version can also be called in the line_dash_pattern= form (but only
+      # without the second argument!).
       #
       # If arguments and a block are provided, the changed line dash pattern is only active during
       # the block by saving and restoring the graphics state.
@@ -630,14 +627,14 @@ module HexaPDF
       # sometimes compromises have to be made when the capabilities of an output device are not
       # sufficient. The +intent+ parameter can be one of the following symbols:
       #
-      # * :AbsoluteColorimetric
-      # * :RelativeColorimetric
-      # * :Saturation
-      # * :Perceptual
+      # * +:AbsoluteColorimetric+
+      # * +:RelativeColorimetric+
+      # * +:Saturation+
+      # * +:Perceptual+
       #
-      # Returns the current rendering intent (see GraphicsState#rendering_intent) when no argument
-      # is given. Otherwise sets the rendering intent using the +intent+ argument and returns
-      # self. The setter version can also be called in the rendering_intent= form.
+      # Returns the current rendering intent (see Content::GraphicsState#rendering_intent) when no
+      # argument is given. Otherwise sets the rendering intent using the +intent+ argument and
+      # returns self. The setter version can also be called in the rendering_intent= form.
       #
       # If the +intent+ and a block are provided, the changed rendering intent is only active
       # during the block by saving and restoring the graphics state.
@@ -673,17 +670,18 @@ module HexaPDF
       #
       # There are several ways to define the color that should be used:
       #
-      # * A single numeric argument specifies a gray color (see ColorSpace::DeviceGray::Color).
-      # * Three numeric arguments specify an RGB color (see ColorSpace::DeviceRGB::Color).
+      # * A single numeric argument specifies a gray color (see
+      #   Content::ColorSpace::DeviceGray::Color).
+      # * Three numeric arguments specify an RGB color (see Content::ColorSpace::DeviceRGB::Color).
       # * A string in the format "RRGGBB" where "RR" is the hexadecimal number for the red, "GG"
       #   for the green and "BB" for the blue color value also specifies an RGB color.
-      # * Four numeric arguments specify a CMYK color (see ColorSpace::DeviceCMYK::Color).
+      # * Four numeric arguments specify a CMYK color (see Content::ColorSpace::DeviceCMYK::Color).
       # * A color object is used directly (normally used for color spaces other than DeviceRGB,
       #   DeviceCMYK and DeviceGray).
       # * An array is treated as if its items were specified separately as arguments.
       #
-      # Returns the current stroke color (see GraphicsState#stroke_color) when no argument is
-      # given. Otherwise sets the stroke color using the given arguments and returns self. The
+      # Returns the current stroke color (see Content::GraphicsState#stroke_color) when no argument
+      # is given. Otherwise sets the stroke color using the given arguments and returns self. The
       # setter version can also be called in the stroke_color= form.
       #
       # If the arguments and a block are provided, the changed stroke color is only active during
@@ -745,10 +743,10 @@ module HexaPDF
       # the fill alpha value applies not just to fill values but to all non-stroking operations
       # (e.g. images, ...).
       #
-      # Returns the current fill alpha (see GraphicsState#fill_alpha) and stroke alpha
-      # (GraphicsState#stroke_alpha) values using a hash with the keys :fill_alpha and
-      # :stroke_alpha when no argument is given. Otherwise sets the fill and stroke alpha values
-      # and returns self. The setter version can also be called in the opacity= form.
+      # Returns the current fill alpha (see Content::GraphicsState#fill_alpha) and stroke alpha (see
+      # Content::GraphicsState#stroke_alpha) values using a hash with the keys +:fill_alpha+ and
+      # +:stroke_alpha+ when no argument is given. Otherwise sets the fill and stroke alpha values
+      # and returns self. The setter version can also be called in the #opacity= form.
       #
       # If the values are set and a block is provided, the changed alpha values are only active
       # during the block by saving and restoring the graphics state.
@@ -969,7 +967,7 @@ module HexaPDF
       # :call-seq:
       #   canvas.circle(cx, cy, radius)      => canvas
       #
-      # Appends a circle with center (cx, cy) and the given +radius+ (in degrees) to the path as a
+      # Appends a circle with center (cx, cy) and the given radius (in degrees) to the path as a
       # complete subpath (drawn in counterclockwise direction). The point (center_x + radius,
       # center_y) becomes the new current point.
       #
@@ -1063,7 +1061,7 @@ module HexaPDF
       #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15)
       #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15, clockwise: true)
       #
-      # See: GraphicObject::Arc
+      # See: Content::GraphicObject::Arc
       def arc(cx, cy, a:, b: a, start_angle: 0, end_angle: 360, clockwise: false, inclination: 0)
         arc = GraphicObject::Arc.configure(cx: cx, cy: cy, a: a, b: b,
                                            start_angle: start_angle, end_angle: end_angle,
@@ -1224,9 +1222,9 @@ module HexaPDF
       # Draws the given XObject (either an image XObject or a form XObject) at the specified
       # position and returns the XObject.
       #
-      # Any image format for which an ImageLoader object is available and registered with the
-      # configuration option 'image_loader' can be used. PNG and JPEG images are supported out of
-      # the box.
+      # Any image format for which a HexaPDF::ImageLoader object is available and registered with
+      # the configuration option 'image_loader' can be used. PNG and JPEG images are supported out
+      # of the box.
       #
       # If the filename or the IO specifies a PDF file, the first page of this file is used to
       # create a form XObject which is then drawn.
@@ -1240,7 +1238,7 @@ module HexaPDF
       # height of the XObject are used (for images, 1 pixel being represented by 1 PDF point, i.e.
       # 72 DPI).
       #
-      # Note: If a form XObject is drawn, all currently set graphics state parameters influence
+      # *Note*: If a form XObject is drawn, all currently set graphics state parameters influence
       # the rendering of the form XObject. This means, for example, that when the line width is
       # set to 20, all lines of the form XObject are drawn with that line width unless the line
       # width is changed in the form XObject itself.
@@ -1293,9 +1291,9 @@ module HexaPDF
       # between two characters, whereas for vertical writing negative values increase the
       # distance.
       #
-      # Returns the current character spacing value (see GraphicsState#character_spacing) when no
-      # argument is given. Otherwise sets the character spacing using the +amount+ argument and
-      # returns self. The setter version can also be called in the character_spacing= form.
+      # Returns the current character spacing value (see Content::GraphicsState#character_spacing)
+      # when no argument is given. Otherwise sets the character spacing using the +amount+ argument
+      # and returns self. The setter version can also be called in the character_spacing= form.
       #
       # If the +amount+ and a block are provided, the changed character spacing is only active
       # during the block by saving and restoring the graphics state.
@@ -1327,9 +1325,9 @@ module HexaPDF
       # distance between two words, whereas for vertical writing negative values increase the
       # distance.
       #
-      # Returns the current word spacing value (see GraphicsState#word_spacing) when no argument
-      # is given. Otherwise sets the word spacing using the +amount+ argument and returns self.
-      # The setter version can also be called in the word_spacing= form.
+      # Returns the current word spacing value (see Content::GraphicsState#word_spacing) when no
+      # argument is given. Otherwise sets the word spacing using the +amount+ argument and returns
+      # self. The setter version can also be called in the word_spacing= form.
       #
       # If the +amount+ and a block are provided, the changed word spacing is only active during
       # the block by saving and restoring the graphics state.
@@ -1360,9 +1358,10 @@ module HexaPDF
       # compressing them in the horizontal direction. The value is specified as percent of the
       # normal width.
       #
-      # Returns the current horizontal scaling value (see GraphicsState#horizontal_scaling) when
-      # no argument is given. Otherwise sets the horizontal scaling using the +percent+ argument
-      # and returns self. The setter version can also be called in the horizontal_scaling= form.
+      # Returns the current horizontal scaling value (see Content::GraphicsState#horizontal_scaling)
+      # when no argument is given. Otherwise sets the horizontal scaling using the +percent+
+      # argument and returns self. The setter version can also be called in the horizontal_scaling=
+      # form.
       #
       # If the +percent+ and a block are provided, the changed horizontal scaling is only active
       # during the block by saving and restoring the graphics state.
@@ -1391,8 +1390,8 @@ module HexaPDF
       #
       # The leading specifies the vertical distance between the baselines of adjacent text lines.
       #
-      # Returns the current leading value (see GraphicsState#leading) when no argument is given.
-      # Otherwise sets the leading using the +amount+ argument and returns self. The setter
+      # Returns the current leading value (see Content::GraphicsState#leading) when no argument is
+      # given. Otherwise sets the leading using the +amount+ argument and returns self. The setter
       # version can also be called in the leading= form.
       #
       # If the +amount+ and a block are provided, the changed leading is only active during the
@@ -1421,14 +1420,15 @@ module HexaPDF
       #   canvas.text_rendering_mode(mode) { block }     => canvas
       #
       # The text rendering mode determines if and how glyphs are rendered. The +mode+ parameter
-      # can either be a valid integer or one of the symbols :fill, :stroke, :fill_stroke,
-      # :invisible, :fill_clip, :stroke_clip, :fill_stroke_clip or :clip (see
+      # can either be a valid integer or one of the symbols +:fill+, +:stroke+, +:fill_stroke+,
+      # +:invisible+, +:fill_clip+, +:stroke_clip+, +:fill_stroke_clip+ or +:clip+ (see
       # TextRenderingMode.normalize for details). Note that the return value is always a
       # normalized text rendering mode value.
       #
-      # Returns the current text rendering mode value (see GraphicsState#text_rendering_mode) when
-      # no argument is given. Otherwise sets the text rendering mode using the +mode+ argument and
-      # returns self. The setter version can also be called in the text_rendering_mode= form.
+      # Returns the current text rendering mode value (see
+      # Content::GraphicsState#text_rendering_mode) when no argument is given. Otherwise sets the
+      # text rendering mode using the +mode+ argument and returns self. The setter version can also
+      # be called in the text_rendering_mode= form.
       #
       # If the +mode+ and a block are provided, the changed text rendering mode is only active
       # during the block by saving and restoring the graphics state.
@@ -1458,8 +1458,8 @@ module HexaPDF
       # The text rise specifies the vertical distance to move the baseline up or down from its
       # default location. Positive values move the baseline up, negative values down.
       #
-      # Returns the current text rise value (see GraphicsState#text_rise) when no argument is
-      # given. Otherwise sets the text rise using the +amount+ argument and returns self. The
+      # Returns the current text rise value (see Content::GraphicsState#text_rise) when no argument
+      # is given. Otherwise sets the text rise using the +amount+ argument and returns self. The
       # setter version can also be called in the text_rise= form.
       #
       # If the +amount+ and a block are provided, the changed text rise is only active during the
@@ -1547,7 +1547,7 @@ module HexaPDF
       # * If +absolute+ is +true+, then the text and text line matrices are set to [1, 0, 0, 1, x,
       #   y], placing the origin of text space, and therefore the text cursor, at [x, y].
       #
-      #   Note that 'absolute' has to be understood in terms of the text matrix since for the actual
+      #   Note that +absolute+ has to be understood in terms of the text matrix since for the actual
       #   rendering the current transformation matrix is multiplied with the text matrix.
       #
       # * If +absolute+ is +false+, then the text cursor is moved to the start of the next line,

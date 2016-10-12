@@ -113,7 +113,8 @@ module HexaPDF
   # that everything will work correctly, especially when using other collection types than arrays
   # and hashes.
   #
-  # See: Dictionary, Stream, Reference, Document
+  # See: HexaPDF::Dictionary, HexaPDF::Stream, HexaPDF::Reference, HexaPDF::Document
+  #
   # See: PDF1.7 s7.3.10, s7.3.8
   class Object
 
@@ -144,7 +145,7 @@ module HexaPDF
     end
 
 
-    # The wrapped PDFData value.
+    # The wrapped HexaPDF::PDFData value.
     #
     # This attribute is not part of the public API!
     attr_reader :data
@@ -238,7 +239,7 @@ module HexaPDF
     # that don't have such fields may use a unique name that has to begin with XX (see PDF1.7 sE.2)
     # and therefore doesn't clash with names defined by the PDF specification.
     #
-    # For basic objects this always returns :Unknown.
+    # For basic objects this always returns +:Unknown+.
     def type
       :Unknown
     end
@@ -261,9 +262,9 @@ module HexaPDF
     #
     # Returns +true+ if the object is deemed valid and +false+ otherwise.
     #
-    # *Important note*: Even if the return value is +true+ there may be problems since HexaPDF
-    # doesn't currently implement the full PDF spec. However, if the return value is +false+,
-    # there is certainly a problem!
+    # *Note*: Even if the return value is +true+ there may be problems since HexaPDF doesn't
+    # currently implement the full PDF spec. However, if the return value is +false+, there is
+    # certainly a problem!
     def validate(auto_correct: true, &block)
       catch do |catch_tag|
         perform_validation do |msg, correctable|

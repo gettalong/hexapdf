@@ -82,7 +82,7 @@ module HexaPDF
     # #color_space::
     #   Returns the associated color space object.
     #
-    # #components:
+    # #components::
     #   Returns an array of components that uniquely identifies this color within the color space.
     #
     # See: PDF1.7 s8.6
@@ -194,7 +194,7 @@ module HexaPDF
           Color.new(r, g, b)
         end
 
-        # Returns :DeviceRGB.
+        # Returns +:DeviceRGB+.
         def family
           :DeviceRGB
         end
@@ -256,7 +256,7 @@ module HexaPDF
           Color.new(c, m, y, k)
         end
 
-        # Returns :DeviceCMYK.
+        # Returns +:DeviceCMYK+.
         def family
           :DeviceCMYK
         end
@@ -320,7 +320,7 @@ module HexaPDF
           Color.new(gray)
         end
 
-        # Returns :DeviceGray.
+        # Returns +:DeviceGray+.
         def family
           :DeviceGray
         end

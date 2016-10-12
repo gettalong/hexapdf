@@ -36,15 +36,15 @@ require 'hexapdf/configuration'
 module HexaPDF
 
   # This class provides utility functions for PDF documents. It is available through the
-  # Document#utils method.
+  # HexaPDF::Document#utils method.
   #
-  # Some functions can't be attributed to a single "manager" object. For example, while embedding
-  # a file can be done within a Filespec object, loading an image from a file as a PDF object
-  # doesn't have such a place. Such functions are available via this class.
+  # Some functions can't be attributed to a single "manager" object. For example, while embedding a
+  # file can be done within a HexaPDF::Type::Filespecification object, loading an image from a file
+  # as a PDF object doesn't have such a place. Such functions are available via this class.
   class DocumentUtils
 
     # This module provides methods for managing the images embedded in a PDF file; images
-    # themselves are represented by the Type::Image class.
+    # themselves are represented by the HexaPDF::Type::Image class.
     #
     # Since an image can be used as a mask for another image, not all image objects found in a PDF
     # are really used as images. Such cases are all handled by this class automatically.

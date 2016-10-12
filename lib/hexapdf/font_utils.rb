@@ -37,7 +37,7 @@ require 'hexapdf/font_loader'
 module HexaPDF
 
   # This class provides utility functions for working with fonts. It is available through the
-  # Document#fonts method.
+  # HexaPDF::Document#fonts method.
   class FontUtils
 
     # Creates a new FontUtils object for the given PDF document.

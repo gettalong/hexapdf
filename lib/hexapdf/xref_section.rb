@@ -43,8 +43,7 @@ module HexaPDF
   #
   # Note that a cross-reference section may contain a single object number only once.
   #
-  # See: Revision
-  # See: PDF1.7 s7.5.4, s7.5.8
+  # See: HexaPDF::Revision, PDF1.7 s7.5.4, s7.5.8
   class XRefSection < Utils::ObjectHash
 
     # One entry of a cross-reference section or stream.

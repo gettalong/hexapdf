@@ -38,7 +38,7 @@ module HexaPDF
 
     # Extracts files from a PDF file.
     #
-    # See: HexaPDF::Type::EmbeddedFileStream
+    # See: HexaPDF::Type::EmbeddedFile
     class Extract < CmdParse::Command
 
       def initialize #:nodoc:

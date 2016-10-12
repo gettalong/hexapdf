@@ -47,8 +47,8 @@ module HexaPDF
     # color to the specified gray value.
     #
     # Since HexaPDF doesn't have a content stream rendering facility, it is only interested in the
-    # effects an operator has on the graphics state. By calling the #invoke method with an
-    # OperatorProcessor as first argument and the operands as the rest of the arguments, the
+    # effects an operator has on the graphics state. By calling the #invoke method with a
+    # Content::Processor as first argument and the operands as the rest of the arguments, the
     # operator can modify the graphics state as needed. This ensures internal consistency and
     # correct operation.
     #
@@ -59,7 +59,8 @@ module HexaPDF
     # == Operator Implementations
     #
     # HexaPDF comes with operator implementations for all PDF operations. These operator
-    # implementations are derived from the BaseOperator class which provides all needed methods.
+    # implementations are derived from the Operator::BaseOperator class which provides all needed
+    # methods.
     #
     # In general, an operator implementation is an object that responds to the following methods:
     #

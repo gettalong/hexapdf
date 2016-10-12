@@ -53,7 +53,7 @@ module HexaPDF
       # * NAME_include?(bit) which returns true if the given bit is set.
       # * set_NAME(*bits, clear_existing: false) for setting the given bits.
       #
-      # The method names can be overridden using the arguments +lister+, +getter+ and +setter.
+      # The method names can be overridden using the arguments +lister+, +getter+ and +setter+.
       def bit_field(name, mapping, lister: "#{name}_values", getter: "#{name}_include?",
                     setter: "set_#{name}")
         bit_names = mapping.keys

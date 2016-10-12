@@ -38,9 +38,9 @@ module HexaPDF
     module GraphicObject
 
       # This class describes an elliptical arc in endpoint parameterization. It allows one to
-      # generate an arc from the current point to a given point, similar to Canvas#line_to.
+      # generate an arc from the current point to a given point, similar to Content::Canvas#line_to.
       #
-      # See: Arc, ARC - https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
+      # See: GraphicObject::Arc, ARC - https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
       class EndpointArc
 
         EPSILON = 1e-10

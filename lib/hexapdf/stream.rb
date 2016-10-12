@@ -40,8 +40,8 @@ module HexaPDF
   # Container for stream data that is more complex than a string.
   #
   # This helper class wraps all information necessary to read stream data by using a Fiber object
-  # (see Filter). The underlying data either comes from an IO object, a file represented by its
-  # file name or a Fiber defined via a Proc object.
+  # (see HexaPDF::Filter). The underlying data either comes from an IO object, a file represented by
+  # its file name or a Fiber defined via a Proc object.
   #
   # Additionally, the #filter and #decode_parms can be set to indicate that the data returned from
   # the Fiber needs to be post-processed. The +filter+ and +decode_parms+ are automatically
@@ -129,7 +129,7 @@ module HexaPDF
 
     # Assigns a new stream data object.
     #
-    # The +stream+ argument can be a StreamData object, a String object or +nil+.
+    # The +stream+ argument can be a HexaPDF::StreamData object, a String object or +nil+.
     #
     # If +stream+ is +nil+, an empty binary string is used instead.
     def stream=(stream)
@@ -236,7 +236,7 @@ module HexaPDF
 
     private
 
-    # Makes sure that the stream data is either a String or a StreamData object.
+    # Makes sure that the stream data is either a String or a HexaPDF::StreamData object.
     def after_data_change
       super
       data.stream ||= ''.b

@@ -44,12 +44,12 @@ module HexaPDF
     # necessary for encrypting the PDF document.
     #
     # Since a PDF document can contain multiple revisions, each revision needs to have its own
-    # file trailer (see Revision#trailer).
+    # file trailer (see HexaPDF::Revision#trailer).
     #
     # When cross-reference streams are used the information that is normally stored in the file
-    # trailer is stored directly in the cross-reference stream dictionary. However, a Revision
-    # object's trailer dictionary is always of this type. Only when a cross-reference stream is
-    # written is the trailer integrated into the stream's dictionary.
+    # trailer is stored directly in the cross-reference stream dictionary. However, a
+    # HexaPDF::Revision object's trailer dictionary is always of this type. Only when a
+    # cross-reference stream is written is the trailer integrated into the stream's dictionary.
     #
     # See: PDF1.7 s7.5.5, s14.4
     #      XRefStream
@@ -63,17 +63,17 @@ module HexaPDF
       define_field :ID,      type: Array
       define_field :XRefStm, type: Integer, version: '1.5'
 
-      # Returns :XXTrailer.
+      # Returns +:XXTrailer+.
       def type
         :XXTrailer
       end
 
-      # Returns the document's Catalog, creating it if needed.
+      # Returns the document's Catalog (see Type::Catalog), creating it if needed.
       def catalog
         self[:Root] ||= document.add(Type: :Catalog)
       end
 
-      # Returns the document's information dictionary, creating it if needed.
+      # Returns the document's information dictionary (see Type::Info), creating it if needed.
       def info
         self[:Info] ||= document.add({}, type: :XXInfo)
       end

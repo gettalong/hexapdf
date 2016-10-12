@@ -71,7 +71,7 @@ module HexaPDF
       define_field :Rotate,    type: Integer
 
 
-      # Page tree objects must always be indirect.
+      # Returns +true+ since page tree objects must always be indirect.
       def must_be_indirect?
         true
       end

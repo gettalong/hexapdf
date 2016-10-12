@@ -37,7 +37,7 @@ module HexaPDF
     # There are some structures in a PDF file, for example cross reference tables, that index data
     # based on object and generation numbers. However, there is a restriction that in such
     # structures the object numbers must be unique, e.g. there may not be entries for [1, 0] and
-    # [1, 1] at the same time.
+    # \[1, 1] at the same time.
     #
     # This class can be used for storing/retrieving data for such structures.
     class ObjectHash

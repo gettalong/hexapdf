@@ -44,8 +44,8 @@ module HexaPDF
   # easily be changed.
   #
   # Some options are defined as global options because they are needed on the class level - see
-  # GlobalConfiguration. Other options can be configured for individual documents as they allow to
-  # fine-tune some behavior - see DefaultDocumentConfiguration.
+  # HexaPDF::GlobalConfiguration. Other options can be configured for individual documents as they
+  # allow to fine-tune some behavior - see HexaPDF::DefaultDocumentConfiguration.
   #
   # A configuration option name is dot-separted to provide a hierarchy of option names. For
   # example, io.chunk_size.
@@ -96,7 +96,7 @@ module HexaPDF
     #   config.constantize(name, key = nil) {|name| block}   -> obj
     #
     # Returns the constant the option +name+ is referring to. If +key+ is provided and the value
-    # of the option +name+ responds to +[]+, the constant to which +key+ refers is returned.
+    # of the option +name+ responds to \#[], the constant to which +key+ refers is returned.
     #
     # If no constant can be found and no block is provided, +nil+ is returned. If a block is
     # provided it is called with the option name and its result will be returned.
@@ -167,7 +167,7 @@ module HexaPDF
   #    If a value is a String, it should contain the name of a constant that is a font loader
   #    object.
   #
-  #    See the FontLoader module for information on how to implement a font loader object.
+  #    See the HexaPDF::FontLoader module for information on how to implement a font loader object.
   #
   # graphic_object.map::
   #    A mapping from graphic object names to graphic object factories.
@@ -191,7 +191,7 @@ module HexaPDF
   #    manually closed.
   #
   #    To avoid leaking file descriptors, using the StringIO is the default setting. If you set
-  #    this option to +false+, it is strongly advised to use +ObjectSpace.each_object(File)+ (or
+  #    this option to +false+, it is strongly advised to use ObjectSpace.each_object(File) (or
   #    +IO+ instead of +File) to traverse the list of open file descriptors and close the ones
   #    that have been used for PDF images.
   #
@@ -241,9 +241,9 @@ module HexaPDF
   # The global configuration object, providing the following options:
   #
   # color_space.map::
-  #    A mapping from a PDF name (a Symbol) to a color space class (see Content::ColorSpace). If
-  #    the value is a String, it should contain the name of a constant that contains a color space
-  #    class.
+  #    A mapping from a PDF name (a Symbol) to a color space class (see
+  #    HexaPDF::Content::ColorSpace). If the value is a String, it should contain the name of a
+  #    constant that contains a color space class.
   #
   #    Classes for the most often used color space families are implemented and readily available.
   #
@@ -253,15 +253,15 @@ module HexaPDF
   #    The class that should be used for AES encryption. If the value is a String, it should
   #    contain the name of a constant to such a class.
   #
-  #    See Encryption::AES for the general interface such a class must conform to and
-  #    Encryption::RubyAES as well as Encryption::FastAES for implementations.
+  #    See HexaPDF::Encryption::AES for the general interface such a class must conform to and
+  #    HexaPDF::Encryption::RubyAES as well as HexaPDF::Encryption::FastAES for implementations.
   #
   # encryption.arc4::
   #    The class that should be used for ARC4 encryption. If the value is a String, it should
   #    contain the name of a constant to such a class.
   #
-  #    See Encryption::ARC4 for the general interface such a class must conform to and
-  #    Encryption::RubyARC4 as well as Encryption::FastARC4 for implementations.
+  #    See HexaPDF::Encryption::ARC4 for the general interface such a class must conform to and
+  #    HexaPDF::Encryption::RubyARC4 as well as HexaPDF::Encryption::FastARC4 for implementations.
   #
   # encryption.filter_map::
   #    A mapping from a PDF name (a Symbol) to a security handler class (see
@@ -269,12 +269,12 @@ module HexaPDF
   #    constant to such a class.
   #
   #    PDF defines a standard security handler that is implemented
-  #    (Encryption::StandardSecurityHandler) and assigned the :Standard name.
+  #    (HexaPDF::Encryption::StandardSecurityHandler) and assigned the :Standard name.
   #
   # encryption.sub_filter_map::
   #    A mapping from a PDF name (a Symbol) to a security handler class (see
-  #    Encryption::SecurityHandler). If the value is a String, it should contain the name of a
-  #    constant to such a class.
+  #    HexaPDF::Encryption::SecurityHandler). If the value is a String, it should contain the name
+  #    of a constant to such a class.
   #
   #    The sub filter map is used when the security handler defined by the encryption dictionary
   #    is not available, but a compatible implementation is.
@@ -298,24 +298,27 @@ module HexaPDF
   #    If a value is a String, it should contain the name of a constant that is an image loader
   #    object.
   #
-  #    See the ImageLoader module for information on how to implement an image loader object.
+  #    See the HexaPDF::ImageLoader module for information on how to implement an image loader
+  #    object.
   #
   # object.type_map::
   #    A mapping from a PDF name (a Symbol) to PDF object classes which is based on the /Type
   #    field. If the value is a String, it should contain the name of a constant that contains a
   #    PDF object class.
   #
-  #    This mapping is used to provide automatic wrapping of objects in the Document#wrap method.
+  #    This mapping is used to provide automatic wrapping of objects in the HexaPDF::Document#wrap
+  #    method.
   #
   # object.subtype_map::
   #    A mapping from a PDF name (a Symbol) to PDF object classes which is based on the /Subtype
   #    field. If the value is a String, it should contain the name of a constant that contains a
   #    PDF object class.
   #
-  #    This mapping is used to provide automatic wrapping of objects in the Document#wrap method.
+  #    This mapping is used to provide automatic wrapping of objects in the HexaPDF::Document#wrap
+  #    method.
   #
   # task.map::
-  #    A mapping from task names to callable task objects. See Task for more information.
+  #    A mapping from task names to callable task objects. See HexaPDF::Task for more information.
   GlobalConfiguration =
     Configuration.new('encryption.aes' => 'HexaPDF::Encryption::FastAES',
                       'encryption.arc4' => 'HexaPDF::Encryption::FastARC4',

@@ -45,14 +45,10 @@ module HexaPDF
     # Represents a keyword in a PDF file.
     class Token < String; end
 
-    # :nodoc:
-    TOKEN_DICT_START = Token.new('<<'.b)
-    # :nodoc:
-    TOKEN_DICT_END = Token.new('>>'.b)
-    # :nodoc:
-    TOKEN_ARRAY_START = Token.new('['.b)
-    # :nodoc:
-    TOKEN_ARRAY_END = Token.new(']'.b)
+    TOKEN_DICT_START = Token.new('<<'.b) # :nodoc:
+    TOKEN_DICT_END = Token.new('>>'.b) # :nodoc:
+    TOKEN_ARRAY_START = Token.new('['.b) # :nodoc:
+    TOKEN_ARRAY_END = Token.new(']'.b) # :nodoc:
 
     # This object is returned when there are no more tokens to read.
     NO_MORE_TOKENS = ::Object.new
@@ -67,11 +63,9 @@ module HexaPDF
     # See: PDF1.7 s7.2.2
     DELIMITER = "()<>{}/[]%"
 
-    # :nodoc:
-    WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/
+    WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/ # :nodoc:
 
-    # :nodoc:
-    WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
+    WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/ # :nodoc:
 
 
     # The IO object from the tokens are read.
@@ -232,8 +226,7 @@ module HexaPDF
 
     private
 
-    # :nodoc:
-    TOKEN_CACHE = Hash.new {|h, k| h[k] = Token.new(k)}
+    TOKEN_CACHE = Hash.new {|h, k| h[k] = Token.new(k)} # :nodoc:
     TOKEN_CACHE['true'] = true
     TOKEN_CACHE['false'] = false
     TOKEN_CACHE['null'] = nil
@@ -246,8 +239,7 @@ module HexaPDF
       TOKEN_CACHE[str.freeze]
     end
 
-    # :nodoc:
-    REFERENCE_RE = /[#{WHITESPACE}]+([+-]?\d+)[#{WHITESPACE}]+R(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/
+    REFERENCE_RE = /[#{WHITESPACE}]+([+-]?\d+)[#{WHITESPACE}]+R(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/ # :nodoc:
 
     # Parses the number (integer or real) at the current position.
     #
@@ -266,8 +258,7 @@ module HexaPDF
       end
     end
 
-    # :nodoc:
-    LITERAL_STRING_ESCAPE_MAP = {
+    LITERAL_STRING_ESCAPE_MAP = { #:nodoc:
       'n' => "\n",
       'r' => "\r",
       't' => "\t",

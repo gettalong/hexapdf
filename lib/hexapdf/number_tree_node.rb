@@ -39,9 +39,9 @@ module HexaPDF
   # Implementation of PDF number trees.
   #
   # Number trees are similar to name trees but use integers as keys instead of strings. See
-  # NameTreeNode for a more detailed explanation.
+  # HexaPDF::NameTreeNode for a more detailed explanation.
   #
-  # See: PDF1.7 s7.9.7, NameTreeNode
+  # See: PDF1.7 s7.9.7, HexaPDF::NameTreeNode
   class NumberTreeNode < Dictionary
 
     include Utils::SortedTreeNode

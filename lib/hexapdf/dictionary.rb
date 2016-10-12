@@ -52,16 +52,16 @@ module HexaPDF
 
     include DictionaryFields
 
-    # Defines an entry for the field +name+ and returns the initalized DictionaryFields::Field
-    # object. A suitable converter module (see DictionaryFields::Field#converter) is selected
-    # based on the type argument.
+    # Defines an entry for the field +name+ and returns the initalized
+    # HexaPDF::DictionaryFields::Field object. A suitable converter module (see
+    # HexaPDF::DictionaryFields::Field#converter) is selected based on the type argument.
     #
     # Options:
     #
     # type:: The class (or an array of classes) that a value of this field must have. Here is a
     #        mapping from PDF object types to classes:
     #
-    #        Boolean::    [TrueClass, FalseClass] (or use the Boolean constant)
+    #        Boolean::    \[TrueClass, FalseClass] (or use the Boolean constant)
     #        Integer::    Integer
     #        Real::       Float
     #        String::     String (for text strings), PDFByteString (for binary strings)

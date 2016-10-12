@@ -77,7 +77,7 @@ module HexaPDF
       define_field :Collection,        type: Dictionary, version: '1.7'
       define_field :NeedsRendering,    type: Boolean,    version: '1.7'
 
-      # Catalog objects must always be indirect.
+      # Returns +true+ since catalog objects must always be indirect.
       def must_be_indirect?
         true
       end

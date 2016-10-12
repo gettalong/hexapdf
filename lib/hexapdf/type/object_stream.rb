@@ -50,11 +50,11 @@ module HexaPDF
     #
     # == How are Object Streams Used?
     #
-    # When an indirect object that resides in an object stream needs to be loaded, the object
-    # stream itself is parsed and loaded and #parse_stream is invoked to get a Data object
+    # When an indirect object that resides in an object stream needs to be loaded, the object stream
+    # itself is parsed and loaded and #parse_stream is invoked to get an ObjectStream::Data object
     # representing the stored indirect objects. After that the requested indirect object itself is
-    # loaded and returned using this Data object. From a user's perspective nothing changes when
-    # an object is located inside an object stream instead of directly in a PDF file.
+    # loaded and returned using this ObjectStream::Data object. From a user's perspective nothing
+    # changes when an object is located inside an object stream instead of directly in a PDF file.
     #
     # The indirect objects initially stored in the object stream are automatically added to the
     # list of to-be-stored objects when #parse_stream is invoked. Additional objects can be
@@ -101,8 +101,8 @@ module HexaPDF
       define_field :First,   type: Integer # not required, will be auto-filled on #write_objects
       define_field :Extends, type: Stream
 
-      # Parses the stream and returns a Data object that can be used for retrieving the objects
-      # defined by this object stream.
+      # Parses the stream and returns an ObjectStream::Data object that can be used for retrieving
+      # the objects defined by this object stream.
       #
       # The object references are also added to this object stream so that they are included when
       # the object gets written.
