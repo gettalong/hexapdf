@@ -34,6 +34,7 @@
 require 'cmdparse'
 require 'hexapdf/cli/info'
 require 'hexapdf/cli/extract'
+require 'hexapdf/cli/inspect'
 require 'hexapdf/version'
 require 'hexapdf/document'
 
@@ -57,6 +58,7 @@ module HexaPDF
         main_command.options.version = HexaPDF::VERSION
         add_command(HexaPDF::CLI::Info.new)
         add_command(HexaPDF::CLI::Extract.new)
+        add_command(HexaPDF::CLI::Inspect.new)
         add_command(CmdParse::HelpCommand.new)
         add_command(CmdParse::VersionCommand.new)
       end

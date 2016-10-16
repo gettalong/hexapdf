@@ -19,6 +19,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 
 * Extracting embedded files (see the `extract` command)
 * Showing general information of a PDF file (see the `info` command)
+* Inspecting the internal structure of a PDF file (see the `inspect` command)
 
 The application contains a built-in `help` command that can be used to provide a quick reminder of a
 command's purpose and its options.
@@ -65,7 +66,6 @@ specified, the names and indices of the embedded files are just listed.
   The password to decrypt the PDF <FILE>.
 
 
-
 ### help
 
 Synopsis: `help` <COMMAND>...
@@ -74,12 +74,53 @@ This command prints the application help if no arguments are given. If one or mo
 given as arguments, these arguments are interpreted as a list of commands with sub-commands and the
 help for the innermost command is shown.
 
+
 ### info
 
 Synopsis: `info` [`OPTIONS`] <FILE>
 
 This command reads the <FILE> file and shows general information about it, like author information,
 PDF version used, encryption information and so on.
+
+* `-p`, `--password` <PASSWORD>:
+  The password to decrypt the PDF <FILE>.
+
+
+### inspect
+
+Synopsis: `inspect` [`OPTIONS`] <FILE>
+
+This command is useful when one needs to inspect the internal object structure or a stream of a PDF
+file.
+
+If no option is given, the main PDF object, the catalog, is shown. Otherwise the various, mutually
+exclusive display options define what is shown. If multiple such options are specified only the last
+one is respected. Note that PDF objects are always shown in the PDF syntax.
+
+* `-t`, `--trailer`:
+  Show the trailer dictionary.
+
+* `-c`, `--page-count`:
+  Print the number of pages.
+
+* `--pages` [<PAGES>]:
+  Show the pages with their object and generation numbers and their associated content streams. If a
+  range is specified, only those pages are listed.
+
+  <PAGES> is a comma separated list of single page numbers or page ranges of the form <START>-<END>.
+  The character 'e' represents the last page and can be used instead of a single number or in a
+  range.
+
+* `-o`, `--object` <OID>[,<GEN>]:
+  Show the object with the given object and generation numbers. The generation number defaults to 0
+  if not given.
+
+* `-s`, `--stream` <OID>[,<GEN>]:
+  Show the filtered stream data (add `--raw` to get the raw stream data) of the object with the
+  given object and generation numbers. The generation number defaults to 0 if not given.
+
+* `--raw`:
+  Modifies `--stream` to show the raw stream data instead of the filtered one.
 
 * `-p`, `--password` <PASSWORD>:
   The password to decrypt the PDF <FILE>.
