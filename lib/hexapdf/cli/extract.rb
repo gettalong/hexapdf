@@ -43,12 +43,17 @@ module HexaPDF
 
       def initialize #:nodoc:
         super('extract', takes_commands: false)
-        short_desc("Extracts files")
+        short_desc("Extract files from a PDF file")
         long_desc(<<-EOF.gsub!(/^ */, ''))
           This command extracts files embedded in a PDF file. If the option --indices is not given,
           the available files are listed with their names and indices. The --indices option can then
           be used to extract one or more files.
         EOF
+        options.on("--indices a,b,c", "-i a,b,c,...", Array,
+                   "The indices of the files that should be extracted. Use 0 to extract " \
+                   "all files.") do |indices|
+          @indices = indices.map(&:to_i)
+        end
         options.on("--[no-]search", "-s", "Search the whole PDF instead of the " \
                    "standard locations (default: false)") do |search|
           @search = search
@@ -56,16 +61,12 @@ module HexaPDF
         options.on("--password PASSWORD", "-p", String, "The password for decryption") do |pwd|
           @password = pwd
         end
-        options.on("--indices a,b,c", "-i a,b,c", Array,
-                   "The indices of the files that should be extracted") do |indices|
-          @indices = indices.map(&:to_i)
-        end
         @indices = []
         @password = ''
         @search = false
       end
 
-      def execute(*files) #:nodoc:
+      def execute(file) #:nodoc:
         HexaPDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
           if @indices.empty?
             list_files(doc)
@@ -73,6 +74,9 @@ module HexaPDF
             extract_files(doc)
           end
         end
+      rescue HexaPDF::Error => e
+        $stderr.puts "Error while processing the PDF file: #{e.message}"
+        exit(1)
       end
 
       private
@@ -80,7 +84,7 @@ module HexaPDF
       # Outputs the list of files embedded in the given PDF document.
       def list_files(doc)
         each_file(doc) do |obj, index|
-          $stdout.write(sprintf("%4i: %s", index, obj.path))
+          $stdout.write(sprintf("%4i: %s", index + 1, obj.path))
           ef_stream = obj.embedded_file_stream
           if (params = ef_stream[:Params]) && !params.empty?
             data = []
@@ -98,12 +102,15 @@ module HexaPDF
       # Extracts the files with the given indices.
       def extract_files(doc)
         each_file(doc) do |obj, index|
-          next unless @indices.include?(index)
+          next unless @indices.include?(index + 1) || @indices.include?(0)
+          if File.exist?(obj.path)
+            raise HexaPDF::Error, "Output file #{obj.path} already exists, not overwriting"
+          end
           puts "Extracting #{obj.path}..."
           File.open(obj.path, 'wb') do |file|
             fiber = obj.embedded_file_stream.stream_decoder
             while fiber.alive? && (data = fiber.resume)
-              file << data.freeze
+              file << data
             end
           end
         end
