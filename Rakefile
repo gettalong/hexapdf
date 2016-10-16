@@ -1,4 +1,5 @@
 require 'rake/testtask'
+require 'rake/clean'
 
 Rake::TestTask.new do |t|
   t.libs << 'test'
@@ -8,6 +9,13 @@ Rake::TestTask.new do |t|
 end
 
 namespace :dev do
+
+  CLOBBER << "man/man1/hexapdf.1"
+  file 'man/man1/hexapdf.1' => ['man/man1/hexapdf.1.md'] do
+    puts "Generating hexapdf man page"
+    system "ronn --pipe -r man/man1/hexapdf.1.md > man/man1/hexapdf.1"
+  end
+
   CODING_LINE = "# -*- encoding: utf-8 -*-\n"
 
   desc "Insert/Update copyright notice"
