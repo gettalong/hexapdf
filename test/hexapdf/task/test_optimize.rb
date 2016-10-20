@@ -25,8 +25,16 @@ describe HexaPDF::Task::Optimize do
     assert(@doc.revisions.all? {|rev| rev.any? {|obj| obj.type == :XRef}})
   end
 
+  def assert_xrefstms_generated
+    assert(@doc.revisions.all? {|rev| rev.any? {|obj| obj.type == :XRef}})
+  end
+
   def assert_no_objstms
     assert(@doc.each(current: false).all? {|obj| obj.type != :ObjStm})
+  end
+
+  def assert_no_xrefstms
+    assert(@doc.each(current: false).all? {|obj| obj.type != :XRef})
   end
 
   def assert_default_deleted
@@ -36,7 +44,7 @@ describe HexaPDF::Task::Optimize do
   describe "compact" do
     it "compacts the document" do
       @doc.task(:optimize, compact: true)
-      assert_equal(1, @doc.revisions.each.to_a.size)
+      assert_equal(1, @doc.revisions.size)
       assert_equal(2, @doc.each(current: false).to_a.size)
       refute_equal(@obj2, @doc.object(@obj2))
       refute_equal(@obj3, @doc.object(@obj3))
@@ -58,10 +66,17 @@ describe HexaPDF::Task::Optimize do
       assert_default_deleted
     end
 
-    it "compacts and preserves object streams" do
-      objstm = @doc.add(Type: :ObjStm)
-      @doc.task(:optimize, compact: true, object_streams: :preserve)
-      assert(@doc.object?(objstm))
+    it "compacts and generates xref streams" do
+      @doc.task(:optimize, compact: true, xref_streams: :generate)
+      assert_xrefstms_generated
+      assert_default_deleted
+    end
+
+    it "compacts and deletes xref streams" do
+      @doc.add({Type: :XRef}, revision: 0)
+      @doc.add({Type: :XRef}, revision: 1)
+      @doc.task(:optimize, compact: true, xref_streams: :delete)
+      assert_no_xrefstms
       assert_default_deleted
     end
   end
@@ -79,17 +94,34 @@ describe HexaPDF::Task::Optimize do
       assert([xref], @doc.revisions.current.find_all {|obj| obj.type == :XRef})
     end
 
-    it "deletes object streams" do
+    it "deletes object and xref streams" do
       @doc.add(Type: :ObjStm)
-      @doc.task(:optimize, object_streams: :delete)
+      @doc.task(:optimize, object_streams: :delete, xref_streams: :delete)
       assert_no_objstms
+      assert_no_xrefstms
       assert_default_deleted
     end
 
-    it "preserves object streams" do
-      objstm = @doc.add(Type: :ObjStm)
-      @doc.task(:optimize, object_streams: :preserve)
-      assert(@doc.object?(objstm))
+    it "deletes object and generates xref streams" do
+      @doc.add(Type: :ObjStm)
+      @doc.task(:optimize, object_streams: :delete, xref_streams: :generate)
+      assert_no_objstms
+      assert_xrefstms_generated
+      assert_default_deleted
+    end
+  end
+
+  describe "xref_streams" do
+    it "generates xref streams" do
+      @doc.task(:optimize, xref_streams: :generate)
+      assert_xrefstms_generated
+      assert_default_deleted
+    end
+
+    it "deletes xref streams" do
+      @doc.add(Type: :XRef)
+      @doc.task(:optimize, xref_streams: :delete)
+      assert_no_xrefstms
       assert_default_deleted
     end
   end

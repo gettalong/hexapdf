@@ -59,15 +59,24 @@ module HexaPDF
       #   streams are preserved; for :generate objects are packed into object streams as much as
       #   possible; and for :delete existing object streams are deleted.
       #
+      # xref_streams::
+      #  Specifies if cross-reference streams should be used. Can be :preserve (no modifications),
+      #  :generate (use cross-reference streams) or :delete (remove cross-reference streams).
+      #
+      #  If +object_streams+ is set to :generate, this option is implicitly changed to :generate.
+      #
       # compress_pages::
       #   Compresses the content streams of all pages if set to +true+. Note that this can take a
       #   *very* long time because each content stream has to be unfiltered, parsed, serialized
       #   and then filtered again.
-      def self.call(doc, compact: false, object_streams: :preserve, compress_pages: false)
+      def self.call(doc, compact: false, object_streams: :preserve, xref_streams: :preserve,
+                    compress_pages: false)
         if compact
-          compact(doc, object_streams, &method(:delete_fields_with_defaults))
+          compact(doc, object_streams, xref_streams)
         elsif object_streams != :preserve
-          process_object_streams(doc, object_streams, &method(:delete_fields_with_defaults))
+          process_object_streams(doc, object_streams, xref_streams)
+        elsif xref_streams != :preserve
+          process_xref_streams(doc, xref_streams)
         else
           doc.each(current: false, &method(:delete_fields_with_defaults))
         end
@@ -76,22 +85,20 @@ module HexaPDF
       end
 
       # Compacts the document by merging all revisions into one, deleting null and unused entries
-      # and renumbering the objects if needed.
+      # and renumbering the objects.
       #
       # For the meaning of the other arguments see ::call.
-      def self.compact(doc, object_streams)
+      def self.compact(doc, object_streams, xref_streams)
         doc.revisions.merge
         unused = Set.new(doc.task(:dereference))
         rev = doc.revisions.add
 
         oid = 1
-        xref_stream = false
         doc.revisions[0].each do |obj|
-          next if obj.null? || unused.include?(obj) || (xref_stream && obj.type == :XRef) ||
-            (obj.type == :ObjStm && object_streams != :preserve)
+          next if obj.null? || unused.include?(obj) || (obj.type == :ObjStm) ||
+            (obj.type == :XRef && xref_streams != :preserve)
 
-          xref_stream = true if obj.type == :XRef
-          yield(obj) if block_given?
+          delete_fields_with_defaults(obj)
           obj.oid = oid
           obj.gen = 0
           rev.add(obj)
@@ -99,22 +106,30 @@ module HexaPDF
         end
         doc.revisions.delete(0)
 
-        process_object_streams(doc, :generate) if object_streams == :generate
+        if object_streams == :generate
+          process_object_streams(doc, :generate, xref_streams)
+        elsif xref_streams == :generate
+          doc.add(Type: :XRef)
+        end
       end
 
       # Processes the object streams in each revision according to method: For :preserve, nothing
-      # is done, for :disable all object streams are deleted and for :generate objects are packed
+      # is done, for :delete all object streams are deleted and for :generate objects are packed
       # into object streams as much as possible.
-      def self.process_object_streams(doc, method)
+      def self.process_object_streams(doc, method, xref_streams)
         case method
-        when :preserve
-          # nothing to do
         when :delete
-          doc.each(current: false) do |obj, rev|
-            if obj.type == :ObjStm
-              rev.delete(obj)
-            else
-              yield(obj) if block_given?
+          doc.revisions.each_with_index do |rev, rev_index|
+            xref_stream = false
+            rev.each do |obj|
+              if obj.type == :ObjStm || (obj.type == :XRef && xref_streams == :delete)
+                rev.delete(obj)
+              else
+                delete_fields_with_defaults(obj)
+              end
+            end
+            if xref_streams == :generate && !xref_stream
+              doc.add({Type: :XRef}, revision: rev_index)
             end
           end
         when :generate
@@ -128,7 +143,7 @@ module HexaPDF
               elsif obj.type == :ObjStm
                 rev.delete(obj)
               end
-              yield(obj) if block_given?
+              delete_fields_with_defaults(obj)
 
               next if obj.respond_to?(:stream)
 
@@ -140,6 +155,31 @@ module HexaPDF
               end
             end
             objstms.each {|objstm| doc.add(objstm, revision: rev_index)}
+            doc.add({Type: :XRef}, revision: rev_index) unless xref_stream
+          end
+        end
+      end
+
+      # Processes the cross-reference streams in each revision according to method: For :preserve,
+      # nothing is done, for :delete all cross-reference streams are deleted and for :generate
+      # cross-reference streams are added.
+      def self.process_xref_streams(doc, method)
+        case method
+        when :delete
+          doc.each(current: false) do |obj, rev|
+            if obj.type == :XRef
+              rev.delete(obj)
+            else
+              delete_fields_with_defaults(obj)
+            end
+          end
+        when :generate
+          doc.revisions.each_with_index do |rev, rev_index|
+            xref_stream = false
+            rev.each do |obj|
+              xref_stream = true if obj.type == :XRef
+              delete_fields_with_defaults(obj)
+            end
             doc.add({Type: :XRef}, revision: rev_index) unless xref_stream
           end
         end
