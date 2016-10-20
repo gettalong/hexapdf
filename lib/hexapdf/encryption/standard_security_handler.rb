@@ -143,7 +143,7 @@ module HexaPDF
         RESERVED = 0xFFFFF000
 
         # Maps permission symbols to their respective value
-        SYMBOL_TO_PERMISSON = {
+        SYMBOL_TO_PERMISSION = {
           print: PRINT,
           modify_content: MODIFY_CONTENT,
           copy_content: COPY_CONTENT,
@@ -155,7 +155,7 @@ module HexaPDF
         }
 
         # Maps a permission value to its symbol
-        PERMISSON_TO_SYMBOL = {
+        PERMISSION_TO_SYMBOL = {
           PRINT => :print,
           MODIFY_CONTENT => :modify_content,
           COPY_CONTENT => :copy_content,
@@ -212,7 +212,7 @@ module HexaPDF
         def process_permissions(perms)
           if perms.kind_of?(Array)
             perms = perms.inject(0) do |result, perm|
-              result | Permissions::SYMBOL_TO_PERMISSON.fetch(perm, 0)
+              result | Permissions::SYMBOL_TO_PERMISSION.fetch(perm, 0)
             end
           end
           Permissions::RESERVED | perms
@@ -231,7 +231,7 @@ module HexaPDF
       #
       # See: Permissions
       def permissions
-        Permissions::PERMISSON_TO_SYMBOL.each_with_object([]) do |(perm, sym), result|
+        Permissions::PERMISSION_TO_SYMBOL.each_with_object([]) do |(perm, sym), result|
           result << sym if dict[:P] & perm == perm
         end
       end
