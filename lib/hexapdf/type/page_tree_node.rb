@@ -218,10 +218,7 @@ module HexaPDF
       # options.
       def new_page
         media_box = config['page.default_media_box']
-        media_box = Page::PAPER_SIZE[media_box] if media_box.kind_of?(Symbol)
-        if media_box.nil?
-          raise HexaPDF::Error, "Can't create new page, page.default_media_box option is invalid"
-        end
+        media_box = Page::PAPER_SIZE[media_box].dup if Page::PAPER_SIZE.key?(media_box)
         document.add(Type: :Page, MediaBox: media_box)
       end
 
