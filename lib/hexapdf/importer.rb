@@ -124,6 +124,7 @@ module HexaPDF
 
           obj.data.stream = obj.data.stream.dup if obj.data.stream.kind_of?(String)
           obj.data.value = duplicate(obj.data.value)
+          obj.data.value.update(duplicate(object.copy_inherited_values)) if object.type == :Page
           obj
         end
       when String

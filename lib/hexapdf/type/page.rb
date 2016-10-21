@@ -158,6 +158,17 @@ module HexaPDF
         end
       end
 
+      # Copies the page's inherited values from the ancestor page tree nodes into a hash and returns
+      # the hash.
+      #
+      # The hash can then be used to update the page itself (e.g. when moving a page from one
+      # position to another) or another page (e.g. when importing a page from another document).
+      def copy_inherited_values
+        INHERITABLE_FIELDS.each_with_object({}) do |name, hash|
+          hash[name] = HexaPDF::Object.deep_copy(self[name]) if value[name].nil?
+        end
+      end
+
       # Returns the rectangle defining a certain kind of box for the page.
       #
       # This method should be used instead of directly accessing any of /MediaBox, /CropBox,

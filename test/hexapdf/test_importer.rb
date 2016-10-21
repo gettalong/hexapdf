@@ -11,6 +11,8 @@ describe HexaPDF::Importer do
     @obj = @source.add(hash: {key: "value"}, array: ["one", "two"],
                        ref: HexaPDF::Reference.new(obj.oid, obj.gen),
                        others: [:symbol, 5, 5.5, nil, true, false])
+    @source.pages.add_page
+    @source.pages[:Rotate] = 90
     @dest = HexaPDF::Document.new
     @importer = HexaPDF::Importer.for(source: @source, destination: @dest)
   end
@@ -60,6 +62,11 @@ describe HexaPDF::Importer do
 
       assert_nil(obj[:catalog])
       assert_nil(obj[:pages])
+    end
+
+    it "imports Page objects correctly by copying the inherited values" do
+      page = @importer.import(@source.pages.page(0))
+      assert_equal(90, page[:Rotate])
     end
 
     it "raise an error if the given object doesn't belong to the source document" do
