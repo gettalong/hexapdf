@@ -66,29 +66,29 @@ module HexaPDF
         add_command(CmdParse::VersionCommand.new)
       end
 
-      # Parses the pages specification string and returns an array containing the requested page
-      # numbers.
+      PAGE_NUMBER_SPEC = "([1-9]\\d*|e)" #:nodoc:
+      ROTATE_MAP = {'l' => -90, 'r' => 90, 'd' => 180, 'n' => :none, nil => :none} #:nodoc:
+
+      # Parses the pages specification string and returns an array of tuples containing a page
+      # number and a rotation value (either -90, 90, 180 or :none).
       #
       # The parameter +count+ needs to be the total number of pages in the document.
       def parse_pages_specification(range, count)
-        range.split(',').map do |str|
+        range.split(',').each_with_object([]) do |str, arr|
           case str
-          when /\A[1-9]\d*\z/
-            str.to_i - 1
-          when /\A([1-9]\d*|e)-([1-9]\d*|e)\z/
+          when /\A#{PAGE_NUMBER_SPEC}(l|r|d|n)?\z/o
+            arr << [($1 == 'e' ? count : str.to_i) - 1, ROTATE_MAP[$2]]
+          when /\A#{PAGE_NUMBER_SPEC}-#{PAGE_NUMBER_SPEC}(l|r|d|n)?\z/
             start_nr = ($1 == 'e' ? count : $1.to_i) - 1
             end_nr = ($2 == 'e' ? count : $2.to_i) - 1
-            if start_nr > end_nr
-              (end_nr..start_nr).to_a.reverse
-            else
-              (start_nr..end_nr).to_a
+            rotation = ROTATE_MAP[$3]
+            (start_nr > end_nr ? (end_nr..start_nr).reverse_each : (start_nr..end_nr)).each do |n|
+              arr << [n, rotation]
             end
-          when 'e'
-            count - 1
           else
             raise OptionParser::InvalidArgument, "invalid page range format: #{str}"
           end
-        end.flatten
+        end
       end
 
       # Reads a password from the standard input and falls back to the console if needed.

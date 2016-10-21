@@ -174,14 +174,19 @@ module HexaPDF
 
       # Arranges the pages of the document as specified with the --pages option.
       def arrange_pages(doc)
-        pages = command_parser.parse_pages_specification(@pages, doc.pages.page_count).map do |i|
-          doc.pages.page(i)
-        end
-        new_page_tree = doc.catalog[:Pages] = doc.add(Type: :Pages)
-        pages.each do |page|
+        pages = command_parser.parse_pages_specification(@pages, doc.pages.page_count)
+        new_page_tree = doc.add(Type: :Pages)
+        pages.each do |index, rotation|
+          page = doc.pages.page(index)
           page.value.update(page.copy_inherited_values)
+          if rotation == :none
+            page.delete(:Rotate)
+          else
+            page[:Rotate] = ((page[:Rotate] || 0) + rotation) % 360
+          end
           new_page_tree.add_page(page)
         end
+        doc.catalog[:Pages] = new_page_tree
       end
 
       IGNORED_FILTERS = { #:nodoc:

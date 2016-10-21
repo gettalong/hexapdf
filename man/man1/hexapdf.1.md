@@ -139,8 +139,9 @@ remove unused entries and to generate or delete object and cross-reference strea
   standard input.
 
 * `--pages` <PAGES>:
-  The pages that should be included in the <OUTPUT_FILE>. See the **PAGES SPECIFICATION** below for
-  details on the allowed format of <PAGES>. Default: *1-e* (i.e. all pages).
+  The pages (optionally rotated) that should be included in the <OUTPUT_FILE>. See the **PAGES
+  SPECIFICATION** below for details on the allowed format of <PAGES>. Default: *1-e* (i.e. all
+  pages with no additional rotation applied).
 
 * `--[no-]compact`:
   Delete unnecessary PDF objects. This includes merging the base revision and all incremental
@@ -218,10 +219,15 @@ This command shows the version of the hexapdf application. It is an alternative 
 
 ## PAGES SPECIFICATION
 
-Some commands all the specification of pages using a <PAGES> argument. This argument is expected to
-be a comma separated list of single page numbers or page ranges of the form <START>-<END>. The
+Some commands allow the specification of pages using a <PAGES> argument. This argument is expected
+to be a comma separated list of single page numbers or page ranges of the form <START>-<END>. The
 character '**e**' represents the last page and can be used instead of a single number or in a range.
 The pages are used in the order in which the are specified.
+
+Additionally, the page numbers and ranges can be suffixed with a rotation modifier: **l** (for
+rotating a page left, i.e. 90 degrees counterclockwise), **r** (for rotating a page right, i.e. 90
+degrees clockwise), **d** (for rotating a page 180 degrees) and **n** (for removing any set page
+rotation). Note that this additional functionality may not be used by all commands.
 
 Examples:
 
@@ -229,6 +235,8 @@ Examples:
 * **11,4-9,1,e**: The pages eleven, four to nine, one and the last page, in exactly this order.
 * **1-e**: All pages of the document.
 * **e-1**: All pages of the document in reverse order.
+* **1l,2r,3-5d,6n**: The pages one (rotate to the left), two (rotated to the right), three to five
+  (all rotated 180 degrees) and six (any possibly set rotation removed).
 
 
 ## EXIT STATUS

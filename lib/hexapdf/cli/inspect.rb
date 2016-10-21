@@ -118,7 +118,7 @@ module HexaPDF
 
       def do_pages(doc) #:nodoc:
         pages = command_parser.parse_pages_specification(@param, doc.pages.page_count)
-        pages.each do |index|
+        pages.each do |index, _|
           page = doc.pages.page(index)
           str = "page #{index + 1} (#{page.oid},#{page.gen}): "
           Array(page[:Contents]).each {|c| str << "#{c.oid},#{c.gen}"}
