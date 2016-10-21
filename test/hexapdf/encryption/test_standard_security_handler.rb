@@ -183,6 +183,10 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       assert_equal(dict2[:O], dict3[:O])
     end
 
+    it "fails if the password contains invalid characters" do
+      assert_raises(HexaPDF::EncryptionError) { @handler.set_up_encryption(password: 'œ test') }
+    end
+
     it "fails for unknown keywords" do
       assert_raises(ArgumentError) { @handler.set_up_encryption(unknown: 'test') }
     end

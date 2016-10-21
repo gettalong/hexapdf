@@ -580,7 +580,7 @@ module HexaPDF
 
       # Returns the password modified so that if follows certain rules:
       #
-      # * For revisions <= 4, the password is converted into PDFDocEncoding, padded with
+      # * For revisions <= 4, the password is converted into ISO-8859-1 encoding, padded with
       #   PASSWORD_PADDING and truncated to a maximum of 32 bytes.
       #
       # * For revision 6 the password is converted into UTF-8 encoding that is normalized
@@ -590,10 +590,13 @@ module HexaPDF
       #      PDF2.0 s7.6.3.3.2 (algorithm 2.A steps a) and b))
       def prepare_password(password)
         if dict[:R] <= 4
-          password.to_s[0, 32].ljust(32, PASSWORD_PADDING).force_encoding(Encoding::BINARY)
+          password.to_s[0, 32].encode(Encoding::ISO_8859_1).force_encoding(Encoding::BINARY).
+            ljust(32, PASSWORD_PADDING)
         elsif dict[:R] == 6
           password.to_s.encode(Encoding::UTF_8).force_encoding(Encoding::BINARY)[0, 127]
         end
+      rescue Encoding::UndefinedConversionError => e
+        raise HexaPDF::EncryptionError, "Invalid character in password: #{e.error_char}"
       end
 
       # XORs each byte of the String +key+ with value and returns the resulting string.
