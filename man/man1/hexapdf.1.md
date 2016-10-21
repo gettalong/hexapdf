@@ -20,6 +20,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 * Extracting embedded files (see the `extract` command)
 * Showing general information of a PDF file (see the `info` command)
 * Inspecting the internal structure of a PDF file (see the `inspect` command)
+* Modifying an existing PDF file (see the `modify` command)
 
 The application contains a built-in `help` command that can be used to provide a quick reminder of a
 command's purpose and its options.
@@ -105,11 +106,8 @@ one is respected. Note that PDF objects are always shown in the PDF syntax.
 
 * `--pages` [<PAGES>]:
   Show the pages with their object and generation numbers and their associated content streams. If a
-  range is specified, only those pages are listed.
-
-  <PAGES> is a comma separated list of single page numbers or page ranges of the form <START>-<END>.
-  The character 'e' represents the last page and can be used instead of a single number or in a
-  range.
+  range is specified, only those pages are listed. See the **PAGES SPECIFICATION** below for details
+  on the allowed format of <PAGES>.
 
 * `-o`, `--object` <OID>[,<GEN>]:
   Show the object with the given object and generation numbers. The generation number defaults to 0
@@ -126,10 +124,99 @@ one is respected. Note that PDF objects are always shown in the PDF syntax.
   The password to decrypt the PDF <FILE>.
 
 
+### modify
+
+Synopsis: `modify` [`OPTIONS`] <INPUT_FILE> <OUTPUT_FILE>
+
+This command modifies a PDF file. It can be used to encrypt/decrypt a file, to optimize it and
+remove unused entries and to generate or delete object and cross-reference streams.
+
+* `-p`, `--password` <PASSWORD>:
+  The password to decrypt the PDF <INPUT_FILE>.
+
+* `--pages` <PAGES>:
+  The pages that should be included in the <OUTPUT_FILE>. See the **PAGES SPECIFICATION** below for
+  details on the allowed format of <PAGES>. Default: *1-e* (i.e. all pages).
+
+* `--[no-]compact`:
+  Delete unnecessary PDF objects. This includes merging the base revision and all incremental
+  updates into a single revision. Default: *yes*.
+
+* `--object-streams MODE`:
+  Defines how object streams should be treated: *generate* will remove all exisiting object streams
+  and generate new ones, *delete* will only remove existing object streams and *preserve* will do
+  nothing. Default: *preserve*.
+
+* `--xref-streams MODE`:
+  Defines how cross-reference streams should be treated: *generate* will add them, *delete* will
+  remove them and *preserve* will do nothing. Default: *preserve*.
+
+Encryption related options (all options except **--decrypt** automatically enabled **--encrypt**):
+
+* `--decrypt`:
+  Remove any encryption.
+
+  If neither **--decrypt** nor **--encrypt** is specified, the existing encryption configuration is
+  preserved.
+
+* `--encrypt`:
+  Encrypt the <OUTPUT_FILE>.
+
+  If neither **--decrypt** nor **--encrypt** is specified, the existing encryption configuration is
+  preserved.
+
+* `--owner-password` <PASSWORD>:
+  The owner password to be set on the <OUTPUT_FILE>. This password is needed when operations not
+  allowed by the permissions need to be done. It can also be used when opening the PDF file.
+
+* `--user-password` <PASSWORD>:
+  The user password to be set on the <OUTPUT_FILE>. This password is needed when opening the PDF
+  file. The application should restrict the operations to those allowed by the permissions.
+
+* `--algorithm` <ALGORITHM>:
+  The encryption algorithm to use on the <OUTPUT_FILE>. Allowed algorithms are *aes* and *arc4* but
+  *arc4* should only be used if it is absolutely necessary. Default: *aes*.
+
+* `--key-length` <BITS>:
+  The length of the encryption key in bits. The allowed values differ based on the chosen algorithm:
+  A number divisible by eight between 40 to 128 for *arc4* and 128 or 256 for *aes*. Default:
+  **128**
+
+* `--force-V4`:
+  Force the use of PDF encryption version 4 if key length is *128* and algorithm is *arc4*. This
+  option is probably only useful for testing the implementation of PDF libraries' encryption
+  handling.
+
+* `--permissions` <PERMS>:
+  A comma separated list of permissions to be set on the <OUTPUT_FILE>.
+
+  Possible values: *print* (allow printing), *modify_content* (allow modification of the content
+  of pages), *copy_content* (allow text extraction and similar operations), *modify_annotation*
+  (allow creation and modification of annotations and filling in of forms), *fill_in_forms* (allow
+  filling in of forms even if *modify_annotation* is not set), *extract_content* (allow text and
+  graphics extraction in accessibility cases), *assemble_document* (allow page modifications and
+  bookmark creation), and *high_quality_print* (allow high quality printing).
+
+
 ### version
 
 This command shows the version of the hexapdf application. It is an alternative to using the global
 `--version` option.
+
+
+## PAGES SPECIFICATION
+
+Some commands all the specification of pages using a <PAGES> argument. This argument is expected to
+be a comma separated list of single page numbers or page ranges of the form <START>-<END>. The
+character '**e**' represents the last page and can be used instead of a single number or in a range.
+The pages are used in the order in which the are specified.
+
+Examples:
+
+* **1,2,3**: The pages one, two and three.
+* **11,4-9,1,e**: The pages eleven, four to nine, one and the last page, in exactly this order.
+* **1-e**: All pages of the document.
+* **e-1**: All pages of the document in reverse order.
 
 
 ## EXIT STATUS
