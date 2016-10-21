@@ -330,7 +330,6 @@ module HexaPDF
       # See: PDF1.7 s7.6.1, PDF2.0 s7.6.1
       def set_up_decryption(dictionary, **options)
         @dict = document.wrap(dictionary, type: encryption_dictionary_class)
-        @encrypt_dict_hash = document.unwrap(@dict).hash
 
         case dict[:V]
         when 1, 2
@@ -356,6 +355,8 @@ module HexaPDF
         end
 
         set_up_security_handler(prepare_decryption(**options), strf, stmf, eff)
+        @encrypt_dict_hash = document.unwrap(@dict).hash
+
         @dict
       end
 

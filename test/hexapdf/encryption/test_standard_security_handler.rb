@@ -253,6 +253,15 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     end
   end
 
+  it "encryption key stays valid even if default dictionary values are set while setting up decryption" do
+    @document.encrypt(key_length: 128, algorithm: :aes)
+    assert(@document.security_handler.encryption_key_valid?)
+
+    @document.trailer[:Encrypt].delete(:EncryptMetadata)
+    handler = HexaPDF::Encryption::SecurityHandler.set_up_decryption(@document)
+    assert(handler.encryption_key_valid?)
+  end
+
   it "returns an array of permission symbols" do
     perms = @handler.class::Permissions::MODIFY_CONTENT | @handler.class::Permissions::COPY_CONTENT
     @handler.set_up_encryption(permissions: perms)
