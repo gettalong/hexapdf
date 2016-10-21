@@ -116,10 +116,10 @@ module HexaPDF
       end
 
       def do_pages(doc) #:nodoc:
-        range = process_page_range(@param, doc.pages.page_count)
-        range.each do |index|
-          page = doc.pages.page(index - 1)
-          str = "page #{index} (#{page.oid},#{page.gen}): "
+        pages = command_parser.parse_pages_specification(@param, doc.pages.page_count)
+        pages.each do |index|
+          page = doc.pages.page(index)
+          str = "page #{index + 1} (#{page.oid},#{page.gen}): "
           Array(page[:Contents]).each {|c| str << "#{c.oid},#{c.gen}"}
           puts str
         end
@@ -148,30 +148,6 @@ module HexaPDF
       def pdf_reference_from_string(str)
         oid, gen = str.split(",").map(&:to_i)
         HexaPDF::Reference.new(oid, gen || 0)
-      end
-
-      # Processes the range string and returns an array containing the requested page numbers.
-      #
-      # The parameter +count+ needs to be the number of pages in the document.
-      def process_page_range(range, count)
-        range.split(',').map do |str|
-          case str
-          when /\A\d+\z/
-            str.to_i
-          when /\A(\d+|e)-(\d+|e)\z/
-            start_nr = ($1 == 'e' ? count : $1.to_i)
-            end_nr = ($2 == 'e' ? count : $2.to_i)
-            if start_nr > end_nr
-              (end_nr..start_nr).to_a.reverse
-            else
-              (start_nr..end_nr).to_a
-            end
-          when 'e'
-            count
-          else
-            raise OptionParser::InvalidArgument, "invalid page range format: #{str}"
-          end
-        end.flatten
       end
 
     end

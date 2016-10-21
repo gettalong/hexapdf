@@ -63,6 +63,31 @@ module HexaPDF
         add_command(CmdParse::VersionCommand.new)
       end
 
+      # Parses the pages specification string and returns an array containing the requested page
+      # numbers.
+      #
+      # The parameter +count+ needs to be the total number of pages in the document.
+      def parse_pages_specification(range, count)
+        range.split(',').map do |str|
+          case str
+          when /\A[1-9]\d*\z/
+            str.to_i - 1
+          when /\A([1-9]\d*|e)-([1-9]\d*|e)\z/
+            start_nr = ($1 == 'e' ? count : $1.to_i) - 1
+            end_nr = ($2 == 'e' ? count : $2.to_i) - 1
+            if start_nr > end_nr
+              (end_nr..start_nr).to_a.reverse
+            else
+              (start_nr..end_nr).to_a
+            end
+          when 'e'
+            count - 1
+          else
+            raise OptionParser::InvalidArgument, "invalid page range format: #{str}"
+          end
+        end.flatten
+      end
+
     end
 
   end
