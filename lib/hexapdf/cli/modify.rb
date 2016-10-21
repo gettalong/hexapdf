@@ -74,6 +74,11 @@ module HexaPDF
                    "default: preserve)") do |x|
           @xref_streams = x
         end
+        options.on("--streams MODE", [:compress, :preserve, :uncompress],
+                   "Handling of stream data (either compress, preserve or uncompress; default: " \
+                   "preserve)") do |streams|
+          @streams = streams
+        end
 
         options.separator("")
         options.separator("Encryption related options")
@@ -126,6 +131,7 @@ module HexaPDF
         @compact = true
         @object_streams = :preserve
         @xref_streams = :preserve
+        @streams = :preserve
 
         @encryption = :preserve
         @enc_user_pwd = @enc_owner_pwd = nil
@@ -146,6 +152,8 @@ module HexaPDF
 
           doc.task(:optimize, compact: @compact, object_streams: @object_streams,
                    xref_streams: @xref_streams)
+
+          handle_streams(doc) if @streams != :preserve
 
           if @encryption == :add
             doc.encrypt(algorithm: @enc_algorithm, key_length: @enc_key_length,
@@ -173,6 +181,23 @@ module HexaPDF
         pages.each do |page|
           page.value.update(page.copy_inherited_values)
           new_page_tree.add_page(page)
+        end
+      end
+
+      IGNORED_FILTERS = { #:nodoc:
+        CCITTFaxDecode: true, JBIG2Decode: true, DCTDecode: true, JPXDecode: true, Crypt: true
+      }
+
+      # Applies the chosen stream mode to all streams.
+      def handle_streams(doc)
+        doc.each(current: false) do |obj|
+          next if !obj.respond_to?(:set_filter) || obj[:Subtype] == :Image ||
+            Array(obj[:Filter]).any? {|f| IGNORED_FILTERS[f]}
+          if @streams == :compress
+            obj.set_filter(:FlateDecode)
+          else
+            obj.set_filter(nil)
+          end
         end
       end
 

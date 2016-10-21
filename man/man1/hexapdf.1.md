@@ -155,6 +155,10 @@ remove unused entries and to generate or delete object and cross-reference strea
   Defines how cross-reference streams should be treated: *generate* will add them, *delete* will
   remove them and *preserve* will do nothing. Default: *preserve*.
 
+* `--streams MODE`:
+  Defines how streams should be treated: *compress* will compress them when possible, *uncompress*
+  will uncompress them when possible and *preserve* will do nothing to them. Default: *preserve*.
+
 Encryption related options (all options except **--decrypt** automatically enabled **--encrypt**):
 
 * `--decrypt`:
