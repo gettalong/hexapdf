@@ -54,8 +54,9 @@ module HexaPDF
           and remove unused entries and to generate or delete object and cross-reference streams.
         EOF
 
-        options.on("--password PASSWORD", "-p", String, "The password for decryption") do |pwd|
-          @password = pwd
+        options.on("--password PASSWORD", "-p", String,
+                   "The password for decryption. Use - for reading from standard input.") do |pwd|
+          @password = (pwd == '-' ? command_parser.read_password("Input file password") : pwd)
         end
         options.on("--pages PAGES", "The pages to be used in the output file") do |pages|
           @pages = pages
@@ -82,15 +83,15 @@ module HexaPDF
         options.on("--encrypt", "Encrypt the output file") do
           @encryption = :add
         end
-        options.on("--owner-password PASSWORD", String,
-                   "The owner password to be set on the output file") do |pwd|
+        options.on("--owner-password PASSWORD", String, "The owner password to be set on the " \
+                   "output file. Use - for reading from standard input.") do |pwd|
           @encryption = :add
-          @enc_owner_pwd = pwd
+          @enc_owner_pwd = (pwd == '-' ? command_parser.read_password("Owner password") : pwd)
         end
-        options.on("--user-password PASSWORD", String,
-                   "The user password to be set on the output file") do |pwd|
+        options.on("--user-password PASSWORD", String, "The user password to be set on the " \
+                   "output file. Use - for reading from standard input.") do |pwd|
           @encryption = :add
-          @enc_user_pwd = pwd
+          @enc_user_pwd = (pwd == '-' ? command_parser.read_password("User password") : pwd)
         end
         options.on("--algorithm ALGORITHM", [:aes, :arc4],
                    "The encryption algorithm: aes or arc4 (default: aes)") do |a|

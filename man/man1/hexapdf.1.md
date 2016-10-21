@@ -64,7 +64,8 @@ specified, the names and indices of the embedded files are just listed.
   as a whole or to an individual page. Defaults to *false*.
 
 * `-p`, `--password` <PASSWORD>:
-  The password to decrypt the PDF <FILE>.
+  The password to decrypt the PDF <FILE>. Use **-** for <PASSWORD> for reading it from standard
+  input.
 
 
 ### help
@@ -84,7 +85,8 @@ This command reads the <FILE> file and shows general information about it, like 
 PDF version used, encryption information and so on.
 
 * `-p`, `--password` <PASSWORD>:
-  The password to decrypt the PDF <FILE>.
+  The password to decrypt the PDF <FILE>. Use **-** for <PASSWORD> for reading it from standard
+  input.
 
 
 ### inspect
@@ -121,7 +123,8 @@ one is respected. Note that PDF objects are always shown in the PDF syntax.
   Modifies `--stream` to show the raw stream data instead of the filtered one.
 
 * `-p`, `--password` <PASSWORD>:
-  The password to decrypt the PDF <FILE>.
+  The password to decrypt the PDF <FILE>. Use **-** for <PASSWORD> for reading it from standard
+  input.
 
 
 ### modify
@@ -132,7 +135,8 @@ This command modifies a PDF file. It can be used to encrypt/decrypt a file, to o
 remove unused entries and to generate or delete object and cross-reference streams.
 
 * `-p`, `--password` <PASSWORD>:
-  The password to decrypt the PDF <INPUT_FILE>.
+  The password to decrypt the PDF <INPUT_FILE>. Use **-** for <PASSWORD> for reading it from
+  standard input.
 
 * `--pages` <PAGES>:
   The pages that should be included in the <OUTPUT_FILE>. See the **PAGES SPECIFICATION** below for
@@ -169,9 +173,13 @@ Encryption related options (all options except **--decrypt** automatically enabl
   The owner password to be set on the <OUTPUT_FILE>. This password is needed when operations not
   allowed by the permissions need to be done. It can also be used when opening the PDF file.
 
+  Use **-** for <PASSWORD> for reading it from standard input.
+
 * `--user-password` <PASSWORD>:
   The user password to be set on the <OUTPUT_FILE>. This password is needed when opening the PDF
   file. The application should restrict the operations to those allowed by the permissions.
+
+  Use **-** for <PASSWORD> for reading it from standard input.
 
 * `--algorithm` <ALGORITHM>:
   The encryption algorithm to use on the <OUTPUT_FILE>. Allowed algorithms are *aes* and *arc4* but

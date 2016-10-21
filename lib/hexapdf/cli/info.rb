@@ -53,8 +53,9 @@ module HexaPDF
           This command extracts information from the Info dictionary of a PDF file as well
           as some other useful information like the used PDF version and encryption information.
         EOF
-        options.on("--password PASSOWRD", "-p", String, "The password for decryption") do |pwd|
-          @password = pwd
+        options.on("--password PASSWORD", "-p", String,
+                   "The password for decryption. Use - for reading from standard input.") do |pwd|
+          @password = (pwd == '-' ? command_parser.read_password : pwd)
         end
         @password = ''
         @auto_decrypt = true

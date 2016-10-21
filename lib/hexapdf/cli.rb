@@ -31,6 +31,7 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'io/console'
 require 'cmdparse'
 require 'hexapdf/cli/info'
 require 'hexapdf/cli/extract'
@@ -90,6 +91,29 @@ module HexaPDF
         end.flatten
       end
 
+      # Reads a password from the standard input and falls back to the console if needed.
+      #
+      # The optional argument +prompt+ can be used to customize the prompt when reading from the
+      # console.
+      def read_password(prompt = "Password")
+        if $stdin.tty?
+          read_from_console(prompt)
+        else
+          pwd = $stdin.gets
+          pwd = read_from_console(prompt) unless pwd
+          pwd.chomp
+        end
+      end
+
+      private
+
+      # Displays the given prompt, reads from the console without echo and returns the read string.
+      def read_from_console(prompt)
+        IO.console.write("#{prompt}: ")
+        str = IO.console.noecho {|io| io.gets.chomp}
+        puts
+        str
+      end
     end
 
   end

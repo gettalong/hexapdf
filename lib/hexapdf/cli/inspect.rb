@@ -82,8 +82,9 @@ module HexaPDF
         end
 
         options.separator("")
-        options.on("--password PASSWORD", "-p", String, "The password for decryption.") do |pwd|
-          @password = pwd
+        options.on("--password PASSWORD", "-p", String,
+                   "The password for decryption. Use - for reading from standard input.") do |pwd|
+          @password = (pwd == '-' ? command_parser.read_password : pwd)
         end
 
         @password = nil
