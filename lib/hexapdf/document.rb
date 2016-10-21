@@ -535,10 +535,10 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   doc.write(filename, validate: true, update_fields: true, object_streams: :generate)
-    #   doc.write(io, validate: true, update_fields: true, object_streams: :generate)
+    #   doc.write(filename, validate: true, update_fields: true, optimize: false)
+    #   doc.write(io, validate: true, update_fields: true, optimize: false)
     #
-    # Writes the document to the give file (in case +io+ is a String) or IO stream.
+    # Writes the document to the given file (in case +io+ is a String) or IO stream.
     #
     # Before the document is written, it is validated using #validate and an error is raised if the
     # document is not valid. However, this step can be skipped if needed.
@@ -552,10 +552,10 @@ module HexaPDF
     #   Updates the /ID field in the trailer dictionary as well as the /ModDate field in the
     #   trailer's /Info dictionary so that it is clear that the document has been updated.
     #
-    # object_streams::
-    #   Specifies what to do about object streams. The default of :generate results in a more
-    #   compact PDF. See HexaPDF::Task::Optimize.call for allowed values.
-    def write(file_or_io, validate: true, update_fields: true, object_streams: :generate)
+    # optimize::
+    #   Optimize the file size by using object and cross-reference streams. This will raise the PDF
+    #   version to at least 1.5.
+    def write(file_or_io, validate: true, update_fields: true, optimize: false)
       dispatch_message(:complete_objects)
 
       if update_fields
@@ -563,13 +563,16 @@ module HexaPDF
         trailer.info[:ModDate] = Time.now
       end
 
-      task(:optimize, object_streams: object_streams) if object_streams != :preserve
-
       if validate
         self.validate(auto_correct: true) do |msg, correctable|
           next if correctable
           raise HexaPDF::Error, "Validation error: #{msg}"
         end
+      end
+
+      if optimize
+        task(:optimize, object_streams: :generate)
+        self.version = '1.5' if version < '1.5'
       end
 
       dispatch_message(:before_write)

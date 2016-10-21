@@ -489,18 +489,18 @@ EOF
       assert(@doc.trailer.info.key?(:Author))
     end
 
-    it "generates object streams by default" do
+    it "it doesn't optimize the file by default" do
       io = StringIO.new(''.b)
       @io_doc.write(io)
       doc = HexaPDF::Document.new(io: io)
-      assert_equal(2, doc.each.count {|o| o.type == :ObjStm})
+      assert_equal(0, doc.each.count {|o| o.type == :ObjStm})
     end
 
-    it "allows disabling object stream generation" do
+    it "allows optimizing the file by using object streams" do
       io = StringIO.new(''.b)
-      @io_doc.write(io, object_streams: :preserve)
+      @io_doc.write(io, optimize: true)
       doc = HexaPDF::Document.new(io: io)
-      assert_equal(0, doc.each.count {|o| o.type == :ObjStm})
+      assert_equal(2, doc.each.count {|o| o.type == :ObjStm})
     end
   end
 
