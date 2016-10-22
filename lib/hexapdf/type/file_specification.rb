@@ -205,7 +205,7 @@ module HexaPDF
         ef_stream.stream = HexaPDF::StreamData.new(file_or_io)
 
         if register
-          (document.catalog[:Names] ||= {})[:EmbeddedFiles] = {}
+          (document.catalog[:Names] ||= {})[:EmbeddedFiles] ||= {}
           document.catalog[:Names][:EmbeddedFiles].add_entry(name, self)
         end
 
