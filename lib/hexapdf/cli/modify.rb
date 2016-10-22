@@ -61,6 +61,10 @@ module HexaPDF
         options.on("--pages PAGES", "The pages to be used in the output file") do |pages|
           @pages = pages
         end
+        options.on("--embed FILE", String, "Embed the file into the output file (can be used " \
+                   "multiple times)") do |file|
+          @embed_files << file
+        end
         options.on("--[no-]compact", "Delete unnecessary PDF objects (default: yes)") do |c|
           @compact = c
         end
@@ -128,6 +132,7 @@ module HexaPDF
 
         @password = nil
         @pages = '1-e'
+        @embed_files = []
         @compact = true
         @object_streams = :preserve
         @xref_streams = :preserve
@@ -149,6 +154,7 @@ module HexaPDF
 
         HexaPDF::Document.open(input_file, decryption_opts: {password: @password}) do |doc|
           arrange_pages(doc) unless @pages == '1-e'
+          @embed_files.each {|file|  doc.utils.add_file(file, embed: true)}
 
           doc.task(:optimize, compact: @compact, object_streams: @object_streams,
                    xref_streams: @xref_streams)

@@ -143,6 +143,10 @@ remove unused entries and to generate or delete object and cross-reference strea
   SPECIFICATION** below for details on the allowed format of <PAGES>. Default: *1-e* (i.e. all
   pages with no additional rotation applied).
 
+* `--embed` <FILE>:
+  Embed the given file into the <OUTPUT_FILE> using built-in features of PDF. This option can be
+  used multiple times to embed more than one file.
+
 * `--[no-]compact`:
   Delete unnecessary PDF objects. This includes merging the base revision and all incremental
   updates into a single revision. Default: *yes*.
