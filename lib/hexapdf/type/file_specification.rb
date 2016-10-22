@@ -191,7 +191,8 @@ module HexaPDF
         unembed
         self.path = name
 
-        ef_stream = (self[:EF] ||= {})[:UF] = document.add(Type: :EmbeddedFile)
+        self[:EF] ||= {}
+        ef_stream = self[:EF][:UF] = self[:EF][:F] = document.add(Type: :EmbeddedFile)
         stat = if file_or_io.kind_of?(String)
                  File.stat(file_or_io)
                elsif file_or_io.respond_to?(:stat)
