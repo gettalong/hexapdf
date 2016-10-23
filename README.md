@@ -52,7 +52,7 @@ has a dependency on `cmdparse`, a command line parsing library.
 HexaPDF itself is distributed via Rubygems and therefore easily installable via `gem install
 hexapdf`.
 
-[rbinstall]: (https://www.ruby-lang.org/en/documentation/installation/)
+[rbinstall]: https://www.ruby-lang.org/en/documentation/installation/
 
 
 ## Difference to Prawn
