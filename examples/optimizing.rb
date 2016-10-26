@@ -16,5 +16,5 @@ require 'hexapdf'
 HexaPDF::Document.open(ARGV.shift) do |doc|
   doc.task(:optimize, compact: true, object_streams: :generate,
            compress_pages: false)
-  doc.write('optimizing.pdf', validate: true)
+  doc.write('optimizing.pdf')
 end

@@ -47,4 +47,4 @@ canvas.draw(pie, start_angle: 110, end_angle: 130).fill_stroke
 canvas.fill_color('ddffdd')
 canvas.draw(pie, start_angle: 130, end_angle: 30).fill_stroke
 
-doc.write('arc.pdf')
+doc.write('arc.pdf', optimize: true)

@@ -52,4 +52,4 @@ doc.pages.each_page.with_index do |page, index|
   processor = ShowTextProcessor.new(page)
   page.process_contents(processor)
 end
-doc.write('show_char_boxes.pdf')
+doc.write('show_char_boxes.pdf', optimize: true)

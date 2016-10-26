@@ -42,4 +42,4 @@ max_gid = wrapper.wrapped_font[:maxp].num_glyphs
   end
 end
 
-doc.write("truetype.pdf")
+doc.write("truetype.pdf", optimize: true)

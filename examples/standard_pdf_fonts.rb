@@ -52,7 +52,7 @@ HexaPDF::FontLoader::Standard14::MAPPING.each do |font_name, mapping|
 
     # Showing the remaining glyphs
     canvas.move_text_cursor(offset: [0, -40], absolute: false)
-    glyphs = font.wrapped_font.metrics.character_metrics.keys.select do |k| 
+    glyphs = font.wrapped_font.metrics.character_metrics.keys.select do |k|
       Symbol === k
     end.sort - used_glyphs
     canvas.font(font_name, size: 14, variant: variant, custom_encoding: true)
@@ -69,4 +69,4 @@ HexaPDF::FontLoader::Standard14::MAPPING.each do |font_name, mapping|
   end
 end
 
-doc.write("standard_pdf_fonts.pdf")
+doc.write("standard_pdf_fonts.pdf", optimize: true)

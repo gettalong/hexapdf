@@ -271,4 +271,4 @@ canvas.translate(0, 20) do
   end
 end
 
-doc.write('graphics.pdf')
+doc.write('graphics.pdf', optimize: true)
