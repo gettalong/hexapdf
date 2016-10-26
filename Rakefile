@@ -1,5 +1,9 @@
 require 'rake/testtask'
 require 'rake/clean'
+require 'rubygems/package_task'
+
+$:.unshift('lib')
+require 'hexapdf'
 
 Rake::TestTask.new do |t|
   t.libs << 'test'
@@ -9,11 +13,84 @@ Rake::TestTask.new do |t|
 end
 
 namespace :dev do
+  PKG_FILES = FileList.new([
+    'Rakefile',
+    'LICENSE', 'agpl-3.0.txt',
+    'README.md',
+    'VERSION', 'CONTRIBUTERS',
+    'bin/*',
+    'lib/**/*.rb',
+    'man/man1/hexapdf.1',
+    'data/**/*',
+    'examples/*',
+    'test/**/*'
+  ])
 
   CLOBBER << "man/man1/hexapdf.1"
   file 'man/man1/hexapdf.1' => ['man/man1/hexapdf.1.md'] do
     puts "Generating hexapdf man page"
     system "ronn --pipe -r man/man1/hexapdf.1.md > man/man1/hexapdf.1"
+  end
+
+  CLOBBER << "VERSION"
+  file 'VERSION' do
+    puts "Generating VERSION file"
+    File.open('VERSION', 'w+') {|file| file.write(HexaPDF::VERSION + "\n")}
+  end
+
+  CLOBBER << 'CONTRIBUTERS'
+  file 'CONTRIBUTERS' do
+    puts "Generating CONTRIBUTERS file"
+    `echo "  Count Name" > CONTRIBUTERS`
+    `echo "======= ====" >> CONTRIBUTERS`
+    `git log | grep ^Author: | sed 's/^Author: //' | sort | uniq -c | sort -nr >> CONTRIBUTERS`
+  end
+
+  spec = Gem::Specification.new do |s|
+    s.name = 'hexapdf'
+    s.version = HexaPDF::VERSION
+    s.summary = "HexaPDF - A Versatile PDF Creation and Manipulation Library For Ruby"
+    s.description = "HexaPDF is a pure Ruby library with an accompanying application for " \
+      "working with PDF files.\n\nIn short, it allows creating new PDF files, manipulating " \
+      "existing PDF files, merging multiple PDF files into one, extracting meta information, " \
+      "text, images and files from PDF files, securing PDF files by encrypting them and " \
+      "optimizing PDF files for smaller file size or other criteria.\n\nHexaPDF was designed " \
+      "with ease of use and performance in mind. It uses lazy loading and lazy computing when " \
+      "possible and tries to produce small PDF files by default."
+    s.license = 'AGPL-3.0'
+
+    s.files = PKG_FILES.to_a
+
+    s.require_path = 'lib'
+    s.executables = ['hexapdf']
+    s.default_executable = 'hexapdf'
+    s.add_dependency('cmdparse', '~> 3.0', '>= 3.0.1')
+    s.add_development_dependency('ronn', '~> 0.7')
+
+    s.author = 'Thomas Leitner'
+    s.email = 't_leitner@gmx.at'
+    s.homepage = "http://hexapdf.gettalong.org"
+  end
+
+  Gem::PackageTask.new(spec) do |pkg|
+    pkg.need_zip = true
+    pkg.need_tar = true
+  end
+
+  desc "Upload the release to Rubygems"
+  task publish_files: [:package] do
+    sh "gem push pkg/hexapdf-#{HexaPDF::VERSION}.gem"
+    puts 'done'
+  end
+
+  desc 'Release HexaPDF version ' + HexaPDF::VERSION
+  task release: [:clobber, :package, :publish_files]
+
+  CLOBBER << 'hexapdf.gemspec'
+  task :gemspec do
+    puts "Generating Gemspec"
+    contents = spec.to_ruby
+    File.open("hexapdf.gemspec", 'w+') {|f| f.puts(contents)}
   end
 
   CODING_LINE = "# -*- encoding: utf-8 -*-\n"
@@ -40,4 +117,5 @@ namespace :dev do
   end
 end
 
+task clobber: 'dev:clobber'
 task default: 'test'
