@@ -10,7 +10,7 @@ short, it allows
 * **securing** PDF files by encrypting them and
 * **optimizing** PDF files for smaller file size or other criteria.
 
-HexaPDF was designed with easy of use and performance in mind. It uses lazy loading and lazy
+HexaPDF was designed with ease of use and performance in mind. It uses lazy loading and lazy
 computing when possible and tries to produce small PDF files by default.
 
 
