@@ -40,7 +40,7 @@ startxref
 219
 %%EOF
 3 0 obj
-<</Producer(HexaPDF version 0.0.1)>>
+<</Producer(HexaPDF version 0.1.0)>>
 endobj
 xref
 3 1
@@ -72,7 +72,7 @@ startxref
 141
 %%EOF
 6 0 obj
-<</Producer(HexaPDF version 0.0.1)>>
+<</Producer(HexaPDF version 0.1.0)>>
 endobj
 2 0 obj
 <</Length 10>>stream
