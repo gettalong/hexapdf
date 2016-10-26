@@ -78,6 +78,11 @@ So why use HexaPDF? Because it differs significantly from Prawn in how it is imp
 See the LICENSE file for licensing details.
 
 
+## Contributing
+
+See <http://hexapdf.gettalong.org/contributing.html> for more information.
+
+
 ## Author
 
 Thomas Leitner, <http://gettalong.org>
