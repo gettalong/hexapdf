@@ -32,6 +32,7 @@
 #++
 
 require 'hexapdf/stream'
+require 'hexapdf/content'
 
 module HexaPDF
   module Type
@@ -95,6 +96,24 @@ module HexaPDF
         self[:Resources] = {} if self[:Resources].nil?
         processor.resources = self[:Resources]
         Content::Parser.parse(contents, processor)
+      end
+
+      # Returns the canvas for the form XObject.
+      #
+      # The canvas object is cached once it is created so that its graphics state is correctly
+      # retained without the need for parsing its contents.
+      #
+      # *Note* that a canvas can only be retrieved for initially empty form XObjects!
+      def canvas
+        unless defined?(@canvas)
+          unless stream.empty?
+            raise HexaPDF::Error, "Cannot create a canvas for a form XObjects with contents"
+          end
+          @canvas = Content::Canvas.new(self)
+          self.stream = @canvas.stream_data
+          set_filter(:FlateDecode)
+        end
+        @canvas
       end
 
     end

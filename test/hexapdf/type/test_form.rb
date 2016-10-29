@@ -57,4 +57,16 @@ describe HexaPDF::Type::Form do
       assert_equal([[:set_line_width, [10]]], processor.recorded_ops)
     end
   end
+
+  describe "canvas" do
+    it "always returns the same Canvas instance" do
+      canvas = @form.canvas
+      assert_same(canvas, @form.canvas)
+    end
+
+    it "fails if the form XObject already has data" do
+      @form.stream = '10 w'
+      assert_raises(HexaPDF::Error) { @form.canvas }
+    end
+  end
 end
