@@ -121,7 +121,7 @@ module HexaPDF
         pages.each do |index, _|
           page = doc.pages.page(index)
           str = "page #{index + 1} (#{page.oid},#{page.gen}): "
-          Array(page[:Contents]).each {|c| str << "#{c.oid},#{c.gen}"}
+          str << Array(page[:Contents]).map {|c| "#{c.oid},#{c.gen}"}.join(" ")
           puts str
         end
       end
