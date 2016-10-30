@@ -71,15 +71,13 @@ describe HexaPDF::Font::TrueType::Font do
 
     it "returns the font's ascender" do
       assert_equal(800, @font.ascender)
-      @font.directory.instance_eval { @tables.delete("OS/2") }
-      @font.instance_eval { @tables.delete(:"OS/2") }
+      @font[:'OS/2'].typo_ascender = nil
       assert_equal(801, @font.ascender)
     end
 
     it "returns the font's descender" do
       assert_equal(-200, @font.descender)
-      @font.directory.instance_eval { @tables.delete("OS/2") }
-      @font.instance_eval { @tables.delete(:"OS/2") }
+      @font[:'OS/2'].typo_descender = nil
       assert_equal(-187, @font.descender)
     end
 

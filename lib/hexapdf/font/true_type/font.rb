@@ -110,7 +110,7 @@ module HexaPDF
 
         # Returns the weight of the font.
         def weight
-          self[:"OS/2"]&.weight_class || 0
+          self[:"OS/2"].weight_class || 0
         end
 
         # Returns the bounding of the font.
@@ -120,22 +120,22 @@ module HexaPDF
 
         # Returns the cap height of the font.
         def cap_height
-          self[:"OS/2"]&.cap_height
+          self[:"OS/2"].cap_height
         end
 
         # Returns the x-height of the font.
         def x_height
-          self[:"OS/2"]&.x_height
+          self[:"OS/2"].x_height
         end
 
         # Returns the ascender of the font.
         def ascender
-          self[:"OS/2"]&.typo_ascender || self[:hhea].ascent
+          self[:"OS/2"].typo_ascender || self[:hhea].ascent
         end
 
         # Returns the descender of the font.
         def descender
-          self[:"OS/2"]&.typo_descender || self[:hhea].descent
+          self[:"OS/2"].typo_descender || self[:hhea].descent
         end
 
         # Returns the italic angle of the font, in degrees counter-clockwise from the vertical.
