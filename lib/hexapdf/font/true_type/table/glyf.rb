@@ -127,8 +127,8 @@ module HexaPDF
           # The mapping from glyph ID to Glyph object or +nil+ (if the glyph has no outline).
           attr_accessor :glyphs
 
-          # Returns the Glyph object for the given glyph ID, or +nil+ if it has no outline (e.g. the
-          # space character).
+          # Returns the Glyph object for the given glyph ID. If the glyph has no outline (e.g. the
+          # space character), an empty Glyph object is returned.
           def [](glyph_id)
             return @glyphs[glyph_id] if @glyphs.key?(glyph_id)
 
