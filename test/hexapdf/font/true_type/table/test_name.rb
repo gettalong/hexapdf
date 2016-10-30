@@ -47,25 +47,6 @@ describe HexaPDF::Font::TrueType::Table::Name do
       assert_equal(1, table.format)
       assert_equal({0x8000 => 'en', 0x8001 => 'de'}, table.language_tags)
     end
-
-    it "loads some default values if no entry is given" do
-      table = HexaPDF::Font::TrueType::Table::Name.new(@file)
-      assert_equal(0, table.format)
-      assert_equal({}, table.records)
-      assert_equal({}, table.language_tags)
-    end
-  end
-
-  describe "add" do
-    it "adds a new record for a name" do
-      table = HexaPDF::Font::TrueType::Table::Name.new(@file)
-      table.add(:postscript_name, "test")
-      record = table[:postscript_name][0]
-      assert_equal("test", record)
-      assert_equal(HexaPDF::Font::TrueType::Table::Name::Record::PLATFORM_MACINTOSH, record.platform_id)
-      assert_equal(0, record.encoding_id)
-      assert_equal(0, record.language_id)
-    end
   end
 
   describe "NameRecord" do

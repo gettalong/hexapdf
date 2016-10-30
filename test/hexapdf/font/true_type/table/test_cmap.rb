@@ -39,12 +39,6 @@ describe HexaPDF::Font::TrueType::Table::Cmap do
       assert_raises(HexaPDF::Error) { HexaPDF::Font::TrueType::Table::Cmap.new(@file, @entry) }
     end
 
-    it "loads some default values if no entry is given" do
-      table = HexaPDF::Font::TrueType::Table::Cmap.new(@file)
-      assert_equal(0, table.version)
-      assert_equal([], table.tables)
-    end
-
     it "loads data from subtables with identical offsets only once" do
       table = HexaPDF::Font::TrueType::Table::Cmap.new(@file, @entry)
       assert_same(table.tables[0].gid_map, table.tables[2].gid_map)

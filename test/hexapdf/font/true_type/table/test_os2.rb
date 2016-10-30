@@ -53,13 +53,5 @@ describe HexaPDF::Font::TrueType::Table::OS2 do
       assert_equal(30, table.lower_point_size)
       assert_equal(31, table.upper_point_size)
     end
-
-    it "loads some default values if no entry is given" do
-      table = HexaPDF::Font::TrueType::Table::OS2.new(@file)
-      assert_equal(5, table.version)
-      assert_equal(''.b, table.panose)
-      assert_equal('    '.b, table.vendor_id)
-      assert_equal(0, table.default_char)
-    end
   end
 end

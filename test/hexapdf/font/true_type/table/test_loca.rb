@@ -9,8 +9,8 @@ describe HexaPDF::Font::TrueType::Table::Loca do
   before do
     @file = Object.new
     @file.define_singleton_method(:io) { @io ||= StringIO.new('') }
-    head = HexaPDF::Font::TrueType::Table::Head.new(@file)
-    head.index_to_loc_format = 0
+    head = Object.new
+    head.define_singleton_method(:index_to_loc_format) { 0 }
     @file.define_singleton_method(:[]) {|_arg| head }
     @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('loca', 0, 0, @file.io.length)
   end
@@ -29,15 +29,11 @@ describe HexaPDF::Font::TrueType::Table::Loca do
 
     it "reads the data in long format from the associated file" do
       @file.io.string = [0, 10, 30, 50, 90].pack('N*')
-      @file[:head].index_to_loc_format = 1
+      @file[:head].singleton_class.send(:remove_method, :index_to_loc_format)
+      @file[:head].define_singleton_method(:index_to_loc_format) { 1 }
       @entry.length = @file.io.length
       table = HexaPDF::Font::TrueType::Table::Loca.new(@file, @entry)
       assert_equal([0, 10, 30, 50, 90], table.offsets)
-    end
-
-    it "loads some default values if no entry is given" do
-      table = HexaPDF::Font::TrueType::Table::Loca.new(@file)
-      assert_equal([], table.offsets)
     end
   end
 end

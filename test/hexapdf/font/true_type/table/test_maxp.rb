@@ -51,12 +51,5 @@ describe HexaPDF::Font::TrueType::Table::Maxp do
       assert_nil(table.max_component_elements)
       assert_nil(table.max_component_depth)
     end
-
-    it "loads some default values if no entry is given" do
-      table = HexaPDF::Font::TrueType::Table::Maxp.new(@file)
-      assert_equal(1, table.version)
-      assert_equal(0, table.num_glyphs)
-      assert_equal(0, table.max_points)
-    end
   end
 end

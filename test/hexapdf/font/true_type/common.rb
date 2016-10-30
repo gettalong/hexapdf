@@ -10,10 +10,6 @@ module TestHelper
     def parse_table
       @data = io.read(directory_entry.length)
     end
-
-    def load_default
-      @data = 'default'
-    end
   end
 
 end

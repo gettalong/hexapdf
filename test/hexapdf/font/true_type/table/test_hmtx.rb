@@ -11,8 +11,8 @@ describe HexaPDF::Font::TrueType::Table::Hhea do
     io = StringIO.new(data)
     @file = Object.new
     @file.define_singleton_method(:io) { io }
-    hhea = HexaPDF::Font::TrueType::Table::Hhea.new(@file)
-    hhea.num_of_long_hor_metrics = 2
+    hhea = Object.new
+    hhea.define_singleton_method(:num_of_long_hor_metrics) { 2 }
     @file.define_singleton_method(:[]) {|_arg| hhea }
     @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('hmtx', 0, 0, io.length)
   end
@@ -28,11 +28,6 @@ describe HexaPDF::Font::TrueType::Table::Hhea do
       assert_equal(5, table[2].left_side_bearing)
       assert_equal(3, table[3].advance_width)
       assert_equal(-6, table[3].left_side_bearing)
-    end
-
-    it "loads some default values if no entry is given" do
-      table = HexaPDF::Font::TrueType::Table::Hmtx.new(@file)
-      assert_equal([], table.horizontal_metrics)
     end
   end
 end

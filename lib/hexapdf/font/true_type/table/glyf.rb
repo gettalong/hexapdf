@@ -130,11 +130,7 @@ module HexaPDF
           # Returns the Glyph object for the given glyph ID, or +nil+ if it has no outline (e.g. the
           # space character).
           def [](glyph_id)
-            if @glyphs.key?(glyph_id)
-              return @glyphs[glyph_id]
-            elsif !directory_entry
-              return nil
-            end
+            return @glyphs[glyph_id] if @glyphs.key?(glyph_id)
 
             offset = font[:loca].offset(glyph_id)
             length = font[:loca].length(glyph_id)
@@ -151,10 +147,6 @@ module HexaPDF
 
           # Nothing to parse here since we lazily parse glyphs.
           def parse_table
-            @glyphs = {}
-          end
-
-          def load_default #:nodoc:
             @glyphs = {}
           end
 

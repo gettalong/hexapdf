@@ -67,10 +67,6 @@ module HexaPDF
             end
           end
 
-          def load_default #:nodoc:
-            @horizontal_metrics = []
-          end
-
         end
 
       end

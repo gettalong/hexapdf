@@ -96,14 +96,6 @@ module HexaPDF
               @max_component_depth = read_formatted(directory_entry.length - 4, 'n14')
           end
 
-          def load_default #:nodoc:
-            @version = 1.to_r
-            @num_glyphs = @max_points = @max_contours = @max_component_points =
-              @max_component_contours = @max_twilight_points = @max_storage = @max_function_defs =
-              @max_instruction_defs = @max_stack_elements = @max_size_of_instructions =
-              @max_component_elements = @max_component_depth = 0
-          end
-
         end
 
       end

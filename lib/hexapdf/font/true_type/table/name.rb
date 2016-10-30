@@ -167,14 +167,6 @@ module HexaPDF
             @records[name_or_id.kind_of?(Symbol) ? NAME_MAP[name_or_id] : name_or_id]
           end
 
-          # Adds a new record for the given name identifier (either a symbol or an ID).
-          #
-          # The optional platform, encoding and language IDs are preset to represent the text as
-          # English in Mac Roman encoding.
-          def add(name_or_id, text, platform_id: 1, encoding_id: 0, language_id: 0)
-            self[name_or_id] << Record.new(text, platform_id, encoding_id, language_id)
-          end
-
           private
 
           def parse_table #:nodoc:
@@ -202,12 +194,6 @@ module HexaPDF
                   io.read(length).encode!(::Encoding::UTF_8, ::Encoding::UTF_16BE)
               end
             end
-          end
-
-          def load_default #:nodoc:
-            @format = 0
-            @records = Hash.new {|h, k| h[k] = Records.new}
-            @language_tags = {}
           end
 
         end

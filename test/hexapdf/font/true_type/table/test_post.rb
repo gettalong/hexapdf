@@ -68,19 +68,6 @@ describe HexaPDF::Font::TrueType::Table::Post do
       assert_equal(0xFFFF, table[1_000_000])
     end
 
-    it "loads some default values if no entry is given" do
-      table = HexaPDF::Font::TrueType::Table::Post.new(@file)
-      assert_equal(1, table.format)
-      assert_equal(0, table.italic_angle)
-      assert_equal(0, table.underline_position)
-      assert_equal(0, table.underline_thickness)
-      assert_equal(0, table.is_fixed_pitch)
-      assert_equal(0, table.min_mem_type42)
-      assert_equal(0, table.max_mem_type42)
-      assert_equal(0, table.min_mem_type1)
-      assert_equal(0, table.max_mem_type1)
-    end
-
     it "raises an error if an unsupported format is given" do
       @file.io.string[0, 2] = [5].pack('n')
       assert_raises(HexaPDF::Error) { HexaPDF::Font::TrueType::Table::Post.new(@file, @entry) }

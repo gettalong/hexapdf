@@ -106,14 +106,6 @@ module HexaPDF
                            end
           end
 
-          def load_default #:nodoc:
-            @format = 1.to_r
-            @italic_angle = 0.to_r
-            @underline_position = @underline_thickness = @is_fixed_pitch = @min_mem_type42 =
-              @max_mem_type42 = @min_mem_type1 = @max_mem_type1 = 0
-            @glyph_names = {}
-          end
-
 
           # 'post' table format 1
           module Format1

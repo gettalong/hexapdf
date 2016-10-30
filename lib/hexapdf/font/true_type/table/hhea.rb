@@ -94,13 +94,6 @@ module HexaPDF
               @caret_offset, @num_of_long_hor_metrics = read_formatted(32, 's>3ns>6x10n')
           end
 
-          def load_default #:nodoc:
-            @version = 1.to_r
-            @ascent = @descent = @line_gap = @advance_width_max = @min_left_side_bearing =
-              @min_right_side_bearing = @x_max_extent = @caret_slope_rise = @caret_slope_run =
-              @caret_offset = @num_of_long_hor_metrics = 0
-          end
-
         end
 
       end

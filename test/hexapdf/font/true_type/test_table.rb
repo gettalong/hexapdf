@@ -18,11 +18,6 @@ describe HexaPDF::Font::TrueType::Table do
       table = TestHelper::TrueTypeTestTable.new(@file, @entry)
       assert_equal(@file.io.string, table.data)
     end
-
-    it "loads some default values if no entry is given" do
-      table = TestHelper::TrueTypeTestTable.new(@file)
-      assert_equal('default', table.data)
-    end
   end
 
   describe "checksum_valid?" do
@@ -32,10 +27,6 @@ describe HexaPDF::Font::TrueType::Table do
       @entry.length = @file.io.string.length
       table = TestHelper::TrueTypeTestTable.new(@file, @entry)
       assert(table.checksum_valid?)
-    end
-
-    it "raises an error if the checksum can't be verified because none is available" do
-      assert_raises(HexaPDF::Error) { TestHelper::TrueTypeTestTable.new(@file).checksum_valid? }
     end
   end
 end

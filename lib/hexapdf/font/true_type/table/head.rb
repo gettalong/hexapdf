@@ -98,8 +98,6 @@ module HexaPDF
           #
           # See: Table#checksum_valid?
           def checksum_valid?
-            super unless directory_entry
-
             data = with_io_pos(directory_entry.offset) { io.read(directory_entry.length) }
             data[8, 4] = 0.chr * 4
             directory_entry.checksum == self.class.calculate_checksum(data)
@@ -123,16 +121,6 @@ module HexaPDF
             if data[14] != 0 # glyphDataFormat
               raise HexaPDF::Error, "Invalid glyph data format value (should be 0): #{data[14]}"
             end
-          end
-
-          def load_default #:nodoc:
-            @version = 1.to_r
-            @font_revision = 1.to_r
-            @checksum_adjustment = @flags = @mac_style = @smallest_readable_size =
-              @font_direction_hint =  @index_to_loc_format = 0
-            @units_per_em = 64
-            @created = @modified = Time.now
-            @bbox = [0, 0, 0, 0]
           end
 
         end

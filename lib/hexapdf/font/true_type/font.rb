@@ -65,18 +65,16 @@ module HexaPDF
         }
 
 
-        # The IO stream associated with this file. If this is +nil+ then the TrueType font wasn't
-        # originally read from an IO stream.
+        # The IO stream associated with this file.
         attr_reader :io
 
         # The configuration for the TrueType font.
         attr_reader :config
 
-        # Creates a new TrueType font file object. If an IO object is given, the TrueType font data
-        # is read from it.
+        # Creates a new TrueType font file object for the given IO object.
         #
         # The +config+ hash can contain configuration options.
-        def initialize(io: nil, config: {})
+        def initialize(io, config: {})
           @io = io
           @config = DEFAULT_CONFIG.merge(config)
           @tables = {}
@@ -88,12 +86,6 @@ module HexaPDF
 
           entry = directory.entry(tag.to_s.b)
           entry ? @tables[tag] = table_class(tag).new(self, entry) : nil
-        end
-
-        # Adds a new table instance for the given tag (a symbol) to the font if such a table
-        # instance doesn't already exist. Returns the table instance for the tag.
-        def add_table(tag)
-          @tables[tag] ||= table_class(tag).new(self)
         end
 
         # Returns the font directory.

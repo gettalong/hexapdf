@@ -8,7 +8,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
   before do
     @doc = HexaPDF::Document.new
     font_file = File.join(TEST_DATA_DIR, "fonts", "Ubuntu-Title.ttf")
-    @font = HexaPDF::Font::TrueType::Font.new(io: File.open(font_file))
+    @font = HexaPDF::Font::TrueType::Font.new(File.open(font_file))
     @cmap = @font[:cmap].preferred_table
     @font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font)
   end

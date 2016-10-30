@@ -60,7 +60,7 @@ module HexaPDF
           raise HexaPDF::Error, "The configured font file #{file} does not exist"
         end
 
-        font = HexaPDF::Font::TrueType::Font.new(io: File.open(file))
+        font = HexaPDF::Font::TrueType::Font.new(File.open(file))
         HexaPDF::Font::TrueTypeWrapper.new(document, font)
       end
 

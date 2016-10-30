@@ -7,8 +7,11 @@ require 'hexapdf/font/true_type/table/glyf'
 describe HexaPDF::Font::TrueType::Table::Glyf do
   before do
     @file = Object.new
-    loca = HexaPDF::Font::TrueType::Table::Loca.new(@file)
-    loca.offsets = [0, 0]
+    loca = Object.new
+    loca.define_singleton_method(:offsets) { @offsets ||= [] }
+    loca.define_singleton_method(:offset) {|i| @offsets[i]}
+    loca.define_singleton_method(:length) {|i| @offsets[i + 1] - @offsets[i]}
+    loca.offsets << 0 << 0
     data = [1, -10, -20, 100, 150].pack('s>5')
     loca.offsets << data.size
     data << [-1, 10, 20, -100, -150].pack('s>5')
@@ -47,12 +50,6 @@ describe HexaPDF::Font::TrueType::Table::Glyf do
       assert_equal(-100, glyph.x_max)
       assert_equal(-150, glyph.y_max)
       assert_equal([1, 2, 3, 4, 1], glyph.components)
-    end
-
-    it "loads some default values if no entry is given" do
-      table = HexaPDF::Font::TrueType::Table::Glyf.new(@file)
-      assert_equal({}, table.glyphs)
-      assert_nil(table[0])
     end
   end
 end

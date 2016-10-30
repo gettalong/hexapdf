@@ -67,10 +67,6 @@ module HexaPDF
             @offsets.map! {|offset| offset * 2} if entry_size == 0
           end
 
-          def load_default #:nodoc:
-            @offsets = []
-          end
-
         end
 
       end

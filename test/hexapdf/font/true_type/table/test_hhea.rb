@@ -29,12 +29,5 @@ describe HexaPDF::Font::TrueType::Table::Hhea do
       assert_equal(0, table.caret_offset)
       assert_equal(10, table.num_of_long_hor_metrics)
     end
-
-    it "loads some default values if no entry is given" do
-      table = HexaPDF::Font::TrueType::Table::Hhea.new(@file)
-      assert_equal(1, table.version)
-      assert_equal(0, table.ascent)
-      assert_equal(0, table.descent)
-    end
   end
 end

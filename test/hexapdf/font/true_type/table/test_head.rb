@@ -33,22 +33,6 @@ describe HexaPDF::Font::TrueType::Table::Head do
       assert_equal(0, table.index_to_loc_format)
     end
 
-    it "loads some default values if no entry is given" do
-      table = HexaPDF::Font::TrueType::Table::Head.new(@file)
-      assert_equal(1.0, table.version.to_f)
-      assert_equal(1.0, table.font_revision.to_f)
-      assert_equal(0, table.checksum_adjustment)
-      assert_equal(0, table.flags)
-      assert_equal(64, table.units_per_em)
-      assert(Time.now - table.created < 2)
-      assert(Time.now - table.created < 2)
-      assert_equal([0, 0, 0, 0], table.bbox)
-      assert_equal(0, table.mac_style)
-      assert_equal(0, table.smallest_readable_size)
-      assert_equal(0, table.font_direction_hint)
-      assert_equal(0, table.index_to_loc_format)
-    end
-
     it "raises an error if the magic number is false when reading from a file" do
       @file.io.string[12, 1] = '\x5e'
       assert_raises(HexaPDF::Error) { HexaPDF::Font::TrueType::Table::Head.new(@file, @entry) }
@@ -67,10 +51,6 @@ describe HexaPDF::Font::TrueType::Table::Head do
       @entry.length = @file.io.string.length
       table = HexaPDF::Font::TrueType::Table::Head.new(@file, @entry)
       assert(table.checksum_valid?)
-    end
-
-    it "raises an error if the checksum can't be verified because none is available" do
-      assert_raises(HexaPDF::Error) { HexaPDF::Font::TrueType::Table::Head.new(@file).checksum_valid? }
     end
   end
 end

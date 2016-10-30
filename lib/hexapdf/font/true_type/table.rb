@@ -67,14 +67,14 @@ module HexaPDF
         # The TrueType font object associated with this table.
         attr_reader :font
 
-        # Creates a new Table object for the given font and initializes it by either reading the
-        # data from the font's associated IO stream if +entry+ is given or by using default values.
+        # Creates a new Table object for the given font and initializes it by reading the
+        # data from the font's associated IO stream
         #
-        # See: #parse_table, #load_default
-        def initialize(font, entry = nil)
+        # See: #parse_table
+        def initialize(font, entry)
           @font = font
           @directory_entry = entry
-          entry ? load_from_io : load_default
+          load_from_io
         end
 
         # Returns the directory entry for this table.
@@ -87,10 +87,6 @@ module HexaPDF
         # Returns +true+ if the checksum stored in the directory entry of the table matches the
         # tables data.
         def checksum_valid?
-          unless directory_entry
-            raise HexaPDF::Error, "Can't verify the checksum, no directory entry available"
-          end
-
           data = with_io_pos(directory_entry.offset) { io.read(directory_entry.length) }
           directory_entry.checksum == self.class.calculate_checksum(data)
         end
@@ -117,13 +113,6 @@ module HexaPDF
         #
         # See: #load_from_io
         def parse_table
-          # noop for unsupported tables
-        end
-
-        # Uses default values to populate the table.
-        #
-        # This method must be implemented by subclasses.
-        def load_default
           # noop for unsupported tables
         end
 

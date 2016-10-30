@@ -26,10 +26,5 @@ describe HexaPDF::Font::TrueType::Table::Directory do
       assert_equal(28, entry.offset)
       assert_equal(5, entry.length)
     end
-
-    it "loads the default values if no entry is given" do
-      dir = HexaPDF::Font::TrueType::Table::Directory.new(@file)
-      assert_equal(0, dir.instance_eval { @tables }.length)
-    end
   end
 end

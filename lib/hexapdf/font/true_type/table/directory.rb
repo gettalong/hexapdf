@@ -79,11 +79,6 @@ module HexaPDF
             end
           end
 
-          def load_default #:nodoc:
-            @tag = 'true'.b
-            @tables = {}
-          end
-
         end
 
       end

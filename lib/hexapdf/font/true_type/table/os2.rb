@@ -178,20 +178,6 @@ module HexaPDF
               read_formatted(directory_entry.length - 58, 'a4n3s>3n2Q>s>2n5')
           end
 
-          def load_default #:nodoc:
-            @version = 5
-            @panose = ''.b
-            @vendor_id = '    '.b
-            @x_avg_char_width = @weight_class = @width_class = @type = @subscript_x_size =
-              @subscript_y_size = @subscript_x_offset = @subscript_y_offset = @superscript_x_size =
-              @superscript_y_size = @superscript_x_offset = @superscript_y_offset =
-              @strikeout_size = @strikeout_position = @family_class = @unicode_range = @selection =
-              @first_char_index = @last_char_index = @typo_ascender = @typo_descender =
-              @typo_line_gap = @win_ascent = @win_descent = @code_page_range = @x_height =
-              @cap_height = @default_char = @break_char = @max_context = @lower_point_size =
-              @upper_point_size  = 0
-          end
-
         end
 
       end

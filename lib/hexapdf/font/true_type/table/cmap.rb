@@ -90,11 +90,6 @@ module HexaPDF
             end.compact!
           end
 
-          def load_default #:nodoc:
-            @version = 0
-            @tables = []
-          end
-
         end
 
       end
