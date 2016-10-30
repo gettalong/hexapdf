@@ -88,7 +88,7 @@ module HexaPDF
       @dispatcher = Hash.new do |h, klass|
         method = nil
         klass.ancestors.each do |ancestor_klass|
-          method = "serialize_#{ancestor_klass.name.downcase.gsub(/::/, '_')}"
+          method = "serialize_#{ancestor_klass.name.to_s.downcase.gsub(/::/, '_')}"
           (h[klass] = method; break) if respond_to?(method, true)
         end
         method

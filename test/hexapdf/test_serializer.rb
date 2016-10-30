@@ -25,6 +25,12 @@ describe HexaPDF::Serializer do
     assert_equal(result, @serializer.serialize(object))
   end
 
+  it "works correctly with unnamed classes and modules" do
+    klass = Class.new(String)
+    s = klass.new("test")
+    assert_serialized("(test)", s)
+  end
+
   it "serializes nil" do
     assert_serialized("null", nil)
   end
