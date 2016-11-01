@@ -67,6 +67,7 @@ describe HexaPDF::DocumentUtils::Images do
 
   describe "each" do
     it "iterates over all non-mask images" do
+      @doc.add(5)
       images = []
       images << @doc.add(Subtype: :Image)
       images << @doc.add(Subtype: :Image, Mask: [5, 6])

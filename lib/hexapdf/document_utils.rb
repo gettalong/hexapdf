@@ -85,6 +85,7 @@ module HexaPDF
       # mask are not.
       def each_image(&block)
         images = @document.each(current: false).select do |obj|
+          next unless obj.kind_of?(HexaPDF::Dictionary)
           obj[:Subtype] == :Image && !obj[:ImageMask]
         end
         masks = images.each_with_object([]) do |image, temp|
