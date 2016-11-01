@@ -228,6 +228,12 @@ to be a comma separated list of single page numbers or page ranges of the form <
 character '**e**' represents the last page and can be used instead of a single number or in a range.
 The pages are used in the order in which the are specified.
 
+If the start number of a page range is higher than the end number, the pages are used in the reverse
+order.
+
+Step values can be used with page ranges. If a range is followed by <var>/STEP</var>, <var>STEP -
+1</var> pages are skipped after each used page.
+
 Additionally, the page numbers and ranges can be suffixed with a rotation modifier: **l** (for
 rotating a page left, i.e. 90 degrees counterclockwise), **r** (for rotating a page right, i.e. 90
 degrees clockwise), **d** (for rotating a page 180 degrees) and **n** (for removing any set page
@@ -235,12 +241,14 @@ rotation). Note that this additional functionality may not be used by all comman
 
 Examples:
 
-* **1,2,3**: The pages one, two and three.
-* **11,4-9,1,e**: The pages eleven, four to nine, one and the last page, in exactly this order.
+* **1,2,3**: The pages 1, 2 and 3.
+* **11,4-9,1,e**: The pages 11, 4 to 9, 1 and the last page, in exactly this order.
 * **1-e**: All pages of the document.
 * **e-1**: All pages of the document in reverse order.
-* **1l,2r,3-5d,6n**: The pages one (rotate to the left), two (rotated to the right), three to five
-  (all rotated 180 degrees) and six (any possibly set rotation removed).
+* **1-5/2**: The pages 1, 3 and 5.
+* **10-1/3**: The pages 10, 7, 4 and 1.
+* **1l,2r,3-5d,6n**: The pages 1 (rotate to the left), 2 (rotated to the right), 3 to 5 (all rotated
+  180 degrees) and 6 (any possibly set rotation removed).
 
 
 ## EXIT STATUS

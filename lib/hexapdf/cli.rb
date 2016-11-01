@@ -78,13 +78,12 @@ module HexaPDF
           case str
           when /\A#{PAGE_NUMBER_SPEC}(l|r|d|n)?\z/o
             arr << [($1 == 'e' ? count : str.to_i) - 1, ROTATE_MAP[$2]]
-          when /\A#{PAGE_NUMBER_SPEC}-#{PAGE_NUMBER_SPEC}(l|r|d|n)?\z/
+          when /\A#{PAGE_NUMBER_SPEC}-#{PAGE_NUMBER_SPEC}(?:\/([1-9]\d*))?(l|r|d|n)?\z/
             start_nr = ($1 == 'e' ? count : $1.to_i) - 1
             end_nr = ($2 == 'e' ? count : $2.to_i) - 1
-            rotation = ROTATE_MAP[$3]
-            (start_nr > end_nr ? (end_nr..start_nr).reverse_each : (start_nr..end_nr)).each do |n|
-              arr << [n, rotation]
-            end
+            step = ($3 ? $3.to_i : 1) * (start_nr > end_nr ? -1 : 1)
+            rotation = ROTATE_MAP[$4]
+            start_nr.step(to: end_nr, by: step) {|n| arr << [n, rotation]}
           else
             raise OptionParser::InvalidArgument, "invalid page range format: #{str}"
           end
