@@ -49,13 +49,11 @@ describe HexaPDF::Type::Page do
 
       @kid[:Rotate] = :kid_rotate
       assert_equal(:kid_rotate, @page[:Rotate])
-      @kid.delete(:Rotate)
-      assert_equal(0, @page[:Rotate])
     end
 
-    it "fails if no parent node is associated" do
-      page = @doc.add(Type: :Page)
-      assert_raises(HexaPDF::InvalidPDFObjectError) { page[:Resources] }
+    it "returns nil or the default value if no value is set anywhere" do
+      assert_nil(@page[:MediaBox])
+      assert_equal(0, @page[:Rotate])
     end
   end
 
