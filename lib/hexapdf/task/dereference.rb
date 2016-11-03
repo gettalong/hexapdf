@@ -70,7 +70,7 @@ module HexaPDF
           dereference(@doc.trailer)
           @result = []
           @doc.each(current: false) do |obj|
-            if !@seen.key?(obj) && obj.type != :ObjStm && obj.type != :XRef
+            if !@seen.key?(obj.data) && obj.type != :ObjStm && obj.type != :XRef
               @result << obj
             elsif obj.kind_of?(HexaPDF::Stream) && (val = obj.value[:Length]) &&
                 val.kind_of?(HexaPDF::Object) && val.indirect?
@@ -81,8 +81,8 @@ module HexaPDF
       end
 
       def dereference(object) #:nodoc:
-        return object if @seen.key?(object)
-        @seen[object] = true
+        return object if @seen.key?(object.data)
+        @seen[object.data] = true
         recurse(object.value)
         object
       end
@@ -96,8 +96,7 @@ module HexaPDF
         when HexaPDF::Reference
           dereference(@doc.object(val))
         when HexaPDF::Object
-          (val.indirect? ? dereference(val) : recurse(val.value))
-          val
+          dereference(val)
         else
           val
         end

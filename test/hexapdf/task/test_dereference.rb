@@ -14,6 +14,10 @@ describe HexaPDF::Task::Dereference do
     len = @doc.add(5)
     str = @doc.add(@doc.wrap({Length: len}, stream: ''))
     @doc.trailer[:Test] = str
+    pages = @doc.wrap(Type: :Pages)
+    pages.add_page(@doc.wrap(Type: :Page))
+    @doc.trailer[:Test2] = pages
+
     checker = lambda do |val, done = {}|
       case val
       when Array then val.all? {|v| checker.call(v, done)}
@@ -24,7 +28,7 @@ describe HexaPDF::Task::Dereference do
         if done.key?(val)
           true
         else
-          done[val] = true if val.oid != 0
+          done[val] = true
           checker.call(val.value, done)
         end
       else
