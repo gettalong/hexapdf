@@ -95,8 +95,11 @@ module HexaPDF
 
         oid = 1
         doc.revisions[0].each do |obj|
-          next if obj.null? || unused.include?(obj) || (obj.type == :ObjStm) ||
-            (obj.type == :XRef && xref_streams != :preserve)
+          if obj.null? || unused.include?(obj) || (obj.type == :ObjStm) ||
+              (obj.type == :XRef && xref_streams != :preserve)
+            obj.data.value = nil
+            next
+          end
 
           delete_fields_with_defaults(obj)
           obj.oid = oid
