@@ -43,6 +43,11 @@ describe HexaPDF::Object do
     it "handles PDF objects" do
       x = HexaPDF::Object.new("test")
       assert_equal("test", HexaPDF::Object.deep_copy(x))
+
+      x.must_be_indirect = true
+      assert_same(x, HexaPDF::Object.deep_copy(x))
+
+      x.must_be_indirect = false
       x.oid = 1
       assert_same(x, HexaPDF::Object.deep_copy(x))
     end

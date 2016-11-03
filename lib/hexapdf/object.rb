@@ -134,7 +134,7 @@ module HexaPDF
       when Array
         object.map {|o| deep_copy(o)}
       when HexaPDF::Object
-        (object.indirect? ? object : deep_copy(object.value))
+        (object.indirect? || object.must_be_indirect? ? object : deep_copy(object.value))
       when HexaPDF::Reference
         object
       when *NOT_DUPLICATABLE_CLASSES
