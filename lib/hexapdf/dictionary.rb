@@ -141,7 +141,9 @@ module HexaPDF
                value[name] = field.default
              end
       value[name] = data = document.deref(data) if data.kind_of?(HexaPDF::Reference)
-      data = data.value if data.class == HexaPDF::Object
+      if data.class == HexaPDF::Object || (data.kind_of?(HexaPDF::Object) && data.value.nil?)
+        data = data.value
+      end
       self[name] = data = field.convert(data, document) if field && field.convert?(data)
       data
     end

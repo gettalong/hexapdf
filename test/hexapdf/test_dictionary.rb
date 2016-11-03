@@ -123,6 +123,10 @@ describe HexaPDF::Dictionary do
       assert_equal(Encoding::BINARY, result.encoding)
       assert_kind_of(HexaPDF::Object, @dict.value[:Binary])
       assert_same(result, @dict.value[:Binary].value)
+
+      @dict[:Test] = HexaPDF::Dictionary.new({})
+      @dict[:Test].data.value = nil
+      assert_nil(@dict[:Test])
     end
   end
 
