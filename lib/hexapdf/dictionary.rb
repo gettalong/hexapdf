@@ -242,12 +242,8 @@ module HexaPDF
       each_set_key_or_required_field do |name, field|
         obj = key?(name) && self[name] || nil
 
-        # Validate direct PDF objects and those possibly nested within a hash
-        if obj.kind_of?(HexaPDF::Object) && !obj.indirect?
-          obj.validate(&block)
-        elsif obj.kind_of?(Hash)
-          validate_hash(obj, &block)
-        end
+        # Validate nested objects
+        validate_nested(obj, &block)
 
         # The checks below need a valid field definition
         next if field.nil?
@@ -283,17 +279,6 @@ module HexaPDF
             document.delete(obj)
             value[name] = obj = obj.value
           end
-        end
-      end
-    end
-
-    # Validates all nested values of the given hash.
-    def validate_hash(hash, &block)
-      hash.each_value do |obj|
-        if obj.kind_of?(HexaPDF::Object) && !obj.indirect?
-          obj.validate(&block)
-        elsif obj.kind_of?(Hash)
-          validate_hash(obj, &block)
         end
       end
     end

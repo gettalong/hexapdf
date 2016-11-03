@@ -167,16 +167,33 @@ describe HexaPDF::Object do
     end
   end
 
-  it "validates that the object is indirect if it must be indirect" do
-    doc = Object.new
-    def doc.add(obj) obj.oid = 1 end
-    obj = HexaPDF::Object.new(6, document: doc)
+  describe "validation" do
+    before do
+      @doc = Object.new
+      @doc.define_singleton_method(:add) {|obj| obj.oid = 1}
+    end
 
-    obj.validate
-    assert_equal(0, obj.oid)
+    it "validates that the object is indirect if it must be indirect" do
+      obj = HexaPDF::Object.new(6, document: @doc)
 
-    obj.must_be_indirect = true
-    obj.validate
-    assert_equal(1, obj.oid)
+      obj.validate
+      assert_equal(0, obj.oid)
+
+      obj.must_be_indirect = true
+      obj.validate
+      assert_equal(1, obj.oid)
+    end
+
+    it "validates collection values" do
+      x = HexaPDF::Object.new(:x, document: @doc)
+      x.must_be_indirect = true
+      y = HexaPDF::Object.new(:y, document: @doc)
+      y.must_be_indirect = true
+
+      obj = HexaPDF::Object.new([1, 2, 3, [4, x], {X: [y, 5]}])
+      obj.validate
+      assert_equal(1, x.oid)
+      assert_equal(1, y.oid)
+    end
   end
 end

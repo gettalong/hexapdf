@@ -350,11 +350,24 @@ module HexaPDF
     #       self.value = {}
     #     end
     #   end
-    def perform_validation
+    def perform_validation(&block)
       # Validate that the object is indirect if #must_be_indirect? is +true+.
       if must_be_indirect? && !indirect?
         yield("Object must be an indirect object", true)
         document.add(self)
+      end
+
+      validate_nested(value, &block)
+    end
+
+    # Validates all nested values of the object, i.e. values inside collection objects.
+    def validate_nested(obj, &block)
+      if obj.kind_of?(HexaPDF::Object) && !obj.indirect?
+        obj.validate(&block)
+      elsif obj.kind_of?(Hash)
+        obj.each_value {|val| validate_nested(val, &block)}
+      elsif obj.kind_of?(Array)
+        obj.each {|val| validate_nested(val, &block)}
       end
     end
 
