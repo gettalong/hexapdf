@@ -82,6 +82,13 @@ EOF
       assert_equal(1, @revisions.each.to_a.size)
       assert_equal([10, 200], @revisions.current.each.to_a.sort.map(&:value))
     end
+
+    it "handles objects correctly that are in multiple revisions" do
+      @revisions.current.add(@revisions[0].object(1))
+      @revisions.merge
+      assert_equal(1, @revisions.each.to_a.size)
+      assert_equal([10, 200], @revisions.current.each.to_a.sort.map(&:value))
+    end
   end
 
   describe "initialize" do

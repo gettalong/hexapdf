@@ -169,8 +169,10 @@ module HexaPDF
       @revisions[range].reverse.each_cons(2) do |rev, prev_rev|
         prev_rev.trailer.value.replace(rev.trailer.value)
         rev.each do |obj|
-          prev_rev.delete(obj.oid, mark_as_free: false)
-          prev_rev.add(obj)
+          if obj.data != prev_rev.object(obj)&.data
+            prev_rev.delete(obj.oid, mark_as_free: false)
+            prev_rev.add(obj)
+          end
         end
       end
       _first, *other = *@revisions[range]
