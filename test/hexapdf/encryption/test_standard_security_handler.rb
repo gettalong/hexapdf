@@ -95,6 +95,23 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     @handler = HexaPDF::Encryption::StandardSecurityHandler.new(@document)
   end
 
+  it "can encrypt and then decrypt with all encryption variations" do
+    {arc4: [40, 48, 128], aes: [128, 256]}.each do |algorithm, key_lengths|
+      key_lengths.each do |key_length|
+        begin
+          doc = HexaPDF::Document.new
+          doc.encrypt(algorithm: algorithm, key_length: key_length)
+          sio = StringIO.new
+          doc.write(sio)
+          doc = HexaPDF::Document.new(io: sio)
+          assert_kind_of(Time, doc.trailer.info[:ModDate], "alg: #{algorithm} #{key_length} bits")
+        rescue HexaPDF::Error => e
+          flunk("Error using variation: #{algorithm} #{key_length} bits\n" << e.message)
+        end
+      end
+    end
+  end
+
   describe "prepare_encryption" do
     it "returns the encryption dictionary wrapped with a custom class" do
       dict = @handler.set_up_encryption

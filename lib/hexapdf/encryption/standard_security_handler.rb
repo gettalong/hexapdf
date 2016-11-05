@@ -227,7 +227,7 @@ module HexaPDF
       #
       # See: SecurityHandler#encryption_key_valid?
       def encryption_key_valid?
-        super && trailer_id_hash == @trailer_id_hash
+        super && (document.trailer[:Encrypt][:R] > 4 || trailer_id_hash == @trailer_id_hash)
       end
 
       # Returns the permissions of the managed dictionary as array of symbol values.
