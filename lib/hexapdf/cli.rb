@@ -49,6 +49,9 @@ module HexaPDF
     # Runs the CLI application.
     def self.run(args = ARGV)
       Application.new.parse(args)
+    rescue => e
+      $stderr.puts "An error occurred: #{e.message}"
+      exit(1)
     end
 
     # The CmdParse::CommandParser class that is used for running the CLI application.
