@@ -140,7 +140,7 @@ module HexaPDF
           EXTRACT_CONTENT | ASSEMBLE_DOCUMENT | HIGH_QUALITY_PRINT
 
         # Reserved permission bits
-        RESERVED = 0xFFFFF000
+        RESERVED = 0xFFFFF000 | 0b11000000
 
         # Maps permission symbols to their respective value
         SYMBOL_TO_PERMISSION = {
@@ -209,13 +209,15 @@ module HexaPDF
         private
 
         # Maps the permissions to an integer for use by the standard security handler.
+        #
+        # See: PDF1.7 s7.6.3.2, ADB1.7 3.5.2 (table 3.20 and the paragraphs before)
         def process_permissions(perms)
           if perms.kind_of?(Array)
             perms = perms.inject(0) do |result, perm|
               result | Permissions::SYMBOL_TO_PERMISSION.fetch(perm, 0)
             end
           end
-          Permissions::RESERVED | perms
+          ((Permissions::RESERVED | perms) & 0xFFFFFFFC) - 2**32
         end
 
       end

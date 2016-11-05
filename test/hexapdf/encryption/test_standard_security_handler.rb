@@ -108,13 +108,15 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
 
     it "sets the correct revision independent /P value" do
       dict = @handler.set_up_encryption
-      assert_equal(@handler.class::Permissions::ALL | @handler.class::Permissions::RESERVED,
+      assert_equal(@handler.class::Permissions::ALL | @handler.class::Permissions::RESERVED - 2**32,
                    dict[:P])
       dict = @handler.set_up_encryption(permissions: @handler.class::Permissions::COPY_CONTENT)
-      assert_equal(@handler.class::Permissions::COPY_CONTENT | @handler.class::Permissions::RESERVED,
+      assert_equal(@handler.class::Permissions::COPY_CONTENT | @handler.class::Permissions::RESERVED - 2**32,
                    dict[:P])
       dict = @handler.set_up_encryption(permissions: [:modify_content, :modify_annotation])
-      assert_equal(@handler.class::Permissions::MODIFY_CONTENT | @handler.class::Permissions::MODIFY_ANNOTATION | @handler.class::Permissions::RESERVED,
+      assert_equal(@handler.class::Permissions::MODIFY_CONTENT | \
+                   @handler.class::Permissions::MODIFY_ANNOTATION | \
+                   @handler.class::Permissions::RESERVED - 2**32,
                    dict[:P])
     end
 
