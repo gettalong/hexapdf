@@ -198,6 +198,7 @@ module HexaPDF
           fallback_pwd = data.delete(:password) { '' }
           @user_password = data.delete(:user_password) { fallback_pwd }
           @owner_password = data.delete(:owner_password) { fallback_pwd }
+          @owner_password = @user_password if @owner_password.to_s.empty?
           @permissions = process_permissions(data.delete(:permissions) { Permissions::ALL })
           @algorithm = data.delete(:algorithm) { :arc4 }
           @encrypt_metadata = data.delete(:encrypt_metadata) { true }

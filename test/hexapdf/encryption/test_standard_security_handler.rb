@@ -174,15 +174,18 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       crypt_filter.call(dict, 6, :AESV3, 32)
     end
 
-    it "uses the password keyword as fallback for the user and owner passwords" do
+    it "uses the password keyword as fallback, the user password as owner password if the latter is not set" do
       dict1 = @document.unwrap(@handler.set_up_encryption(password: 'user', owner_password: 'owner'))
       dict2 = @document.unwrap(@handler.set_up_encryption(password: 'owner', user_password: 'user'))
       dict3 = @document.unwrap(@handler.set_up_encryption(user_password: 'user', owner_password: 'owner'))
+      dict4 = @document.unwrap(@handler.set_up_encryption(user_password: 'test', owner_password: 'test'))
+      dict5 = @document.unwrap(@handler.set_up_encryption(user_password: 'test'))
 
       assert_equal(dict1[:U], dict2[:U])
       assert_equal(dict2[:U], dict3[:U])
       assert_equal(dict1[:O], dict2[:O])
       assert_equal(dict2[:O], dict3[:O])
+      assert_equal(dict4[:O], dict5[:O])
     end
 
     it "fails if the password contains invalid characters" do
