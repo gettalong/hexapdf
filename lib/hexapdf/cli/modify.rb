@@ -39,28 +39,54 @@ module HexaPDF
 
     # Modifies a PDF file:
     #
-    # * Decrypts or encrypts the PDF file.
+    # * Adds pages from other PDF files.
+    # * Decrypts or encrypts the resulting output PDF file.
     # * Generates or deletes object and cross-reference streams.
-    # * Optimizes a PDF by merging the revisions of a PDF file and removes unused entries.
+    # * Optimizes the output PDF by merging the revisions of a PDF file and removes unused entries.
     #
     # See: HexaPDF::Task::Optimize
     class Modify < CmdParse::Command
+
+      InputSpec = Struct.new(:file, :pages, :password) #:nodoc:
 
       def initialize #:nodoc:
         super('modify', takes_commands: false)
         short_desc("Modify a PDF file")
         long_desc(<<-EOF.gsub!(/^ */, ''))
-          This command modifies a PDF file. It can be used to encrypt/decrypt a file, to optimize it
-          and remove unused entries and to generate or delete object and cross-reference streams.
+          This command modifies a PDF file. It can be used to select pages that should appear in
+          the output file and to add pages from other PDF files. The output file can be
+          encrypted/decrypted and optimized in various ways.
+
+          The first input file is the primary file which gets modified, so meta data like file
+          information, outlines, etc. are taken from it. Alternatively, it is possible to start
+          with an empty PDF file by using --empty. The order of the options specifying the files
+          is important as they are used in that order.
+
+          Also note that the --password and --pages options apply to the last preceeding input file.
         EOF
 
-        options.on("--password PASSWORD", "-p", String,
-                   "The password for decryption. Use - for reading from standard input.") do |pwd|
-          @password = (pwd == '-' ? command_parser.read_password("Input file password") : pwd)
+        options.separator("")
+        options.separator("Input file(s) related options")
+        options.on("-f", "--file FILE", "Input file, can be specified multiple times") do |file|
+          @files << InputSpec.new(file, '1-e')
         end
-        options.on("--pages PAGES", "The pages to be used in the output file") do |pages|
-          @pages = pages
+        options.on("-p", "--password PASSWORD", String, "The password for decrypting the last " \
+                   "specified input file (use - for reading from standard input)") do |pwd|
+          raise OptionParser::InvalidArgument, "(No prior input file specified)" if @files.empty?
+          pwd = (pwd == '-' ? command_parser.read_password("#{@files.last.file} password") : pwd)
+          @files.last.password = pwd
         end
+        options.on("-i", "--pages PAGES", "The pages of the last specified input file that " \
+                   "should be used (default: 1-e)") do |pages|
+          raise OptionParser::InvalidArgument, "(No prior input file specified)" if @files.empty?
+          @files.last.pages = pages
+        end
+        options.on("-e", "--empty", "Use an empty file as the first input file") do
+          @initial_empty = true
+        end
+
+        options.separator("")
+        options.separator("Output file related options")
         options.on("--embed FILE", String, "Embed the file into the output file (can be used " \
                    "multiple times)") do |file|
           @embed_files << file
@@ -83,9 +109,10 @@ module HexaPDF
                    "preserve)") do |streams|
           @streams = streams
         end
-
-        options.separator("")
-        options.separator("Encryption related options")
+        options.on("--[no-]compress-pages", "Recompress page content streams (may take a long " \
+                   "time; default: no)") do |c|
+          @compress_pages = c
+        end
         options.on("--decrypt", "Remove any encryption") do
           @encryption = :remove
         end
@@ -93,12 +120,12 @@ module HexaPDF
           @encryption = :add
         end
         options.on("--owner-password PASSWORD", String, "The owner password to be set on the " \
-                   "output file. Use - for reading from standard input.") do |pwd|
+                   "output file (use - for reading from standard input)") do |pwd|
           @encryption = :add
           @enc_owner_pwd = (pwd == '-' ? command_parser.read_password("Owner password") : pwd)
         end
         options.on("--user-password PASSWORD", String, "The user password to be set on the " \
-                   "output file. Use - for reading from standard input.") do |pwd|
+                   "output file (use - for reading from standard input)") do |pwd|
           @encryption = :add
           @enc_user_pwd = (pwd == '-' ? command_parser.read_password("User password") : pwd)
         end
@@ -121,19 +148,22 @@ module HexaPDF
         options.on("--permissions PERMS", Array,
                    "Comma separated list of permissions to be set on the output file. Possible " \
                    "values: #{syms.join(', ')}") do |perms|
-          perms.each do |perm|
-            unless syms.include?(perm)
+          perms.map! do |perm|
+            unless syms.include?(perm.to_sym)
               raise OptionParser::InvalidArgument, "#{perm} (invalid permission name)"
             end
+            perm.to_sym
           end
           @encryption = :add
           @enc_permissions = perms
         end
 
-        @password = nil
-        @pages = '1-e'
+        @files = []
+        @initial_empty = false
+
         @embed_files = []
         @compact = true
+        @compress_pages = false
         @object_streams = :preserve
         @xref_streams = :preserve
         @streams = :preserve
@@ -146,53 +176,91 @@ module HexaPDF
         @enc_permissions = []
       end
 
-      def execute(input_file, output_file) #:nodoc:
-        @compact = true unless @pages == '1-e'
-        if @enc_user_pwd && !@enc_user_pwd.empty? && (!@enc_owner_pwd || @enc_owner_pwd.empty?)
-          @enc_owner_pwd = @enc_user_pwd
+      def execute(output_file) #:nodoc:
+        if !@initial_empty && @files.empty?
+          error = OptionParser::ParseError.new("At least one --file FILE or --empty is needed")
+          error.reason = "Missing argument"
+          raise error
         end
 
-        HexaPDF::Document.open(input_file, decryption_opts: {password: @password}) do |doc|
-          arrange_pages(doc) unless @pages == '1-e'
-          @embed_files.each {|file|  doc.utils.add_file(file, embed: true)}
+        # Create PDF documents for each input file
+        cache = {}
+        @files.each do |spec|
+          cache[spec.file] ||= HexaPDF::Document.new(io: File.open(spec.file),
+                                                     decryption_opts: {password: spec.password})
+          spec.file = cache[spec.file]
+        end
 
-          doc.task(:optimize, compact: @compact, object_streams: @object_streams,
-                   xref_streams: @xref_streams)
+        # Assemble pages
+        target = (@initial_empty ? HexaPDF::Document.new : @files.first.file)
+        page_tree = target.add(Type: :Pages)
+        import_pages(page_tree)
+        target.catalog[:Pages] = page_tree
 
-          handle_streams(doc) if @streams != :preserve
-
-          if @encryption == :add
-            doc.encrypt(algorithm: @enc_algorithm, key_length: @enc_key_length,
-                        force_V4: @enc_force_v4, permissions: @enc_permissions,
-                        owner_password: @enc_owner_pwd, user_password: @enc_user_pwd)
-          elsif @encryption == :remove
-            doc.encrypt(name: nil)
+        # Remove potentially imported but unused pages and page tree nodes
+        retained = target.pages.each_page.with_object({}) {|page, h| h[page.data] = true}
+        retained[target.pages.data] = true
+        target.each(current: false) do |obj|
+          next unless obj.kind_of?(HexaPDF::Dictionary)
+          if (obj.type == :Pages || obj.type == :Page) && !retained.key?(obj.data)
+            target.delete(obj)
           end
-
-          doc.write(output_file)
         end
+
+        # Embed the given files
+        @embed_files.each {|file| target.utils.add_file(file, embed: true)}
+
+        # Optimize the PDF file
+        target.task(:optimize, compact: @compact, object_streams: @object_streams,
+                    xref_streams: @xref_streams, compress_pages: @compress_pages)
+
+        # Update stream filters
+        handle_streams(target) unless @streams == :preserve
+
+        # Encrypt, decrypt or do nothing
+        if @encryption == :add
+          target.encrypt(algorithm: @enc_algorithm, key_length: @enc_key_length,
+                         force_V4: @enc_force_v4, permissions: @enc_permissions,
+                         owner_password: @enc_owner_pwd, user_password: @enc_user_pwd)
+        elsif @encryption == :remove
+          target.encrypt(name: nil)
+        end
+
+        target.write(output_file)
       rescue HexaPDF::Error => e
-        $stderr.puts "Error while processing the PDF file: #{e.message}"
+        $stderr.puts "Processing error : #{e.message}"
         exit(1)
+      end
+
+      def usage_arguments #:nodoc:
+        "{--file IN_FILE | --empty} OUT_FILE"
       end
 
       private
 
-      # Arranges the pages of the document as specified with the --pages option.
-      def arrange_pages(doc)
-        pages = command_parser.parse_pages_specification(@pages, doc.pages.page_count)
-        new_page_tree = doc.add(Type: :Pages)
-        pages.each do |index, rotation|
-          page = doc.pages.page(index)
-          page.value.update(page.copy_inherited_values)
-          if rotation == :none
-            page.delete(:Rotate)
-          else
-            page[:Rotate] = ((page[:Rotate] || 0) + rotation) % 360
+      # Imports the pages of the document as specified with the --pages option to the given page
+      # tree.
+      def import_pages(page_tree)
+        @files.each_with_index do |spec, findex|
+          source = spec.file
+          pages = command_parser.parse_pages_specification(spec.pages, source.pages.page_count)
+          pages.each do |index, rotation|
+            page = source.pages.page(index)
+            if page_tree.document == source
+              page.value.update(page.copy_inherited_values)
+              page = page.deep_copy unless findex == 0
+            else
+              page = page_tree.document.import(page).deep_copy
+            end
+            if rotation == :none
+              page.delete(:Rotate)
+            elsif rotation.kind_of?(Integer)
+              page[:Rotate] = ((page[:Rotate] || 0) + rotation) % 360
+            end
+            page_tree.document.add(page)
+            page_tree.add_page(page)
           end
-          new_page_tree.add_page(page)
         end
-        doc.catalog[:Pages] = new_page_tree
       end
 
       IGNORED_FILTERS = { #:nodoc:
