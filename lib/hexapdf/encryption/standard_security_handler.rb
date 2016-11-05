@@ -272,7 +272,7 @@ module HexaPDF
               Length: key_length,
             },
           }
-          dict[:StmF] = dict[:StrF] = dict[:EFF] = :StdCF
+          dict[:StmF] = dict[:StrF] = :StdCF
         end
 
         if dict[:R] <= 4 && !document.trailer[:ID].kind_of?(Array)

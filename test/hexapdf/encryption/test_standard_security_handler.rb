@@ -152,7 +152,6 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
         assert_equal({CFM: alg, Length: length, AuthEvent: :DocOpen}, d[:CF][:StdCF])
         assert_equal(:StdCF, d[:StrF])
         assert_equal(:StdCF, d[:StmF])
-        assert_equal(:StdCF, d[:EFF])
       end
 
       dict = @handler.set_up_encryption(key_length: 128, algorithm: :arc4, force_V4: true)
