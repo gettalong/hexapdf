@@ -1,4 +1,4 @@
-# HEXAPDF 1 "October 2016"
+# HEXAPDF 1 "November 2016"
 
 ## NAME
 
@@ -162,6 +162,12 @@ Input file related options:
   Use an empty file as primary file. This will lead to an output file that just contains the
   included pages of the input file and no other data from the input files.
 
+* `--interleave`:
+  Interleave the pages from the input files: Takes the first specified page from the first input
+  file, then the first specified page from the second input file, and so on. After that the same
+  with the second, third, ... specified pages. If fewer pages were specified for an input file, the
+  input file is just skipped for the rest of the rounds.
+
 Output file related options:
 
 * `--embed` <FILE>:
@@ -299,6 +305,13 @@ Merging: In the first case use `input1.pdf` as primary input file and merge the 
 `input2.pdf` and `input3.pdf` into it. In the second case an empty PDF file is used for merging the
 pages from the three given input files into it; the resulting output file will not have an meta data
 or other additional data from the first input file.
+
+`hexapdf modify -f odd.pdf -f even.pdf --interleave combined.pdf`
+
+Page interleaving: Takes alternatly a page from `odd.pdf` and `even.pdf` to create the output file.
+This is very useful if you only have a simplex scanner: First you scan the front sides, creating
+`odd.pdf`, and then you scan the back sides, creating `even.pdf`. With the command the pages can be
+ordered in the correct way.
 
 `hexapdf modify -f input.pdf -i 1-5,7-10,12-e output.pdf`
 

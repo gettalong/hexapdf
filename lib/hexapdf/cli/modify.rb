@@ -84,6 +84,10 @@ module HexaPDF
         options.on("-e", "--empty", "Use an empty file as the first input file") do
           @initial_empty = true
         end
+        options.on("--[no-]interleave", "Interleave the pages from the input files (default: " \
+                   "false)") do |c|
+          @interleave = c
+        end
 
         options.separator("")
         options.separator("Output file related options")
@@ -160,6 +164,7 @@ module HexaPDF
 
         @files = []
         @initial_empty = false
+        @interleave = false
 
         @embed_files = []
         @compact = true
@@ -241,26 +246,54 @@ module HexaPDF
       # Imports the pages of the document as specified with the --pages option to the given page
       # tree.
       def import_pages(page_tree)
-        @files.each_with_index do |spec, findex|
-          source = spec.file
-          pages = command_parser.parse_pages_specification(spec.pages, source.pages.page_count)
-          pages.each do |index, rotation|
-            page = source.pages.page(index)
-            if page_tree.document == source
-              page.value.update(page.copy_inherited_values)
-              page = page.deep_copy unless findex == 0
-            else
-              page = page_tree.document.import(page).deep_copy
-            end
-            if rotation == :none
-              page.delete(:Rotate)
-            elsif rotation.kind_of?(Integer)
-              page[:Rotate] = ((page[:Rotate] || 0) + rotation) % 360
-            end
-            page_tree.document.add(page)
-            page_tree.add_page(page)
+        @files.each do |s|
+          s.pages = command_parser.parse_pages_specification(s.pages, s.file.pages.page_count)
+          s.pages.each do |arr|
+            next if arr[1]
+            arr[1] = s.file.pages.page(arr[0]).value[:Rotate] || :none
           end
         end
+
+        if @interleave
+          max_pages_per_file = 0
+          all = @files.each_with_index.map do |spec, findex|
+            list = []
+            spec.pages.each {|index, rotation| list << [spec.file, findex, index, rotation]}
+            max_pages_per_file = list.size if list.size > max_pages_per_file
+            list
+          end
+          first, *rest = *all
+          first[max_pages_per_file - 1] ||= nil
+          first.zip(*rest) do |slice|
+            slice.each do |source, findex, index, rotation|
+              next unless source
+              import_page(page_tree, source, findex, index, rotation)
+            end
+          end
+        else
+          @files.each_with_index do |s, findex|
+            s.pages.each {|index, rotation| import_page(page_tree, s.file, findex, index, rotation)}
+          end
+        end
+      end
+
+      # Import the page with index +page_index+ and given +rotation+ from +source+ into the page
+      # tree.
+      def import_page(page_tree, source, source_index, page_index, rotation)
+        page = source.pages.page(page_index)
+        if page_tree.document == source
+          page.value.update(page.copy_inherited_values)
+          page = page.deep_copy unless source_index == 0
+        else
+          page = page_tree.document.import(page).deep_copy
+        end
+        if rotation == :none
+          page.delete(:Rotate)
+        elsif rotation.kind_of?(Integer)
+          page[:Rotate] = ((page[:Rotate] || 0) + rotation) % 360
+        end
+        page_tree.document.add(page)
+        page_tree.add_page(page)
       end
 
       IGNORED_FILTERS = { #:nodoc:
