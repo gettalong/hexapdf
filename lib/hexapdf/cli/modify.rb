@@ -247,10 +247,11 @@ module HexaPDF
       # tree.
       def import_pages(page_tree)
         @files.each do |s|
+          page_list = s.file.pages.each_page.to_a
           s.pages = command_parser.parse_pages_specification(s.pages, s.file.pages.page_count)
           s.pages.each do |arr|
-            next if arr[1]
-            arr[1] = s.file.pages.page(arr[0]).value[:Rotate] || :none
+            arr[0] = page_list[arr[0]]
+            arr[1] = arr[0].value[:Rotate] || :none unless arr[1]
           end
         end
 
@@ -265,23 +266,21 @@ module HexaPDF
           first, *rest = *all
           first[max_pages_per_file - 1] ||= nil
           first.zip(*rest) do |slice|
-            slice.each do |source, findex, index, rotation|
+            slice.each do |source, findex, page, rotation|
               next unless source
-              import_page(page_tree, source, findex, index, rotation)
+              import_page(page_tree, findex, page, rotation)
             end
           end
         else
           @files.each_with_index do |s, findex|
-            s.pages.each {|index, rotation| import_page(page_tree, s.file, findex, index, rotation)}
+            s.pages.each {|page, rotation| import_page(page_tree, findex, page, rotation)}
           end
         end
       end
 
-      # Import the page with index +page_index+ and given +rotation+ from +source+ into the page
-      # tree.
-      def import_page(page_tree, source, source_index, page_index, rotation)
-        page = source.pages.page(page_index)
-        if page_tree.document == source
+      # Import the page with the given +rotation+ into the page tree.
+      def import_page(page_tree, source_index, page, rotation)
+        if page_tree.document == page.document
           page.value.update(page.copy_inherited_values)
           page = page.deep_copy unless source_index == 0
         else
