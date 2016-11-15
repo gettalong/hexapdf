@@ -45,7 +45,7 @@ require 'hexapdf/encryption'
 require 'hexapdf/writer'
 require 'hexapdf/importer'
 require 'hexapdf/image_loader'
-
+require 'hexapdf/font_loader'
 
 # == HexaPDF API Documentation
 #
