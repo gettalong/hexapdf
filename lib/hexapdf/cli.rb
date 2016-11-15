@@ -69,6 +69,11 @@ module HexaPDF
         add_command(CmdParse::VersionCommand.new)
       end
 
+      def parse(argv = ARGV) #:nodoc:
+        ARGV.unshift('help') if ARGV.length == 0
+        super
+      end
+
       PAGE_NUMBER_SPEC = "([1-9]\\d*|e)" #:nodoc:
       ROTATE_MAP = {'l' => -90, 'r' => 90, 'd' => 180, 'n' => :none} #:nodoc:
 
