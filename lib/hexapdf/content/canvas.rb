@@ -1258,7 +1258,7 @@ module HexaPDF
       # See: PDF1.7 s8.8, s.8.10.1
       def xobject(obj, at:, width: nil, height: nil)
         unless obj.kind_of?(HexaPDF::Stream)
-          obj = context.document.utils.add_image(obj)
+          obj = context.document.images.add(obj)
         end
 
         if obj[:Subtype] == :Image

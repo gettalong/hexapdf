@@ -213,7 +213,7 @@ module HexaPDF
         end
 
         # Embed the given files
-        @embed_files.each {|file| target.utils.add_file(file, embed: true)}
+        @embed_files.each {|file| target.files.add(file, embed: true)}
 
         # Optimize the PDF file
         target.task(:optimize, compact: @compact, object_streams: @object_streams,

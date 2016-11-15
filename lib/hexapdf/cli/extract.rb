@@ -119,7 +119,7 @@ module HexaPDF
 
       # Iterates over all embedded files.
       def each_file(doc, &block) # :yields: obj, index
-        doc.utils.each_file(search: @search).select(&:embedded_file?).each_with_index(&block)
+        doc.files.each(search: @search).select(&:embedded_file?).each_with_index(&block)
       end
 
     end

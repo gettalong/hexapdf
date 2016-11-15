@@ -45,7 +45,6 @@ require 'hexapdf/encryption'
 require 'hexapdf/writer'
 require 'hexapdf/importer'
 require 'hexapdf/image_loader'
-require 'hexapdf/document_utils'
 
 
 # == HexaPDF API Documentation
@@ -69,6 +68,8 @@ module HexaPDF
   class Document
 
     autoload(:Fonts, 'hexapdf/document/fonts')
+    autoload(:Images, 'hexapdf/document/images')
+    autoload(:Files, 'hexapdf/document/files')
 
     # :call-seq:
     #   Document.open(filename, **docargs)                   -> doc
@@ -416,10 +417,14 @@ module HexaPDF
       @listeners[name] && @listeners[name].each {|obj| obj.call(*args)}
     end
 
-    # Returns a DocumentUtils object that provides convenience methods for often used
-    # functionality like adding images.
-    def utils
-      @utils ||= DocumentUtils.new(self)
+    # Returns the Images object that provides convenience methods for working with images.
+    def images
+      @images ||= Images.new(self)
+    end
+
+    # Returns the Files object that provides convenience methods for working with files.
+    def files
+      @files ||= Files.new(self)
     end
 
     # Returns the Fonts object that provides convenience methods for working with fonts.
