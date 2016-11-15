@@ -1,10 +1,9 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/font_utils'
 require 'hexapdf/document'
 
-describe HexaPDF::FontUtils do
+describe HexaPDF::Document::Fonts do
   before do
     @doc = HexaPDF::Document.new
     @doc.config['font_loader'] = []

@@ -46,7 +46,6 @@ require 'hexapdf/writer'
 require 'hexapdf/importer'
 require 'hexapdf/image_loader'
 require 'hexapdf/document_utils'
-require 'hexapdf/font_utils'
 
 
 # == HexaPDF API Documentation
@@ -68,6 +67,8 @@ module HexaPDF
   # Note: This class provides everything to work on PDF documents on a low-level basis. This means
   # that there are no convenience methods for higher PDF functionality whatsoever.
   class Document
+
+    autoload(:Fonts, 'hexapdf/document/fonts')
 
     # :call-seq:
     #   Document.open(filename, **docargs)                   -> doc
@@ -421,9 +422,9 @@ module HexaPDF
       @utils ||= DocumentUtils.new(self)
     end
 
-    # Returns the FontUtils object that provides convenience methods for working with fonts.
+    # Returns the Fonts object that provides convenience methods for working with fonts.
     def fonts
-      @font_utils ||= FontUtils.new(self)
+      @fonts ||= Fonts.new(self)
     end
 
     # Executes the given task and returns its result.
