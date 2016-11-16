@@ -26,7 +26,7 @@ doc = HexaPDF::Document.new
 
 HexaPDF::FontLoader::Standard14::MAPPING.each do |font_name, mapping|
   mapping.each_key do |variant|
-    canvas = doc.pages.add_page.canvas
+    canvas = doc.pages.add.canvas
     canvas.font("Helvetica", size: 14)
     canvas.text("#{font_name} #{variant != :none ? variant : ''}", at: [100, 800])
 

@@ -11,8 +11,8 @@ describe HexaPDF::Importer do
     @obj = @source.add(hash: {key: "value"}, array: ["one", "two"],
                        ref: HexaPDF::Reference.new(obj.oid, obj.gen),
                        others: [:symbol, 5, 5.5, nil, true, false])
-    @source.pages.add_page
-    @source.pages[:Rotate] = 90
+    @source.pages.add
+    @source.pages.root[:Rotate] = 90
     @dest = HexaPDF::Document.new
     @importer = HexaPDF::Importer.for(source: @source, destination: @dest)
   end
@@ -57,7 +57,7 @@ describe HexaPDF::Importer do
 
     it "does not import objects of type Catalog or Pages" do
       @obj[:catalog] = @source.catalog
-      @obj[:pages] = @source.pages
+      @obj[:pages] = @source.catalog.pages
       obj = @importer.import(@obj)
 
       assert_nil(obj[:catalog])
@@ -65,7 +65,7 @@ describe HexaPDF::Importer do
     end
 
     it "imports Page objects correctly by copying the inherited values" do
-      page = @importer.import(@source.pages.page(0))
+      page = @importer.import(@source.pages[0])
       assert_equal(90, page[:Rotate])
     end
 

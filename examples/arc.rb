@@ -10,7 +10,7 @@
 require 'hexapdf'
 
 doc = HexaPDF::Document.new
-page = doc.pages.add_page
+page = doc.pages.add
 canvas = page.canvas
 
 radius = 75

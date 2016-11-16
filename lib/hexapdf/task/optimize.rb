@@ -203,7 +203,7 @@ module HexaPDF
       # Compresses the contents of all pages by parsing and then serializing again. The HexaPDF
       # serializer is already optimized for small output size so nothing else needs to be done.
       def self.compress_pages(doc)
-        doc.pages.each_page do |page|
+        doc.pages.each do |page|
           processor = SerializationProcessor.new
           HexaPDF::Content::Parser.parse(page.contents, processor)
           page.contents = processor.result

@@ -19,6 +19,6 @@ require 'hexapdf'
 target = HexaPDF::Document.new
 ARGV.each do |file|
   pdf = HexaPDF::Document.open(file)
-  pdf.pages.each_page {|page| target.pages.add_page(target.import(page))}
+  pdf.pages.each {|page| target.pages << target.import(page)}
 end
 target.write("merging.pdf", optimize: true)

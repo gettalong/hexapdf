@@ -14,7 +14,7 @@
 require 'hexapdf'
 
 doc = HexaPDF::Document.new
-page = doc.pages.add_page
+page = doc.pages.add
 canvas = page.canvas
 
 # Draws the shape that is used to showcase the transformations in the given

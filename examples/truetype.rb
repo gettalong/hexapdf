@@ -27,7 +27,7 @@ max_gid = wrapper.wrapped_font[:maxp].num_glyphs
 
 255.times do |page|
   break unless page * 256 < wrapper.wrapped_font[:maxp].num_glyphs
-  canvas = doc.pages.add_page.canvas
+  canvas = doc.pages.add.canvas
   canvas.font("Helvetica", size: 10)
   canvas.text("Font: #{wrapper.wrapped_font.full_name}", at: [50, 825])
 

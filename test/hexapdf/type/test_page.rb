@@ -69,7 +69,7 @@ describe HexaPDF::Type::Page do
 
   describe "box" do
     before do
-      @page = @doc.pages.add_page
+      @page = @doc.pages.add
     end
 
     it "returns the correct media box" do
@@ -104,13 +104,13 @@ describe HexaPDF::Type::Page do
 
   describe "contents" do
     it "returns the contents of a single content stream" do
-      page = @doc.pages.add_page
+      page = @doc.pages.add
       page[:Contents] = @doc.wrap({}, stream: 'q 10 w Q')
       assert_equal('q 10 w Q', page.contents)
     end
 
     it "returns the concatenated contents of multiple content stream" do
-      page = @doc.pages.add_page
+      page = @doc.pages.add
       page[:Contents] = [@doc.wrap({}, stream: 'q 10'), @doc.wrap({}, stream: 'w Q')]
       assert_equal('q 10 w Q', page.contents)
     end
@@ -118,13 +118,13 @@ describe HexaPDF::Type::Page do
 
   describe "contents=" do
     it "creates a content stream if none already exist" do
-      page = @doc.pages.add_page
+      page = @doc.pages.add
       page.contents = 'test'
       assert_equal('test', page[:Contents].stream)
     end
 
     it "reuses an existing content stream" do
-      page = @doc.pages.add_page
+      page = @doc.pages.add
       page[:Contents] = content = @doc.wrap({}, stream: 'q 10 w Q')
       page.contents = 'test'
       assert_equal(content, page[:Contents])
@@ -132,7 +132,7 @@ describe HexaPDF::Type::Page do
     end
 
     it "reuses the first content stream and deletes the rest if more than one exist" do
-      page = @doc.pages.add_page
+      page = @doc.pages.add
       page[:Contents] = [content = @doc.add({}, stream: 'q 10 w Q'), @doc.add({}, stream: 'q Q')]
       page.contents = 'test'
       assert_equal(content, page[:Contents])
@@ -142,24 +142,24 @@ describe HexaPDF::Type::Page do
 
   describe "resources" do
     it "creates the resource dictionary if it is not found" do
-      page = @doc.add(Type: :Page, Parent: @doc.pages)
+      page = @doc.add(Type: :Page, Parent: @doc.pages.root)
       resources = page.resources
       assert_equal(:XXResources, resources.type)
       assert_equal({}, resources.value)
     end
 
     it "returns the already used resource dictionary" do
-      @doc.pages[:Resources] = {Font: {F1: nil}}
-      page = @doc.pages.add_page(@doc.add(Type: :Page))
+      @doc.pages.root[:Resources] = {Font: {F1: nil}}
+      page = @doc.pages.add(@doc.add(Type: :Page))
       resources = page.resources
       assert_equal(:XXResources, resources.type)
-      assert_equal(@doc.pages[:Resources], resources)
+      assert_equal(@doc.pages.root[:Resources], resources)
     end
   end
 
   describe "process_contents" do
     it "parses the contents and processes it" do
-      page = @doc.pages.add_page
+      page = @doc.pages.add
       page[:Contents] = @doc.wrap({}, stream: 'q 10 w Q')
       assert_operators(page, [[:save_graphics_state], [:set_line_width, [10]],
                               [:restore_graphics_state]])
@@ -168,7 +168,7 @@ describe HexaPDF::Type::Page do
 
   describe "canvas" do
     before do
-      @page = @doc.pages.add_page
+      @page = @doc.pages.add
     end
 
     it "works correctly if invoked on an empty page, using type :page in first invocation" do
@@ -232,7 +232,7 @@ describe HexaPDF::Type::Page do
 
   describe "to_form_xobject" do
     it "creates an independent form xobject" do
-      page = @doc.pages.add_page
+      page = @doc.pages.add
       page.contents = "test"
       form = page.to_form_xobject
       refute(form.indirect?)
@@ -240,13 +240,13 @@ describe HexaPDF::Type::Page do
     end
 
     it "works for pages without content" do
-      page = @doc.pages.add_page
+      page = @doc.pages.add
       form = page.to_form_xobject
       assert_equal('', form.stream)
     end
 
     it "uses the raw stream data if possible to avoid unnecessary work" do
-      page = @doc.pages.add_page
+      page = @doc.pages.add
       page.contents = HexaPDF::StreamData.new(StringIO.new("test"))
       form = page.to_form_xobject
       assert_same(form.raw_stream, page[:Contents].raw_stream)

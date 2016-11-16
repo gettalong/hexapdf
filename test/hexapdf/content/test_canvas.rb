@@ -14,7 +14,7 @@ describe HexaPDF::Content::Canvas do
 
     @doc = HexaPDF::Document.new
     @doc.config['graphic_object.arc.max_curves'] = 4
-    @page = @doc.pages.add_page
+    @page = @doc.pages.add
     @canvas = @page.canvas
   end
 

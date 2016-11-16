@@ -113,13 +113,13 @@ module HexaPDF
       end
 
       def do_page_count(doc) #:nodoc:
-        puts doc.pages.page_count
+        puts doc.pages.count
       end
 
       def do_pages(doc) #:nodoc:
-        pages = command_parser.parse_pages_specification(@param, doc.pages.page_count)
+        pages = command_parser.parse_pages_specification(@param, doc.pages.count)
         pages.each do |index, _|
-          page = doc.pages.page(index)
+          page = doc.pages[index]
           str = "page #{index + 1} (#{page.oid},#{page.gen}): "
           str << Array(page[:Contents]).map {|c| "#{c.oid},#{c.gen}"}.join(" ")
           puts str

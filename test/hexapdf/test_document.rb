@@ -554,13 +554,6 @@ EOF
     end
   end
 
-  describe "pages" do
-    it "returns the root node of the page tree" do
-      pages = @doc.pages
-      assert_equal(:Pages, pages.type)
-    end
-  end
-
   describe "listener interface" do
     it "allows registering and dispatching messages" do
       args = []

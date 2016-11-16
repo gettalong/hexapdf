@@ -37,7 +37,7 @@ describe HexaPDF::Content::GraphicObject::EndpointArc do
   describe "draw" do
     before do
       @doc = HexaPDF::Document.new
-      @page = @doc.pages.add_page
+      @page = @doc.pages.add
     end
 
     it "draws nothing if the endpoint is the same as the current point" do

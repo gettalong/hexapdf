@@ -128,7 +128,7 @@ describe HexaPDF::Task::Optimize do
 
   describe "compress_pages" do
     it "compresses pages streams" do
-      page = @doc.pages.add_page
+      page = @doc.pages.add
       page.contents = "   10  10   m    q            Q    BI /Name   5 ID dataEI   "
       @doc.task(:optimize, compress_pages: true)
       assert_equal("10 10 m\nq\nQ\nBI\n/Name 5 ID\ndataEI\n", page.contents)

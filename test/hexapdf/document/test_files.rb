@@ -53,7 +53,7 @@ describe HexaPDF::Document::Files do
       @doc.add(Type: :Filespec)
       spec1 = @doc.files.add(__FILE__)
       spec2 = @doc.add(Type: :Filespec)
-      @doc.pages.add_page[:Annots] = [
+      @doc.pages.add[:Annots] = [
         {Subtype: :FileAttachment, FS: HexaPDF::Reference.new(spec1.oid, spec1.gen)},
         {Subtype: :FileAttachment, FS: spec2},
         {},

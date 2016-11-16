@@ -47,7 +47,7 @@ class ShowTextProcessor < HexaPDF::Content::Processor
 end
 
 doc = HexaPDF::Document.open(ARGV.shift)
-doc.pages.each_page.with_index do |page, index|
+doc.pages.each_with_index do |page, index|
   puts "Processing page #{index + 1}"
   processor = ShowTextProcessor.new(page)
   page.process_contents(processor)

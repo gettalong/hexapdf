@@ -203,8 +203,8 @@ module HexaPDF
         target.catalog[:Pages] = page_tree
 
         # Remove potentially imported but unused pages and page tree nodes
-        retained = target.pages.each_page.with_object({}) {|page, h| h[page.data] = true}
-        retained[target.pages.data] = true
+        retained = target.pages.each_with_object({}) {|page, h| h[page.data] = true}
+        retained[target.pages.root.data] = true
         target.each(current: false) do |obj|
           next unless obj.kind_of?(HexaPDF::Dictionary)
           if (obj.type == :Pages || obj.type == :Page) && !retained.key?(obj.data)
@@ -247,8 +247,8 @@ module HexaPDF
       # tree.
       def import_pages(page_tree)
         @files.each do |s|
-          page_list = s.file.pages.each_page.to_a
-          s.pages = command_parser.parse_pages_specification(s.pages, s.file.pages.page_count)
+          page_list = s.file.pages.to_a
+          s.pages = command_parser.parse_pages_specification(s.pages, s.file.pages.count)
           s.pages.each do |arr|
             arr[0] = page_list[arr[0]]
             arr[1] = arr[0].value[:Rotate] || :none unless arr[1]

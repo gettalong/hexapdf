@@ -109,7 +109,7 @@ module HexaPDF
             yield(spec)
           end if tree
 
-          @document.pages.each_page do |page|
+          @document.pages.each do |page|
             next unless page[:Annots]
             page[:Annots].each do |annot|
               annot = @document.deref(annot)

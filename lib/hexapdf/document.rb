@@ -67,6 +67,7 @@ module HexaPDF
   # that there are no convenience methods for higher PDF functionality whatsoever.
   class Document
 
+    autoload(:Pages, 'hexapdf/document/pages')
     autoload(:Fonts, 'hexapdf/document/fonts')
     autoload(:Images, 'hexapdf/document/images')
     autoload(:Files, 'hexapdf/document/files')
@@ -417,6 +418,13 @@ module HexaPDF
       @listeners[name] && @listeners[name].each {|obj| obj.call(*args)}
     end
 
+    # Returns the Pages object that provides convenience methods for working with pages.
+    #
+    # Also see: HexaPDF::Type::PageTreeNode
+    def pages
+      @pages ||= Pages.new(self)
+    end
+
     # Returns the Images object that provides convenience methods for working with images.
     def images
       @images ||= Images.new(self)
@@ -453,13 +461,6 @@ module HexaPDF
     # Returns the document's catalog, the root of the object tree.
     def catalog
       trailer.catalog
-    end
-
-    # Returns the root node of the document's page tree.
-    #
-    # See: HexaPDF::Type::PageTreeNode
-    def pages
-      catalog.pages
     end
 
     # Returns the PDF document's version as string (e.g. '1.4').

@@ -95,7 +95,7 @@ module HexaPDF
             output_line("Encrypted", "yes (no or wrong password given)")
           end
 
-          output_line("Pages", doc.pages.page_count.to_s)
+          output_line("Pages", doc.pages.count.to_s)
           output_line("Version", doc.version)
         end
       rescue HexaPDF::EncryptionError => e

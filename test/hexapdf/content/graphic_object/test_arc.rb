@@ -82,7 +82,7 @@ describe HexaPDF::Content::GraphicObject::Arc do
   describe "draw" do
     it "draws the arc onto the canvas" do
       doc = HexaPDF::Document.new
-      page = doc.pages.add_page
+      page = doc.pages.add
       canvas = page.canvas
       @arc.max_curves = 4
       @arc.draw(canvas)

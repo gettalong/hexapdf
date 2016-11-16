@@ -79,7 +79,7 @@ module HexaPDF
                else
                  HexaPDF::Document.new(io: file_or_io)
                end
-        form = idoc.pages.page(0).to_form_xobject
+        form = idoc.pages[0].to_form_xobject
         document.add(document.import(form))
       end
 
