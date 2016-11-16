@@ -151,8 +151,10 @@ module HexaPDF
         insert_page(-1, page)
       end
 
-      # Deletes the page at the position specified by the zero-based index and returns it. If an
-      # invalid index is specified, +nil+ is returned.
+      # Deletes the page at the position specified by the zero-based index from the page tree and
+      # returns it. If an invalid index is specified, +nil+ is returned.
+      #
+      # Note that the page is *not* deleted from the document itself, only from the page tree!
       #
       # Negative indices count backwards from the end, i.e. -1 is the last page.
       #
@@ -168,7 +170,6 @@ module HexaPDF
           kid = document.deref(kid)
           if kid.type == :Page && index == 0
             page = self[:Kids].delete_at(kid_index)
-            document.delete(page)
             break
           elsif kid.type == :Page
             index -= 1
