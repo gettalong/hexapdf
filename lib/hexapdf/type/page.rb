@@ -248,6 +248,21 @@ module HexaPDF
         Content::Parser.parse(contents, processor)
       end
 
+      # Returns the index of the page in the page tree.
+      def index
+        idx = 0
+        node = self
+        while (parent_node = node[:Parent])
+          parent_node[:Kids].each do |kid|
+            kid = document.deref(kid)
+            break if kid.data == node.data
+            idx += (kid.type == :Page ? 1 : kid[:Count])
+          end
+          node = parent_node
+        end
+        idx
+      end
+
       # Returns the requested type of canvas for the page.
       #
       # The canvas object is cached once it is created so that its graphics state is correctly

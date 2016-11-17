@@ -166,6 +166,27 @@ describe HexaPDF::Type::Page do
     end
   end
 
+  describe "index" do
+    it "returns the index of the page in the page tree" do
+      kid1 = @doc.add(Type: :Pages, Parent: @doc.pages.root, Count: 4)
+      @doc.pages.root[:Kids] << kid1
+
+      kid11 = @doc.add(Type: :Pages, Parent: kid1)
+      page1 = kid11.add_page
+      kid1[:Kids] << kid11
+      page2 = kid1.add_page
+      kid12 = @doc.add(Type: :Pages, Parent: kid1)
+      page3 = kid12.add_page
+      page4 = kid12.add_page
+      kid1[:Kids] << kid12
+
+      assert_equal(0, page1.index)
+      assert_equal(1, page2.index)
+      assert_equal(2, page3.index)
+      assert_equal(3, page4.index)
+    end
+  end
+
   describe "canvas" do
     before do
       @page = @doc.pages.add
