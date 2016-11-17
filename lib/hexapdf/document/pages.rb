@@ -82,12 +82,7 @@ module HexaPDF
       #
       # Returns the page object, or +nil+ if the page object was not in the page tree.
       def delete(page)
-        idx = find_index {|obj| obj.data == page.data}
-        if idx
-          @document.catalog.pages.delete_page(idx)
-        else
-          nil
-        end
+        @document.catalog.pages.delete_page(page)
       end
 
       # :call-seq:
