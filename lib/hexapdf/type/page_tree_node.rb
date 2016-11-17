@@ -151,45 +151,37 @@ module HexaPDF
         insert_page(-1, page)
       end
 
-      # Deletes the page at the position specified by the zero-based index from the page tree and
-      # returns it. If an invalid index is specified, +nil+ is returned.
+      # :call-seq:
+      #   pages.delete_page(page)        -> page or nil
+      #   pages.delete_page(index)       -> page or nil
       #
-      # Note that the page is *not* deleted from the document itself, only from the page tree!
+      # Deletes the given page or the page at the position specified by the zero-based index from
+      # the page tree and returns the deleted page object. If the page was not deleted, +nil+ is
+      # returned.
+      #
+      # Note that the page is *not* deleted from the document itself, only from the page tree! This
+      # also means that the /Parent entry of the page is set to +nil+ if deleted.
       #
       # Negative indices count backwards from the end, i.e. -1 is the last page.
-      #
-      # Must be called on the root of the page tree, otherwise the /Count entries are not
-      # correctly updated!
-      def delete_page(index)
-        index = self[:Count] + index if index < 0
-        return nil if index < 0 || index >= self[:Count]
+      def delete_page(page)
+        page = self.page(page) if page.kind_of?(Integer)
+        return nil unless page && page[:Parent]
 
-        page = nil
-        self[:Count] -= 1
-        self[:Kids].each_with_index do |kid, kid_index|
-          kid = document.deref(kid)
-          if kid.type == :Page && index == 0
-            page = self[:Kids].delete_at(kid_index)
-            break
-          elsif kid.type == :Page
-            index -= 1
-          elsif index < kid[:Count]
-            page = kid.delete_page(index)
-            if kid[:Count] == 0
-              self[:Kids].delete_at(kid_index)
-              document.delete(kid)
-            elsif kid[:Count] == 1
-              self[:Kids][kid_index] = kid[:Kids][0]
-              kid[:Kids][0][:Parent] = self
-              document.delete(kid)
-            end
-            break
-          else
-            index -= kid[:Count]
-          end
+        parent = page[:Parent]
+        index = parent[:Kids].index {|kid| document.deref(kid).data == page.data}
+
+        if index
+          ancestors = [parent]
+          ancestors << parent while (parent = parent[:Parent])
+          return nil unless ancestors.include?(self)
+
+          page[:Parent][:Kids].delete_at(index)
+          page.delete(:Parent)
+          ancestors.each {|node| node[:Count] -= 1 }
+          page
+        else
+          nil
         end
-
-        page
       end
 
       # :call-seq:

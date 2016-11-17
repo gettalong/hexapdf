@@ -151,40 +151,47 @@ describe HexaPDF::Type::PageTreeNode do
       define_multilevel_page_tree
     end
 
+    it "deletes the correct page by index" do
+      assert_equal(@pages[2], @root.delete_page(2))
+      assert_equal(2, @kid12.page_count)
+      assert_equal(4, @kid1.page_count)
+      assert_equal(7, @root.page_count)
+      assert_nil(@pages[2][:Parent])
+
+      assert_equal(@pages[5], @root.delete_page(4))
+      assert_equal(6, @root.page_count)
+      assert_nil(@pages[5][:Parent])
+    end
+
+    it "deletes the given page" do
+      assert_equal(@pages[2], @root.delete_page(@pages[2]))
+      assert_equal(@pages[5], @root.delete_page(@pages[5]))
+    end
+
+    it "allows deleting a page from an intermediary node" do
+      assert_equal(@pages[2], @kid1.delete_page(@pages[2]))
+      assert_equal(7, @root.page_count)
+    end
+
     it "does nothing if the page index is not valid" do
       assert_nil(@root.delete_page(20))
       assert_nil(@root.delete_page(-20))
       assert_equal(8, @root.page_count)
     end
 
-    it "deletes the correct page" do
-      assert_equal(@pages[2], @root.delete_page(2))
-      assert_equal(2, @kid12.page_count)
-      assert_equal(4, @kid1.page_count)
-      assert_equal(7, @root.page_count)
-
-      assert_equal(@pages[5], @root.delete_page(4))
-      assert_equal(6, @root.page_count)
+    it "does nothing if the page is not in its parent's /Kids array" do
+      @kid12[:Kids].shift
+      assert_nil(@root.delete_page(@pages[2]))
+      assert_equal(8, @root.page_count)
     end
 
-    it "deletes intermediate page tree nodes if they contain only one child after deletion" do
-      assert_equal(@pages[0], @root.delete_page(0))
-      assert_equal(4, @kid1.page_count)
-      assert_equal(7, @root.page_count)
-      assert_nil(@doc.object(@kid11).value)
-      assert_equal(@pages[1], @kid1[:Kids][0])
-    end
+    it "does nothing if the page is not part of the page tree" do
+      pages = @doc.add(Type: :Pages, Count: 1)
+      page = @doc.add(Type: :Page, Parent: pages)
+      pages[:Kids] << page
 
-    it "deletes intermediate page tree nodes if they don't have any children after deletion" do
-      node = @doc.add(Type: :Pages, Parent: @root)
-      page = node.add_page
-      @root[:Kids] << node
-      @root[:Count] += 1
-
-      assert_equal(page, @root.delete_page(-1))
-      assert_nil(@doc.object(node).value)
-      refute_equal(node, @root[:Kids].last)
-      assert(8, @root.page_count)
+      assert_nil(@root.delete_page(page))
+      assert_equal(8, @root.page_count)
     end
   end
 
