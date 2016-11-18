@@ -36,8 +36,8 @@ module HexaPDF
 
     # This module provides classes for handling Type1 fonts.
     #
-    # Note that not all parts of the file format are supported, only those needed for using the
-    # fonts with PDF.
+    # Note that not all parts of the various file formats are supported, only those needed for using
+    # the fonts with PDF.
     module Type1
 
       autoload(:AFMParser, 'hexapdf/font/type1/afm_parser')

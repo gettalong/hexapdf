@@ -37,7 +37,10 @@ module HexaPDF
     # This module provides classes for handling TrueType fonts.
     #
     # Note that currently not all parts of the file format are supported, only those needed for
-    # using the fonts with PDF.
+    # using the fonts with PDF. This means that the implementation is not a *complete* font handling
+    # library but is designed to allow reading font files and extracting information. Furthermore
+    # creating a font subset is also possible which is not the same as writing a complete font file
+    # from scratch.
     module TrueType
 
       autoload(:Font, 'hexapdf/font/true_type/font')
