@@ -150,6 +150,7 @@ module HexaPDF
         unless defined?(@fd)
           @fd = @document.wrap(Type: :FontDescriptor,
                                FontName: @wrapped_font.font_name.intern,
+                               FontWeight: @wrapped_font.weight_class,
                                FontBBox: @wrapped_font.bounding_box,
                                ItalicAngle: @wrapped_font.italic_angle || 0,
                                Ascent: @wrapped_font.ascender || 0,
