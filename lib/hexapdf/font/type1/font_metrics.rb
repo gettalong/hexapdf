@@ -56,7 +56,7 @@ module HexaPDF
         # A string indicating the default encoding used for the font.
         attr_accessor :encoding_scheme
 
-        # Weight of the font.
+        # A string describing the weight of the font.
         attr_accessor :weight
 
         # The font bounding box as array of four numbers, specifying the x- and y-coordinates of the
@@ -108,6 +108,15 @@ module HexaPDF
         def initialize #:nodoc:
           @character_metrics = {}
           @kerning_pairs = Hash.new {|h, k| h[k] = {}}
+        end
+
+        WEIGHT_NAME_TO_NUMBER = {'Bold' => 700, 'Medium' => 500, 'Roman' => 400} #:nodoc:
+
+        # Returns the weight of the font as a number.
+        #
+        # The return value 0 is used if the weight class cannot be determined.
+        def weight_class
+          WEIGHT_NAME_TO_NUMBER.fetch(weight, 0)
         end
 
       end

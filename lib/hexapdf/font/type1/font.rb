@@ -50,6 +50,7 @@ module HexaPDF
       # * full_name
       # * family_name
       # * weight
+      # * weight_class
       # * font_bbox
       # * italic_angle
       # * ascender
@@ -71,7 +72,7 @@ module HexaPDF
         attr_reader :metrics
 
         def_delegators :@metrics, :font_name, :full_name, :family_name
-        def_delegators :@metrics, :weight, :bounding_box, :italic_angle
+        def_delegators :@metrics, :weight, :weight_class, :bounding_box, :italic_angle
         def_delegators :@metrics, :ascender, :descender, :cap_height, :x_height
         def_delegators :@metrics, :dominant_horizontal_stem_width, :dominant_vertical_stem_width
 
