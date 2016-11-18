@@ -2,6 +2,7 @@
 
 require 'test_helper'
 require 'hexapdf/rectangle'
+require 'hexapdf/document'
 
 describe HexaPDF::Rectangle do
   describe "after_data_change" do
@@ -32,5 +33,22 @@ describe HexaPDF::Rectangle do
     assert_equal(5, rect.top)
     assert_equal(2, rect.width)
     assert_equal(4, rect.height)
+  end
+
+  describe "validation" do
+    it "ensures that it is a correct PDF rectangle" do
+      doc = HexaPDF::Document.new
+      rect = HexaPDF::Rectangle.new([0, 1, 2, 3], document: doc)
+      assert(rect.validate)
+
+      rect.value.shift
+      refute(rect.validate)
+
+      rect.value.unshift(:A)
+      refute(rect.validate)
+
+      rect.data.value = :A
+      refute(rect.validate)
+    end
   end
 end
