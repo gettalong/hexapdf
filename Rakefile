@@ -29,7 +29,7 @@ namespace :dev do
   CLOBBER << "man/man1/hexapdf.1"
   file 'man/man1/hexapdf.1' => ['man/man1/hexapdf.1.md'] do
     puts "Generating hexapdf man page"
-    system "ronn --pipe -r man/man1/hexapdf.1.md > man/man1/hexapdf.1"
+    system "kramdown -o man man/man1/hexapdf.1.md > man/man1/hexapdf.1"
   end
 
   CLOBBER << "VERSION"
@@ -65,7 +65,7 @@ namespace :dev do
     s.executables = ['hexapdf']
     s.default_executable = 'hexapdf'
     s.add_dependency('cmdparse', '~> 3.0', '>= 3.0.1')
-    s.add_development_dependency('ronn', '~> 0.7')
+    s.add_development_dependency('kramdown', '~> 1.0', '>= 1.13.0')
 
     s.author = 'Thomas Leitner'
     s.email = 't_leitner@gmx.at'
