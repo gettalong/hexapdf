@@ -107,7 +107,7 @@ module HexaPDF
       # /Unix, /Mac and /DOS).
       def path
         tmp = (self[:UF] || self[:F] || self[:Unix] || self[:Mac] || self[:DOS] || '').dup
-        tmp.gsub!(/\\\//, "/")  # PDF1.7 s7.11.2.1 but / in filename is interpreted as separator!
+        tmp.gsub!(/\\\//, "/") # PDF1.7 s7.11.2.1 but / in filename is interpreted as separator!
         tmp.gsub!(/\\/, "/") # always use slashes instead of back-slashes!
         tmp
       end

@@ -88,7 +88,7 @@ module HexaPDF
     #
     # version:: Specifies the minimum version of the PDF specification needed for this value.
     def self.define_field(name, type:, required: false, default: nil, indirect: nil,
-      version: '1.2')
+                          version: '1.2')
       @fields ||= {}
       @fields[name] = Field.new(type, required, default, indirect, version)
     end

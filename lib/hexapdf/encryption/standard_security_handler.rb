@@ -570,7 +570,7 @@ module HexaPDF
         while i < 64 || e.getbyte(-1) > i - 32
           k1 = "#{password}#{k}#{user_key}" * 64
           e = aes_algorithm.new(k[0, 16], k[16, 16], :encrypt).process(k1)
-          k = case e.unpack('C16').inject(&:+) % 3  # 256 % 3 == 1 % 3 --> x*256 % 3 == x % 3
+          k = case e.unpack('C16').inject(&:+) % 3 # 256 % 3 == 1 % 3 --> x*256 % 3 == x % 3
               when 0 then Digest::SHA256.digest(e)
               when 1 then Digest::SHA384.digest(e)
               when 2 then Digest::SHA512.digest(e)

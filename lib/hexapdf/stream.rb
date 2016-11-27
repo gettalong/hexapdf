@@ -71,7 +71,7 @@ module HexaPDF
     #
     # * A Proc object (that is converted to a Fiber when needed) in which case the +offset+ and
     #   value is ignored. The Proc object can also be passed by using a block.
-    def initialize(source =  nil, offset: nil, length: nil, filter: nil, decode_parms: nil, &block)
+    def initialize(source = nil, offset: nil, length: nil, filter: nil, decode_parms: nil, &block)
       if source.nil? && !block_given?
         raise ArgumentError, "Either a source object or a block must be given"
       end

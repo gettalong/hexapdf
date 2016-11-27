@@ -55,7 +55,7 @@ module HexaPDF
       POW85_3 = 85**3 #:nodoc:
       POW85_4 = 85**4 #:nodoc:
 
-      MAX_VALUE = 0xffffffff  #:nodoc:
+      MAX_VALUE = 0xffffffff #:nodoc:
       FIXED_SUBTRAHEND = 33 * (POW85_4 + POW85_3 + POW85_2 + POW85_1 + 1) #:nodoc:
 
       # See HexaPDF::Filter
