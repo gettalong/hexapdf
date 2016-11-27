@@ -78,10 +78,10 @@ module HexaPDF
         1 => Content::RenderingIntent::RELATIVE_COLORIMETRIC,
         2 => Content::RenderingIntent::SATURATION,
         3 => Content::RenderingIntent::ABSOLUTE_COLORIMETRIC,
-      }
+      }.freeze
 
       # The primary chromaticities and white point used by the sRGB specification.
-      SRGB_CHRM = [0.3127, 0.329, 0.64, 0.33, 0.3, 0.6, 0.15, 0.06]
+      SRGB_CHRM = [0.3127, 0.329, 0.64, 0.33, 0.3, 0.6, 0.15, 0.06].freeze
 
       # :call-seq:
       #   PNG.handles?(filename)     -> true or false

@@ -59,7 +59,7 @@ module HexaPDF
     module AES
 
       # Valid AES key lengths
-      VALID_KEY_LENGTH = [16, 24, 32]
+      VALID_KEY_LENGTH = [16, 24, 32].freeze
 
       # The AES block size
       BLOCK_SIZE = 16

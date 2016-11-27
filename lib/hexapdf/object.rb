@@ -121,7 +121,7 @@ module HexaPDF
     include Comparable
 
     # A list of classes whose objects cannot be duplicated.
-    NOT_DUPLICATABLE_CLASSES = [NilClass, FalseClass, TrueClass, Symbol, Integer, Float]
+    NOT_DUPLICATABLE_CLASSES = [NilClass, FalseClass, TrueClass, Symbol, Integer, Float].freeze
 
     # :call-seq:
     #   HexaPDF::Object.deep_copy(object)    -> copy

@@ -170,7 +170,7 @@ module HexaPDF
       end
 
       # Array of valid encoding names in PDF
-      VALID_ENCODING_NAMES = [:WinAnsiEncoding, :MacRomanEncoding, :MacExpertEncoding]
+      VALID_ENCODING_NAMES = [:WinAnsiEncoding, :MacRomanEncoding, :MacExpertEncoding].freeze
 
       # Completes the font dictionary by filling in the values that depend on the used encoding.
       def complete_font_dict

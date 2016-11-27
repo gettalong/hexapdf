@@ -84,7 +84,7 @@ module HexaPDF
 
       private
 
-      LENGTH_TO_TYPE = {4 => 'N', 2 => 'n', 1 => 'C'} # :nodoc:
+      LENGTH_TO_TYPE = {4 => 'N', 2 => 'n', 1 => 'C'}.freeze # :nodoc:
       FOUR_TO_INFINITY = 4..Float::INFINITY # :nodoc:
 
       # Fills the bit cache so that at least 16bit are available (if possible).

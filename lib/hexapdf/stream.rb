@@ -257,7 +257,8 @@ module HexaPDF
     # :nodoc:
     # A mapping from short name to long name for filters.
     FILTER_MAP = {AHx: :ASCIIHexDecode, A85: :ASCII85Decode, LZW: :LZWDecode,
-                  Fl: :FlateDecode, RL: :RunLengthDecode, CCF: :CCITTFaxDecode, DCT: :DCTDecode}
+                  Fl: :FlateDecode, RL: :RunLengthDecode, CCF: :CCITTFaxDecode,
+                  DCT: :DCTDecode}.freeze
 
     # Validates the /Filter entry so that it contains only long-name filter names.
     def perform_validation

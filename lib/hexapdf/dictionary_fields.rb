@@ -65,7 +65,7 @@ module HexaPDF
   module DictionaryFields
 
     # This constant should *always* be used for boolean fields.
-    Boolean = [TrueClass, FalseClass]
+    Boolean = [TrueClass, FalseClass].freeze
 
     # PDFByteString is used for defining fields with strings in binary encoding.
     PDFByteString = Class.new { private_class_method :new }

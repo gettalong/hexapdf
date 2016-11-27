@@ -74,8 +74,8 @@ module HexaPDF
         super
       end
 
-      PAGE_NUMBER_SPEC = "([1-9]\\d*|e)" #:nodoc:
-      ROTATE_MAP = {'l' => -90, 'r' => 90, 'd' => 180, 'n' => :none} #:nodoc:
+      PAGE_NUMBER_SPEC = "([1-9]\\d*|e)".freeze #:nodoc:
+      ROTATE_MAP = {'l' => -90, 'r' => 90, 'd' => 180, 'n' => :none}.freeze #:nodoc:
 
       # Parses the pages specification string and returns an array of tuples containing a page
       # number and a rotation value (either -90, 90, 180 or :none).

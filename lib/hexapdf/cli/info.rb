@@ -68,7 +68,7 @@ module HexaPDF
       private
 
       INFO_KEYS = [:Title, :Author, :Subject, :Keywords, :Creator, :Producer, #:nodoc:
-                   :CreationDate, :ModDate]
+                   :CreationDate, :ModDate].freeze
 
       COLUMN_WIDTH = 20 #:nodoc:
 

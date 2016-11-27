@@ -188,7 +188,7 @@ module HexaPDF
     end
 
     BYTE_IS_DELIMITER = {40 => true, 47 => true, 60 => true, 91 => true, # :nodoc:
-                         41 => true, 62 => true, 93 => true}
+                         41 => true, 62 => true, 93 => true}.freeze
 
     # Serializes an Array object.
     #
@@ -222,7 +222,7 @@ module HexaPDF
       str << ">>".freeze
     end
 
-    STRING_ESCAPE_MAP = {"(" => "\\(", ")" => "\\)", "\\" => "\\\\", "\r" => "\\r"} # :nodoc:
+    STRING_ESCAPE_MAP = {"(" => "\\(", ")" => "\\)", "\\" => "\\\\", "\r" => "\\r"}.freeze # :nodoc:
 
     # Serializes a String object.
     #

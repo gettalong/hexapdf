@@ -110,7 +110,7 @@ module HexaPDF
           @kerning_pairs = Hash.new {|h, k| h[k] = {}}
         end
 
-        WEIGHT_NAME_TO_NUMBER = {'Bold' => 700, 'Medium' => 500, 'Roman' => 400} #:nodoc:
+        WEIGHT_NAME_TO_NUMBER = {'Bold' => 700, 'Medium' => 500, 'Roman' => 400}.freeze #:nodoc:
 
         # Returns the weight of the font as a number.
         #

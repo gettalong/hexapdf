@@ -68,7 +68,7 @@ module HexaPDF
             postscript_cid_name: 20,
             wws_family: 21,
             wws_subfamily: 22,
-          }
+          }.freeze
 
           # Contains the information for a Name Record.
           #

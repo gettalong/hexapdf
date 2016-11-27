@@ -297,7 +297,7 @@ module HexaPDF
 
       IGNORED_FILTERS = { #:nodoc:
         CCITTFaxDecode: true, JBIG2Decode: true, DCTDecode: true, JPXDecode: true, Crypt: true
-      }
+      }.freeze
 
       # Applies the chosen stream mode to all streams.
       def handle_streams(doc)

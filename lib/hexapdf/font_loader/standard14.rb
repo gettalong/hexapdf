@@ -66,7 +66,7 @@ module HexaPDF
         'ZapfDingbats' => {
           none: 'ZapfDingbats',
         },
-      }
+      }.freeze
 
       # Creates a new font object backed by the AFM font metrics read from the file or IO stream.
       #

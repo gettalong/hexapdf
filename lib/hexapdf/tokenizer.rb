@@ -56,12 +56,12 @@ module HexaPDF
     # Characters defined as whitespace.
     #
     # See: PDF1.7 s7.2.2
-    WHITESPACE = "\0\t\n\f\r "
+    WHITESPACE = "\0\t\n\f\r ".freeze
 
     # Characters defined as delimiters.
     #
     # See: PDF1.7 s7.2.2
-    DELIMITER = "()<>{}/[]%"
+    DELIMITER = "()<>{}/[]%".freeze
 
     WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/ # :nodoc:
 
@@ -267,7 +267,7 @@ module HexaPDF
       '(' => "(",
       ')' => ")",
       '\\' => "\\",
-    }
+    }.freeze
 
     # Parses the literal string at the current position.
     #

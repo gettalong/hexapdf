@@ -295,7 +295,7 @@ module HexaPDF
         EMC: :end_marked_content,
         BX: :begin_compatibility_section,
         EX: :end_compatibility_section,
-      }
+      }.freeze
 
       # Mapping from operator name (Symbol) to a callable object.
       #

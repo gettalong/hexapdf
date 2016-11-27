@@ -97,13 +97,13 @@ module HexaPDF
         Ledger: [0, 0, 792, 1224].freeze,
         Tabloid: [0, 0, 1224, 792].freeze,
         Executive: [0, 0, 522, 756].freeze,
-      }
+      }.freeze
 
       # The inheritable fields.
-      INHERITABLE_FIELDS = [:Resources, :MediaBox, :CropBox, :Rotate]
+      INHERITABLE_FIELDS = [:Resources, :MediaBox, :CropBox, :Rotate].freeze
 
       # The required inheritable fields.
-      REQUIRED_INHERITABLE_FIELDS = [:Resources, :MediaBox]
+      REQUIRED_INHERITABLE_FIELDS = [:Resources, :MediaBox].freeze
 
 
       define_field :Type,                 type: Symbol, required: true, default: :Page

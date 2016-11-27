@@ -152,7 +152,7 @@ module HexaPDF
           extract_content: EXTRACT_CONTENT,
           assemble_document: ASSEMBLE_DOCUMENT,
           high_quality_print: HIGH_QUALITY_PRINT,
-        }
+        }.freeze
 
         # Maps a permission value to its symbol
         PERMISSION_TO_SYMBOL = {
@@ -164,7 +164,7 @@ module HexaPDF
           EXTRACT_CONTENT => :extract_content,
           ASSEMBLE_DOCUMENT => :assemble_document,
           HIGH_QUALITY_PRINT => :high_quality_print,
-        }
+        }.freeze
 
       end
 
