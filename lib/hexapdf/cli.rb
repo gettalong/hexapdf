@@ -70,7 +70,7 @@ module HexaPDF
       end
 
       def parse(argv = ARGV) #:nodoc:
-        ARGV.unshift('help') if ARGV.length == 0
+        ARGV.unshift('help') if ARGV.empty?
         super
       end
 

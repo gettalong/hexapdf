@@ -265,10 +265,10 @@ module HexaPDF
     # *Note*: Even if the return value is +true+ there may be problems since HexaPDF doesn't
     # currently implement the full PDF spec. However, if the return value is +false+, there is
     # certainly a problem!
-    def validate(auto_correct: true, &block)
+    def validate(auto_correct: true)
       catch do |catch_tag|
         perform_validation do |msg, correctable|
-          block.call(msg, correctable) if block
+          yield(msg, correctable) if block_given?
           throw(catch_tag, false) unless auto_correct && correctable
         end
         true

@@ -50,7 +50,7 @@ module HexaPDF
         #
         # Note that the returned CMap always uses a 16-bit input code space!
         def create_to_unicode_cmap(mapping)
-          return to_unicode_template % '' if mapping.length == 0
+          return to_unicode_template % '' if mapping.empty?
 
           chars, ranges = compute_section_entries(mapping)
 
@@ -93,13 +93,11 @@ module HexaPDF
             if last_code + 1 == code && last_value + 1 == value && code % 256 != 0
               ranges << last_code << nil << last_value unless is_range
               is_range = true
+            elsif is_range
+              ranges[-2] = last_code
+              is_range = false
             else
-              if is_range
-                ranges[-2] = last_code
-                is_range = false
-              else
-                chars << last_code << last_value
-              end
+              chars << last_code << last_value
             end
             last_code = code
             last_value = value

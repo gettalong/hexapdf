@@ -276,11 +276,7 @@ module HexaPDF
 
               code_map = Hash.new do |h, code|
                 i = end_codes.bsearch_index {|c| c >= code}
-                if i && start_codes[i] <= code
-                  glyph_id = compute_glyph_id.call(i, code)
-                else
-                  glyph_id = 0
-                end
+                glyph_id = (i && start_codes[i] <= code ? compute_glyph_id.call(i, code) : 0)
                 h[code] = glyph_id unless glyph_id == 0
               end
 
@@ -355,7 +351,7 @@ module HexaPDF
             #
             # It is assumed that the first twelve bytes of the subtable have already been consumed.
             def self.parse(io, _length)
-              mapper(io.read(4).unpack('N').first.times.map { io.read(12).unpack('N3') })
+              mapper(Array.new(io.read(4).unpack('N').first) { io.read(12).unpack('N3') })
             end
 
             # The parameter +groups+ is an array containing [start_code, end_code, start_glyph_id]

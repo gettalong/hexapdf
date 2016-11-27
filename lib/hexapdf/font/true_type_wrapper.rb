@@ -203,7 +203,7 @@ module HexaPDF
         cid_font[:DW] = default_width = glyph(3).width
 
         glyphs = @encoded_glyphs.keys.reject {|g| g.width == default_width}.sort_by(&:id)
-        if glyphs.length > 0
+        unless glyphs.empty?
           cid_font[:W] = widths = []
           last_id = -10
           cur_widths = nil

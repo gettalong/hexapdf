@@ -58,12 +58,7 @@ module HexaPDF
             end
 
             data = rest << data if rest
-
-            if data.size.odd?
-              rest = data.slice!(-1, 1)
-            else
-              rest = nil
-            end
+            rest = (data.size.odd? ? data.slice!(-1, 1) : nil)
 
             Fiber.yield([data].pack('H*'))
           end

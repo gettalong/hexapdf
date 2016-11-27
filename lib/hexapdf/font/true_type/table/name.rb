@@ -176,10 +176,10 @@ module HexaPDF
             @records = Hash.new {|h, k| h[k] = Records.new}
             @language_tags = {}
 
-            record_rows = count.times.map { read_formatted(12, 'n6') }
+            record_rows = Array.new(count) { read_formatted(12, 'n6') }
             if @format == 1
               count = read_formatted(2, 'n').first
-              language_rows = count.times.map { read_formatted(4, 'n2') }
+              language_rows = Array.new(count) { read_formatted(4, 'n2') }
             end
 
             record_rows.each do |pid, eid, lid, nid, length, offset|
