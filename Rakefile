@@ -16,7 +16,7 @@ namespace :dev do
   PKG_FILES = FileList.new([
     'Rakefile',
     'LICENSE', 'agpl-3.0.txt',
-    'README.md',
+    'README.md', 'CHANGELOG.md',
     'VERSION', 'CONTRIBUTERS',
     'bin/*',
     'lib/**/*.rb',
