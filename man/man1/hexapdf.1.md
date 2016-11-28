@@ -8,8 +8,8 @@
 
 ## DESCRIPTION
 
-hexapdf is an application for PDF manipulation. It is part of the [hexapdf] library which also
-allows PDF creation, among other things.
+hexapdf is an application for PDF manipulation. It is part of the [hexapdf][hexapdf-ws] library
+which also allows PDF creation, among other things.
 
 Using the hexapdf application the following tasks can be performed with PDF files:
 
@@ -28,11 +28,13 @@ command's purpose and its options.
 The following options can only be used when no command is specified:
 
 `-v`, `--version`
+
 : Show the version of the hexapdf application and exit.
 
 These options are available on every command (except if they are overridden):
 
 `-h`, `--help`
+
 : Show the help for the application if no command was specified, or the command help otherwise.
 
 
@@ -53,14 +55,17 @@ This command extracts embedded files from the PDF *FILE*. If the `--indices` opt
 specified, the names and indices of the embedded files are just listed.
 
 `-i` *A,B,C,...*, `--indices` *A,B,C,...*
+
 : The indices of the embedded files that should be extract. The value *0* can be used to extract all
   embedded files.
 
 `-s`, `--[no-]search`
+
 : Search the whole PDF file instead of the standard locations, that is files attached to the
   document as a whole or to an individual page. Defaults to *false*.
 
 `-p` *PASSWORD*, `--password` *PASSWORD*
+
 : The password to decrypt the PDF *FILE*. Use **-** for *PASSWORD* for reading it from standard
   input.
 
@@ -98,28 +103,35 @@ exclusive display options define what is shown. If multiple such options are spe
 one is respected. Note that PDF objects are always shown in the native PDF syntax.
 
 `-t`, `--trailer`
+
 : Show the trailer dictionary.
 
 `-c`, `--page-count`
+
 : Print the number of pages.
 
 `--pages` \[*PAGES*]
+
 : Show the pages with their object and generation numbers and their associated content streams. If a
   range is specified, only those pages are listed. See the **PAGES SPECIFICATION** below for details
   on the allowed format of *PAGES*.
 
 `-o` *OID*\[,*GEN*], `--object` *OID*\[,*GEN*]
+
 : Show the object with the given object and generation numbers. The generation number defaults to 0
   if not given.
 
 `-s` *OID*\[,*GEN*], `--stream` *OID*\[,*GEN*]
+
 : Show the filtered stream data (add `--raw` to get the raw stream data) of the object with the
   given object and generation numbers. The generation number defaults to 0 if not given.
 
 `--raw`
+
 : Modifies `--stream` to show the raw stream data instead of the filtered one.
 
 `-p` *PASSWORD*, `--password` *PASSWORD*
+
 : The password to decrypt the PDF *FILE*. Use **-** for *PASSWORD* for reading it from standard
   input.
 
@@ -144,22 +156,27 @@ An input file can be specified multiple times, using a different `--pages` optio
 Input file related options:
 
 `-f` *FILE*, `--file` *FILE*
+
 : An input file. At least one input file or `--empty` needs be used.
 
 `-p` *PASSWORD*, `--password` *PASSWORD*
+
 : The password to decrypt the last input file specified with `--file`. Use **-** for *PASSWORD* for
   reading it from standard input.
 
 `-i` *PAGES*, `--pages` *PAGES*
+
 : The pages (optionally rotated) from the last input file specified with the `--file` option that
   should be included in the *OUTPUT*. See the **PAGES SPECIFICATION** below for details on the
   allowed format of *PAGES*. Default: *1-e* (i.e. all pages with no additional rotation applied).
 
 `-e`, `--empty`
+
 : Use an empty file as primary file. This will lead to an output file that just contains the
   included pages of the input file and no other data from the input files.
 
 `--interleave`
+
 : Interleave the pages from the input files: Takes the first specified page from the first input
   file, then the first specified page from the second input file, and so on. After that the same
   with the second, third, ... specified pages. If fewer pages were specified for an input file, the
@@ -168,27 +185,33 @@ Input file related options:
 Output file related options:
 
 `--embed` *FILE*
+
 : Embed the given file into the *OUTPUT* using built-in features of PDF. This option can be used
   multiple times to embed more than one file.
 
 `--[no-]compact`
+
 : Delete unnecessary PDF objects. This includes merging the base revision and all incremental
   updates into a single revision. Default: *yes*.
 
 `--object-streams` *MODE*
+
 : Defines how object streams should be treated: *generate* will remove all exisiting object streams
   and generate new ones, *delete* will only remove existing object streams and *preserve* will do
   nothing. Default: *preserve*.
 
 `--xref-streams` *MODE*
+
 : Defines how cross-reference streams should be treated: *generate* will add them, *delete* will
   remove them and *preserve* will do nothing. Default: *preserve*.
 
 `--streams` *MODE*
+
 : Defines how streams should be treated: *compress* will compress them when possible, *uncompress*
   will uncompress them when possible and *preserve* will do nothing to them. Default: *preserve*.
 
 `--[no-]compress-pages`
+
 : Recompress page content streams. This is a very expensive operation in terms of processing time
   and won't lead to great file size improvements in many cases. Default: *no*.
 
@@ -196,18 +219,21 @@ Output file encryption related options (all options except `--decrypt` automatic
 `--encrypt`):
 
 `--decrypt`
+
 : Remove any encryption.
 
   If neither `--decrypt` nor `--encrypt` are specified, the existing encryption configuration is
   preserved.
 
 `--encrypt`
+
 : Encrypt the *OUTPUT*.
 
   If neither `--decrypt` nor `--encrypt` are specified, the existing encryption configuration is
   preserved.
 
 `--owner-password` *PASSWORD*
+
 : The owner password to be set on the *OUTPUT*. This password is needed when operations not allowed
   by the permissions need to be done. It can also be used when opening the PDF file.
 
@@ -217,17 +243,20 @@ Output file encryption related options (all options except `--decrypt` automatic
   Use **-** for *PASSWORD* for reading it from standard input.
 
 `--user-password` *PASSWORD*
+
 : The user password to be set on the *OUTPUT*. This password is needed when opening the PDF file.
   The application should restrict the operations to those allowed by the permissions.
 
   Use **-** for *PASSWORD* for reading it from standard input.
 
 `--algorithm` *ALGORITHM*
+
 : The encryption algorithm to use on the *OUTPUT*. Allowed algorithms are *aes* and *arc4* but
   *arc4* should only be used if it is absolutely necessary for compatibility reasons. Default:
   *aes*.
 
 `--key-length` *BITS*
+
 : The length of the encryption key in bits. The allowed values differ based on the chosen algorithm:
   A number divisible by eight between 40 to 128 for *arc4* and 128 or 256 for *aes*. Default:
   **128**.
@@ -236,11 +265,13 @@ Output file encryption related options (all options except `--decrypt` automatic
   various platforms!
 
 `--force-V4`
+
 : Force the use of PDF encryption version 4 if key length is *128* and algorithm is *arc4*. This
   option is probably only useful for testing the implementation of PDF libraries' encryption
   handling.
 
 `--permissions` *PERMS*
+
 : A comma separated list of permissions to be set on the *OUTPUT*:
 
   *print*
@@ -387,7 +418,7 @@ creator, creation date and encryption related information.
 `hexapdf inspect input.pdf -o 3`  
 
 Inspect a PDF: These commands can be used to inspect the internal object structure of a PDF file.
-The first command show the PDF catalog object, the main object of a PDF file. The second one show
+The first command shows the PDF catalog object, the main object of a PDF file. The second one shows
 the object with the object number 3.
 
 
@@ -398,7 +429,7 @@ The exit status is 0 if no error happened. Otherwise it is 1.
 
 ## SEE ALSO
 
-The [hexapdf website][hexapdf] for more information
+The [hexapdf website][hexapdf-ws] for more information.
 
 
 ## AUTHOR
@@ -407,4 +438,4 @@ hexapdf was written by Thomas Leitner <t_leitner@gmx.at>.
 
 This manual page was written by Thomas Leitner <t_leitner@gmx.at>.
 
-[hexapdf]: http://hexapdf.gettalong.org
+[hexapdf-ws]: http://hexapdf.gettalong.org
