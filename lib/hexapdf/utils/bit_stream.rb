@@ -38,9 +38,9 @@ module HexaPDF
 
     # Helper class for reading variable length integers from a bit stream.
     #
-    # This class allows one to read integers with a variable width of up to 16 bit from a bit
-    # stream using the #read method. The data from where these bits are read, can be set on
-    # intialization and additional data can later be appended.
+    # This class allows one to read integers with a variable width from a bit stream using the #read
+    # method. The data from where these bits are read, can be set on intialization and additional
+    # data can later be appended.
     class BitStreamReader
 
       # Creates a new object, optionally providing the string from where the bits should be read.
@@ -53,9 +53,12 @@ module HexaPDF
 
       # Appends some data to the string from where bits are read.
       def append_data(str)
-        @data = @data[@pos, @data.length - @pos] << str
+        @data.slice!(0, @pos)
+        @data << str
         @pos = 0
+        self
       end
+      alias :<< :append_data
 
       # Returns the number of remaining bits that can be read.
       def remaining_bits
@@ -64,41 +67,22 @@ module HexaPDF
 
       # Returns +true+ if +bits+ number of bits can be read.
       def read?(bits)
-        fill_bit_cache
-        @available_bits >= bits
+        remaining_bits >= bits
       end
 
       # Reads +bits+ number of bits.
       #
-      # Raises an exception if not enough bits are available for reading.
+      # Returns +nil+ if not enough bits are available for reading.
       def read(bits)
-        fill_bit_cache
-        raise HexaPDF::Error, "Not enough bits available for reading" if @available_bits < bits
-
+        while @available_bits < bits
+          @bit_cache = (@bit_cache << 8) | (@data.getbyte(@pos) || return)
+          @pos += 1
+          @available_bits += 8
+        end
         @available_bits -= bits
-        result = @bit_cache >> @available_bits
+        result = (@bit_cache >> @available_bits)
         @bit_cache &= (1 << @available_bits) - 1
-
         result
-      end
-
-      private
-
-      LENGTH_TO_TYPE = {4 => 'N', 2 => 'n', 1 => 'C'}.freeze # :nodoc:
-      FOUR_TO_INFINITY = 4..Float::INFINITY # :nodoc:
-
-      # Fills the bit cache so that at least 16bit are available (if possible).
-      def fill_bit_cache
-        return unless @available_bits <= 16 && @pos != @data.size
-
-        l = case @data.size - @pos
-            when FOUR_TO_INFINITY then 4
-            when 2, 3 then 2
-            else 1
-            end
-        @bit_cache = (@bit_cache << 8 * l) | @data[@pos, l].unpack(LENGTH_TO_TYPE[l]).first
-        @pos += l
-        @available_bits += 8 * l
       end
 
     end
