@@ -157,29 +157,29 @@ module HexaPDF
           pos = 0
 
           decode_row = lambda do |result|
-            line = data[pos, bytes_per_row]
+            line = data[pos + 1, bytes_per_row - 1]
 
-            case line.getbyte(0)
+            case data.getbyte(pos)
             when PREDICTOR_PNG_NONE
               # nothing to do
             when PREDICTOR_PNG_SUB
-              (bytes_per_pixel + 1).upto(bytes_per_row - 1) do |i|
+              bytes_per_pixel.upto(bytes_per_row - 2) do |i|
                 line.setbyte(i, line.getbyte(i) + line.getbyte(i - bytes_per_pixel))
               end
             when PREDICTOR_PNG_UP
-              1.upto(bytes_per_row - 1) do |i|
+              0.upto(bytes_per_row - 2) do |i|
                 line.setbyte(i, line.getbyte(i) + last_line.getbyte(i))
               end
             when PREDICTOR_PNG_AVERAGE
-              1.upto(bytes_per_row - 1) do |i|
-                a = i <= bytes_per_pixel ? 0 : line.getbyte(i - bytes_per_pixel)
+              0.upto(bytes_per_row - 2) do |i|
+                a = i < bytes_per_pixel ? 0 : line.getbyte(i - bytes_per_pixel)
                 line.setbyte(i, line.getbyte(i) + ((a + last_line.getbyte(i)) >> 1))
               end
             when PREDICTOR_PNG_PAETH
-              1.upto(bytes_per_row - 1) do |i|
-                a = i <= bytes_per_pixel ? 0 : line.getbyte(i - bytes_per_pixel)
+              0.upto(bytes_per_row - 2) do |i|
+                a = i < bytes_per_pixel ? 0 : line.getbyte(i - bytes_per_pixel)
                 b = last_line.getbyte(i)
-                c = i <= bytes_per_pixel ? 0 : last_line.getbyte(i - bytes_per_pixel)
+                c = i < bytes_per_pixel ? 0 : last_line.getbyte(i - bytes_per_pixel)
 
                 point = a + b - c
                 pa = (point - a).abs
@@ -192,7 +192,7 @@ module HexaPDF
               end
             end
 
-            result << line[1..-1]
+            result << line
             last_line = line
           end
 
