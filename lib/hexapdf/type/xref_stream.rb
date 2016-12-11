@@ -119,20 +119,24 @@ module HexaPDF
       def parse_xref_section(index, w)
         xref = XRefSection.new
 
-        entry_size = w.inject(:+)
         data = stream
-        pos_in_data = 0
+        start_pos = end_pos = 0
+
+        w0 = w[0]
+        w1 = w[1]
+        w2 = w[2]
 
         index.each_slice(2) do |first_oid, number_of_entries|
-          number_of_entries.times do |i|
-            oid = first_oid + i
-
+          first_oid.upto(first_oid + number_of_entries - 1) do |oid|
             # Default for first field: type 1
-            type_field = (w[0] == 0 ? TYPE_IN_USE : bytes_to_int(data, pos_in_data, w[0]))
+            end_pos = start_pos + w0
+            type_field = (w0 == 0 ? TYPE_IN_USE : bytes_to_int(data, start_pos, end_pos))
             # No default available for second field
-            field2 = bytes_to_int(data, pos_in_data + w[0], w[1])
+            start_pos = end_pos + w1
+            field2 = bytes_to_int(data, end_pos, start_pos)
             # Default for third field is 0 for type 1, otherwise it needs to be specified!
-            field3 = bytes_to_int(data, pos_in_data + w[0] + w[1], w[2])
+            end_pos = start_pos + w2
+            field3 = (w2 == 0 ? 0 : bytes_to_int(data, start_pos, end_pos))
 
             case type_field
             when TYPE_IN_USE
@@ -144,22 +148,22 @@ module HexaPDF
             else
               nil # Ignore entry as per PDF1.7 s7.5.8.3
             end
-            pos_in_data += entry_size
+            start_pos = end_pos
           end
         end
 
         xref
       end
 
-      # Converts +length+ bytes from the +start+ index from the +string+ to an integer.
+      # Converts the bytes of the string from the start index to the end index to an integer.
       #
-      # The bytes are converted in the big-endian way. If +length+ is zero, zero is returned.
-      def bytes_to_int(string, start, length)
-        result = 0
-        end_index = start + length
-        while start < end_index
-          result = (result << 8) | string.getbyte(start)
-          start += 1
+      # The bytes are converted in the big-endian way.
+      def bytes_to_int(string, start_index, end_index)
+        result = string.getbyte(start_index)
+        start_index += 1
+        while start_index < end_index
+          result = (result << 8) | string.getbyte(start_index)
+          start_index += 1
         end
         result
       end
