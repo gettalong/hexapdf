@@ -76,8 +76,7 @@ module HexaPDF
           while !finished && source.alive? && (data = source.resume)
             stream.append_data(data)
 
-            while stream.read?(code_length)
-              code = stream.read(code_length)
+            while (code = stream.read(code_length))
 
               # Decoder is one step behind => subtract 1!
               # We check the table size before entering the next code into it => subtract 1, but
