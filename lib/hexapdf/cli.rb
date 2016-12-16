@@ -31,7 +31,6 @@
 # is created or manipulated using HexaPDF.
 #++
 
-require 'io/console'
 require 'cmdparse'
 require 'hexapdf/cli/info'
 require 'hexapdf/cli/extract'
@@ -74,53 +73,6 @@ module HexaPDF
         super
       end
 
-      PAGE_NUMBER_SPEC = "([1-9]\\d*|e)".freeze #:nodoc:
-      ROTATE_MAP = {'l' => -90, 'r' => 90, 'd' => 180, 'n' => :none}.freeze #:nodoc:
-
-      # Parses the pages specification string and returns an array of tuples containing a page
-      # number and a rotation value (either -90, 90, 180 or :none).
-      #
-      # The parameter +count+ needs to be the total number of pages in the document.
-      def parse_pages_specification(range, count)
-        range.split(',').each_with_object([]) do |str, arr|
-          case str
-          when /\A#{PAGE_NUMBER_SPEC}(l|r|d|n)?\z/o
-            arr << [($1 == 'e' ? count : str.to_i) - 1, ROTATE_MAP[$2]]
-          when /\A#{PAGE_NUMBER_SPEC}-#{PAGE_NUMBER_SPEC}(?:\/([1-9]\d*))?(l|r|d|n)?\z/
-            start_nr = ($1 == 'e' ? count : $1.to_i) - 1
-            end_nr = ($2 == 'e' ? count : $2.to_i) - 1
-            step = ($3 ? $3.to_i : 1) * (start_nr > end_nr ? -1 : 1)
-            rotation = ROTATE_MAP[$4]
-            start_nr.step(to: end_nr, by: step) {|n| arr << [n, rotation]}
-          else
-            raise OptionParser::InvalidArgument, "invalid page range format: #{str}"
-          end
-        end
-      end
-
-      # Reads a password from the standard input and falls back to the console if needed.
-      #
-      # The optional argument +prompt+ can be used to customize the prompt when reading from the
-      # console.
-      def read_password(prompt = "Password")
-        if $stdin.tty?
-          read_from_console(prompt)
-        else
-          pwd = $stdin.gets
-          pwd = read_from_console(prompt) unless pwd
-          pwd.chomp
-        end
-      end
-
-      private
-
-      # Displays the given prompt, reads from the console without echo and returns the read string.
-      def read_from_console(prompt)
-        IO.console.write("#{prompt}: ")
-        str = IO.console.noecho {|io| io.gets.chomp}
-        puts
-        str
-      end
     end
 
   end

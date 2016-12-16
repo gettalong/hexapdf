@@ -32,7 +32,7 @@
 #++
 
 require 'ostruct'
-require 'hexapdf/cli'
+require 'hexapdf/cli/command'
 
 module HexaPDF
   module CLI
@@ -45,7 +45,7 @@ module HexaPDF
     # * Optimizes the output PDF by merging the revisions of a PDF file and removes unused entries.
     #
     # See: HexaPDF::Task::Optimize
-    class Modify < CmdParse::Command
+    class Modify < Command
 
       InputSpec = Struct.new(:file, :pages, :password) #:nodoc:
 
@@ -73,7 +73,7 @@ module HexaPDF
         options.on("-p", "--password PASSWORD", String, "The password for decrypting the last " \
                    "specified input file (use - for reading from standard input)") do |pwd|
           raise OptionParser::InvalidArgument, "(No prior input file specified)" if @files.empty?
-          pwd = (pwd == '-' ? command_parser.read_password("#{@files.last.file} password") : pwd)
+          pwd = (pwd == '-' ? read_password("#{@files.last.file} password") : pwd)
           @files.last.password = pwd
         end
         options.on("-i", "--pages PAGES", "The pages of the last specified input file that " \
@@ -126,12 +126,12 @@ module HexaPDF
         options.on("--owner-password PASSWORD", String, "The owner password to be set on the " \
                    "output file (use - for reading from standard input)") do |pwd|
           @encryption = :add
-          @enc_owner_pwd = (pwd == '-' ? command_parser.read_password("Owner password") : pwd)
+          @enc_owner_pwd = (pwd == '-' ? read_password("Owner password") : pwd)
         end
         options.on("--user-password PASSWORD", String, "The user password to be set on the " \
                    "output file (use - for reading from standard input)") do |pwd|
           @encryption = :add
-          @enc_user_pwd = (pwd == '-' ? command_parser.read_password("User password") : pwd)
+          @enc_user_pwd = (pwd == '-' ? read_password("User password") : pwd)
         end
         options.on("--algorithm ALGORITHM", [:aes, :arc4],
                    "The encryption algorithm: aes or arc4 (default: aes)") do |a|
@@ -248,7 +248,7 @@ module HexaPDF
       def import_pages(page_tree)
         @files.each do |s|
           page_list = s.file.pages.to_a
-          s.pages = command_parser.parse_pages_specification(s.pages, s.file.pages.count)
+          s.pages = parse_pages_specification(s.pages, s.file.pages.count)
           s.pages.each do |arr|
             arr[0] = page_list[arr[0]]
             arr[1] = arr[0].value[:Rotate] || :none unless arr[1]

@@ -31,7 +31,7 @@
 # is created or manipulated using HexaPDF.
 #++
 
-require 'hexapdf/cli'
+require 'hexapdf/cli/command'
 
 module HexaPDF
   module CLI
@@ -44,7 +44,7 @@ module HexaPDF
     # * The used PDF version
     #
     # See: HexaPDF::Type::Info, HexaPDF::Encryption::SecurityHandler
-    class Info < CmdParse::Command
+    class Info < Command
 
       def initialize #:nodoc:
         super('info', takes_commands: false)
@@ -55,7 +55,7 @@ module HexaPDF
         EOF
         options.on("--password PASSWORD", "-p", String,
                    "The password for decryption. Use - for reading from standard input.") do |pwd|
-          @password = (pwd == '-' ? command_parser.read_password : pwd)
+          @password = (pwd == '-' ? read_password : pwd)
         end
         @password = ''
         @auto_decrypt = true

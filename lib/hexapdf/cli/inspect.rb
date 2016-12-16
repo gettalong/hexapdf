@@ -31,13 +31,13 @@
 # is created or manipulated using HexaPDF.
 #++
 
-require 'hexapdf/cli'
+require 'hexapdf/cli/command'
 
 module HexaPDF
   module CLI
 
     # Shows the internal structure of a PDF file.
-    class Inspect < CmdParse::Command
+    class Inspect < Command
 
       def initialize #:nodoc:
         super('inspect', takes_commands: false)
@@ -84,7 +84,7 @@ module HexaPDF
         options.separator("")
         options.on("--password PASSWORD", "-p", String,
                    "The password for decryption. Use - for reading from standard input.") do |pwd|
-          @password = (pwd == '-' ? command_parser.read_password : pwd)
+          @password = (pwd == '-' ? read_password : pwd)
         end
 
         @password = nil
@@ -117,7 +117,7 @@ module HexaPDF
       end
 
       def do_pages(doc) #:nodoc:
-        pages = command_parser.parse_pages_specification(@param, doc.pages.count)
+        pages = parse_pages_specification(@param, doc.pages.count)
         pages.each do |index, _|
           page = doc.pages[index]
           str = "page #{index + 1} (#{page.oid},#{page.gen}): "

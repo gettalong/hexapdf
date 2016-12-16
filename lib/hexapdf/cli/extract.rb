@@ -31,7 +31,7 @@
 # is created or manipulated using HexaPDF.
 #++
 
-require 'hexapdf/cli'
+require 'hexapdf/cli/command'
 
 module HexaPDF
   module CLI
@@ -39,7 +39,7 @@ module HexaPDF
     # Extracts files from a PDF file.
     #
     # See: HexaPDF::Type::EmbeddedFile
-    class Extract < CmdParse::Command
+    class Extract < Command
 
       def initialize #:nodoc:
         super('extract', takes_commands: false)
@@ -60,7 +60,7 @@ module HexaPDF
         end
         options.on("--password PASSWORD", "-p", String,
                    "The password for decryption. Use - for reading from standard input.") do |pwd|
-          @password = (pwd == '-' ? command_parser.read_password : pwd)
+          @password = (pwd == '-' ? read_password : pwd)
         end
         @indices = []
         @password = ''
