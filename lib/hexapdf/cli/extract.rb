@@ -63,7 +63,7 @@ module HexaPDF
           @password = (pwd == '-' ? read_password : pwd)
         end
         @indices = []
-        @password = ''
+        @password = nil
         @search = false
       end
 

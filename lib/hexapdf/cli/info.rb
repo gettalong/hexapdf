@@ -57,7 +57,7 @@ module HexaPDF
                    "The password for decryption. Use - for reading from standard input.") do |pwd|
           @password = (pwd == '-' ? read_password : pwd)
         end
-        @password = ''
+        @password = nil
         @auto_decrypt = true
       end
 
