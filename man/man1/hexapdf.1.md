@@ -228,13 +228,13 @@ Synopsis: `inspect` \[`OPTIONS`] *FILE*
 This command is useful when one needs to inspect the internal object structure or a stream of a PDF
 file.
 
-If no option is given, the main PDF object, the catalog, is shown. Otherwise the various, mutually
-exclusive display options define what is shown. If multiple such options are specified only the last
-one is respected. Note that PDF objects are always shown in the native PDF syntax.
+If no option is given, the PDF trailer is shown. Otherwise the various, mutually exclusive display
+options define what is shown. If multiple such options are specified only the last one is respected.
+Note that PDF objects are always shown in the native PDF syntax.
 
-`-t`, `--trailer`
+`--catalog`
 
-: Show the trailer dictionary.
+: Show the PDF catalog dictionary.
 
 `-c`, `--page-count`
 
@@ -472,8 +472,8 @@ creator, creation date and encryption related information.
 `hexapdf inspect input.pdf -o 3`  
 
 Inspect a PDF: These commands can be used to inspect the internal object structure of a PDF file.
-The first command shows the PDF catalog object, the main object of a PDF file. The second one shows
-the object with the object number 3.
+The first command shows the PDF trailer object. The second one shows the object with the object
+number 3.
 
 
 ## EXIT STATUS

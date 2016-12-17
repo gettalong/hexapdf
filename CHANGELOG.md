@@ -8,6 +8,7 @@
 
 * Refactor `hexapdf modify` command into three individual commands `modify`,
   `merge` and `optimize`
+* Show PDF trailer by default with `hexapdf inspect`
 * Refactor CLI command classes to use specialized superclass
   [HexaPDF::CLI::Command]
 * Optimize parsing of PDF files for better performance and memory efficiency

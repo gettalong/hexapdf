@@ -47,13 +47,13 @@ module HexaPDF
           needs to inspect the internal object structure or a stream of a PDF file. A PDF object is
           always shown in the PDF syntax.
 
-          If no option is given, the main PDF object, the catalog, is shown. Otherwise the various,
-          mutually exclusive display options define the shown content. If multiple such options are
-          specified only the last is respected.
+          If no option is given, the PDF trailer is shown. Otherwise the various, mutually exclusive
+          display options define the shown content. If multiple such options are specified only the
+          last is respected.
         EOF
 
-        options.on("-t", "--trailer", "Show the trailer dictionary.") do
-          @exec = :trailer
+        options.on("--catalog", "Show the PDF catalog dictionary.") do
+          @exec = :catalog
         end
         options.on("-c", "--page-count", "Print the number of pages.") do
           @exec = :page_count
@@ -88,7 +88,7 @@ module HexaPDF
         end
 
         @password = nil
-        @exec = :catalog
+        @exec = :trailer
         @param = nil
         @raw = nil
       end
