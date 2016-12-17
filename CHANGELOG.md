@@ -8,6 +8,10 @@
   [HexaPDF::CLI::Command]
 * Optimize parsing of PDF files for better performance and memory efficiency
 
+### Fixed
+
+* Performance problem for `hexapdf inspect --pages` when inspecting huge files
+
 
 ## 0.2.0 - 2016-11-28
 
