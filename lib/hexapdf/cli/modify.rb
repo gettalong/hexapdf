@@ -76,6 +76,7 @@ module HexaPDF
       end
 
       def execute(in_file, out_file) #:nodoc:
+        check_output_file(out_file)
         HexaPDF::Document.open(in_file, decryption_opts: {password: @password}) do |doc|
           arrange_pages(doc) unless @pages == '1-e'
           @embed_files.each {|file| doc.files.add(file, embed: true)}

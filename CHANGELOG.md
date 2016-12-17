@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* CLI option `--no-force` to prohibit overwriting existing files
+
 ### Changed
 
 * Refactor `hexapdf modify` command into three individual commands `modify`,

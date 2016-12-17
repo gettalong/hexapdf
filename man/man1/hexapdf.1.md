@@ -35,6 +35,10 @@ The following options can only be used when no command is specified:
 
 These options are available on every command (except if they are overridden):
 
+`--no-force`
+
+: Don't overwrite existing files.
+
 `-h`, `--help`
 
 : Show the help for the application if no command was specified, or the command help otherwise.

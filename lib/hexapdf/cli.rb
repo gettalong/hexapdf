@@ -51,12 +51,16 @@ module HexaPDF
     def self.run(args = ARGV)
       Application.new.parse(args)
     rescue => e
-      $stderr.puts "An error occurred: #{e.message}"
+      $stderr.puts "Problem encountered: #{e.message}"
       exit(1)
     end
 
     # The CmdParse::CommandParser class that is used for running the CLI application.
     class Application < CmdParse::CommandParser
+
+      # Specifies whether an operation should be forced. For example, if an existing file should be
+      # overwritten.
+      attr_reader :force
 
       def initialize #:nodoc:
         super(handle_exceptions: :no_help)
@@ -70,6 +74,11 @@ module HexaPDF
         add_command(HexaPDF::CLI::Merge.new)
         add_command(CmdParse::HelpCommand.new)
         add_command(CmdParse::VersionCommand.new)
+
+        @force = true
+        global_options.on("--no-force", "Don't overwrite existing files") do
+          @force = false
+        end
       end
 
       def parse(argv = ARGV) #:nodoc:
