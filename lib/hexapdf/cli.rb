@@ -36,6 +36,8 @@ require 'hexapdf/cli/info'
 require 'hexapdf/cli/extract'
 require 'hexapdf/cli/inspect'
 require 'hexapdf/cli/modify'
+require 'hexapdf/cli/merge'
+require 'hexapdf/cli/optimize'
 require 'hexapdf/version'
 require 'hexapdf/document'
 
@@ -64,6 +66,8 @@ module HexaPDF
         add_command(HexaPDF::CLI::Extract.new)
         add_command(HexaPDF::CLI::Inspect.new)
         add_command(HexaPDF::CLI::Modify.new)
+        add_command(HexaPDF::CLI::Optimize.new)
+        add_command(HexaPDF::CLI::Merge.new)
         add_command(CmdParse::HelpCommand.new)
         add_command(CmdParse::VersionCommand.new)
       end

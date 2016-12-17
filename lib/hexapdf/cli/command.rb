@@ -32,7 +32,9 @@
 #++
 
 require 'io/console'
+require 'ostruct'
 require 'cmdparse'
+require 'hexapdf/document'
 
 module HexaPDF
   module CLI
@@ -43,9 +45,146 @@ module HexaPDF
 
       def initialize(*args, &block) #:nodoc:
         super
+        @out_options = OpenStruct.new
+        @out_options.compact = true
+        @out_options.compress_pages = false
+        @out_options.object_streams = :preserve
+        @out_options.xref_streams = :preserve
+        @out_options.streams = :preserve
+
+        @out_options.encryption = :preserve
+        @out_options.enc_user_pwd = @out_options.enc_owner_pwd = nil
+        @out_options.enc_key_length = 128
+        @out_options.enc_algorithm = :aes
+        @out_options.enc_force_v4 = false
+        @out_options.enc_permissions = []
       end
 
       protected
+
+      # Defines the optimization options.
+      #
+      # See: #out_options, #apply_optimization_options
+      def define_optimization_options
+        options.on("--[no-]compact", "Delete unnecessary PDF objects (default: " \
+                   "#{@out_options.compact})") do |c|
+          @out_options.compact = c
+        end
+        options.on("--object-streams MODE", [:generate, :preserve, :delete],
+                   "Handling of object streams (either generate, preserve or delete; " \
+                     "default: #{@out_options.object_streams})") do |os|
+          @out_options.object_streams = os
+        end
+        options.on("--xref-streams MODE", [:generate, :preserve, :delete],
+                   "Handling of cross-reference streams (either generate, preserve or delete; " \
+                     "default: #{@out_options.xref_streams})") do |x|
+          @out_options.xref_streams = x
+        end
+        options.on("--streams MODE", [:compress, :preserve, :uncompress],
+                   "Handling of stream data (either compress, preserve or uncompress; default: " \
+                     "#{@out_options.streams})") do |streams|
+          @out_options.streams = streams
+        end
+        options.on("--[no-]compress-pages", "Recompress page content streams (may take a long " \
+                   "time; default: #{@out_options.compress_pages})") do |c|
+          @out_options.compress_pages = c
+        end
+      end
+
+      # Defines the encryption options.
+      #
+      # See: #out_options, #apply_encryption_options
+      def define_encryption_options
+        options.on("--decrypt", "Remove any encryption") do
+          @out_options.encryption = :remove
+        end
+        options.on("--encrypt", "Encrypt the output file") do
+          @out_options.encryption = :add
+        end
+        options.on("--owner-password PASSWORD", String, "The owner password to be set on the " \
+                   "output file (use - for reading from standard input)") do |pwd|
+          @out_options.encryption = :add
+          @out_options.enc_owner_pwd = (pwd == '-' ? read_password("Owner password") : pwd)
+        end
+        options.on("--user-password PASSWORD", String, "The user password to be set on the " \
+                   "output file (use - for reading from standard input)") do |pwd|
+          @out_options.encryption = :add
+          @out_options.enc_user_pwd = (pwd == '-' ? read_password("User password") : pwd)
+        end
+        options.on("--algorithm ALGORITHM", [:aes, :arc4],
+                   "The encryption algorithm: aes or arc4 (default: " \
+                     "#{@out_options.enc_algorithm})") do |a|
+          @out_options.encryption = :add
+          @out_options.enc_algorithm = a
+        end
+        options.on("--key-length BITS", Integer,
+                   "The encryption key length in bits (default: " \
+                     "#{@out_options.enc_key_length})") do |i|
+          @out_options.encryption = :add
+          @out_options.enc_key_length = i
+        end
+        options.on("--force-V4",
+                   "Force use of encryption version 4 if key length=128 and algorithm=arc4") do
+          @out_options.encryption = :add
+          @out_options.enc_force_v4 = true
+        end
+        syms = HexaPDF::Encryption::StandardSecurityHandler::Permissions::SYMBOL_TO_PERMISSION.keys
+        options.on("--permissions PERMS", Array,
+                   "Comma separated list of permissions to be set on the output file. Possible " \
+                     "values: #{syms.join(', ')}") do |perms|
+          perms.map! do |perm|
+            unless syms.include?(perm.to_sym)
+              raise OptionParser::InvalidArgument, "#{perm} (invalid permission name)"
+            end
+            perm.to_sym
+          end
+          @out_options.encryption = :add
+          @out_options.enc_permissions = perms
+        end
+      end
+
+      # Applies the optimization options to the given HexaPDF::Document instance.
+      #
+      # See: #define_optimization_options
+      def apply_optimization_options(doc)
+        doc.task(:optimize, compact: @out_options.compact,
+                 object_streams: @out_options.object_streams,
+                 xref_streams: @out_options.xref_streams,
+                 compress_pages: @out_options.compress_pages)
+        handle_streams(doc) unless @out_options.streams == :preserve
+      end
+
+      IGNORED_FILTERS = { #:nodoc:
+        CCITTFaxDecode: true, JBIG2Decode: true, DCTDecode: true, JPXDecode: true, Crypt: true
+      }.freeze
+
+      # Applies the chosen stream mode to all streams.
+      def handle_streams(doc)
+        doc.each(current: false) do |obj|
+          next if !obj.respond_to?(:set_filter) || Array(obj[:Filter]).any? {|f| IGNORED_FILTERS[f]}
+          if @out_options.streams == :compress
+            obj.set_filter(:FlateDecode)
+          else
+            obj.set_filter(nil)
+          end
+        end
+      end
+
+      # Applies the encryption related options to the given HexaPDF::Document instance.
+      #
+      # See: #define_encryption_options
+      def apply_encryption_options(doc)
+        if @out_options.encryption == :add
+          doc.encrypt(algorithm: @out_options.enc_algorithm,
+                      key_length: @out_options.enc_key_length,
+                      force_V4: @out_options.enc_force_v4,
+                      permissions: @out_options.enc_permissions,
+                      owner_password: @out_options.enc_owner_pwd,
+                      user_password: @out_options.enc_user_pwd)
+        elsif @out_options.encryption == :remove
+          doc.encrypt(name: nil)
+        end
+      end
 
       PAGE_NUMBER_SPEC = "([1-9]\\d*|e)".freeze #:nodoc:
       ROTATE_MAP = {'l' => -90, 'r' => 90, 'd' => 180, 'n' => :none}.freeze #:nodoc:

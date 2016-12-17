@@ -31,55 +31,43 @@
 # is created or manipulated using HexaPDF.
 #++
 
-require 'ostruct'
 require 'hexapdf/cli/command'
 
 module HexaPDF
   module CLI
 
-    # Modifies a PDF file:
-    #
-    # * Decrypts or encrypts the resulting output PDF file.
-    # * Generates or deletes object and cross-reference streams.
-    # * Optimizes the output PDF by merging the revisions of a PDF file and removes unused entries.
-    #
-    # See: HexaPDF::Task::Optimize
-    class Modify < Command
+    # Optimizes the size of a PDF file.
+    class Optimize < Command
 
       def initialize #:nodoc:
-        super('modify', takes_commands: false)
-        short_desc("Modify a PDF file")
+        super('optimize', takes_commands: false)
+        short_desc("Optimize the size of a PDF file")
         long_desc(<<-EOF.gsub!(/^ */, ''))
-          This command modifies a PDF file. It can be used to select pages that should appear in
-          the output file and/or rotate them. The output file can also be encrypted/decrypted and
-          optimized in various ways.
+          This command uses several optimization strategies to reduce the file size of the PDF file.
+
+          By default, all strategies except page compression are used since page compression may
+          take a very long time without much benefit.
         EOF
 
         @password = nil
-        @pages = '1-e'
-        @embed_files = []
+        @out_options.compact = true
+        @out_options.xref_streams = :generate
+        @out_options.object_streams = :generate
+        @out_options.streams = :compress
 
         options.on("--password PASSWORD", "-p", String,
                    "The password for decryption. Use - for reading from standard input.") do |pwd|
           @password = (pwd == '-' ? read_password : pwd)
         end
-        options.on("-i", "--pages PAGES", "The pages of the input file that should be used " \
-                   "(default: 1-e)") do |pages|
-          @pages = pages
-        end
-        options.on("-e", "--embed FILE", String, "Embed the file into the output file (can be " \
-                   "used multiple times)") do |file|
-          @embed_files << file
-        end
+
+        options.separator("")
+        options.separator("Optimization options")
         define_optimization_options
-        define_encryption_options
       end
 
       def execute(in_file, out_file) #:nodoc:
         HexaPDF::Document.open(in_file, decryption_opts: {password: @password}) do |doc|
-          arrange_pages(doc) unless @pages == '1-e'
-          @embed_files.each {|file| doc.files.add(file, embed: true)}
-          apply_encryption_options(doc)
+          optimize_page_tree(doc)
           apply_optimization_options(doc)
           doc.write(out_file)
         end
@@ -90,22 +78,23 @@ module HexaPDF
 
       private
 
-      # Arranges the pages of the document as specified with the --pages option.
-      def arrange_pages(doc)
-        all_pages = doc.pages.to_a
-        new_page_tree = doc.add(Type: :Pages)
-        parse_pages_specification(@pages, all_pages.length).each do |index, rotation|
-          page = all_pages[index]
+      # Optimizes the page tree by flattening it and deleting unsed objects.
+      def optimize_page_tree(doc)
+        page_tree = doc.add(Type: :Pages)
+        retained = {page_tree.data => true}
+        doc.pages.each do |page|
           page.value.update(page.copy_inherited_values)
-          if rotation == :none
-            page.delete(:Rotate)
-          else
-            page[:Rotate] = ((page[:Rotate] || 0) + rotation) % 360
-          end
-          new_page_tree.add_page(page)
+          page_tree.add_page(page)
+          retained[page.data] = true
         end
-        doc.delete(doc.catalog.delete(:Pages))
-        doc.catalog[:Pages] = new_page_tree
+        doc.catalog[:Pages] = page_tree
+
+        doc.each(current: false) do |obj|
+          next unless obj.kind_of?(HexaPDF::Dictionary)
+          if (obj.type == :Pages || obj.type == :Page) && !retained.key?(obj.data)
+            doc.delete(obj)
+          end
+        end
       end
 
     end

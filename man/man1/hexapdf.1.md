@@ -17,7 +17,9 @@ Using the hexapdf application the following tasks can be performed with PDF file
 * Extracting embedded files (see the `extract` command)
 * Showing general information of a PDF file (see the `info` command)
 * Inspecting the internal structure of a PDF file (see the `inspect` command)
+* Merging multiple PDF files into one (see the `merge` command)
 * Modifying an existing PDF file (see the `modify` command)
+* Optimizing the file size of a PDF file (see the `optimize` command)
 
 The application contains a built-in `help` command that can be used to provide a quick reminder of a
 command's purpose and its options.
@@ -38,13 +40,137 @@ These options are available on every command (except if they are overridden):
 : Show the help for the application if no command was specified, or the command help otherwise.
 
 
+### Optimization Options
+
+Theses options can only be used with the `merge`, `modify` and `optimize` commands and control
+optimization aspects when writing an output PDF file. Note that the defaults maybe different
+depending on the command.
+
+`--[no-]compact`
+
+: Delete unnecessary PDF objects. This includes merging the base revision and all incremental
+  updates into a single revision. Default: *yes*.
+
+`--object-streams` *MODE*
+
+: Defines how object streams should be treated: *generate* will remove all exisiting object streams
+  and generate new ones, *delete* will only remove existing object streams and *preserve* will do
+  nothing. Default: *preserve*.
+
+`--xref-streams` *MODE*
+
+: Defines how cross-reference streams should be treated: *generate* will add them, *delete* will
+  remove them and *preserve* will do nothing. Default: *preserve*.
+
+`--streams` *MODE*
+
+: Defines how streams should be treated: *compress* will compress them when possible, *uncompress*
+  will uncompress them when possible and *preserve* will do nothing to them. Default: *preserve*.
+
+`--[no-]compress-pages`
+
+: Recompress page content streams. This is a very expensive operation in terms of processing time
+  and won't lead to great file size improvements in many cases. Default: *no*.
+
+
+### Encryption Options
+
+These options can only be used with the `merge` and `modify` commands and control if and how an
+output PDF file should be encrypted. All options except `--decrypt` automatically enable
+`--encrypt`.
+
+Note that if a password is needed to open the input file and if encryption parameters are changed,
+the provided password is not automatically used for the output file!
+
+`--decrypt`
+
+: Remove any encryption.
+
+  If neither `--decrypt` nor `--encrypt` are specified, the existing encryption configuration is
+  preserved.
+
+`--encrypt`
+
+: Encrypt the *OUTPUT*.
+
+  If neither `--decrypt` nor `--encrypt` are specified, the existing encryption configuration is
+  preserved.
+
+`--owner-password` *PASSWORD*
+
+: The owner password to be set on the output file. This password is needed when operations not
+  allowed by the permissions need to be done. It can also be used when opening the PDF file.
+
+  If an owner password is set but no user password, the output file can be opened without a password
+  but the operations are restricted as if a user password were set.
+
+  Use **-** for *PASSWORD* for reading it from standard input.
+
+`--user-password` *PASSWORD*
+
+: The user password to be set on the output file. This password is needed when opening the PDF file.
+  The application should restrict the operations to those allowed by the permissions.
+
+  Use **-** for *PASSWORD* for reading it from standard input.
+
+`--algorithm` *ALGORITHM*
+
+: The encryption algorithm to use on the output file. Allowed algorithms are *aes* and *arc4* but
+  *arc4* should only be used if it is absolutely necessary for compatibility reasons. Default:
+  *aes*.
+
+`--key-length` *BITS*
+
+: The length of the encryption key in bits. The allowed values differ based on the chosen algorithm:
+  A number divisible by eight between 40 to 128 for *arc4* and 128 or 256 for *aes*. Default:
+  **128**.
+
+  Note: Using 256bit AES encryption can lead to problems viewing the PDF in many applications on
+  various platforms!
+
+`--force-V4`
+
+: Force the use of PDF encryption version 4 if key length is *128* and algorithm is *arc4*. This
+  option is probably only useful for testing the implementation of PDF libraries' encryption
+  handling.
+
+`--permissions` *PERMS*
+
+: A comma separated list of permissions to be set on the output file:
+
+  *print*
+  : allow printing
+
+  *modify_content*
+  : allow modification of the content of pages
+
+  *copy_content*
+  : allow text extraction and similar operations
+
+  *modify_annotation*
+  : allow creation and modification of annotations and filling in of forms
+
+  *fill_in_forms*
+  : allow filling in of forms even if *modify_annotation* is not set
+
+  *extract_content*
+  : allow text and graphics extraction in accessibility cases
+
+  *assemble_document*
+  : allow page modifications and bookmark creation
+
+  *high_quality_print*
+  : allow high quality printing
+
+
 ## COMMANDS
 
 hexapdf uses a command-style interface. This means that it provides different functionalities
 depending on the used command, and each command can have its own options.
 
 There is no need to write the full command name for hexapdf to understand it, the only requirement
-is that is must be unambiguous. So using `e` for the `extract` command is sufficient.
+is that is must be unambiguous. So using `e` for the `extract` command is sufficient. The same is
+true for long option names and option values.
 
 
 ### extract
@@ -136,39 +262,31 @@ one is respected. Note that PDF objects are always shown in the native PDF synta
   input.
 
 
-### modify
+### merge
 
-Synopsis: `modify` \[`OPTIONS`] { `--f` *INPUT* \| `--empty` } *OUTPUT*
+Synopsis: `merge` \[`OPTIONS`] { *INPUT* \| `--empty` } \[*INPUT*]... *OUTPUT*
 
-This command modifies a PDF file. It can be used to select pages that should appear in the output
-file and to add pages from other PDF files (i.e. merging PDF files). The output file can be
+This command merges pages from multiple PDFs into one output file which can optionally be
 encrypted/decrypted and optimized in various ways.
 
-The first input file is the primary file which gets modified, so meta data like file information,
-outlines, etc. are taken from it. Alternatively, it is possible to start with an empty PDF file by
-using `--empty`. The order of the options specifying the input files is important as the pages are
-added in that order. Note that the `--password` and `--pages` options always apply to the last
-preceeding input file.
+The first input file is the primary file from which meta data like file information, outlines, etc.
+are taken from. Alternatively, it is possible to start with an empty PDF file by using `--empty`.
+The order of the input files is important as the pages are added in that order. Note that the
+`--password` and `--pages` options always apply to the last preceeding input file.
 
 An input file can be specified multiple times, using a different `--pages` option each time. The
 `--password` option, if needed, only needs to be used the first time.
 
-Input file related options:
-
-`-f` *FILE*, `--file` *FILE*
-
-: An input file. At least one input file or `--empty` needs be used.
-
 `-p` *PASSWORD*, `--password` *PASSWORD*
 
-: The password to decrypt the last input file specified with `--file`. Use **-** for *PASSWORD* for
-  reading it from standard input.
+: The password to decrypt the last input file. Use **-** for *PASSWORD* for reading it from standard
+  input.
 
 `-i` *PAGES*, `--pages` *PAGES*
 
-: The pages (optionally rotated) from the last input file specified with the `--file` option that
-  should be included in the *OUTPUT*. See the **PAGES SPECIFICATION** below for details on the
-  allowed format of *PAGES*. Default: *1-e* (i.e. all pages with no additional rotation applied).
+: The pages (optionally rotated) from the last input file that should be included in the *OUTPUT*.
+  See the **PAGES SPECIFICATION** below for details on the allowed format of *PAGES*. Default: *1-e*
+  (i.e. all pages with no additional rotation applied).
 
 `-e`, `--empty`
 
@@ -182,121 +300,50 @@ Input file related options:
   with the second, third, ... specified pages. If fewer pages were specified for an input file, the
   input file is just skipped for the rest of the rounds.
 
-Output file related options:
+Additionally, the **Optimization Options** and **Encryption Options** can be used.
 
-`--embed` *FILE*
+
+### modify
+
+Synopsis: `modify` \[`OPTIONS`] *INPUT* *OUTPUT*
+
+This command modifies a PDF file. It can be used to select pages that should appear in the output
+file and/or rotate them. The output file can also be encrypted/decrypted and optimized in various
+ways.
+
+`-p` *PASSWORD*, `--password` *PASSWORD*
+
+: The password to decrypt the *INPUT*. Use **-** for *PASSWORD* for reading it from standard input.
+
+`-i` *PAGES*, `--pages` *PAGES*
+
+: The pages (optionally rotated) from the *INPUT* that should be included in the *OUTPUT*. See the
+  **PAGES SPECIFICATION** below for details on the allowed format of *PAGES*. Default: *1-e* (i.e.
+  all pages with no additional rotation applied).
+
+`-e` *FILE*, `--embed` *FILE*
 
 : Embed the given file into the *OUTPUT* using built-in features of PDF. This option can be used
   multiple times to embed more than one file.
 
-`--[no-]compact`
+Additionally, the **Optimization Options** and **Encryption Options** can be used.
 
-: Delete unnecessary PDF objects. This includes merging the base revision and all incremental
-  updates into a single revision. Default: *yes*.
 
-`--object-streams` *MODE*
+### optimize
 
-: Defines how object streams should be treated: *generate* will remove all exisiting object streams
-  and generate new ones, *delete* will only remove existing object streams and *preserve* will do
-  nothing. Default: *preserve*.
+Synopsis: `optimize` \[`OPTIONS`] *INPUT* *OUTPUT*
 
-`--xref-streams` *MODE*
+This command uses several optimization strategies to reduce the file size of the PDF file.
 
-: Defines how cross-reference streams should be treated: *generate* will add them, *delete* will
-  remove them and *preserve* will do nothing. Default: *preserve*.
+By default, all strategies except page compression are used since page compression may take a very
+long time without much benefit.
 
-`--streams` *MODE*
+`-p` *PASSWORD*, `--password` *PASSWORD*
 
-: Defines how streams should be treated: *compress* will compress them when possible, *uncompress*
-  will uncompress them when possible and *preserve* will do nothing to them. Default: *preserve*.
+: The password to decrypt the *INPUT*. Use **-** for *PASSWORD* for reading it from standard input.
 
-`--[no-]compress-pages`
-
-: Recompress page content streams. This is a very expensive operation in terms of processing time
-  and won't lead to great file size improvements in many cases. Default: *no*.
-
-Output file encryption related options (all options except `--decrypt` automatically enable
-`--encrypt`):
-
-`--decrypt`
-
-: Remove any encryption.
-
-  If neither `--decrypt` nor `--encrypt` are specified, the existing encryption configuration is
-  preserved.
-
-`--encrypt`
-
-: Encrypt the *OUTPUT*.
-
-  If neither `--decrypt` nor `--encrypt` are specified, the existing encryption configuration is
-  preserved.
-
-`--owner-password` *PASSWORD*
-
-: The owner password to be set on the *OUTPUT*. This password is needed when operations not allowed
-  by the permissions need to be done. It can also be used when opening the PDF file.
-
-  If an owner password is set but no user password, the output file can be opened without a password
-  but the operations are restricted as if a user password were set.
-
-  Use **-** for *PASSWORD* for reading it from standard input.
-
-`--user-password` *PASSWORD*
-
-: The user password to be set on the *OUTPUT*. This password is needed when opening the PDF file.
-  The application should restrict the operations to those allowed by the permissions.
-
-  Use **-** for *PASSWORD* for reading it from standard input.
-
-`--algorithm` *ALGORITHM*
-
-: The encryption algorithm to use on the *OUTPUT*. Allowed algorithms are *aes* and *arc4* but
-  *arc4* should only be used if it is absolutely necessary for compatibility reasons. Default:
-  *aes*.
-
-`--key-length` *BITS*
-
-: The length of the encryption key in bits. The allowed values differ based on the chosen algorithm:
-  A number divisible by eight between 40 to 128 for *arc4* and 128 or 256 for *aes*. Default:
-  **128**.
-
-  Note: Using 256bit AES encryption can lead to problems viewing the PDF in many applications on
-  various platforms!
-
-`--force-V4`
-
-: Force the use of PDF encryption version 4 if key length is *128* and algorithm is *arc4*. This
-  option is probably only useful for testing the implementation of PDF libraries' encryption
-  handling.
-
-`--permissions` *PERMS*
-
-: A comma separated list of permissions to be set on the *OUTPUT*:
-
-  *print*
-  : allow printing
-
-  *modify_content*
-  : allow modification of the content of pages
-
-  *copy_content*
-  : allow text extraction and similar operations
-
-  *modify_annotation*
-  : allow creation and modification of annotations and filling in of forms
-
-  *fill_in_forms*
-  : allow filling in of forms even if *modify_annotation* is not set
-
-  *extract_content*
-  : allow text and graphics extraction in accessibility cases
-
-  *assemble_document*
-  : allow page modifications and bookmark creation
-
-  *high_quality_print*
-  : allow high quality printing
+The **Optimization Options** can be used with this command. Note that the defaults are changed to
+provide good compression out of the box.
 
 
 ### version
@@ -348,51 +395,54 @@ Examples:
   and 6 (any possibly set rotation removed).
 
 
-## Examples
+## EXAMPLES
 
-### modify
+### merge
 
-`hexapdf modify --file input.pdf --object-stream generate output.pdf`  
-`hexapdf m -f input.pdf --obj g output.pdf`
-
-Compressing: Both commands do exactly the same, compressing the `input.pdf` to get a smaller file
-size. Howver, the second command uses the feature of abbreviating commands and options to their
-shortest unambiguous name so that less key presses are required.
-
-`hexapdf modify -f input1.pdf -f input2.pdf -f input3.pdf output.pdf`  
-`hexapdf modify -e -f input1.pdf -f input2.pdf -f input3.pdf output.pdf`
+`hexapdf merge input1.pdf input2.pdf input3.pdf output.pdf`  
+`hexapdf merge -e input1.pdf input2.pdf input3.pdf output.pdf`
 
 Merging: In the first case use `input1.pdf` as primary input file and merge the pages from
 `input2.pdf` and `input3.pdf` into it. In the second case an empty PDF file is used for merging the
 pages from the three given input files into it; the resulting output file will not have an meta data
 or other additional data from the first input file.
 
-`hexapdf modify -f odd.pdf -f even.pdf --interleave combined.pdf`
+`hexapdf merge odd.pdf even.pdf --interleave combined.pdf`
 
-Page interleaving: Takes alternatly a page from `odd.pdf` and `even.pdf` to create the output file.
+Page interleaving: Takes alternately a page from `odd.pdf` and `even.pdf` to create the output file.
 This is very useful if you only have a simplex scanner: First you scan the front sides, creating
 `odd.pdf`, and then you scan the back sides, creating `even.pdf`. With the command the pages can be
 ordered in the correct way.
 
-`hexapdf modify -f input.pdf -i 1-5,7-10,12-e output.pdf`
 
-Page removal: Remove the pages 6 and 12 from the `input.pdf`.
+### modify
 
-`hexapdf modify -f input.pdf -i 1r,2-ed output.pdf`
+`hexapdf modify input.pdf -i 1-5,7-10,12-e output.pdf`
+
+Page removal: Remove the pages 6 and 11 from the `input.pdf`.
+
+`hexapdf modify input.pdf -i 1r,2-ed output.pdf`
 
 Page rotation: Rotate the first page to the right, that is 90 degrees clockwise, and all other pages
 180 degrees.
 
-`hexapdf modify -f input.pdf --user-password my_pwd --permissions print output.pdf`
+`hexapdf modify input.pdf --user-password my_pwd --permissions print output.pdf`
 
-Encryption: Encrypt the `output.pdf` so that a password is needed to open it, and only allow
-printing.
+Encryption: Create the `output.pdf` from the `input.pdf` so that a password is needed to open it,
+and only allow printing.
 
-`hexapdf modify -f input.pdf -p input_password --decrypt output.pdf`
+`hexapdf modify input.pdf -p input_password --decrypt output.pdf`
 
 Encryption removal: Create the `output.pdf` as copy of `input.pdf` but with the encryption removed.
 If the `--decrypt` was not used, the output file would retain the encryption specification of the
-primary input file.
+input file.
+
+
+### optimize
+
+`hexapdf optimize input.pdf output.pdf`
+
+Optimization: Compress the `input.pdf` to get a smaller file size.
 
 
 ### extract
