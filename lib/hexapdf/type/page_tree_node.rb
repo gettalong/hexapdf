@@ -115,6 +115,9 @@ module HexaPDF
       #
       # Must be called on the root of the page tree, otherwise the /Count entries are not
       # correctly updated!
+      #
+      # If an existing page is inserted, it may be necessary to use Page#copy_inherited_values
+      # before insertion so that the page dictionary contains all necessary information.
       def insert_page(index, page = nil)
         page ||= new_page
         index = self[:Count] + index + 1 if index < 0
@@ -147,6 +150,8 @@ module HexaPDF
       end
 
       # Adds the page or a new empty page at the end and returns it.
+      #
+      # See: #insert_page
       def add_page(page = nil)
         insert_page(-1, page)
       end
