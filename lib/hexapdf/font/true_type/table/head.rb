@@ -98,7 +98,7 @@ module HexaPDF
           #
           # See: Table#checksum_valid?
           def checksum_valid?
-            data = with_io_pos(directory_entry.offset) { io.read(directory_entry.length) }
+            data = raw_data
             data[8, 4] = 0.chr * 4
             directory_entry.checksum == self.class.calculate_checksum(data)
           end

@@ -87,8 +87,12 @@ module HexaPDF
         # Returns +true+ if the checksum stored in the directory entry of the table matches the
         # tables data.
         def checksum_valid?
-          data = with_io_pos(directory_entry.offset) { io.read(directory_entry.length) }
-          directory_entry.checksum == self.class.calculate_checksum(data)
+          directory_entry.checksum == self.class.calculate_checksum(raw_data)
+        end
+
+        # Returns the raw table data.
+        def raw_data
+          with_io_pos(directory_entry.offset) { io.read(directory_entry.length) }
         end
 
         private
