@@ -50,6 +50,7 @@ describe HexaPDF::Font::TrueType::Table::Glyf do
       assert_equal(-100, glyph.x_max)
       assert_equal(-150, glyph.y_max)
       assert_equal([1, 2, 3, 4, 1], glyph.components)
+      assert_equal([12, 18, 28, 40, 56], glyph.component_offsets)
     end
   end
 end

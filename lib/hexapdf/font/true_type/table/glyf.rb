@@ -74,12 +74,16 @@ module HexaPDF
             # The array with the component glyph IDs, or +nil+ if this is not a compound glyph.
             attr_reader :components
 
+            # The array with the component glyph offsets, or +nil+ if this is not a compound glyph.
+            attr_reader :component_offsets
+
             # Creates a new glyph from the given raw data.
             def initialize(raw_data)
               @raw_data = raw_data
               @number_of_contours, @x_min, @y_min, @x_max, @y_max = @raw_data.unpack('s>5')
               @number_of_contours ||= 0
               @components = nil
+              @component_offsets = nil
               parse_compound_glyph if compound?
             end
 
@@ -107,7 +111,7 @@ module HexaPDF
               while true
                 flags, glyph_id = raw_data[index, 4].unpack('n2')
                 @components << glyph_id
-                @component_offsets << index
+                @component_offsets << (index + 2)
                 break if flags & FLAG_MORE_COMPONENTS == 0
 
                 index += 4 # fields flags and glyphIndex
