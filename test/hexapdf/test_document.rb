@@ -392,7 +392,7 @@ EOF
       objs = [[10, 20, 30], [200, nil]]
       data = @io_doc.revisions.map.with_index {|rev, i| objs[i].map {|o| [o, rev]}}.reverse.flatten
       @io_doc.each(current: false) do |obj, rev|
-        assert_equal(data.shift, obj.value)
+        assert(data.shift == obj.value)
         assert_equal(data.shift, rev)
       end
     end

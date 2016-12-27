@@ -49,11 +49,11 @@ describe HexaPDF::Type::ObjectStream do
     @obj.delete_object(5)
     assert_equal(0, @obj.object_index(9))
     assert_equal(1, @obj.object_index(7))
-    assert_equal(nil, @obj.object_index(5))
+    assert_nil(@obj.object_index(5))
 
     @obj.delete_object(7)
     @obj.delete_object(9)
-    assert_equal(nil, @obj.object_index(5))
+    assert_nil(@obj.object_index(5))
   end
 
   it "allows writing the objects to the stream" do

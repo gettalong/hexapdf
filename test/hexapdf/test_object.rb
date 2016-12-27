@@ -9,7 +9,7 @@ describe HexaPDF::Object do
     it "handles not-duplicatable classes" do
       assert_equal(5, HexaPDF::Object.deep_copy(5))
       assert_equal(5.5, HexaPDF::Object.deep_copy(5.5))
-      assert_equal(nil, HexaPDF::Object.deep_copy(nil))
+      assert_nil(HexaPDF::Object.deep_copy(nil))
       assert_equal(true, HexaPDF::Object.deep_copy(true))
       assert_equal(false, HexaPDF::Object.deep_copy(false))
       assert_equal(:Name, HexaPDF::Object.deep_copy(:Name))

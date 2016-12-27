@@ -138,7 +138,7 @@ describe HexaPDF::Encryption::SecurityHandler do
       [[40, nil], [48, 48], [128, 128], [256, nil]].each do |key_length, result|
         algorithm = (key_length == 256 ? :aes : :arc4)
         @handler.set_up_encryption(key_length: key_length, algorithm: algorithm)
-        assert_equal(result, @handler.dict[:Length])
+        assert(result == @handler.dict[:Length])
       end
     end
 
