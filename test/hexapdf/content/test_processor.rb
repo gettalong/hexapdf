@@ -76,7 +76,7 @@ describe HexaPDF::Content::Processor do
       op.expect(:invoke, nil, [@processor, :arg])
       @processor.operators[:test] = op
       @processor.process(:test, [:arg])
-      op.verify
+      assert(op.verify)
     end
 
     it "invokes the mapped message name" do

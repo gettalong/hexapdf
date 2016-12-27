@@ -521,8 +521,8 @@ describe_operator :MoveTextAndSetLeading, :TD do
     @processor.operators[:Td] = td
 
     invoke(1.56, 1.78)
-    tl.verify
-    td.verify
+    assert(tl.verify)
+    assert(td.verify)
   end
 
   it "serializes correctly" do
@@ -554,7 +554,7 @@ describe_operator :MoveTextNextLine, :'T*' do
 
     @processor.graphics_state.leading = 1.78
     invoke
-    td.verify
+    assert(td.verify)
   end
 end
 
@@ -576,8 +576,8 @@ describe_operator :MoveTextNextLineAndShowText, :"'" do
     @processor.operators[:Tj] = tj
 
     invoke(text)
-    tstar.verify
-    tj.verify
+    assert(tstar.verify)
+    assert(tj.verify)
   end
 
   it "serializes correctly" do
@@ -602,9 +602,9 @@ describe_operator :SetSpacingMoveTextNextLineAndShowText, :'"' do
     @processor.operators[:"'"] = tapos
 
     invoke(word_spacing, char_spacing, text)
-    tw.verify
-    tc.verify
-    tapos.verify
+    assert(tw.verify)
+    assert(tc.verify)
+    assert(tapos.verify)
   end
 
   it "serializes correctly" do
