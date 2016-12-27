@@ -44,6 +44,7 @@ module HexaPDF
     module TrueType
 
       autoload(:Font, 'hexapdf/font/true_type/font')
+      autoload(:Subsetter, 'hexapdf/font/true_type/subsetter')
 
     end
 
