@@ -7,8 +7,8 @@ require 'hexapdf/document'
 describe HexaPDF::Font::TrueTypeWrapper do
   before do
     @doc = HexaPDF::Document.new
-    font_file = File.join(TEST_DATA_DIR, "fonts", "Ubuntu-Title.ttf")
-    @font = HexaPDF::Font::TrueType::Font.new(File.open(font_file))
+    @font_file = File.join(TEST_DATA_DIR, "fonts", "Ubuntu-Title.ttf")
+    @font = HexaPDF::Font::TrueType::Font.new(File.open(@font_file))
     @cmap = @font[:cmap].preferred_table
     @font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font)
   end
@@ -24,6 +24,11 @@ describe HexaPDF::Font::TrueTypeWrapper do
     end
   end
 
+  it "can be asked whether font wil be subset" do
+    assert(@font_wrapper.subset?)
+    refute(HexaPDF::Font::TrueTypeWrapper.new(@doc, @font, subset: false).subset?)
+  end
+
   describe "decode_utf8" do
     it "returns an array of glyph objects" do
       assert_equal("Test",
@@ -34,7 +39,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
       gotten = nil
       @doc.config['font.on_missing_glyph'] = proc {|c| gotten = c; 0 }
       assert_equal([0], @font_wrapper.decode_utf8("😁").map(&:id))
-      assert_equal(128513, gotten)
+      assert_equal(128_513, gotten)
     end
   end
 
@@ -52,59 +57,95 @@ describe HexaPDF::Font::TrueTypeWrapper do
   end
 
   describe "encode" do
-    it "returns the PDF font dictionary and the encoded glyph" do
-      dict = @font_wrapper.dict
+    it "returns the encoded glyph ID for fonts that are subset" do
+      code = @font_wrapper.encode(@font_wrapper.glyph(3))
+      assert_equal([1].pack('n'), code)
+      code = @font_wrapper.encode(@font_wrapper.glyph(10))
+      assert_equal([2].pack('n'), code)
+    end
 
+    it "returns the encoded glyph ID for fonts that are not subset" do
+      @font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font, subset: false)
       code = @font_wrapper.encode(@font_wrapper.glyph(3))
       assert_equal([3].pack('n'), code)
-      glyph = @font_wrapper.decode_utf8('H').first
-      code = @font_wrapper.encode(glyph)
-      assert_equal([glyph.id].pack('n'), code)
+      code = @font_wrapper.encode(@font_wrapper.glyph(10))
+      assert_equal([10].pack('n'), code)
+    end
+  end
 
-      @doc.dispatch_message(:complete_objects)
+  it "creates the necessary PDF dictionaries" do
+    @font_wrapper.encode(@font_wrapper.glyph(3))
+    glyph = @font_wrapper.decode_utf8('H').first
+    @font_wrapper.encode(glyph)
+    @doc.dispatch_message(:complete_objects)
 
-      # Checking Type 0 font dictionary
-      assert_equal(:Font, dict[:Type])
-      assert_equal(:Type0, dict[:Subtype])
-      assert_equal(:'Identity-H', dict[:Encoding])
-      assert_equal(1, dict[:DescendantFonts].length)
-      assert_equal(dict[:BaseFont], dict[:DescendantFonts][0][:BaseFont])
-      assert_equal(HexaPDF::Font::CMap.create_to_unicode_cmap([[3, ' '.ord], [glyph.id, 'H'.ord]]),
-                   dict[:ToUnicode].stream)
+    dict = @font_wrapper.dict
 
-      # Checking CIDFont dictionary
-      cidfont = dict[:DescendantFonts][0]
-      assert_equal(:Font, cidfont[:Type])
-      assert_equal(:CIDFontType2, cidfont[:Subtype])
-      assert_equal({Registry: "Adobe", Ordering: "Identity", Supplement: 0}, cidfont[:CIDSystemInfo])
-      assert_equal(:Identity, cidfont[:CIDToGIDMap])
-      assert_equal(@font_wrapper.glyph(3).width, cidfont[:DW])
-      assert_equal([glyph.id, [glyph.width]], cidfont[:W])
+    # Checking Type 0 font dictionary
+    assert_equal(:Font, dict[:Type])
+    assert_equal(:Type0, dict[:Subtype])
+    assert_equal(:'Identity-H', dict[:Encoding])
+    assert_equal(1, dict[:DescendantFonts].length)
+    assert_equal(dict[:BaseFont], dict[:DescendantFonts][0][:BaseFont])
+    assert_equal(HexaPDF::Font::CMap.create_to_unicode_cmap([[3, ' '.ord], [glyph.id, 'H'.ord]]),
+                 dict[:ToUnicode].stream)
+    assert_match(/\A[A-Z]{6}\+Ubuntu-Title\z/, dict[:BaseFont])
 
-      # Checking font descriptor
-      fd = cidfont[:FontDescriptor]
-      assert_equal(dict[:BaseFont], fd[:FontName])
-      assert(fd.flagged?(:symbolic))
-      assert(fd.key?(:FontFile2))
-      assert(fd.validate)
+    # Checking CIDFont dictionary
+    cidfont = dict[:DescendantFonts][0]
+    assert_equal(:Font, cidfont[:Type])
+    assert_equal(:CIDFontType2, cidfont[:Subtype])
+    assert_equal({Registry: "Adobe", Ordering: "Identity", Supplement: 0}, cidfont[:CIDSystemInfo])
+    assert_equal(:Identity, cidfont[:CIDToGIDMap])
+    assert_equal(@font_wrapper.glyph(3).width, cidfont[:DW])
+    assert_equal([glyph.id, [glyph.width]], cidfont[:W])
 
-      @cmap.stub(:[], nil) do
-        @font[:'OS/2'].typo_ascender = 1000
-        font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font)
-        font_wrapper.encode(glyph)
-        fd = font_wrapper.dict[:DescendantFonts][0][:FontDescriptor]
-        assert_equal(800, fd[:CapHeight])
-        assert_equal(500, fd[:XHeight])
-      end
+    # Checking font descriptor
+    fd = cidfont[:FontDescriptor]
+    assert_equal(dict[:BaseFont], fd[:FontName])
+    assert(fd.flagged?(:symbolic))
+    assert(fd.key?(:FontFile2))
+    assert(fd.validate)
 
-      @font[:'OS/2'].version = 2
-      @font[:'OS/2'].x_height = 500 * @font[:head].units_per_em / 1000
-      @font[:'OS/2'].cap_height = 1000 * @font[:head].units_per_em / 1000
+    # Two special cases for determining cap height and x-height
+    @cmap.stub(:[], nil) do
+      @font[:'OS/2'].typo_ascender = 1000
       font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font)
       font_wrapper.encode(glyph)
       fd = font_wrapper.dict[:DescendantFonts][0][:FontDescriptor]
-      assert_equal(1000, fd[:CapHeight])
+      assert_equal(800, fd[:CapHeight])
       assert_equal(500, fd[:XHeight])
+    end
+
+    @font[:'OS/2'].version = 2
+    @font[:'OS/2'].x_height = 500 * @font[:head].units_per_em / 1000
+    @font[:'OS/2'].cap_height = 1000 * @font[:head].units_per_em / 1000
+    font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font)
+    font_wrapper.encode(glyph)
+    fd = font_wrapper.dict[:DescendantFonts][0][:FontDescriptor]
+    assert_equal(1000, fd[:CapHeight])
+    assert_equal(500, fd[:XHeight])
+  end
+
+  describe "font file embedding" do
+    it "embeds subset fonts" do
+      @font_wrapper.encode(@font_wrapper.glyph(10))
+      @doc.dispatch_message(:complete_objects)
+
+      font_data = @font_wrapper.dict[:DescendantFonts][0][:FontDescriptor][:FontFile2].stream
+      font = HexaPDF::Font::TrueType::Font.new(StringIO.new(font_data))
+      assert_equal(@font[:glyf][0].raw_data, font[:glyf][0].raw_data)
+      assert_equal(@font[:glyf][10].raw_data, font[:glyf][1].raw_data)
+    end
+
+    it "embeds full fonts" do
+      @font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font, subset: false)
+      @doc.dispatch_message(:complete_objects)
+
+      assert_equal(File.size(@font_file),
+                   @font_wrapper.dict[:DescendantFonts][0][:FontDescriptor][:FontFile2][:Length1])
+      assert_equal(File.binread(@font_file),
+                   @font_wrapper.dict[:DescendantFonts][0][:FontDescriptor][:FontFile2].stream)
     end
   end
 end

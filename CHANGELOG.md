@@ -2,6 +2,7 @@
 
 ### Added
 
+* TrueType font subsetting support
 * CLI option `--no-force` to prohibit overwriting existing files
 
 ### Changed

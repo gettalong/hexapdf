@@ -17,6 +17,13 @@ describe HexaPDF::FontLoader::FromConfiguration do
     assert_equal("Ubuntu-Title", wrapper.wrapped_font.font_name)
   end
 
+  it "passes the subset value to the wrapper" do
+    wrapper = @klass.call(@doc, "font")
+    assert(wrapper.subset?)
+    wrapper = @klass.call(@doc, "font", subset: false)
+    refute(wrapper.subset?)
+  end
+
   it "fails if the font file cannot be read" do
     @doc.config['font.map']['font'][:none] << "unknown"
     assert_raises(HexaPDF::Error) { @klass.call(@doc, "font") }

@@ -88,9 +88,12 @@ module HexaPDF
       attr_reader :dict
 
       # Creates a new object wrapping the TrueType font for the PDF document.
-      def initialize(document, font)
+      #
+      # If +subset+ is true, the font is subset.
+      def initialize(document, font, subset: true)
         @document = document
         @wrapped_font = font
+        @subsetter = (subset ? HexaPDF::Font::TrueType::Subsetter.new(font) : nil)
 
         @cmap = font[:cmap].preferred_table
         if @cmap.nil?
@@ -103,6 +106,11 @@ module HexaPDF
         @id_to_glyph = {}
         @codepoint_to_glyph = {}
         @encoded_glyphs = {}
+      end
+
+      # Returns +true+ if the wrapped TrueType font will be subset.
+      def subset?
+        !@subsetter.nil?
       end
 
       # Returns a Glyph object for the given glyph ID.
@@ -131,7 +139,14 @@ module HexaPDF
 
       # Encodes the glyph and returns the code string.
       def encode(glyph)
-        @encoded_glyphs[glyph] ||= [glyph.id].pack('n')
+        @encoded_glyphs[glyph] ||=
+          begin
+            if @subsetter
+              [@subsetter.use_glyph(glyph.id)].pack('n')
+            else
+              [glyph.id].pack('n')
+            end
+          end
       end
 
       private
@@ -145,8 +160,6 @@ module HexaPDF
       def build_font_dict
         scaling = 1000.0 / @wrapped_font[:head].units_per_em
 
-        embedded_font = @document.add({Length1: @wrapped_font.io.size},
-                                      stream: HexaPDF::StreamData.new(@wrapped_font.io))
         fd = @document.add(Type: :FontDescriptor,
                            FontName: @wrapped_font.font_name.intern,
                            FontWeight: @wrapped_font.weight,
@@ -155,8 +168,7 @@ module HexaPDF
                            ItalicAngle: @wrapped_font.italic_angle || 0,
                            Ascent: @wrapped_font.ascender * scaling,
                            Descent: @wrapped_font.descender * scaling,
-                           StemV: @wrapped_font.dominant_vertical_stem_width,
-                           FontFile2: embedded_font)
+                           StemV: @wrapped_font.dominant_vertical_stem_width)
         if @wrapped_font[:'OS/2'].version >= 2
           fd[:CapHeight] = @wrapped_font.cap_height * scaling
           fd[:XHeight] = @wrapped_font.x_height * scaling
@@ -182,7 +194,7 @@ module HexaPDF
         fd.flag(:symbolic)
 
         cid_font = @document.add(Type: :Font, Subtype: :CIDFontType2,
-                                 BaseFont: @wrapped_font.font_name.intern, FontDescriptor: fd,
+                                 BaseFont: fd[:FontName], FontDescriptor: fd,
                                  CIDSystemInfo: {Registry: "Adobe", Ordering: "Identity",
                                                  Supplement: 0},
                                  CIDToGIDMap: :Identity)
@@ -193,8 +205,44 @@ module HexaPDF
       # Makes sure that the Type0 font object as well as the CIDFont object contain all the needed
       # information.
       def complete_font_dict
+        update_font_name
+        embed_font
         complete_width_information
         create_to_unicode_cmap
+      end
+
+      UPPERCASE_LETTERS = ('A'..'Z').to_a.freeze #:nodoc:
+
+      # Updates the font name with a unique tag if the font is subset.
+      def update_font_name
+        return unless @subsetter
+
+        tag = ''
+        data = @encoded_glyphs.each_with_object(''.b) {|(g, v), s| s << g.id.to_s << v}
+        hash = Digest::MD5.hexdigest(data << @wrapped_font.font_name).to_i(16)
+        while hash != 0 && tag.length < 6
+          hash, mod = hash.divmod(UPPERCASE_LETTERS.length)
+          tag << UPPERCASE_LETTERS[mod]
+        end
+
+        name = (tag << "+" << @wrapped_font.font_name).intern
+        @dict[:BaseFont] = name
+        @dict[:DescendantFonts].first[:BaseFont] = name
+        @dict[:DescendantFonts].first[:FontDescriptor][:FontName] = name
+      end
+
+      # Embeds the font.
+      def embed_font
+        if @subsetter
+          data = @subsetter.build_font
+          length = data.size
+          stream = HexaPDF::StreamData.new(length: length) { data }
+        else
+          length = @wrapped_font.io.size
+          stream = HexaPDF::StreamData.new(@wrapped_font.io, length: length)
+        end
+        font = @document.add({Length1: length, Filter: :FlateDecode}, stream: stream)
+        @dict[:DescendantFonts].first[:FontDescriptor][:FontFile2] = font
       end
 
       # Adds the /DW and /W fields to the CIDFont dictionary.

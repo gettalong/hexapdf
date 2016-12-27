@@ -52,7 +52,10 @@ module HexaPDF
       #
       # +variant+::
       #     The font variant. Normally one of :none, :bold, :italic, :bold_italic.
-      def self.call(document, name, variant: :none, **)
+      #
+      # +subset+::
+      #     Specifies whether the font should be subset if possible.
+      def self.call(document, name, variant: :none, subset: true)
         file = document.config['font.map'].dig(name, variant)
         return nil if file.nil?
 
@@ -61,7 +64,7 @@ module HexaPDF
         end
 
         font = HexaPDF::Font::TrueType::Font.new(File.open(file))
-        HexaPDF::Font::TrueTypeWrapper.new(document, font)
+        HexaPDF::Font::TrueTypeWrapper.new(document, font, subset: subset)
       end
 
     end
