@@ -29,4 +29,20 @@ describe HexaPDF::Font::TrueType::Table do
       assert(table.checksum_valid?)
     end
   end
+
+  describe "read_fixed" do
+    it "works for unsigned values" do
+      @file.io.string = [1, 20480].pack('nn')
+      @entry.length = @file.io.string.length
+      table = TestHelper::TrueTypeTestTable.new(@file, @entry)
+      assert_equal(1 + Rational(20480, 65536), table.send(:read_fixed))
+    end
+
+    it "works for signed values" do
+      @file.io.string = [-1, 20480].pack('nn')
+      @entry.length = @file.io.string.length
+      table = TestHelper::TrueTypeTestTable.new(@file, @entry)
+      assert_equal(-1 + Rational(20480, 65536), table.send(:read_fixed))
+    end
+  end
 end
