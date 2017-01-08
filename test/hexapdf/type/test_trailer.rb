@@ -51,6 +51,10 @@ describe HexaPDF::Type::Trailer do
       @obj.update_id
       assert_same(@obj[:ID][0], @obj[:ID][1])
 
+      @obj[:ID] = 5
+      @obj.update_id
+      assert_same(@obj[:ID][0], @obj[:ID][1])
+
       @obj.update_id
       refute_same(@obj[:ID][0], @obj[:ID][1])
     end

@@ -88,7 +88,7 @@ module HexaPDF
       # Updates the second part of the /ID field (the first part should always be the same for a
       # PDF file, the second part should change with each write).
       def update_id
-        if !value[:ID]
+        if !value[:ID].kind_of?(Array)
           set_random_id
         else
           value[:ID][1] = Digest::MD5.digest(rand.to_s)

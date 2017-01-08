@@ -20,6 +20,7 @@
 * Performance problem for `hexapdf inspect --pages` when inspecting huge files
 * TrueType compound glyph component offset calculation
 * Parsing of TrueType data type 'fixed'
+* Updating a PDF trailer's ID field when it isn't an array
 
 ## 0.2.0 - 2016-11-28
 
