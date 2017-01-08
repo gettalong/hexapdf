@@ -103,6 +103,7 @@ module HexaPDF
       end
 
       trailer = rev.trailer.value.dup
+      trailer.delete(:XRefStm)
       if previous_xref_pos
         trailer[:Prev] = previous_xref_pos
       else

@@ -117,4 +117,13 @@ EOF
     xref_section.add_compressed_entry(1, 2, 3)
     assert_raises(HexaPDF::Error) { writer.send(:write_xref_section, xref_section) }
   end
+
+  it "removes the /XRefStm entry in a trailer" do
+    io = StringIO.new
+    doc = HexaPDF::Document.new
+    doc.trailer[:XRefStm] = 1234
+    doc.write(io)
+    doc = HexaPDF::Document.new(io: io)
+    refute(doc.trailer.key?(:XRefStm))
+  end
 end

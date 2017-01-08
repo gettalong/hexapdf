@@ -121,6 +121,11 @@ module HexaPDF
       self[oid, 0] = self.class.compressed_entry(oid, objstm, pos)
     end
 
+    # Merges the entries from the given cross-reference section into this one.
+    def merge!(xref_section)
+      xref_section.each {|oid, gen, data| self[oid, gen] = data}
+    end
+
     # :call-seq:
     #   xref_section.each_subsection {|sub| block }   -> xref_section
     #   xref_section.each_subsection                  -> Enumerator

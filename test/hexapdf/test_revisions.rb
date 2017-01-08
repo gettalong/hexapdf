@@ -29,16 +29,41 @@ startxref
 %%EOF
 
 2 0 obj
+300
+endobj
+
+3 0 obj
+<< /Type /XRef /Size 4 /Index [2 1] /W [1 1 1] /Filter /ASCIIHexDecode /Length 6
+>>stream
+019E00
+endstream
+endobj
+
+2 0 obj
 200
 endobj
 
 xref
-2 1
-0000000158 00000 n 
+2 2
+0000000301 00000 n 
+0000000178 00000 n 
 trailer
-<< /Size 3 /Prev 47 >>
+<< /Size 4 /Prev 47 >>
 startxref
-178
+321
+%%EOF
+
+2 0 obj
+400
+endobj
+
+xref
+2 1
+0000000422 00000 n 
+trailer
+<< /Size 4 /Prev 321 /XRefStm 178 >>
+startxref
+442
 %%EOF
 EOF
     @doc = HexaPDF::Document.new(io: @io)
@@ -48,7 +73,7 @@ EOF
   describe "add" do
     it "adds an empty revision as the current revision" do
       rev = @revisions.add
-      assert_equal({Size: 3}, rev.trailer.value)
+      assert_equal({Size: 4}, rev.trailer.value)
       assert_equal(rev, @revisions.current)
     end
   end
@@ -74,27 +99,28 @@ EOF
   describe "merge" do
     it "does nothing when only one revision is specified" do
       @revisions.merge(1..1)
-      assert_equal(2, @revisions.each.to_a.size)
+      assert_equal(3, @revisions.each.to_a.size)
     end
 
     it "merges the higher into the the lower revision" do
       @revisions.merge
       assert_equal(1, @revisions.each.to_a.size)
-      assert_equal([10, 200], @revisions.current.each.to_a.sort.map(&:value))
+      assert_equal([10, 400, @doc.object(3).value], @revisions.current.each.to_a.sort.map(&:value))
     end
 
     it "handles objects correctly that are in multiple revisions" do
       @revisions.current.add(@revisions[0].object(1))
       @revisions.merge
       assert_equal(1, @revisions.each.to_a.size)
-      assert_equal([10, 200], @revisions.current.each.to_a.sort.map(&:value))
+      assert_equal([10, 400, @doc.object(3).value], @revisions.current.each.to_a.sort.map(&:value))
     end
   end
 
   describe "initialize" do
     it "automatically loads all revisions from the underlying IO object" do
       assert_equal(20, @revisions.revision(0).object(2).value)
-      assert_equal(200, @revisions[1].object(2).value)
+      assert_equal(300, @revisions[1].object(2).value)
+      assert_equal(400, @revisions[2].object(2).value)
     end
   end
 end

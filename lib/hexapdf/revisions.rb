@@ -62,24 +62,22 @@ module HexaPDF
 
         parser = Parser.new(io, document)
         object_loader = lambda {|xref_entry| parser.load_object(xref_entry)}
-        revision_loader = lambda do |offset|
-          xref_section, trailer = parser.load_revision(offset)
-          Revision.new(document.wrap(trailer, type: :XXTrailer), xref_section: xref_section,
-                       loader: object_loader)
-        end
 
-        revisions = [revision_loader.call(parser.startxref_offset)]
+        revisions = []
+        xref_section, trailer = parser.load_revision(parser.startxref_offset)
+        revisions << Revision.new(document.wrap(trailer, type: :XXTrailer),
+                                  xref_section: xref_section, loader: object_loader)
 
-        i = revisions.length - 1
-        while i >= 0
+
+        while (prev = revisions[0].trailer.value[:Prev])
           # PDF1.7 s7.5.5 states that :Prev needs to be indirect, Adobe's reference 3.4.4 says it
           # should be direct. Adobe's POV is followed here. Same with :XRefStm.
-          xrefstm = revisions[i].trailer.value[:XRefStm]
-          prev = revisions[i].trailer.value[:Prev]
-          new_revisions = [(revision_loader.call(prev) if prev),
-                           (revision_loader.call(xrefstm) if xrefstm)].compact
-          revisions.insert(i, *new_revisions)
-          i += new_revisions.length - 1
+          xref_section, trailer = parser.load_revision(prev)
+          stm = revisions[0].trailer.value[:XRefStm]
+          stm_xref_section, = parser.load_revision(stm) if stm
+          xref_section.merge!(stm_xref_section) if stm
+          revisions.unshift(Revision.new(document.wrap(trailer, type: :XXTrailer),
+                                         xref_section: xref_section, loader: object_loader))
         end
 
         document.version = parser.file_header_version

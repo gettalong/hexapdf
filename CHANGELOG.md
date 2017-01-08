@@ -16,6 +16,8 @@
 
 ### Fixed
 
+* Writing of hybrid-reference PDF files - they are written as standard PDF files
+  since all current applications should be able to handle PDF 1.5
 * Serialization of self-referential, indirect PDF objects
 * Performance problem for `hexapdf inspect --pages` when inspecting huge files
 * TrueType compound glyph component offset calculation
