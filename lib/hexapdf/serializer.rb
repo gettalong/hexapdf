@@ -96,6 +96,7 @@ module HexaPDF
       @encrypter = false
       @io = nil
       @object = nil
+      @in_object = false
     end
 
     # Returns the serialized form of the given object.
@@ -267,10 +268,13 @@ module HexaPDF
     # Uses #serialize_hexapdf_reference if it is an indirect object, otherwise just serializes
     # the objects value.
     def serialize_hexapdf_object(obj)
-      if obj.indirect? && obj != @object
+      if obj.indirect? && (obj != @object || @in_object)
         serialize_hexapdf_reference(obj)
       else
-        __serialize(obj.value)
+        @in_object ||= (obj == @object)
+        str = __serialize(obj.value)
+        @in_object = false if obj == @object
+        str
       end
     end
 

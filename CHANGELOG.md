@@ -16,6 +16,7 @@
 
 ### Fixed
 
+* Serialization of self-referential, indirect PDF objects
 * Performance problem for `hexapdf inspect --pages` when inspecting huge files
 * TrueType compound glyph component offset calculation
 * Parsing of TrueType data type 'fixed'
