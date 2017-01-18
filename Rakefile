@@ -64,7 +64,7 @@ namespace :dev do
     s.require_path = 'lib'
     s.executables = ['hexapdf']
     s.default_executable = 'hexapdf'
-    s.add_dependency('cmdparse', '~> 3.0', '>= 3.0.1')
+    s.add_dependency('cmdparse', '~> 3.0', '>= 3.0.3')
     s.add_development_dependency('kramdown', '~> 1.0', '>= 1.13.0')
 
     s.author = 'Thomas Leitner'
