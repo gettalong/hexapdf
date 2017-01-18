@@ -3,6 +3,8 @@
 ### Added
 
 * TrueType font subsetting support
+* [HexaPDF::Type::Image#write] for writing an image XObject to an IO stream or
+  file
 * CLI option `--no-force` to prohibit overwriting existing files
 
 ### Changed
