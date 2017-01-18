@@ -33,7 +33,7 @@
 
 require 'cmdparse'
 require 'hexapdf/cli/info'
-require 'hexapdf/cli/extract'
+require 'hexapdf/cli/files'
 require 'hexapdf/cli/inspect'
 require 'hexapdf/cli/modify'
 require 'hexapdf/cli/merge'
@@ -67,7 +67,7 @@ module HexaPDF
         main_command.options.program_name = "hexapdf"
         main_command.options.version = HexaPDF::VERSION
         add_command(HexaPDF::CLI::Info.new)
-        add_command(HexaPDF::CLI::Extract.new)
+        add_command(HexaPDF::CLI::Files.new)
         add_command(HexaPDF::CLI::Inspect.new)
         add_command(HexaPDF::CLI::Modify.new)
         add_command(HexaPDF::CLI::Optimize.new)

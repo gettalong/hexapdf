@@ -14,7 +14,7 @@ which also allows PDF creation, among other things.
 Using the hexapdf application the following tasks can be performed with PDF files:
 
 {:.compact}
-* Extracting embedded files (see the `extract` command)
+* Extracting embedded files (see the `files` command)
 * Showing general information of a PDF file (see the `info` command)
 * Inspecting the internal structure of a PDF file (see the `inspect` command)
 * Merging multiple PDF files into one (see the `merge` command)
@@ -173,13 +173,13 @@ hexapdf uses a command-style interface. This means that it provides different fu
 depending on the used command, and each command can have its own options.
 
 There is no need to write the full command name for hexapdf to understand it, the only requirement
-is that is must be unambiguous. So using `e` for the `extract` command is sufficient. The same is
+is that is must be unambiguous. So using `f` for the `files` command is sufficient. The same is
 true for long option names and option values.
 
 
-### extract
+### files
 
-Synopsis: `extract` \[`OPTIONS`] *FILE*
+Synopsis: `files` \[`OPTIONS`] *FILE*
 
 This command extracts embedded files from the PDF *FILE*. If the `--indices` option is not
 specified, the names and indices of the embedded files are just listed.
@@ -449,10 +449,10 @@ input file.
 Optimization: Compress the `input.pdf` to get a smaller file size.
 
 
-### extract
+### files
 
-`hexapdf extract input.pdf`  
-`hexapdf extract input.pdf -i 1`
+`hexapdf files input.pdf`  
+`hexapdf files input.pdf -i 1`
 
 Embedded files: The first command lists the embedded files in the `input.pdf`, the second one then
 extracts the embedded file with the index 1.

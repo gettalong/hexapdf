@@ -11,6 +11,7 @@
 
 * Refactor `hexapdf modify` command into three individual commands `modify`,
   `merge` and `optimize`
+* Rename `hexapdf extract` to `hexapdf files`
 * Show PDF trailer by default with `hexapdf inspect`
 * Refactor CLI command classes to use specialized superclass
   [HexaPDF::CLI::Command]

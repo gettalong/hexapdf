@@ -36,18 +36,17 @@ require 'hexapdf/cli/command'
 module HexaPDF
   module CLI
 
-    # Extracts files from a PDF file.
+    # Lists or extracts embedded files from a PDF file.
     #
     # See: HexaPDF::Type::EmbeddedFile
-    class Extract < Command
+    class Files < Command
 
       def initialize #:nodoc:
-        super('extract', takes_commands: false)
-        short_desc("Extract files from a PDF file")
+        super('files', takes_commands: false)
+        short_desc("List or extract embedded files from a PDF file")
         long_desc(<<-EOF.gsub!(/^ */, ''))
-          This command extracts files embedded in a PDF file. If the option --indices is not given,
-          the available files are listed with their names and indices. The --indices option can then
-          be used to extract one or more files.
+          If the option --indices is not given, the available files are listed with their names and
+          indices. The --indices option can then be used to extract one or more files.
         EOF
         options.on("--indices a,b,c", "-i a,b,c,...", Array,
                    "The indices of the files that should be extracted. Use 0 to extract " \
@@ -67,8 +66,8 @@ module HexaPDF
         @search = false
       end
 
-      def execute(file) #:nodoc:
-        HexaPDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
+      def execute(pdf) #:nodoc:
+        HexaPDF::Document.open(pdf, decryption_opts: {password: @password}) do |doc|
           if @indices.empty?
             list_files(doc)
           else
