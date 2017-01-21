@@ -162,35 +162,31 @@ module HexaPDF
       #
       # Raises an error if the image format is not supported.
       #
-      # These are the supported filters and their output format and extension:
+      # The output format and extension depends on the image type as returned by the #info method:
       #
-      # DCTDecode:: Saved as a JPEG file with the extension '.jpg'
-      # JPXDecode:: Saved as a JPEG2000 file with the extension '.jpx'
-      # FlateDecode or no filter:: Saved as a PNG file with the extension '.png'
+      # :jpeg:: Saved as a JPEG file with the extension '.jpg'
+      # :jp2:: Saved as a JPEG2000 file with the extension '.jpx'
+      # :png:: Saved as a PNG file with the extension '.png'
       def write(name_or_io)
-        filter, rest = *self[:Filter]
-        if rest || ![:FlateDecode, :DCTDecode, :JPXDecode, nil].include?(filter)
-          raise HexaPDF::Error, "Unsupported PDF image format (reason: filter #{self[:Filter]})"
+        info = self.info
+
+        unless info.writable
+          raise HexaPDF::Error, "PDF image format not supported for writing"
         end
 
         io = if name_or_io.kind_of?(String)
-               ext = case filter
-                     when :DCTDecode then 'jpg'
-                     when :JPXDecode then 'jpx'
-                     else 'png'
-                     end
-               File.open(name_or_io.sub(/\.#{ext}\z/, '') + "." + ext, "wb")
+               File.open(name_or_io.sub(/\.#{info.extension}\z/, '') + "." + info.extension, "wb")
              else
                name_or_io
              end
 
-        if filter == :DCTDecode || filter == :JPXDecode
+        if info.type == :jpeg || info.type == :jp2
           source = stream_source
           while source.alive? && (chunk = source.resume)
             io << chunk
           end
         else
-          write_png(io)
+          write_png(io, info)
         end
       ensure
         io.close if io && name_or_io.kind_of?(String)
@@ -199,34 +195,19 @@ module HexaPDF
       private
 
       # Writes the image as PNG to the given IO stream.
-      def write_png(io)
-        filter, = *self[:Filter]
+      def write_png(io, info)
         io << ImageLoader::PNG::MAGIC_FILE_MARKER
 
-        width = self[:Width]
-        height = self[:Height]
-        bpc = self[:BitsPerComponent]
+        color_type = if info.indexed
+                       ImageLoader::PNG::INDEXED
+                     elsif info.color_space == :rgb
+                       ImageLoader::PNG::TRUECOLOR
+                     else
+                       ImageLoader::PNG::GREYSCALE
+                     end
 
-        colorspace, = *self[:ColorSpace]
-        if colorspace == :DeviceRGB || colorspace == :CalRGB
-          color_type = ImageLoader::PNG::TRUECOLOR
-        elsif colorspace == :DeviceGray || colorspace == :CalGray
-          color_type = ImageLoader::PNG::GREYSCALE
-        elsif colorspace == :Indexed
-          color_type = ImageLoader::PNG::INDEXED
-          colorspace, = *document.deref(self[:ColorSpace][1])
-          if colorspace == :DeviceRGB || colorspace == :CalRGB
-            colorspace = :rgb
-          elsif colorspace == :DeviceGray || colorspace == :CalGray
-            colorspace = :gray
-          else
-            raise HexaPDF::Error, "Unsupported PDF image format (reason: indexed colorspace)"
-          end
-        else
-          raise HexaPDF::Error, "Unsupported PDF image format (reason: colorspace)"
-        end
-
-        io << png_chunk('IHDR', [width, height, bpc, color_type, 0, 0, 0].pack('N2C5'))
+        io << png_chunk('IHDR', [info.width, info.height, info.bits_per_component,
+                                 color_type, 0, 0, 0].pack('N2C5'))
 
         if key?(:Intent)
           # PNG s11.3.3.5
@@ -240,7 +221,7 @@ module HexaPDF
           palette_data = document.deref(self[:ColorSpace][3])
           palette_data = palette_data.stream unless palette_data.kind_of?(String)
           palette = ''.b
-          if colorspace == :rgb
+          if info.color_space == :rgb
             palette = palette_data[0, palette_data.length - palette_data.length % 3]
           else
             palette_data.each_byte {|byte| palette << byte << byte << byte}
@@ -253,12 +234,13 @@ module HexaPDF
           io << png_chunk('tRNS', self[:Mask].each_slice(2).map {|a, _| a}.pack('n*'))
         end
 
+        filter, = *self[:Filter]
         if filter == :FlateDecode && self[:DecodeParms] && self[:DecodeParms][:Predictor].to_i >= 10
           data = stream_source
         else
           flate_decode = GlobalConfiguration.constantize('filter.map', :FlateDecode)
-          data = flate_decode.encoder(stream_decoder, Predictor: 15, Colors: 1,
-                                      BitsPerComponent: bpc, Columns: width)
+          data = flate_decode.encoder(stream_decoder, Predictor: 15, Colors: 1, Columns: info.width,
+                                      BitsPerComponent: info.bits_per_component)
         end
         io << png_chunk('IDAT', Filter.string_from_source(data))
 
