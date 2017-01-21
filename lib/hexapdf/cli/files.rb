@@ -45,13 +45,14 @@ module HexaPDF
         super('files', takes_commands: false)
         short_desc("List or extract embedded files from a PDF file")
         long_desc(<<-EOF.gsub!(/^ */, ''))
-          If the option --indices is not given, the available files are listed with their names and
-          indices. The --indices option can then be used to extract one or more files.
+          If the option --extract is not given, the available files are listed with their names and
+          indices. The --extract option can then be used to extract one or more files.
         EOF
-        options.on("--indices a,b,c", "-i a,b,c,...", Array,
-                   "The indices of the files that should be extracted. Use 0 to extract " \
-                   "all files.") do |indices|
-          @indices = indices.map(&:to_i)
+
+        options.on("--extract [a,b,c,...]", "-e [a,b,c,...]", Array,
+                   "The indices of the files that should be extracted. Use 0 or no argument to " \
+                   "extract all files.") do |indices|
+          @indices = (indices ? indices.map(&:to_i) : [0])
         end
         options.on("--[no-]search", "-s", "Search the whole PDF instead of the " \
                    "standard locations (default: false)") do |search|
@@ -61,6 +62,7 @@ module HexaPDF
                    "The password for decryption. Use - for reading from standard input.") do |pwd|
           @password = (pwd == '-' ? read_password : pwd)
         end
+
         @indices = []
         @password = nil
         @search = false
@@ -74,9 +76,6 @@ module HexaPDF
             extract_files(doc)
           end
         end
-      rescue HexaPDF::Error => e
-        $stderr.puts "Error while processing the PDF file: #{e.message}"
-        exit(1)
       end
 
       private

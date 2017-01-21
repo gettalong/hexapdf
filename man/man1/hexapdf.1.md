@@ -179,15 +179,15 @@ true for long option names and option values.
 
 ### files
 
-Synopsis: `files` \[`OPTIONS`] *FILE*
+Synopsis: `files` \[`OPTIONS`] *PDF*
 
-This command extracts embedded files from the PDF *FILE*. If the `--indices` option is not
-specified, the names and indices of the embedded files are just listed.
+This command extracts embedded files from the *PDF*. If the `--extract` option is not specified, the
+indices and names of the embedded files are just listed.
 
-`-i` *A,B,C,...*, `--indices` *A,B,C,...*
+`-e` \[*A,B,C,...*], `--extract` \[*A,B,C,...*]
 
-: The indices of the embedded files that should be extract. The value *0* can be used to extract all
-  embedded files.
+: The indices of the embedded files that should be extracted. The value *0* can be used to extract
+  all embedded files.
 
 `-s`, `--[no-]search`
 
@@ -196,8 +196,7 @@ specified, the names and indices of the embedded files are just listed.
 
 `-p` *PASSWORD*, `--password` *PASSWORD*
 
-: The password to decrypt the PDF *FILE*. Use **-** for *PASSWORD* for reading it from standard
-  input.
+: The password to decrypt the *PDF*. Use **-** for *PASSWORD* for reading it from standard input.
 
 
 ### help
