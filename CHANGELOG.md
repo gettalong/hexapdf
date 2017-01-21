@@ -3,6 +3,7 @@
 ### Added
 
 * TrueType font subsetting support
+* Image extraction ability to CLI via `hexapdf images` command
 * [HexaPDF::Type::Image#write] for writing an image XObject to an IO stream or
   file
 * [HexaPDF::Type::Image#info] for getting image properties of an image XObject

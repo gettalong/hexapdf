@@ -15,6 +15,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 
 {:.compact}
 * Extracting embedded files (see the `files` command)
+* Extracting images (see the `images` command)
 * Showing general information of a PDF file (see the `info` command)
 * Inspecting the internal structure of a PDF file (see the `inspect` command)
 * Merging multiple PDF files into one (see the `merge` command)
@@ -206,6 +207,68 @@ Synopsis: `help` \[*COMMAND*...]
 This command prints the application help if no arguments are given. If one or more command names are
 given as arguments, these arguments are interpreted as a list of commands with sub-commands and the
 help for the innermost command is shown.
+
+
+### images
+
+Synopsis: `images` \[`OPTIONS`] *PDF*
+
+This command extracts images from the *PDF*. If the `--extract` option is not specified, the images
+are listed with their indices and additional information, sorted by page number. The `--extract`
+option can then be used to extract one or more images, saving them to files called `PREFIX-N.EXT`
+where the prefix can be set via `--prefix`, *N* is the image index and *EXT* is either png, jpg or
+jpx.
+
+`-e` \[*A,B,C,...*], `--extract` \[*A,B,C,...*]
+
+: The indices of the images that should be extracted. Use *0* or no value to extract all images.
+
+`--prefix` *PREFIX*
+
+: The prefix to use when saving images. May include directories. Defaults to *image*.
+
+`-s`, `--[no-]search`
+
+: Search the whole PDF file instead of the standard locations, that is, images referenced by pages.
+  Defaults to *false*.
+
+`-p` *PASSWORD*, `--password` *PASSWORD*
+
+: The password to decrypt the *PDF*. Use **-** for *PASSWORD* for reading it from standard input.
+
+
+The following information is shown for each image when listing images:
+
+> **index**
+> : The image index needed when this image should be extracted.
+>
+> **page**
+> : The page number on which this image appears.
+>
+> **oid**
+> : The PDF internal object identifier consisting of the object and generation numbers.
+>
+> **width**
+> : The width of the image in pixels.
+>
+> **height**
+> : The height of the image in pixels.
+>
+> **color**
+> : The color space used for the image. Either gray, rgb, cmyk or other.
+>
+> **comp**
+> : The number of color components.
+>
+> **bpc**
+> : The number of bits per color component.
+>
+> **type**
+> : The image type. Either jpg (JPEG), jp2 (JPEG2000), ccitt (CCITT Group 3 or 4 Fax), jbig2 (JBIG2)
+>   or png (PNG).
+>
+> **writable**
+> : Either true or false depending on whether hexapdf supports the image format.
 
 
 ### info
