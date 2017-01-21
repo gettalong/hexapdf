@@ -5,6 +5,7 @@
 * TrueType font subsetting support
 * [HexaPDF::Type::Image#write] for writing an image XObject to an IO stream or
   file
+* [HexaPDF::Type::Image#info] for getting image properties of an image XObject
 * CLI option `--no-force` to prohibit overwriting existing files
 
 ### Changed

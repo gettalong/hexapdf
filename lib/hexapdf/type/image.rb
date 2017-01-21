@@ -44,6 +44,10 @@ module HexaPDF
     # See: PDF1.7 s8.8
     class Image < Stream
 
+      # The structure that is returned by the Image#info method.
+      Info = Struct.new(:type, :width, :height, :color_space, :indexed, :components,
+                        :bits_per_component, :writable, :extension)
+
       define_field :Type,             type: Symbol,          default: :XObject
       define_field :Subtype,          type: Symbol,          required: true, default: :Image
       define_field :Width,            type: Integer,         required: true
@@ -69,6 +73,84 @@ module HexaPDF
       # This value is only set when the image object was created by using the image loading
       # facility and not when the image is part of a loaded PDF file.
       attr_accessor :source_path
+
+      # Returns an Info structure with information about the image.
+      #
+      # Available accessors:
+      #
+      # type::
+      #    The type of the image. Either :jpeg, :jp2, :jbig2, :ccitt or :png.
+      # width::
+      #    The width of the image.
+      # height::
+      #    The height of the image.
+      # color_space::
+      #    The color space the image uses. Either :rgb, :cmyk, :gray or :other.
+      # indexed::
+      #    Whether the image uses an indexed color space or not.
+      # components::
+      #    The number of color components of the color space, or -1 if the number couldn't be
+      #    determined.
+      # bits_per_component::
+      #    The number of bits per color component.
+      # writable::
+      #    Whether the image can be written by HexaPDF.
+      # extension::
+      #    The file extension that would be used when writing the file. Either jpg, jpx or png. Only
+      #    meaningful when writable is true.
+      def info
+        result = Info.new
+        result.width = self[:Width]
+        result.height = self[:Height]
+        result.bits_per_component = self[:BitsPerComponent]
+        result.indexed = false
+        result.writable = true
+
+        filter, rest = *self[:Filter]
+        case filter
+        when :DCTDecode
+          result.type = :jpeg
+          result.extension = 'jpg'.freeze
+        when :JPXDecode
+          result.type = :jp2
+          result.extension = 'jpx'.freeze
+        when :JBIG2Decode
+          result.type = :jbig2
+        when :CCITTFaxDecode
+          result.type = :ccitt
+        else
+          result.type = :png
+          result.extension = 'png'.freeze
+        end
+
+        if rest || ![:FlateDecode, :DCTDecode, :JPXDecode, nil].include?(filter)
+          result.writable = false
+        end
+
+        color_space, = *self[:ColorSpace]
+        if color_space == :Indexed
+          result.indexed = true
+          color_space, = *document.deref(self[:ColorSpace][1])
+        end
+        case color_space
+        when :DeviceRGB, :CalRGB
+          result.color_space = :rgb
+          result.components = 3
+        when :DeviceGray, :CalGray
+          result.color_space = :gray
+          result.components = 1
+        when :DeviceCMYK
+          result.color_space = :cmyk
+          result.components = 4
+          result.writable = false if result.type == :png
+        else
+          result.color_space = :other
+          result.components = -1
+          result.writable = false if result.type == :png
+        end
+
+        result
+      end
 
       # :call-seq:
       #   image.write(basename)

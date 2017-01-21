@@ -6,11 +6,118 @@ require 'tempfile'
 require 'hexapdf/document'
 
 describe HexaPDF::Type::Image do
+  before do
+    @jpg = File.join(TEST_DATA_DIR, 'images', 'rgb.jpg')
+    @doc = HexaPDF::Document.new
+  end
+
+  describe "info" do
+    before do
+      @image = @doc.wrap(Subtype: :Image, Width: 10, Height: 5, ColorSpace: :DeviceRGB,
+                         BitsPerComponent: 4)
+    end
+
+    it "uses the Width, Height and BitsPerComponent values" do
+      assert_equal(10, @image.info.width)
+      assert_equal(5, @image.info.height)
+      assert_equal(4, @image.info.bits_per_component)
+    end
+
+    it "determines the type and extension based on the stream filter" do
+      @image.set_filter(:DCTDecode)
+      info = @image.info
+      assert_equal(:jpeg, info.type)
+      assert_equal('jpg', info.extension)
+      assert(info.writable)
+
+      @image.set_filter(:JPXDecode)
+      info = @image.info
+      assert_equal(:jp2, info.type)
+      assert_equal('jpx', info.extension)
+      assert(info.writable)
+
+      @image.set_filter(:JBIG2Decode)
+      info = @image.info
+      assert_equal(:jbig2, info.type)
+      refute(info.writable)
+
+      @image.set_filter(:CCITTFaxDecode)
+      info = @image.info
+      assert_equal(:ccitt, info.type)
+      refute(info.writable)
+
+      @image.set_filter(nil)
+      info = @image.info
+      assert_equal(:png, @image.info.type)
+      assert_equal('png', info.extension)
+      assert(info.writable)
+    end
+
+    it "determines the color space, indexed and components values using the ColorSpace value" do
+      @image[:ColorSpace] = :DeviceGray
+      info = @image.info
+      assert_equal(:gray, info.color_space)
+      assert_equal(1, info.components)
+      refute(info.indexed)
+      assert(info.writable)
+
+      @image[:ColorSpace] = [:CalGray, {WhitePoint: [1, 1, 1]}]
+      info = @image.info
+      assert_equal(:gray, info.color_space)
+      assert_equal(1, info.components)
+      refute(info.indexed)
+      assert(info.writable)
+
+      @image[:ColorSpace] = :DeviceRGB
+      info = @image.info
+      assert_equal(:rgb, info.color_space)
+      assert_equal(3, info.components)
+      refute(info.indexed)
+      assert(info.writable)
+
+      @image[:ColorSpace] = [:CalRGB, {WhitePoint: [1, 1, 1]}]
+      info = @image.info
+      assert_equal(:rgb, info.color_space)
+      assert_equal(3, info.components)
+      refute(info.indexed)
+      assert(info.writable)
+
+
+      @image[:ColorSpace] = :DeviceCMYK
+      @image[:Filter] = :DCTDecode
+      info = @image.info
+      assert_equal(:cmyk, info.color_space)
+      assert_equal(4, info.components)
+      refute(info.indexed)
+      assert(info.writable)
+
+      @image[:ColorSpace] = :DeviceCMYK
+      @image[:Filter] = :FlateDecode
+      info = @image.info
+      assert_equal(:cmyk, info.color_space)
+      assert_equal(4, info.components)
+      refute(info.indexed)
+      refute(info.writable)
+
+
+      @image[:ColorSpace] = [:Indexed, :DeviceRGB, 1, "\x80".b * 6]
+      info = @image.info
+      assert_equal(:rgb, info.color_space)
+      assert_equal(3, info.components)
+      assert(info.indexed)
+      assert(info.writable)
+
+
+      @image[:ColorSpace] = :ICCBased
+      info = @image.info
+      assert_equal(:other, info.color_space)
+      assert_equal(-1, info.components)
+    end
+  end
+
   describe "write" do
     before do
       @file = Tempfile.new(['hexapdf-image-write-test', '.png'])
-      @jpg = File.join(TEST_DATA_DIR, 'images', 'rgb.jpg')
-      @doc = HexaPDF::Document.new
     end
 
     after do
