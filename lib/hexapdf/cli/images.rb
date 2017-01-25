@@ -109,9 +109,8 @@ module HexaPDF
         each_image(doc) do |image, index, _|
           next unless @indices.include?(index) || @indices.include?(0)
           path = "#{@prefix}-#{index}.#{image.info.extension}"
-          if File.exist?(path)
-            raise HexaPDF::Error, "Output file #{path} already exists, not overwriting"
-          end
+          maybe_raise_on_existing_file(path)
+          puts "Extracting #{path}..."
           image.write(path)
         end
       end

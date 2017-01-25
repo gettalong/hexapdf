@@ -77,9 +77,9 @@ module HexaPDF
         add_command(CmdParse::HelpCommand.new)
         add_command(CmdParse::VersionCommand.new)
 
-        @force = true
-        global_options.on("--no-force", "Don't overwrite existing files") do
-          @force = false
+        @force = false
+        global_options.on("--[no-]force", "Force overwriting existing files. Default: false") do |f|
+          @force = f
         end
       end
 

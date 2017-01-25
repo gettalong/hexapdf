@@ -102,9 +102,7 @@ module HexaPDF
       def extract_files(doc)
         each_file(doc) do |obj, index|
           next unless @indices.include?(index + 1) || @indices.include?(0)
-          if File.exist?(obj.path)
-            raise HexaPDF::Error, "Output file #{obj.path} already exists, not overwriting"
-          end
+          maybe_raise_on_existing_file(obj.path)
           puts "Extracting #{obj.path}..."
           File.open(obj.path, 'wb') do |file|
             fiber = obj.embedded_file_stream.stream_decoder

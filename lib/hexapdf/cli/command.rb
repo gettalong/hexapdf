@@ -62,12 +62,12 @@ module HexaPDF
 
       protected
 
-      # Checks whether the given output file exists and raises an error if it does.
-      #
-      # Uses HexaPDF::CLI#force to determine if the error should be raised or ignored.
-      def check_output_file(filename)
+      # Checks whether the given output file exists and raises an error if it does and
+      # HexaPDF::CLI#force is not set.
+      def maybe_raise_on_existing_file(filename)
         if !command_parser.force && File.exist?(filename)
-          raise "Not overwriting existing output file '#{filename}' due to --no-force"
+          raise "Output file '#{filename}' already exists, not overwriting. Use --force to " \
+            "force writing"
         end
       end
 

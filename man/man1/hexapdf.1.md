@@ -36,9 +36,9 @@ The following options can only be used when no command is specified:
 
 These options are available on every command (except if they are overridden):
 
-`--no-force`
+`--[no-]force`
 
-: Don't overwrite existing files.
+: Force overwriting existing files. Default: *false*.
 
 `-h`, `--help`
 

@@ -100,7 +100,7 @@ module HexaPDF
         end
 
         output_file = @files.pop.file
-        check_output_file(output_file)
+        maybe_raise_on_existing_file(output_file)
 
         # Create PDF documents for each input file
         cache = {}
