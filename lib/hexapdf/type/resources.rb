@@ -154,6 +154,20 @@ module HexaPDF
         object_setter(:Font, 'F'.freeze, object)
       end
 
+      # Returns the property list stored under the given name.
+      #
+      # If the property list is not found, an error is raised.
+      def property_list(name)
+        object_getter(:Properties, name)
+      end
+
+      # Adds the property list to the resources and returns the name under which it is stored.
+      #
+      # If there already exists a name for the given property list, it is just returned.
+      def add_property_list(dict)
+        object_setter(:Properties, 'P'.freeze, dict)
+      end
+
       private
 
       # Helper method for returning an entry of a subdictionary.

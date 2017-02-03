@@ -1,3 +1,9 @@
+## Unreleased
+
+### Added
+
+* Support for property lists in a page's resource dictionary
+
 ## 0.3.0 - 2017-01-25
 
 ### Added

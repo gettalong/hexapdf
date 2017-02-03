@@ -152,6 +152,22 @@ describe HexaPDF::Type::Resources do
     end
   end
 
+  describe "property_list" do
+    it "invokes the object_getter method" do
+      assert_method_invoked(@res, :object_getter, [:Properties, :test]) do
+        @res.property_list(:test)
+      end
+    end
+  end
+
+  describe "add_property_list" do
+    it "invokes the object_setter method" do
+      assert_method_invoked(@res, :object_setter, [:Properties, 'P', :test]) do
+        @res.add_property_list(:test)
+      end
+    end
+  end
+
   describe "validation" do
     it "assigns the default value if ProcSet is not set" do
       @res.validate
