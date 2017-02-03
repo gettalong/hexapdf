@@ -35,6 +35,7 @@ require 'hexapdf/content/graphics_state'
 require 'hexapdf/content/operator'
 require 'hexapdf/serializer'
 require 'hexapdf/utils/math_helpers'
+require 'hexapdf/utils/graphics_helpers'
 require 'hexapdf/content/graphic_object'
 require 'hexapdf/stream'
 
@@ -132,6 +133,7 @@ module HexaPDF
     class Canvas
 
       include HexaPDF::Utils::MathHelpers
+      include HexaPDF::Utils::GraphicsHelpers
 
       # The context for which the canvas was created (a HexaPDF::Type::Page or HexaPDF::Type::Form
       # object).
@@ -1934,38 +1936,6 @@ module HexaPDF
         p2 = point_on_line(p3[0], p3[1], x1, y1, distance: KAPPA * radius)
         line_to(p0[0], p0[1])
         curve_to(p3[0], p3[1], p1: p1, p2: p2)
-      end
-
-      # Given two points p0 = (x0, y0) and p1 = (x1, y1), returns the point on the line through
-      # these points that is +distance+ units away from p0.
-      #
-      #   v = p1 - p0
-      #   result = p0 + distance * v/norm(v)
-      def point_on_line(x0, y0, x1, y1, distance:)
-        norm = Math.sqrt((x1 - x0)**2 + (y1 - y0)**2)
-        [x0 + distance / norm * (x1 - x0), y0 + distance / norm * (y1 - y0)]
-      end
-
-      # Calculates and returns the requested dimensions for the rectangular object with the given
-      # +width+ and +height+ based on the options.
-      #
-      # +rwidth+::
-      #     The requested width. If +rheight+ is not specified, it is chosen so that the aspect
-      #     ratio is maintained
-      #
-      # +rheight+::
-      #     The requested height. If +rwidth+ is not specified, it is chosen so that the aspect
-      #     ratio is maintained
-      def calculate_dimensions(width, height, rwidth: nil, rheight: nil)
-        if rwidth && rheight
-          [rwidth, rheight]
-        elsif rwidth
-          [rwidth, height * rwidth / width.to_f]
-        elsif rheight
-          [width * rheight / height.to_f, rheight]
-        else
-          [width, height]
-        end
       end
 
     end
