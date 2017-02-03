@@ -136,7 +136,7 @@ describe HexaPDF::Type::Resources do
     end
   end
 
-  describe "find" do
+  describe "font" do
     it "invokes the object_getter method" do
       assert_method_invoked(@res, :object_getter, [:Font, :test]) do
         @res.font(:test)
