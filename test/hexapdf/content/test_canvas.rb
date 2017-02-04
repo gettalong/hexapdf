@@ -1110,4 +1110,65 @@ describe HexaPDF::Content::Canvas do
                                          ])
     end
   end
+
+  describe "marked_content_point" do
+    it "invokes the operator implementation" do
+      assert_operator_invoked(:MP, :tag) { @canvas.marked_content_point(:tag) }
+      assert_operator_invoked(:DP, :tag, :P1) do
+        @canvas.marked_content_point(:tag, property_list: {key: 5})
+      end
+    end
+
+    it "is serialized correctly" do
+      @canvas.marked_content_point(:tag)
+      assert_operators(@canvas.contents, [[:designate_marked_content_point, [:tag]]])
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) { @canvas.marked_content_point(:tag) }
+    end
+  end
+
+  describe "marked_content_sequence" do
+    it "invokes the operator implementation" do
+      assert_operator_invoked(:BMC, :tag) { @canvas.marked_content_sequence(:tag) }
+      assert_operator_invoked(:BDC, :tag, :P1) do
+        @canvas.marked_content_sequence(:tag, property_list: {key: 5})
+      end
+    end
+
+    it "is serialized correctly when no block is used" do
+      @canvas.marked_content_sequence(:tag)
+      assert_operators(@canvas.contents, [[:begin_marked_content, [:tag]]])
+    end
+
+    it "is serialized correctly when a block is used" do
+      @canvas.marked_content_sequence(:tag, property_list: {key: 5}) { }
+      assert_operators(@canvas.contents, [[:begin_marked_content_with_property_list, [:tag, :P1]],
+                                          [:end_marked_content]])
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) do
+        @canvas.marked_content_sequence(:tag)
+      end
+    end
+  end
+
+  describe "end_marked_content_sequence" do
+    it "invokes the operator implementation" do
+      assert_operator_invoked(:EMC) { @canvas.end_marked_content_sequence }
+    end
+
+    it "is serialized correctly" do
+      @canvas.end_marked_content_sequence
+      assert_operators(@page.contents, [[:end_marked_content]])
+    end
+
+    it "fails if invoked while in an unsupported graphics objects" do
+      assert_raises_in_graphics_object(:path, :clipping_path) do
+        @canvas.end_marked_content_sequence
+      end
+    end
+  end
 end

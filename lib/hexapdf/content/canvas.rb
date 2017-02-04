@@ -1729,6 +1729,97 @@ module HexaPDF
         self
       end
 
+      # :call-seq:
+      #   canvas.marked_content_point(tag, property_list: nil)     -> canvas
+      #
+      # Inserts a marked-content point, optionally associated with a property list.
+      #
+      # A marked-content point is used to identify a position in the content stream for later use by
+      # other applications. The symbol +tag+ is used to uniquely identify the role of the
+      # marked-content point and should be registered with ISO to avoid conflicts.
+      #
+      # The optional +property_list+ argument can either be a valid PDF dictionary or a symbol
+      # referencing an already used property list in the resource dictionary's /Properties
+      # dictionary.
+      #
+      # Examples:
+      #
+      #   canvas.marked_content_point(:Divider)
+      #   canvas.marked_content_point(:Divider, property_list: {Key: 'value'})
+      #
+      # See: PDF1.7 s14.6
+      def marked_content_point(tag, property_list: nil)
+        raise_unless_at_page_description_level_or_in_text
+        if property_list
+          property_list = resources.property_list(property_list) if property_list.kind_of?(Symbol)
+          invoke2(:DP, tag, resources.add_property_list(property_list))
+        else
+          invoke1(:MP, tag)
+        end
+        self
+      end
+
+      # :call-seq:
+      #   canvas.marked_content_sequence(tag, property_list: nil)               -> canvas
+      #   canvas.marked_content_sequence(tag, property_list: nil) { block }     -> canvas
+      #
+      # Inserts a marked-content sequence, optionally associated with a property list.
+      #
+      # A marked-content sequence is used to identify a sequence of complete graphics objects in the
+      # content stream for later use by other applications. The symbol +tag+ is used to uniquely
+      # identify the role of the marked-content sequence and should be registered with ISO to avoid
+      # conflicts.
+      #
+      # The optional +property_list+ argument can either be a valid PDF dictionary or a symbol
+      # referencing an already used property list in the resource dictionary's /Properties
+      # dictionary.
+      #
+      # If invoked without a block, a corresponding call to #end_marked_content_sequence must be
+      # done. Otherwise the marked-content sequence automatically ends when the block is finished.
+      #
+      # Although the PDF specification would allow using marked-content sequences inside text
+      # objects, this is prohibited.
+      #
+      # Examples:
+      #
+      #   canvas.marked_content_sequence(:Divider)
+      #   # Other instructions
+      #   canvas.end_marked_content_sequence
+      #
+      #   canvas.marked_content_sequence(:Divider, property_list: {Key: 'value'}) do
+      #     # Other instructions
+      #   end
+      #
+      # See: PDF1.7 s14.6, #end_marked_content_sequence
+      def marked_content_sequence(tag, property_list: nil)
+        raise_unless_at_page_description_level
+        if property_list
+          property_list = resources.property_list(property_list) if property_list.kind_of?(Symbol)
+          invoke2(:BDC, tag, resources.add_property_list(property_list))
+        else
+          invoke1(:BMC, tag)
+        end
+        if block_given?
+          yield
+          end_marked_content_sequence
+        end
+        self
+      end
+
+      # :call-seq:
+      #   canvas.end_marked_content_sequence       -> canvas
+      #
+      # Ends a marked-content sequence.
+      #
+      # See #marked_content_sequence for details.
+      #
+      # See: PDF1.7 s14.6, #marked_content_sequence
+      def end_marked_content_sequence
+        raise_unless_at_page_description_level
+        invoke0(:EMC)
+        self
+      end
+
       private
 
       # Invokes the given operator with the operands and serializes it.
