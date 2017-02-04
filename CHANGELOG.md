@@ -7,6 +7,8 @@
 
 ### Fixed
 
+* Use of wrong glyph IDs for glyph width entries and unicode mapping for subset
+  TrueType fonts
 * Invalid document reference when importing wrapped direct objects with
   [HexaPDF::Importer]
 * Invalid type of /DW key in CIDFont dictionary when embedding TrueType fonts

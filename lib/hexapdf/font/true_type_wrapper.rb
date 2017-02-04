@@ -250,13 +250,15 @@ module HexaPDF
         cid_font = @dict[:DescendantFonts].first
         cid_font[:DW] = default_width = glyph(3).width.to_i
 
-        glyphs = @encoded_glyphs.keys.reject {|g| g.width == default_width}.sort_by(&:id)
+        glyphs = @encoded_glyphs.keys.reject {|g| g.width == default_width}.sort_by do |glyph|
+          (@subsetter ? @subsetter.subset_glyph_id(glyph.id) : glyph.id)
+        end
         unless glyphs.empty?
           cid_font[:W] = widths = []
           last_id = -10
           cur_widths = nil
           glyphs.each do |glyph|
-            gid = glyph.id
+            gid = (@subsetter ? @subsetter.subset_glyph_id(glyph.id) : glyph.id)
             if last_id + 1 != gid
               cur_widths = []
               widths << gid << cur_widths
@@ -271,10 +273,11 @@ module HexaPDF
       # correctly.
       def create_to_unicode_cmap
         stream = HexaPDF::StreamData.new do
-          mapping = @encoded_glyphs.keys.sort_by(&:id).map do |glyph|
+          mapping = @encoded_glyphs.keys.map do |glyph|
             # Using 0xFFFD as mentioned in Adobe #5411, last line before section 1.5
-            [glyph.id, @cmap.gid_to_code(glyph.id) || 0xFFFD]
-          end
+            [(@subsetter ? @subsetter.subset_glyph_id(glyph.id) : glyph.id),
+             @cmap.gid_to_code(glyph.id) || 0xFFFD]
+          end.sort_by(&:first)
           HexaPDF::Font::CMap.create_to_unicode_cmap(mapping)
         end
         stream_obj = @document.add({}, stream: stream)
