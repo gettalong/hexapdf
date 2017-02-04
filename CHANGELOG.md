@@ -9,6 +9,7 @@
 
 * Invalid document reference when importing wrapped direct objects with
   [HexaPDF::Importer]
+* Invalid type of /DW key in CIDFont dictionary when embedding TrueType fonts
 
 
 ## 0.3.0 - 2017-01-25

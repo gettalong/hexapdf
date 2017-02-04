@@ -99,6 +99,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
     assert_equal(:Identity, cidfont[:CIDToGIDMap])
     assert_equal(@font_wrapper.glyph(3).width, cidfont[:DW])
     assert_equal([glyph.id, [glyph.width]], cidfont[:W])
+    assert(cidfont.validate)
 
     # Checking font descriptor
     fd = cidfont[:FontDescriptor]

@@ -248,7 +248,7 @@ module HexaPDF
       # Adds the /DW and /W fields to the CIDFont dictionary.
       def complete_width_information
         cid_font = @dict[:DescendantFonts].first
-        cid_font[:DW] = default_width = glyph(3).width
+        cid_font[:DW] = default_width = glyph(3).width.to_i
 
         glyphs = @encoded_glyphs.keys.reject {|g| g.width == default_width}.sort_by(&:id)
         unless glyphs.empty?
@@ -261,7 +261,7 @@ module HexaPDF
               cur_widths = []
               widths << gid << cur_widths
             end
-            cur_widths << glyph.width
+            cur_widths << glyph.width.to_i
             last_id = gid
           end
         end
