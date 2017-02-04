@@ -116,7 +116,7 @@ module HexaPDF
           @mapper[object.data] = nil
         else
           obj = @mapper[object.data] = object.dup
-          obj.document = @destination
+          obj.document = @destination.__getobj__
           obj.instance_variable_set(:@data, obj.data.dup)
           obj.data.oid = 0
           obj.data.gen = 0

@@ -8,7 +8,8 @@ describe HexaPDF::Importer do
   before do
     @source = HexaPDF::Document.new
     obj = @source.add("test")
-    @obj = @source.add(hash: {key: "value"}, array: ["one", "two"],
+    @hash = @source.wrap(key: "value")
+    @obj = @source.add(hash: @hash, array: ["one", "two"],
                        ref: HexaPDF::Reference.new(obj.oid, obj.gen),
                        others: [:symbol, 5, 5.5, nil, true, false])
     @source.pages.add
@@ -24,6 +25,13 @@ describe HexaPDF::Importer do
   end
 
   describe "import" do
+    it "updates the associated document" do
+      obj = @importer.import(@obj)
+      assert_same(obj.document, @dest)
+      obj = @importer.import(@hash)
+      assert_same(obj.document, @dest)
+    end
+
     it "imports an object only once" do
       obj = @importer.import(@obj)
       assert_same(obj, @importer.import(@obj))

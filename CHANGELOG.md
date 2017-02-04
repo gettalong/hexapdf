@@ -5,6 +5,12 @@
 * Support for marked-content points and sequences in [HexaPDF::Content::Canvas]
 * Support for property lists in a page's resource dictionary
 
+### Fixed
+
+* Invalid document reference when importing wrapped direct objects with
+  [HexaPDF::Importer]
+
+
 ## 0.3.0 - 2017-01-25
 
 ### Added
