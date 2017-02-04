@@ -61,6 +61,12 @@ module HexaPDF
           @glyph_map[glyph_id] = @last_id
         end
 
+        # Returns the new subset glyph ID for the given glyph ID, or +nil+ if the glyph isn't
+        # subset.
+        def subset_glyph_id(glyph_id)
+          @glyph_map[glyph_id]
+        end
+
         # Builds the subset font file and returns it as a binary string.
         def build_font
           glyf, locations = build_glyf_table
