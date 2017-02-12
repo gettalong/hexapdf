@@ -31,19 +31,43 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'hexapdf/error'
+require 'hexapdf/data_dir'
+
 module HexaPDF
   module Font
 
     # Represents a CMap, a mapping from character codes to CIDs (character IDs) or to their Unicode
     # value.
     #
-    # Currently, only the mapping to the Unicode values is supported.
-    #
-    # See: PDF1.7 s9.7.5, s9.10.3; Adobe Technical Note #5411
+    # See: PDF1.7 s9.7.5, s9.10.3; Adobe Technical Notes #5014 and #5411
     class CMap
 
       autoload(:Parser, 'hexapdf/font/cmap/parser')
       autoload(:Writer, 'hexapdf/font/cmap/writer')
+
+      CMAP_DIR = File.join(HexaPDF.data_dir, 'cmap') #:nodoc:
+
+      @cmap_cache = {}
+
+      # Returns +true+ if the given name specifies a predefined CMap.
+      def self.predefined?(name)
+        File.exist?(File.join(CMAP_DIR, name))
+      end
+
+      # Creates a new CMap object by parsing a predefined CMap with the given name.
+      #
+      # Raises an error if the given CMap is not found.
+      def self.for_name(name)
+        return @cmap_cache[name] if @cmap_cache.key?(name)
+
+        file = File.join(CMAP_DIR, name)
+        if File.exist?(file)
+          @cmap_cache[name] = parse(File.read(file, encoding: ::Encoding::UTF_8))
+        else
+          raise HexaPDF::Error, "No CMap named '#{name}' found"
+        end
+      end
 
       # Creates a new CMap object from the given string which needs to contain a valid CMap file.
       def self.parse(string)
@@ -58,6 +82,7 @@ module HexaPDF
         Writer.new.create_to_unicode_cmap(mapping)
       end
 
+
       # The registry part of the CMap version.
       attr_accessor :registry
 
@@ -70,12 +95,103 @@ module HexaPDF
       # The name of the CMap.
       attr_accessor :name
 
-      # The mapping from character codes to Unicode values.
-      attr_accessor :unicode_mapping
+      # The writing mode of the CMap: 0 for horizontal, 1 for vertical writing.
+      attr_accessor :wmode
+
+      attr_reader :codespace_ranges     #: nodoc:
+      attr_reader :cid_mapping          # :nodoc:
+      attr_reader :cid_range_mappings   # :nodoc:
+      attr_reader :unicode_mapping      # :nodoc:
+      protected :codespace_ranges, :cid_mapping, :cid_range_mappings, :unicode_mapping
 
       # Creates a new CMap object.
       def initialize
+        @codespace_ranges = []
+        @cid_mapping = {}
+        @cid_range_mappings = []
         @unicode_mapping = Hash.new("".freeze)
+      end
+
+      # Add all mappings from the given CMap to this CMap.
+      def use_cmap(cmap)
+        @codespace_ranges.concat(cmap.codespace_ranges)
+        @cid_mapping.merge!(cmap.cid_mapping)
+        @cid_range_mappings.concat(cmap.cid_range_mappings)
+        @unicode_mapping.merge!(cmap.unicode_mapping)
+      end
+
+      # Add a codespace range using an array of ranges for the individual bytes.
+      #
+      # This means that the first range is checked against the first byte, the second range against
+      # the second byte and so on.
+      def add_codespace_range(first, *rest)
+        @codespace_ranges << [first, rest]
+      end
+
+      # Parses the string and returns all character codes.
+      #
+      # An error is raised if the string contains invalid bytes.
+      def read_codes(string)
+        codes = []
+        bytes = string.each_byte
+
+        loop do
+          byte = bytes.next
+          code = 0
+
+          found = @codespace_ranges.any? do |first_byte_range, rest_ranges|
+            next unless first_byte_range.cover?(byte)
+
+            code = (code << 8) + byte
+            valid = rest_ranges.all? do |range|
+              begin
+                byte = bytes.next
+              rescue StopIteration
+                raise HexaPDF::Error, "Missing bytes while reading codes via CMap"
+              end
+              code = (code << 8) + byte
+              range.cover?(byte)
+            end
+
+            codes << code if valid
+          end
+
+          unless found
+            raise HexaPDF::Error, "Invalid byte while reading codes via CMap: #{byte}"
+          end
+        end
+
+        codes
+      end
+
+      # Adds an individual mapping from character code to CID.
+      def add_cid_mapping(code, cid)
+        @cid_mapping[code] = cid
+      end
+
+      # Adds a CID range, mapping characters codes from +start_code+ to +end_code+ to CIDs starting
+      # with +start_cid+.
+      def add_cid_range(start_code, end_code, start_cid)
+        @cid_range_mappings << [start_code..end_code, start_cid]
+      end
+
+      # Returns the CID for the given character code, or 0 if no mapping was found.
+      def to_cid(code)
+        cid = @cid_mapping.fetch(code, -1)
+        if cid == -1
+          @cid_range_mappings.reverse_each do |range, start_cid|
+            if range.cover?(code)
+              cid = start_cid + code - range.first
+              break
+            end
+          end
+        end
+        (cid == -1 ? 0 : cid)
+      end
+
+      # Adds a mapping from character code to Unicode string in UTF-8 encoding.
+      def add_unicode_mapping(code, string)
+        @unicode_mapping[code] = string
       end
 
       # Returns the Unicode string in UTF-8 encoding for the given character code, or an empty

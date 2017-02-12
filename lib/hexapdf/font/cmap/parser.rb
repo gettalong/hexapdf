@@ -41,7 +41,7 @@ module HexaPDF
 
       # Parses CMap files.
       #
-      # Currently only ToUnicode CMaps are supported.
+      # See: Adobe Technical Notes #5014 and #5411
       class Parser
 
         # Parses the given string and returns a CMap object.
@@ -54,10 +54,18 @@ module HexaPDF
               case token
               when 'beginbfchar'.freeze then parse_bf_char(tokenizer, cmap)
               when 'beginbfrange'.freeze then parse_bf_range(tokenizer, cmap)
+              when 'begincidchar'.freeze then parse_cid_char(tokenizer, cmap)
+              when 'begincidrange'.freeze then parse_cid_range(tokenizer, cmap)
+              when 'begincodespacerange'.freeze then parse_codespace_range(tokenizer, cmap)
               when 'endcmap' then break
               end
             elsif token.kind_of?(Symbol)
-              parse_dict_mapping(tokenizer, cmap, token)
+              value = tokenizer.next_token
+              if value.kind_of?(HexaPDF::Tokenizer::Token)
+                parse_cmap(cmap, token) if value == 'usecmap'.freeze
+              else
+                parse_dict_mapping(cmap, token, value)
+              end
             end
           end
 
@@ -68,17 +76,59 @@ module HexaPDF
 
         private
 
-        # Parses a single mapping of a dictionary pair. The +name+ of the mapping has already been
-        # parsed.
-        def parse_dict_mapping(tokenizer, cmap, name)
-          value = tokenizer.next_token
-          return if value.kind_of?(HexaPDF::Tokenizer::Token)
+        # Populates the CMap with the values from the CMap with the given name.
+        def parse_cmap(cmap, name)
+          cmap.use_cmap(CMap.for_name(name.to_s))
+        end
 
+        # Parses a single mapping of a dictionary pair. The +name+ and +value+ of the mapping have
+        # already been parsed.
+        def parse_dict_mapping(cmap, name, value)
           case name
-          when :Registry then cmap.registry = value if value.kind_of?(String)
-          when :Ordering then cmap.ordering = value if value.kind_of?(String)
-          when :Supplement then cmap.supplement = value if value.kind_of?(Integer)
-          when :CMapName then cmap.name = value.to_s if value.kind_of?(Symbol)
+          when :Registry
+            cmap.registry = value.force_encoding(::Encoding::UTF_8) if value.kind_of?(String)
+          when :Ordering
+            cmap.ordering = value.force_encoding(::Encoding::UTF_8) if value.kind_of?(String)
+          when :Supplement
+            cmap.supplement = value if value.kind_of?(Integer)
+          when :CMapName
+            cmap.name = value.to_s.force_encoding(::Encoding::UTF_8) if value.kind_of?(Symbol)
+          when :WMode
+            cmap.wmode = value
+          end
+        end
+
+        # Parses the "begincodespacerange" operator at the current position.
+        def parse_codespace_range(tokenizer, cmap)
+          until (code1 = tokenizer.next_token).kind_of?(HexaPDF::Tokenizer::Token)
+            code2 = tokenizer.next_token
+            byte_ranges = []
+            code1.each_byte.with_index do |byte, index|
+              byte_ranges << (byte..(code2.getbyte(index)))
+            end
+            cmap.add_codespace_range(*byte_ranges)
+          end
+        end
+
+        # Parses the "cidchar" operator at the current position.
+        def parse_cid_char(tokenizer, cmap)
+          until (code = tokenizer.next_token).kind_of?(HexaPDF::Tokenizer::Token)
+            cmap.add_cid_mapping(bytes_to_int(code), tokenizer.next_token)
+          end
+        end
+
+        # Parses the "cidrange" operator at the current position.
+        def parse_cid_range(tokenizer, cmap)
+          until (code1 = tokenizer.next_token).kind_of?(HexaPDF::Tokenizer::Token)
+            code1 = bytes_to_int(code1)
+            code2 = bytes_to_int(tokenizer.next_token)
+            cid_start = tokenizer.next_object
+
+            if code1 == code2
+              cmap.add_cid_mapping(code1, cid_start)
+            else
+              cmap.add_cid_range(code1, code2, cid_start)
+            end
           end
         end
 
@@ -86,7 +136,7 @@ module HexaPDF
         def parse_bf_char(tokenizer, cmap)
           until (code = tokenizer.next_token).kind_of?(HexaPDF::Tokenizer::Token)
             str = tokenizer.next_token.encode!(::Encoding::UTF_8, ::Encoding::UTF_16BE)
-            cmap.unicode_mapping[bytes_to_int(code)] = str
+            cmap.add_unicode_mapping(bytes_to_int(code), str)
           end
         end
 
@@ -112,13 +162,13 @@ module HexaPDF
             if dest.kind_of?(String)
               codepoint = dest.force_encoding(::Encoding::UTF_16BE).ord
               code1.upto(code2) do |code|
-                cmap.unicode_mapping[code] = '' << codepoint
+                cmap.add_unicode_mapping(code, '' << codepoint)
                 codepoint += 1
               end
             elsif dest.kind_of?(Array)
               code1.upto(code2) do |code|
-                cmap.unicode_mapping[code] =
-                  dest[code - code1].encode!(::Encoding::UTF_8, ::Encoding::UTF_16BE)
+                str = dest[code - code1].encode!(::Encoding::UTF_8, ::Encoding::UTF_16BE)
+                cmap.add_unicode_mapping(code, str)
               end
             else
               raise HexaPDF::Error, "Invalid bfrange operator in CMap"
