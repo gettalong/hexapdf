@@ -77,6 +77,19 @@ So why use HexaPDF? Because it differs significantly from Prawn in how it is imp
 
 See the LICENSE file for licensing details.
 
+Some included files have a different license:
+
+* For the license of the included AFM files in the `data/hexapdf/afm` directory, see the file
+  `data/hexapdf/afm/MustRead.html`.
+
+* The files `test/data/encoding/{glyphlist.txt,zapfdingbats.txt}` are licensed under the Apache
+  License V2.0.
+
+* The file `test/data/fonts/Ubuntu-Title.ttf` is licensed under the SIL Open Font License.
+
+* The AES test vector files in `test/data/aes-test-vectors` have been created using the test vector
+  file available from <http://csrc.nist.gov/groups/STM/cavp/block-ciphers.html#test-vectors>.
+
 
 ## Contributing
 
