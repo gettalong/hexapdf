@@ -51,14 +51,10 @@ module HexaPDF
         true
       end
 
-      # Returns the UTF-8 string for the given character code, or an empty string if no mapping was
-      # found.
+      # Returns the UTF-8 string for the given character code, or calls the configuration option
+      # 'font.on_missing_unicode_mapping' if no mapping was found.
       def to_utf8(code)
-        if to_unicode_cmap
-          to_unicode_cmap.to_unicode(code)
-        else
-          ''.freeze
-        end
+        to_unicode_cmap && to_unicode_cmap.to_unicode(code) || missing_unicode_mapping(code)
       end
 
       private
@@ -73,6 +69,11 @@ module HexaPDF
                              end
         end
         @to_unicode_cmap
+      end
+
+      # Calls the configured proc for handling missing unicode mappings.
+      def missing_unicode_mapping(code)
+        @document.config['font.on_missing_unicode_mapping'].call(code, self)
       end
 
     end

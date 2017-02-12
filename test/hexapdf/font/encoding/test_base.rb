@@ -29,7 +29,7 @@ describe HexaPDF::Font::Encoding::Base do
     end
 
     it "returns an empty string for an unmapped code" do
-      assert_equal('', @base.unicode(66))
+      assert_nil(@base.unicode(66))
     end
   end
 end

@@ -109,7 +109,7 @@ module HexaPDF
         @codespace_ranges = []
         @cid_mapping = {}
         @cid_range_mappings = []
-        @unicode_mapping = Hash.new("".freeze)
+        @unicode_mapping = {}
       end
 
       # Add all mappings from the given CMap to this CMap.
@@ -194,8 +194,8 @@ module HexaPDF
         @unicode_mapping[code] = string
       end
 
-      # Returns the Unicode string in UTF-8 encoding for the given character code, or an empty
-      # string if no mapping was found.
+      # Returns the Unicode string in UTF-8 encoding for the given character code, or +nil+ if no
+      # mapping was found.
       def to_unicode(code)
         unicode_mapping[code]
       end

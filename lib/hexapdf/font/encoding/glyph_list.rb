@@ -71,8 +71,8 @@ module HexaPDF
           load
         end
 
-        # Maps the given name to a string by following the Adobe Glyph Specification. An empty
-        # string is returned if the name has no correct mapping.
+        # Maps the given name to a string by following the Adobe Glyph Specification. Returns +nil+
+        # if the name has no correct mapping.
         #
         # If this method is invoked when dealing with the ZapfDingbats font, the +zapf_dingbats+
         # option needs to be set to +true+.
@@ -88,8 +88,6 @@ module HexaPDF
             name = name.to_s
             if name =~ /\Auni([0-9A-F]{4})\Z/ || name =~ /\Au([0-9A-f]{4,6})\Z/
               '' << $1.hex
-            else
-              ''
             end
           end
         end

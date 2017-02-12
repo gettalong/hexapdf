@@ -160,6 +160,15 @@ module HexaPDF
   #
   #    The default implementation raises an error.
   #
+  # font.on_missing_unicode_mapping::
+  #    Callback hook when a character code point cannot be converted to a Unicode character.
+  #
+  #    The value needs to be an object that responds to \#call(code, font_dict) where +code+ is the
+  #    decoded code point and +font_dict+ is the font dictionary which was used for the conversion.
+  #    The returned value is used as the Unicode character and should be a string.
+  #
+  #    The default implementation raises an error.
+  #
   # font_loader::
   #    An array with font loader implementations. When a font should be loaded, the array is
   #    iterated in sequence and the first valid font returned by a font loader is used.
@@ -221,6 +230,10 @@ module HexaPDF
                       'font.map' => {},
                       'font.on_missing_glyph' => proc do |n, f|
                         raise HexaPDF::Error, "No glyph for '#{n}' in font #{f.font_name} found"
+                      end,
+                      'font.on_missing_unicode_mapping' => proc do |code_point, font|
+                        raise HexaPDF::Error, "No Unicode mapping for code point #{code_point} " \
+                          "in font #{font[:BaseFont]}"
                       end,
                       'font_loader' => [
                         'HexaPDF::FontLoader::Standard14',

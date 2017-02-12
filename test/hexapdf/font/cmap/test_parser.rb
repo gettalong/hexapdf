@@ -84,7 +84,7 @@ EOF
       assert_equal("ffl", cmap.to_unicode(0x61))
       assert_equal("\xD8\x40\xDC\x3E".encode("UTF-8", "UTF-16BE"),
                    cmap.to_unicode(0x3A51))
-      assert_equal("", cmap.to_unicode(0xFF))
+      assert_nil(cmap.to_unicode(0xFF))
     end
 
     it "fails if there is an invalid token inside the bfrange operator" do

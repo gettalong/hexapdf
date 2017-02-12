@@ -24,12 +24,12 @@ describe HexaPDF::Type::Font do
     it "uses the /ToUnicode CMap if it is available" do
       assert_equal("A", @font.to_utf8(32))
       assert_equal("B", @font.to_utf8(34))
-      assert_equal("", @font.to_utf8(0))
+      assert_raises(HexaPDF::Error) { @font.to_utf8(0) }
     end
 
-    it "returns an empty string if no /ToUnicode CMap is available" do
+    it "calls the configured proc if no /ToUnicode CMap is available" do
       @font.delete(:ToUnicode)
-      assert_equal("", @font.to_utf8(32))
+      assert_raises(HexaPDF::Error) { @font.to_utf8(32) }
     end
   end
 end

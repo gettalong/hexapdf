@@ -86,12 +86,11 @@ module HexaPDF
         string.bytes
       end
 
-      # Returns the UTF-8 string for the given character code, or an empty string if no mapping was
-      # found.
+      # Returns the UTF-8 string for the given character code, or calls the configuration option
+      # 'font.on_missing_unicode_mapping' if no mapping was found.
       def to_utf8(code)
-        str = super
-        str = encoding.unicode(code) if str.empty?
-        str
+        (to_unicode_cmap && to_unicode_cmap.to_unicode(code)) ||
+          encoding.unicode(code) || missing_unicode_mapping(code)
       end
 
       # Returns the unscaled width of the given code point in glyph units, or 0 if the width for

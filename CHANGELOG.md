@@ -7,6 +7,15 @@
 * Support for marked-content points and sequences in [HexaPDF::Content::Canvas]
 * Support for property lists in a page's resource dictionary
 
+### Changed
+
+* Handling of character code to Unicode mapping:
+  - [HexaPDF::Font::CMap#to_unicode], [HexaPDF::Font::Encoding#unicode] and
+    [HexaPDF::Font::Encoding::GlyphList#name_to_unicode] return `nil` instead of
+    an empty string
+  - Font dictionaries use the new configuration option
+    'font.on_missing_unicode_mapping' in their `#to_utf8` method
+
 ### Fixed
 
 * Use of wrong glyph IDs for glyph width entries and unicode mapping for subset

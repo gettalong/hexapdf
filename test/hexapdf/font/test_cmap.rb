@@ -97,8 +97,8 @@ describe HexaPDF::Font::CMap do
       assert_equal("ABC", @cmap.to_unicode(20))
     end
 
-    it "returns an empty string for unknown mappings" do
-      assert_equal("", @cmap.to_unicode(20))
+    it "returns nil for unknown mappings" do
+      assert_nil(@cmap.to_unicode(20))
     end
   end
 end

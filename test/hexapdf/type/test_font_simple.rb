@@ -112,9 +112,9 @@ describe HexaPDF::Type::FontSimple do
       assert_equal(" ", @font.to_utf8(32))
     end
 
-    it "returns an empty string if no correct mapping could be found" do
+    it "calls the configured proc if no correct mapping could be found" do
       @font.delete(:ToUnicode)
-      assert_equal("", @font.to_utf8(0))
+      assert_raises(HexaPDF::Error) { @font.to_utf8(0) }
     end
   end
 
