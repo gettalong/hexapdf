@@ -315,13 +315,6 @@ module HexaPDF
       if type.kind_of?(Class)
         klass = type
       else
-        default = if data.stream
-                    HexaPDF::Stream
-                  elsif data.value.kind_of?(Hash)
-                    HexaPDF::Dictionary
-                  else
-                    HexaPDF::Object
-                  end
         if data.value.kind_of?(Hash)
           type ||= deref(data.value[:Type])
           subtype ||= deref(data.value[:Subtype])
@@ -333,7 +326,13 @@ module HexaPDF
         if type && !klass
           klass = GlobalConfiguration.constantize('object.type_map'.freeze, type) { nil }
         end
-        klass ||= default
+        klass ||= if data.stream
+                    HexaPDF::Stream
+                  elsif data.value.kind_of?(Hash)
+                    HexaPDF::Dictionary
+                  else
+                    HexaPDF::Object
+                  end
       end
 
       klass.new(data, document: self)
