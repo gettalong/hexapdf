@@ -60,19 +60,24 @@ describe HexaPDF::Configuration do
       assert_equal(HexaPDF, @config.constantize('test', 1))
     end
 
-    it "returns nil for an unknown option" do
-      assert_nil(@config.constantize('unknown'))
+    def assert_constantize_error # :nodoc:
+      exp = assert_raises(HexaPDF::Error) { yield }
+      assert_match(/Error getting constant for configuration option/, exp.message)
     end
 
-    it "returns nil for an unknown constant" do
+    it "raises an error for an unknown option" do
+      assert_constantize_error { @config.constantize('unknown') }
+    end
+
+    it "raises an error for an unknown constant" do
       @config['test'] = 'SomeUnknownConstant'
-      assert_nil(@config.constantize('test'))
+      assert_constantize_error { @config.constantize('test') }
     end
 
-    it "returns nil for an unknown constant using a nested option" do
+    it "raises an error for an unknown constant using a nested option" do
       @config['test'] = {}
-      assert_nil(@config.constantize('test', 'test'))
-      assert_nil(@config.constantize('test', nil))
+      assert_constantize_error { @config.constantize('test', 'test') }
+      assert_constantize_error { @config.constantize('test', nil) }
     end
 
     it "returns the result of the given block when no constant is found" do

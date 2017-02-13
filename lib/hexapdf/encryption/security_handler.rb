@@ -143,12 +143,10 @@ module HexaPDF
       #
       # See: #set_up_encryption (for the common encryption options).
       def self.set_up_encryption(document, handler_name, **options)
-        handler = HexaPDF::GlobalConfiguration.constantize('encryption.filter_map', handler_name)
-        if handler.nil?
-          handler = HexaPDF::GlobalConfiguration.constantize('encryption.sub_filter_map', handler_name)
-        end
-        if handler.nil?
-          raise HexaPDF::EncryptionError, "Could not find the specified security handler"
+        handler = GlobalConfiguration.constantize('encryption.filter_map', handler_name) do
+          GlobalConfiguration.constantize('encryption.sub_filter_map', handler_name) do
+            raise HexaPDF::EncryptionError, "Could not find the specified security handler"
+          end
         end
 
         handler = handler.new(document)
@@ -172,12 +170,10 @@ module HexaPDF
         if dict.nil?
           raise HexaPDF::EncryptionError, "No /Encrypt dictionary found"
         end
-        handler = HexaPDF::GlobalConfiguration.constantize('encryption.filter_map', dict[:Filter])
-        if handler.nil?
-          handler = HexaPDF::GlobalConfiguration.constantize('encryption.sub_filter_map', dict[:SubFilter])
-        end
-        if handler.nil?
-          raise HexaPDF::EncryptionError, "Could not find a suitable security handler"
+        handler = HexaPDF::GlobalConfiguration.constantize('encryption.filter_map', dict[:Filter]) do
+          HexaPDF::GlobalConfiguration.constantize('encryption.sub_filter_map', dict[:SubFilter]) do
+            raise HexaPDF::EncryptionError, "Could not find a suitable security handler"
+          end
         end
 
         handler = handler.new(document)

@@ -328,10 +328,10 @@ module HexaPDF
         end
 
         if subtype
-          klass = GlobalConfiguration.constantize('object.subtype_map'.freeze, subtype)
+          klass = GlobalConfiguration.constantize('object.subtype_map'.freeze, subtype) { nil }
         end
         if type && !klass
-          klass = GlobalConfiguration.constantize('object.type_map'.freeze, type)
+          klass = GlobalConfiguration.constantize('object.type_map'.freeze, type) { nil }
         end
         klass ||= default
       end

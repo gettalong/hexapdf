@@ -92,13 +92,13 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   config.constantize(name, key = nil)                  -> constant or nil
+    #   config.constantize(name, key = nil)                  -> constant
     #   config.constantize(name, key = nil) {|name| block}   -> obj
     #
     # Returns the constant the option +name+ is referring to. If +key+ is provided and the value
     # of the option +name+ responds to \#[], the constant to which +key+ refers is returned.
     #
-    # If no constant can be found and no block is provided, +nil+ is returned. If a block is
+    # If no constant can be found and no block is provided, an error is raised. If a block is
     # provided it is called with the option name and its result will be returned.
     #
     #   config.constantize('encryption.aes')      #=> HexaPDF::Encryption::FastAES
@@ -107,7 +107,12 @@ module HexaPDF
       data = self[name]
       data = data[key] if key != :__unset && data.respond_to?(:[])
       (data = ::Object.const_get(data) rescue nil) if data.kind_of?(String)
-      data = yield(name) if block_given? && data.nil?
+      if data.nil? && block_given?
+        data = yield(name)
+      elsif data.nil?
+        raise HexaPDF::Error, "Error getting constant for configuration option '#{name}'" <<
+          (key == :__unset ? "" : " and key '#{key}'")
+      end
       data
     end
 
