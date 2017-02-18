@@ -247,26 +247,11 @@ module HexaPDF
 
       # Adds the /DW and /W fields to the CIDFont dictionary.
       def complete_width_information
-        cid_font = @dict[:DescendantFonts].first
-        cid_font[:DW] = default_width = glyph(3).width.to_i
-
-        glyphs = @encoded_glyphs.keys.reject {|g| g.width == default_width}.sort_by do |glyph|
-          (@subsetter ? @subsetter.subset_glyph_id(glyph.id) : glyph.id)
-        end
-        unless glyphs.empty?
-          cid_font[:W] = widths = []
-          last_id = -10
-          cur_widths = nil
-          glyphs.each do |glyph|
-            gid = (@subsetter ? @subsetter.subset_glyph_id(glyph.id) : glyph.id)
-            if last_id + 1 != gid
-              cur_widths = []
-              widths << gid << cur_widths
-            end
-            cur_widths << glyph.width.to_i
-            last_id = gid
-          end
-        end
+        default_width = glyph(3).width.to_i
+        widths = @encoded_glyphs.keys.reject {|g| g.width == default_width}.map! do |glyph|
+          [(@subsetter ? @subsetter.subset_glyph_id(glyph.id) : glyph.id), glyph.width]
+        end.sort!
+        @dict[:DescendantFonts].first.set_widths(widths, default_width: default_width)
       end
 
       # Creates the /ToUnicode CMap and updates the font dictionary so that text extraction works
