@@ -112,13 +112,15 @@ describe HexaPDF::Content::Processor do
 
   describe "text decoding" do
     before do
-      @doc =  HexaPDF::Document.new
+      @doc = HexaPDF::Document.new
       @processor.process(:BT)
       @processor.graphics_state.font = @font = @doc.add(Type: :Font, Subtype: :Type1,
                                                         Encoding: :WinAnsiEncoding,
                                                         BaseFont: :"Times-Roman")
       @processor.graphics_state.font_size = 10
       @processor.graphics_state.text_rise = 10
+      @processor.graphics_state.character_spacing = 1
+      @processor.graphics_state.word_spacing = 2
     end
 
     describe "decode_text" do
@@ -135,16 +137,18 @@ describe HexaPDF::Content::Processor do
           @processor.graphics_state.text_rise
         lry = @font.bounding_box[3] / 1000.0 * @processor.graphics_state.font_size +
           @processor.graphics_state.text_rise
-        arr = ["Hül".encode("Windows-1252"), 20, "le".encode("Windows-1252")]
-        width = "Hülle".encode("Windows-1252").codepoints.inject(0) {|s, cp| s + @font.width(cp)}
-        width = (width - 20) * @processor.graphics_state.font_size / 1000.0
+        arr = ["Hül".encode("Windows-1252"), 20, " le".encode("Windows-1252")]
+        width = "Hül le".encode("Windows-1252").codepoints.inject(0) {|s, cp| s + @font.width(cp)}
+        width = (width - 20) * @processor.graphics_state.scaled_font_size +
+          6 * @processor.graphics_state.scaled_character_spacing +
+          @processor.graphics_state.scaled_word_spacing
 
         box = @processor.send(:decode_text_with_positioning, arr)
-        assert_equal("Hülle", box.string)
+        assert_equal("Hül le", box.string)
         assert_in_delta(0, box[0].lower_left[0])
         assert_in_delta(lly, box[0].lower_left[1])
-        assert_in_delta(width, box[4].upper_right[0])
-        assert_in_delta(lry, box[4].upper_right[1])
+        assert_in_delta(width, box[5].upper_right[0])
+        assert_in_delta(lry, box[5].upper_right[1])
       end
 
       it "fails if the current font is a vertical font" do

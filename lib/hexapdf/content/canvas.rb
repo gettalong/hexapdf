@@ -1720,7 +1720,7 @@ module HexaPDF
 
             offset += item.width * graphics_state.scaled_font_size +
               graphics_state.scaled_character_spacing
-            offset += graphics_state.scaled_word_spacing if encoded.length == 1 && item.space?
+            offset += graphics_state.scaled_word_spacing if encoded == " ".freeze
           end
         end
 

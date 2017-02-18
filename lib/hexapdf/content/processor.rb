@@ -408,7 +408,7 @@ module HexaPDF
       def decode_horizontal_text(array)
         font = graphics_state.font
         scaled_char_space = graphics_state.scaled_character_spacing
-        scaled_word_space = graphics_state.scaled_word_spacing
+        scaled_word_space = (font.word_spacing_applicable? ? graphics_state.scaled_word_spacing : 0)
         scaled_font_size = graphics_state.scaled_font_size
 
         below_baseline = font.bounding_box[1] * scaled_font_size / \
@@ -423,15 +423,15 @@ module HexaPDF
           else
             font.decode(item).each do |code_point|
               char = font.to_utf8(code_point)
-              width = font.width(code_point) * scaled_font_size
+              width = font.width(code_point) * scaled_font_size + scaled_char_space + \
+                (code_point == 32 ? scaled_word_space : 0)
               matrix = graphics_state.ctm.dup.premultiply(*graphics_state.tm)
               fragment = GlyphBox.new(code_point, char,
                                       *matrix.evaluate(0, below_baseline),
                                       *matrix.evaluate(width, below_baseline),
                                       *matrix.evaluate(0, above_baseline))
               text << fragment
-              graphics_state.tm.translate(width + scaled_char_space + \
-                                          (char == ' ' ? scaled_word_space : 0), 0)
+              graphics_state.tm.translate(width, 0)
             end
           end
         end

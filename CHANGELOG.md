@@ -29,6 +29,8 @@
 * Invalid type of /DW key in CIDFont dictionary when embedding TrueType fonts
 * Caching problem in [HexaPDF::Document::Fonts] which lead to multiple instances
   of the same font
+* Bug in handling of word spacing with respect to offset calculations when
+  showing or extracting text
 
 
 ## 0.3.0 - 2017-01-25
