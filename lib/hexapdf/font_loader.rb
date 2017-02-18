@@ -68,7 +68,7 @@ module HexaPDF
   #
   # decode_utf8(str)::
   #     This method needs to convert the given string into an array of glyph objects. The glyph
-  #     objects themselves are treated as opaque objects by HexaPDF::Content::Canvas.
+  #     objects themselves have to respond to \#width which should return their horizontal width.
   #
   # encode(glyph)::
   #     This method takes a single glyph object, that needs to be compatible with the font wrapper,
