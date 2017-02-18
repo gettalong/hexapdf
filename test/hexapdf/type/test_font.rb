@@ -13,7 +13,8 @@ describe HexaPDF::Type::Font do
       <22> <0042>
       endbfchar
     EOF
-    @font = @doc.add({Type: :Font, BaseFont: :TestFont, ToUnicode: cmap})
+    fd = @doc.add(Type: :FontDescriptor, FontBBox: [0, 1, 2, 3])
+    @font = @doc.add(Type: :Font, BaseFont: :TestFont, FontDescriptor: fd, ToUnicode: cmap)
   end
 
   it "must always be an indirect" do
@@ -30,6 +31,25 @@ describe HexaPDF::Type::Font do
     it "calls the configured proc if no /ToUnicode CMap is available" do
       @font.delete(:ToUnicode)
       assert_raises(HexaPDF::Error) { @font.to_utf8(32) }
+    end
+  end
+
+  describe "bounding_box" do
+    it "returns the bounding box" do
+      assert_equal([0, 1, 2, 3], @font.bounding_box)
+    end
+
+    it "returns nil if no bounding box information can be found" do
+      @font[:FontDescriptor].delete(:FontBBox)
+      assert_nil(@font.bounding_box)
+    end
+  end
+
+  describe "embedded" do
+    it "returns true if the font is embedded" do
+      refute(@font.embedded?)
+      @font[:FontDescriptor][:FontFile] = 5
+      assert(@font.embedded?)
     end
   end
 end

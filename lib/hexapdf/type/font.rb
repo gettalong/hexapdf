@@ -57,6 +57,21 @@ module HexaPDF
         to_unicode_cmap && to_unicode_cmap.to_unicode(code) || missing_unicode_mapping(code)
       end
 
+      # Returns the bounding box of the font or +nil+ if it is not found.
+      def bounding_box
+        if key?(:FontDescriptor) && self[:FontDescriptor].key?(:FontBBox)
+          self[:FontDescriptor][:FontBBox].value
+        else
+          nil
+        end
+      end
+
+      # Returns +true+ if the font is embedded.
+      def embedded?
+        dict = self[:FontDescriptor]
+        dict && (dict[:FontFile] || dict[:FontFile2] || dict[:FontFile3])
+      end
+
       private
 
       # Parses and caches the ToUnicode CMap.

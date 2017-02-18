@@ -141,25 +141,6 @@ describe HexaPDF::Type::FontSimple do
     end
   end
 
-  describe "bounding_box" do
-    it "returns the bounding box" do
-      assert_equal([0, 1, 2, 3], @font.bounding_box)
-    end
-
-    it "returns nil if no bounding box information can be found" do
-      @font[:FontDescriptor].delete(:FontBBox)
-      assert_nil(@font.bounding_box)
-    end
-  end
-
-  describe "embedded" do
-    it "returns true if the font is embedded" do
-      refute(@font.embedded?)
-      @font[:FontDescriptor][:FontFile] = 5
-      assert(@font.embedded?)
-    end
-  end
-
   describe "symbolic?" do
     it "return true if the font is symbolic" do
       @font[:FontDescriptor].flag(clear_existing: true)
