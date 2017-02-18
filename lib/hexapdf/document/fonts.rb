@@ -55,6 +55,7 @@ module HexaPDF
       #
       # If a font with the same parameters has been loaded before, the cached font object is used.
       def load(name, **options)
+        options[:variant] ||= :none # assign default value for consistency with caching
         font = @loaded_fonts_cache[[name, options]]
         return font if font
 

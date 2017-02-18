@@ -31,7 +31,9 @@ describe HexaPDF::Document::Fonts do
     end
 
     it "caches loaded fonts" do
-      assert_same(@doc.fonts.load(:TestFont), @doc.fonts.load(:TestFont))
+      font = @doc.fonts.load(:TestFont)
+      assert_same(font, @doc.fonts.load(:TestFont))
+      assert_same(font, @doc.fonts.load(:TestFont, variant: :none))
     end
 
     it "fails if the requested font is not found"  do

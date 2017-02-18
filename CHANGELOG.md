@@ -24,6 +24,8 @@
 * Invalid document reference when importing wrapped direct objects with
   [HexaPDF::Importer]
 * Invalid type of /DW key in CIDFont dictionary when embedding TrueType fonts
+* Caching problem in [HexaPDF::Document::Fonts] which lead to multiple instances
+  of the same font
 
 
 ## 0.3.0 - 2017-01-25
