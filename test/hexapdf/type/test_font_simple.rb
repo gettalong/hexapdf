@@ -156,6 +156,10 @@ describe HexaPDF::Type::FontSimple do
     end
   end
 
+  it "defines word spacing as always applicable" do
+    assert(@font.word_spacing_applicable?)
+  end
+
   describe "validation" do
     it "validates the existence of required keys" do
       assert(@font.validate)

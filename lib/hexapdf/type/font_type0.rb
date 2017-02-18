@@ -90,6 +90,15 @@ module HexaPDF
         descendant_font.embedded?
       end
 
+      # Returns whether word spacing is applicable when using this font.
+      #
+      # Note that the return value is cached when accessed the first time.
+      #
+      # See: PDF1.7 s9.3.3
+      def word_spacing_applicable?
+        @word_spacing_applicable ||= ((cmap.read_codes("\x20".freeze) && true) rescue false)
+      end
+
       private
 
       # Returns the CMap used for decoding strings for this font.

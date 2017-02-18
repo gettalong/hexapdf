@@ -6,6 +6,7 @@
   support
 * Complete support for CMaps for use with composite fonts; the interface for
   [HexaPDF::Font::CMap] changed to accomodate this
+* Method `#word_spacing_applicable?` to font types
 * Support for marked-content points and sequences in [HexaPDF::Content::Canvas]
 * Support for property lists in a page's resource dictionary
 

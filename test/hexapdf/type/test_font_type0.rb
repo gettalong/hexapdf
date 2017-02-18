@@ -33,6 +33,22 @@ describe HexaPDF::Type::FontType0 do
     assert(@font.embedded?)
   end
 
+  describe "word_spacing_applicable?" do
+    it "returns false if code point 32 is not a single-byte code point" do
+      refute(@font.word_spacing_applicable?)
+    end
+
+    it "returns true if code point 32 is a single-byte code point" do
+      @font[:Encoding] = @doc.wrap({}, stream: <<-EOF)
+        begincodespacerange
+        <00> <ff>
+        endcodespacerange
+      EOF
+      assert(@font.word_spacing_applicable?)
+    end
+  end
+
+
   describe "handling of /Encoding value" do
     it "can use predefined CMaps" do
       assert_equal([0x2121], @font.decode("\x21\x21"))

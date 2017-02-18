@@ -120,6 +120,15 @@ module HexaPDF
         self[:FontDescriptor] && self[:FontDescriptor].flagged?(:symbolic) || nil
       end
 
+      # Returns whether word spacing is applicable when using this font.
+      #
+      # Always returns +true+ for simple fonts.
+      #
+      # See: PDF1.7 s9.3.3
+      def word_spacing_applicable?
+        true
+      end
+
       private
 
       # Tries to read the encoding from the embedded font.
