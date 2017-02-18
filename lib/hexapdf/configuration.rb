@@ -399,8 +399,11 @@ module HexaPDF
                       'object.subtype_map' => {
                         Image: 'HexaPDF::Type::Image',
                         Form: 'HexaPDF::Type::Form',
+                        Type0: 'HexaPDF::Type::FontType0',
                         Type1: 'HexaPDF::Type::FontType1',
                         TrueType: 'HexaPDF::Type::FontTrueType',
+                        CIDFontType0: 'HexaPDF::Type::CIDFont',
+                        CIDFontType2: 'HexaPDF::Type::CIDFont',
                       },
                       'task.map' => {
                         optimize: 'HexaPDF::Task::Optimize',
