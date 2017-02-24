@@ -67,6 +67,8 @@ module HexaPDF
         super(handle_exceptions: :no_help)
         main_command.options.program_name = "hexapdf"
         main_command.options.version = HexaPDF::VERSION
+        main_command.extend(Command::Extensions)
+        main_command.define_singleton_method(:usage_commands) { "COMMAND" }
         add_command(HexaPDF::CLI::Info.new)
         add_command(HexaPDF::CLI::Files.new)
         add_command(HexaPDF::CLI::Images.new)
