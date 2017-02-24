@@ -97,9 +97,6 @@ module HexaPDF
         HexaPDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
           send("do_#{@exec}", doc)
         end
-      rescue HexaPDF::Error => e
-        $stderr.puts "Error while processing the PDF file: #{e.message}"
-        exit(1)
       end
 
       private

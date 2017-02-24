@@ -130,9 +130,6 @@ module HexaPDF
         apply_optimization_options(target)
 
         target.write(output_file)
-      rescue HexaPDF::Error => e
-        $stderr.puts "Processing error : #{e.message}"
-        exit(1)
       end
 
       def usage #:nodoc:

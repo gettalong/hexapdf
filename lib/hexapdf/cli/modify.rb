@@ -84,9 +84,6 @@ module HexaPDF
           apply_optimization_options(doc)
           doc.write(out_file)
         end
-      rescue HexaPDF::Error => e
-        $stderr.puts "Processing error : #{e.message}"
-        exit(1)
       end
 
       private

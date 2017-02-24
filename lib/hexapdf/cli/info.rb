@@ -98,17 +98,13 @@ module HexaPDF
           output_line("Pages", doc.pages.count.to_s)
           output_line("Version", doc.version)
         end
-      rescue HexaPDF::EncryptionError => e
+      rescue HexaPDF::EncryptionError
         if @auto_decrypt
           @auto_decrypt = false
           retry
         else
-          $stderr.puts "Error while decrypting the PDF file: #{e.message}"
-          exit(1)
+          raise
         end
-      rescue HexaPDF::Error => e
-        $stderr.puts "Error while processing the PDF file: #{e.message}"
-        exit(1)
       end
 
       def output_line(header, text) #:nodoc:
