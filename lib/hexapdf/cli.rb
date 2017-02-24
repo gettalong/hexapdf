@@ -39,6 +39,7 @@ require 'hexapdf/cli/modify'
 require 'hexapdf/cli/merge'
 require 'hexapdf/cli/optimize'
 require 'hexapdf/cli/images'
+require 'hexapdf/cli/batch'
 require 'hexapdf/version'
 require 'hexapdf/document'
 
@@ -76,6 +77,7 @@ module HexaPDF
         add_command(HexaPDF::CLI::Modify.new)
         add_command(HexaPDF::CLI::Optimize.new)
         add_command(HexaPDF::CLI::Merge.new)
+        add_command(HexaPDF::CLI::Batch.new)
         add_command(CmdParse::HelpCommand.new)
         add_command(CmdParse::VersionCommand.new)
 

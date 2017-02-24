@@ -21,6 +21,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 * Merging multiple PDF files into one (see the `merge` command)
 * Modifying an existing PDF file (see the `modify` command)
 * Optimizing the file size of a PDF file (see the `optimize` command)
+* Batch execution of a command on multiple PDF files (see the `batch` command)
 
 The application contains a built-in `help` command that can be used to provide a quick reminder of a
 command's purpose and its options.
@@ -176,6 +177,18 @@ depending on the used command, and each command can have its own options.
 There is no need to write the full command name for hexapdf to understand it, the only requirement
 is that is must be unambiguous. So using `f` for the `files` command is sufficient. The same is
 true for long option names and option values.
+
+
+### batch
+
+Synopsis: `batch` *COMMAND* *FILES...*
+
+This command allows executing a single command for multiple input files, thereby reducing the
+overall execution time.
+
+The first argument *COMMAND* is used as a hexapdf command line and must not contain the binary name,
+just everything else. The rest of the arguments are the input files. The specified command will be
+executed for each input file, with all occurences of {} being replaced by the file name.
 
 
 ### files
@@ -536,6 +549,18 @@ creator, creation date and encryption related information.
 Inspect a PDF: These commands can be used to inspect the internal object structure of a PDF file.
 The first command shows the PDF trailer object. The second one shows the object with the object
 number 3.
+
+
+### batch
+
+`hexapdf batch 'info {}' input1.pdf input2.pdf input3.pdf
+
+Execute the info command for all input files.
+
+`hexapdf batch 'optimize --object-streams delete {} done-{}' input1.pdf input2.pdf input3.pdf
+
+Optimize the given input files, creating the three output files `done-input1.pdf`, `done-input2.pdf`
+and `done-input3.pdf`.
 
 
 ## EXIT STATUS
