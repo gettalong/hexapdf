@@ -527,7 +527,7 @@ Optimization: Compress the `input.pdf` to get a smaller file size.
 ### files
 
 `hexapdf files input.pdf`  
-`hexapdf files input.pdf -i 1`
+`hexapdf files input.pdf -e 1`
 
 Embedded files: The first command lists the embedded files in the `input.pdf`, the second one then
 extracts the embedded file with the index 1.
