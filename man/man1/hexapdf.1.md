@@ -533,6 +533,15 @@ Embedded files: The first command lists the embedded files in the `input.pdf`, t
 extracts the embedded file with the index 1.
 
 
+### images
+
+`hexapdf images input.pdf`  
+`hexapdf images input.pdf -e --prefix images/image`
+
+Image info and extraction: The first command lists the images of the `input.pdf`, the second one
+then extracts the images into the subdirectory `images` with the prefix `image`.
+
+
 ### info
 
 `hexapdf info input.pdf`
