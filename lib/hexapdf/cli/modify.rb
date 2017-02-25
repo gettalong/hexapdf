@@ -103,6 +103,7 @@ module HexaPDF
         end
         doc.catalog[:Pages] = new_page_tree
         remove_unused_pages(doc)
+        doc.pages.add unless doc.pages.count > 0
       end
 
     end

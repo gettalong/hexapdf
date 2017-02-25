@@ -64,6 +64,9 @@ module HexaPDF
       # overwritten.
       attr_reader :force
 
+      # Specifies whether strict parsing and validation should be used.
+      attr_reader :strict
+
       # Specifies whether additional messages should be shown.
       attr_reader :quiet
 
@@ -86,8 +89,12 @@ module HexaPDF
 
         @force = false
         @quiet = false
+        @strict = false
         global_options.on("--[no-]force", "Force overwriting existing files. Default: false") do |f|
           @force = f
+        end
+        global_options.on("--strict", "Enable strict parsing and validation") do |s|
+          @strict = s
         end
         global_options.on("--quiet", "-q", "Suppress additional and diagnostic output") do |q|
           @quiet = q

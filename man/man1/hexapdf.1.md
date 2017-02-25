@@ -41,6 +41,15 @@ These options are available on every command (except if they are overridden):
 
 : Force overwriting existing files. Default: *false*.
 
+`--strict`
+
+: Enable strict parsing and validation. By default, correctable parse error and validation problems
+  are treated as warnings which allows processing most PDF files. If this option is used,
+  correctable parse errors and uncorrectable validation problems are treated as errors.
+
+  Note that a PDF file may have validation errors and still be usable since most viewing
+  applications are very forgiving.
+
 `--quiet`
 
 : Suppress any additional or diagnostic output.

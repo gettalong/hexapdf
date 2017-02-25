@@ -77,17 +77,49 @@ module HexaPDF
       # If +out_file+ is given, the document is written to it after yielding.
       def with_document(file, password: nil, out_file: nil) #:yield: document
         if file == out_file
-          doc = HexaPDF::Document.open(file, decryption_opts: {password: password})
+          doc = HexaPDF::Document.open(file, pdf_options(password))
         else
           file_io = File.open(file, 'rb')
-          doc = HexaPDF::Document.new(decryption_opts: {password: password}, io: file_io)
+          doc = HexaPDF::Document.new(io: file_io, **pdf_options(password))
         end
 
         yield(doc)
 
-        doc.write(out_file) if out_file
+        write_document(doc, out_file)
       ensure
         file_io&.close
+      end
+
+      # Returns a hash with HexaPDF::Document options based on the given password and the option
+      # switches.
+      def pdf_options(password)
+        hash = {decryption_opts: {password: password}, config: {}}
+        hash[:config]['parser.on_correctable_error'] =
+          if command_parser.strict
+            proc { true }
+          else
+            proc do |_, msg, pos|
+              unless command_parser.quiet
+                $stderr.puts "Warning: #{MalformedPDFError.new(msg, pos: pos).message}"
+              end
+              false
+            end
+          end
+        hash
+      end
+
+      # Writes the document to the given file or does nothing if +out_file+ is +nil+.
+      def write_document(doc, out_file)
+        if out_file
+          doc.validate(auto_correct: true) do |msg, correctable|
+            if command_parser.strict && !correctable
+              raise "Validation error: #{msg}"
+            elsif !command_parser.quiet
+              $stderr.puts "#{correctable ? 'Auto-corrected v' : 'V'}alidation problem: #{msg}"
+            end
+          end
+          doc.write(out_file, validate: false)
+        end
       end
 
       # Checks whether the given output file exists and raises an error if it does and

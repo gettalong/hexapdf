@@ -73,8 +73,8 @@ module HexaPDF
       COLUMN_WIDTH = 20 #:nodoc:
 
       def output_info(file) # :nodoc:
-        options = {decryption_opts: {password: @password},
-                   config: {'document.auto_decrypt' => @auto_decrypt}}
+        options = pdf_options(@password)
+        options[:config]['document.auto_decrypt'] = @auto_decrypt
         HexaPDF::Document.open(file, options) do |doc|
           output_line("File name", file)
           output_line("File size", File.stat(file).size.to_s + " bytes")

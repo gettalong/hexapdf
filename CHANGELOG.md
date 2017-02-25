@@ -9,6 +9,8 @@
 * CLI command `hexapdf batch` for batch execution of a single command for
   multiple input files
 * CLI option `--quiet` for suppressing additional and diagnostic output
+* CLI option `--strict` for enabling strict parsing and validation; also
+  changed the default from strict to non-strict parsing/validation
 * Method `#word_spacing_applicable?` to font types
 * Support for marked-content points and sequences in [HexaPDF::Content::Canvas]
 * Support for property lists in a page's resource dictionary

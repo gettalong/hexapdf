@@ -112,7 +112,7 @@ module HexaPDF
                    else
                      File.open(spec.file)
                    end
-              HexaPDF::Document.new(io: io, decryption_opts: {password: spec.password})
+              HexaPDF::Document.new(io: io, **pdf_options(spec.password))
             end
           spec.file = cache[spec.file]
         end
@@ -123,11 +123,12 @@ module HexaPDF
         import_pages(page_tree)
         target.catalog[:Pages] = page_tree
         remove_unused_pages(target)
+        target.pages.add unless target.pages.count > 0
 
         apply_encryption_options(target)
         apply_optimization_options(target)
 
-        target.write(output_file)
+        write_document(target, output_file)
       end
 
       def usage #:nodoc:
