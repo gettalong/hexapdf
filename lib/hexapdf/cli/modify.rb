@@ -101,8 +101,8 @@ module HexaPDF
           end
           new_page_tree.add_page(page)
         end
-        doc.delete(doc.catalog.delete(:Pages))
         doc.catalog[:Pages] = new_page_tree
+        remove_unused_pages(doc)
       end
 
     end

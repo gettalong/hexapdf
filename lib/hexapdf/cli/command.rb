@@ -265,6 +265,18 @@ module HexaPDF
         end
       end
 
+      # Removes unused pages and page tree nodes from the document.
+      def remove_unused_pages(doc)
+        retained = doc.pages.each_with_object({}) {|page, h| h[page.data] = true}
+        retained[doc.pages.root.data] = true
+        doc.each(current: false) do |obj|
+          next unless obj.kind_of?(HexaPDF::Dictionary)
+          if (obj.type == :Pages || obj.type == :Page) && !retained.key?(obj.data)
+            doc.delete(obj)
+          end
+        end
+      end
+
       private
 
       # Displays the given prompt, reads from the console without echo and returns the read string.

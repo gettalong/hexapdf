@@ -122,16 +122,7 @@ module HexaPDF
         page_tree = target.add(Type: :Pages)
         import_pages(page_tree)
         target.catalog[:Pages] = page_tree
-
-        # Remove potentially imported but unused pages and page tree nodes
-        retained = target.pages.each_with_object({}) {|page, h| h[page.data] = true}
-        retained[target.pages.root.data] = true
-        target.each(current: false) do |obj|
-          next unless obj.kind_of?(HexaPDF::Dictionary)
-          if (obj.type == :Pages || obj.type == :Page) && !retained.key?(obj.data)
-            target.delete(obj)
-          end
-        end
+        remove_unused_pages(target)
 
         apply_encryption_options(target)
         apply_optimization_options(target)
