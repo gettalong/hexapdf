@@ -178,6 +178,10 @@ There is no need to write the full command name for hexapdf to understand it, th
 is that is must be unambiguous. So using `f` for the `files` command is sufficient. The same is
 true for long option names and option values.
 
+Any command that reads and writes a PDF file may do in-place processing of the file. This is
+automatically done if an input file name is the same as the output file name. Note that the option
+`--force` has to be used in this case.
+
 
 ### batch
 

@@ -105,8 +105,15 @@ module HexaPDF
         # Create PDF documents for each input file
         cache = {}
         @files.each do |spec|
-          cache[spec.file] ||= HexaPDF::Document.new(io: File.open(spec.file),
-                                                     decryption_opts: {password: spec.password})
+          cache[spec.file] ||=
+            begin
+              io = if spec.file == output_file
+                     StringIO.new(File.binread(spec.file))
+                   else
+                     File.open(spec.file)
+                   end
+              HexaPDF::Document.new(io: io, decryption_opts: {password: spec.password})
+            end
           spec.file = cache[spec.file]
         end
 

@@ -77,12 +77,11 @@ module HexaPDF
 
       def execute(in_file, out_file) #:nodoc:
         maybe_raise_on_existing_file(out_file)
-        HexaPDF::Document.open(in_file, decryption_opts: {password: @password}) do |doc|
+        with_document(in_file, password: @password, out_file: out_file) do |doc|
           arrange_pages(doc) unless @pages == '1-e'
           @embed_files.each {|file| doc.files.add(file, embed: true)}
           apply_encryption_options(doc)
           apply_optimization_options(doc)
-          doc.write(out_file)
         end
       end
 

@@ -72,6 +72,24 @@ module HexaPDF
 
       protected
 
+      # Creates a HexaPDF::Document instance for the PDF file and yields it.
+      #
+      # If +out_file+ is given, the document is written to it after yielding.
+      def with_document(file, password: nil, out_file: nil) #:yield: document
+        if file == out_file
+          doc = HexaPDF::Document.open(file, decryption_opts: {password: password})
+        else
+          file_io = File.open(file, 'rb')
+          doc = HexaPDF::Document.new(decryption_opts: {password: password}, io: file_io)
+        end
+
+        yield(doc)
+
+        doc.write(out_file) if out_file
+      ensure
+        file_io&.close
+      end
+
       # Checks whether the given output file exists and raises an error if it does and
       # HexaPDF::CLI#force is not set.
       def maybe_raise_on_existing_file(filename)

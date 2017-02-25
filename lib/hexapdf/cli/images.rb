@@ -77,7 +77,7 @@ module HexaPDF
       end
 
       def execute(pdf) #:nodoc:
-        HexaPDF::Document.open(pdf, decryption_opts: {password: @password}) do |doc|
+        with_document(pdf, password: @password) do |doc|
           if @indices.empty?
             list_images(doc)
           else

@@ -14,6 +14,7 @@
 
 ### Changed
 
+* Enabled in-place processing of PDF files for all CLI commands
 * Handling of character code to Unicode mapping:
   - [HexaPDF::Font::CMap#to_unicode], [HexaPDF::Font::Encoding#unicode] and
     [HexaPDF::Font::Encoding::GlyphList#name_to_unicode] return `nil` instead of

@@ -94,9 +94,7 @@ module HexaPDF
       end
 
       def execute(file) #:nodoc:
-        HexaPDF::Document.open(file, decryption_opts: {password: @password}) do |doc|
-          send("do_#{@exec}", doc)
-        end
+        with_document(file, password: @password) {|doc| send("do_#{@exec}", doc)}
       end
 
       private
