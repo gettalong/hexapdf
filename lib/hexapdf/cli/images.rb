@@ -108,10 +108,15 @@ module HexaPDF
       def extract_images(doc)
         each_image(doc) do |image, index, _|
           next unless @indices.include?(index) || @indices.include?(0)
-          path = "#{@prefix}-#{index}.#{image.info.extension}"
-          maybe_raise_on_existing_file(path)
-          puts "Extracting #{path}..."
-          image.write(path)
+          info = image.info
+          if info.writable
+            path = "#{@prefix}-#{index}.#{image.info.extension}"
+            maybe_raise_on_existing_file(path)
+            puts "Extracting #{path}..."
+            image.write(path)
+          else
+            $stderr.puts "Warning (image #{index}): PDF image format not supported for writing"
+          end
         end
       end
 
