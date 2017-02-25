@@ -227,7 +227,9 @@ module HexaPDF
       ROTATE_MAP = {'l' => -90, 'r' => 90, 'd' => 180, 'n' => :none}.freeze #:nodoc:
 
       # Parses the pages specification string and returns an array of tuples containing a page
-      # number and a rotation value (either -90, 90, 180 or :none).
+      # number and a rotation value (either -90, 90, 180, :none or +nil+ where an integer means
+      # adding a rotation by that number of degrees, :none means removing any set rotation value and
+      # +nil+ means preserving the set rotation value).
       #
       # The parameter +count+ needs to be the total number of pages in the document.
       #

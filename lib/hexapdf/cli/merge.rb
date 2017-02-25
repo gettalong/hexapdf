@@ -152,10 +152,7 @@ module HexaPDF
         @files.each do |s|
           page_list = s.file.pages.to_a
           s.pages = parse_pages_specification(s.pages, s.file.pages.count)
-          s.pages.each do |arr|
-            arr[0] = page_list[arr[0]]
-            arr[1] = arr[0].value[:Rotate] || :none unless arr[1]
-          end
+          s.pages.each {|arr| arr[0] = page_list[arr[0]]}
         end
 
         if @interleave

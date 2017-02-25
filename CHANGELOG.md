@@ -34,6 +34,7 @@
   of the same font
 * Bug in handling of word spacing with respect to offset calculations when
   showing or extracting text
+* Incorrect handling of page rotation values in `hexapdf merge`
 
 
 ## 0.3.0 - 2017-01-25
