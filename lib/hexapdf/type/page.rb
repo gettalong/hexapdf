@@ -135,7 +135,7 @@ module HexaPDF
       define_field :TemplateInstantiated, type: Symbol, version: '1.5'
       define_field :PresSteps,            type: Dictionary, version: '1.5'
       define_field :UserUnit,             type: Numeric, version: '1.6'
-      define_field :VP,                   type: Dictionary, version: '1.6'
+      define_field :VP,                   type: Array, version: '1.6'
 
       # Returns +true+ since page objects must always be indirect.
       def must_be_indirect?
