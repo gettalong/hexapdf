@@ -46,6 +46,7 @@
 * Missing handling of certain rotation values in `hexapdf modify`
 * Removal of unused pages in `hexapdf modify`
 * Handling of invalid page numbers in CLI commands
+* Useless multiple extraction of the same image in `hexapdf images`
 
 
 ## 0.3.0 - 2017-01-25

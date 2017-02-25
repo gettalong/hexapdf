@@ -31,6 +31,7 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'set'
 require 'hexapdf/cli/command'
 
 module HexaPDF
@@ -106,14 +107,16 @@ module HexaPDF
 
       # Extracts the images with the given indices.
       def extract_images(doc)
+        done = Set.new
         each_image(doc) do |image, index, _|
-          next unless @indices.include?(index) || @indices.include?(0)
+          next unless (@indices.include?(index) || @indices.include?(0)) && !done.include?(index)
           info = image.info
           if info.writable
             path = "#{@prefix}-#{index}.#{image.info.extension}"
             maybe_raise_on_existing_file(path)
             puts "Extracting #{path}..." if command_parser.verbosity_info?
             image.write(path)
+            done << index
           elsif command_parser.verbosity_warning?
             $stderr.puts "Warning (image #{index}): PDF image format not supported for writing"
           end
