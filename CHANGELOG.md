@@ -8,6 +8,7 @@
   [HexaPDF::Font::CMap] changed to accomodate this
 * CLI command `hexapdf batch` for batch execution of a single command for
   multiple input files
+* CLI option `--quiet` for suppressing additional and diagnostic output
 * Method `#word_spacing_applicable?` to font types
 * Support for marked-content points and sequences in [HexaPDF::Content::Canvas]
 * Support for property lists in a page's resource dictionary

@@ -41,6 +41,10 @@ These options are available on every command (except if they are overridden):
 
 : Force overwriting existing files. Default: *false*.
 
+`--quiet`
+
+: Suppress any additional or diagnostic output.
+
 `-h`, `--help`
 
 : Show the help for the application if no command was specified, or the command help otherwise.

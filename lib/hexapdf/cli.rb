@@ -64,6 +64,9 @@ module HexaPDF
       # overwritten.
       attr_reader :force
 
+      # Specifies whether additional messages should be shown.
+      attr_reader :quiet
+
       def initialize #:nodoc:
         super(handle_exceptions: :no_help)
         main_command.options.program_name = "hexapdf"
@@ -82,8 +85,12 @@ module HexaPDF
         add_command(CmdParse::VersionCommand.new)
 
         @force = false
+        @quiet = false
         global_options.on("--[no-]force", "Force overwriting existing files. Default: false") do |f|
           @force = f
+        end
+        global_options.on("--quiet", "-q", "Suppress additional and diagnostic output") do |q|
+          @quiet = q
         end
       end
 
