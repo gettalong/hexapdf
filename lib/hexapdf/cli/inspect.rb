@@ -125,7 +125,7 @@ module HexaPDF
       def do_object(doc) #:nodoc:
         object = doc.object(pdf_reference_from_string(@param))
         return unless object
-        if object.data.stream && !command_parser.quiet
+        if object.data.stream && command_parser.verbosity_info?
           $stderr.puts("Note: Object also has stream data")
         end
         puts HexaPDF::Serializer.new.serialize(object.value)
@@ -138,8 +138,8 @@ module HexaPDF
           while source.alive? && (data = source.resume)
             $stdout.write(data)
           end
-        else
-          $stderr.puts("Note: Object has no stream data") unless command_parser.quiet
+        elsif command_parser.verbosity_info?
+          $stderr.puts("Note: Object has no stream data")
         end
       end
 

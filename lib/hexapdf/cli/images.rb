@@ -112,9 +112,9 @@ module HexaPDF
           if info.writable
             path = "#{@prefix}-#{index}.#{image.info.extension}"
             maybe_raise_on_existing_file(path)
-            puts "Extracting #{path}..." unless command_parser.quiet
+            puts "Extracting #{path}..." if command_parser.verbosity_info?
             image.write(path)
-          elsif !command_parser.quiet
+          elsif command_parser.verbosity_warning?
             $stderr.puts "Warning (image #{index}): PDF image format not supported for writing"
           end
         end

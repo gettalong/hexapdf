@@ -99,8 +99,9 @@ module HexaPDF
             proc { true }
           else
             proc do |_, msg, pos|
-              unless command_parser.quiet
-                $stderr.puts "Warning: #{MalformedPDFError.new(msg, pos: pos).message}"
+              if command_parser.verbosity_info?
+                msg = MalformedPDFError.new(msg, pos: pos).message
+                $stderr.puts "Corrected parsing problem: #{msg}"
               end
               false
             end
@@ -114,8 +115,8 @@ module HexaPDF
           doc.validate(auto_correct: true) do |msg, correctable|
             if command_parser.strict && !correctable
               raise "Validation error: #{msg}"
-            elsif !command_parser.quiet
-              $stderr.puts "#{correctable ? 'Auto-corrected v' : 'V'}alidation problem: #{msg}"
+            elsif command_parser.verbosity_info?
+              $stderr.puts "#{correctable ? 'Corrected' : 'Ignored'} validation problem: #{msg}"
             end
           end
           doc.write(out_file, validate: false)

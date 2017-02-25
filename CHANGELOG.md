@@ -8,6 +8,8 @@
   [HexaPDF::Font::CMap] changed to accomodate this
 * CLI command `hexapdf batch` for batch execution of a single command for
   multiple input files
+* CLI option `--verbose` for more verbose output; also changed the default
+  verbosity level to only display warnings and not informational messages
 * CLI option `--quiet` for suppressing additional and diagnostic output
 * CLI option `--strict` for enabling strict parsing and validation; also
   changed the default from strict to non-strict parsing/validation

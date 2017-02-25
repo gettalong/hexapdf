@@ -50,9 +50,16 @@ These options are available on every command (except if they are overridden):
   Note that a PDF file may have validation errors and still be usable since most viewing
   applications are very forgiving.
 
+`--verbose`, `-v`
+
+: Enable more verbose output. There are three verbosity levels: 0 (no output), 1 (warning output)
+  and 2 (warning and informational output). The default level is 1, specifying this option increases
+  it to 2.
+
 `--quiet`
 
-: Suppress any additional or diagnostic output.
+: Suppress any output by setting the verbosity level to 0. Also see the description of `--verbose`
+  above.
 
 `-h`, `--help`
 

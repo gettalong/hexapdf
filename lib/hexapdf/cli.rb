@@ -60,15 +60,21 @@ module HexaPDF
     # The CmdParse::CommandParser class that is used for running the CLI application.
     class Application < CmdParse::CommandParser
 
+      # Verbosity level for no output
+      VERBOSITY_QUIET = 0
+
+      # Verbosity level for warning output
+      VERBOSITY_WARNING = 1
+
+      # Verbosity level for informational output
+      VERBOSITY_INFO = 2
+
       # Specifies whether an operation should be forced. For example, if an existing file should be
       # overwritten.
       attr_reader :force
 
       # Specifies whether strict parsing and validation should be used.
       attr_reader :strict
-
-      # Specifies whether additional messages should be shown.
-      attr_reader :quiet
 
       def initialize #:nodoc:
         super(handle_exceptions: :no_help)
@@ -85,10 +91,12 @@ module HexaPDF
         add_command(HexaPDF::CLI::Merge.new)
         add_command(HexaPDF::CLI::Batch.new)
         add_command(CmdParse::HelpCommand.new)
-        add_command(CmdParse::VersionCommand.new)
+        version_command = CmdParse::VersionCommand.new(add_switches: false)
+        add_command(version_command)
+        main_options.on_tail("--version", "Show hexapdf version") { version_command.execute }
 
         @force = false
-        @quiet = false
+        @verbosity = VERBOSITY_WARNING
         @strict = false
         global_options.on("--[no-]force", "Force overwriting existing files. Default: false") do |f|
           @force = f
@@ -96,9 +104,22 @@ module HexaPDF
         global_options.on("--strict", "Enable strict parsing and validation") do |s|
           @strict = s
         end
-        global_options.on("--quiet", "-q", "Suppress additional and diagnostic output") do |q|
-          @quiet = q
+        global_options.on("--verbose", "-v", "Verbose output") do
+          @verbosity += 1
         end
+        global_options.on("--quiet", "-q", "Suppress any output") do
+          @verbosity = VERBOSITY_QUIET
+        end
+      end
+
+      # Returns +true+ if the verbosity level warning is enabled.
+      def verbosity_warning?
+        @verbosity >= VERBOSITY_WARNING
+      end
+
+      # Returns +true+ if the verbosity level info is enabled.
+      def verbosity_info?
+        @verbosity >= VERBOSITY_INFO
       end
 
       def parse(argv = ARGV) #:nodoc:

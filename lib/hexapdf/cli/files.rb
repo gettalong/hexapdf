@@ -103,7 +103,7 @@ module HexaPDF
         each_file(doc) do |obj, index|
           next unless @indices.include?(index + 1) || @indices.include?(0)
           maybe_raise_on_existing_file(obj.path)
-          puts "Extracting #{obj.path}..." unless command_parser.quiet
+          puts "Extracting #{obj.path}..." if command_parser.verbosity_info?
           File.open(obj.path, 'wb') do |file|
             fiber = obj.embedded_file_stream.stream_decoder
             while fiber.alive? && (data = fiber.resume)
