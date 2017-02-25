@@ -96,7 +96,7 @@ module HexaPDF
           page.value.update(page.copy_inherited_values)
           if rotation == :none
             page.delete(:Rotate)
-          else
+          elsif rotation.kind_of?(Integer)
             page[:Rotate] = ((page[:Rotate] || 0) + rotation) % 360
           end
           new_page_tree.add_page(page)
