@@ -76,6 +76,8 @@ module HexaPDF
         options = {decryption_opts: {password: @password},
                    config: {'document.auto_decrypt' => @auto_decrypt}}
         HexaPDF::Document.open(file, options) do |doc|
+          output_line("File name", file)
+          output_line("File size", File.stat(file).size.to_s + " bytes")
           INFO_KEYS.each do |name|
             next unless doc.trailer.info.key?(name)
             output_line(name.to_s, doc.trailer.info[name].to_s)
