@@ -40,6 +40,7 @@
 * Incorrect handling of page rotation values in `hexapdf merge`
 * Missing handling of certain rotation values in `hexapdf modify`
 * Removal of unused pages in `hexapdf modify`
+* Handling of invalid page numbers in CLI commands
 
 
 ## 0.3.0 - 2017-01-25

@@ -238,10 +238,12 @@ module HexaPDF
         range.split(',').each_with_object([]) do |str, arr|
           case str
           when /\A#{PAGE_NUMBER_SPEC}(l|r|d|n)?\z/o
-            arr << [($1 == 'e' ? count : str.to_i) - 1, ROTATE_MAP[$2]]
+            page_num = ($1 == 'e' ? count : str.to_i)
+            next if page_num > count
+            arr << [page_num - 1, ROTATE_MAP[$2]]
           when /\A#{PAGE_NUMBER_SPEC}-#{PAGE_NUMBER_SPEC}(?:\/([1-9]\d*))?(l|r|d|n)?\z/
-            start_nr = ($1 == 'e' ? count : $1.to_i) - 1
-            end_nr = ($2 == 'e' ? count : $2.to_i) - 1
+            start_nr = ($1 == 'e' ? count : [$1.to_i, count].min) - 1
+            end_nr = ($2 == 'e' ? count : [$2.to_i, count].min) - 1
             step = ($3 ? $3.to_i : 1) * (start_nr > end_nr ? -1 : 1)
             rotation = ROTATE_MAP[$4]
             start_nr.step(to: end_nr, by: step) {|n| arr << [n, rotation]}

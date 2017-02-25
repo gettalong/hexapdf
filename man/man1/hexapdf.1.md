@@ -445,6 +445,9 @@ The pages are used in the order in which the are specified.
 If the start number of a page range is higher than the end number, the pages are used in the reverse
 order.
 
+Single page numbers that are not valid are ignored. If a page number in a page range is higher than
+the page number of the last page, the page number of the last page is used instead.
+
 Step values can be used with page ranges. If a range is followed by */STEP*, *STEP* - 1 pages are
 skipped after each used page.
 
