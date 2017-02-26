@@ -24,9 +24,9 @@
 * Show warning instead of exiting when extracting images with `hexapdf images`
   and an image format is not supported
 * Handling of character code to Unicode mapping:
-  - [HexaPDF::Font::CMap#to_unicode], [HexaPDF::Font::Encoding#unicode] and
-    [HexaPDF::Font::Encoding::GlyphList#name_to_unicode] return `nil` instead of
-    an empty string
+  - [HexaPDF::Font::CMap#to_unicode], [HexaPDF::Font::Encoding::Base#unicode]
+    and [HexaPDF::Font::Encoding::GlyphList#name_to_unicode] return `nil`
+    instead of an empty string
   - Font dictionaries use the new configuration option
     'font.on_missing_unicode_mapping' in their `#to_utf8` method
 * [HexaPDF::Configuration#constantize] to raise error if constant is not found
