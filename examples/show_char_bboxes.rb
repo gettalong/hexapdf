@@ -2,12 +2,12 @@
 #
 # This examples shows how to process the contents of a page. It finds all
 # characters on a page and surrounds them with their bounding box. Additionally,
-# all consecutive text runs are also surrounded by box.
+# all consecutive text runs are also surrounded by a box.
 #
 # The code provides two ways of generating the boxes. The commented part of
 # `ShowTextProcessor#show_text` uses a polyline since some characters may be
 # transforemd (rotated or skewed). The un-commented part uses rectangles which
-# is faster and correct in most cases.
+# is faster and correct for most but not all cases.
 #
 # Usage:
 # : `ruby show_char_boxes.rb INPUT.PDF`

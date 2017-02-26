@@ -10,6 +10,9 @@
 # Sometimes other things like attached files or a document outline
 # should also be preserved.
 #
+# The hexapdf binary provides a command for merging files which does
+# the merging in a more sophisticated way.
+#
 # Usage:
 # : `ruby merging.rb INPUT1.PDF INPUT2.PDF ...`
 #
@@ -21,4 +24,4 @@ ARGV.each do |file|
   pdf = HexaPDF::Document.open(file)
   pdf.pages.each {|page| target.pages << target.import(page)}
 end
-target.write("merging.pdf", optimize: true)
+target.write("2.merging.pdf", optimize: true)

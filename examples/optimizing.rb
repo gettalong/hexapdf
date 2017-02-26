@@ -7,6 +7,9 @@
 # over which aspects should be optimized. See [HexaPDF::Task::Optimize]
 # for detailed information.
 #
+# The hexapdf binary provides an optimization command which does some
+# additional operations like optimizing the page tree.
+#
 # Usage:
 # : `ruby optimizing.rb INPUT.PDF`
 #

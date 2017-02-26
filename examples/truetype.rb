@@ -17,9 +17,9 @@
 require 'hexapdf'
 
 doc = HexaPDF::Document.new
-doc.config['font.on_missing_glyph'] = ->(n,f) { f.missing_glyph_id }
+doc.config['font.on_missing_glyph'] = ->(_, f) { f.missing_glyph_id }
 doc.config['font.map'] = {
-  'myfont' => {none: ARGV.shift || File.join(__dir__, '../test/data/fonts/Ubuntu-Title.ttf')}
+  'myfont' => {none: ARGV.shift || File.join(__dir__, '../test/data/fonts/Ubuntu-Title.ttf')},
 }
 
 wrapper = doc.fonts.load('myfont')
