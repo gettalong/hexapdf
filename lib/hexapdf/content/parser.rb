@@ -33,6 +33,7 @@
 
 require 'stringio'
 require 'hexapdf/tokenizer'
+require 'hexapdf/content/processor'
 
 module HexaPDF
   module Content
@@ -44,6 +45,9 @@ module HexaPDF
     #
     # See: PDF1.7 s7.2
     class Tokenizer < HexaPDF::Tokenizer #:nodoc:
+
+      # The string that is tokenized.
+      attr_reader :string
 
       # Creates a new tokenizer.
       def initialize(string)
@@ -168,6 +172,8 @@ module HexaPDF
 
       private
 
+      MAX_TOKEN_CHECK = 5 #:nodoc:
+
       # Parses the inline image at the current position.
       def parse_inline_image(tokenizer)
         # BI has already been read, so read the image dictionary
@@ -190,13 +196,41 @@ module HexaPDF
         # one whitespace character after ID
         tokenizer.next_byte
 
-        # find the EI operator
-        data = tokenizer.scan_until(/(?=EI[#{Tokenizer::WHITESPACE}])/o)
-        if data.nil?
-          raise HexaPDF::Error, "End inline image marker EI not found"
+        real_end_found = false
+        image_data = ''.b
+
+        # find the EI operator and handle EI appearing inside the image data
+        until real_end_found
+          data = tokenizer.scan_until(/(?=EI(?:[#{Tokenizer::WHITESPACE}]|\z))/o)
+          if data.nil?
+            raise HexaPDF::Error, "End inline image marker EI not found"
+          end
+          image_data << data
+          tokenizer.pos += 2
+          last_pos = tokenizer.pos
+
+          # Check if we found EI inside of the image data
+          count = 0
+          while count < MAX_TOKEN_CHECK
+            token = tokenizer.next_object(allow_keyword: true) rescue break
+            if token == Tokenizer::NO_MORE_TOKENS
+              count += MAX_TOKEN_CHECK
+            elsif token.kind_of?(Tokenizer::Token) &&
+                !Processor::OPERATOR_MESSAGE_NAME_MAP.key?(token.to_sym)
+              break #  invalid token
+            end
+            count += 1
+          end
+
+          if count >= MAX_TOKEN_CHECK
+            real_end_found = true
+          else
+            image_data << "EI"
+          end
+          tokenizer.pos = last_pos
         end
-        tokenizer.pos += 3
-        [dict, data]
+
+        [dict, image_data]
       end
 
     end

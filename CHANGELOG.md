@@ -48,6 +48,7 @@
 * Handling of invalid page numbers in CLI commands
 * Useless multiple extraction of the same image in `hexapdf images`
 * Type of /VP entry of [HexaPDF::Type::Page]
+* Parsing of inline images that contain the end-of-image marker
 
 
 ## 0.3.0 - 2017-01-25
