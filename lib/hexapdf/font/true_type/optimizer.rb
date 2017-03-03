@@ -31,23 +31,35 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'hexapdf/font/true_type/builder'
+
 module HexaPDF
   module Font
-
-    # This module provides classes for handling TrueType fonts.
-    #
-    # Note that currently not all parts of the file format are supported, only those needed for
-    # using the fonts with PDF. This means that the implementation is not a *complete* font handling
-    # library but is designed to allow reading font files and extracting information. Furthermore
-    # creating a font subset is also possible which is not the same as writing a complete font file
-    # from scratch.
     module TrueType
 
-      autoload(:Font, 'hexapdf/font/true_type/font')
-      autoload(:Subsetter, 'hexapdf/font/true_type/subsetter')
-      autoload(:Optimizer, 'hexapdf/font/true_type/optimizer')
+      # Provides methods for optimizing a TrueType font file in various ways.
+      module Optimizer
+
+        # Returns for the given font a TrueType font file as binary string that is optimized for use
+        # in a PDF (i.e. only the essential tables are retained).
+        def self.build_for_pdf(font)
+          tables = {
+            'head' => font[:head].raw_data,
+            'hhea' => font[:hhea].raw_data,
+            'maxp' => font[:maxp].raw_data,
+            'glyf' => font[:glyf].raw_data,
+            'loca' => font[:loca].raw_data,
+            'hmtx' => font[:hmtx].raw_data,
+          }
+          tables['cmap'] = font[:cmap].raw_data if font[:cmap]
+          tables['cvt '] = font[:"cvt "].raw_data if font[:"cvt "]
+          tables['fpgm'] = font[:fpgm].raw_data if font[:fpgm]
+          tables['prep'] = font[:prep].raw_data if font[:prep]
+          Builder.build(tables)
+        end
+
+      end
 
     end
-
   end
 end

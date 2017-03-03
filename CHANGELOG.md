@@ -18,6 +18,7 @@
 * Support for property lists in a page's resource dictionary
 * Show file name and size in `hexapdf info` output
 * [HexaPDF::Type::Font#font_file] for getting the embedded font file
+* [HexaPDF::Font::TrueType::Optimizer] for optimizing TrueType fonts
 
 ### Changed
 
