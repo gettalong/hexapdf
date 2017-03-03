@@ -72,6 +72,11 @@ module HexaPDF
         dict && (dict[:FontFile] || dict[:FontFile2] || dict[:FontFile3])
       end
 
+      # Returns the embeeded font file object or +nil+ if the font is not embedded.
+      def font_file
+        embedded?
+      end
+
       private
 
       # Parses and caches the ToUnicode CMap.

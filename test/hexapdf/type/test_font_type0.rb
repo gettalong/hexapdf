@@ -33,6 +33,11 @@ describe HexaPDF::Type::FontType0 do
     assert(@font.embedded?)
   end
 
+  it "uses the descendant font for returning the embedded font file" do
+    @cid_font[:FontDescriptor][:FontFile2] = 5
+    assert_equal(5, @font.font_file)
+  end
+
   describe "word_spacing_applicable?" do
     it "returns false if code point 32 is not a single-byte code point" do
       refute(@font.word_spacing_applicable?)

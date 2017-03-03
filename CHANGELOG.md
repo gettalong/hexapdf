@@ -17,6 +17,7 @@
 * Support for marked-content points and sequences in [HexaPDF::Content::Canvas]
 * Support for property lists in a page's resource dictionary
 * Show file name and size in `hexapdf info` output
+* [HexaPDF::Type::Font#font_file] for getting the embedded font file
 
 ### Changed
 

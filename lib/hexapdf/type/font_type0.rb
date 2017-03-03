@@ -90,6 +90,11 @@ module HexaPDF
         descendant_font.embedded?
       end
 
+      # Returns the embeeded font file object or +nil+ if the font is not embedded.
+      def font_file
+        descendant_font.font_file
+      end
+
       # Returns whether word spacing is applicable when using this font.
       #
       # Note that the return value is cached when accessed the first time.

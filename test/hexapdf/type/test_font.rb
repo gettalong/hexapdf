@@ -52,4 +52,11 @@ describe HexaPDF::Type::Font do
       assert(@font.embedded?)
     end
   end
+
+  describe "font_file" do
+    it "returns the stream object representing the embedded font file" do
+      @font[:FontDescriptor][:FontFile] = 5
+      assert_equal(5, @font.font_file)
+    end
+  end
 end
