@@ -31,6 +31,8 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'hexapdf/font/true_type/builder'
+
 module HexaPDF
   module Font
     module TrueType
@@ -88,28 +90,7 @@ module HexaPDF
           tables['fpgm'] = @font[:fpgm].raw_data if @font[:fpgm]
           tables['prep'] = @font[:prep].raw_data if @font[:prep]
 
-          search_range = 2**(tables.length.bit_length - 1) * 16
-          entry_selector = tables.length.bit_length - 1
-          range_shift = tables.length * 16 - search_range
-
-          font_data = "\x0\x1\x0\x0".b + \
-            [tables.length, search_range, entry_selector, range_shift].pack('n4')
-
-          offset = font_data.length + tables.length * 16
-          checksum = Table.calculate_checksum(font_data)
-
-          tables.each do |tag, data|
-            table_checksum = Table.calculate_checksum(data)
-            # tag, offset, data.length are all 32bit uint, table_checksum for header and body
-            checksum += tag.unpack('N').first + 2 * table_checksum + offset + data.length
-            font_data << [tag, table_checksum, offset, data.length].pack('a4N3')
-            offset += data.length
-          end
-
-          head[8, 4] = [0xB1B0AFBA - checksum].pack('N')
-          tables.each_value {|data| font_data << data}
-
-          font_data
+          Builder.build(tables)
         end
 
         private

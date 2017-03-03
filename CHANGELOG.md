@@ -31,6 +31,8 @@
   - Font dictionaries use the new configuration option
     'font.on_missing_unicode_mapping' in their `#to_utf8` method
 * [HexaPDF::Configuration#constantize] to raise error if constant is not found
+* Extracted TrueType font file building code into new module
+  [HexaPDF::Font::TrueType::Builder]
 
 ### Fixed
 
