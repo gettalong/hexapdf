@@ -98,6 +98,12 @@ depending on the command.
 : Recompress page content streams. This is a very expensive operation in terms of processing time
   and won't lead to great file size improvements in many cases. Default: *no*.
 
+`--[no-]optimize-fonts`
+
+: Optimize embedded font files by removing normally unneeded font data. Note that this may have a
+  negative effect on PDFs with forms since form entry usually requires fully embedded font files.
+  Default: *no*.
+
 
 ### Encryption Options
 

@@ -35,6 +35,7 @@ require 'io/console'
 require 'ostruct'
 require 'cmdparse'
 require 'hexapdf/document'
+require 'hexapdf/font/true_type'
 
 module HexaPDF
   module CLI
@@ -61,6 +62,7 @@ module HexaPDF
         @out_options.object_streams = :preserve
         @out_options.xref_streams = :preserve
         @out_options.streams = :preserve
+        @out_options.optimize_fonts = false
 
         @out_options.encryption = :preserve
         @out_options.enc_user_pwd = @out_options.enc_owner_pwd = nil
@@ -159,6 +161,10 @@ module HexaPDF
                    "time; default: #{@out_options.compress_pages})") do |c|
           @out_options.compress_pages = c
         end
+        options.on("--[no-]optimize-fonts", "Optimize embedded font files; " \
+                   "default: #{@out_options.optimize_fonts})") do |o|
+          @out_options.optimize_fonts = o
+        end
       end
 
       # Defines the encryption options.
@@ -221,23 +227,37 @@ module HexaPDF
                  object_streams: @out_options.object_streams,
                  xref_streams: @out_options.xref_streams,
                  compress_pages: @out_options.compress_pages)
-        handle_streams(doc) unless @out_options.streams == :preserve
+        if @out_options.streams != :preserve || @out_options.optimize_fonts
+          doc.each(current: false) do |obj|
+            optimize_stream(obj)
+            optimize_font(obj)
+          end
+        end
       end
 
       IGNORED_FILTERS = { #:nodoc:
         CCITTFaxDecode: true, JBIG2Decode: true, DCTDecode: true, JPXDecode: true, Crypt: true
       }.freeze
 
-      # Applies the chosen stream mode to all streams.
-      def handle_streams(doc)
-        doc.each(current: false) do |obj|
-          next if !obj.respond_to?(:set_filter) || Array(obj[:Filter]).any? {|f| IGNORED_FILTERS[f]}
-          if @out_options.streams == :compress
-            obj.set_filter(:FlateDecode)
-          else
-            obj.set_filter(nil)
-          end
-        end
+      # Applies the chosen stream mode to the given object.
+      def optimize_stream(obj)
+        return if @out_options.streams == :preserve || !obj.respond_to?(:set_filter) ||
+          Array(obj[:Filter]).any? {|f| IGNORED_FILTERS[f]}
+
+        obj.set_filter(@out_options.streams == :compress ? :FlateDecode : nil)
+      end
+
+      # Optimize the object if it is a font object.
+      def optimize_font(obj)
+        return unless @out_options.optimize_fonts && obj.kind_of?(HexaPDF::Type::Font) &&
+          (obj[:Subtype] == :TrueType ||
+           (obj[:Subtype] == :Type0 && obj.descendant_font[:Subtype] == :CIDFontType2)) &&
+          obj.embedded?
+
+        font = HexaPDF::Font::TrueType::Font.new(StringIO.new(obj.font_file.stream))
+        data = HexaPDF::Font::TrueType::Optimizer.build_for_pdf(font)
+        obj.font_file.stream = data
+        obj.font_file[:Length1] = data.size
       end
 
       # Applies the encryption related options to the given HexaPDF::Document instance.

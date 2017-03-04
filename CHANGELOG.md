@@ -13,6 +13,7 @@
 * CLI option `--quiet` for suppressing additional and diagnostic output
 * CLI option `--strict` for enabling strict parsing and validation; also
   changed the default from strict to non-strict parsing/validation
+* CLI optimization option `--optimize-fonts` for optimizing embedded fonts
 * Method `#word_spacing_applicable?` to font types
 * Support for marked-content points and sequences in [HexaPDF::Content::Canvas]
 * Support for property lists in a page's resource dictionary
