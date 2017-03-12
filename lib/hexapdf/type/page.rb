@@ -234,7 +234,8 @@ module HexaPDF
         end
       end
 
-      # Returns the resource dictionary which is automatically created if it doesn't exist.
+      # Returns the possibly inherited resource dictionary which is automatically created if it
+      # doesn't exist.
       def resources
         self[:Resources] ||= document.wrap({}, type: :XXResources)
       end
