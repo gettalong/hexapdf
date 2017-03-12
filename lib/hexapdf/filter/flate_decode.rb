@@ -80,7 +80,9 @@ module HexaPDF
         end
 
         Fiber.new do
-          deflater = Zlib::Deflate.new(HexaPDF::GlobalConfiguration['filter.flate_compression'])
+          deflater = Zlib::Deflate.new(HexaPDF::GlobalConfiguration['filter.flate_compression'],
+                                       Zlib::MAX_WBITS,
+                                       HexaPDF::GlobalConfiguration['filter.flate_memory'])
           while source.alive? && (data = source.resume)
             data = deflater.deflate(data)
             Fiber.yield(data)

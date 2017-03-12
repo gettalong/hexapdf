@@ -301,6 +301,13 @@ module HexaPDF
   #    Specifies the compression level that should be used with the FlateDecode filter. The level
   #    can range from 0 (no compression), 1 (best speed) to 9 (best compression, default).
   #
+  # filter.flate_memory::
+  #    Specifies the memory level that should be used with the FlateDecode filter. The level can
+  #    range from 1 (minimum memory usage; slow, reduces compression) to 9 (maximum memory usage).
+  #
+  #    The HexaPDF default value of 6 has been found in tests to be nearly equivalent to the Zlib
+  #    default of 8 in terms of speed and compression level but uses less memory.
+  #
   # filter.map::
   #    A mapping from a PDF name (a Symbol) to a filter object (see Filter). If the value is a
   #    String, it should contain the name of a constant that contains a filter object.
@@ -346,6 +353,7 @@ module HexaPDF
                       'encryption.sub_filter_map' => {
                       },
                       'filter.flate_compression' => 9,
+                      'filter.flate_memory' => 6,
                       'filter.map' => {
                         ASCIIHexDecode: 'HexaPDF::Filter::ASCIIHexDecode',
                         AHx: 'HexaPDF::Filter::ASCIIHexDecode',

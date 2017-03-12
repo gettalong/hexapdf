@@ -20,6 +20,8 @@
 * Show file name and size in `hexapdf info` output
 * [HexaPDF::Type::Font#font_file] for getting the embedded font file
 * [HexaPDF::Font::TrueType::Optimizer] for optimizing TrueType fonts
+* Configuration option 'filter.flate_memory' for configuring memory use of the
+  [HexaPDF::Filter::FlateDecode] filter
 
 ### Changed
 
