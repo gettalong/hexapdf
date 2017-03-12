@@ -1695,7 +1695,7 @@ module HexaPDF
       #
       # Low-level method for actually showing text on the canvas.
       #
-      # The argument +data+ needs to be a an array of glyph objects valid for the current font,
+      # The argument +glyphs+ needs to be a an array of glyph objects valid for the current font,
       # optionally interspersed with numbers for kerning.
       #
       # Text is always shown at the current position of the text cursor, i.e. the origin of the text
@@ -1705,12 +1705,12 @@ module HexaPDF
       # The text matrix is updated to correctly represent the graphics state after the invocation.
       #
       # This method is usually not invoked directly but by higher level methods like #show_text.
-      def show_glyphs(data)
+      def show_glyphs(glyphs)
         begin_text
 
         result = [''.b]
         offset = 0
-        data.each do |item|
+        glyphs.each do |item|
           if item.kind_of?(Numeric)
             result << item << ''.b
             offset -= item * graphics_state.scaled_font_size
