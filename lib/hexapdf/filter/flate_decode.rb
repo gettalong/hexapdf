@@ -58,7 +58,9 @@ module HexaPDF
             Fiber.yield(data)
           end
           begin
-            inflater.finish
+            data = inflater.finish
+            inflater.close
+            data
           rescue
             raise FilterError, "Problem while decoding Flate encoded stream: #{$!}"
           end
@@ -83,7 +85,9 @@ module HexaPDF
             data = deflater.deflate(data)
             Fiber.yield(data)
           end
-          deflater.finish
+          data = deflater.finish
+          deflater.close
+          data
         end
       end
 

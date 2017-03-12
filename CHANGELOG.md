@@ -54,6 +54,8 @@
 * Useless multiple extraction of the same image in `hexapdf images`
 * Type of /VP entry of [HexaPDF::Type::Page]
 * Parsing of inline images that contain the end-of-image marker
+* High memory usage due to not closing `Zlib::Stream` objects in
+  [HexaPDF::Filter::FlateDecode]
 
 
 ## 0.3.0 - 2017-01-25
