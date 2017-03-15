@@ -231,10 +231,12 @@ module HexaPDF
     def serialize_string(obj)
       if @encrypter && @object.kind_of?(HexaPDF::Object) && @object.indirect?
         obj = encrypter.encrypt_string(obj, @object)
-      elsif obj.encoding != Encoding::BINARY && obj =~ /[^ -~\t\r\n]/
-        obj = "\xFE\xFF".b << obj.encode(Encoding::UTF_16BE).force_encoding(Encoding::BINARY)
       elsif obj.encoding != Encoding::BINARY
-        obj = obj.b
+        obj = if obj =~ /[^ -~\t\r\n]/
+                "\xFE\xFF".b << obj.encode(Encoding::UTF_16BE).force_encoding(Encoding::BINARY)
+              else
+                obj.b
+              end
       end
       "(" << obj.gsub(/[\(\)\\\r]/n) {|m| STRING_ESCAPE_MAP[m]} << ")".freeze
     end
