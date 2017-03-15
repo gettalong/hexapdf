@@ -45,10 +45,33 @@ module HexaPDF
     # See: HexaPDF::Filter, PDF1.7 s7.4.4
     module FlateDecode
 
+      class Pool #:nodoc:
+
+        # Creates a new Zlib::Stream pool. A block must be given that returns a new Zlib::Stream
+        # instance.
+        def initialize(&block)
+          @creator = block
+          @pool = []
+        end
+
+        # Returns the next available stream of the pool, already reset to its initial state.
+        def next_available
+          @pool.find(-> { e = @creator.call; @pool << e; e }, &:finished?).tap(&:reset)
+        end
+
+      end
+
+      @inflate_pool = Pool.new { Zlib::Inflate.new }
+      @deflate_pool = Pool.new do
+        Zlib::Deflate.new(HexaPDF::GlobalConfiguration['filter.flate_compression'],
+                          Zlib::MAX_WBITS,
+                          HexaPDF::GlobalConfiguration['filter.flate_memory'])
+      end
+
       # See HexaPDF::Filter
       def self.decoder(source, options = nil)
         fib = Fiber.new do
-          inflater = Zlib::Inflate.new
+          inflater = @inflate_pool.next_available
           while source.alive? && (data = source.resume)
             begin
               data = inflater.inflate(data)
@@ -58,9 +81,7 @@ module HexaPDF
             Fiber.yield(data)
           end
           begin
-            data = inflater.finish
-            inflater.close
-            data
+            inflater.finish
           rescue
             raise FilterError, "Problem while decoding Flate encoded stream: #{$!}"
           end
@@ -80,16 +101,12 @@ module HexaPDF
         end
 
         Fiber.new do
-          deflater = Zlib::Deflate.new(HexaPDF::GlobalConfiguration['filter.flate_compression'],
-                                       Zlib::MAX_WBITS,
-                                       HexaPDF::GlobalConfiguration['filter.flate_memory'])
+          deflater = @deflate_pool.next_available
           while source.alive? && (data = source.resume)
             data = deflater.deflate(data)
             Fiber.yield(data)
           end
-          data = deflater.finish
-          deflater.close
-          data
+          deflater.finish
         end
       end
 

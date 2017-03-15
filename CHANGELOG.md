@@ -37,6 +37,8 @@
 * [HexaPDF::Configuration#constantize] to raise error if constant is not found
 * Extracted TrueType font file building code into new module
   [HexaPDF::Font::TrueType::Builder]
+* [HexaPDF::Filter::FlateDecode] filter to use pools of Zlib inflaters and
+  deflaters to conserve memory
 
 ### Fixed
 
