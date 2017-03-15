@@ -1704,7 +1704,7 @@ module HexaPDF
       #
       # The text matrix is updated to correctly represent the graphics state after the invocation.
       #
-      # This method is usually not invoked directly but by higher level methods like #show_text.
+      # This method is usually not invoked directly but by higher level methods like #text.
       def show_glyphs(glyphs)
         begin_text
 
@@ -1726,6 +1726,33 @@ module HexaPDF
 
         invoke1(:TJ, result)
         graphics_state.tm.translate(offset, 0)
+        self
+      end
+
+      # :call-seq:
+      #   canvas.show_glyphs_only(glyphs)      -> canvas
+      #
+      # Same operation as with #show_glyphs but without updating the text matrix.
+      #
+      # This method should only be used by advanced text layouting algorithms which perform the
+      # necessary calculations themselves!
+      #
+      # *Warning*: Since this method doesn't update the text matrix, all following results from
+      # #text_cursor and other methods using the current text matrix are invalid until the next call
+      # to #text_matrix or #end_text.
+      def show_glyphs_only(glyphs)
+        begin_text
+
+        result = [''.b]
+        glyphs.each do |item|
+          if item.kind_of?(Numeric)
+            result << item << ''.b
+          else
+            result[-1] << @font.encode(item)
+          end
+        end
+
+        serialize1(:TJ, result)
         self
       end
 
@@ -1842,6 +1869,11 @@ module HexaPDF
       # Optimized method for one operand.
       def invoke1(operator, op1)
         @operators[operator].invoke(self, op1)
+        @contents << @operators[operator].serialize(@serializer, op1)
+      end
+
+      # Optimized method for one operand.
+      def serialize1(operator, op1)
         @contents << @operators[operator].serialize(@serializer, op1)
       end
 

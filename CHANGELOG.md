@@ -22,6 +22,8 @@
 * [HexaPDF::Font::TrueType::Optimizer] for optimizing TrueType fonts
 * Configuration option 'filter.flate_memory' for configuring memory use of the
   [HexaPDF::Filter::FlateDecode] filter
+* Method [HexaPDF::Content::Canvas#show_glyphs_only] for faster glyph showing
+  without text matrix calculations
 
 ### Changed
 
