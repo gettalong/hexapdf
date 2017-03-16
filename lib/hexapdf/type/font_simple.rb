@@ -54,31 +54,30 @@ module HexaPDF
       #
       # Note that the encoding is cached internally when accessed the first time.
       def encoding
-        @encoding ||=
-          begin
-            case (val = self[:Encoding])
-            when Symbol
-              encoding = HexaPDF::Font::Encoding.for_name(val)
-              encoding = encoding_from_font if encoding.nil?
-              encoding
-            when HexaPDF::Dictionary, Hash
-              encoding = val[:BaseEncoding]
-              encoding = HexaPDF::Font::Encoding.for_name(encoding) if encoding
-              unless encoding
-                if embedded? || symbolic?
-                  encoding = encoding_from_font
-                else
-                  encoding = HexaPDF::Font::Encoding.for_name(:StandardEncoding)
-                end
+        document.cache(@data, :encoding) do
+          case (val = self[:Encoding])
+          when Symbol
+            encoding = HexaPDF::Font::Encoding.for_name(val)
+            encoding = encoding_from_font if encoding.nil?
+            encoding
+          when HexaPDF::Dictionary, Hash
+            encoding = val[:BaseEncoding]
+            encoding = HexaPDF::Font::Encoding.for_name(encoding) if encoding
+            unless encoding
+              if embedded? || symbolic?
+                encoding = encoding_from_font
+              else
+                encoding = HexaPDF::Font::Encoding.for_name(:StandardEncoding)
               end
-              encoding = difference_encoding(encoding, val[:Differences]) if val.key?(:Differences)
-              encoding
-            when nil
-              encoding_from_font
-            else
-              raise HexaPDF::Error, "Unknown value for font's encoding: #{self[:Encoding]}"
             end
+            encoding = difference_encoding(encoding, val[:Differences]) if val.key?(:Differences)
+            encoding
+          when nil
+            encoding_from_font
+          else
+            raise HexaPDF::Error, "Unknown value for font's encoding: #{self[:Encoding]}"
           end
+        end
       end
 
       # Decodes the given string into an array of character codes.

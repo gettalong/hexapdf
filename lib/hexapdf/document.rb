@@ -135,6 +135,7 @@ module HexaPDF
       end
 
       @listeners = {}
+      @cache = Hash.new {|h, k| h[k] = {} }
     end
 
     # :call-seq:
@@ -415,6 +416,36 @@ module HexaPDF
     # Dispatches the message +name+ with the given arguments to all registered listeners.
     def dispatch_message(name, *args)
       @listeners[name] && @listeners[name].each {|obj| obj.call(*args)}
+    end
+
+    # Caches the value or the return value of the given block using the given Object::PDFData and
+    # key arguments as composite hash key. If a cached value already exists, it is just returned.
+    #
+    # This facility can be used to cache expensive operations in PDF objects that are easy to
+    # compute again.
+    #
+    # Use #clear_cache to clear the cache if necessary.
+    def cache(pdf_data, key, value = nil)
+      @cache[pdf_data][key] ||= value || yield
+    end
+
+    # Returns +true+ if there is a value cached for the composite key consisting of the given
+    # +pdf_data+ and +key+ objects.
+    #
+    # Also see: #cache
+    def cached?(pdf_data, key)
+      @cache.key?(pdf_data) && @cache[pdf_data].key?(key)
+    end
+
+    # Clears all cached data or, if a Object::PDFData object is given, just the cache for this one
+    # object.
+    #
+    # It is *not* recommended to clear the whole cache! Better clear the cache for individual PDF
+    # objects!
+    #
+    # Also see: #cache
+    def clear_cache(pdf_data = nil)
+      pdf_data ? @cache[pdf_data].clear : @cache.clear
     end
 
     # Returns the Pages object that provides convenience methods for working with pages.

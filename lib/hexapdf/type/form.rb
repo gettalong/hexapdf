@@ -105,15 +105,15 @@ module HexaPDF
       #
       # *Note* that a canvas can only be retrieved for initially empty form XObjects!
       def canvas
-        unless defined?(@canvas)
+        document.cache(@data, :canvas) do
           unless stream.empty?
             raise HexaPDF::Error, "Cannot create a canvas for a form XObjects with contents"
           end
-          @canvas = Content::Canvas.new(self)
-          self.stream = @canvas.stream_data
+          canvas = Content::Canvas.new(self)
+          self.stream = canvas.stream_data
           set_filter(:FlateDecode)
+          canvas
         end
-        @canvas
       end
 
     end

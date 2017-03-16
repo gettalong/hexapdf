@@ -92,27 +92,26 @@ module HexaPDF
       #
       # See: PDF1.7 s9.7.4.3
       def widths
-        @widths ||=
-          begin
-            result = {}
-            index = 0
-            array = self[:W] || []
+        document.cache(@data, :widths) do
+          result = {}
+          index = 0
+          array = self[:W] || []
 
-            while index < array.size
-              entry = array[index]
-              value = array[index + 1]
-              if value.kind_of?(Array)
-                value.each_with_index {|width, i| result[entry + i] = width}
-                index += 2
-              else
-                width = array[index + 2]
-                entry.upto(value) {|cid| result[cid] = width}
-                index += 3
-              end
+          while index < array.size
+            entry = array[index]
+            value = array[index + 1]
+            if value.kind_of?(Array)
+              value.each_with_index {|width, i| result[entry + i] = width}
+              index += 2
+            else
+              width = array[index + 2]
+              entry.upto(value) {|cid| result[cid] = width}
+              index += 3
             end
-
-            result
           end
+
+          result
+        end
       end
 
     end

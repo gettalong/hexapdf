@@ -24,6 +24,8 @@
   [HexaPDF::Filter::FlateDecode] filter
 * Method [HexaPDF::Content::Canvas#show_glyphs_only] for faster glyph showing
   without text matrix calculations
+* Methods for caching expensive computations of PDF objects
+  ([HexaPDF::Document#cache] and others)
 
 ### Changed
 

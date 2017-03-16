@@ -81,14 +81,13 @@ module HexaPDF
 
       # Parses and caches the ToUnicode CMap.
       def to_unicode_cmap
-        unless defined?(@to_unicode_cmap)
-          @to_unicode_cmap = if key?(:ToUnicode)
-                               HexaPDF::Font::CMap.parse(self[:ToUnicode].stream)
-                             else
-                               nil
-                             end
+        document.cache(@data, :to_unicode_cmap) do
+          if key?(:ToUnicode)
+            HexaPDF::Font::CMap.parse(self[:ToUnicode].stream)
+          else
+            nil
+          end
         end
-        @to_unicode_cmap
       end
 
       # Calls the configured proc for handling missing unicode mappings.

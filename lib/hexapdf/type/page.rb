@@ -278,8 +278,8 @@ module HexaPDF
         unless [:page, :overlay, :underlay].include?(type)
           raise ArgumentError, "Invalid value for 'type', expected: :page, :underlay or :overlay"
         end
-        @canvas_cache ||= {}
-        return @canvas_cache[type] if @canvas_cache.key?(type)
+        cache_key = "#{type}_canvas".intern
+        return document.cache(@data, cache_key) if document.cached?(@data, cache_key)
 
         if type == :page && key?(:Contents)
           raise HexaPDF::Error, "Cannot get the canvas for a page with contents"
@@ -287,18 +287,18 @@ module HexaPDF
 
         contents = self[:Contents]
         if contents.nil?
-          @canvas_cache[:page] = Content::Canvas.new(self)
+          page_canvas = document.cache(@data, :page_canvas, Content::Canvas.new(self))
           self[:Contents] = document.add({Filter: :FlateDecode},
-                                         stream: @canvas_cache[:page].stream_data)
+                                         stream: page_canvas.stream_data)
         end
 
         if type == :overlay || type == :underlay
-          @canvas_cache[:overlay] = Content::Canvas.new(self)
-          @canvas_cache[:underlay] = Content::Canvas.new(self)
+          underlay_canvas = document.cache(@data, :underlay_canvas, Content::Canvas.new(self))
+          overlay_canvas = document.cache(@data, :overlay_canvas, Content::Canvas.new(self))
 
           stream = HexaPDF::StreamData.new do
             Fiber.yield(" q ")
-            fiber = @canvas_cache[:underlay].stream_data.fiber
+            fiber = underlay_canvas.stream_data.fiber
             while fiber.alive? && (data = fiber.resume)
               Fiber.yield(data)
             end
@@ -308,7 +308,7 @@ module HexaPDF
 
           stream = HexaPDF::StreamData.new do
             Fiber.yield(" Q ")
-            fiber = @canvas_cache[:overlay].stream_data.fiber
+            fiber = overlay_canvas.stream_data.fiber
             while fiber.alive? && (data = fiber.resume)
               Fiber.yield(data)
             end
@@ -318,7 +318,7 @@ module HexaPDF
           self[:Contents] = [underlay, *self[:Contents], overlay]
         end
 
-        @canvas_cache[type]
+        document.cache(@data, cache_key)
       end
 
       # Creates a Form XObject from the page's dictionary and contents for the given PDF document.

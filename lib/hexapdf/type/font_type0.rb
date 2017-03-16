@@ -54,7 +54,7 @@ module HexaPDF
 
       # Returns the CID font of this type 0 font.
       def descendant_font
-        @descendant_font ||= document.deref(self[:DescendantFonts][0])
+        document.cache(@data, :descendant_font) { document.deref(self[:DescendantFonts][0]) }
       end
 
       # Returns the writing mode which is either :horizontal or :vertical.
@@ -110,17 +110,16 @@ module HexaPDF
       #
       # Note that the CMap is cached internally when accessed the first time.
       def cmap
-        @cmap ||=
-          begin
-            val = self[:Encoding]
-            if val.kind_of?(Symbol)
-              HexaPDF::Font::CMap.for_name(val.to_s)
-            elsif val.kind_of?(HexaPDF::Stream)
-              HexaPDF::Font::CMap.parse(val.stream)
-            else
-              raise HexaPDF::Error, "Unknown value for font's encoding: #{self[:Encoding]}"
-            end
+        document.cache(@data, :cmap) do
+          val = self[:Encoding]
+          if val.kind_of?(Symbol)
+            HexaPDF::Font::CMap.for_name(val.to_s)
+          elsif val.kind_of?(HexaPDF::Stream)
+            HexaPDF::Font::CMap.parse(val.stream)
+          else
+            raise HexaPDF::Error, "Unknown value for font's encoding: #{self[:Encoding]}"
           end
+        end
       end
 
       # Returns the UCS-2 CMap used for extracting text when no ToUnicode CMap is available, or
@@ -130,18 +129,17 @@ module HexaPDF
       #
       # See: PDF1.7 s9.10.2
       def ucs2_cmap
-        @ucs2_cmap ||=
-          begin
-            encoding = self[:Encoding]
-            system_info = descendant_font[:CIDSystemInfo]
-            registry = system_info[:Registry]
-            ordering = system_info[:Ordering]
-            if (encoding.kind_of?(Symbol) && HexaPDF::Font::CMap.predefined?(encoding.to_s) &&
-                encoding != :"Identity-H" && encoding != :"Identity-V") ||
-                (registry == "Adobe" && ['GB1', 'CNS1', 'Japan1', 'Korea1'].include?(ordering))
-              HexaPDF::Font::CMap.for_name("#{registry}-#{ordering}-UCS2")
-            end
+        document.cache(@data, :ucs2_cmap) do
+          encoding = self[:Encoding]
+          system_info = descendant_font[:CIDSystemInfo]
+          registry = system_info[:Registry]
+          ordering = system_info[:Ordering]
+          if (encoding.kind_of?(Symbol) && HexaPDF::Font::CMap.predefined?(encoding.to_s) &&
+            encoding != :"Identity-H" && encoding != :"Identity-V") ||
+              (registry == "Adobe" && ['GB1', 'CNS1', 'Japan1', 'Korea1'].include?(ordering))
+            HexaPDF::Font::CMap.for_name("#{registry}-#{ordering}-UCS2")
           end
+        end
       end
 
     end

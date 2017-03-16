@@ -564,4 +564,28 @@ EOF
       assert_equal([[:callable, [:arg]], [:block, [:arg]]], args)
     end
   end
+
+  describe "caching interface" do
+    it "allows setting and retrieving values" do
+      assert_equal(:test, @doc.cache(:a, :b, :test))
+      assert_equal(:test, @doc.cache(:a, :b, :other))
+      assert_equal(:other, @doc.cache(:a, :c) { :other })
+      assert(@doc.cached?(:a, :b))
+      assert(@doc.cached?(:a, :c))
+    end
+
+    it "allows clearing cached values" do
+      @doc.cache(:a, :b, :c)
+      @doc.cache(:b, :c, :d)
+      @doc.clear_cache(:a)
+      refute(@doc.cached?(:a, :b))
+      assert(@doc.cached?(:b, :c))
+      @doc.clear_cache
+      refute(@doc.cached?(:a, :c))
+    end
+
+    it "fails if no cached value exists and neither a value nor a block is given" do
+      assert_raises(LocalJumpError) { @doc.cache(:a, :b) }
+    end
+  end
 end
