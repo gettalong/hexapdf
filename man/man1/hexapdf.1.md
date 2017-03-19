@@ -595,11 +595,11 @@ number 3.
 
 ### batch
 
-`hexapdf batch 'info {}' input1.pdf input2.pdf input3.pdf
+`hexapdf batch 'info {}' input1.pdf input2.pdf input3.pdf`
 
 Execute the info command for all input files.
 
-`hexapdf batch 'optimize --object-streams delete {} done-{}' input1.pdf input2.pdf input3.pdf
+`hexapdf batch 'optimize --object-streams delete {} done-{}' input1.pdf input2.pdf input3.pdf`
 
 Optimize the given input files, creating the three output files `done-input1.pdf`, `done-input2.pdf`
 and `done-input3.pdf`.
