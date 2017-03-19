@@ -59,7 +59,9 @@ module HexaPDF
           begin
             HexaPDF::CLI::Application.new.parse(args.map {|a| a.gsub(/{}/, file)})
           rescue
-            $stderr.puts "Error processing '#{file}': #{$!.message}" unless command_parser.quiet
+            if command_parser.verbosity_warning?
+              $stderr.puts "Error processing '#{file}': #{$!.message}"
+            end
           end
         end
       end
