@@ -57,10 +57,23 @@ hexapdf`.
 
 ## Difference to Prawn
 
-[Prawn] is a Ruby library that can be used for creating PDF files. It has been in development since
-2008 and currently provides more features in regard to PDF content creation than HexaPDF.
+The main difference between HexaPDF and [Prawn] is that HexaPDF is a **full PDF library** whereas
+Prawn is a **library for generating content**.
 
-So why use HexaPDF? Because it differs significantly from Prawn in how it is implemented:
+To be more specific, it is easily possible to read an existing PDF with HexaPDF and modify parts of
+it before writing it out again. The modifications can be to the PDF object structure like removing
+superfluous annotations or the the content itself.
+
+Prawn has no such functionality. There is basic support for using a PDF as a template using the
+`pdf-reader` and `prawn-template` gems but support is very limited. However, Prawn has a very
+featureful API when it comes to creating content, for individual pages as well as across pages.
+
+Such functionality will be incorporated into HexaPDF in the near future. The main functionality for
+providing such a feature is already available in HexaPDF (the [page canvas API]). What's missing
+(and this is quite big chunk) is automatic box and page layout so that one can say: There is a box
+on this page with these dimensions at this position; show this text in the box.
+
+So why use HexaPDF?
 
 * The architecture of HexaPDF is based on the object model of the PDF standard. This makes extending
   HexaPDF very easy and allows for **reading PDF files for templating purposes**.
@@ -70,7 +83,12 @@ So why use HexaPDF? Because it differs significantly from Prawn in how it is imp
   emphasized text and so on. These elements can be customized and additional element types easily
   added.
 
+* In addition to being usable as a library, HexaPDF also comes with a command line tool for
+  manipulating PDFs. This tool is intended to be a replacement for tools like `pdftk` and the
+  various Poppler-based tools like `pdfinfo`, `pdfimages`, ...
+
 [Prawn]: http://prawnpdf.org
+[page canvas API]: https://hexapdf.gettalong.org/api/HexaPDF/Content/Canvas.html
 
 
 ## License
