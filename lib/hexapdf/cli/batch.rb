@@ -37,7 +37,7 @@ require 'shellwords'
 module HexaPDF
   module CLI
 
-    # Execute the same for multiple input files.
+    # Execute the same command for multiple input files.
     class Batch < Command
 
       def initialize #:nodoc:
