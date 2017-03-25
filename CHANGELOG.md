@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Task::Dereference] to work correctly when encountering invalid
+  references
+
 ## 0.4.0 - 2017-03-19
 
 ### Added

@@ -17,6 +17,7 @@ describe HexaPDF::Task::Dereference do
     pages = @doc.wrap(Type: :Pages)
     pages.add_page(@doc.wrap(Type: :Page))
     @doc.trailer[:Test2] = pages
+    @doc.trailer[:InvalidRef] = HexaPDF::Reference.new(5000, 2)
 
     checker = lambda do |val, done = {}|
       case val

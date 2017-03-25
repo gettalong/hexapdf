@@ -81,7 +81,7 @@ module HexaPDF
       end
 
       def dereference(object) #:nodoc:
-        return object if @seen.key?(object.data)
+        return object if object.nil? || @seen.key?(object.data)
         @seen[object.data] = true
         recurse(object.value)
         object
