@@ -88,7 +88,7 @@ module HexaPDF
         return nil if name.nil?
 
         file = File.join(HexaPDF.data_dir, 'afm', "#{name}.afm")
-        font = HexaPDF::Font::Type1::Font.from_afm(file)
+        font = (@afm_font_cache ||= {})[file] ||= HexaPDF::Font::Type1::Font.from_afm(file)
         HexaPDF::Font::Type1Wrapper.new(document, font, custom_encoding: custom_encoding)
       end
 
