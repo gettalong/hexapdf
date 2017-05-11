@@ -251,10 +251,11 @@ module HexaPDF
         prepare_string_scanner(10)
         tmp = Reference.new(tmp, @ss[1].to_i) if @ss.scan(REFERENCE_RE)
         tmp
-      else
-        val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/)
+      elsif (val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/))
         val << '0'.freeze if val.getbyte(-1) == 46 # dot '.'
         Float(val)
+      else
+        parse_keyword
       end
     end
 

@@ -119,10 +119,11 @@ module HexaPDF
       def parse_number
         if (val = @ss.scan(/[+-]?\d++(?!\.)/))
           val.to_i
-        else
-          val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/)
+        elsif (val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/))
           val << '0'.freeze if val.getbyte(-1) == 46 # dot '.'
           Float(val)
+        else
+          parse_keyword
         end
       end
 

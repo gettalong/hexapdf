@@ -115,6 +115,13 @@ module CommonTokenizerTests
     assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
   end
 
+  it "next_token: returns a PDF keyword for a solitary plus sign" do
+    create_tokenizer("+")
+    token = @tokenizer.next_token
+    assert_equal("+", token)
+    assert(token.kind_of?(HexaPDF::Tokenizer::Token))
+  end
+
   it "next_object: works for all PDF object types, including array and dictionary" do
     create_tokenizer(<<-EOF.chomp.gsub(/^ {8}/, ''))
         true false null 123 34.5 (string) <4E6F76> /Name

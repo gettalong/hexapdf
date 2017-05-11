@@ -4,6 +4,9 @@
 
 * [HexaPDF::Task::Dereference] to work correctly when encountering invalid
   references
+* [HexaPDF::Tokenizer] and [HexaPDF::Content::Tokenizer] to parse a solitary
+  plus sign
+
 
 ## 0.4.0 - 2017-03-19
 
