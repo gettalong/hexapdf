@@ -32,7 +32,7 @@ describe HexaPDF::Font::Type1Wrapper do
       glyph = @times_wrapper.glyph(:A)
       assert_equal(:A, glyph.name)
       assert_equal(722, glyph.width)
-      refute(glyph.space?)
+      refute(glyph.apply_word_spacing?)
     end
 
     it "invokes font.on_missing_glyph for missing glyphs" do

@@ -48,7 +48,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
       glyph = @font_wrapper.glyph(3)
       assert_equal(3, glyph.id)
       assert_equal(338, glyph.width)
-      assert(glyph.space?)
+      refute(glyph.apply_word_spacing?)
     end
 
     it "invokes font.on_missing_glyph for missing glyphs" do

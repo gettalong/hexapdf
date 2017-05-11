@@ -1322,10 +1322,13 @@ module HexaPDF
       #   canvas.word_spacing(amount)               => canvas
       #   canvas.word_spacing(amount) { block }     => canvas
       #
-      # The word spacing determines how much additional space is added when the ASCII space
-      # character is encountered in a text. For horizontal writing positive values increase the
-      # distance between two words, whereas for vertical writing negative values increase the
-      # distance.
+      # If the font's PDF encoding supports this, the word spacing determines how much additional
+      # space is added when the ASCII space character is encountered in a text. For horizontal
+      # writing positive values increase the distance between two words, whereas for vertical
+      # writing negative values increase the distance.
+      #
+      # Note that in HexaPDF only the standard 14 PDF Type1 fonts support this property! When using
+      # any other font, for example a TrueType font, this property has no effect.
       #
       # Returns the current word spacing value (see Content::GraphicsState#word_spacing) when no
       # argument is given. Otherwise sets the word spacing using the +amount+ argument and returns

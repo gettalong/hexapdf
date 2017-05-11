@@ -60,8 +60,8 @@ module HexaPDF
           @width ||= @font.width(name)
         end
 
-        # Returns +true+ if the glyph represents the space character.
-        def space?
+        # Returns +true+ if the word spacing parameter needs to be applied for the glyph.
+        def apply_word_spacing?
           @name == :space
         end
 

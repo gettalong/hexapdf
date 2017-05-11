@@ -69,11 +69,10 @@ module HexaPDF
           @width ||= @font[:hmtx][id].advance_width * 1000.0 / @font[:head].units_per_em
         end
 
-        # Returns +true+ if the glyph represents the space character.
-        def space?
-          # Accoding to http://scripts.sil.org/iws-chapter08 and
-          # https://www.microsoft.com/typography/otspec/recom.htm
-          @id == 3
+        # Returns +false+ since the word spacing parameter is never applied for multibyte font
+        # encodings where each glyph is encoded using two bytes.
+        def apply_word_spacing?
+          false
         end
 
       end
