@@ -53,6 +53,7 @@ module HexaPDF
         autoload(:Post, 'hexapdf/font/true_type/table/post')
         autoload(:Glyf, 'hexapdf/font/true_type/table/glyf')
         autoload(:OS2,  'hexapdf/font/true_type/table/os2')
+        autoload(:Kern, 'hexapdf/font/true_type/table/kern')
 
 
         # The time Epoch used in sfnt-formatted font files.

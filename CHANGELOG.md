@@ -3,6 +3,7 @@
 ### Added
 
 * [HexaPDF::Layout::TextFragment] for basic text metrics calculations
+* Support for kerning of TrueType fonts via the 'kern' table
 
 ### Changed
 

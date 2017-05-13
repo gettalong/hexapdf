@@ -60,6 +60,7 @@ module HexaPDF
             post: 'HexaPDF::Font::TrueType::Table::Post',
             glyf: 'HexaPDF::Font::TrueType::Table::Glyf',
             'OS/2': 'HexaPDF::Font::TrueType::Table::OS2',
+            kern: 'HexaPDF::Font::TrueType::Table::Kern',
           },
           'font.true_type.cmap.unknown_format' => :ignore,
         }
