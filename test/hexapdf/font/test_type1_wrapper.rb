@@ -1,11 +1,9 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require_relative 'type1/common'
 require 'hexapdf/font/type1_wrapper'
 require 'hexapdf/document'
-
-FONT_TIMES = HexaPDF::Font::Type1::Font.from_afm(File.join(HexaPDF.data_dir, 'afm', "Times-Roman.afm"))
-FONT_SYMBOL = HexaPDF::Font::Type1::Font.from_afm(File.join(HexaPDF.data_dir, 'afm', "Symbol.afm"))
 
 describe HexaPDF::Font::Type1Wrapper do
   before do
