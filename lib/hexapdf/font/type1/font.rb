@@ -32,6 +32,7 @@
 #++
 
 require 'forwardable'
+require 'set'
 require 'hexapdf/font/type1'
 require 'hexapdf/font/encoding'
 
@@ -115,6 +116,16 @@ module HexaPDF
         # Returns the name/id of the missing glyph, i.e. .notdef.
         def missing_glyph_id
           :'.notdef'
+        end
+
+        # Returns a set of features this font supports.
+        #
+        # For Type1 fonts, the features that may be available :kern and :liga.
+        def features
+          @features ||= Set.new.tap do |set|
+            set << :kern unless metrics.kerning_pairs.empty?
+            set << :liga unless metrics.ligature_pairs.empty?
+          end
         end
 
       end

@@ -93,4 +93,8 @@ describe HexaPDF::Font::TrueType::Font do
   it "is able to return the ID of the missing glyph" do
     assert_equal(0, @font.missing_glyph_id)
   end
+
+  it "returns the features available for a font" do
+    assert(@font.features.empty?)
+  end
 end

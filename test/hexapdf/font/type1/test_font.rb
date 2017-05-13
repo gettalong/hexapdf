@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require_relative 'common'
 require 'hexapdf/font/type1'
 
 describe HexaPDF::Font::Type1::Font do
@@ -64,5 +65,10 @@ describe HexaPDF::Font::Type1::Font do
 
   it "is able to return the ID of the missing glyph" do
     assert_equal(:'.notdef', @font.missing_glyph_id)
+  end
+
+  it "returns the features available for a font" do
+    assert_equal([:kern, :liga].to_set, FONT_TIMES.features)
+    assert(FONT_SYMBOL.features.empty?)
   end
 end

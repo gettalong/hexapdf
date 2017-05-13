@@ -32,6 +32,7 @@
 #++
 
 require 'hexapdf/font/true_type/table'
+require 'set'
 
 module HexaPDF
   module Font
@@ -92,6 +93,15 @@ module HexaPDF
         # Returns the font directory.
         def directory
           @directory ||= Table::Directory.new(self, io ? Table::Directory::SELF_ENTRY : nil)
+        end
+
+        # Returns a set of features this font supports.
+        #
+        # Features that may be available are for example :kern or :liga.
+        def features
+          @features ||= Set.new.tap do |set|
+            set << :kern if self[:kern]&.horizontal_kerning_subtable
+          end
         end
 
         # Returns the PostScript font name.
