@@ -64,6 +64,26 @@ module HexaPDF
           @id = id
         end
 
+        # Returns the glyph's minimum x coordinate.
+        def x_min
+          @x_min ||= @font[:glyf][id].x_min * 1000.0 / @font[:head].units_per_em
+        end
+
+        # Returns the glyph's maximum x coordinate.
+        def x_max
+          @x_max ||= @font[:glyf][id].x_max * 1000.0 / @font[:head].units_per_em
+        end
+
+        # Returns the glyph's minimum y coordinate.
+        def y_min
+          @y_min ||= @font[:glyf][id].y_min * 1000.0 / @font[:head].units_per_em
+        end
+
+        # Returns the glyph's maximum y coordinate.
+        def y_max
+          @y_max ||= @font[:glyf][id].y_max * 1000.0 / @font[:head].units_per_em
+        end
+
         # Returns the width of the glyph.
         def width
           @width ||= @font[:hmtx][id].advance_width * 1000.0 / @font[:head].units_per_em
@@ -73,6 +93,11 @@ module HexaPDF
         # encodings where each glyph is encoded using two bytes.
         def apply_word_spacing?
           false
+        end
+
+        # Returns +true+ because this object represents a glyph.
+        def glyph?
+          true
         end
 
       end

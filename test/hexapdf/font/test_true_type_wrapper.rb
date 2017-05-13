@@ -45,9 +45,14 @@ describe HexaPDF::Font::TrueTypeWrapper do
 
   describe "glyph" do
     it "returns the glyph object for the given id" do
-      glyph = @font_wrapper.glyph(3)
-      assert_equal(3, glyph.id)
-      assert_equal(338, glyph.width)
+      glyph = @font_wrapper.glyph(17)
+      assert_equal(17, glyph.id)
+      assert_equal(628, glyph.width)
+      assert_equal(47, glyph.x_min)
+      assert_equal(0, glyph.y_min)
+      assert_equal(584, glyph.x_max)
+      assert_equal(696, glyph.y_max)
+      assert(glyph.glyph?)
       refute(glyph.apply_word_spacing?)
     end
 
@@ -89,7 +94,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
       assert_equal(1, dict[:DescendantFonts].length)
       assert_equal(dict[:BaseFont], dict[:DescendantFonts][0][:BaseFont])
       assert_equal(HexaPDF::Font::CMap.create_to_unicode_cmap([[1, ' '.ord], [2, 'H'.ord]]),
-        dict[:ToUnicode].stream)
+                   dict[:ToUnicode].stream)
       assert_match(/\A[A-Z]{6}\+Ubuntu-Title\z/, dict[:BaseFont])
 
       # Checking CIDFont dictionary

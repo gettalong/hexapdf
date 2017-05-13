@@ -46,6 +46,7 @@ require 'hexapdf/writer'
 require 'hexapdf/importer'
 require 'hexapdf/image_loader'
 require 'hexapdf/font_loader'
+require 'hexapdf/layout'
 
 # == HexaPDF API Documentation
 #

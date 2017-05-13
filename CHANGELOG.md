@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Layout::TextFragment] for basic text metrics calculations
+
 ### Changed
 
 * Bounding box of TrueType glyphs without contours is set to `[0, 0, 0, 0]`

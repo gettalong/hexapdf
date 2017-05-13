@@ -32,6 +32,11 @@ describe HexaPDF::Font::Type1Wrapper do
       glyph = @times_wrapper.glyph(:A)
       assert_equal(:A, glyph.name)
       assert_equal(722, glyph.width)
+      assert_equal(15, glyph.x_min)
+      assert_equal(0, glyph.y_min)
+      assert_equal(706, glyph.x_max)
+      assert_equal(674, glyph.y_max)
+      assert(glyph.glyph?)
       refute(glyph.apply_word_spacing?)
     end
 

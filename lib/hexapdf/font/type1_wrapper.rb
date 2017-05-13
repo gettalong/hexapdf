@@ -55,6 +55,26 @@ module HexaPDF
           @name = name
         end
 
+        # Returns the glyph's minimum x coordinate.
+        def x_min
+          @font.metrics.character_metrics[name].bbox[0]
+        end
+
+        # Returns the glyph's maximum x coordinate.
+        def x_max
+          @font.metrics.character_metrics[name].bbox[2]
+        end
+
+        # Returns the glyph's minimum y coordinate.
+        def y_min
+          @font.metrics.character_metrics[name].bbox[1]
+        end
+
+        # Returns the glyph's maximum y coordinate.
+        def y_max
+          @font.metrics.character_metrics[name].bbox[3]
+        end
+
         # Returns the width of the glyph.
         def width
           @width ||= @font.width(name)
@@ -63,6 +83,11 @@ module HexaPDF
         # Returns +true+ if the word spacing parameter needs to be applied for the glyph.
         def apply_word_spacing?
           @name == :space
+        end
+
+        # Returns +true+ because this object represents a glyph.
+        def glyph?
+          true
         end
 
       end
