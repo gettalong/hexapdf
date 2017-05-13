@@ -105,9 +105,14 @@ module HexaPDF
         # mapping from the second character name to the kerning amount.
         attr_accessor :kerning_pairs
 
+        # Nested mapping of ligature pairs, ie. each key is a character name and each value is a
+        # mapping from the second character name to the ligature name.
+        attr_accessor :ligature_pairs
+
         def initialize #:nodoc:
           @character_metrics = {}
-          @kerning_pairs = Hash.new {|h, k| h[k] = {}}
+          @kerning_pairs = {}
+          @ligature_pairs = {}
         end
 
         WEIGHT_NAME_TO_NUMBER = {'Bold' => 700, 'Medium' => 500, 'Roman' => 400}.freeze #:nodoc:

@@ -51,15 +51,6 @@ module HexaPDF
         # the lower-left corner and the x- and y-coordinates of the upper-right corner.
         attr_accessor :bbox
 
-        # Mapping of possible ligatures. This character combined with the character specified by a
-        # key forms the ligature character stored as value of that key. Both keys and values are
-        # character names.
-        attr_accessor :ligatures
-
-        def initialize #:nodoc:
-          @ligatures = {}
-        end
-
       end
 
     end

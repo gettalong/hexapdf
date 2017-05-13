@@ -153,8 +153,9 @@ module HexaPDF
               char.name = $3.to_sym
               char.bbox = [$4.to_i, $5.to_i, $6.to_i, $7.to_i]
               if $8
+                @metrics.ligature_pairs[char.name] = {}
                 $8.scan(/L (\S+) (\S+)/).each do |name, ligature|
-                  char.ligatures[name] = ligature
+                  @metrics.ligature_pairs[char.name][name.to_sym] = ligature.to_sym
                 end
               end
             end
@@ -170,7 +171,7 @@ module HexaPDF
           parse_integer.times do
             read_line
             if @line =~ /KPX (\S+) (\S+) (\S+)/
-              @metrics.kerning_pairs[$1][$2] = $3.to_i
+              (@metrics.kerning_pairs[$1.to_sym] ||= {})[$2.to_sym] = $3.to_i
             end
           end
         end

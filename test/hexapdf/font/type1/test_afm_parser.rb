@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require_relative 'common'
 require 'hexapdf/font/type1'
 require 'hexapdf/data_dir'
 require 'tempfile'
@@ -36,6 +37,14 @@ describe HexaPDF::Font::Type1::AFMParser do
       assert_equal(basename.sub(/-.*/, ''), metrics.family_name, basename)
       assert(metrics.character_metrics.size > 0, basename)
     end
+  end
+
+  it "extracts kerning and ligature information" do
+    metrics = FONT_TIMES.metrics
+    glyph = metrics.character_metrics[:f]
+    assert_equal([20, 0, 383, 683], glyph.bbox)
+    assert_equal(-20, metrics.kerning_pairs.dig(:f, :i))
+    assert_equal(:fi, metrics.ligature_pairs.dig(:f, :i))
   end
 
   it "calculates an ascender and descender value from the font bounding box if necessary" do

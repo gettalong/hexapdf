@@ -7,6 +7,7 @@
 ### Changed
 
 * Bounding box of TrueType glyphs without contours is set to `[0, 0, 0, 0]`
+* Ligature pairs for AFM fonts are stored like kerning pairs
 
 ### Fixed
 
@@ -14,6 +15,7 @@
   references
 * [HexaPDF::Tokenizer] and [HexaPDF::Content::Tokenizer] to parse a solitary
   plus sign
+* Usage of Strings instead of Symbols for AFM font kerning and ligature pairs
 
 
 ## 0.4.0 - 2017-03-19
