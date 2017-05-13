@@ -82,6 +82,10 @@ module HexaPDF
               @raw_data = raw_data
               @number_of_contours, @x_min, @y_min, @x_max, @y_max = @raw_data.unpack('s>5')
               @number_of_contours ||= 0
+              @x_min ||= 0
+              @y_min ||= 0
+              @x_max ||= 0
+              @y_max ||= 0
               @components = nil
               @component_offsets = nil
               parse_compound_glyph if compound?

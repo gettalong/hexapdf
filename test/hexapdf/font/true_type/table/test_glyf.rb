@@ -32,6 +32,10 @@ describe HexaPDF::Font::TrueType::Table::Glyf do
       glyph = table[0]
       refute(glyph.compound?)
       assert_equal(0, glyph.number_of_contours)
+      assert_equal(0, glyph.x_min)
+      assert_equal(0, glyph.y_min)
+      assert_equal(0, glyph.x_max)
+      assert_equal(0, glyph.y_max)
 
       glyph = table[1]
       refute(glyph.compound?)

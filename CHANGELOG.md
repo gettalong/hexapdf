@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Changed
+
+* Bounding box of TrueType glyphs without contours is set to `[0, 0, 0, 0]`
+
 ### Fixed
 
 * [HexaPDF::Task::Dereference] to work correctly when encountering invalid
