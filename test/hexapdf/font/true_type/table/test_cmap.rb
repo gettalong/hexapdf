@@ -35,7 +35,7 @@ describe HexaPDF::Font::TrueType::Table::Cmap do
 
     it "raises an error when an unsupported subtable is found and the option is set to :raise" do
       @file.io.string = [0, 1].pack('n2') << [3, 1, 12].pack('n2N') << "\x00\x03"
-      @file.config['font.true_type.cmap.unknown_format'] = :raise
+      @file.config['font.true_type.unknown_format'] = :raise
       assert_raises(HexaPDF::Error) { HexaPDF::Font::TrueType::Table::Cmap.new(@file, @entry) }
     end
 

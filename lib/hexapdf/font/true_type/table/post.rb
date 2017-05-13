@@ -102,7 +102,11 @@ module HexaPDF
                            when 3 then Format3.parse(io, sub_table_length)
                            when 4 then Format4.parse(io, sub_table_length)
                            else
-                             raise HexaPDF::Error, "Unsupported post table format: #{@format}"
+                             if font.config['font.true_type.unknown_format'] == :raise
+                               raise HexaPDF::Error, "Unsupported post table format: #{@format}"
+                             else
+                               []
+                             end
                            end
           end
 

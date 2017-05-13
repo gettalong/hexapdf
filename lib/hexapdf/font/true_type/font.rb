@@ -46,8 +46,8 @@ module HexaPDF
         # font.ttf.table_mapping::
         #     The default mapping from table tag as symbol to table class name.
         #
-        # font.ttf.cmap.unknown_format::
-        #     Action to take when encountering unknown 'cmap' subtables. Can either be :ignore
+        # font.ttf.unknown_format::
+        #     Action to take when encountering unknown subtables. Can either be :ignore
         #     which ignores them or :raise which raises an error.
         DEFAULT_CONFIG = {
           'font.true_type.table_mapping' => {
@@ -63,7 +63,7 @@ module HexaPDF
             'OS/2': 'HexaPDF::Font::TrueType::Table::OS2',
             kern: 'HexaPDF::Font::TrueType::Table::Kern',
           },
-          'font.true_type.cmap.unknown_format' => :ignore,
+          'font.true_type.unknown_format' => :ignore,
         }
 
 

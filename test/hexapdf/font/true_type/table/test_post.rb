@@ -68,8 +68,16 @@ describe HexaPDF::Font::TrueType::Table::Post do
       assert_equal(0xFFFF, table[1_000_000])
     end
 
-    it "raises an error if an unsupported format is given" do
+    it "handles unsupported formats" do
+      config = {}
+      @file.define_singleton_method(:config) { config }
       @file.io.string[0, 2] = [5].pack('n')
+
+      config['font.true_type.unknown_format'] = :ignore
+      table = HexaPDF::Font::TrueType::Table::Post.new(@file, @entry)
+      assert_equal('.notdef', table[0])
+
+      config['font.true_type.unknown_format'] = :raise
       assert_raises(HexaPDF::Error) { HexaPDF::Font::TrueType::Table::Post.new(@file, @entry) }
     end
   end

@@ -5,15 +5,22 @@ require 'stringio'
 require 'hexapdf/font/true_type/table/kern'
 
 describe HexaPDF::Font::TrueType::Table::Kern do
+  before do
+    @file = Object.new
+    @file.define_singleton_method(:io) { @io ||= StringIO.new(''.b) }
+    config = {}
+    @file.define_singleton_method(:config) { @config ||= config }
+    @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('kern', 0, 0, @file.io.length)
+  end
+
   describe "table format 0" do
     before do
-      @file = Object.new
       data = [0, 2].pack('n2')
       data << [0, 6, 0x101].pack('n3')
       data << [0, 6 + 8 + 24, 0x1].pack('n3')
       data << [4, 0, 0, 0, 1, 2, 10, 2, 3, -30, 3, 4, 32767, 4, 5, -32768].pack('n4n2s>n2s>n2s>n2s>')
-      @file.define_singleton_method(:io) { @io ||= StringIO.new(data) }
-      @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('kern', 0, 0, @file.io.length)
+      @file.io.string = data
+      @entry.length = @file.io.length
     end
 
     it "reads the data from the associated file" do
@@ -32,17 +39,21 @@ describe HexaPDF::Font::TrueType::Table::Kern do
       assert_nil(subtable.kern(1, 3))
       assert_nil(subtable.kern(6, 3))
     end
+
+    it "raises an error for unknown formats if configured" do
+      @file.config['font.true_type.unknown_format'] = :raise
+      assert_raises(HexaPDF::Error) { HexaPDF::Font::TrueType::Table::Kern.new(@file, @entry) }
+    end
   end
 
   describe "table format 1" do
     before do
-      @file = Object.new
       data = [1, 0, 2].pack('n2N')
       data << [8 + 8, 0xC001, 0, 0, 0, 0, 0].pack('Nn6')
       data << [8 + 8 + 6, 0xC000, 0].pack('Nnn')
       data << [1, 0, 0, 0, 1, 2, 10].pack('n4n2s>')
-      @file.define_singleton_method(:io) { @io ||= StringIO.new(data) }
-      @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('kern', 0, 0, @file.io.length)
+      @file.io.string = data
+      @entry.length = @file.io.length
     end
 
     it "reads the data from the associated file" do

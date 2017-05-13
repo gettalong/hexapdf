@@ -107,10 +107,11 @@ module HexaPDF
 
             @subtables = []
             send(subtable_parsing_method, nr_of_subtables) do |length, format, options|
-              case format
-              when 0
+              if format == 0
                 pairs = Format0.parse(io, length)
                 @subtables << Subtable.new(pairs: pairs, **options)
+              elsif font.config['font.true_type.unknown_format'] == :raise
+                raise HexaPDF::Error, "Unsupported kern subtable format: #{format}"
               else
                 io.pos += length
               end

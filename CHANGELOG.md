@@ -10,6 +10,8 @@
 
 * Bounding box of TrueType glyphs without contours is set to `[0, 0, 0, 0]`
 * Ligature pairs for AFM fonts are stored like kerning pairs
+* Use TrueType configuration option 'font.true_type.unknown_format' in all
+  places where applicable
 
 ### Fixed
 
