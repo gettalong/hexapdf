@@ -1,27 +1,24 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'stringio'
+require_relative 'common'
 require 'hexapdf/font/true_type/table/name'
 
 describe HexaPDF::Font::TrueType::Table::Name do
   before do
-    @file = Object.new
-    @file.define_singleton_method(:io) { @io ||= StringIO.new(''.b) }
-
-    @file.io.string = [0, 3, 42].pack('n3')
-    @file.io.string << [1, 0, 0, 0, 4, 0].pack('n6')
-    @file.io.string << [0, 3, 1, 0, 8, 4].pack('n6')
-    @file.io.string << [0, 3, 2, 1, 14, 12].pack('n6')
-    @file.io.string << 'hexa'.encode('MACROMAN').b << 'hexa'.encode('UTF-16BE').b <<
+    data = [0, 3, 42].pack('n3') << \
+      [1, 0, 0, 0, 4, 0].pack('n6') << \
+      [0, 3, 1, 0, 8, 4].pack('n6') << \
+      [0, 3, 2, 1, 14, 12].pack('n6') << \
+      'hexa'.encode('MACROMAN').b << \
+      'hexa'.encode('UTF-16BE').b <<
       'hexapdf'.encode('UTF-16BE').b
-
-    @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('name', 0, 0, @file.io.length)
+    set_up_stub_true_type_font(data)
   end
 
   describe "initialize" do
     it "reads the data in format 0 from the associated file" do
-      table = HexaPDF::Font::TrueType::Table::Name.new(@file, @entry)
+      table = create_table(:Name)
       assert_equal(0, table.format)
       assert_equal({}, table.language_tags)
       assert_equal('hexa', table[:copyright][0])
@@ -40,10 +37,10 @@ describe HexaPDF::Font::TrueType::Table::Name do
     end
 
     it "reads the data in format 1 from the associated file" do
-      @file.io.string[0, 6] = [1, 3, 52].pack('n3')
-      @file.io.string[42, 0] = [2, 4, 26, 4, 30].pack('n*')
-      @file.io.string << 'ende'.encode('UTF-16BE').b
-      table = HexaPDF::Font::TrueType::Table::Name.new(@file, @entry)
+      @font.io.string[0, 6] = [1, 3, 52].pack('n3')
+      @font.io.string[42, 0] = [2, 4, 26, 4, 30].pack('n*')
+      @font.io.string << 'ende'.encode('UTF-16BE').b
+      table = create_table(:Name)
       assert_equal(1, table.format)
       assert_equal({0x8000 => 'en', 0x8001 => 'de'}, table.language_tags)
     end
@@ -51,7 +48,7 @@ describe HexaPDF::Font::TrueType::Table::Name do
 
   describe "NameRecord" do
     before do
-      @table = HexaPDF::Font::TrueType::Table::Name.new(@file, @entry)
+      @table = create_table(:Name)
     end
 
     describe "platform?" do

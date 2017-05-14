@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'stringio'
+require_relative 'common'
 require 'hexapdf/font/true_type/table/os2'
 
 describe HexaPDF::Font::TrueType::Table::OS2 do
@@ -9,14 +9,12 @@ describe HexaPDF::Font::TrueType::Table::OS2 do
     data = [5, -1, 2, 3, -4, -5, -6, -7, -8, -9, -10, -11, -12, -13, -14, -15,
             'PANOSPANOS', 16, 17, 'VEND', 16, 17, 18, -19, -20, -21, 22, 23, 24, -25, -26,
             27, 28, 29, 30, 31].pack('ns>n2s>12a10Q>2a4n3s>3n2Q>s>2n5')
-    @file = Object.new
-    @file.define_singleton_method(:io) { @io ||= StringIO.new(data) }
-    @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('OS/2', 0, 0, @file.io.length)
+    set_up_stub_true_type_font(data)
   end
 
   describe "initialize" do
     it "reads the data from the associated file" do
-      table = HexaPDF::Font::TrueType::Table::OS2.new(@file, @entry)
+      table = create_table(:OS2)
       assert_equal(5, table.version)
       assert_equal(-1, table.x_avg_char_width)
       assert_equal(200, table.weight_class)

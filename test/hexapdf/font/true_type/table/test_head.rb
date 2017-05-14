@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'stringio'
+require_relative 'common'
 require 'hexapdf/font/true_type/table/head'
 
 describe HexaPDF::Font::TrueType::Table::Head do
@@ -10,15 +10,12 @@ describe HexaPDF::Font::TrueType::Table::Head do
     @time = Time.new(2016, 05, 01)
     data << ([(@time - HexaPDF::Font::TrueType::Table::TIME_EPOCH).to_i] * 2).pack('Q>*')
     data << [-132, -152, 3423, 4231, 3, 9, -2, 0, 0].pack('s>4n2s>3')
-    io = StringIO.new(data)
-    @file = Object.new
-    @file.define_singleton_method(:io) { io }
-    @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('head', 0, 0, io.length)
+    set_up_stub_true_type_font(data)
   end
 
   describe "initialize" do
     it "reads the data from the associated file" do
-      table = HexaPDF::Font::TrueType::Table::Head.new(@file, @entry)
+      table = create_table(:Head)
       assert_equal('1.0', '%1.1f' % table.version)
       assert_equal('2.1', '%1.1f' % table.font_revision)
       assert_equal(42, table.checksum_adjustment)
@@ -34,22 +31,21 @@ describe HexaPDF::Font::TrueType::Table::Head do
     end
 
     it "raises an error if the magic number is false when reading from a file" do
-      @file.io.string[12, 1] = '\x5e'
-      assert_raises(HexaPDF::Error) { HexaPDF::Font::TrueType::Table::Head.new(@file, @entry) }
+      @font.io.string[12, 1] = '\x5e'
+      assert_raises(HexaPDF::Error) { create_table(:Head) }
     end
 
     it "raises an error if an invalid glyph format is specified when reading from a file" do
-      @file.io.string[-1] = '\x5e'
-      assert_raises(HexaPDF::Error) { HexaPDF::Font::TrueType::Table::Head.new(@file, @entry) }
+      @font.io.string[-1] = '\x5e'
+      assert_raises(HexaPDF::Error) { create_table(:Head) }
     end
   end
 
   describe "checksum_valid?" do
     it "checks whether an entry's checksum is valid" do
-      @file.io.string = 254.chr * 12 + [0x5F0F3CF5].pack('N') + 254.chr * 36 + 0.chr * 4
+      data = 254.chr * 12 + [0x5F0F3CF5].pack('N') + 254.chr * 36 + 0.chr * 4
       @entry.checksum = (0xfefefefe * 11 + 0x5F0F3CF5) % 2**32
-      @entry.length = @file.io.string.length
-      table = HexaPDF::Font::TrueType::Table::Head.new(@file, @entry)
+      table = create_table(:Head, data)
       assert(table.checksum_valid?)
     end
   end

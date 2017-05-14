@@ -1,21 +1,18 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'stringio'
+require_relative 'common'
 require 'hexapdf/font/true_type/table/maxp'
 
 describe HexaPDF::Font::TrueType::Table::Maxp do
   before do
     data = [1, 0, 10, 11, 12, 13, 14, 2, 15, 16, 17, 18, 19, 20, 21, 22].pack('n*')
-    io = StringIO.new(data)
-    @file = Object.new
-    @file.define_singleton_method(:io) { io }
-    @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('hhea', 0, 0, io.length)
+    set_up_stub_true_type_font(data)
   end
 
   describe "initialize" do
     it "reads the version 1.0 data from the associated file" do
-      table = HexaPDF::Font::TrueType::Table::Maxp.new(@file, @entry)
+      table = create_table(:Maxp)
       assert_equal(1, table.version)
       assert_equal(10, table.num_glyphs)
       assert_equal(11, table.max_points)
@@ -33,9 +30,7 @@ describe HexaPDF::Font::TrueType::Table::Maxp do
     end
 
     it "reads the version 0.5 data from the associated file" do
-      @file.io.string = [0, 0x5000, 10].pack('n*')
-      @entry.length = @file.io.length
-      table = HexaPDF::Font::TrueType::Table::Maxp.new(@file, @entry)
+      table = create_table(:Maxp, [0, 0x5000, 10].pack('n*'))
       assert_equal(0.3125, table.version)
       assert_equal(10, table.num_glyphs)
       assert_nil(table.max_points)

@@ -1,12 +1,11 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'stringio'
+require_relative 'common'
 require 'hexapdf/font/true_type/table/glyf'
 
 describe HexaPDF::Font::TrueType::Table::Glyf do
   before do
-    @file = Object.new
     loca = Object.new
     loca.define_singleton_method(:offsets) { @offsets ||= [] }
     loca.define_singleton_method(:offset) {|i| @offsets[i]}
@@ -21,14 +20,13 @@ describe HexaPDF::Font::TrueType::Table::Glyf do
     data << [0b10100001, 4, 20, 30, 40, 50, 60, 70].pack('n2n2n4')
     data << [0b00000000, 1, 20, 30].pack('n2C2')
     loca.offsets << data.size
-    @file.define_singleton_method(:io) { @io ||= StringIO.new(data) }
-    @file.define_singleton_method(:[]) {|_arg| loca }
-    @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('glyf', 0, 0, @file.io.length)
+    set_up_stub_true_type_font(data)
+    @font.define_singleton_method(:[]) {|_arg| loca }
   end
 
   describe "initialize" do
     it "reads the data from the associated file" do
-      table = HexaPDF::Font::TrueType::Table::Glyf.new(@file, @entry)
+      table = create_table(:Glyf)
       glyph = table[0]
       refute(glyph.compound?)
       assert_equal(0, glyph.number_of_contours)
