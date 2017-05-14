@@ -126,6 +126,11 @@ module HexaPDF
         @encoded_glyphs = {}
       end
 
+      # Returns the type of the font, i.e. :Type1.
+      def font_type
+        :Type1
+      end
+
       # Returns a Glyph object for the given glyph name.
       def glyph(name)
         @name_to_glyph[name] ||=

@@ -6,19 +6,22 @@ require 'hexapdf/font/true_type'
 
 module TestHelper
 
-  def set_up_stub_true_type_font(initial_data = ''.b)
-    @font = Object.new
-    @font.define_singleton_method(:io) { @io ||= StringIO.new(initial_data) }
-    @font.define_singleton_method(:config) { @config ||= {} }
-    @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('mock', 0, 0, initial_data.length)
+  def set_up_stub_true_type_font(initial_data = ''.b, register_vars: true)
+    font = Object.new
+    font.define_singleton_method(:io) { @io ||= StringIO.new(initial_data) }
+    font.define_singleton_method(:config) { @config ||= {} }
+    entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('mock', 0, 0, initial_data.length)
+    @font, @entry = font, entry if register_vars
+    [font, entry]
   end
 
-  def create_table(name, data = nil)
+  def create_table(name, data = nil, standalone: false)
+    font, entry = !standalone ? [@font, @entry] : set_up_stub_true_type_font(register_vars: false)
     if data
-      @font.io.string = data
-      @entry.length = @font.io.length
+      font.io.string = data
+      entry.length = font.io.length
     end
-    HexaPDF::Font::TrueType::Table.const_get(name).new(@font, @entry)
+    HexaPDF::Font::TrueType::Table.const_get(name).new(font, entry)
   end
 
 end

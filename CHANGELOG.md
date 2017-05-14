@@ -2,6 +2,7 @@
 
 ### Added
 
+* [HexaPDF::Layout::TextShaper] for text shaping functionality
 * [HexaPDF::Layout::TextFragment] for basic text metrics calculations
 * Support for kerning of TrueType fonts via the 'kern' table
 * Support for determining the features provided by a font

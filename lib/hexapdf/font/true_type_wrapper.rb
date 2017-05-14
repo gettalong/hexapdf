@@ -132,6 +132,11 @@ module HexaPDF
         @encoded_glyphs = {}
       end
 
+      # Returns the type of the font, i.e. :TrueType.
+      def font_type
+        :TrueType
+      end
+
       # Returns the scaling factor for converting font units into PDF units.
       def scaling_factor
         @scaling_factor ||= 1000.0 / @wrapped_font[:head].units_per_em

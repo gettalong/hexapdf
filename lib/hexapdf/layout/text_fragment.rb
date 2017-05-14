@@ -40,7 +40,9 @@ module HexaPDF
     # size and other properties.
     #
     # Its items are either glyph objects of the font or numeric values describing kerning
-    # information. All returned measurement values are in text space units.
+    # information. All returned measurement values are in text space units. If the items or
+    # parameters are changed, the #clear_cache has to be called. Otherwise the measurements may not
+    # be correct!
     #
     # The rectangle with the lower-left corner (#x_min, #y_min) and the upper right corner (#x_max,
     # #y_max) describes the bounding of the whole text fragment. This bounding box is usually *not*
@@ -71,7 +73,7 @@ module HexaPDF
       # The items (glyphs and kerning values) of the text fragment.
       attr_reader :items
 
-      # Additional options that were set on initialization.
+      # Additional options.
       attr_reader :options
 
       # Creates a new TextFragment object with the given items, font wrapper object and font size.
@@ -87,7 +89,7 @@ module HexaPDF
         @horizontal_scaling = options.delete(:horizontal_scaling) || 100
         @text_rise = options.delete(:text_rise) || 0
 
-        @items = items.freeze
+        @items = items
         @options = options
       end
 
@@ -136,6 +138,15 @@ module HexaPDF
       # This can be used to position consecutive text fragments correctly.
       def baseline_offset
         [y_min, 0].min.abs
+      end
+
+      # Clears all cached values.
+      #
+      # This method needs to be called if the fragment's items or parameters are changed!
+      def clear_cache
+        @x_min = @x_max = @y_min = @y_max = @width = @height =
+          @scaled_font_size = @scaled_character_spacing = @scaled_word_spacing =
+          @scaled_horizontal_scaling = nil
       end
 
       private
