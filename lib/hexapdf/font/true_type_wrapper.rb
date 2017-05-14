@@ -132,6 +132,11 @@ module HexaPDF
         @encoded_glyphs = {}
       end
 
+      # Returns the scaling factor for converting font units into PDF units.
+      def scaling_factor
+        @scaling_factor ||= 1000.0 / @wrapped_font[:head].units_per_em
+      end
+
       # Returns +true+ if the wrapped TrueType font will be subset.
       def subset?
         !@subsetter.nil?
@@ -182,32 +187,30 @@ module HexaPDF
       #
       # See: #complete_font_dict
       def build_font_dict
-        scaling = 1000.0 / @wrapped_font[:head].units_per_em
-
         fd = @document.add(Type: :FontDescriptor,
                            FontName: @wrapped_font.font_name.intern,
                            FontWeight: @wrapped_font.weight,
                            Flags: 0,
-                           FontBBox: @wrapped_font.bounding_box.map {|m| m * scaling},
+                           FontBBox: @wrapped_font.bounding_box.map {|m| m * scaling_factor},
                            ItalicAngle: @wrapped_font.italic_angle || 0,
-                           Ascent: @wrapped_font.ascender * scaling,
-                           Descent: @wrapped_font.descender * scaling,
+                           Ascent: @wrapped_font.ascender * scaling_factor,
+                           Descent: @wrapped_font.descender * scaling_factor,
                            StemV: @wrapped_font.dominant_vertical_stem_width)
         if @wrapped_font[:'OS/2'].version >= 2
-          fd[:CapHeight] = @wrapped_font.cap_height * scaling
-          fd[:XHeight] = @wrapped_font.x_height * scaling
+          fd[:CapHeight] = @wrapped_font.cap_height * scaling_factor
+          fd[:XHeight] = @wrapped_font.x_height * scaling_factor
         else # estimate values
           # Estimate as per https://www.microsoft.com/typography/otspec/os2.htm#ch
           fd[:CapHeight] = if @cmap[0x0048] # H
-                             @wrapped_font[:glyf][@cmap[0x0048]].y_max * scaling
+                             @wrapped_font[:glyf][@cmap[0x0048]].y_max * scaling_factor
                            else
-                             @wrapped_font.ascender * 0.8 * scaling
+                             @wrapped_font.ascender * 0.8 * scaling_factor
                            end
           # Estimate as per https://www.microsoft.com/typography/otspec/os2.htm#xh
           fd[:XHeight] = if @cmap[0x0078] # x
-                           @wrapped_font[:glyf][@cmap[0x0078]].y_max * scaling
+                           @wrapped_font[:glyf][@cmap[0x0078]].y_max * scaling_factor
                          else
-                           @wrapped_font.ascender * 0.5 * scaling
+                           @wrapped_font.ascender * 0.5 * scaling_factor
                          end
         end
 
