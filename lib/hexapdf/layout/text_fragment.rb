@@ -31,6 +31,8 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'hexapdf/layout/numeric_refinements'
+
 module HexaPDF
   module Layout
 
@@ -46,28 +48,7 @@ module HexaPDF
     # items.
     class TextFragment
 
-      # :nodoc:
-      module NumericExtensions
-        refine Numeric do
-          def x_min
-            -self
-          end
-
-          def y_min
-            0
-          end
-
-          def y_max
-            0
-          end
-
-          def glyph?
-            false
-          end
-        end
-      end
-
-      using NumericExtensions
+      using NumericRefinements
 
       # The font wrapper (see Canvas#font).
       attr_reader :font

@@ -145,5 +145,3 @@ describe HexaPDF::Layout::TextFragment do
     end
   end
 end
-
-
