@@ -41,13 +41,12 @@ module HexaPDF
     #
     # Its items are either glyph objects of the font or numeric values describing kerning
     # information. All returned measurement values are in text space units. If the items or
-    # parameters are changed, the #clear_cache has to be called. Otherwise the measurements may not
+    # attributes are changed, the #clear_cache has to be called. Otherwise the measurements may not
     # be correct!
     #
     # The rectangle with the lower-left corner (#x_min, #y_min) and the upper right corner (#x_max,
-    # #y_max) describes the bounding of the whole text fragment. This bounding box is usually *not*
-    # equal to the box (0, 0)-(#width, #height) as it is the minimum rectangle surrounding all
-    # items.
+    # #y_max) describes the minimum bounding of the whole text fragment and is usually *not* equal
+    # to the box (0, 0)-(#width, #height).
     class TextFragment
 
       using NumericRefinements
@@ -135,14 +134,15 @@ module HexaPDF
 
       # The vertical offset of the baseline.
       #
-      # This can be used to position consecutive text fragments correctly.
+      # When the text cursor is positioned at (0, #baseline_offset), the text described by the
+      # fragment is drawn completely within the bounding box (#x_min, #y_min)-(#x_max, #y_max).
       def baseline_offset
         [y_min, 0].min.abs
       end
 
       # Clears all cached values.
       #
-      # This method needs to be called if the fragment's items or parameters are changed!
+      # This method needs to be called if the fragment's items or attributes are changed!
       def clear_cache
         @x_min = @x_max = @y_min = @y_max = @width = @height =
           @scaled_font_size = @scaled_character_spacing = @scaled_word_spacing =
