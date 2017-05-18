@@ -1014,6 +1014,8 @@ describe HexaPDF::Content::Canvas do
       assert_nil(@canvas.font)
       @canvas.font("Times", size: 10)
       assert_same(@doc.fonts.load("Times"), @canvas.font)
+      @canvas.font(@canvas.font)
+      assert_same(@doc.fonts.load("Times"), @canvas.font)
       @canvas.font("Helvetica", size: 10)
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 10]],
                                           [:set_leading, [12.0]],

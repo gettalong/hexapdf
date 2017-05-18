@@ -13,6 +13,7 @@
 * Ligature pairs for AFM fonts are stored like kerning pairs
 * Use TrueType configuration option 'font.true_type.unknown_format' in all
   places where applicable
+* Allow passing a font object to [HexaPDF::Content::Canvas#font]
 
 ### Fixed
 
