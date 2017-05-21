@@ -17,6 +17,40 @@ describe HexaPDF::Layout::TextFragment do
                                                   word_spacing: 2, text_rise: text_rise)
   end
 
+  describe "empty fragment" do
+    before do
+      setup_fragment([])
+    end
+
+    it "calculates the x_min" do
+      assert_equal(0, @fragment.x_min)
+    end
+
+    it "calculates the x_max" do
+      assert_equal(0, @fragment.x_max)
+    end
+
+    it "calculates the y_min" do
+      assert_equal(0, @fragment.y_min)
+    end
+
+    it "calculates the y_max" do
+      assert_equal(0, @fragment.y_max)
+    end
+
+    it "calculates the width" do
+      assert_equal(0, @fragment.width)
+    end
+
+    it "calculates the height" do
+      assert_equal(0, @fragment.height)
+    end
+
+    it "calculates the baseline offset" do
+      assert_equal(0, @fragment.baseline_offset)
+    end
+  end
+
   describe "normal text" do
     before do
       setup_fragment(@font.decode_utf8("Hal lo").insert(2, -35).insert(1, -10))

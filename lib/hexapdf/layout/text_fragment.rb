@@ -104,12 +104,12 @@ module HexaPDF
 
       # The minimum y-coordinate of any item.
       def y_min
-        @y_min ||= @items.min_by(&:y_min).y_min * font_size / 1000.0 + text_rise
+        @y_min ||= (@items.min_by(&:y_min)&.y_min || 0) * font_size / 1000.0 + text_rise
       end
 
       # The maximum y-coordinate of any item.
       def y_max
-        @y_max ||= @items.max_by(&:y_max).y_max * font_size / 1000.0 + text_rise
+        @y_max ||= (@items.max_by(&:y_max)&.y_max || 0) * font_size / 1000.0 + text_rise
       end
 
       # The width of the text fragment.
@@ -152,7 +152,7 @@ module HexaPDF
       private
 
       def calculate_x_min
-        if @items[0].glyph?
+        if !@items.empty? && @items[0].glyph?
           @items[0].x_min * scaled_font_size
         else
           @items.inject(0) do |sum, item|
@@ -164,7 +164,7 @@ module HexaPDF
       end
 
       def calculate_x_max
-        if @items[-1].glyph?
+        if !@items.empty? && @items[-1].glyph?
           width - scaled_glyph_right_side_bearing(@items[-1])
         else
           @items.reverse_each.inject(width) do |sum, item|
