@@ -40,6 +40,8 @@ module HexaPDF
   module Layout
 
     autoload(:TextFragment, 'hexapdf/layout/text_fragment')
+    autoload(:InlineBox, 'hexapdf/layout/inline_box')
+    autoload(:LineFragment, 'hexapdf/layout/line_fragment')
     autoload(:TextShaper, 'hexapdf/layout/text_shaper')
 
   end

@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require_relative '../content/common'
 require 'hexapdf/document'
 require 'hexapdf/layout/text_fragment'
 
@@ -15,6 +16,26 @@ describe HexaPDF::Layout::TextFragment do
     @fragment = HexaPDF::Layout::TextFragment.new(font: @font, font_size: 20, items: items,
                                                   horizontal_scaling: 200, character_spacing: 1,
                                                   word_spacing: 2, text_rise: text_rise)
+  end
+
+  it "returns :text for valign" do
+    assert_equal(:text, setup_fragment([]).valign)
+  end
+
+  it "draws the text onto the canvas" do
+    setup_fragment(@font.decode_utf8('H'), 2)
+    canvas = @doc.pages.add.canvas
+    @fragment.draw(canvas, 10, 15)
+    assert_operators(canvas.contents,
+                     [[:begin_text],
+                      [:set_text_matrix, [1, 0, 0, 1, 10, 15]],
+                      [:set_font_and_size, [:F1, 20]],
+                      [:set_leading, [24.0]],
+                      [:set_horizontal_scaling, [200]],
+                      [:set_character_spacing, [1]],
+                      [:set_word_spacing, [2]],
+                      [:set_text_rise, [2]],
+                      [:show_text_with_positioning, [['!']]]])
   end
 
   describe "empty fragment" do

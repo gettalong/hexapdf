@@ -92,6 +92,20 @@ module HexaPDF
         @options = options
       end
 
+      # Draws the text onto the canvas at the given position.
+      #
+      # Before the text is drawn using HexaPDF::Content;:Canvas#show_glyphs, the appropriate text
+      # properties like font and font size are set.
+      def draw(canvas, x, y)
+        canvas.move_text_cursor(offset: [x, y])
+        canvas.font(font, size: font_size).
+          horizontal_scaling(horizontal_scaling).
+          character_spacing(character_spacing).
+          word_spacing(word_spacing).
+          text_rise(text_rise)
+        canvas.show_glyphs_only(items)
+      end
+
       # The minimum x-coordinate of the first glyph.
       def x_min
         @x_min ||= calculate_x_min
@@ -138,6 +152,13 @@ module HexaPDF
       # fragment is drawn completely within the bounding box (#x_min, #y_min)-(#x_max, #y_max).
       def baseline_offset
         [y_min, 0].min.abs
+      end
+
+      # Returns the vertical alignment which is always :text for text fragments.
+      #
+      # See LineFragment for details.
+      def valign
+        :text
       end
 
       # Clears all cached values.
