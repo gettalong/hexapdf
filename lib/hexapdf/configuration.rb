@@ -31,6 +31,7 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'hexapdf/font/invalid_glyph'
 require 'hexapdf/error'
 
 module HexaPDF
@@ -159,11 +160,12 @@ module HexaPDF
   # font.on_missing_glyph::
   #    Callback hook when an UTF-8 character cannot be mapped to a glyph of a font.
   #
-  #    The value needs to be an object that responds to \#call(code_or_name, font) where
-  #    +code_or_name+ is the Unicode value or the glyph name for the missing glyph and returns a
-  #    substitute glyph name/ID to be used instead.
+  #    The value needs to be an object that responds to \#call(character, font_type, font) where
+  #    +character+ is the Unicode character for the missing glyph and returns a substitute glyph to
+  #    be used instead.
   #
-  #    The default implementation raises an error.
+  #    The default implementation returns an object of class HexaPDF::Font::InvalidGlyph which, when
+  #    not removed before encoding, will raise an error.
   #
   # font.on_missing_unicode_mapping::
   #    Callback hook when a character code point cannot be converted to a Unicode character.
@@ -233,8 +235,8 @@ module HexaPDF
   DefaultDocumentConfiguration =
     Configuration.new('document.auto_decrypt' => true,
                       'font.map' => {},
-                      'font.on_missing_glyph' => proc do |n, f|
-                        raise HexaPDF::Error, "No glyph for '#{n}' in font #{f.font_name} found"
+                      'font.on_missing_glyph' => proc do |char, _type, font|
+                        HexaPDF::Font::InvalidGlyph.new(font, char)
                       end,
                       'font.on_missing_unicode_mapping' => proc do |code_point, font|
                         raise HexaPDF::Error, "No Unicode mapping for code point #{code_point} " \

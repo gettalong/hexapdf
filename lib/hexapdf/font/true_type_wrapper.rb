@@ -33,6 +33,7 @@
 
 require 'hexapdf/font/true_type'
 require 'hexapdf/font/cmap'
+require 'hexapdf/font/invalid_glyph'
 require 'hexapdf/error'
 
 module HexaPDF
@@ -58,10 +59,14 @@ module HexaPDF
         # The glyph ID.
         attr_reader :id
 
+        # The string representation of the glyph.
+        attr_reader :str
+
         # Creates a new Glyph object.
-        def initialize(font, id)
+        def initialize(font, id, str)
           @font = font
           @id = id
+          @str = str
         end
 
         # Returns the glyph's minimum x coordinate.
@@ -149,14 +154,18 @@ module HexaPDF
 
       # Returns a Glyph object for the given glyph ID.
       #
+      # The optional argument +str+ should be the string representation of the glyph. Only use it if
+      # it is known,
+      #
       # Note: Although this method is public, it should normally not be used by application code!
-      def glyph(id)
+      def glyph(id, str = nil)
         @id_to_glyph[id] ||=
           begin
-            if id < 0 || id >= @wrapped_font[:maxp].num_glyphs
-              id = @document.config['font.on_missing_glyph'].call(0xFFFD, @wrapped_font)
+            if id >= 0 && id < @wrapped_font[:maxp].num_glyphs
+              Glyph.new(@wrapped_font, id, str || ('' << (@cmap.gid_to_code(id) || 0xFFFD)))
+            else
+              @document.config['font.on_missing_glyph'].call("\u{FFFD}", font_type, @wrapped_font)
             end
-            Glyph.new(@wrapped_font, id)
           end
       end
 
@@ -165,8 +174,11 @@ module HexaPDF
         str.each_codepoint.map do |c|
           @codepoint_to_glyph[c] ||=
             begin
-              gid = @cmap[c] || @document.config['font.on_missing_glyph'].call(c, @wrapped_font)
-              glyph(gid)
+              if (gid = @cmap[c])
+                glyph(gid, '' << c)
+              else
+                @document.config['font.on_missing_glyph'].call('' << c, font_type, @wrapped_font)
+              end
             end
         end
       end
@@ -175,6 +187,9 @@ module HexaPDF
       def encode(glyph)
         @encoded_glyphs[glyph] ||=
           begin
+            if glyph.kind_of?(InvalidGlyph)
+              raise HexaPDF::Error, "Glyph for #{glyph.str.inspect} missing"
+            end
             if @subsetter
               [@subsetter.use_glyph(glyph.id)].pack('n')
             else
@@ -279,7 +294,7 @@ module HexaPDF
 
       # Adds the /DW and /W fields to the CIDFont dictionary.
       def complete_width_information
-        default_width = glyph(3).width.to_i
+        default_width = glyph(3, " ").width.to_i
         widths = @encoded_glyphs.keys.reject {|g| g.width == default_width}.map! do |glyph|
           [(@subsetter ? @subsetter.subset_glyph_id(glyph.id) : glyph.id), glyph.width]
         end.sort!

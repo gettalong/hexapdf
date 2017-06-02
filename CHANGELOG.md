@@ -11,6 +11,10 @@
 
 ### Changed
 
+* Handling of invalid glyphs is done using the special
+  [HexaPDF::Font::InvalidGlyph] class
+* Configuration option 'font.on_missing_glyph'; returns an invalid glyph
+  instead of raising an error
 * Bounding box of TrueType glyphs without contours is set to `[0, 0, 0, 0]`
 * Ligature pairs for AFM fonts are stored like kerning pairs
 * Use TrueType configuration option 'font.true_type.unknown_format' in all

@@ -17,11 +17,11 @@ describe HexaPDF::Font::Type1Wrapper do
       assert_equal([:T, :e, :s, :t], @times_wrapper.decode_utf8("Test").map(&:name))
     end
 
-    it "UTF-8 characters for which no glyph name exist are mapped to themselves" do
-      gotten = nil
-      @doc.config['font.on_missing_glyph'] = proc {|c| gotten = c; :A }
-      assert_equal([:A], @times_wrapper.decode_utf8("😁").map(&:name))
-      assert_equal("😁", gotten)
+    it "UTF-8 characters for which no glyph name exists, are mapped to InvalidGlyph objects" do
+      glyphs = @times_wrapper.decode_utf8("😁")
+      assert_equal(1, glyphs.length)
+      assert_kind_of(HexaPDF::Font::InvalidGlyph, glyphs.first)
+      assert_equal('' << 128_513, glyphs.first.str)
     end
   end
 
@@ -29,6 +29,7 @@ describe HexaPDF::Font::Type1Wrapper do
     it "returns the glyph object for the given name" do
       glyph = @times_wrapper.glyph(:A)
       assert_equal(:A, glyph.name)
+      assert_equal("A", glyph.str)
       assert_equal(722, glyph.width)
       assert_equal(15, glyph.x_min)
       assert_equal(0, glyph.y_min)
@@ -39,7 +40,10 @@ describe HexaPDF::Font::Type1Wrapper do
     end
 
     it "invokes font.on_missing_glyph for missing glyphs" do
-      assert_raises(HexaPDF::Error) { @times_wrapper.glyph(:ffi) }
+      glyph = @times_wrapper.glyph(:ffi)
+      assert_kind_of(HexaPDF::Font::InvalidGlyph, glyph)
+      assert_equal(:'.notdef', glyph.name)
+      assert_equal('ﬃ', glyph.str)
     end
   end
 
@@ -50,6 +54,10 @@ describe HexaPDF::Font::Type1Wrapper do
         @doc.dispatch_message(:complete_objects)
         assert_equal("a", code)
         assert_equal(:WinAnsiEncoding, @times_wrapper.dict[:Encoding])
+      end
+
+      it "fails if an InvalidGlyph is encoded" do
+        assert_raises(HexaPDF::Error) { @times_wrapper.encode(@times_wrapper.glyph(:ffi)) }
       end
 
       it "fails if the encoding does not support the given glyph" do

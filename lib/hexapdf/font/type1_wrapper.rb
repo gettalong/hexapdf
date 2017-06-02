@@ -49,10 +49,14 @@ module HexaPDF
         attr_reader :name
         alias_method :id, :name
 
+        # The string representation of the glyph.
+        attr_reader :str
+
         # Creates a new Glyph object.
-        def initialize(font, name)
+        def initialize(font, name, str)
           @font = font
           @name = name
+          @str = str
         end
 
         # Returns the glyph's minimum x coordinate.
@@ -135,10 +139,12 @@ module HexaPDF
       def glyph(name)
         @name_to_glyph[name] ||=
           begin
-            unless @wrapped_font.metrics.character_metrics.key?(name)
-              name = @document.config['font.on_missing_glyph'].call(name, @wrapped_font)
+            str = Encoding::GlyphList.name_to_unicode(name, @zapf_dingbats_opt)
+            if @wrapped_font.metrics.character_metrics.key?(name)
+              Glyph.new(@wrapped_font, name, str)
+            else
+              @document.config['font.on_missing_glyph'].call(str, font_type, @wrapped_font)
             end
-            Glyph.new(@wrapped_font, name)
           end
       end
 
@@ -148,7 +154,7 @@ module HexaPDF
           @codepoint_to_glyph[c] ||=
             begin
               name = Encoding::GlyphList.unicode_to_name('' << c, @zapf_dingbats_opt)
-              name = '' << c if name == :'.notdef'
+              name = "u" << c.to_s(16).rjust(6, '0') if name == :'.notdef'
               glyph(name)
             end
         end
@@ -158,6 +164,9 @@ module HexaPDF
       def encode(glyph)
         @encoded_glyphs[glyph.name] ||=
           begin
+            if glyph.name == @wrapped_font.missing_glyph_id
+              raise HexaPDF::Error, "Glyph for #{glyph.str.inspect} missing"
+            end
             code = @encoding.code_to_name.key(glyph.name)
             if code
               code.chr.freeze

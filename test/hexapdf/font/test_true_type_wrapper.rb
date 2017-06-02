@@ -35,11 +35,11 @@ describe HexaPDF::Font::TrueTypeWrapper do
                    @font_wrapper.decode_utf8("Test").map {|g| @cmap.gid_to_code(g.id)}.pack('U*'))
     end
 
-    it "UTF-8 characters for which no glyph exists are mapped to the .notdef glyph" do
-      gotten = nil
-      @doc.config['font.on_missing_glyph'] = proc {|c| gotten = c; 0 }
-      assert_equal([0], @font_wrapper.decode_utf8("😁").map(&:id))
-      assert_equal(128_513, gotten)
+    it "invokes font.on_missing_glyph for UTF-8 characters for which no glyph exists" do
+      glyphs = @font_wrapper.decode_utf8("😁")
+      assert_equal(1, glyphs.length)
+      assert_kind_of(HexaPDF::Font::InvalidGlyph, glyphs.first)
+      assert_equal('' << 128_513, glyphs.first.str)
     end
   end
 
@@ -47,6 +47,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
     it "returns the glyph object for the given id" do
       glyph = @font_wrapper.glyph(17)
       assert_equal(17, glyph.id)
+      assert_equal("0", glyph.str)
       assert_equal(628, glyph.width)
       assert_equal(47, glyph.x_min)
       assert_equal(0, glyph.y_min)
@@ -57,7 +58,10 @@ describe HexaPDF::Font::TrueTypeWrapper do
     end
 
     it "invokes font.on_missing_glyph for missing glyphs" do
-      assert_raises(HexaPDF::Error) { @font_wrapper.glyph(9999) }
+      glyph = @font_wrapper.glyph(9999)
+      assert_kind_of(HexaPDF::Font::InvalidGlyph, glyph)
+      assert_equal(0, glyph.id)
+      assert_equal('' << 0xFFFD, glyph.str)
     end
   end
 
@@ -75,6 +79,10 @@ describe HexaPDF::Font::TrueTypeWrapper do
       assert_equal([3].pack('n'), code)
       code = @font_wrapper.encode(@font_wrapper.glyph(10))
       assert_equal([10].pack('n'), code)
+    end
+
+    it "raises an error if an InvalidGlyph is encoded" do
+      assert_raises(HexaPDF::Error) { @font_wrapper.encode(@font_wrapper.glyph(9999)) }
     end
   end
 

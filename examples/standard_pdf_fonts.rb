@@ -42,7 +42,8 @@ HexaPDF::FontLoader::Standard14::MAPPING.each do |font_name, mapping|
       data = []
       (0..15).each do |x|
         code = y * 16 + x
-        glyph = font.glyph(encoding.name(code)) rescue font.glyph(:space)
+        glyph = font.glyph(encoding.name(code))
+        glyph = font.glyph(:space) if glyph.id == font.wrapped_font.missing_glyph_id
         used_glyphs << glyph.name
         data << glyph << -(2000 - glyph.width)
       end
