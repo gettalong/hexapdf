@@ -89,12 +89,20 @@ module HexaPDF
         self[:Resources] ||= document.wrap({}, type: :XXResources)
       end
 
-      # Processes the content streams associated with the page with the given processor object.
+      # Processes the content stream of the form XObject with the given processor object.
+      #
+      # The +original_resources+ argument has to be set to a page's resources if this form XObject
+      # is processed as part of this page.
       #
       # See: HexaPDF::Content::Processor
-      def process_contents(processor)
-        self[:Resources] = {} if self[:Resources].nil?
-        processor.resources = self[:Resources]
+      def process_contents(processor, original_resources: nil)
+        processor.resources = if self[:Resources]
+                                self[:Resources]
+                              elsif original_resources
+                                original_resources
+                              else
+                                document.wrap({}, type: :XXResources)
+                              end
         Content::Parser.parse(contents, processor)
       end
 

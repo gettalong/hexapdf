@@ -55,6 +55,18 @@ describe HexaPDF::Type::Form do
       processor = TestHelper::OperatorRecorder.new
       @form.process_contents(processor)
       assert_equal([[:set_line_width, [10]]], processor.recorded_ops)
+      assert_nil(@form[:Resources])
+
+      resources = @form.resources
+      @form.process_contents(processor)
+      assert_same(resources, processor.resources)
+    end
+
+    it "uses the provided resources if it has no resources itself" do
+      resources = @doc.wrap({}, type: :XXResources)
+      processor = TestHelper::OperatorRecorder.new
+      @form.process_contents(processor, original_resources: resources)
+      assert_same(resources, processor.resources)
     end
   end
 

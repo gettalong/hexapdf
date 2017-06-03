@@ -99,7 +99,10 @@ describe HexaPDF::Content::Processor do
       @processor.resources = resources = Object.new
       @processor.resources.define_singleton_method(:xobject) do |_name|
         obj = {Matrix: [2, 0, 0, 2, 10, 10], Subtype: :Form}
-        obj.define_singleton_method(:process_contents) {|processor| processor.process(:w, [10])}
+        obj.define_singleton_method(:process_contents) do |processor, original_resources:|
+          test_case.assert_same(resources, original_resources)
+          processor.process(:w, [10])
+        end
         obj
       end
 

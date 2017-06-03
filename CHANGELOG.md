@@ -28,6 +28,8 @@
 * [HexaPDF::Tokenizer] and [HexaPDF::Content::Tokenizer] to parse a solitary
   plus sign
 * Usage of Strings instead of Symbols for AFM font kerning and ligature pairs
+* Processing the contents of form XObjects in case they don't have a resources
+  dictionary
 
 
 ## 0.4.0 - 2017-03-19

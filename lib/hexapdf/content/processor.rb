@@ -305,7 +305,7 @@ module HexaPDF
       attr_reader :operators
 
       # The resources dictionary used during processing.
-      attr_accessor :resources
+      attr_reader :resources
 
       # The GraphicsState object containing the current graphics state.
       #
@@ -336,8 +336,19 @@ module HexaPDF
       def initialize(resources = nil)
         @operators = Operator::DEFAULT_OPERATORS.dup
         @graphics_state = GraphicsState.new
-        @resources = resources
         @graphics_object = :none
+        @original_resources = nil
+        self.resources = resources
+      end
+
+      # Sets the resources dictionary used during processing.
+      #
+      # The first time resources are set, they are also stored as the "original" resources. This is
+      # needed because form XObject don't need to have a resources dictionary and can use the page's
+      # resources dictionary instead.
+      def resources=(res)
+        @original_resources = res if @original_resources.nil?
+        @resources = res
       end
 
       # Processes the operator with the given operands.
@@ -364,7 +375,7 @@ module HexaPDF
         graphics_state.save
 
         graphics_state.ctm.premultiply(*xobject[:Matrix]) if xobject.key?(:Matrix)
-        xobject.process_contents(self)
+        xobject.process_contents(self, original_resources: @original_resources)
 
         graphics_state.restore
         self.resources = res
