@@ -72,6 +72,11 @@ module HexaPDF
         true
       end
 
+      #:nodoc:
+      def inspect
+        "#<#{self.class.name} font=#{@font.full_name.inspect} id=#{id} #{@str.inspect}>"
+      end
+
     end
 
   end

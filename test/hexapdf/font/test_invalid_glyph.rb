@@ -7,6 +7,7 @@ describe HexaPDF::Font::InvalidGlyph do
   before do
     font = Object.new
     font.define_singleton_method(:missing_glyph_id) { 0 }
+    font.define_singleton_method(:full_name) { "Test Roman" }
     @glyph = HexaPDF::Font::InvalidGlyph.new(font, "str")
   end
 
@@ -28,5 +29,10 @@ describe HexaPDF::Font::InvalidGlyph do
 
   it "doesn't allow the application of word spacing" do
     refute(@glyph.apply_word_spacing?)
+  end
+
+  it "can represent itself for debug purposes" do
+    assert_equal('#<HexaPDF::Font::InvalidGlyph font="Test Roman" id=0 "str">',
+                 @glyph.inspect)
   end
 end

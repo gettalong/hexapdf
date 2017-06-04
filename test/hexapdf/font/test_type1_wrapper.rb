@@ -37,6 +37,8 @@ describe HexaPDF::Font::Type1Wrapper do
       assert_equal(674, glyph.y_max)
       assert(glyph.glyph?)
       refute(glyph.apply_word_spacing?)
+      assert_equal('#<HexaPDF::Font::Type1Wrapper::Glyph font="Times Roman" id=:A "A">',
+                   glyph.inspect)
     end
 
     it "invokes font.on_missing_glyph for missing glyphs" do
