@@ -20,6 +20,8 @@
 * Use TrueType configuration option 'font.true_type.unknown_format' in all
   places where applicable
 * Allow passing a font object to [HexaPDF::Content::Canvas#font]
+* Handle invalid entry in TrueType format 4 cmap subtable encountered in the
+  wild gracefully
 
 ### Fixed
 

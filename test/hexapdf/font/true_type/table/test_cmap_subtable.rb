@@ -90,6 +90,13 @@ describe HexaPDF::Font::TrueType::Table::CmapSubtable do
       assert_equal(65535, t.gid_to_code(84))
     end
 
+    it "works for format 4 with invalid 0xffff entry" do
+      f4 = [2, 0, 0, 0, 65535, 0, 65535, 0, 32767].pack('n*')
+      t = table([4, f4.length + 6, 0].pack('n3') << f4)
+      assert_nil(t[65535])
+      assert_equal(65535, t.gid_to_code(0))
+    end
+
     it "works for format 6" do
       t = table(([6, 30, 0, 1024, 10] + (1..10).to_a).pack('n*'))
       assert_nil(t[0])

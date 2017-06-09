@@ -267,6 +267,7 @@ module HexaPDF
                 offset = id_range_offsets[index]
                 if offset != 0
                   glyph_id = glyph_indexes[offset - end_codes.length + (code - start_codes[index])]
+                  glyph_id ||= 0 # Handle invalid subtable entries
                   glyph_id = (glyph_id + id_deltas[index]) % 65536 if glyph_id != 0
                 else
                   glyph_id = (code + id_deltas[index]) % 65536
