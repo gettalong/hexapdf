@@ -34,6 +34,8 @@
   dictionary
 * Deletion of valid page node when optimizing page trees with the `hexapdf
   optimize` command
+* [HexaPDF::Type::FontType0] to always wrap the descendant font even if it is a
+  direct object
 
 
 ## 0.4.0 - 2017-03-19

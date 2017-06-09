@@ -19,6 +19,13 @@ describe HexaPDF::Type::FontType0 do
     assert_equal(:vertical, font.writing_mode)
   end
 
+  it "resolves the descendant font object correctly" do
+    assert_equal(@cid_font, @font.descendant_font)
+    @doc.clear_cache
+    @font[:DescendantFonts] = [@cid_font.value]
+    assert_equal(@cid_font.value, @font.descendant_font.value)
+  end
+
   it "uses the descendant font for getting the width of a code point" do
     assert_equal(100, @font.width(0x2121))
   end
