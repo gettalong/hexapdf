@@ -30,6 +30,8 @@
 * Usage of Strings instead of Symbols for AFM font kerning and ligature pairs
 * Processing the contents of form XObjects in case they don't have a resources
   dictionary
+* Deletion of valid page node when optimizing page trees with the `hexapdf
+  optimize` command
 
 
 ## 0.4.0 - 2017-03-19
