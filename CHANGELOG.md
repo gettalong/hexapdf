@@ -6,6 +6,7 @@
 * [HexaPDF::Layout::TextShaper] for text shaping functionality
 * [HexaPDF::Layout::TextFragment] for basic text metrics calculations
 * [HexaPDF::Layout::InlineBox] for fixed size inline graphics
+* [HexaPDF::Layout::Style] as container for text and graphics styling properties
 * Support for kerning of TrueType fonts via the 'kern' table
 * Support for determining the features provided by a font
 

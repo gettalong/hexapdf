@@ -39,6 +39,7 @@ module HexaPDF
   # standard PDF functionality provided by the Content module.
   module Layout
 
+    autoload(:Style, 'hexapdf/layout/style')
     autoload(:TextFragment, 'hexapdf/layout/text_fragment')
     autoload(:InlineBox, 'hexapdf/layout/inline_box')
     autoload(:LineFragment, 'hexapdf/layout/line_fragment')
