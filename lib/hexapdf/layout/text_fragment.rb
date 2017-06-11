@@ -31,6 +31,8 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'hexapdf/layout/style'
+require 'hexapdf/layout/text_shaper'
 require 'hexapdf/layout/numeric_refinements'
 
 module HexaPDF
@@ -40,69 +42,52 @@ module HexaPDF
     # size and other properties.
     #
     # Its items are either glyph objects of the font or numeric values describing kerning
-    # information. All returned measurement values are in text space units. If the items or
-    # attributes are changed, the #clear_cache has to be called. Otherwise the measurements may not
-    # be correct!
+    # information. All returned measurement values are in text space units. If the items or the
+    # style are changed, the #clear_cache has to be called. Otherwise the measurements may not be
+    # correct!
     #
     # The rectangle with the lower-left corner (#x_min, #y_min) and the upper right corner (#x_max,
-    # #y_max) describes the minimum bounding of the whole text fragment and is usually *not* equal
-    # to the box (0, 0)-(#width, #height).
+    # #y_max) describes the minimum bounding box of the whole text fragment and is usually *not*
+    # equal to the box (0, 0)-(#width, #height).
     class TextFragment
 
       using NumericRefinements
 
-      # The font wrapper (see Canvas#font).
-      attr_reader :font
-
-      # The font size (see Canvas#font_size).
-      attr_reader :font_size
-
-      # The character spacing (see Canvas#character spacing).
-      attr_reader :character_spacing
-
-      # The word spacing (see Canvas#word_spacing).
-      attr_reader :word_spacing
-
-      # The horizontal scaling (see Canvas#horizontal_scaling).
-      attr_reader :horizontal_scaling
-
-      # The text rise, i.e. vertical offset (see Canvas#text_rise).
-      attr_reader :text_rise
+      # Creates a new TextFragment object for the given text, shapes it and returns it.
+      #
+      # The style of the text fragment can be specified using additional options, of which font is
+      # mandatory.
+      def self.create(text, font:, **options)
+        fragment = new(items: font.decode_utf8(text), style: Style.new(font: font, **options))
+        TextShaper.new.shape_text(fragment)
+      end
 
       # The items (glyphs and kerning values) of the text fragment.
-      attr_reader :items
+      attr_accessor :items
 
-      # Additional options.
-      attr_reader :options
-
-      # Creates a new TextFragment object with the given items, font wrapper object and font size.
+      # The style to be applied.
       #
-      # The +options+ hash may contain the keys :character_spacing, :word_spacing,
-      # :horizontal_scaling and :text_rise for setting the so named attribute. All other options are
-      # stored in #options.
-      def initialize(items:, font:, font_size:, **options)
-        @font = font
-        @font_size = font_size
-        @character_spacing = options.delete(:character_spacing) || 0
-        @word_spacing = options.delete(:word_spacing) || 0
-        @horizontal_scaling = options.delete(:horizontal_scaling) || 100
-        @text_rise = options.delete(:text_rise) || 0
+      # Only the following properties are used: Style#font, Style#font_size,
+      # Style#horizontal_scaling, Style#character_spacing, Style#word_spacing and Style#text_rise.
+      attr_reader :style
 
-        @items = items
-        @options = options
+      # Creates a new TextFragment object with the given items and style.
+      def initialize(items:, style: Style.new)
+        @items = items || []
+        @style = style
       end
 
       # Draws the text onto the canvas at the given position.
       #
-      # Before the text is drawn using HexaPDF::Content;:Canvas#show_glyphs, the appropriate text
-      # properties like font and font size are set.
+      # Before the text is drawn using HexaPDF::Content;:Canvas#show_glyphs, the text properties
+      # mentioned in the description of #style are set.
       def draw(canvas, x, y)
         canvas.move_text_cursor(offset: [x, y])
-        canvas.font(font, size: font_size).
-          horizontal_scaling(horizontal_scaling).
-          character_spacing(character_spacing).
-          word_spacing(word_spacing).
-          text_rise(text_rise)
+        canvas.font(style.font, size: style.font_size).
+          horizontal_scaling(style.horizontal_scaling).
+          character_spacing(style.character_spacing).
+          word_spacing(style.word_spacing).
+          text_rise(style.text_rise)
         canvas.show_glyphs_only(items)
       end
 
@@ -116,14 +101,26 @@ module HexaPDF
         @x_max ||= calculate_x_max
       end
 
-      # The minimum y-coordinate of any item.
+      # The minimum y-coordinate, calculated using the scaled descender of the font.
       def y_min
-        @y_min ||= (@items.min_by(&:y_min)&.y_min || 0) * font_size / 1000.0 + text_rise
+        @y_min ||= style.scaled_font_descender + style.text_rise
+      end
+
+      # The maximum y-coordinate, calculated using the scaled ascender of the font.
+      def y_max
+        @y_max ||= style.scaled_font_ascender + style.text_rise
+      end
+
+      # The minimum y-coordinate of any item.
+      def exact_y_min
+        @exact_y_min ||= (@items.min_by(&:y_min)&.y_min || 0) * style.font_size / 1000.0 +
+          style.text_rise
       end
 
       # The maximum y-coordinate of any item.
-      def y_max
-        @y_max ||= (@items.max_by(&:y_max)&.y_max || 0) * font_size / 1000.0 + text_rise
+      def exact_y_max
+        @exact_y_max ||= (@items.max_by(&:y_max)&.y_max || 0) * style.font_size / 1000.0 +
+          style.text_rise
       end
 
       # The width of the text fragment.
@@ -146,15 +143,7 @@ module HexaPDF
         @height ||= [y_max, 0].max - [y_min, 0].min
       end
 
-      # The vertical offset of the baseline.
-      #
-      # When the text cursor is positioned at (0, #baseline_offset), the text described by the
-      # fragment is drawn completely within the bounding box (#x_min, #y_min)-(#x_max, #y_max).
-      def baseline_offset
-        [y_min, 0].min.abs
-      end
-
-      # Returns the vertical alignment which is always :text for text fragments.
+      # Returns the vertical alignment inside a line which is always :text for text fragments.
       #
       # See LineFragment for details.
       def valign
@@ -165,19 +154,23 @@ module HexaPDF
       #
       # This method needs to be called if the fragment's items or attributes are changed!
       def clear_cache
-        @x_min = @x_max = @y_min = @y_max = @width = @height =
-          @scaled_font_size = @scaled_character_spacing = @scaled_word_spacing =
-          @scaled_horizontal_scaling = nil
+        @x_min = @x_max = @y_min = @y_max = @exact_y_min = @exact_y_max = @width = @height = nil
+        self
+      end
+
+      # :nodoc:
+      def inspect
+        "#<#{self.class.name} #{items.inspect}>"
       end
 
       private
 
       def calculate_x_min
         if !@items.empty? && @items[0].glyph?
-          @items[0].x_min * scaled_font_size
+          @items[0].x_min * style.scaled_font_size
         else
           @items.inject(0) do |sum, item|
-            sum += item.x_min * scaled_font_size
+            sum += item.x_min * style.scaled_font_size
             break sum if item.glyph?
             sum
           end
@@ -192,44 +185,29 @@ module HexaPDF
             if item.glyph?
               break sum - scaled_glyph_right_side_bearing(item)
             else
-              sum + item * scaled_font_size
+              sum + item * style.scaled_font_size
             end
           end
         end
       end
 
       def scaled_glyph_right_side_bearing(glyph)
-        (glyph.x_max <= 0 ? 0 : glyph.width - glyph.x_max) * scaled_font_size +
-          scaled_character_spacing + (glyph.apply_word_spacing? ? scaled_word_spacing : 0)
+        (glyph.x_max <= 0 ? 0 : glyph.width - glyph.x_max) * style.scaled_font_size +
+          style.scaled_character_spacing +
+          (glyph.apply_word_spacing? ? style.scaled_word_spacing : 0)
       end
 
       def calculate_width
-        width = 0
-        @items.each do |item|
-          if item.glyph?
-            width += item.width * scaled_font_size + scaled_character_spacing
-            width += scaled_word_spacing if item.apply_word_spacing?
-          else
-            width -= item * scaled_font_size
-          end
+        @items.sum {|item| scaled_item_width(item)}
+      end
+
+      def scaled_item_width(item)
+        if item.glyph?
+          item.width * style.scaled_font_size + style.scaled_character_spacing +
+            (item.apply_word_spacing? ? style.scaled_word_spacing : 0)
+        else
+          -item * style.scaled_font_size
         end
-        width
-      end
-
-      def scaled_font_size
-        @scaled_font_size ||= font_size / 1000.0 * scaled_horizontal_scaling
-      end
-
-      def scaled_character_spacing
-        @scaled_character_spacing ||= character_spacing * scaled_horizontal_scaling
-      end
-
-      def scaled_word_spacing
-        @scaled_word_spacing ||= word_spacing * scaled_horizontal_scaling
-      end
-
-      def scaled_horizontal_scaling
-        @scaled_horizontal_scaling ||= horizontal_scaling / 100.0
       end
 
     end

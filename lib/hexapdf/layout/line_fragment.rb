@@ -91,22 +91,29 @@ module HexaPDF
       # The items: TextFragment and InlineBox objects
       attr_accessor :items
 
-      # Additional options.
-      attr_reader :options
-
       # Creates a new LineFragment object with the given items.
-      #
-      # The +options+ hash may contain any key suitable for the caller.
-      def initialize(items: [], **options)
+      def initialize(items: [])
         @items = items
-        @options = options
       end
 
       # Adds the given item at the end of the item list.
       #
+      # If both the item and the last item in the item list are TextFragment objects and they have
+      # the same style, they are combined.
+      #
       # Note: The cache is not cleared!
       def add(item)
-        @items << item
+        last = @items.last
+        if last.class == item.class && item.kind_of?(TextFragment) && last.style == item.style
+          if last.items.frozen?
+            @items[-1] = last = last.dup
+            last.items = last.items.dup
+          end
+          last.items[last.items.length, 0] = item.items
+          last.clear_cache
+        else
+          @items << item
+        end
         self
       end
       alias :<< :add
@@ -114,7 +121,8 @@ module HexaPDF
       # :call-seq:
       #   line_fragment.each {|item, x, y| block }
       #
-      # Yields each item together with its horizontal and vertical offset.
+      # Yields each item together with its horizontal offset from 0 and vertical offset from the
+      # baseline.
       def each
         x = 0
         @items.each do |item|
@@ -143,6 +151,8 @@ module HexaPDF
       end
 
       # The minimum y-coordinate of any item of the line.
+      #
+      # It is always lower than or equal to zero.
       def y_min
         @y_min ||= calculate_y_dimensions[0]
       end
@@ -153,6 +163,8 @@ module HexaPDF
       end
 
       # The maximum y-coordinate of any item of the line.
+      #
+      # It is always greater than or equal to zero.
       def y_max
         @y_max ||= calculate_y_dimensions[1]
       end
@@ -172,18 +184,26 @@ module HexaPDF
         y_max - y_min
       end
 
-      # The vertical offset of the baseline.
-      #
-      # This can be used to position consecutive text fragments correctly.
-      def baseline_offset
-        [y_min, 0].min.abs
+      # Specifies that this line should not be justified if line justification is used.
+      def ignore_justification!
+        @ignore_justification = true
       end
 
-      # Clears all cached values.
+      # Returns +true+ if justification should be ignored for this line.
+      def ignore_justification?
+        defined?(@ignore_justification) && @ignore_justification
+      end
+
+      # :call-seq:
+      #   line_fragment.clear_cache   -> line_fragment
+      #
+      # Clears all cached values and calls #clear_cache on items that support it.
       #
       # This method needs to be called if the fragment's items are changed!
       def clear_cache
         @x_max = @y_min = @y_max = @text_y_min = @text_y_max = @width = nil
+        @items.each {|item| item.respond_to?(:clear_cache) && item.clear_cache }
+        self
       end
 
       private

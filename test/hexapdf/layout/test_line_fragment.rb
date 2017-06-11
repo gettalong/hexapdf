@@ -11,7 +11,7 @@ describe HexaPDF::Layout::LineFragment do
   end
 
   def setup_fragment(text)
-    HexaPDF::Layout::TextFragment.new(font: @font, font_size: 10, items: @font.decode_utf8(text))
+    HexaPDF::Layout::TextFragment.create(text, font: @font, font_size: 10)
   end
 
   def setup_box(width, height, valign = :baseline)
@@ -26,15 +26,32 @@ describe HexaPDF::Layout::LineFragment do
     it "allows setting the items of the line fragment" do
       assert_equal(:value, setup_line(items: :value).items)
     end
-
-    it "allows setting custom options" do
-      assert_equal({key: :value}, setup_line(key: :value).options)
-    end
   end
 
-  it "adds items to the line" do
-    @line << :test << :other
-    assert_equal([:test, :other], @line.items)
+  describe "add" do
+    it "adds items to the line" do
+      @line << :test << :other
+      assert_equal([:test, :other], @line.items)
+    end
+
+    it "combines text fragments if possible" do
+      frag1 = setup_fragment("Home")
+      frag2 = HexaPDF::Layout::TextFragment.new(items: frag1.items.slice!(2, 2), style: frag1.style)
+      @line << setup_fragment("o") << :other << frag1 << frag2
+      assert_equal(3, @line.items.length)
+      assert_equal(4, @line.items.last.items.length)
+    end
+
+    it "duplicates the first of two combinable text fragments if its items are frozen" do
+      frag1 = setup_fragment("Home")
+      frag2 = HexaPDF::Layout::TextFragment.new(items: frag1.items.slice!(2, 2), style: frag1.style)
+      frag1.items.freeze
+      frag2.items.freeze
+
+      @line << setup_fragment("o") << frag1 << frag2 << :other
+      assert_equal(3, @line.items.length)
+      assert_equal(4, @line.items[-2].items.length)
+    end
   end
 
   describe "with text fragments" do
@@ -53,7 +70,6 @@ describe HexaPDF::Layout::LineFragment do
       assert_equal(@frag_h.y_max, @line.text_y_max)
       assert_equal(2 * @frag_h.width + @frag_y.width, @line.width)
       assert_equal(@frag_h.y_max - @frag_y.y_min, @line.height)
-      assert_equal(-@frag_y.y_min, @line.baseline_offset)
     end
 
     describe "and with inline boxes" do
@@ -128,7 +144,7 @@ describe HexaPDF::Layout::LineFragment do
     end
   end
 
-  it "fails if an item uses an invalid valign value" do
+  it "fails when accessing a vertical measurement if an item uses an invalid valign value" do
     @line << setup_box(10, 20, :invalid)
     assert_raises(HexaPDF::Error) { @line.y_min }
   end
@@ -156,5 +172,11 @@ describe HexaPDF::Layout::LineFragment do
       @line << setup_box(10, 10, :invalid)
       assert_raises(HexaPDF::Error) { @line.each {} }
     end
+  end
+
+  it "allows ignoring line justification" do
+    refute(@line.ignore_justification?)
+    @line.ignore_justification!
+    assert(@line.ignore_justification?)
   end
 end

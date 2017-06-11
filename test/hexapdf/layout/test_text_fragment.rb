@@ -13,9 +13,18 @@ describe HexaPDF::Layout::TextFragment do
   end
 
   def setup_fragment(items, text_rise = 0)
-    @fragment = HexaPDF::Layout::TextFragment.new(font: @font, font_size: 20, items: items,
-                                                  horizontal_scaling: 200, character_spacing: 1,
-                                                  word_spacing: 2, text_rise: text_rise)
+    style = HexaPDF::Layout::Style.new(font: @font, font_size: 20,
+                                       horizontal_scaling: 200, character_spacing: 1,
+                                       word_spacing: 2, text_rise: text_rise)
+    @fragment = HexaPDF::Layout::TextFragment.new(items: items, style: style)
+  end
+
+  it "creates a TextFragment from text and options" do
+    frag = HexaPDF::Layout::TextFragment.create("Tom", font: @font, font_size: 20,
+                                                font_features: {kern: true})
+    assert_equal(4, frag.items.length)
+    assert_equal(36.18, frag.width)
+    assert_equal(13.66 + 4.34, frag.height)
   end
 
   it "returns :text for valign" do
@@ -52,11 +61,11 @@ describe HexaPDF::Layout::TextFragment do
     end
 
     it "calculates the y_min" do
-      assert_equal(0, @fragment.y_min)
+      assert_equal(-4.34, @fragment.y_min)
     end
 
     it "calculates the y_max" do
-      assert_equal(0, @fragment.y_max)
+      assert_equal(13.66, @fragment.y_max)
     end
 
     it "calculates the width" do
@@ -64,11 +73,7 @@ describe HexaPDF::Layout::TextFragment do
     end
 
     it "calculates the height" do
-      assert_equal(0, @fragment.height)
-    end
-
-    it "calculates the baseline offset" do
-      assert_equal(0, @fragment.baseline_offset)
+      assert_equal(13.66 + 4.34, @fragment.height)
     end
   end
 
@@ -85,8 +90,16 @@ describe HexaPDF::Layout::TextFragment do
       assert_in_delta(116.68 - 1.2 - 2, @fragment.x_max)
     end
 
+    it "calculates the exact y_min" do
+      assert_in_delta(-0.2, @fragment.exact_y_min)
+    end
+
+    it "calculates the exact y_max" do
+      assert_in_delta(13.66, @fragment.exact_y_max)
+    end
+
     it "calculates the y_min" do
-      assert_in_delta(-0.2, @fragment.y_min)
+      assert_in_delta(-4.34, @fragment.y_min)
     end
 
     it "calculates the y_max" do
@@ -98,11 +111,7 @@ describe HexaPDF::Layout::TextFragment do
     end
 
     it "calculates the height" do
-      assert_in_delta(13.66 + 0.2, @fragment.height)
-    end
-
-    it "calculates the baseline offset" do
-      assert_in_delta(0.2, @fragment.baseline_offset)
+      assert_in_delta(13.66 + 4.34, @fragment.height)
     end
   end
 
@@ -112,7 +121,7 @@ describe HexaPDF::Layout::TextFragment do
     end
 
     it "calculates the y_min" do
-      assert_in_delta(-2.82 + 4, @fragment.y_min)
+      assert_in_delta(-4.34 + 4, @fragment.y_min)
     end
 
     it "calculates the y_max" do
@@ -120,11 +129,7 @@ describe HexaPDF::Layout::TextFragment do
     end
 
     it "calculates the height" do
-      assert_in_delta(13.66 + 4, @fragment.height)
-    end
-
-    it "calculates the baseline offset" do
-      assert_in_delta(0, @fragment.baseline_offset)
+      assert_in_delta(13.66 + 4 + 0.34, @fragment.height)
     end
   end
 
@@ -134,7 +139,7 @@ describe HexaPDF::Layout::TextFragment do
     end
 
     it "calculates the y_min" do
-      assert_in_delta(-2.82 - 15, @fragment.y_min)
+      assert_in_delta(-4.34 - 15, @fragment.y_min)
     end
 
     it "calculates the y_max" do
@@ -142,11 +147,7 @@ describe HexaPDF::Layout::TextFragment do
     end
 
     it "calculates the height" do
-      assert_in_delta(2.82 + 15, @fragment.height)
-    end
-
-    it "calculates the baseline offset" do
-      assert_in_delta(2.82 + 15, @fragment.baseline_offset)
+      assert_in_delta(4.34 + 15, @fragment.height)
     end
   end
 
@@ -198,5 +199,10 @@ describe HexaPDF::Layout::TextFragment do
     it "calculates the width" do
       assert_in_delta(82.88, @fragment.width)
     end
+  end
+
+  it "can be inspected" do
+    frag = setup_fragment(@font.decode_utf8("H"))
+    assert_match(/:H/, frag.inspect)
   end
 end

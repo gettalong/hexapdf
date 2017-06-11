@@ -51,21 +51,23 @@ module HexaPDF
 
       # Shapes the given text fragment in-place.
       #
-      # The following shaping options are supported:
+      # The following shaping options, retrieved from the text fragment's Style#font_features, are
+      # supported:
       #
       # :kern:: Pair-wise kerning.
       # :liga:: Ligature substitution.
       def shape_text(text_fragment)
-        if text_fragment.options[:liga] && text_fragment.font.wrapped_font.features.include?(:liga)
-          if text_fragment.font.font_type == :Type1
+        font = text_fragment.style.font
+        if text_fragment.style.font_features[:liga] && font.wrapped_font.features.include?(:liga)
+          if font.font_type == :Type1
             process_type1_ligatures(text_fragment)
           end
           text_fragment.clear_cache
         end
-        if text_fragment.options[:kern] && text_fragment.font.wrapped_font.features.include?(:kern)
-          if text_fragment.font.font_type == :TrueType
+        if text_fragment.style.font_features[:kern] && font.wrapped_font.features.include?(:kern)
+          if font.font_type == :TrueType
             process_true_type_kerning(text_fragment)
-          elsif text_fragment.font.font_type == :Type1
+          elsif font.font_type == :Type1
             process_type1_kerning(text_fragment)
           end
           text_fragment.clear_cache
@@ -77,11 +79,12 @@ module HexaPDF
 
       # Processes the text fragment and substitutes ligatures.
       def process_type1_ligatures(text_fragment)
-        pairs = text_fragment.font.wrapped_font.metrics.ligature_pairs
         items = text_fragment.items
+        font = text_fragment.style.font
+        pairs = font.wrapped_font.metrics.ligature_pairs
         each_glyph_pair(items) do |left_item, right_item, left, right|
           if (ligature = pairs.dig(left_item.id, right_item.id))
-            items[left..right] = text_fragment.font.glyph(ligature)
+            items[left..right] = font.glyph(ligature)
             left
           else
             right
@@ -91,7 +94,7 @@ module HexaPDF
 
       # Processes the text fragment and does pair-wise kerning.
       def process_type1_kerning(text_fragment)
-        pairs = text_fragment.font.wrapped_font.metrics.kerning_pairs
+        pairs = text_fragment.style.font.wrapped_font.metrics.kerning_pairs
         items = text_fragment.items
         each_glyph_pair(items) do |left_item, right_item, left, right|
           if (left + 1 == right) && (kerning = pairs.dig(left_item.id, right_item.id))
@@ -105,12 +108,12 @@ module HexaPDF
 
       # Processes the text fragment and does pair-wise kerning.
       def process_true_type_kerning(text_fragment)
-        table = text_fragment.font.wrapped_font[:kern].horizontal_kerning_subtable
-        scaling_factor = text_fragment.font.scaling_factor
+        font = text_fragment.style.font
+        table = font.wrapped_font[:kern].horizontal_kerning_subtable
         items = text_fragment.items
         each_glyph_pair(items) do |left_item, right_item, left, right|
           if (left + 1 == right) && (kerning = table.kern(left_item.id, right_item.id))
-            items.insert(right, -kerning * scaling_factor)
+            items.insert(right, -kerning * font.scaling_factor)
             right + 1
           else
             right
