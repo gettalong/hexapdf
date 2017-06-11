@@ -12,6 +12,10 @@ describe HexaPDF::Font::Type1Wrapper do
     @symbol_wrapper = HexaPDF::Font::Type1Wrapper.new(@doc, FONT_SYMBOL)
   end
 
+  it "returns 1 for the scaling factor" do
+    assert_equal(1, @times_wrapper.scaling_factor)
+  end
+
   describe "decode_utf8" do
     it "returns an array of glyph objects" do
       assert_equal([:T, :e, :s, :t], @times_wrapper.decode_utf8("Test").map(&:name))

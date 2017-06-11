@@ -140,6 +140,11 @@ module HexaPDF
         :Type1
       end
 
+      # Returns 1 since all Type1 fonts use 1000 units for the em-square.
+      def scaling_factor
+        1
+      end
+
       # Returns a Glyph object for the given glyph name.
       def glyph(name)
         @name_to_glyph[name] ||=
