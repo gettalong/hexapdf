@@ -11,7 +11,7 @@
 # usual.
 #
 # Usage:
-# : `ruby truetype.pdf [FONT_FILE]`
+# : `ruby truetype.rb [FONT_FILE]`
 #
 
 require 'hexapdf'
