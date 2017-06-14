@@ -2,6 +2,7 @@
 
 ### Added
 
+* [HexaPDF::Layout::TextBox] for easy positioning and layouting of text
 * [HexaPDF::Layout::LineFragment] for single text line layout calculations
 * [HexaPDF::Layout::TextShaper] for text shaping functionality
 * [HexaPDF::Layout::TextFragment] for basic text metrics calculations
