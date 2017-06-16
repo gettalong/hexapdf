@@ -124,6 +124,7 @@ module HexaPDF
       #   Style.new(font_size: 15, align: :center, valign: center)
       def initialize(**options)
         options.each {|key, value| send(key, value)}
+        @scaled_item_widths = {}
       end
 
       ##
@@ -330,6 +331,23 @@ module HexaPDF
         @descender ||= font.wrapped_font.descender * font.scaling_factor * font_size / 1000
       end
 
+      # Returns the width of the item scaled appropriately (by taking font size, characters spacing,
+      # word spacing and horizontal scaling into account).
+      #
+      # The item may be a (singleton) glyph object or an integer/float, i.e. items that can appear
+      # inside a TextFragment.
+      def scaled_item_width(item)
+        @scaled_item_widths[item.object_id] ||=
+          begin
+            if item.kind_of?(Numeric)
+              -item * scaled_font_size
+            else
+              item.width * scaled_font_size + scaled_character_spacing +
+                (item.apply_word_spacing? ? scaled_word_spacing : 0)
+            end
+          end
+      end
+
       # Clears all cached values.
       #
       # This method needs to be called if the following style properties are changed and values were
@@ -338,6 +356,7 @@ module HexaPDF
       def clear_cache
         @scaled_font_size = @scaled_character_spacing = @scaled_word_spacing = nil
         @scaled_horizontal_scaling = @ascender = @descender = nil
+        @scaled_item_widths.clear
       end
 
     end

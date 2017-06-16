@@ -132,7 +132,7 @@ module HexaPDF
       # in PDF1.7 s9.4.4. By using kerning values as the first and/or last items, the text contained
       # in the fragment may spill over the left and/or right boundary.
       def width
-        @width ||= calculate_width
+        @width ||= @items.sum {|item| style.scaled_item_width(item)}
       end
 
       # The height of the text fragment.
@@ -198,19 +198,6 @@ module HexaPDF
         (glyph.x_max <= 0 ? 0 : glyph.width - glyph.x_max) * style.scaled_font_size +
           style.scaled_character_spacing +
           (glyph.apply_word_spacing? ? style.scaled_word_spacing : 0)
-      end
-
-      def calculate_width
-        @items.sum {|item| scaled_item_width(item)}
-      end
-
-      def scaled_item_width(item)
-        if item.kind_of?(Numeric)
-          -item * style.scaled_font_size
-        else
-          item.width * style.scaled_font_size + style.scaled_character_spacing +
-            (item.apply_word_spacing? ? style.scaled_word_spacing : 0)
-        end
       end
 
     end
