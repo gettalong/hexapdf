@@ -29,14 +29,14 @@ describe HexaPDF::Layout::TextShaper do
         insert(0, 100), liga: true)
       @shaper.shape_text(fragment)
       assert_equal([100, :fi, :s, :h, :space, :fi, :s, :h, :space, :fi],
-                   fragment.items.map {|item| item.glyph? ? item.id : item})
+                   fragment.items.map {|item| item.kind_of?(Numeric) ? item : item.id})
     end
 
     it "handles kerning" do
       fragment = setup_fragment(@font.decode_utf8('fish fish wow').insert(1, 100), kern: true)
       @shaper.shape_text(fragment)
       assert_equal([:f, 100, :i, :s, :h, :space, :f, 20, :i, :s, :h, :space, :w, 10, :o, 25, :w],
-                   fragment.items.map {|item| item.glyph? ? item.id : item})
+                   fragment.items.map {|item| item.kind_of?(Numeric) ? item : item.id})
     end
   end
 
@@ -56,7 +56,7 @@ describe HexaPDF::Layout::TextShaper do
       fragment = setup_fragment(@font.decode_utf8('Top Top').insert(1, 100), kern: true)
       @shaper.shape_text(fragment)
       assert_equal([53, [100], 80, [10], 81, 3, 53, [20], 80, [10], 81],
-                   fragment.items.map {|item| item.glyph? ? item.id : [item]})
+                   fragment.items.map {|item| item.kind_of?(Numeric) ? [item] : item.id})
     end
   end
 end

@@ -198,13 +198,14 @@ module HexaPDF
               while i < item.items.size
                 # Collect characters and kerning values until break character is encountered
                 box_items = []
-                while (glyph = item.items[i]) && (!glyph.glyph? || !BREAK_RE.match?(glyph.str))
+                while (glyph = item.items[i]) &&
+                    (glyph.kind_of?(Numeric) || !BREAK_RE.match?(glyph.str))
                   box_items << glyph
                   i += 1
                 end
 
                 # A hyphen belongs to the text fragment
-                box_items << glyph if glyph&.glyph? && glyph.str == '-'.freeze
+                box_items << glyph if glyph && !glyph.kind_of?(Numeric) && glyph.str == '-'.freeze
 
                 unless box_items.empty?
                   result << Box.new(TextFragment.new(items: box_items.freeze, style: item.style))
@@ -219,7 +220,7 @@ module HexaPDF
                   when "\n", "\v", "\f", "\u{85}", "\u{2028}", "\u{2029}"
                     result << Penalty::MandatoryBreak
                   when "\r"
-                    if !item.items[i + 1]&.glyph? || item.items[i + 1].str != "\n"
+                    if item.items[i + 1]&.kind_of?(Numeric) || item.items[i + 1].str != "\n"
                       result << Penalty::MandatoryBreak
                     end
                   when '-'
@@ -470,7 +471,7 @@ module HexaPDF
         line.items.each_with_index do |item, item_index|
           next if item.kind_of?(InlineBox)
           item.items.each_with_index do |glyph, glyph_index|
-            if glyph.glyph? && glyph.str == ' '.freeze
+            if !glyph.kind_of?(Numeric) && glyph.str == ' '.freeze
               sum += glyph.width * item.style.scaled_font_size
               indexes << item_index << glyph_index
             end

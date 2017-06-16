@@ -49,10 +49,6 @@ module HexaPDF
         def y_max
           0
         end
-
-        def glyph?
-          false
-        end
       end
     end
 

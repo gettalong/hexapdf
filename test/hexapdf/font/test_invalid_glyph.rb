@@ -23,10 +23,6 @@ describe HexaPDF::Font::InvalidGlyph do
     assert_equal(0, @glyph.y_max)
   end
 
-  it "is a glyph" do
-    assert(@glyph.glyph?)
-  end
-
   it "doesn't allow the application of word spacing" do
     refute(@glyph.apply_word_spacing?)
   end

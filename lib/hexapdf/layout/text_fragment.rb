@@ -169,26 +169,26 @@ module HexaPDF
       private
 
       def calculate_x_min
-        if !@items.empty? && @items[0].glyph?
+        if !@items.empty? && !@items[0].kind_of?(Numeric)
           @items[0].x_min * style.scaled_font_size
         else
           @items.inject(0) do |sum, item|
             sum += item.x_min * style.scaled_font_size
-            break sum if item.glyph?
+            break sum unless item.kind_of?(Numeric)
             sum
           end
         end
       end
 
       def calculate_x_max
-        if !@items.empty? && @items[-1].glyph?
+        if !@items.empty? && !@items[0].kind_of?(Numeric)
           width - scaled_glyph_right_side_bearing(@items[-1])
         else
           @items.reverse_each.inject(width) do |sum, item|
-            if item.glyph?
-              break sum - scaled_glyph_right_side_bearing(item)
-            else
+            if item.kind_of?(Numeric)
               sum + item * style.scaled_font_size
+            else
+              break sum - scaled_glyph_right_side_bearing(item)
             end
           end
         end
@@ -205,11 +205,11 @@ module HexaPDF
       end
 
       def scaled_item_width(item)
-        if item.glyph?
+        if item.kind_of?(Numeric)
+          -item * style.scaled_font_size
+        else
           item.width * style.scaled_font_size + style.scaled_character_spacing +
             (item.apply_word_spacing? ? style.scaled_word_spacing : 0)
-        else
-          -item * style.scaled_font_size
         end
       end
 

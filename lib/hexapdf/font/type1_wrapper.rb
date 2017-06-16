@@ -89,11 +89,6 @@ module HexaPDF
           @name == :space
         end
 
-        # Returns +true+ because this object represents a glyph.
-        def glyph?
-          true
-        end
-
         #:nodoc:
         def inspect
           "#<#{self.class.name} font=#{@font.full_name.inspect} id=#{name.inspect} #{str.inspect}>"

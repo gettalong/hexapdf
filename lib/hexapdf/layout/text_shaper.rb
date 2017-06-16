@@ -134,14 +134,14 @@ module HexaPDF
         right = 1
         right_item = items[right]
         while left_item && right_item
-          if left_item.glyph? && right_item.glyph?
-            left = yield(left_item, right_item, left, right)
+          if left_item.kind_of?(Numeric)
+            left += 1
             left_item = items[left]
             right = left + 1
-          elsif left_item.glyph?
+          elsif right_item.kind_of?(Numeric)
             right += 1
           else
-            left += 1
+            left = yield(left_item, right_item, left, right)
             left_item = items[left]
             right = left + 1
           end
