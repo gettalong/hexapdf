@@ -183,7 +183,7 @@ module HexaPDF
 
         # Breaks are detected at: space, tab, zero-width-space, hyphen, soft-hypen and any valid
         # Unicode newline separator
-        BREAK_RE = /[ \u{A}-\u{D}\u{85}\u{2028}\u{2029}\t\u{8203}\u{00AD}-]/
+        BREAK_RE = /[ \u{A}-\u{D}\u{85}\u{2028}\u{2029}\t\u{200B}\u{00AD}-]/
 
         # Breaks the items (an array of InlineBox and TextFragment objects) into atomic pieces
         # wrapped by Box, Glue or Penalty items, and returns those as an array.
@@ -232,7 +232,7 @@ module HexaPDF
                     hyphen = item.style.font.decode_utf8("-").first
                     frag = TextFragment.new(items: [hyphen].freeze, style: item.style)
                     result << Penalty.new(50, frag.width, item: frag)
-                  when "\u{8203}"
+                  when "\u{200B}"
                     result << Penalty.new(0)
                   end
                 end

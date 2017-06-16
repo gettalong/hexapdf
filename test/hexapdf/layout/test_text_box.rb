@@ -123,7 +123,7 @@ describe HexaPDF::Layout::TextBox::SimpleTextSegmentation do
   end
 
   it "insert a neutral penalty in places where zero-width-spaces are" do
-    frag = setup_fragment("zero\u{8203}width\u{8203}space")
+    frag = setup_fragment("zero\u{200B}width\u{200B}space")
 
     result = @obj.call([frag])
     assert_equal(5, result.size)
