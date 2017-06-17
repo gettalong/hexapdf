@@ -3,6 +3,20 @@
 require 'test_helper'
 require 'hexapdf/document'
 
+describe HexaPDF::Layout::LineFragment::HeightCalculator do
+  before do
+    @calc = HexaPDF::Layout::LineFragment::HeightCalculator.new
+  end
+
+  it "simulate the height as if an item was added" do
+    @calc << HexaPDF::Layout::InlineBox.new(10, 20, valign: :baseline) {}
+    assert_equal([0, 20, 0, 0], @calc.result)
+    new_item = HexaPDF::Layout::InlineBox.new(10, 30, valign: :top) {}
+    assert_equal(30, @calc.simulate_height(new_item))
+    assert_equal([0, 20, 0, 0], @calc.result)
+  end
+end
+
 describe HexaPDF::Layout::LineFragment do
   before do
     @doc = HexaPDF::Document.new

@@ -88,6 +88,85 @@ module HexaPDF
     # #height:: The height of the item.
     class LineFragment
 
+      # Helper class for calculating the needed vertical dimensions of a line.
+      class HeightCalculator
+
+        # Creates a new calculator with the given initial items.
+        def initialize(items = [])
+          reset
+          items.each {|item| add(item)}
+        end
+
+        # Adds a new item to be considered when calculating the various dimensions.
+        def add(item)
+          case item.valign
+          when :text
+            @text_y_min = item.y_min if item.y_min < @text_y_min
+            @text_y_max = item.y_max if item.y_max > @text_y_max
+          when :baseline
+            @max_base_height = item.height if @max_base_height < item.height
+          when :top
+            @max_top_height = item.height if @max_top_height < item.height
+          when :text_top
+            @max_text_top_height = item.height if @max_text_top_height < item.height
+          when :bottom
+            @max_bottom_height = item.height if @max_bottom_height < item.height
+          when :text_bottom
+            @max_text_bottom_height = item.height if @max_text_bottom_height < item.height
+          else
+            raise HexaPDF::Error, "Unknown inline box alignment #{item.valign}"
+          end
+          self
+        end
+        alias_method :<<, :add
+
+        # Returns the result of the calculations, the array [y_min, y_max, text_y_min, text_y_max].
+        #
+        # See LineFragment for their meaning.
+        def result
+          y_min = [@text_y_max - @max_text_top_height, @text_y_min].min
+          y_max = [@text_y_min + @max_text_bottom_height, @max_base_height, @text_y_max].max
+          y_min = [y_max - @max_top_height, y_min].min
+          y_max = [y_min + @max_bottom_height, y_max].max
+
+          [y_min, y_max, @text_y_min, @text_y_max]
+        end
+
+        # Resets the calculation.
+        def reset
+          @text_y_min = 0
+          @text_y_max = 0
+          @max_base_height = 0
+          @max_top_height = 0
+          @max_text_top_height = 0
+          @max_bottom_height = 0
+          @max_text_bottom_height = 0
+        end
+
+        # Returns the height of the line as if +item+ was part of it but doesn't change the internal
+        # state.
+        def simulate_height(item)
+          text_y_min = @text_y_min
+          text_y_max = @text_y_max
+          max_base_height = @max_base_height
+          max_top_height = @max_top_height
+          max_text_top_height = @max_text_top_height
+          max_bottom_height = @max_bottom_height
+          max_text_bottom_height = @max_text_bottom_height
+          y_min, y_max, = add(item).result
+          y_max - y_min
+        ensure
+          @text_y_min = text_y_min
+          @text_y_max = text_y_max
+          @max_base_height = max_base_height
+          @max_top_height = max_top_height
+          @max_text_top_height = max_text_top_height
+          @max_bottom_height = max_bottom_height
+          @max_text_bottom_height = max_text_bottom_height
+        end
+
+      end
+
       # The items: TextFragment and InlineBox objects
       attr_accessor :items
 
@@ -244,40 +323,7 @@ module HexaPDF
       # In certain cases there is no unique solution to the values of #y_min and #y_max, for
       # example, it depends on the order of the calculations in part 3.
       def calculate_y_dimensions
-        @text_y_min = 0
-        @text_y_max = 0
-        max_top_height = 0
-        max_text_top_height = 0
-        max_bottom_height = 0
-        max_text_bottom_height = 0
-        max_base_height = 0
-
-        @items.each do |item|
-          case item.valign
-          when :text
-            @text_y_min = item.y_min if item.y_min < @text_y_min
-            @text_y_max = item.y_max if item.y_max > @text_y_max
-          when :baseline
-            max_base_height = item.height if max_base_height < item.height
-          when :top
-            max_top_height = item.height if max_top_height < item.height
-          when :text_top
-            max_text_top_height = item.height if max_text_top_height < item.height
-          when :bottom
-            max_bottom_height = item.height if max_bottom_height < item.height
-          when :text_bottom
-            max_text_bottom_height = item.height if max_text_bottom_height < item.height
-          else
-            raise HexaPDF::Error, "Unknown inline box alignment #{item.valign}"
-          end
-        end
-
-        @y_min = [@text_y_max - max_text_top_height, @text_y_min].min
-        @y_max = [@text_y_min + max_text_bottom_height, max_base_height, @text_y_max].max
-        @y_min = [@y_max - max_top_height, @y_min].min
-        @y_max = [@y_min + max_bottom_height, @y_max].max
-
-        [@y_min, @y_max, @text_y_min, @text_y_max]
+        @y_min, @y_max, @text_y_min, @text_y_max = HeightCalculator.new(@items).result
       end
 
     end
