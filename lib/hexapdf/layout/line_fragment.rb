@@ -91,9 +91,21 @@ module HexaPDF
       # The items: TextFragment and InlineBox objects
       attr_accessor :items
 
+      # An optional horizontal offset that should be taken into account when positioning the line.
+      attr_accessor :x_offset
+
+      # An optional vertical offset that should be taken into account when positioning the line.
+      #
+      # For the first line in a paragraph this describes the offset from the top of the box to the
+      # top of the line. For all other lines it describes the offset from the previous baseline to
+      # the baseline of this line.
+      attr_accessor :y_offset
+
       # Creates a new LineFragment object with the given items.
       def initialize(items: [])
         @items = items
+        @x_offset = 0
+        @y_offset = 0
       end
 
       # Adds the given item at the end of the item list.
