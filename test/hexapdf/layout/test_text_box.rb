@@ -150,7 +150,7 @@ describe HexaPDF::Layout::TextBox::SimpleLineWrapping do
 
   def call(items, width = 100)
     lines = []
-    rest = @obj.call(items, width) {|line| lines << line; width}
+    rest = @obj.call(items, width) {|line, _| lines << line; true }
     [rest, lines]
   end
 
@@ -215,7 +215,7 @@ describe HexaPDF::Layout::TextBox::SimpleLineWrapping do
     assert_same(item, lines[0].items[-1])
   end
 
-  describe "halts processing if nil is returned by the block" do
+  describe "halts processing if nil/false is returned by the block" do
     it "works when the last item on a line is a box" do
       lines = []
       rest = @obj.call(boxes(20, 20, 20), 20) {|line| lines.count > 0 ? nil : (lines << line; 20)}
@@ -252,6 +252,7 @@ describe HexaPDF::Layout::TextBox do
   before do
     @doc = HexaPDF::Document.new
     @font = @doc.fonts.load("Times")
+    @style = HexaPDF::Layout::Style.new(font: @font)
   end
 
   it "creates an instance from text and options" do
@@ -273,7 +274,8 @@ describe HexaPDF::Layout::TextBox do
 
   describe "fit" do
     it "handles text indentation" do
-      box = HexaPDF::Layout::TextBox.new(items: boxes([20, 20], [20, 20], [20, 20]), width: 60)
+      box = HexaPDF::Layout::TextBox.new(items: boxes([20, 20], [20, 20], [20, 20]), width: 60,
+                                         style: @style)
       box.style.text_indent = 20
       rest, height = box.fit
       assert_equal(60, box.lines[0].width)
@@ -283,25 +285,52 @@ describe HexaPDF::Layout::TextBox do
     end
 
     it "fits using unlimited height" do
-      box = HexaPDF::Layout::TextBox.new(items: boxes(*([[20, 20]] * 100)), width: 20)
+      box = HexaPDF::Layout::TextBox.new(items: boxes(*([[20, 20]] * 100)), width: 20,
+                                         style: @style)
       rest, height = box.fit
       assert(rest.empty?)
       assert_equal(20 * 100, height)
     end
 
     it "fits using a limited height" do
-      box = HexaPDF::Layout::TextBox.new(items: boxes(*([[20, 20]] * 100)), width: 20, height: 100)
+      box = HexaPDF::Layout::TextBox.new(items: boxes(*([[20, 20]] * 100)), width: 20, height: 100,
+                                         style: @style)
       rest, height = box.fit
       assert_equal(95, rest.count)
       assert_equal(100, height)
     end
 
     it "takes line spacing into account when calculating the height" do
-      box = HexaPDF::Layout::TextBox.new(items: boxes(*([[20, 20]] * 5)), width: 20)
+      box = HexaPDF::Layout::TextBox.new(items: boxes(*([[20, 20]] * 5)), width: 20, style: @style)
       box.style.line_spacing = :double
       rest, height = box.fit
       assert(rest.empty?)
       assert_equal(20 * (5 + 4), height)
+    end
+
+    it "handles empty lines" do
+      items = boxes([20, 20]) + [penalty(-5000)] + boxes([30, 20]) + [penalty(-5000)] * 2 +
+        boxes([20, 20]) + [penalty(-5000)] * 2
+      box = HexaPDF::Layout::TextBox.new(items: items, width: 30, style: @style)
+      rest, height = box.fit
+      assert(rest.empty?)
+      assert_equal(5, box.lines.count)
+      assert_equal(20 + 20 + 9 + 20 + 9, height)
+    end
+
+    it "stops if an item is wider than the available width, with unlimited height" do
+      box = HexaPDF::Layout::TextBox.new(items: boxes([20, 20], [50, 20]), width: 30, style: @style)
+      rest, height = box.fit
+      assert_equal(1, rest.count)
+      assert_equal(20, height)
+    end
+
+    it "stops if an item is wider than the available width, with limited height" do
+      box = HexaPDF::Layout::TextBox.new(items: boxes([20, 20], [50, 20]), width: 30, height: 100,
+                                         style: @style)
+      rest, height = box.fit
+      assert_equal(1, rest.count)
+      assert_equal(20, height)
     end
 
     it "post-processes lines for justification if needed" do

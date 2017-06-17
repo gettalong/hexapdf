@@ -251,54 +251,70 @@ module HexaPDF
       module SimpleLineWrapping
 
         # :call-seq:
-        #   SimpleLineWrapping.call(items, available_width) {|line| block }   -> rest
+        #   SimpleLineWrapping.call(items, available_width) {|line, item| block }   -> rest
         #
         # Arranges the items into lines.
         #
-        # The +available_width+ specifies the width of the first line. Every time a line is
-        # completed, it is yielded to the block. The block needs to return the new value for the
-        # available width. If +nil+ is returned, it indicates that the algorithm should stop.
+        # The +available_width+ argument can either be a simple number or a callable object:
+        #
+        # * If all lines should have the same width, the +available_width+ argument should be a
+        #   number. This is the general case.
+        #
+        # * However, if lines should have varying lengths (e.g. for flowing text around shapes), the
+        #   +available_width+ argument should be an object responding to #call(line_height) where
+        #   +line_height+ is the height of the currently layed out line. The caller is responsible
+        #   for tracking the height of the already layed out lines. The result of the method call
+        #   should be the available width.
+        #
+        # Regardless of whether varying line widths are used or not, each time a line is finished,
+        # it is yielded to the caller. The second argument +item+ is the TextFragment or InlineBox
+        # that doesn't fit anymore, or +nil+ in case of mandatory line breaks or when the line break
+        # occured at a glue item. If the yielded line is empty and the yielded item is not +nil+,
+        # this single item doesn't fit into the available width; the caller has to handle this
+        # situation, e.g. by stopping.
         #
         # After the algorithm is finished, it returns the unused items.
         def self.call(items, available_width)
+          index = 0
+          beginning_of_line_index = 0
           line = LineFragment.new
           width = 0
-          index = 0
-          last_line_index = 0
-          last_item = nil
+          glue_item = nil
 
           while (item = items[index])
             case item.type
             when :box
               if width + item.width <= available_width
-                line << last_item.item if last_item&.type == :glue
+                line << glue_item if glue_item
                 line << item.item
                 width += item.width
+                glue_item = nil
               else
-                break unless (available_width = yield(line))
-                last_line_index = index
-                line = LineFragment.new(items: [item.item])
-                width = item.width
+                break unless yield(line, item.item)
+                beginning_of_line_index = index
+                line = LineFragment.new
+                width = 0
+                glue_item = nil
+                redo
               end
             when :glue
               if width + item.width <= available_width
-                if line.items.empty? # ignore glue at beginning of line
-                  item = nil
-                else
+                unless line.items.empty? # ignore glue at beginning of line
+                  glue_item = item.item
                   width += item.width
                 end
               else
-                break unless (available_width = yield(line))
-                last_line_index = index + 1
+                break unless yield(line, nil)
+                beginning_of_line_index = index + 1
                 line = LineFragment.new
                 width = 0
-                item = nil # ignore glue at beginning of line
+                glue_item = nil # ignore glue at beginning of line
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
                 line.ignore_justification!
-                break unless (available_width = yield(line))
-                last_line_index = index + 1
+                break unless yield(line, nil)
+                beginning_of_line_index = index + 1
                 line = LineFragment.new
                 width = 0
               elsif item.width > 0 && width + item.width <= available_width
@@ -306,14 +322,14 @@ module HexaPDF
                 next_item = items[next_index]
                 next_item = items[n_index += 1] while next_item && next_item.type == :penalty
                 if next_item && width + next_item.width > available_width
-                  line << last_item if last_item&.type == :glue
+                  line << glue_item if glue_item
                   line << item.item
                   width += item.width
+                  glue_item = nil
                 end
               end
             end
 
-            last_item = item
             index += 1
           end
 
@@ -321,8 +337,9 @@ module HexaPDF
           last_line_used = true
           last_line_used = yield(line) if available_width && !line.items.empty?
 
-          item.nil? && last_line_used ? [] : items[last_line_index..-1]
+          item.nil? && last_line_used ? [] : items[beginning_of_line_index..-1]
         end
+
       end
 
 
@@ -396,13 +413,18 @@ module HexaPDF
           items = [Box.new(InlineBox.new(style.text_indent, 0) { })].concat(items)
         end
 
-        rest = style.text_line_wrapping_algorithm.call(items, @width) do |line|
+        rest = style.text_line_wrapping_algorithm.call(items, @width) do |line, item|
+          line << TextFragment.new(items: [], style: style) if item.nil? && line.items.empty?
           new_height = @actual_height + line.height +
             (@lines.empty? ? 0 : style.line_spacing.gap(@lines.last, line))
-          if new_height <= @height
+
+          if new_height <= @height && !line.items.empty?
+            # valid line found, use it
             @actual_height = new_height
-            @lines << maybe_justify_line(line)
-            @width
+            line.x_offset = horizontal_alignment_offset(line, @width)
+            line.y_offset = style.line_spacing.baseline_distance(@lines.last, line) if @lines.last
+            @lines << line
+            true
           else
             nil
           end
@@ -413,20 +435,21 @@ module HexaPDF
 
       # Draws the text box onto the canvas with the top-left corner being at [x, y].
       #
-      # Fitting the text depends on the value of +fit+:
+      # Depending on the value of +fit+ the text may also be fitted:
       #
       # * If +true+, then #fit is always called.
       # * If +:if_needed+, then #fit is only called if it has been called before.
       # * If +false+, then #fit is never called.
       def draw(canvas, x, y, fit: :if_needed)
         self.fit if fit == true || (!@actual_height && fit == :if_needed)
+        return if @lines.empty?
 
         canvas.save_graphics_state do
-          y -= initial_baseline_offset
+          y -= initial_baseline_offset + @lines.first.y_offset
           @lines.each_with_index do |line, index|
-            x_offset = x + horizontal_alignment_offset(line)
-            line.each {|item, item_x, item_y| item.draw(canvas, x_offset + item_x, y + item_y) }
-            y -= style.line_spacing.baseline_distance(line, @lines[index + 1]) if @lines[index + 1]
+            line_x = x + line.x_offset
+            line.each {|item, item_x, item_y| item.draw(canvas, line_x + item_x, y + item_y) }
+            y -= @lines[index + 1].y_offset if @lines[index + 1]
           end
         end
       end
@@ -453,18 +476,18 @@ module HexaPDF
       end
 
       # Returns the horizontal offset from the left side, based on the align style option.
-      def horizontal_alignment_offset(line)
+      def horizontal_alignment_offset(line, available_width)
         case style.align
-        when :left, :justify then 0
-        when :center then (@width - line.width) / 2
-        when :right then @width - line.width
+        when :left then 0
+        when :center then (available_width - line.width) / 2
+        when :right then available_width - line.width
+        when :justify then (justify_line(line, available_width); 0)
         end
       end
 
-      # Justifies the given line if necessary and returns it.
-      def maybe_justify_line(line)
-        return line if style.align != :justify || line.ignore_justification? ||
-          (@width - line.width).abs < 0.001
+      # Justifies the given line.
+      def justify_line(line, width)
+        return if line.ignore_justification? || (width - line.width).abs < 0.001
 
         indexes = []
         sum = 0.0
@@ -479,7 +502,7 @@ module HexaPDF
         end
 
         if sum > 0
-          adjustment = (@width - line.width) / sum
+          adjustment = (width - line.width) / sum
           i = indexes.length - 2
           while i >= 0
             frag = line.items[indexes[i]]
@@ -495,8 +518,6 @@ module HexaPDF
           end
           line.clear_cache
         end
-
-        line
       end
 
     end
