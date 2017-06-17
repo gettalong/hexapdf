@@ -209,12 +209,11 @@ module HexaPDF
       # :call-seq:
       #   line_fragment.clear_cache   -> line_fragment
       #
-      # Clears all cached values and calls #clear_cache on items that support it.
+      # Clears all cached values.
       #
       # This method needs to be called if the fragment's items are changed!
       def clear_cache
         @x_max = @y_min = @y_max = @text_y_min = @text_y_max = @width = nil
-        @items.each {|item| item.respond_to?(:clear_cache) && item.clear_cache }
         self
       end
 

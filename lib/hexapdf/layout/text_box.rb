@@ -489,6 +489,7 @@ module HexaPDF
               line.items.insert(indexes[i], value)
             else
               frag.items.insert(indexes[i + 1], value)
+              frag.clear_cache
             end
             i -= 2
           end
