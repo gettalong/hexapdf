@@ -355,52 +355,52 @@ describe HexaPDF::Layout::TextBox do
     it "can horizontally align the contents to the left" do
       top = 100
       @box.style.align = :left
-      @box.draw(@canvas, 0, top)
+      @box.draw(@canvas, 5, top)
       assert_positions(@canvas.contents,
-                       [[0, top - @frag.y_max],
-                        [0, top - @frag.y_max - @frag.height],
-                        [0, top - @frag.y_max - @frag.height * 2],
-                        [0, top - @frag.y_max - @frag.height * 3]])
+                       [[5, top - @frag.y_max],
+                        [5, top - @frag.y_max - @frag.height],
+                        [5, top - @frag.y_max - @frag.height * 2],
+                        [5, top - @frag.y_max - @frag.height * 3]])
     end
 
     it "can horizontally align the contents to the center" do
       top = 100
       @box.style.align = :center
-      @box.draw(@canvas, 0, top)
+      @box.draw(@canvas, 5, top)
       assert_positions(@canvas.contents,
-                       [[(@width - @line1w) / 2, top - @frag.y_max],
-                        [(@width - @line2w) / 2, top - @frag.y_max - @frag.height],
-                        [(@width - @line1w) / 2, top - @frag.y_max - @frag.height * 2],
-                        [(@width - @line2w) / 2, top - @frag.y_max - @frag.height * 3]])
+                       [[5 + (@width - @line1w) / 2, top - @frag.y_max],
+                        [5 + (@width - @line2w) / 2, top - @frag.y_max - @frag.height],
+                        [5 + (@width - @line1w) / 2, top - @frag.y_max - @frag.height * 2],
+                        [5 + (@width - @line2w) / 2, top - @frag.y_max - @frag.height * 3]])
     end
 
     it "can horizontally align the contents to the right" do
       top = 100
       @box.style.align = :right
-      @box.draw(@canvas, 0, top)
+      @box.draw(@canvas, 5, top)
       assert_positions(@canvas.contents,
-                       [[@width - @line1w, top - @frag.y_max],
-                        [@width - @line2w, top - @frag.y_max - @frag.height],
-                        [@width - @line1w, top - @frag.y_max - @frag.height * 2],
-                        [@width - @line2w, top - @frag.y_max - @frag.height * 3]])
+                       [[5 + @width - @line1w, top - @frag.y_max],
+                        [5 + @width - @line2w, top - @frag.y_max - @frag.height],
+                        [5 + @width - @line1w, top - @frag.y_max - @frag.height * 2],
+                        [5 + @width - @line2w, top - @frag.y_max - @frag.height * 3]])
     end
 
     it "can justify the contents" do
       top = 100
       @box.style.align = :justify
-      @box.draw(@canvas, 0, top)
+      @box.draw(@canvas, 5, top)
       assert_positions(@canvas.contents,
-                       [[0, top - @frag.y_max],
-                        [0, top - @frag.y_max - @frag.height],
-                        [0, top - @frag.y_max - @frag.height * 2],
-                        [0, top - @frag.y_max - @frag.height * 3]])
+                       [[5, top - @frag.y_max],
+                        [5, top - @frag.y_max - @frag.height],
+                        [5, top - @frag.y_max - @frag.height * 2],
+                        [5, top - @frag.y_max - @frag.height * 3]])
       assert_in_delta(@width, @box.lines[0].width, 0.0001)
       assert_in_delta(@width, @box.lines[2].width, 0.0001)
     end
 
     it "doesn't justify lines ending in a mandatory break or the last line" do
       @box.style.align = :justify
-      @box.draw(@canvas, 0, 100)
+      @box.draw(@canvas, 5, 100)
       assert_equal(@line2w, @box.lines[1].width, 0.0001)
       assert_equal(@line2w, @box.lines[3].width, 0.0001)
     end
@@ -412,12 +412,12 @@ describe HexaPDF::Layout::TextBox do
 
       _, height = @box.fit
       initial_baseline = top - ((top - height) / 2) - @frag.y_max
-      @box.draw(@canvas, 0, top)
+      @box.draw(@canvas, 5, top)
       assert_positions(@canvas.contents,
-                       [[0, initial_baseline],
-                        [0, initial_baseline - @frag.height],
-                        [0, initial_baseline - @frag.height * 2],
-                        [0, initial_baseline - @frag.height * 3]])
+                       [[5, initial_baseline],
+                        [5, initial_baseline - @frag.height],
+                        [5, initial_baseline - @frag.height * 2],
+                        [5, initial_baseline - @frag.height * 3]])
     end
 
     it "can vertically align the contents to the bottom" do
@@ -427,12 +427,12 @@ describe HexaPDF::Layout::TextBox do
 
       _, height = @box.fit
       initial_baseline = height - @frag.y_max
-      @box.draw(@canvas, 0, top)
+      @box.draw(@canvas, 5, top)
       assert_positions(@canvas.contents,
-                       [[0, initial_baseline],
-                        [0, initial_baseline - @frag.height],
-                        [0, initial_baseline - @frag.height * 2],
-                        [0, initial_baseline - @frag.height * 3]])
+                       [[5, initial_baseline],
+                        [5, initial_baseline - @frag.height],
+                        [5, initial_baseline - @frag.height * 2],
+                        [5, initial_baseline - @frag.height * 3]])
     end
 
     it "raises an error if vertical alignment is :center/:bottom and an unlimited height is used" do
