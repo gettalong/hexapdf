@@ -98,7 +98,7 @@ describe HexaPDF::Layout::LineFragment do
         assert_equal(y_values, [@line.y_min, @line.y_max, @line.text_y_min, @line.text_y_max])
       end
 
-      it "changes y_max to fit if baseline/text_bottom/bottom boxes are higher than the text" do
+      it "changes y_max to fit if baseline boxes are higher than the text" do
         y_min = @line.y_min
         box = setup_box(10, 50, :baseline)
         @line.add(box)
@@ -106,13 +106,23 @@ describe HexaPDF::Layout::LineFragment do
         @line.clear_cache
         assert_equal(50, @line.y_max)
         assert_equal(y_min, @line.y_min)
+      end
 
-        box.instance_variable_set(:@valign, :text_bottom)
+      it "changes y_max to fit if text_bottom boxes are higher than the text" do
+        y_min = @line.y_min
+        box = setup_box(10, 50, :text_bottom)
+        @line.add(box)
+
         @line.clear_cache
         assert_equal(50 + @line.text_y_min, @line.y_max)
         assert_equal(y_min, @line.y_min)
+      end
 
-        box.instance_variable_set(:@valign, :bottom)
+      it "changes y_max to fit if bottom boxes are higher than the text" do
+        y_min = @line.y_min
+        box = setup_box(10, 50, :bottom)
+        @line.add(box)
+
         @line.clear_cache
         assert_equal(50 + @line.text_y_min, @line.y_max)
         assert_equal(y_min, @line.y_min)
