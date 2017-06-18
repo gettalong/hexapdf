@@ -5,7 +5,7 @@ require 'hexapdf/layout'
 require 'hexapdf/document'
 require_relative "../content/common"
 
-module TestTextBox
+module TestTextBoxHelpers
   def boxes(*dims)
     dims.map do |width, height|
       box = HexaPDF::Layout::InlineBox.new(width, height || 0) {}
@@ -51,7 +51,7 @@ module TestTextBox
 end
 
 describe HexaPDF::Layout::TextBox::SimpleTextSegmentation do
-  include TestTextBox
+  include TestTextBoxHelpers
 
   before do
     @doc = HexaPDF::Document.new
@@ -141,18 +141,12 @@ describe HexaPDF::Layout::TextBox::SimpleTextSegmentation do
   end
 end
 
-describe HexaPDF::Layout::TextBox::SimpleLineWrapping do
-  include TestTextBox
+# Common tests for fixed and variable width line wrapping. The including class needs to define a
+# #call(items, width = 100) method with a default with of 100.
+module CommonLineWrappingTests
+  extend Minitest::Spec::DSL
 
-  before do
-    @obj = HexaPDF::Layout::TextBox::SimpleLineWrapping
-  end
-
-  def call(items, width = 100)
-    lines = []
-    rest = @obj.call(items, width) {|line, _| lines << line; true }
-    [rest, lines]
-  end
+  include TestTextBoxHelpers
 
   it "breaks before a box if it doesn't fit onto the line anymore" do
     rest, lines = call(boxes(25, 50, 25, 10))
@@ -232,39 +226,110 @@ describe HexaPDF::Layout::TextBox::SimpleLineWrapping do
     assert_same(item, lines[0].items[-1])
   end
 
-  describe "halts processing if nil/false is returned by the block" do
-    it "works when the last item on a line is a box" do
+  it "stops when nil is returned by the block: last item is a box" do
+    lines = []
+    rest = @obj.call(boxes(20, 20, 20), 20) {|line| lines << line; lines.count > 1 ? nil : true}
+    assert_equal(2, rest.count)
+    assert_equal(2, lines.count)
+  end
+
+  it "stops when nil is returned by the block: last item is a glue" do
+    done = false
+    items = boxes(20, 15, 20).insert(-2, glue(10))
+    rest = @obj.call(items, 20) { done ? nil : (done = true; 20) }
+    assert_equal(3, rest.count)
+    assert_equal(15, rest[0].width)
+  end
+
+  it "stops when nil is returned by the block: last item is a mandatory break penalty" do
+    items = boxes(20, 20).insert(-2, penalty(-5000))
+    rest = @obj.call(items, 20) { nil }
+    assert_equal(3, rest.count)
+  end
+
+  it "stops when nil is returned by the block: works for the last line" do
+    lines = []
+    rest = @obj.call(boxes(20, 20), 20) {|line| lines << line; lines.count > 1 ? nil : true}
+    assert_equal(1, rest.count)
+    assert_equal(2, lines.count)
+  end
+
+end
+
+describe HexaPDF::Layout::TextBox::SimpleLineWrapping do
+  before do
+    @obj = HexaPDF::Layout::TextBox::SimpleLineWrapping
+  end
+
+  describe "fixed width wrapping" do
+    include CommonLineWrappingTests
+
+    def call(items, width = 100)
       lines = []
-      rest = @obj.call(boxes(20, 20, 20), 20) {|line| lines.count > 0 ? nil : (lines << line; 20)}
-      assert_equal(2, rest.count)
-      assert_equal(1, lines.count)
+      rest = @obj.call(items, width) {|line, _| lines << line; true }
+      [rest, lines]
     end
+  end
 
-    it "works when the last item on a line is a glue" do
-      done = false
-      items = boxes(20, 15, 20).insert(-2, glue(10))
-      rest = @obj.call(items, 20) { done ? nil : (done = true; 20) }
-      assert_equal(3, rest.count)
-      assert_equal(15, rest[0].width)
-    end
+  describe "variable width wrapping" do
+    include CommonLineWrappingTests
 
-    it "works when the last item on a line is a mandatory break penalty" do
-      items = boxes(20, 20).insert(-2, penalty(-5000))
-      rest = @obj.call(items, 20) { nil }
-      assert_equal(3, rest.count)
-    end
-
-    it "works for the last line" do
+    def call(items, width = proc { 100 })
       lines = []
-      rest = @obj.call(boxes(20, 20), 20) {|line| lines.count > 0 ? nil : (lines << line; 20)}
-      assert_equal(1, rest.count)
-      assert_equal(1, lines.count)
+      rest = @obj.call(items, width) {|line, _| lines << line; true }
+      [rest, lines]
+    end
+
+    it "handles changing widths" do
+      height = 0
+      width_block = lambda do |line_height|
+        case height + line_height
+        when 0..10 then 60
+        when 11..20 then 40
+        when 21..30 then 20
+        else 60
+        end
+      end
+      lines = []
+      rest = @obj.call(boxes([20, 10], [10, 10], [20, 15], [40, 10]), width_block) do |line|
+        height += line.height
+        lines << line
+        true
+      end
+      assert(rest.empty?)
+      assert_equal(3, lines.size)
+      assert_equal(30, lines[0].width)
+      assert_equal(20, lines[1].width)
+      assert_equal(40, lines[2].width)
+    end
+
+    it "handles changing widths when breaking on a penalty" do
+      height = 0
+      width_block = lambda do |line_height|
+        case height + line_height
+        when 0..10 then 80
+        else 50
+        end
+      end
+      lines = []
+      item = HexaPDF::Layout::InlineBox.new(20, 10) {}
+      items = boxes([20, 10]) + [penalty(0, item)] + boxes([40, 15])
+      rest = @obj.call(items, width_block) do |line|
+        height += line.height
+        lines << line
+        true
+      end
+      assert(rest.empty?)
+      assert_equal(2, lines.size)
+      assert_equal(40, lines[0].width)
+      assert_equal(40, lines[1].width)
+      assert_equal(25, height)
     end
   end
 end
 
 describe HexaPDF::Layout::TextBox do
-  include TestTextBox
+  include TestTextBoxHelpers
 
   before do
     @doc = HexaPDF::Document.new
@@ -335,19 +400,59 @@ describe HexaPDF::Layout::TextBox do
       assert_equal(20 + 20 + 9 + 20 + 9, height)
     end
 
-    it "stops if an item is wider than the available width, with unlimited height" do
-      box = HexaPDF::Layout::TextBox.new(items: boxes([20, 20], [50, 20]), width: 30, style: @style)
-      rest, height = box.fit
-      assert_equal(1, rest.count)
-      assert_equal(20, height)
+    describe "fixed width" do
+      it "stops if an item is wider than the available width, with unlimited height" do
+        box = HexaPDF::Layout::TextBox.new(items: boxes([20, 20], [50, 20]), width: 30,
+                                           style: @style)
+        rest, height = box.fit
+        assert_equal(1, rest.count)
+        assert_equal(20, height)
+      end
+
+      it "stops if an item is wider than the available width, with limited height" do
+        box = HexaPDF::Layout::TextBox.new(items: boxes([20, 20], [50, 20]), width: 30, height: 100,
+                                           style: @style)
+        rest, height = box.fit
+        assert_equal(1, rest.count)
+        assert_equal(20, height)
+      end
     end
 
-    it "stops if an item is wider than the available width, with limited height" do
-      box = HexaPDF::Layout::TextBox.new(items: boxes([20, 20], [50, 20]), width: 30, height: 100,
-                                         style: @style)
-      rest, height = box.fit
-      assert_equal(1, rest.count)
-      assert_equal(20, height)
+    describe "variable width with limited height" do
+      it "searches for a vertical offset if the first item is wider than the available width" do
+        width_block = lambda do |height, _|
+          case height
+          when 0..20 then 10
+          else 40
+          end
+        end
+        box = HexaPDF::Layout::TextBox.new(items: boxes([20, 18]), width: width_block,
+                                           height: 100, style: @style)
+        rest, height = box.fit
+        assert(rest.empty?)
+        assert_equal(1, box.lines.count)
+        assert_equal(24, box.lines[0].y_offset)
+        assert_equal(42, height)
+      end
+
+      it "searches for a vertical offset if an item is wider than the available width" do
+        width_block = lambda do |height, line_height|
+          if (40..60).cover?(height) || (40..60).cover?(height + line_height)
+            10
+          else
+            40
+          end
+        end
+        box = HexaPDF::Layout::TextBox.new(items: boxes(*([[20, 18]] * 7)), width: width_block,
+                                           height: 100, style: @style)
+        rest, height = box.fit
+        assert_equal(1, rest.count)
+        assert_equal(3, box.lines.count)
+        assert_equal(0, box.lines[0].y_offset)
+        assert_equal(18, box.lines[1].y_offset)
+        assert_equal(48, box.lines[2].y_offset)
+        assert_equal(84, height)
+      end
     end
 
     it "post-processes lines for justification if needed" do

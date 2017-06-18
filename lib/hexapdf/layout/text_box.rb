@@ -274,7 +274,11 @@ module HexaPDF
         # situation, e.g. by stopping.
         #
         # After the algorithm is finished, it returns the unused items.
-        def self.call(items, available_width)
+        def self.call(items, available_width, &block)
+          if available_width.respond_to?(:call)
+            return variable_width_wrapping(items, available_width, &block)
+          end
+
           index = 0
           beginning_of_line_index = 0
           line = LineFragment.new
@@ -335,7 +339,84 @@ module HexaPDF
 
           line.ignore_justification!
           last_line_used = true
-          last_line_used = yield(line) if available_width && !line.items.empty?
+          last_line_used = yield(line) if item.nil? && !line.items.empty?
+
+          item.nil? && last_line_used ? [] : items[beginning_of_line_index..-1]
+        end
+
+        # :nodoc:
+        def self.variable_width_wrapping(items, available_width)
+          index = 0
+          height_calc = LineFragment::HeightCalculator.new
+          glue_items = []
+
+          beginning_of_line_index = line = width = line_height = nil
+          prepare_next_line = lambda do |new_index|
+            beginning_of_line_index = new_index
+            line = LineFragment.new
+            width = 0
+            line_height = 0
+            height_calc.reset
+            glue_items.clear
+          end
+          prepare_next_line.call(index)
+
+          cur_available_width = available_width.call(line_height)
+
+          while (item = items[index])
+            case item.type
+            when :box
+              new_height = height_calc.simulate_height(item.item)
+              if new_height > line_height
+                line_height = new_height
+                cur_available_width = available_width.call(line_height)
+              end
+              if width + item.width <= cur_available_width
+                glue_items.each {|i| line << i}
+                line << item.item
+                height_calc << item.item
+                width += item.width
+                glue_items.clear
+              else
+                break unless yield(line, item.item)
+                prepare_next_line.call(index)
+                redo
+              end
+            when :glue
+              if width + item.width <= cur_available_width
+                unless line.items.empty? # ignore glue at beginning of line
+                  glue_items << item.item
+                  width += item.width
+                end
+              else
+                break unless yield(line, nil)
+                prepare_next_line.call(index + 1)
+              end
+            when :penalty
+              if item.penalty <= -Penalty::INFINITY
+                line.ignore_justification!
+                break unless yield(line, nil)
+                prepare_next_line.call(index + 1)
+              elsif item.width > 0 && width + item.width <= cur_available_width
+                next_index = index + 1
+                next_item = items[next_index]
+                next_item = items[n_index += 1] while next_item && next_item.type == :penalty
+                new_height = height_calc.simulate_height(next_item.item)
+                if next_item && width + next_item.width > available_width.call(new_height)
+                  glue_items.each {|i| line << i}
+                  line << item.item
+                  width += item.width
+                  # No need to clean up, since in the next iteration a line break occurs
+                end
+              end
+            end
+
+            index += 1
+          end
+
+          line.ignore_justification!
+          last_line_used = true
+          last_line_used = yield(line) if item.nil? && !line.items.empty?
 
           item.nil? && last_line_used ? [] : items[beginning_of_line_index..-1]
         end
@@ -374,6 +455,11 @@ module HexaPDF
 
       # Creates a new TextBox object with the given width containing the given items.
       #
+      # The width can either be a simple number specifying a fixed width, or an object that responds
+      # to #call(height, line_height) where +height+ is the bottom of last line and +line_height+ is
+      # the height of the line to be layed out. The return value should be the available width given
+      # these height restrictions.
+      #
       # The height is optional and if not specified means that the text box has infinite height.
       def initialize(items: [], width:, height: nil, style: Style.new)
         @style = style
@@ -402,29 +488,60 @@ module HexaPDF
       # Fits the items into the text box and returns the remaining items as well as the actual
       # height needed.
       #
+      # Note: If the text box height has not been set and variable line widths are used, no search
+      # for a possible vertical offset is done in case a single item doesn't fit.
+      #
       # This method is automatically called as part of the drawing routine but it can also be used
       # by itself to determine the actual height of the text box.
       def fit
         @lines.clear
         @actual_height = 0
+        y_offset = 0
 
         items = @items
         if style.text_indent != 0
           items = [Box.new(InlineBox.new(style.text_indent, 0) { })].concat(items)
         end
 
-        rest = style.text_line_wrapping_algorithm.call(items, @width) do |line, item|
+        if @width.respond_to?(:call)
+          width_arg = proc {|h| @width.call(@actual_height, h)}
+          width_block = @width
+        else
+          width_arg = @width
+          width_block = proc { @width }
+        end
+
+        rest = style.text_line_wrapping_algorithm.call(items, width_arg) do |line, item|
           line << TextFragment.new(items: [], style: style) if item.nil? && line.items.empty?
           new_height = @actual_height + line.height +
             (@lines.empty? ? 0 : style.line_spacing.gap(@lines.last, line))
 
           if new_height <= @height && !line.items.empty?
             # valid line found, use it
+            cur_width = width_block.call(@actual_height, line.height)
+            line.x_offset = horizontal_alignment_offset(line, cur_width)
+            line.y_offset =  if y_offset
+                               y_offset + (@lines.last ? -@lines.last.y_min + line.y_max : 0)
+                             else
+                               style.line_spacing.baseline_distance(@lines.last, line)
+                             end
             @actual_height = new_height
-            line.x_offset = horizontal_alignment_offset(line, @width)
-            line.y_offset = style.line_spacing.baseline_distance(@lines.last, line) if @lines.last
             @lines << line
+            y_offset = nil
             true
+          elsif new_height <= @height && @height != Float::INFINITY
+            # some height left but item didn't fit on the line, search downwards for usable space
+            new_height = @actual_height
+            while item.width > width_block.call(new_height, item.height) && new_height <= @height
+              new_height += item.height / 3
+            end
+            if new_height + item.height <= @height
+              y_offset = new_height - @actual_height
+              @actual_height = new_height
+              true
+            else
+              nil
+            end
           else
             nil
           end
