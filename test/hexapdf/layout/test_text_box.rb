@@ -180,12 +180,29 @@ describe HexaPDF::Layout::TextBox::SimpleLineWrapping do
   end
 
   it "handles spaces at the end of a line" do
-    rest, lines = call(boxes(20, 50, 20).insert(-2, glue(20)))
+    rest, lines = call(boxes(20, 50, 20).insert(-2, glue(10)).insert(-2, glue(10)))
     assert(rest.empty?)
     assert_equal(2, lines.count)
     assert_equal(70, lines[0].width)
     assert_equal(20, lines[1].width)
     assert_equal(50, lines[0].items[-1].width)
+  end
+
+  it "handles spaces at the end of a line before a mandatory break" do
+    rest, lines = call(boxes(20, 50, 20).insert(-2, glue(10)).insert(-2, penalty(-5000)))
+    assert(rest.empty?)
+    assert_equal(2, lines.count)
+    assert_equal(70, lines[0].width)
+    assert_equal(20, lines[1].width)
+    assert_equal(50, lines[0].items[-1].width)
+  end
+
+  it "handles multiple glue items after another" do
+    rest, lines = call(boxes(20, 20, 50, 20).insert(1, glue(20)).insert(1, glue(20)))
+    assert(rest.empty?)
+    assert_equal(2, lines.count)
+    assert_equal(80, lines[0].width)
+    assert_equal(70, lines[1].width)
   end
 
   it "handles mandatory line breaks" do

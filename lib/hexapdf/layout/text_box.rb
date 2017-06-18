@@ -279,28 +279,28 @@ module HexaPDF
           beginning_of_line_index = 0
           line = LineFragment.new
           width = 0
-          glue_item = nil
+          glue_items = []
 
           while (item = items[index])
             case item.type
             when :box
               if width + item.width <= available_width
-                line << glue_item if glue_item
+                glue_items.each {|i| line << i}
                 line << item.item
                 width += item.width
-                glue_item = nil
+                glue_items.clear
               else
                 break unless yield(line, item.item)
                 beginning_of_line_index = index
                 line = LineFragment.new
                 width = 0
-                glue_item = nil
+                glue_items.clear
                 redo
               end
             when :glue
               if width + item.width <= available_width
                 unless line.items.empty? # ignore glue at beginning of line
-                  glue_item = item.item
+                  glue_items << item.item
                   width += item.width
                 end
               else
@@ -308,7 +308,7 @@ module HexaPDF
                 beginning_of_line_index = index + 1
                 line = LineFragment.new
                 width = 0
-                glue_item = nil # ignore glue at beginning of line
+                glue_items.clear # ignore glue at beginning of line
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
@@ -317,15 +317,15 @@ module HexaPDF
                 beginning_of_line_index = index + 1
                 line = LineFragment.new
                 width = 0
+                glue_items.clear
               elsif item.width > 0 && width + item.width <= available_width
                 next_index = index + 1
                 next_item = items[next_index]
                 next_item = items[n_index += 1] while next_item && next_item.type == :penalty
                 if next_item && width + next_item.width > available_width
-                  line << glue_item if glue_item
+                  glue_items.each {|i| line << i}
                   line << item.item
                   width += item.width
-                  glue_item = nil
                 end
               end
             end
