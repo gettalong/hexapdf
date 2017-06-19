@@ -180,9 +180,10 @@ module HexaPDF
       # the baseline of this line.
       attr_accessor :y_offset
 
-      # Creates a new LineFragment object with the given items.
-      def initialize(items: [])
-        @items = items
+      # Creates a new LineFragment object, adding all given items to it.
+      def initialize(items = [])
+        @items = []
+        items.each {|i| add(i)}
         @x_offset = 0
         @y_offset = 0
       end

@@ -21,7 +21,7 @@ describe HexaPDF::Layout::LineFragment do
   before do
     @doc = HexaPDF::Document.new
     @font = @doc.fonts.load("Times", custom_encoding: true)
-    @line = setup_line
+    @line = HexaPDF::Layout::LineFragment.new
   end
 
   def setup_fragment(text)
@@ -32,13 +32,13 @@ describe HexaPDF::Layout::LineFragment do
     HexaPDF::Layout::InlineBox.new(width, height, valign: valign) {}
   end
 
-  def setup_line(items: [], **options)
-    HexaPDF::Layout::LineFragment.new(items: items, **options)
-  end
-
   describe "initialize" do
     it "allows setting the items of the line fragment" do
-      assert_equal(:value, setup_line(items: :value).items)
+      frag1 = setup_fragment("Hello")
+      frag2 = HexaPDF::Layout::TextFragment.new(items: frag1.items.slice!(3, 2), style: frag1.style)
+      line = HexaPDF::Layout::LineFragment.new([frag1, frag2])
+      assert_equal(1, line.items.count)
+      assert_equal(5, line.items[0].items.count)
     end
   end
 
