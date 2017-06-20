@@ -99,7 +99,8 @@ module HexaPDF
 
         descent = self[:Descent]
         if descent && descent > 0
-          yield("The /Descent value needs to be a negative number", false)
+          yield("The /Descent value needs to be a negative number", true)
+          self[:Descent] = -descent
         end
       end
 

@@ -43,9 +43,11 @@ describe HexaPDF::Type::FontDescriptor do
       refute(@font_desc.validate)
     end
 
-    it "fails if /Descent is not a negative number" do
+    it "updates the /Descent value if it is not a negative number" do
       @font_desc[:Descent] = 5
-      refute(@font_desc.validate)
+      refute(@font_desc.validate(auto_correct: false))
+      assert(@font_desc.validate)
+      assert_equal(-5, @font_desc[:Descent])
     end
   end
 end

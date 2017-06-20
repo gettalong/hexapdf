@@ -24,6 +24,8 @@
 * Allow passing a font object to [HexaPDF::Content::Canvas#font]
 * Handle invalid entry in TrueType format 4 cmap subtable encountered in the
   wild gracefully
+* Invalid positive descent values in font descriptors are now changed into
+  negative ones by the validation feature
 
 ### Fixed
 
