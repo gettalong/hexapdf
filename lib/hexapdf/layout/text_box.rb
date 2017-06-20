@@ -248,7 +248,7 @@ module HexaPDF
       #
       # The algorithm arranges the given items so that the maximum number is put onto each line,
       # taking the differences of Box, Glue and Penalty items into account.
-      module SimpleLineWrapping
+      class SimpleLineWrapping
 
         # :call-seq:
         #   SimpleLineWrapping.call(items, available_width) {|line, item| block }   -> rest
@@ -275,61 +275,58 @@ module HexaPDF
         #
         # After the algorithm is finished, it returns the unused items.
         def self.call(items, available_width, &block)
+          obj = new(items, available_width)
           if available_width.respond_to?(:call)
-            return variable_width_wrapping(items, available_width, &block)
+            obj.variable_width_wrapping(&block)
+          else
+            obj.fixed_width_wrapping(&block)
           end
+        end
 
+        private_class_method :new
+
+        # Creates a new line wrapping object that arranges the +items+ on lines with the given
+        # width.
+        def initialize(items, available_width)
+          @items = items
+          @available_width = @width_block = available_width
+          @line_items = []
+          @width = 0
+          @glue_items = []
+          @beginning_of_line_index = 0
+
+          @height_calc = LineFragment::HeightCalculator.new
+          @line_height = 0
+        end
+
+        # Peforms the line wrapping with a fixed width.
+        def fixed_width_wrapping
           index = 0
-          beginning_of_line_index = 0
-          line = LineFragment.new
-          width = 0
-          glue_items = []
 
-          while (item = items[index])
+          while (item = @items[index])
             case item.type
             when :box
-              if width + item.width <= available_width
-                glue_items.each {|i| line << i}
-                line << item.item
-                width += item.width
-                glue_items.clear
-              else
-                break unless yield(line, item.item)
-                beginning_of_line_index = index
-                line = LineFragment.new
-                width = 0
-                glue_items.clear
+              unless add_box_item(item.item)
+                break unless yield(create_line, item.item)
+                reset_after_line_break(index)
                 redo
               end
             when :glue
-              if width + item.width <= available_width
-                unless line.items.empty? # ignore glue at beginning of line
-                  glue_items << item.item
-                  width += item.width
-                end
-              else
-                break unless yield(line, nil)
-                beginning_of_line_index = index + 1
-                line = LineFragment.new
-                width = 0
-                glue_items.clear # ignore glue at beginning of line
+              unless add_glue_item(item.item)
+                break unless yield(create_line, nil)
+                reset_after_line_break(index + 1)
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
-                line.ignore_justification!
-                break unless yield(line, nil)
-                beginning_of_line_index = index + 1
-                line = LineFragment.new
-                width = 0
-                glue_items.clear
-              elsif item.width > 0 && width + item.width <= available_width
+                break unless yield(create_unjustified_line, nil)
+                reset_after_line_break(index + 1)
+              elsif item.width > 0 && item_fits_on_line?(item)
                 next_index = index + 1
-                next_item = items[next_index]
-                next_item = items[n_index += 1] while next_item && next_item.type == :penalty
-                if next_item && width + next_item.width > available_width
-                  glue_items.each {|i| line << i}
-                  line << item.item
-                  width += item.width
+                next_item = @items[next_index]
+                next_item = @items[n_index += 1] while next_item && next_item.type == :penalty
+                if next_item && !item_fits_on_line?(next_item)
+                  @line_items.concat(@glue_items).push(item.item)
+                  @width += item.width
                 end
               end
             end
@@ -337,75 +334,50 @@ module HexaPDF
             index += 1
           end
 
-          line.ignore_justification!
+          line = create_unjustified_line
           last_line_used = true
-          last_line_used = yield(line) if item.nil? && !line.items.empty?
+          last_line_used = yield(line, nil) if item.nil? && !line.items.empty?
 
-          item.nil? && last_line_used ? [] : items[beginning_of_line_index..-1]
+          item.nil? && last_line_used ? [] : @items[@beginning_of_line_index..-1]
         end
 
-        # :nodoc:
-        def self.variable_width_wrapping(items, available_width)
+        # Performs the line wrapping with variable widths.
+        def variable_width_wrapping
           index = 0
-          height_calc = LineFragment::HeightCalculator.new
-          glue_items = []
+          @available_width = @width_block.call(@line_height)
 
-          beginning_of_line_index = line = width = line_height = nil
-          prepare_next_line = lambda do |new_index|
-            beginning_of_line_index = new_index
-            line = LineFragment.new
-            width = 0
-            line_height = 0
-            height_calc.reset
-            glue_items.clear
-          end
-          prepare_next_line.call(index)
-
-          cur_available_width = available_width.call(line_height)
-
-          while (item = items[index])
+          while (item = @items[index])
             case item.type
             when :box
-              new_height = height_calc.simulate_height(item.item)
-              if new_height > line_height
-                line_height = new_height
-                cur_available_width = available_width.call(line_height)
+              new_height = @height_calc.simulate_height(item.item)
+              if new_height > @line_height
+                @line_height = new_height
+                @available_width = @width_block.call(@line_height)
               end
-              if width + item.width <= cur_available_width
-                glue_items.each {|i| line << i}
-                line << item.item
-                height_calc << item.item
-                width += item.width
-                glue_items.clear
+              if add_box_item(item.item)
+                @height_calc << item.item
               else
-                break unless yield(line, item.item)
-                prepare_next_line.call(index)
+                break unless yield(create_line, item.item)
+                reset_after_line_break(index)
                 redo
               end
             when :glue
-              if width + item.width <= cur_available_width
-                unless line.items.empty? # ignore glue at beginning of line
-                  glue_items << item.item
-                  width += item.width
-                end
-              else
-                break unless yield(line, nil)
-                prepare_next_line.call(index + 1)
+              unless add_glue_item(item.item)
+                break unless yield(create_line, nil)
+                reset_after_line_break(index + 1)
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
-                line.ignore_justification!
-                break unless yield(line, nil)
-                prepare_next_line.call(index + 1)
-              elsif item.width > 0 && width + item.width <= cur_available_width
+                break unless yield(create_unjustified_line, nil)
+                reset_after_line_break(index + 1)
+              elsif item.width > 0 && item_fits_on_line?(item)
                 next_index = index + 1
-                next_item = items[next_index]
-                next_item = items[n_index += 1] while next_item && next_item.type == :penalty
-                new_height = height_calc.simulate_height(next_item.item)
-                if next_item && width + next_item.width > available_width.call(new_height)
-                  glue_items.each {|i| line << i}
-                  line << item.item
-                  width += item.width
+                next_item = @items[next_index]
+                next_item = @items[n_index += 1] while next_item && next_item.type == :penalty
+                new_height = @height_calc.simulate_height(next_item.item)
+                if next_item && @width + next_item.width > @width_block.call(new_height)
+                  @line_items.concat(@glue_items).push(item.item)
+                  @width += item.width
                   # No need to clean up, since in the next iteration a line break occurs
                 end
               end
@@ -414,11 +386,63 @@ module HexaPDF
             index += 1
           end
 
-          line.ignore_justification!
+          line = create_unjustified_line
           last_line_used = true
-          last_line_used = yield(line) if item.nil? && !line.items.empty?
+          last_line_used = yield(line, nil) if item.nil? && !line.items.empty?
 
-          item.nil? && last_line_used ? [] : items[beginning_of_line_index..-1]
+          item.nil? && last_line_used ? [] : @items[@beginning_of_line_index..-1]
+        end
+
+        private
+
+        # Adds the box item to the line items if it fits on the line.
+        #
+        # Returns +true+ if the item could be added and +false+ otherwise.
+        def add_box_item(item)
+          return false unless @width + item.width <= @available_width
+          @line_items.concat(@glue_items).push(item)
+          @width += item.width
+          @glue_items.clear
+          true
+        end
+
+        # Adds the glue item to the line items if it fits on the line.
+        #
+        # Returns +true+ if the item could be added and +false+ otherwise.
+        def add_glue_item(item)
+          return false unless @width + item.width <= @available_width
+          unless @line_items.empty? # ignore glue at beginning of line
+            @glue_items << item
+            @width += item.width
+          end
+          true
+        end
+
+        # Returns +true+ if the item fits on the line.
+        def item_fits_on_line?(item)
+          @width + item.width <= @available_width
+        end
+
+        # Creates a LineFragment object from the current line items.
+        def create_line
+          LineFragment.new(@line_items)
+        end
+
+        # Creates a LineFragment object from the current line items that ignores line justification.
+        def create_unjustified_line
+          create_line.tap(&:ignore_justification!)
+        end
+
+        # Resets the line state variables to their initial values. The +index+ specifies the items
+        # index of the first item on the new line.
+        def reset_after_line_break(index)
+          @beginning_of_line_index = index
+          @line_items.clear
+          @width = 0
+          @glue_items.clear
+
+          @line_height = 0
+          @height_calc.reset
         end
 
       end
