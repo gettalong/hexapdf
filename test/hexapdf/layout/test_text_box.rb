@@ -137,7 +137,16 @@ describe HexaPDF::Layout::TextBox::SimpleTextSegmentation do
 
     result = @obj.call([frag])
     assert_equal(3, result.size)
-    assert_penalty(result[1], 50, hyphen)
+    assert_penalty(result[1], HexaPDF::Layout::TextBox::Penalty::Standard.penalty, hyphen)
+  end
+
+  it "insert a prohibited break penalty for non-breaking spaces" do
+    frag = setup_fragment("soft\u{00A0}hyphened")
+    space = setup_fragment(" ", frag.style)
+
+    result = @obj.call([frag])
+    assert_equal(3, result.size)
+    assert_penalty(result[1], HexaPDF::Layout::TextBox::Penalty::ProhibitedBreak.penalty, space)
   end
 end
 
@@ -216,7 +225,7 @@ module CommonLineWrappingTests
     assert_equal(20, lines[1].width)
   end
 
-  it "handles breaking at penalties with non-zero width" do
+  it "handles breaking at penalties with non-zero width if they fit on the line" do
     item = HexaPDF::Layout::InlineBox.new(20, 0) {}
     rest, lines = call(boxes(20, 60, 30).insert(1, penalty(0, item)).insert(-2, penalty(0, item)))
     assert(rest.empty?)
@@ -224,6 +233,24 @@ module CommonLineWrappingTests
     assert_equal(100, lines[0].width)
     assert_equal(30, lines[1].width)
     assert_same(item, lines[0].items[-1])
+  end
+
+  it "handles penalties with non-zero width if they don't fit on the line" do
+    item = HexaPDF::Layout::InlineBox.new(20, 0) {}
+    rest, lines = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(0, item)] + boxes(30))
+    assert(rest.empty?)
+    assert_equal(2, lines.count)
+    assert_equal(70, lines[0].width)
+    assert_equal(40, lines[1].width)
+  end
+
+  it "handles breaking at prohibited breakpoints by back-tracking to the last valid breakpoint " do
+    item = HexaPDF::Layout::InlineBox.new(20, 0) {}
+    rest, lines = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(5000, item)] + boxes(30))
+    assert(rest.empty?)
+    assert_equal(2, lines.count)
+    assert_equal(70, lines[0].width)
+    assert_equal(60, lines[1].width)
   end
 
   it "stops when nil is returned by the block: last item is a box" do

@@ -108,11 +108,6 @@ module HexaPDF
           @shrinkability = shrinkability
         end
 
-        # The normal width of the glue item.
-        def width
-          @item.width
-        end
-
         # Returns :glue.
         def type
           :glue
@@ -156,6 +151,9 @@ module HexaPDF
         # Singleton object describing a Penalty for a mandatory break.
         MandatoryBreak = new(-Penalty::INFINITY)
 
+        # Singleton object describing a Penalty for a prohibited break.
+        ProhibitedBreak = new(Penalty::INFINITY)
+
         # Singleton object describing a standard Penalty, e.g. for hyphens.
         Standard = new(50)
 
@@ -172,6 +170,8 @@ module HexaPDF
       #
       # * Spaces and tabulators are wrapped by Glue objects, allowing breaks.
       #
+      # * Non-breaking spaces are wrapped into Penalty objects that prohibit line breaking.
+      #
       # * Hyphens are attached to the preceeding text fragment (or are a standalone text fragment)
       #   and followed by a Penalty object to allow a break.
       #
@@ -181,9 +181,9 @@ module HexaPDF
       # * If a zero-width-space is encountered, a Penalty object is inserted to allow a break.
       module SimpleTextSegmentation
 
-        # Breaks are detected at: space, tab, zero-width-space, hyphen, soft-hypen and any valid
-        # Unicode newline separator
-        BREAK_RE = /[ \u{A}-\u{D}\u{85}\u{2028}\u{2029}\t\u{200B}\u{00AD}-]/
+        # Breaks are detected at: space, tab, zero-width-space, non-breaking space, hyphen,
+        # soft-hypen and any valid Unicode newline separator
+        BREAK_RE = /[ \u{A}-\u{D}\u{85}\u{2028}\u{2029}\t\u{200B}\u{00AD}\u{00A0}-]/
 
         # Breaks the items (an array of InlineBox and TextFragment objects) into atomic pieces
         # wrapped by Box, Glue or Penalty items, and returns those as an array.
@@ -231,7 +231,11 @@ module HexaPDF
                   when "\u{00AD}"
                     hyphen = item.style.font.decode_utf8("-").first
                     frag = TextFragment.new(items: [hyphen].freeze, style: item.style)
-                    result << Penalty.new(50, frag.width, item: frag)
+                    result << Penalty.new(Penalty::Standard.penalty, frag.width, item: frag)
+                  when "\u{00A0}"
+                    space = item.style.font.decode_utf8(" ").first
+                    frag = TextFragment.new(items: [space].freeze, style: item.style)
+                    result << Penalty.new(Penalty::ProhibitedBreak.penalty, frag.width, item: frag)
                   when "\u{200B}"
                     result << Penalty.new(0)
                   end
@@ -294,6 +298,9 @@ module HexaPDF
           @width = 0
           @glue_items = []
           @beginning_of_line_index = 0
+          @last_breakpoint_index = 0
+          @last_breakpoint_line_items_index = 0
+          @break_prohibited_state = false
 
           @height_calc = LineFragment::HeightCalculator.new
           @line_height = 0
@@ -307,12 +314,16 @@ module HexaPDF
             case item.type
             when :box
               unless add_box_item(item.item)
+                if @break_prohibited_state
+                  index = reset_line_to_last_breakpoint_state
+                  item = @items[index]
+                end
                 break unless yield(create_line, item.item)
                 reset_after_line_break(index)
                 redo
               end
             when :glue
-              unless add_glue_item(item.item)
+              unless add_glue_item(item.item, index)
                 break unless yield(create_line, nil)
                 reset_after_line_break(index + 1)
               end
@@ -320,14 +331,24 @@ module HexaPDF
               if item.penalty <= -Penalty::INFINITY
                 break unless yield(create_unjustified_line, nil)
                 reset_after_line_break(index + 1)
-              elsif item.width > 0 && item_fits_on_line?(item)
-                next_index = index + 1
-                next_item = @items[next_index]
-                next_item = @items[n_index += 1] while next_item && next_item.type == :penalty
-                if next_item && !item_fits_on_line?(next_item)
-                  @line_items.concat(@glue_items).push(item.item)
-                  @width += item.width
+              elsif item.penalty >= Penalty::INFINITY
+                @break_prohibited_state = true
+                add_box_item(item.item) if item.width > 0
+              elsif item.width > 0
+                if item_fits_on_line?(item)
+                  next_index = index + 1
+                  next_item = @items[next_index]
+                  next_item = @items[next_index += 1] while next_item && next_item.type == :penalty
+                  if next_item && !item_fits_on_line?(next_item)
+                    @line_items.concat(@glue_items).push(item.item)
+                    @width += item.width
+                  end
+                  update_last_breakpoint(index)
+                else
+                  @break_prohibited_state = true
                 end
+              else
+                update_last_breakpoint(index)
               end
             end
 
@@ -357,12 +378,16 @@ module HexaPDF
               if add_box_item(item.item)
                 @height_calc << item.item
               else
+                if @break_prohibited_state
+                  index = reset_line_to_last_breakpoint_state
+                  item = @items[index]
+                end
                 break unless yield(create_line, item.item)
                 reset_after_line_break(index)
                 redo
               end
             when :glue
-              unless add_glue_item(item.item)
+              unless add_glue_item(item.item, index)
                 break unless yield(create_line, nil)
                 reset_after_line_break(index + 1)
               end
@@ -370,16 +395,26 @@ module HexaPDF
               if item.penalty <= -Penalty::INFINITY
                 break unless yield(create_unjustified_line, nil)
                 reset_after_line_break(index + 1)
-              elsif item.width > 0 && item_fits_on_line?(item)
-                next_index = index + 1
-                next_item = @items[next_index]
-                next_item = @items[n_index += 1] while next_item && next_item.type == :penalty
-                new_height = @height_calc.simulate_height(next_item.item)
-                if next_item && @width + next_item.width > @width_block.call(new_height)
-                  @line_items.concat(@glue_items).push(item.item)
-                  @width += item.width
-                  # No need to clean up, since in the next iteration a line break occurs
+              elsif item.penalty >= Penalty::INFINITY
+                @break_prohibited_state = true
+                add_box_item(item.item) if item.width > 0
+              elsif item.width > 0
+                if item_fits_on_line?(item)
+                  next_index = index + 1
+                  next_item = @items[next_index]
+                  next_item = @items[n_index += 1] while next_item && next_item.type == :penalty
+                  new_height = @height_calc.simulate_height(next_item.item)
+                  if next_item && @width + next_item.width > @width_block.call(new_height)
+                    @line_items.concat(@glue_items).push(item.item)
+                    @width += item.width
+                    # No need to clean up, since in the next iteration a line break occurs
+                  end
+                  update_last_breakpoint(index)
+                else
+                  @break_prohibited_state = true
                 end
+              else
+                update_last_breakpoint(index)
               end
             end
 
@@ -409,13 +444,29 @@ module HexaPDF
         # Adds the glue item to the line items if it fits on the line.
         #
         # Returns +true+ if the item could be added and +false+ otherwise.
-        def add_glue_item(item)
+        def add_glue_item(item, index)
           return false unless @width + item.width <= @available_width
           unless @line_items.empty? # ignore glue at beginning of line
             @glue_items << item
             @width += item.width
+            update_last_breakpoint(index)
           end
           true
+        end
+
+        # Updates the information on the last possible breakpoint of the current line.
+        def update_last_breakpoint(index)
+          @break_prohibited_state = false
+          @last_breakpoint_index = index
+          @last_breakpoint_line_items_index = @line_items.size
+        end
+
+        # Resets the line items array to contain only those items that were in it when the last
+        # breakpoint was encountered and returns the items' index of the last breakpoint.
+        def reset_line_to_last_breakpoint_state
+          @line_items.slice!(@last_breakpoint_line_items_index..-1)
+          @break_prohibited_state = false
+          @last_breakpoint_index
         end
 
         # Returns +true+ if the item fits on the line.
@@ -440,6 +491,9 @@ module HexaPDF
           @line_items.clear
           @width = 0
           @glue_items.clear
+          @last_breakpoint_index = index
+          @last_breakpoint_line_items_index = 0
+          @break_prohibited_state = false
 
           @line_height = 0
           @height_calc.reset

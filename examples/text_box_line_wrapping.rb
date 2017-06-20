@@ -21,9 +21,13 @@
 #
 # * **Zero-width spaces** can be used to indicate break points at any position.
 #
+# * **Non-breaking spaces** can be used to prohibit a break between two words.
+#   It has the same appearance as a space in the PDF.
+#
 # This example shows all these specially handled characters in action, e.g. a
 # hard line break after "Fly-fishing", soft-hyphen in "wandering", tabulator
-# instead of space after "wandering" and zero-width space in "fantastic".
+# instead of space after "wandering", zero-width space in "fantastic" and
+# non-breaking spaces in "1 0 1".
 #
 # Usage:
 # : `ruby text_box_line_wrapping.rb`
@@ -32,13 +36,14 @@
 require 'hexapdf'
 
 doc = HexaPDF::Document.new
-canvas = doc.pages.add(doc.add(Type: :Page, MediaBox: [0, 0, 180, 210])).canvas
+canvas = doc.pages.add(doc.add(Type: :Page, MediaBox: [0, 0, 180, 230])).canvas
 canvas.font("Times", size: 10, variant: :bold)
 
-text = "Hello! Fly-fishing\nand wand\u{00AD}ering\taround - fanta\u{200B}stic"
+text = "Hello! Fly-fishing\nand wand\u{00AD}ering\taround - fanta\u{200B}stic" \
+  " 1\u{00A0}0\u{00A0}1"
 
 x = 10
-y = 200
+y = 220
 [30, 60, 100, 160].each do |width|
   box = HexaPDF::Layout::TextBox.create(text, width: width,
                                         font: doc.fonts.load("Times"))
