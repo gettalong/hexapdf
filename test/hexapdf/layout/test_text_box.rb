@@ -505,6 +505,18 @@ describe HexaPDF::Layout::TextBox do
       assert_equal(-250, box.lines[0].items[6].items[0])
       assert_equal(30, box.lines[1].width)
     end
+
+    it "applies the optional horizontal offsets if set" do
+      x_offsets = lambda {|height, line_height| height + line_height}
+      box = HexaPDF::Layout::TextBox.new(items: boxes(*([[20, 10]] * 7)), width: 60,
+                                         x_offsets: x_offsets, height: 100, style: @style)
+      rest, height = box.fit
+      assert(rest.empty?)
+      assert_equal(30, height)
+      assert_equal(10, box.lines[0].x_offset)
+      assert_equal(20, box.lines[1].x_offset)
+      assert_equal(30, box.lines[2].x_offset)
+    end
   end
 
   describe "draw" do

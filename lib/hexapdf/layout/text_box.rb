@@ -508,9 +508,9 @@ module HexaPDF
       #
       # The style of the text box can be specified using additional options, of which font is
       # mandatory.
-      def self.create(text, width:, height: nil, **options)
+      def self.create(text, width:, height: nil, x_offsets: nil, **options)
         frag = TextFragment.create(text, **options)
-        new(items: [frag], width: width, height: height, style: frag.style)
+        new(items: [frag], width: width, height: height, x_offsets: x_offsets, style: frag.style)
       end
 
       # The style to be applied.
@@ -538,13 +538,18 @@ module HexaPDF
       # the height of the line to be layed out. The return value should be the available width given
       # these height restrictions.
       #
+      # The optional +x_offsets+ argument works like +width+ but can be used to specify (varying)
+      # offsets from the left of the box (e.g. when the left side of the text should follow a
+      # certain shape).
+      #
       # The height is optional and if not specified means that the text box has infinite height.
-      def initialize(items: [], width:, height: nil, style: Style.new)
+      def initialize(items: [], width:, height: nil, x_offsets: nil, style: Style.new)
         @style = style
         @lines = []
         self.items = items
         @width = width
         @height = height || Float::INFINITY
+        @x_offsets = x_offsets && (x_offsets.respond_to?(:call) ? x_offsets : proc { x_offsets })
       end
 
       # Sets the items to be arranged by the text box, clearing the internal state.
@@ -598,6 +603,7 @@ module HexaPDF
             # valid line found, use it
             cur_width = width_block.call(@actual_height, line.height)
             line.x_offset = horizontal_alignment_offset(line, cur_width)
+            line.x_offset += @x_offsets.call(@actual_height, line.height) if @x_offsets
             line.y_offset =  if y_offset
                                y_offset + (@lines.last ? -@lines.last.y_min + line.y_max : 0)
                              else
