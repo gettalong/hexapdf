@@ -36,7 +36,7 @@
 require 'hexapdf'
 
 doc = HexaPDF::Document.new
-canvas = doc.pages.add(doc.add(Type: :Page, MediaBox: [0, 0, 180, 230])).canvas
+canvas = doc.pages.add([0, 0, 180, 230]).canvas
 canvas.font("Times", size: 10, variant: :bold)
 
 text = "Hello! Fly-fishing\nand wand\u{00AD}ering\taround - fanta\u{200B}stic" \
