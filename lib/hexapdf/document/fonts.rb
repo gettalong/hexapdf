@@ -67,7 +67,8 @@ module HexaPDF
         if font
           @loaded_fonts_cache[[name, options]] = font
         else
-          raise HexaPDF::Error, "The requested font '#{name}' couldn't be found"
+          raise HexaPDF::Error, "The requested font '#{name}' in variant '#{options[:variant]}' " \
+            "couldn't be found"
         end
       end
 
