@@ -26,6 +26,8 @@
   wild gracefully
 * Invalid positive descent values in font descriptors are now changed into
   negative ones by the validation feature
+* Allow specifying the page media box or a page format when adding a new page
+  through [HexaPDF::Document::Pages#add]
 
 ### Fixed
 

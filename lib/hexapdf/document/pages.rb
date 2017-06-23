@@ -31,6 +31,8 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'hexapdf/error'
+
 module HexaPDF
   class Document
 
@@ -52,8 +54,29 @@ module HexaPDF
         @document.catalog.pages
       end
 
+      # :call-seq:
+      #   pages.add             -> new_page
+      #   pages.add(media_box)  -> new_page
+      #   pages.add(page)       -> page
+      #
       # Adds the page or a new empty page at the end and returns it.
+      #
+      # If no argument is given, a new page with the default dimensions (see configuration option
+      # 'page.default_media_box') is used. If the single argument is an array with four numbers
+      # (specifying the media box) or a symbol (referencing a pre-defined media box, see
+      # HexaPDF::Type::Page::PAPER_SIZE), the new page will have these dimensions.
       def add(page = nil)
+        case page
+        when Array
+          page = @document.add(Type: :Page, MediaBox: page)
+        when Symbol
+          if Type::Page::PAPER_SIZE.key?(page)
+            media_box = Type::Page::PAPER_SIZE[page].dup
+            page = @document.add(Type: :Page, MediaBox: media_box)
+          else
+            raise HexaPDF::Error, "Invalid page format specified: #{page}"
+          end
+        end
         @document.catalog.pages.add_page(page)
       end
 

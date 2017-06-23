@@ -20,6 +20,22 @@ describe HexaPDF::Document::Pages do
       assert_equal([page], @doc.pages.root[:Kids])
     end
 
+    it "adds a new empty page with the given dimensions" do
+      page = @doc.pages.add([0, 0, 20, 20])
+      assert_same(page, @doc.pages[0])
+      assert_equal([0, 0, 20, 20], @doc.pages[0].box(:media).value)
+    end
+
+    it "adds a new empty page with the given page format" do
+      page = @doc.pages.add(:A4)
+      assert_same(page, @doc.pages[0])
+      assert_equal([0, 0, 595, 842], @doc.pages[0].box(:media).value)
+    end
+
+    it "fails if an unknown page format is given" do
+      assert_raises(HexaPDF::Error) { @doc.pages.add(:A953) }
+    end
+
     it "adds a given page to the end" do
       page = @doc.pages.add
       new_page = @doc.add(Type: :Page)
