@@ -43,8 +43,8 @@ documentation, example code and more.
 ## Requirements and Installation
 
 Since HexaPDF is written in Ruby, a working Ruby installation is needed - see the
-[official installation documentation][rbinstall] for details. Note that you need Ruby version 2.3 or
-higher as prior versions are not (officially) supported!
+[official installation documentation][rbinstall] for details. Note that you need Ruby version 2.4 or
+higher as prior versions are not supported!
 
 Apart from Ruby itself the HexaPDF library has no external dependencies. The `hexapdf` application
 has a dependency on `cmdparse`, a command line parsing library.
@@ -69,9 +69,9 @@ Prawn has no such functionality. There is basic support for using a PDF as a tem
 featureful API when it comes to creating content, for individual pages as well as across pages.
 
 Such functionality will be incorporated into HexaPDF in the near future. The main functionality for
-providing such a feature is already available in HexaPDF (the [page canvas API]). What's missing
-(and this is quite big chunk) is automatic box and page layout so that one can say: There is a box
-on this page with these dimensions at this position; show this text in the box.
+providing such a feature is already available in HexaPDF (the [page canvas API]). Additionally,
+laying out text inside a box with line wrapping and such is also supported. What's missing (and this
+is still quite a big chunk) is support for advanced features like tables, page breaking and so on.
 
 So why use HexaPDF?
 
