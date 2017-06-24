@@ -102,9 +102,9 @@ canvas.translate(0, 550) do
   canvas.translate(490, 0) do
     canvas.line_width(1)
     [[[1, 1]],
-     [[3, 1]], 
-     [[3, 3]], 
-     [[5, 1, 1, 1, 1, 1]], 
+     [[3, 1]],
+     [[3, 3]],
+     [[5, 1, 1, 1, 1, 1]],
      [[3, 5], 6]].each_with_index do |(value, phase), index|
       canvas.line_dash_pattern(value, phase || 0)
       canvas.line(20 * index, 0, 20 * index, 100)
@@ -140,7 +140,7 @@ canvas.translate(0, 320) do
   canvas.arc(380, 50, a: 40, b: 20, start_angle: -60, end_angle: 115, inclination: 45)
   canvas.fill
 
-  arc = canvas.graphic_object(:arc, cx: 450, cy: 50, a: 30, b: 30, 
+  arc = canvas.graphic_object(:arc, cx: 450, cy: 50, a: 30, b: 30,
                               start_angle: -30, end_angle: 105)
   canvas.fill_color(0.4, 0.3, 0.4)
   canvas.move_to(450, 50)
@@ -196,10 +196,11 @@ end
 canvas.translate(0, 190) do
   canvas.fill_color(0.3, 0.7, 0.7)
 
-  [[:stroke], [:close_stroke], [:fill, :nonzero], [:fill, :even_odd],
-   [:fill_stroke, :nonzero], [:fill_stroke, :even_odd],
-   [:close_fill_stroke, :nonzero], [:close_fill_stroke, :even_odd],
-   ].each_with_index do |op, index|
+  [
+    [:stroke], [:close_stroke], [:fill, :nonzero], [:fill, :even_odd],
+    [:fill_stroke, :nonzero], [:fill_stroke, :even_odd],
+    [:close_fill_stroke, :nonzero], [:close_fill_stroke, :even_odd]
+  ].each_with_index do |op, index|
     row = (1 - (index / 4))
     column = index % 4
     x = 50 + 80 * column
