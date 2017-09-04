@@ -67,15 +67,22 @@ module HexaPDF
         xref_section, trailer = parser.load_revision(parser.startxref_offset)
         revisions << Revision.new(document.wrap(trailer, type: :XXTrailer),
                                   xref_section: xref_section, loader: object_loader)
+        seen_xref_offsets = {parser.startxref_offset => true}
 
-
-        while (prev = revisions[0].trailer.value[:Prev])
+        while (prev = revisions[0].trailer.value[:Prev]) &&
+            !seen_xref_offsets.key?(prev)
           # PDF1.7 s7.5.5 states that :Prev needs to be indirect, Adobe's reference 3.4.4 says it
           # should be direct. Adobe's POV is followed here. Same with :XRefStm.
           xref_section, trailer = parser.load_revision(prev)
+          seen_xref_offsets[prev] = true
+
           stm = revisions[0].trailer.value[:XRefStm]
-          stm_xref_section, = parser.load_revision(stm) if stm
-          xref_section.merge!(stm_xref_section) if stm
+          if stm && !seen_xref_offsets.key?(stm)
+            stm_xref_section, = parser.load_revision(stm)
+            xref_section.merge!(stm_xref_section)
+            seen_xref_offsets[stm] = true
+          end
+
           revisions.unshift(Revision.new(document.wrap(trailer, type: :XXTrailer),
                                          xref_section: xref_section, loader: object_loader))
         end

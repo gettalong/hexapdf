@@ -1,3 +1,9 @@
+## Unreleased
+
+### Fixed
+
+* Parsing of PDF files containing a loop with respect to cross-reference tables
+
 ## 0.5.0 - 2017-06-24
 
 ### Added

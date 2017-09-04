@@ -123,4 +123,38 @@ EOF
       assert_equal(400, @revisions[2].object(2).value)
     end
   end
+
+  it "handles invalid PDFs that have a loop via the xref /Prev or /XRefStm entries" do
+    io = StringIO.new(<<EOF)
+%PDF-1.7
+1 0 obj
+10
+endobj
+
+xref
+0 2
+0000000000 65535 f 
+0000000009 00000 n 
+trailer
+<< /Size 2 /Prev 148>>
+startxref
+28
+%%EOF
+
+2 0 obj
+300
+endobj
+
+xref
+2 1
+0000000301 00000 n 
+trailer
+<< /Size 3 /Prev 28 >>
+startxref
+148
+%%EOF
+EOF
+    doc = HexaPDF::Document.new(io: io)
+    assert_equal(2, doc.revisions.count)
+  end
 end
