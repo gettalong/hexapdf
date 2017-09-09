@@ -250,6 +250,20 @@ canvas.translate(0, 80) do
   end
 end
 
+# A simple rainbow color band
+canvas.translate(0, 20) do
+  canvas.line_width = 6
+  freq = 0.1
+  0.upto(100) do |i|
+    r = Math.sin(freq * i) * 127 + 128
+    g = Math.sin(freq * i + 2) * 127 + 128
+    b = Math.sin(freq * i + 4) * 127 + 128
+    canvas.stroke_color(r.to_i, g.to_i, b.to_i)
+    canvas.line(50 + i * 5, 0, 50 + i * 5, 40)
+    canvas.stroke
+  end
+end
+
 # Reusing the already draw graphics for an XObject
 # Note that converting the page to a form XObject automatically closes all open
 # graphics states, therefore this can't be inside the above Canvas#translate
@@ -257,19 +271,5 @@ end
 form = doc.add(page.to_form_xobject(reference: false))
 canvas.rectangle(480, 80, form.box.width * (100 / form.box.height.to_f), 100).stroke
 canvas.xobject(form, at: [480, 80], height: 100)
-
-# A simple rainbow color band
-canvas.translate(0, 20) do
-  canvas.line_width = 10
-  freq = 0.3
-  0.upto(50) do |i|
-    r = Math.sin(freq * i) * 127 + 128
-    g = Math.sin(freq * i + 2) * 127 + 128
-    b = Math.sin(freq * i + 4) * 127 + 128
-    canvas.stroke_color(r.to_i, g.to_i, b.to_i)
-    canvas.line(50 + i * 10, 0, 50 + i * 10, 40)
-    canvas.stroke
-  end
-end
 
 doc.write('graphics.pdf', optimize: true)
