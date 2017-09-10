@@ -1896,14 +1896,14 @@ module HexaPDF
       # Raises an error unless the current graphics object is a path.
       def raise_unless_in_path
         unless graphics_object == :path
-          raise HexaPDF::Error, "Operation only allowed when current graphics object is a path"
+          raise HexaPDF::Error, "Operation only allowed if current graphics object is a path"
         end
       end
 
       # Raises an error unless the current graphics object is a path or a clipping path.
       def raise_unless_in_path_or_clipping_path
         unless graphics_object == :path || graphics_object == :clipping_path
-          raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
+          raise HexaPDF::Error, "Operation only allowed if current graphics object is a " \
             "path or clipping path"
         end
       end
@@ -1913,14 +1913,14 @@ module HexaPDF
       def raise_unless_at_page_description_level
         end_text if graphics_object == :text
         unless graphics_object == :none
-          raise HexaPDF::Error, "Operation only allowed when there is no current graphics object"
+          raise HexaPDF::Error, "Operation only allowed if there is no current graphics object"
         end
       end
 
       # Raises an error unless the current graphics object is none or a text object.
       def raise_unless_at_page_description_level_or_in_text
         unless graphics_object == :none || graphics_object == :text
-          raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
+          raise HexaPDF::Error, "Operation only allowed if current graphics object is a " \
             "text object or if there is no current object"
         end
       end
@@ -1929,7 +1929,7 @@ module HexaPDF
       def raise_unless_at_page_description_level_or_in_path
         end_text if graphics_object == :text
         unless graphics_object == :none || graphics_object == :path
-          raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
+          raise HexaPDF::Error, "Operation only allowed if current graphics object is a " \
             "path object or if there is no current object"
         end
       end
@@ -1937,7 +1937,7 @@ module HexaPDF
       # Raises an error unless the current graphics object is a text object.
       def raise_unless_in_text
         unless graphics_object == :text
-          raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
+          raise HexaPDF::Error, "Operation only allowed if current graphics object is a " \
             "text object"
         end
       end
