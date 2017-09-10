@@ -1895,14 +1895,14 @@ module HexaPDF
 
       # Raises an error unless the current graphics object is a path.
       def raise_unless_in_path
-        if graphics_object != :path
+        unless graphics_object == :path
           raise HexaPDF::Error, "Operation only allowed when current graphics object is a path"
         end
       end
 
       # Raises an error unless the current graphics object is a path or a clipping path.
       def raise_unless_in_path_or_clipping_path
-        if graphics_object != :path && graphics_object != :clipping_path
+        unless graphics_object == :path || graphics_object == :clipping_path
           raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
             "path or clipping path"
         end
@@ -1912,14 +1912,14 @@ module HexaPDF
       # level.
       def raise_unless_at_page_description_level
         end_text if graphics_object == :text
-        if graphics_object != :none
+        unless graphics_object == :none
           raise HexaPDF::Error, "Operation only allowed when there is no current graphics object"
         end
       end
 
       # Raises an error unless the current graphics object is none or a text object.
       def raise_unless_at_page_description_level_or_in_text
-        if graphics_object != :none && graphics_object != :text
+        unless graphics_object == :none || graphics_object == :text
           raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
             "text object or if there is no current object"
         end
@@ -1928,7 +1928,7 @@ module HexaPDF
       # Raises an error unless the current graphics object is none or a path object.
       def raise_unless_at_page_description_level_or_in_path
         end_text if graphics_object == :text
-        if graphics_object != :none && graphics_object != :path
+        unless graphics_object == :none || graphics_object == :path
           raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
             "path object or if there is no current object"
         end
@@ -1936,7 +1936,7 @@ module HexaPDF
 
       # Raises an error unless the current graphics object is a text object.
       def raise_unless_in_text
-        if graphics_object != :text
+        unless graphics_object == :text
           raise HexaPDF::Error, "Operation only allowed when current graphics object is a " \
             "text object"
         end
@@ -1950,7 +1950,7 @@ module HexaPDF
           color = color_from_specification(color)
 
           save_graphics_state if block_given?
-          if color != graphics_state.send(name)
+          unless color == graphics_state.send(name)
             case color.color_space.family
             when :DeviceRGB then serialize(rg, *color.components)
             when :DeviceGray then serialize(g, *color.components)
