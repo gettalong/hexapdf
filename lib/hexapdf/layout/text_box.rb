@@ -583,7 +583,7 @@ module HexaPDF
 
         items = @items
         if style.text_indent != 0
-          items = [Box.new(InlineBox.new(style.text_indent, 0) { })].concat(items)
+          items = [Box.new(InlineBox.new(style.text_indent, 0))].concat(items)
         end
 
         if @width.respond_to?(:call)
