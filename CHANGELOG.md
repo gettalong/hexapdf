@@ -3,6 +3,9 @@
 ### Fixed
 
 * Parsing of PDF files containing a loop with respect to cross-reference tables
+* [HexaPDF::Layout::InlineBox] to act as placeholder if no drawing block is
+  given
+
 
 ## 0.5.0 - 2017-06-24
 

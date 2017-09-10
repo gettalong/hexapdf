@@ -68,15 +68,21 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   box.draw(canvas, x, y)    -> block_result
+      #   box.draw(canvas, x, y)    -> block_result or nil
       #
       # Draws the contents of the box onto the canvas at the position (x, y), and returns the result
-      # of the drawing block (see #initialize).
+      # of the drawing block (see #initialize). If no drawing block was specified, it returns +nil+.
       #
       # The coordinate system is translated so that the origin is at (x, y) during the drawing
       # operations.
       def draw(canvas, x, y)
+        return if placeholder?
         canvas.translate(x, y) { @draw_block.call(self, canvas) }
+      end
+
+      # Returns +true+ if this inline box is just a placeholder without a drawing operation.
+      def placeholder?
+        @draw_block.nil?
       end
 
       # The minimum x-coordinate which is always 0.

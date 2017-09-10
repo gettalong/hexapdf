@@ -17,6 +17,15 @@ describe HexaPDF::Layout::InlineBox do
     it "returns the value of the drawing block" do
       assert_equal([1, 2, [@box, @canvas]], @box.draw(@canvas, 1, 2))
     end
+
+    it "returns nil if it is just a placeholder box" do
+      assert_nil(HexaPDF::Layout::InlineBox.new(10, 15).draw(@canvas, 1, 2))
+    end
+  end
+
+  it "returns true if the inline box is just a place holder with no drawing operation" do
+    refute(@box.placeholder?)
+    assert(HexaPDF::Layout::InlineBox.new(10, 15).placeholder?)
   end
 
   describe "valign" do
