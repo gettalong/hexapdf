@@ -639,7 +639,7 @@ module HexaPDF
       # Depending on the value of +fit+ the text may also be fitted:
       #
       # * If +true+, then #fit is always called.
-      # * If +:if_needed+, then #fit is only called if it has been called before.
+      # * If +:if_needed+, then #fit is only called if it has not been called before.
       # * If +false+, then #fit is never called.
       def draw(canvas, x, y, fit: :if_needed)
         self.fit if fit == true || (!@actual_height && fit == :if_needed)
