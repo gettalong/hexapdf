@@ -1684,6 +1684,7 @@ module HexaPDF
       #
       # See: http://www.unicode.org/reports/tr18/#Line_Boundaries
       def text(text, at: nil)
+        raise_unless_font_set
         move_text_cursor(offset: at) if at
         lines = text.split(/\u{D A}|(?!\u{D A})[\u{A}-\u{D}\u{85}\u{2028}\u{2029}]/, -1)
         lines.each_with_index do |str, index|
@@ -1709,6 +1710,7 @@ module HexaPDF
       #
       # This method is usually not invoked directly but by higher level methods like #text.
       def show_glyphs(glyphs)
+        raise_unless_font_set
         begin_text
 
         result = [''.b]
@@ -1744,6 +1746,7 @@ module HexaPDF
       # #text_cursor and other methods using the current text matrix are invalid until the next call
       # to #text_matrix or #end_text.
       def show_glyphs_only(glyphs)
+        raise_unless_font_set
         begin_text
 
         result = [''.b]
@@ -1939,6 +1942,13 @@ module HexaPDF
         unless graphics_object == :text
           raise HexaPDF::Error, "Operation only allowed if current graphics object is a " \
             "text object"
+        end
+      end
+
+      # Raises an error unless a font has been set.
+      def raise_unless_font_set
+        unless @font
+          raise HexaPDF::Error, "Operation only allowed if a font is set"
         end
       end
 

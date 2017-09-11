@@ -5,6 +5,7 @@
 * Parsing of PDF files containing a loop with respect to cross-reference tables
 * [HexaPDF::Layout::InlineBox] to act as placeholder if no drawing block is
   given
+* Undefined method error in [HexaPDF::Content::Canvas] by raising a proper error
 
 
 ## 0.5.0 - 2017-06-24

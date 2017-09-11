@@ -1066,6 +1066,11 @@ describe HexaPDF::Content::Canvas do
                                           [:show_text_with_positioning, [["Hal"]]],
                                          ])
     end
+
+    it "fails if no valid font is set" do
+      error = assert_raises(HexaPDF::Error) { @canvas.show_glyphs([]) }
+      assert_match(/if a font is set/, error.message)
+    end
   end
 
   describe "show_glyphs_only" do
@@ -1080,6 +1085,11 @@ describe HexaPDF::Content::Canvas do
                                           [:begin_text],
                                           [:show_text_with_positioning, [["Ha", -35, "l lo"]]],
                                          ])
+    end
+
+    it "fails if no valid font is set" do
+      error = assert_raises(HexaPDF::Error) { @canvas.show_glyphs([]) }
+      assert_match(/if a font is set/, error.message)
     end
   end
 
@@ -1111,6 +1121,11 @@ describe HexaPDF::Content::Canvas do
                                           [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
                                           [:show_text_with_positioning, [["H"]]],
                                          ])
+    end
+
+    it "fails if no valid font is set" do
+      error = assert_raises(HexaPDF::Error) { @canvas.show_glyphs([]) }
+      assert_match(/if a font is set/, error.message)
     end
   end
 
