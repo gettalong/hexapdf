@@ -87,6 +87,17 @@ describe HexaPDF::Content::Canvas do
       assert_operators(@canvas.contents, [[:save_graphics_state], [:restore_graphics_state]])
     end
 
+    it "saves needed font state information not stored in the graphics state" do
+      @canvas.save_graphics_state do
+        @canvas.font("Times", size: 12)
+        @canvas.save_graphics_state do
+          @canvas.font("Helvetica")
+        end
+        assert_equal("Times-Roman", @canvas.font.wrapped_font.font_name)
+      end
+      assert_nil(@canvas.font)
+    end
+
     it "fails if invoked while in an unsupported graphics objects" do
       assert_raises_in_graphics_object(:path, :clipping_path) { @canvas.save_graphics_state }
     end

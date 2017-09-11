@@ -195,6 +195,7 @@ module HexaPDF
         @graphics_state = GraphicsState.new
         @graphics_object = :none
         @font = nil
+        @font_stack = []
         @serializer = HexaPDF::Serializer.new
         @current_point = [0, 0]
         @start_point = [0, 0]
@@ -241,6 +242,7 @@ module HexaPDF
       def save_graphics_state
         raise_unless_at_page_description_level
         invoke0(:q)
+        @font_stack.push(@font)
         if block_given?
           yield
           restore_graphics_state
@@ -259,6 +261,7 @@ module HexaPDF
       def restore_graphics_state
         raise_unless_at_page_description_level
         invoke0(:Q)
+        @font = @font_stack.pop
         self
       end
 

@@ -6,6 +6,8 @@
 * [HexaPDF::Layout::InlineBox] to act as placeholder if no drawing block is
   given
 * Undefined method error in [HexaPDF::Content::Canvas] by raising a proper error
+* Invalid handling of fonts by [HexaPDF::Content::Canvas] when saving and
+  restoring the graphics state
 
 
 ## 0.5.0 - 2017-06-24
