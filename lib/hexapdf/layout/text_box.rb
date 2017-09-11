@@ -649,7 +649,15 @@ module HexaPDF
           y -= initial_baseline_offset + @lines.first.y_offset
           @lines.each_with_index do |line, index|
             line_x = x + line.x_offset
-            line.each {|item, item_x, item_y| item.draw(canvas, line_x + item_x, y + item_y) }
+            line.each do |item, item_x, item_y|
+              if item.kind_of?(TextFragment)
+                item.draw(canvas, line_x + item_x, y + item_y)
+              elsif !item.placeholder?
+                canvas.restore_graphics_state
+                item.draw(canvas, line_x + item_x, y + item_y)
+                canvas.save_graphics_state
+              end
+            end
             y -= @lines[index + 1].y_offset if @lines[index + 1]
           end
         end

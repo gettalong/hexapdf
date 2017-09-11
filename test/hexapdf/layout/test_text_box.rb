@@ -636,5 +636,27 @@ describe HexaPDF::Layout::TextBox do
         @box.draw(@canvas, 0, 0)
       end
     end
+
+    it "makes sure that text fragments don't pollute the graphics state for inline boxes" do
+      frag = HexaPDF::Layout::TextFragment.create("Demo", font: @font)
+      inline_box = HexaPDF::Layout::InlineBox.new(10, 10) {|_, canvas| canvas.text("A")}
+      box = HexaPDF::Layout::TextBox.new(items: [frag, inline_box], width: 200)
+      assert_raises(HexaPDF::Error) { box.draw(@canvas, 0, 0) }
+    end
+
+    it "doesn't do unnecessary work for placeholder boxes" do
+      box1 = HexaPDF::Layout::InlineBox.new(10, 20)
+      box2 = HexaPDF::Layout::InlineBox.new(30, 40) { @canvas.line_width(2) }
+      box = HexaPDF::Layout::TextBox.new(items: [box1, box2], width: 200)
+      box.draw(@canvas, 0, 0)
+      assert_operators(@canvas.contents, [[:save_graphics_state],
+                                          [:restore_graphics_state],
+                                          [:save_graphics_state],
+                                          [:concatenate_matrix, [1, 0, 0, 1, 10, -40]],
+                                          [:set_line_width, [2]],
+                                          [:restore_graphics_state],
+                                          [:save_graphics_state],
+                                          [:restore_graphics_state]])
+    end
   end
 end

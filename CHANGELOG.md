@@ -8,6 +8,8 @@
 * Undefined method error in [HexaPDF::Content::Canvas] by raising a proper error
 * Invalid handling of fonts by [HexaPDF::Content::Canvas] when saving and
   restoring the graphics state
+* [HexaPDF::Layout::TextBox] so that text fragments don't pollute the graphics
+  state
 
 
 ## 0.5.0 - 2017-06-24
