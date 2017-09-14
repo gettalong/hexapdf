@@ -784,7 +784,7 @@ module HexaPDF
         end
 
         def invoke(processor, rendering_mode) #:nodoc:
-          processor.graphics_state.text_rendering_mode = rendering_mode
+          processor.graphics_state.text_rendering_mode = TextRenderingMode.normalize(rendering_mode)
         end
 
       end

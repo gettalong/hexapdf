@@ -463,8 +463,9 @@ end
 
 describe_operator :SetTextRenderingMode, :Tr do
   it "modifies the text rendering mode" do
-    invoke(127)
-    assert_equal(127, @processor.graphics_state.text_rendering_mode)
+    invoke(HexaPDF::Content::TextRenderingMode::FILL_STROKE)
+    assert_equal(HexaPDF::Content::TextRenderingMode::FILL_STROKE,
+                 @processor.graphics_state.text_rendering_mode)
   end
 end
 

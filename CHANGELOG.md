@@ -10,6 +10,7 @@
   restoring the graphics state
 * [HexaPDF::Layout::TextBox] so that text fragments don't pollute the graphics
   state
+* [HexaPDF::Content::Operator::SetTextRenderingMode] to normalize the value
 
 
 ## 0.5.0 - 2017-06-24
