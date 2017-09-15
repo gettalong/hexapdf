@@ -39,13 +39,21 @@ officia deserunt mollit anim id est laborum. ".tr("\n", ' ') * 3
 doc = HexaPDF::Document.new
 
 heading = HexaPDF::Layout::Style.new(font: doc.fonts.load("Helvetica", variant: :bold),
-                                     font_size: 16, align: :center)
+                                     font_size: 32, align: :center,
+                                     fill_color: [200], text_rendering_mode: :fill_stroke,
+                                     stroke_color: [255, 0, 0], stroke_alpha: 0.7,
+                                     stroke_width: 1, stroke_dash_pattern: [0.5, 1, 1.5],
+                                     stroke_cap_style: :round, stroke_join_style: :round)
 body = HexaPDF::Layout::Style.new(font: doc.fonts.load("Times"),
                                   font_size: 10, align: :justify,
                                   text_indent: 20)
-body.line_spacing(:proportional, 1.5)
-standout = HexaPDF::Layout::Style.new(font: doc.fonts.load("Times", variant: :bold),
-                                      font_size: 14)
+body.line_spacing(:fixed, 16)
+highlight = HexaPDF::Layout::Style.new(font: doc.fonts.load("Times", variant: :bold_italic),
+                                       text_rendering_mode: :stroke,
+                                       stroke_color: [255, 0, 0], stroke_width: 0.2,
+                                       stroke_join_style: :round)
+intro = HexaPDF::Layout::Style.new(font: doc.fonts.load("Times", variant: :bold),
+                                   fill_color: [0, 0, 160], font_size: 14)
 
 canvas = doc.pages.add.canvas
 y_base = 800
@@ -60,13 +68,16 @@ box = HexaPDF::Layout::TextBox.new(items: [fragment(sample_text, body)],
                                    width: width, style: body)
 y_base = draw_box(box, canvas, left, y_base - 20)
 
-items = [
-  fragment(sample_text[0, 50], body), fragment(sample_text[50, 15], standout),
-  fragment(sample_text[65, 150], body), fragment(sample_text[215, 50], standout),
-  fragment(sample_text[265...800], body), fragment(sample_text[800, 40], standout),
-  fragment(sample_text[840..-1], body)
-]
+items = sample_text.split(/(Lorem ipsum dolor sit|\b\w\w\b)/).map do |str|
+  if str.length == 2
+    fragment(str, highlight)
+  elsif str =~ /Lorem/
+    fragment(str, intro)
+  else
+    fragment(str, body)
+  end
+end
+
 box = HexaPDF::Layout::TextBox.new(items: items, width: width, style: body)
 draw_box(box, canvas, left, y_base - 20)
-
 doc.write("text_box_styling.pdf", optimize: true)
