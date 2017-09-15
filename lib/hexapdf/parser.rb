@@ -228,7 +228,10 @@ module HexaPDF
 
         @tokenizer.skip_whitespace
         start.upto(start + number_of_entries - 1) do |oid|
-          pos, gen, type = @tokenizer.next_xref_entry
+          pos, gen, type = @tokenizer.next_xref_entry do |matched_size|
+            maybe_raise("Invalid cross-reference subsection entry", pos: @tokenizer.pos,
+                        force: matched_size == 20)
+          end
           if xref.entry?(oid)
             next
           elsif type == 'n'.freeze

@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Changed
+
+* Cross-reference subsection parsing can handle missing whitespace
+
 ### Fixed
 
 * Parsing of PDF files containing a loop with respect to cross-reference tables

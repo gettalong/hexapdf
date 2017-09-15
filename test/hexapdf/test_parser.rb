@@ -284,6 +284,12 @@ EOF
       assert_equal(HexaPDF::XRefSection.free_entry(1, 65536), section[1])
     end
 
+    it "handles xref with missing whitespace at end" do
+      create_parser("xref\n0 2\n0000000000 00000 n\n0000000000 65536 n\ntrailer\n<<>>\n")
+      section, _trailer = @parser.parse_xref_section_and_trailer(0)
+      assert_equal(HexaPDF::XRefSection.free_entry(1, 65536), section[1])
+    end
+
     it "fails if the xref keyword is missing/mangled" do
       create_parser("xTEf\n0 d\n0000000000 00000 n \ntrailer\n<< >>\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
@@ -349,6 +355,12 @@ EOF
       create_parser("xref\n0 2\n0000000000 00000 n \n0000000000 65536 n \ntrailer\n<<>>\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
       assert_match(/invalid.*cross-reference entry/i, exp.message)
+    end
+
+    it "parse_xref_section_and_trailer fails if trailing second whitespace is missing" do
+      create_parser("xref\n0 1\n0000000000 00000 n\ntrailer\n<<>>\n")
+      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
+      assert_match(/invalid.*cross-reference subsection entry/i, exp.message)
     end
 
     it "parse_indirect_object fails if an empty indirect object is found" do
