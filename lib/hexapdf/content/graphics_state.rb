@@ -159,6 +159,21 @@ module HexaPDF
     # See: PDF1.7 s8.4.3.6
     class LineDashPattern
 
+      # Returns the arguments normalized to a valid LineDashPattern instance.
+      #
+      # If +array+ is 0, the default line dash pattern representing a solid line will be used. If it
+      # is a single number, it will be converted into an array holding that number.
+      def self.normalize(array, phase = 0)
+        case array
+        when LineDashPattern then array
+        when Array then new(array, phase)
+        when 0 then new
+        when Numeric then new([array], phase)
+        else
+          raise ArgumentError, "Unknown line dash pattern: #{array} / #{phase}"
+        end
+      end
+
       # The dash array.
       attr_reader :array
 

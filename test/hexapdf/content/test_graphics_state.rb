@@ -77,6 +77,17 @@ class GraphicsStateWrapper < Minitest::Spec
   end
 
   describe LineDashPattern do
+    it "returns a normalized line dash pattern from various values" do
+      assert_equal([[], 0], LineDashPattern.normalize(0).to_operands)
+      assert_equal([[5], 0], LineDashPattern.normalize(5).to_operands)
+      assert_equal([[5, 3], 2], LineDashPattern.normalize([5, 3], 2).to_operands)
+      assert_equal([[5], 1], LineDashPattern.normalize(LineDashPattern.normalize(5, 1)).to_operands)
+    end
+
+    it "fails on normalization if an invalid array argument is provided" do
+      assert_raises(ArgumentError) { LineDashPattern.normalize(:bla) }
+    end
+
     it "fails on initialization if the phase is negative" do
       assert_raises(ArgumentError) { LineDashPattern.new([], -1) }
     end

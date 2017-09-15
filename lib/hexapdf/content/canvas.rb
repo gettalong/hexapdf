@@ -610,16 +610,8 @@ module HexaPDF
       #
       # See: PDF1.7 s8.4.3.5, LineDashPattern
       def line_dash_pattern(value = nil, phase = 0, &block)
-        case value
-        when nil, LineDashPattern
-        when Array
-          value = LineDashPattern.new(value, phase)
-        when 0
-          value = LineDashPattern.new([], 0)
-        else
-          value = LineDashPattern.new([value], phase)
-        end
-        gs_getter_setter(:line_dash_pattern, :d, value, &block)
+        gs_getter_setter(:line_dash_pattern, :d, value && LineDashPattern.normalize(value, phase),
+                         &block)
       end
       alias :line_dash_pattern= :line_dash_pattern
 
