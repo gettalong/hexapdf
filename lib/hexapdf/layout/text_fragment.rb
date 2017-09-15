@@ -85,6 +85,8 @@ module HexaPDF
       # Before the text is drawn using HexaPDF::Content;:Canvas#show_glyphs, the text properties
       # mentioned in the description of #style are set.
       def draw(canvas, x, y)
+        return if items.empty?
+
         canvas.move_text_cursor(offset: [x, y])
         canvas.font(style.font, size: style.font_size).
           horizontal_scaling(style.horizontal_scaling).

@@ -75,6 +75,12 @@ describe HexaPDF::Layout::TextFragment do
     it "calculates the height" do
       assert_equal(13.66 + 4.34, @fragment.height)
     end
+
+    it "draws nothing" do
+      canvas = @doc.pages.add.canvas
+      @fragment.draw(canvas, 10, 15)
+      assert_operators(canvas.contents, [])
+    end
   end
 
   describe "normal text" do
