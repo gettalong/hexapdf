@@ -90,8 +90,23 @@ describe HexaPDF::Layout::Style do
     assert_equal(100, @style.horizontal_scaling)
     assert_equal(0, @style.text_rise)
     assert_equal({}, @style.font_features)
+    assert_equal(:fill, @style.text_rendering_mode)
+    assert_equal([0], @style.fill_color.components)
+    assert_equal(1, @style.fill_alpha)
+    assert_equal([0], @style.stroke_color.components)
+    assert_equal(1, @style.stroke_alpha)
+    assert_equal(1, @style.stroke_width)
+    assert_equal(:butt, @style.stroke_cap_style)
+    assert_equal(:miter, @style.stroke_join_style)
+    assert_equal(10.0, @style.stroke_miter_limit)
     assert_equal(:left, @style.align)
     assert_equal(:top, @style.valign)
+  end
+
+  it "can set and retrieve stroke dash pattern objects" do
+    assert_equal([[], 0], @style.stroke_dash_pattern.to_operands)
+    @style.stroke_dash_pattern(5, 2)
+    assert_equal([[5], 2], @style.stroke_dash_pattern.to_operands)
   end
 
   it "can set and retrieve line spacing objects" do

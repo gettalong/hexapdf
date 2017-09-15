@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* More styling properties for [HexaPDF::Layout::Style]
+
 ### Changed
 
 * Cross-reference subsection parsing can handle missing whitespace

@@ -32,6 +32,7 @@
 #++
 
 require 'hexapdf/error'
+require 'hexapdf/content/graphics_state'
 
 module HexaPDF
   module Layout
@@ -196,6 +197,91 @@ module HexaPDF
       # See: HexaPDF::Layout::TextShaper#shape_text for available features.
 
       ##
+      # :method: text_rendering_mode
+      # :call-seq:
+      #   text_rendering_mode(mode = nil)
+      #
+      # The text rendering mode, i.e. whether text should be filled, stroked, clipped, invisible or
+      # a combination thereof, defaults to :fill.
+      #
+      # See: HexaPDF::Content::Canvas#text_rendering_mode
+
+      ##
+      # :method: fill_color
+      # :call-seq:
+      #   fill_color(color = nil)
+      #
+      # The color used for filling (e.g. text), defaults to black.
+      #
+      # See: HexaPDF::Content::Canvas#fill_color
+
+      ##
+      # :method: fill_alpha
+      # :call-seq:
+      #   fill_alpha(alpha = nil)
+      #
+      # The alpha value applied to filling operations (e.g. text), defaults to 1 (i.e. 100%
+      # opaque).
+      #
+      # See: HexaPDF::Content::Canvas#opacity
+
+      ##
+      # :method: stroke_color
+      # :call-seq:
+      #   stroke_color(color = nil)
+      #
+      # The color used for stroking (e.g. text outlines), defaults to black.
+      #
+      # See: HexaPDF::Content::Canvas#stroke_color
+
+      ##
+      # :method: stroke_alpha
+      # :call-seq:
+      #   stroke_alpha(alpha = nil)
+      #
+      # The alpha value applied to stroking operations (e.g. text outlines), defaults to 1 (i.e.
+      # 100% opaque).
+      #
+      # See: HexaPDF::Content::Canvas#opacity
+
+      ##
+      # :method: stroke_width
+      # :call-seq:
+      #   stroke_width(width = nil)
+      #
+      # The line width used for stroking operations (e.g. text outlines), defaults to 1.
+      #
+      # See: HexaPDF::Content::Canvas#line_width
+
+      ##
+      # :method: stroke_cap_style
+      # :call-seq:
+      #   stroke_cap_style(style = nil)
+      #
+      # The line cap style used for stroking operations (e.g. text outlines), defaults to :butt.
+      #
+      # See: HexaPDF::Content::Canvas#line_cap_style
+
+      ##
+      # :method: stroke_join_style
+      # :call-seq:
+      #   stroke_join_style(style = nil)
+      #
+      # The line join style used for stroking operations (e.g. text outlines), defaults to :miter.
+      #
+      # See: HexaPDF::Content::Canvas#line_join_style
+
+      ##
+      # :method: stroke_miter_limit
+      # :call-seq:
+      #   stroke_miter_limit(limit = nil)
+      #
+      # The miter limit used for stroking operations (e.g. text outlines) when #stroke_join_style is
+      # :miter, defaults to 10.0.
+      #
+      # See: HexaPDF::Content::Canvas#miter_limit
+
+      ##
       # :method: align
       # :call-seq:
       #   align(direction = nil)
@@ -237,6 +323,15 @@ module HexaPDF
         [:horizontal_scaling, 100],
         [:text_rise, 0],
         [:font_features, {}],
+        [:text_rendering_mode, :fill],
+        [:fill_color, "default_color"],
+        [:fill_alpha, 1],
+        [:stroke_color, "default_color"],
+        [:stroke_alpha, 1],
+        [:stroke_width, 1],
+        [:stroke_cap_style, :butt],
+        [:stroke_join_style, :miter],
+        [:stroke_miter_limit, 10.0],
         [:align, :left],
         [:valign, :top],
         [:text_indent, 0],
@@ -249,6 +344,23 @@ module HexaPDF
         EOF
         alias_method("#{name}=", name)
       end
+
+      # :call-seq:
+      #   stroke_dash_pattern(array = nil, phase = 0)
+      #
+      # The line dash pattern used for stroking operations (e.g. text outlines), defaults to a solid
+      # line.
+      #
+      # See: HexaPDF::Content::Canvas#line_dash_pattern
+      def stroke_dash_pattern(array = UNSET, phase = 0)
+        if array == UNSET
+          @stroke_dash_pattern ||= HexaPDF::Content::LineDashPattern.new
+        else
+          @stroke_dash_pattern = HexaPDF::Content::LineDashPattern.normalize(array, phase)
+          self
+        end
+      end
+      alias_method(:stroke_dash_pattern=, :stroke_dash_pattern)
 
       # :call-seq:
       #   line_spacing(type = nil, value = nil)
@@ -357,6 +469,13 @@ module HexaPDF
         @scaled_font_size = @scaled_character_spacing = @scaled_word_spacing = nil
         @scaled_horizontal_scaling = @ascender = @descender = nil
         @scaled_item_widths.clear
+      end
+
+      private
+
+      # Returns the default color for an empty PDF page, i.e. black.
+      def default_color
+        GlobalConfiguration.constantize('color_space.map'.freeze, :DeviceGray).new.default_color
       end
 
     end
