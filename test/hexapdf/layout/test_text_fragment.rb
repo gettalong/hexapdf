@@ -31,20 +31,57 @@ describe HexaPDF::Layout::TextFragment do
     assert_equal(:text, setup_fragment([]).valign)
   end
 
-  it "draws the text onto the canvas" do
-    setup_fragment(@font.decode_utf8('H'), 2)
-    canvas = @doc.pages.add.canvas
-    @fragment.draw(canvas, 10, 15)
-    assert_operators(canvas.contents,
-                     [[:begin_text],
-                      [:set_text_matrix, [1, 0, 0, 1, 10, 15]],
-                      [:set_font_and_size, [:F1, 20]],
-                      [:set_leading, [24.0]],
-                      [:set_horizontal_scaling, [200]],
-                      [:set_character_spacing, [1]],
-                      [:set_word_spacing, [2]],
-                      [:set_text_rise, [2]],
-                      [:show_text_with_positioning, [['!']]]])
+  describe "draw" do
+    def setup_with_style(**styles)
+      setup_fragment(@font.decode_utf8('H'), 2)
+      styles.each {|name, value| @fragment.style.send(name, value)}
+      @canvas = @doc.pages.add.canvas
+      @fragment.draw(@canvas, 10, 15)
+    end
+
+    def assert_draw_operators(*middle)
+      ops = [
+        [:begin_text],
+        [:set_text_matrix, [1, 0, 0, 1, 10, 15]],
+        [:set_font_and_size, [:F1, 20]],
+        [:set_leading, [24.0]],
+        [:set_horizontal_scaling, [200]],
+        [:set_character_spacing, [1]],
+        [:set_word_spacing, [2]],
+        [:set_text_rise, [2]],
+        *middle,
+        [:show_text_with_positioning, [['!']]],
+      ].compact
+      assert_operators(@canvas.contents, ops)
+    end
+
+    it "draws text onto the canvas" do
+      setup_with_style
+      assert_draw_operators
+    end
+
+    it "draws styled filled text" do
+      setup_with_style(fill_color: 0.5, fill_alpha: 0.5)
+      assert_draw_operators([:set_graphics_state_parameters, [:GS1]],
+                            [:set_device_gray_non_stroking_color, [0.5]])
+      assert_equal({Type: :ExtGState, CA: 1, ca: 0.5}, @canvas.resources[:ExtGState][:GS1])
+    end
+
+    it "draws style stroked text" do
+      setup_with_style(text_rendering_mode: :stroke,
+                       stroke_color: [1.0, 0, 0], stroke_alpha: 0.5, stroke_width: 2,
+                       stroke_cap_style: :round, stroke_join_style: :round, stroke_miter_limit: 5,
+                       stroke_dash_pattern: [1, 2, 3])
+      assert_draw_operators([:set_text_rendering_mode, [1]],
+                            [:set_graphics_state_parameters, [:GS1]],
+                            [:set_device_rgb_stroking_color, [1, 0, 0]],
+                            [:set_line_width, [2]],
+                            [:set_line_cap_style, [1]],
+                            [:set_line_join_style, [1]],
+                            [:set_miter_limit, [5]],
+                            [:set_line_dash_pattern, [[1, 2, 3], 0]])
+      assert_equal({Type: :ExtGState, CA: 0.5, ca: 1}, @canvas.resources[:ExtGState][:GS1])
+    end
   end
 
   describe "empty fragment" do

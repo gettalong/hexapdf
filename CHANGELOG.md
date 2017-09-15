@@ -6,6 +6,7 @@
 
 ### Changed
 
+* [HexaPDF::Layout::TextFragment] to support more styling properties
 * Cross-reference subsection parsing can handle missing whitespace
 
 ### Fixed

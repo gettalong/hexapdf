@@ -70,8 +70,24 @@ module HexaPDF
 
       # The style to be applied.
       #
-      # Only the following properties are used: Style#font, Style#font_size,
-      # Style#horizontal_scaling, Style#character_spacing, Style#word_spacing and Style#text_rise.
+      # Only the following properties are used:
+      #
+      # * Style#font
+      # * Style#font_size
+      # * Style#horizontal_scaling
+      # * Style#character_spacing
+      # * Style#word_spacing
+      # * Style#text_rise
+      # * Style#text_rendering_mode
+      # * Style#fill_color
+      # * Style#fill_alpha
+      # * Style#stroke_color
+      # * Style#stroke_alpha
+      # * Style#stroke_width
+      # * Style#stroke_cap_style
+      # * Style#stroke_join_style
+      # * Style#stroke_miter_limit
+      # * Style#stroke_dash_pattern
       attr_reader :style
 
       # Creates a new TextFragment object with the given items and style.
@@ -87,12 +103,30 @@ module HexaPDF
       def draw(canvas, x, y)
         return if items.empty?
 
+        # Set general font related graphics state
         canvas.move_text_cursor(offset: [x, y])
         canvas.font(style.font, size: style.font_size).
           horizontal_scaling(style.horizontal_scaling).
           character_spacing(style.character_spacing).
           word_spacing(style.word_spacing).
-          text_rise(style.text_rise)
+          text_rise(style.text_rise).
+          text_rendering_mode(style.text_rendering_mode)
+
+        # Set fill and/or stroke related graphics state
+        canvas.opacity(fill_alpha: style.fill_alpha, stroke_alpha: style.stroke_alpha)
+        trm = canvas.text_rendering_mode
+        if trm.value.even? # text is filled
+          canvas.fill_color(style.fill_color)
+        end
+        if trm == :stroke || trm == :fill_stroke || trm == :stroke_clip || trm == :fill_stroke_clip
+          canvas.stroke_color(style.stroke_color).
+            line_width(style.stroke_width).
+            line_cap_style(style.stroke_cap_style).
+            line_join_style(style.stroke_join_style).
+            miter_limit(style.stroke_miter_limit).
+            line_dash_pattern(style.stroke_dash_pattern)
+        end
+
         canvas.show_glyphs_only(items)
       end
 
