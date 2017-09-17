@@ -5,7 +5,8 @@
 # fonts.
 #
 # Before a TrueType font can be used, HexaPDF needs to be made aware of it. This
-# is done by setting the configuration option 'font.map'.
+# is done by setting the configuration option 'font.map'. For one-off usage of a
+# font file, the file name itself could also be used.
 #
 # Once that is done the [HexaPDF::Content::Canvas#font] method can be used as
 # usual.
