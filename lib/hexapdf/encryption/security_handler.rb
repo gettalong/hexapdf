@@ -132,6 +132,32 @@ module HexaPDF
     #   EncryptionDictionary class.
     class SecurityHandler
 
+      # Provides additional encryption specific information for HexaPDF::StreamData objects.
+      class EncryptedStreamData < StreamData
+
+        # The encryption key.
+        attr_reader :key
+
+        # The encryption algorithm.
+        attr_reader :algorithm
+
+        # Creates a new encrypted stream data object by utilizing the given stream data object as
+        # template. The arguments +key+ and +algorithm+ are used for decrypting purposes.
+        def initialize(obj, key, algorithm)
+          obj.instance_variables.each {|v| instance_variable_set(v, obj.instance_variable_get(v))}
+          @key = key
+          @algorithm = algorithm
+        end
+
+        alias :undecrypted_fiber :fiber
+
+        # Returns a fiber like HexaPDF::StreamData#fiber, but one wrapped in a decrypting fiber.
+        def fiber(*args)
+          @algorithm.decryption_fiber(@key, super(*args))
+        end
+
+      end
+
       # :call-seq:
       #   SecurityHandler.set_up_encryption(document, handler_name, **options)   -> handler
       #
@@ -237,8 +263,7 @@ module HexaPDF
           unless string_algorithm == stream_algorithm
             key = object_key(obj.oid, obj.gen, stream_algorithm)
           end
-          obj.raw_stream.filter.unshift(:Encryption)
-          obj.raw_stream.decode_parms.unshift(key: key, algorithm: stream_algorithm)
+          obj.data.stream = EncryptedStreamData.new(obj.raw_stream, key, stream_algorithm)
         end
 
         obj
@@ -259,7 +284,14 @@ module HexaPDF
         return obj.stream_encoder if obj.type == :XRef
 
         key = object_key(obj.oid, obj.gen, stream_algorithm)
-        obj.stream_encoder(:Encryption, key: key, algorithm: stream_algorithm)
+        source = obj.stream_source
+        result = obj.stream_encoder(source)
+        if result == source && obj.raw_stream.kind_of?(EncryptedStreamData) &&
+            obj.raw_stream.key == key && obj.raw_stream.algorithm == stream_algorithm
+          obj.raw_stream.undecrypted_fiber
+        else
+          stream_algorithm.encryption_fiber(key, result)
+        end
       end
 
       # Computes the encryption key and sets up the algorithms for encrypting the document based on

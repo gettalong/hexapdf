@@ -20,6 +20,7 @@
 * [HexaPDF::Layout::TextBox] so that text fragments don't pollute the graphics
   state
 * [HexaPDF::Content::Operator::SetTextRenderingMode] to normalize the value
+* [HexaPDF::Stream#stream_source] to always return a decrypted stream
 
 
 ## 0.5.0 - 2017-06-24
