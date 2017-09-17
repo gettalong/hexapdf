@@ -245,6 +245,7 @@ module HexaPDF
                       'font_loader' => [
                         'HexaPDF::FontLoader::Standard14',
                         'HexaPDF::FontLoader::FromConfiguration',
+                        'HexaPDF::FontLoader::FromFile',
                       ],
                       'graphic_object.map' => {
                         arc: 'HexaPDF::Content::GraphicObject::Arc',

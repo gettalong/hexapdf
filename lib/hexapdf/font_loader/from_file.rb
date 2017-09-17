@@ -32,15 +32,14 @@
 #++
 
 require 'hexapdf/font/true_type_wrapper'
-require 'hexapdf/font_loader/from_file'
 
 module HexaPDF
   module FontLoader
 
-    # This module uses the configuration option 'font.map' for loading a font.
-    module FromConfiguration
+    # This module interprets the font name as file name and tries to load it.
+    module FromFile
 
-      # Loads the given font by looking up the needed file in the 'font.map' configuration option.
+      # Loads the given font by interpreting the font name as file name.
       #
       # The file object representing the font file is *not* closed and if needed must be closed by
       # the caller once the font is not needed anymore.
@@ -49,21 +48,15 @@ module HexaPDF
       #     The PDF document to associate the font object with.
       #
       # +name+::
-      #     The name of the font.
-      #
-      # +variant+::
-      #     The font variant. Normally one of :none, :bold, :italic, :bold_italic.
+      #     The file name.
       #
       # +subset+::
       #     Specifies whether the font should be subset if possible.
-      def self.call(document, name, variant: :none, subset: true)
-        file = document.config['font.map'].dig(name, variant)
-        return nil if file.nil?
+      def self.call(document, name, subset: true, **)
+        return nil unless File.file?(name)
 
-        unless File.file?(file)
-          raise HexaPDF::Error, "The configured font file #{file} does not exist"
-        end
-        FromFile.call(document, file, subset: subset)
+        font = HexaPDF::Font::TrueType::Font.new(File.open(name, 'rb'))
+        HexaPDF::Font::TrueTypeWrapper.new(document, font, subset: subset)
       end
 
     end

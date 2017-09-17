@@ -3,6 +3,7 @@
 ### Added
 
 * More styling properties for [HexaPDF::Layout::Style]
+* [HexaPDF::FontLoader::FromFile] to allow specifying a font file directly
 
 ### Changed
 
