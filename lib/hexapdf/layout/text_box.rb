@@ -81,6 +81,11 @@ module HexaPDF
           @item.width
         end
 
+        # The height of the item.
+        def height
+          @item.height
+        end
+
         # Returns :box.
         def type
           :box
@@ -127,6 +132,12 @@ module HexaPDF
         # All numbers greater than this one are deemed infinite.
         INFINITY = 1000
 
+        # The penalty value for a mandatory paragraph break.
+        PARAGRAPH_BREAK = -INFINITY - 1_000_000
+
+        # The penalty value for a mandatory line break.
+        LINE_BREAK = -INFINITY - 1_000_001
+
         # The penalty for breaking at this point.
         attr_reader :penalty
 
@@ -148,8 +159,11 @@ module HexaPDF
           :penalty
         end
 
-        # Singleton object describing a Penalty for a mandatory break.
-        MandatoryBreak = new(-Penalty::INFINITY)
+        # Singleton object describing a Penalty for a mandatory paragraph break.
+        MandatoryParagraphBreak = new(PARAGRAPH_BREAK)
+
+        # Singleton object describing a Penalty for a mandatory line break.
+        MandatoryLineBreak = new(LINE_BREAK)
 
         # Singleton object describing a Penalty for a prohibited break.
         ProhibitedBreak = new(Penalty::INFINITY)
@@ -217,11 +231,13 @@ module HexaPDF
                     glues[item.style] ||=
                       Glue.new(TextFragment.new(items: [glyph].freeze, style: item.style))
                     result << glues[item.style]
-                  when "\n", "\v", "\f", "\u{85}", "\u{2028}", "\u{2029}"
-                    result << Penalty::MandatoryBreak
+                  when "\n", "\v", "\f", "\u{85}", "\u{2029}"
+                    result << Penalty::MandatoryParagraphBreak
+                  when "\u{2028}"
+                    result << Penalty::MandatoryLineBreak
                   when "\r"
                     if item.items[i + 1]&.kind_of?(Numeric) || item.items[i + 1].str != "\n"
-                      result << Penalty::MandatoryBreak
+                      result << Penalty::MandatoryParagraphBreak
                     end
                   when '-'
                     result << Penalty::Standard
@@ -255,32 +271,35 @@ module HexaPDF
       class SimpleLineWrapping
 
         # :call-seq:
-        #   SimpleLineWrapping.call(items, available_width) {|line, item| block }   -> rest
+        #   SimpleLineWrapping.call(items, width_block) {|line, item| block }   -> rest
         #
         # Arranges the items into lines.
         #
-        # The +available_width+ argument can either be a simple number or a callable object:
+        # The +width_block+ argument has to be a callable object that returns the width of the line:
         #
-        # * If all lines should have the same width, the +available_width+ argument should be a
-        #   number. This is the general case.
+        # * If the line width doesn't depend on the height or the vertical position of the line
+        #   (i.e. fixed line width), the +width_block+ should have an arity of zero. However, this
+        #   doesn't mean that the block is called only once; it is actually called before each new
+        #   line (e.g. for varying line widths that don't depend on the line height; one common case
+        #   is the indentation of the first line). This is the general case.
         #
-        # * However, if lines should have varying lengths (e.g. for flowing text around shapes), the
-        #   +available_width+ argument should be an object responding to #call(line_height) where
+        # * However, if lines should have varying widths (e.g. for flowing text around shapes), the
+        #   +width_block+ argument should be an object responding to #call(line_height) where
         #   +line_height+ is the height of the currently layed out line. The caller is responsible
-        #   for tracking the height of the already layed out lines. The result of the method call
-        #   should be the available width.
+        #   for tracking the height of the already layed out lines. This method involves more work
+        #   and is therefore slower.
         #
         # Regardless of whether varying line widths are used or not, each time a line is finished,
-        # it is yielded to the caller. The second argument +item+ is the TextFragment or InlineBox
-        # that doesn't fit anymore, or +nil+ in case of mandatory line breaks or when the line break
-        # occured at a glue item. If the yielded line is empty and the yielded item is not +nil+,
-        # this single item doesn't fit into the available width; the caller has to handle this
-        # situation, e.g. by stopping.
+        # it is yielded to the caller. The second argument +item+ is the item that caused the line
+        # break (e.g. a Box, Glue or Penalty). The return value should be truthy if line wrapping
+        # should continue, or falsy if it should stop. If the yielded line is empty and the yielded
+        # item is a box item, this single item didn't fit into the available width; the caller has
+        # to handle this situation, e.g. by stopping.
         #
         # After the algorithm is finished, it returns the unused items.
-        def self.call(items, available_width, &block)
-          obj = new(items, available_width)
-          if available_width.respond_to?(:call)
+        def self.call(items, width_block, &block)
+          obj = new(items, width_block)
+          if width_block.arity == 1
             obj.variable_width_wrapping(&block)
           else
             obj.fixed_width_wrapping(&block)
@@ -291,9 +310,10 @@ module HexaPDF
 
         # Creates a new line wrapping object that arranges the +items+ on lines with the given
         # width.
-        def initialize(items, available_width)
+        def initialize(items, width_block)
           @items = items
-          @available_width = @width_block = available_width
+          @width_block = width_block
+          @available_width = @width_block.call(0)
           @line_items = []
           @width = 0
           @glue_items = []
@@ -306,7 +326,7 @@ module HexaPDF
           @line_height = 0
         end
 
-        # Peforms the line wrapping with a fixed width.
+        # Peforms line wrapping with a fixed width per line, with line height playing no role.
         def fixed_width_wrapping
           index = 0
 
@@ -318,18 +338,18 @@ module HexaPDF
                   index = reset_line_to_last_breakpoint_state
                   item = @items[index]
                 end
-                break unless yield(create_line, item.item)
+                break unless yield(create_line, item)
                 reset_after_line_break(index)
                 redo
               end
             when :glue
               unless add_glue_item(item.item, index)
-                break unless yield(create_line, nil)
+                break unless yield(create_line, item)
                 reset_after_line_break(index + 1)
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
-                break unless yield(create_unjustified_line, nil)
+                break unless yield(create_unjustified_line, item)
                 reset_after_line_break(index + 1)
               elsif item.penalty >= Penalty::INFINITY
                 @break_prohibited_state = true
@@ -365,7 +385,6 @@ module HexaPDF
         # Performs the line wrapping with variable widths.
         def variable_width_wrapping
           index = 0
-          @available_width = @width_block.call(@line_height)
 
           while (item = @items[index])
             case item.type
@@ -382,18 +401,18 @@ module HexaPDF
                   index = reset_line_to_last_breakpoint_state
                   item = @items[index]
                 end
-                break unless yield(create_line, item.item)
+                break unless yield(create_line, item)
                 reset_after_line_break(index)
                 redo
               end
             when :glue
               unless add_glue_item(item.item, index)
-                break unless yield(create_line, nil)
+                break unless yield(create_line, item)
                 reset_after_line_break(index + 1)
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
-                break unless yield(create_unjustified_line, nil)
+                break unless yield(create_unjustified_line, item)
                 reset_after_line_break(index + 1)
               elsif item.penalty >= Penalty::INFINITY
                 @break_prohibited_state = true
@@ -494,6 +513,7 @@ module HexaPDF
           @last_breakpoint_index = index
           @last_breakpoint_line_items_index = 0
           @break_prohibited_state = false
+          @available_width = @width_block.call(0)
 
           @line_height = 0
           @height_calc.reset
@@ -579,30 +599,24 @@ module HexaPDF
       def fit
         @lines.clear
         @actual_height = 0
+
         y_offset = 0
+        indent = (style.text_indent != 0 ? style.text_indent : 0)
+        width_block = if @width.respond_to?(:call)
+                        proc {|h| @width.call(@actual_height, h) - indent }
+                      else
+                        proc { @width - indent }
+                      end
 
-        items = @items
-        if style.text_indent != 0
-          items = [Box.new(InlineBox.new(style.text_indent, 0))].concat(items)
-        end
-
-        if @width.respond_to?(:call)
-          width_arg = proc {|h| @width.call(@actual_height, h)}
-          width_block = @width
-        else
-          width_arg = @width
-          width_block = proc { @width }
-        end
-
-        rest = style.text_line_wrapping_algorithm.call(items, width_arg) do |line, item|
-          line << TextFragment.new(items: [], style: style) if item.nil? && line.items.empty?
+        rest = style.text_line_wrapping_algorithm.call(@items, width_block) do |line, item|
+          line << TextFragment.new(items: [], style: style) if item&.type != :box && line.items.empty?
           new_height = @actual_height + line.height +
             (@lines.empty? ? 0 : style.line_spacing.gap(@lines.last, line))
 
           if new_height <= @height && !line.items.empty?
             # valid line found, use it
-            cur_width = width_block.call(@actual_height, line.height)
-            line.x_offset = horizontal_alignment_offset(line, cur_width)
+            cur_width = width_block.call(line.height)
+            line.x_offset = indent + horizontal_alignment_offset(line, cur_width)
             line.x_offset += @x_offsets.call(@actual_height, line.height) if @x_offsets
             line.y_offset =  if y_offset
                                y_offset + (@lines.last ? -@lines.last.y_min + line.y_max : 0)
@@ -612,18 +626,23 @@ module HexaPDF
             @actual_height = new_height
             @lines << line
             y_offset = nil
+            indent = if item&.type == :penalty && item.penalty == Penalty::PARAGRAPH_BREAK
+                       style.text_indent
+                     else
+                       0
+                     end
             true
           elsif new_height <= @height && @height != Float::INFINITY
             # some height left but item didn't fit on the line, search downwards for usable space
-            new_height = @actual_height
-            while item.width > width_block.call(new_height, item.height) && new_height <= @height
-              new_height += item.height / 3
+            old_height = @actual_height
+            while item.width > width_block.call(item.height) && @actual_height <= @height
+              @actual_height += item.height / 3
             end
-            if new_height + item.height <= @height
-              y_offset = new_height - @actual_height
-              @actual_height = new_height
+            if @actual_height + item.height <= @height
+              y_offset = @actual_height - old_height
               true
             else
+              @actual_height = old_height
               nil
             end
           else

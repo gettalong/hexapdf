@@ -103,13 +103,16 @@ describe HexaPDF::Layout::TextBox::SimpleTextSegmentation do
   end
 
   it "insert a mandatory break when an Unicode line boundary characters is encountered" do
-    frag = setup_fragment("A\rB\r\nC\nD\vE\fF\u{85}G\u{2028}H\u{2029}I")
+    frag = setup_fragment("A\rB\r\nC\nD\vE\fF\u{85}G\u{2029}H\u{2028}I")
 
     result = @obj.call([frag])
     assert_equal(17, result.size)
-    [1, 3, 5, 7, 9, 11, 13, 15].each do |index|
-      assert_penalty(result[index], HexaPDF::Layout::TextBox::Penalty::MandatoryBreak.penalty)
+    [1, 3, 5, 7, 9, 11, 13].each do |index|
+      assert_penalty(result[index],
+                     HexaPDF::Layout::TextBox::Penalty::MandatoryParagraphBreak.penalty)
     end
+    assert_penalty(result[15],
+                   HexaPDF::Layout::TextBox::Penalty::MandatoryLineBreak.penalty)
   end
 
   it "insert a standard penalty after a hyphen" do
@@ -151,7 +154,8 @@ describe HexaPDF::Layout::TextBox::SimpleTextSegmentation do
 end
 
 # Common tests for fixed and variable width line wrapping. The including class needs to define a
-# #call(items, width = 100) method with a default with of 100.
+# #call(items, width = 100) method with a default with of 100. The optional block is called after a
+# line has been yielded by the line wrapping algorithm.
 module CommonLineWrappingTests
   extend Minitest::Spec::DSL
 
@@ -254,8 +258,8 @@ module CommonLineWrappingTests
   end
 
   it "stops when nil is returned by the block: last item is a box" do
-    lines = []
-    rest = @obj.call(boxes(20, 20, 20), 20) {|line| lines << line; lines.count > 1 ? nil : true}
+    done = false
+    rest, lines = call(boxes(20, 20, 20), 20) { done ? nil : done = true }
     assert_equal(2, rest.count)
     assert_equal(2, lines.count)
   end
@@ -263,20 +267,20 @@ module CommonLineWrappingTests
   it "stops when nil is returned by the block: last item is a glue" do
     done = false
     items = boxes(20, 15, 20).insert(-2, glue(10))
-    rest = @obj.call(items, 20) { done ? nil : (done = true; 20) }
+    rest, = call(items, 20) { done ? nil : done = true }
     assert_equal(3, rest.count)
     assert_equal(15, rest[0].width)
   end
 
   it "stops when nil is returned by the block: last item is a mandatory break penalty" do
     items = boxes(20, 20).insert(-2, penalty(-5000))
-    rest = @obj.call(items, 20) { nil }
+    rest, = call(items, 20) { nil }
     assert_equal(3, rest.count)
   end
 
   it "stops when nil is returned by the block: works for the last line" do
-    lines = []
-    rest = @obj.call(boxes(20, 20), 20) {|line| lines << line; lines.count > 1 ? nil : true}
+    done = false
+    rest, lines = call(boxes(20, 20), 20) { done ? nil : done = true }
     assert_equal(1, rest.count)
     assert_equal(2, lines.count)
   end
@@ -291,9 +295,10 @@ describe HexaPDF::Layout::TextBox::SimpleLineWrapping do
   describe "fixed width wrapping" do
     include CommonLineWrappingTests
 
-    def call(items, width = 100)
+    def call(items, width = 100, &block)
       lines = []
-      rest = @obj.call(items, width) {|line, _| lines << line; true }
+      block ||= proc { true }
+      rest = @obj.call(items, proc { width }) {|line, item| lines << line; block.call(line, item) }
       [rest, lines]
     end
   end
@@ -301,9 +306,10 @@ describe HexaPDF::Layout::TextBox::SimpleLineWrapping do
   describe "variable width wrapping" do
     include CommonLineWrappingTests
 
-    def call(items, width = proc { 100 })
+    def call(items, width = 100, &block)
       lines = []
-      rest = @obj.call(items, width) {|line, _| lines << line; true }
+      block ||= proc { true }
+      rest = @obj.call(items, proc {|_| width }) {|line, i| lines << line; block.call(line, i) }
       [rest, lines]
     end
 
@@ -383,14 +389,20 @@ describe HexaPDF::Layout::TextBox do
 
   describe "fit" do
     it "handles text indentation" do
-      box = HexaPDF::Layout::TextBox.new(items: boxes([20, 20], [20, 20], [20, 20]), width: 60,
-                                         style: @style)
-      box.style.text_indent = 20
-      rest, height = box.fit
-      assert_equal(60, box.lines[0].width)
-      assert_equal(20, box.lines[1].width)
-      assert(rest.empty?)
-      assert_equal(40, height)
+      items = boxes([20, 20], [20, 20], [20, 20]) +
+        [HexaPDF::Layout::TextBox::Penalty::MandatoryParagraphBreak] +
+        boxes([40, 20]) + [glue(20)] +
+        boxes(*([[20, 20]] * 4)) + [HexaPDF::Layout::TextBox::Penalty::MandatoryLineBreak] +
+        boxes(*([[20, 20]] * 4))
+      @style.text_indent = 20
+
+      [60, proc { 60 }].each do |width|
+        box = HexaPDF::Layout::TextBox.new(items: items, width: width, style: @style)
+        rest, = box.fit
+        assert_equal([40, 20, 40, 60, 20, 60, 20], box.lines.map(&:width))
+        assert_equal([20, 0, 20, 0, 0, 0, 0], box.lines.map(&:x_offset))
+        assert(rest.empty?)
+      end
     end
 
     it "fits using unlimited height" do

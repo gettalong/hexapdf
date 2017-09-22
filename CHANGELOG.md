@@ -22,6 +22,8 @@
   state
 * [HexaPDF::Content::Operator::SetTextRenderingMode] to normalize the value
 * [HexaPDF::Stream#stream_source] to always return a decrypted stream
+* [HexaPDF::Layout::TextBox] to correctly indent all paragraphs, not just the
+  first one
 
 
 ## 0.5.0 - 2017-06-24
