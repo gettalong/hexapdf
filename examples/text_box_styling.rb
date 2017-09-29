@@ -6,7 +6,8 @@
 # box. In addition the style objects can be used for styling text boxes
 # themselves.
 #
-# This example shows how to do this and shows off the various styling option.
+# This example shows how to do this and shows off the various styling option,
+# including using callbacks to further customize the appearance.
 #
 # Usage:
 # : `ruby text_box_styling.rb`
@@ -52,6 +53,14 @@ highlight = HexaPDF::Layout::Style.new(font: doc.fonts.load("Times", variant: :b
                                        text_rendering_mode: :stroke,
                                        stroke_color: [255, 0, 0], stroke_width: 0.2,
                                        stroke_join_style: :round)
+highlight.underlay_callback do |canv, box|
+  canv.fill_color(240, 240, 0).opacity(fill_alpha: 0.5).
+    rectangle(0, 0, box.width, box.height).fill
+end
+highlight.overlay_callback do |canv, box|
+  canv.line_width(1).stroke_color([0, 255, 0]).
+    line(0, 0, box.width, box.height).stroke
+end
 intro = HexaPDF::Layout::Style.new(font: doc.fonts.load("Times", variant: :bold),
                                    fill_color: [0, 0, 160], font_size: 14)
 
@@ -68,8 +77,8 @@ box = HexaPDF::Layout::TextBox.new(items: [fragment(sample_text, body)],
                                    width: width, style: body)
 y_base = draw_box(box, canvas, left, y_base - 20)
 
-items = sample_text.split(/(Lorem ipsum dolor sit|\b\w\w\b)/).map do |str|
-  if str.length == 2
+items = sample_text.split(/(Lorem ipsum dolor sit|\b\w{2,4}\b)/).map do |str|
+  if str.length >= 2 && str.length <= 4
     fragment(str, highlight)
   elsif str =~ /Lorem/
     fragment(str, intro)
