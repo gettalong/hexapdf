@@ -537,6 +537,13 @@ module HexaPDF
       #
       # The indentation to be used for the first line of a sequence of text lines, defaults to 0.
 
+      ##
+      # :method: background_color
+      # :call-seq:
+      #   background_color(color = nil)
+      #
+      # The color used for backgrounds, defaults to +nil+ (i.e. no background).
+
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
         [:font_size, 10],
@@ -557,6 +564,7 @@ module HexaPDF
         [:align, :left],
         [:valign, :top],
         [:text_indent, 0],
+        [:background_color, nil],
       ].each do |name, default|
         default = default.inspect unless default.kind_of?(String)
         module_eval(<<-EOF, __FILE__, __LINE__)

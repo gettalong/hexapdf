@@ -373,6 +373,7 @@ describe HexaPDF::Layout::Style do
     assert_equal(10.0, @style.stroke_miter_limit)
     assert_equal(:left, @style.align)
     assert_equal(:top, @style.valign)
+    assert_nil(@style.background_color)
   end
 
   it "can set and retrieve stroke dash pattern objects" do
