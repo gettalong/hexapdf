@@ -47,7 +47,7 @@ describe HexaPDF::Layout::Style::LineSpacing do
     assert_equal(:fixed, obj.type)
     assert_equal(7, obj.value)
     assert_equal(7, obj.baseline_distance(@line1, @line2))
-    assert_equal(7 - 1 -  4, obj.gap(@line1, @line2))
+    assert_equal(7 - 1 - 4, obj.gap(@line1, @line2))
   end
 
   it "allows line spacing using a leading value" do
