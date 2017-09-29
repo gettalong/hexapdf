@@ -2,6 +2,7 @@
 
 ### Added
 
+* [HexaPDF::Layout::Box] as base class for all layout boxes
 * More styling properties for [HexaPDF::Layout::Style]
 * [HexaPDF::FontLoader::FromFile] to allow specifying a font file directly
 
