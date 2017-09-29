@@ -373,6 +373,7 @@ describe HexaPDF::Layout::Style do
     assert_equal(10.0, @style.stroke_miter_limit)
     assert_equal(:left, @style.align)
     assert_equal(:top, @style.valign)
+    assert_equal(0, @style.text_indent)
     assert_nil(@style.background_color)
   end
 
