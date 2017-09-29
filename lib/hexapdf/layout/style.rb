@@ -345,6 +345,74 @@ module HexaPDF
         alias_method("#{name}=", name)
       end
 
+
+      ##
+      # :method: text_segmentation_algorithm
+      # :call-seq:
+      #   text_segmentation_algorithm(algorithm = nil) {|items| block }
+      #
+      # The algorithm to use for text segmentation purposes, defaults to
+      # TextBox::SimpleTextSegmentation.
+      #
+      # When setting the algorithm, either an object that responds to #call(items) or a block can be
+      # used.
+
+      ##
+      # :method: text_line_wrapping_algorithm
+      # :call-seq:
+      #   text_line_wrapping_algorithm(algorithm = nil) {|items, width_block| block }
+      #
+      # The line wrapping algorithm that should be used, defaults to TextBox::SimpleLineWrapping.
+      #
+      # When setting the algorithm, either an object that responds to #call or a block can be used.
+      # See TextBox::SimpleLineWrapping#call for the needed method signature.
+
+      ##
+      # :method: overlay_callback
+      # :call-seq:
+      #   overlay_callback(callable = nil) {|canvas, box| block }
+      #
+      # A callable object that is called after the box using the style has drawn its content;
+      # defaults to +nil+.
+      #
+      # When setting the callable, either an object that responds to #call or a block can be used.
+      #
+      # The coordinate system is translated so that the origin is at the lower right corner of the
+      # box during the drawing operations.
+
+      ##
+      # :method: underlay_callback
+      # :call-seq:
+      #   underlay_callback(callable = nil) {|canvas, box| block }
+      #
+      # A callable object that is called before the box using the style draws its content; defaults
+      # to +nil+.
+      #
+      # When setting the callable, either an object that responds to #call or a block can be used.
+      #
+      # The coordinate system is translated so that the origin is at the lower right corner of the
+      # box during the drawing operations.
+
+      [
+        [:text_segmentation_algorithm, 'TextBox::SimpleTextSegmentation'],
+        [:text_line_wrapping_algorithm, 'TextBox::SimpleLineWrapping'],
+        [:underlay_callback, nil],
+        [:overlay_callback, nil],
+      ].each do |name, default|
+        default = default.inspect unless default.kind_of?(String)
+        module_eval(<<-EOF, __FILE__, __LINE__)
+          def #{name}(value = UNSET, &block)
+            if value == UNSET && !block
+              @#{name} ||= #{default}
+            else
+              @#{name} = (value != UNSET ? value : block)
+              self
+            end
+          end
+        EOF
+        alias_method("#{name}=", name)
+      end
+
       # :call-seq:
       #   stroke_dash_pattern(array = nil, phase = 0)
       #
@@ -377,41 +445,6 @@ module HexaPDF
         end
       end
       alias_method(:line_spacing=, :line_spacing)
-
-      # :call-seq:
-      #   text_segmentation_algorithm(algorithm = nil) {|items| block }
-      #
-      # The algorithm to use for text segmentation purposes, defaults to
-      # TextBox::SimpleTextSegmentation.
-      #
-      # When setting the algorithm, either an object that responds to #call(items) or a block can be
-      # used.
-      def text_segmentation_algorithm(algorithm = UNSET, &block)
-        if algorithm == UNSET && !block
-          @text_segmentation_algorithm ||= TextBox::SimpleTextSegmentation
-        else
-          @text_segmentation_algorithm = (algorithm != UNSET ? algorithm : block)
-          self
-        end
-      end
-      alias_method(:text_segmentation_algorithm=, :text_segmentation_algorithm)
-
-      # :call-seq:
-      #   text_line_wrapping_algorithm(algorithm = nil) {|items| block }
-      #
-      # The line wrapping algorithm that should be used, defaults to TextBox::SimpleLineWrapping.
-      #
-      # When setting the algorithm, either an object that responds to #call or a block can be used.
-      # See TextBox::SimpleLineWrapping#call for the needed method signature.
-      def text_line_wrapping_algorithm(algorithm = UNSET, &block)
-        if algorithm == UNSET && !block
-          @text_line_wrapping_algorithm ||= TextBox::SimpleLineWrapping
-        else
-          @text_line_wrapping_algorithm = (algorithm != UNSET ? algorithm : block)
-          self
-        end
-      end
-      alias_method(:text_line_wrapping_algorithm=, :text_line_wrapping_algorithm)
 
       # The font size scaled appropriately.
       def scaled_font_size

@@ -82,7 +82,7 @@ describe HexaPDF::Layout::Style do
     assert_equal(10, style.font_size)
   end
 
-  it "has several dynamically generated properties with default values" do
+  it "has several simple and dynamically generated properties with default values" do
     assert_raises(HexaPDF::Error) { @style.font }
     assert_equal(10, @style.font_size)
     assert_equal(0, @style.character_spacing)
@@ -115,19 +115,20 @@ describe HexaPDF::Layout::Style do
     assert_equal([:proportional, 2], [@style.line_spacing.type, @style.line_spacing.value])
   end
 
-  it "can set and retrieve text segmentation algorithms" do
+  it "has several dynamically generated properties with default values that take blocks" do
     assert_equal(HexaPDF::Layout::TextBox::SimpleTextSegmentation,
                  @style.text_segmentation_algorithm)
+    assert_equal(HexaPDF::Layout::TextBox::SimpleLineWrapping,
+                 @style.text_line_wrapping_algorithm)
+    assert_nil(@style.underlay_callback)
+    assert_nil(@style.overlay_callback)
+
     block = proc { :y }
     @style.text_segmentation_algorithm(&block)
     assert_equal(block, @style.text_segmentation_algorithm)
-  end
 
-  it "can set and retrieve line wrapping algorithms" do
-    assert_equal(HexaPDF::Layout::TextBox::SimpleLineWrapping,
-                 @style.text_line_wrapping_algorithm)
-    @style.text_line_wrapping_algorithm(:callable)
-    assert_equal(:callable, @style.text_line_wrapping_algorithm)
+    @style.text_segmentation_algorithm(:callable)
+    assert_equal(:callable, @style.text_segmentation_algorithm)
   end
 
   it "has methods for some derived and cached values" do
