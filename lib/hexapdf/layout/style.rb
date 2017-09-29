@@ -114,6 +114,68 @@ module HexaPDF
 
       end
 
+      # A Quad holds four values and allows them to be accessed by the names top, right, bottom and
+      # left. Quads are normally used for holding values pertaining to boxes, like margins, paddings
+      # or borders.
+      class Quad
+
+        # The value for top.
+        attr_accessor :top
+
+        # The value for bottom.
+        attr_accessor :bottom
+
+        # The value for left.
+        attr_accessor :left
+
+        # The value for right.
+        attr_accessor :right
+
+        # :call-seq:
+        #   Quad.new(value)
+        #   Quad.new(array)
+        #   Quad.new(quad)
+        #
+        # Creates a new Quad object.
+        #
+        # * If a single value is provided that is neither a Quad nor an array, it is handled as if
+        #   an array with one value was given.
+        #
+        # * If a Quad is provided, its values are used.
+        #
+        # * If an array is provided, it depends on the number of elemens in it:
+        #
+        #   * One value: All attributes are set to the same value.
+        #   * Two values: Top and bottom are set to the first value, left and right to the second
+        #     value.
+        #   * Three values: Top is set to the first, left and right to the second, and bottom to the
+        #     third value.
+        #   * Four or more values: Top is set to the first, right to the second, bottom to the third
+        #     and left to the fourth value.
+        def initialize(obj)
+          case obj
+          when Quad
+            @top = obj.top
+            @bottom = obj.bottom
+            @left = obj.left
+            @right = obj.right
+          when Array
+            @top = obj[0]
+            @bottom = obj[2] || obj[0]
+            @left = obj[3] || obj[1] || obj[0]
+            @right = obj[1] || obj[0]
+          else
+            @top = @bottom = @left = @right = obj
+          end
+        end
+
+        # Returns +true+ if the quad effectively contains only one value.
+        def simple?
+          @top == @bottom && @top == @left && @top == @right
+        end
+
+      end
+
       UNSET = ::Object.new # :nodoc:
 
       # Creates a new Style object.
@@ -445,6 +507,34 @@ module HexaPDF
         end
       end
       alias_method(:line_spacing=, :line_spacing)
+
+      # :call-seq:
+      #   padding(value = nil)
+      #
+      # The padding between the border and the contents, defaults to 0 for all four sides.
+      def padding(value = UNSET)
+        if value == UNSET
+          @padding ||= Quad.new(0)
+        else
+          @padding = Quad.new(value)
+          self
+        end
+      end
+      alias_method(:padding=, :padding)
+
+      # :call-seq:
+      #   margin(value = nil)
+      #
+      # The margin around a box, defaults to 0 for all four sides.
+      def margin(value = UNSET)
+        if value == UNSET
+          @margin ||= Quad.new(0)
+        else
+          @margin = Quad.new(value)
+          self
+        end
+      end
+      alias_method(:margin=, :margin)
 
       # The font size scaled appropriately.
       def scaled_font_size

@@ -72,6 +72,60 @@ describe HexaPDF::Layout::Style::LineSpacing do
   end
 end
 
+describe HexaPDF::Layout::Style::Quad do
+  def create_quad(val)
+    HexaPDF::Layout::Style::Quad.new(val)
+  end
+
+  describe "initialize" do
+    it "works with a single value" do
+      quad = create_quad(5)
+      assert_equal(5, quad.top)
+      assert_equal(5, quad.right)
+      assert_equal(5, quad.bottom)
+      assert_equal(5, quad.left)
+    end
+
+    it "works with two values" do
+      quad = create_quad([5, 2])
+      assert_equal(5, quad.top)
+      assert_equal(2, quad.right)
+      assert_equal(5, quad.bottom)
+      assert_equal(2, quad.left)
+    end
+
+    it "works with three values" do
+      quad = create_quad([5, 2, 7])
+      assert_equal(5, quad.top)
+      assert_equal(2, quad.right)
+      assert_equal(7, quad.bottom)
+      assert_equal(2, quad.left)
+    end
+
+    it "works with four or more values" do
+      quad = create_quad([5, 2, 7, 1, 9])
+      assert_equal(5, quad.top)
+      assert_equal(2, quad.right)
+      assert_equal(7, quad.bottom)
+      assert_equal(1, quad.left)
+    end
+
+    it "works with a Quad as value" do
+      quad = create_quad([5, 2, 7, 1])
+      new_quad = create_quad(quad)
+      assert_equal(new_quad.top, quad.top)
+      assert_equal(new_quad.right, quad.right)
+      assert_equal(new_quad.bottom, quad.bottom)
+      assert_equal(new_quad.left, quad.left)
+    end
+  end
+
+  it "can be asked if it contains only a single value" do
+    assert(create_quad(5).simple?)
+    refute(create_quad([5, 2]).simple?)
+  end
+end
+
 describe HexaPDF::Layout::Style do
   before do
     @style = HexaPDF::Layout::Style.new
@@ -129,6 +183,24 @@ describe HexaPDF::Layout::Style do
 
     @style.text_segmentation_algorithm(:callable)
     assert_equal(:callable, @style.text_segmentation_algorithm)
+  end
+
+  it "can set and retrieve padding values" do
+    padding = @style.padding
+    assert(padding.simple?)
+    assert_equal(0, padding.top)
+    @style.padding = [5, 3]
+    assert_equal(5, @style.padding.top)
+    assert_equal(3, @style.padding.left)
+  end
+
+  it "can set and retrieve margin values" do
+    margin = @style.margin
+    assert(margin.simple?)
+    assert_equal(0, margin.top)
+    @style.margin = [5, 3]
+    assert_equal(5, @style.margin.top)
+    assert_equal(3, @style.margin.left)
   end
 
   it "has methods for some derived and cached values" do
