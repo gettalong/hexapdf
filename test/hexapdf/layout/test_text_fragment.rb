@@ -39,8 +39,9 @@ describe HexaPDF::Layout::TextFragment do
       @fragment.draw(@canvas, 10, 15)
     end
 
-    def assert_draw_operators(*middle)
+    def assert_draw_operators(*args, front: [], middle: args, back: [])
       ops = [
+        *front,
         [:begin_text],
         [:set_text_matrix, [1, 0, 0, 1, 10, 15]],
         [:set_font_and_size, [:F1, 20]],
@@ -51,6 +52,7 @@ describe HexaPDF::Layout::TextFragment do
         [:set_text_rise, [2]],
         *middle,
         [:show_text_with_positioning, [['!']]],
+        *back,
       ].compact
       assert_operators(@canvas.contents, ops)
     end
@@ -81,6 +83,23 @@ describe HexaPDF::Layout::TextFragment do
                             [:set_miter_limit, [5]],
                             [:set_line_dash_pattern, [[1, 2, 3], 0]])
       assert_equal({Type: :ExtGState, CA: 0.5, ca: 1}, @canvas.resources[:ExtGState][:GS1])
+    end
+
+    it "invokes the underlay callback" do
+      setup_with_style(underlay_callback: proc { @canvas.stroke_color(0.5) })
+      assert_draw_operators(front: [[:save_graphics_state],
+                                    [:concatenate_matrix, [1, 0, 0, 1, 10, 15 + @fragment.y_min]],
+                                    [:set_device_gray_stroking_color, [0.5]],
+                                    [:restore_graphics_state]])
+    end
+
+    it "invokes the overlay callback" do
+      setup_with_style(overlay_callback: proc { @canvas.stroke_color(0.5) })
+      assert_draw_operators(back: [[:end_text],
+                                   [:save_graphics_state],
+                                   [:concatenate_matrix, [1, 0, 0, 1, 10, 15 + @fragment.y_min]],
+                                   [:set_device_gray_stroking_color, [0.5]],
+                                   [:restore_graphics_state]])
     end
   end
 
