@@ -1,6 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require_relative '../content/common'
+require 'hexapdf/document'
 require 'hexapdf/layout/style'
 require 'hexapdf/layout/text_box'
 
@@ -126,6 +128,222 @@ describe HexaPDF::Layout::Style::Quad do
   end
 end
 
+describe HexaPDF::Layout::Style::Border do
+  def create_border(*args)
+    HexaPDF::Layout::Style::Border.new(*args)
+  end
+
+  it "has accessors for with, color and style that return Quads" do
+    border = create_border
+    assert_kind_of(HexaPDF::Layout::Style::Quad, border.width)
+    assert_kind_of(HexaPDF::Layout::Style::Quad, border.color)
+    assert_kind_of(HexaPDF::Layout::Style::Quad, border.style)
+  end
+
+  it "can be asked whether a border is defined" do
+    assert(create_border.none?)
+    refute(create_border(width: 5).none?)
+  end
+
+  describe "draw" do
+    before do
+      @canvas = HexaPDF::Document.new.pages.add.canvas
+    end
+
+    describe "simple - same width, color and style on all sides" do
+      it "works with style solid" do
+        border = create_border(width: 10, color: 0.5, style: :solid)
+        border.draw(@canvas, 0, 0, 100, 100)
+        assert_operators(@canvas.contents, [[:save_graphics_state],
+                                            [:set_device_gray_stroking_color, [0.5]],
+                                            [:set_line_width, [10]],
+                                            [:append_rectangle, [5, 5, 90, 90]],
+                                            [:stroke_path],
+                                            [:restore_graphics_state]])
+      end
+
+      it "works with style dashed" do
+        border = create_border(width: 10, color: 0.5, style: :dashed)
+        border.draw(@canvas, 0, 0, 200, 300)
+        ops = [[:save_graphics_state],
+               [:set_device_gray_stroking_color, [0.5]],
+               [:set_line_width, [10]],
+               [:set_line_cap_style, [2]],
+               [:append_rectangle, [0, 0, 200, 300]],
+               [:clip_path_non_zero], [:end_path],
+               [:set_line_dash_pattern, [[10, 20], 25]],
+               [:move_to, [0, 295]], [:line_to, [200, 295]],
+               [:move_to, [200, 5]], [:line_to, [0, 5]],
+               [:stroke_path],
+               [:set_line_dash_pattern, [[10, 18], 23]],
+               [:move_to, [195, 300]], [:line_to, [195, 0]],
+               [:move_to, [5, 0]], [:line_to, [5, 300]],
+               [:stroke_path],
+               [:restore_graphics_state]]
+        assert_operators(@canvas.contents, ops)
+      end
+
+      it "works with style dashed_round" do
+        border = create_border(width: 10, color: 0.5, style: :dashed_round)
+        border.draw(@canvas, 0, 0, 200, 300)
+        ops = [[:save_graphics_state],
+               [:set_device_gray_stroking_color, [0.5]],
+               [:set_line_width, [10]],
+               [:set_line_cap_style, [1]],
+               [:append_rectangle, [0, 0, 200, 300]],
+               [:clip_path_non_zero], [:end_path],
+               [:set_line_dash_pattern, [[10, 20], 25]],
+               [:move_to, [0, 295]], [:line_to, [200, 295]],
+               [:move_to, [200, 5]], [:line_to, [0, 5]],
+               [:stroke_path],
+               [:set_line_dash_pattern, [[10, 18], 23]],
+               [:move_to, [195, 300]], [:line_to, [195, 0]],
+               [:move_to, [5, 0]], [:line_to, [5, 300]],
+               [:stroke_path],
+               [:restore_graphics_state]]
+        assert_operators(@canvas.contents, ops)
+      end
+
+      it "works with style dotted" do
+        border = create_border(width: 10, color: 0.5, style: :dotted)
+        border.draw(@canvas, 0, 0, 100, 200)
+        ops = [[:save_graphics_state],
+               [:set_device_gray_stroking_color, [0.5]],
+               [:set_line_width, [10]],
+               [:set_line_cap_style, [1]],
+               [:append_rectangle, [0, 0, 100, 200]],
+               [:clip_path_non_zero], [:end_path],
+               [:set_line_dash_pattern, [[0, 18], 13]],
+               [:move_to, [0, 195]], [:line_to, [100, 195]],
+               [:move_to, [100, 5]], [:line_to, [0, 5]],
+               [:stroke_path],
+               [:set_line_dash_pattern, [[0, 19], 14]],
+               [:move_to, [95, 200]], [:line_to, [95, 0]],
+               [:move_to, [5, 0]], [:line_to, [5, 200]],
+               [:stroke_path],
+               [:restore_graphics_state]]
+        assert_operators(@canvas.contents, ops)
+      end
+    end
+
+    describe "complex borders where edges have different width/color/style values" do
+      it "works correctly for the top border" do
+        border = create_border(width: [10, 0, 0, 0], color: 0.5, style: :dashed)
+        border.draw(@canvas, 0, 0, 200, 300)
+        ops = [[:save_graphics_state],
+               [:save_graphics_state],
+               [:move_to, [0, 300]], [:line_to, [200, 300]],
+               [:line_to, [200, 290]], [:line_to, [0, 290]],
+               [:clip_path_non_zero], [:end_path],
+               [:set_device_gray_stroking_color, [0.5]],
+               [:set_line_width, [10]],
+               [:set_line_cap_style, [2]],
+               [:set_line_dash_pattern, [[10, 20], 25]],
+               [:move_to, [0, 295]], [:line_to, [200, 295]],
+               [:stroke_path],
+               [:restore_graphics_state],
+               [:restore_graphics_state]]
+        assert_operators(@canvas.contents, ops)
+      end
+
+      it "works correctly for the right border" do
+        border = create_border(width: [0, 10, 0, 0], color: 0.5, style: :dashed)
+        border.draw(@canvas, 0, 0, 200, 300)
+        ops = [[:save_graphics_state],
+               [:save_graphics_state],
+               [:move_to, [200, 300]], [:line_to, [200, 0]],
+               [:line_to, [190, 0]], [:line_to, [190, 300]],
+               [:clip_path_non_zero], [:end_path],
+               [:set_device_gray_stroking_color, [0.5]],
+               [:set_line_width, [10]],
+               [:set_line_cap_style, [2]],
+               [:set_line_dash_pattern, [[10, 18], 23]],
+               [:move_to, [195, 300]], [:line_to, [195, 0]],
+               [:stroke_path],
+               [:restore_graphics_state],
+               [:restore_graphics_state]]
+        assert_operators(@canvas.contents, ops)
+      end
+
+      it "works correctly for the bottom border" do
+        border = create_border(width: [0, 0, 10, 0], color: 0.5, style: :dashed)
+        border.draw(@canvas, 0, 0, 200, 300)
+        ops = [[:save_graphics_state],
+               [:save_graphics_state],
+               [:move_to, [200, 0]], [:line_to, [0, 0]],
+               [:line_to, [0, 10]], [:line_to, [200, 10]],
+               [:clip_path_non_zero], [:end_path],
+               [:set_device_gray_stroking_color, [0.5]],
+               [:set_line_width, [10]],
+               [:set_line_cap_style, [2]],
+               [:set_line_dash_pattern, [[10, 20], 25]],
+               [:move_to, [200, 5]], [:line_to, [0, 5]],
+               [:stroke_path],
+               [:restore_graphics_state],
+               [:restore_graphics_state]]
+        assert_operators(@canvas.contents, ops)
+      end
+
+      it "works correctly for the left border" do
+        border = create_border(width: [0, 0, 0, 10], color: 0.5, style: :dashed)
+        border.draw(@canvas, 0, 0, 200, 300)
+        ops = [[:save_graphics_state],
+               [:save_graphics_state],
+               [:move_to, [0, 0]], [:line_to, [0, 300]],
+               [:line_to, [10, 300]], [:line_to, [10, 0]],
+               [:clip_path_non_zero], [:end_path],
+               [:set_device_gray_stroking_color, [0.5]],
+               [:set_line_width, [10]],
+               [:set_line_cap_style, [2]],
+               [:set_line_dash_pattern, [[10, 18], 23]],
+               [:move_to, [5, 0]], [:line_to, [5, 300]],
+               [:stroke_path],
+               [:restore_graphics_state],
+               [:restore_graphics_state]]
+        assert_operators(@canvas.contents, ops)
+      end
+
+      it "works with all values combined" do
+        border = create_border(width: [20, 10, 40, 30], color: [0, 0.25, 0.5, 0.75],
+                               style: [:solid, :dashed, :dashed_round, :dotted])
+        border.draw(@canvas, 0, 0, 100, 200)
+        ops = [[:save_graphics_state],
+               [:save_graphics_state],
+               [:move_to, [0, 200]], [:line_to, [100, 200]],
+               [:line_to, [90, 180]], [:line_to, [30, 180]], [:clip_path_non_zero], [:end_path],
+               [:set_line_width, [20]],
+               [:move_to, [0, 190]], [:line_to, [100, 190]], [:stroke_path],
+               [:restore_graphics_state], [:save_graphics_state],
+               [:move_to, [100, 200]], [:line_to, [100, 0]],
+               [:line_to, [90, 40]], [:line_to, [90, 180]], [:clip_path_non_zero], [:end_path],
+               [:set_device_gray_stroking_color, [0.25]], [:set_line_width, [10]],
+               [:set_line_cap_style, [2]], [:set_line_dash_pattern, [[10, 20], 25]],
+               [:move_to, [95, 200]], [:line_to, [95, 0]], [:stroke_path],
+               [:restore_graphics_state], [:save_graphics_state],
+               [:move_to, [100, 0]], [:line_to, [0, 0]],
+               [:line_to, [30, 40]], [:line_to, [90, 40]], [:clip_path_non_zero], [:end_path],
+               [:set_device_gray_stroking_color, [0.5]], [:set_line_width, [40]],
+               [:set_line_cap_style, [1]], [:set_line_dash_pattern, [[40, 0], 20]],
+               [:move_to, [100, 20]], [:line_to, [0, 20]], [:stroke_path],
+               [:restore_graphics_state], [:save_graphics_state],
+               [:move_to, [0, 0]], [:line_to, [0, 200]],
+               [:line_to, [30, 180]], [:line_to, [30, 40]], [:clip_path_non_zero], [:end_path],
+               [:set_device_gray_stroking_color, [0.75]], [:set_line_width, [30]],
+               [:set_line_cap_style, [1]], [:set_line_dash_pattern, [[0, 42.5], 27.5]],
+               [:move_to, [15, 0]], [:line_to, [15, 200]], [:stroke_path],
+               [:restore_graphics_state], [:restore_graphics_state]]
+        assert_operators(@canvas.contents, ops)
+      end
+    end
+
+    it "raises an error if an invalid style is provided" do
+      assert_raises(ArgumentError) do
+        create_border(width: 1, color: 0, style: :unknown).draw(@canvas, 0, 0, 10, 10)
+      end
+    end
+  end
+end
+
 describe HexaPDF::Layout::Style do
   before do
     @style = HexaPDF::Layout::Style.new
@@ -201,6 +419,16 @@ describe HexaPDF::Layout::Style do
     @style.margin = [5, 3]
     assert_equal(5, @style.margin.top)
     assert_equal(3, @style.margin.left)
+  end
+
+  it "can set and retrieve border values" do
+    assert_kind_of(HexaPDF::Layout::Style::Border, @style.border)
+    assert(@style.border.none?)
+    assert_equal(0, @style.border.width.top)
+    @style.border(width: 5, color: 1, style: :dashed)
+    assert_equal(5, @style.border.width.top)
+    assert_equal(1, @style.border.color.top)
+    assert_equal(:dashed, @style.border.style.top)
   end
 
   it "has methods for some derived and cached values" do

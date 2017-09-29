@@ -176,6 +176,166 @@ module HexaPDF
 
       end
 
+      # Represents the border of a rectangular area.
+      class Border
+
+        # The widths of each edge. See Quad.
+        attr_reader :width
+
+        # The colors of each edge. See Quad.
+        attr_reader :color
+
+        # The styles of each edge. See Quad.
+        attr_reader :style
+
+        # Creates a new border style. All arguments can be set to any value that a Quad can process.
+        def initialize(width: 0, color: 0, style: :solid)
+          @width = Quad.new(width)
+          @color = Quad.new(color)
+          @style = Quad.new(style)
+        end
+
+        # Returns +true+ if there is no border.
+        def none?
+          width.simple? && width.top == 0
+        end
+
+        # Draws the border onto the canvas, inside the rectangle (x, y, w, h).
+        def draw(canvas, x, y, w, h)
+          canvas.save_graphics_state do
+            if width.simple? && color.simple? && style.simple?
+              draw_simple_border(canvas, x, y, w, h)
+            else
+              draw_complex_border(canvas, x, y, w, h)
+            end
+          end
+        end
+
+        private
+
+        # Draws the border assuming that only one width, style and color are used.
+        def draw_simple_border(canvas, x, y, w, h)
+          offset = width.top / 2.0
+          canvas.stroke_color(color.top).
+            line_width(width.top).
+            line_join_style(:miter).
+            miter_limit(10).
+            line_cap_style(line_cap_style(:top))
+
+          if style.top == :solid
+            canvas.line_dash_pattern(0).
+              rectangle(x + offset, y + offset, w - 2 * offset, h - 2 * offset).stroke
+          else
+            canvas.rectangle(x, y, w, h).clip_path.end_path
+
+            canvas.line_dash_pattern(line_dash_pattern(:top, w)).
+              line(x, y + h - offset, x + w, y + h - offset).
+              line(x + w, y + offset, x, y + offset).stroke
+            canvas.line_dash_pattern(line_dash_pattern(:right, h)).
+              line(x + w - offset, y + h, x + w - offset, y).
+              line(x + offset, y, x + offset, y + h).stroke
+          end
+        end
+
+        # Draws a complex border, i.e. one where every edge is potentially differently styled.
+        def draw_complex_border(canvas, x, y, w, h)
+          left = x
+          bottom = y
+          right = left + w
+          top = bottom + h
+          inner_left = left + width.left
+          inner_bottom = bottom + width.bottom
+          inner_right = right - width.right
+          inner_top = top - width.top
+
+          if width.top > 0
+            canvas.save_graphics_state do
+              canvas.polyline(left, top, right, top, inner_right, inner_top,
+                              inner_left, inner_top).
+                clip_path.end_path
+              canvas.stroke_color(color.top).
+                line_width(width.top).
+                line_cap_style(line_cap_style(:top)).
+                line_dash_pattern(line_dash_pattern(:top, w)).
+                line(left, top - width.top / 2.0, right, top - width.top / 2.0).stroke
+            end
+          end
+
+          if width.right > 0
+            canvas.save_graphics_state do
+              canvas.polyline(right, top, right, bottom, inner_right, inner_bottom,
+                              inner_right, inner_top).
+                clip_path.end_path
+              canvas.stroke_color(color.right).
+                line_width(width.right).
+                line_cap_style(line_cap_style(:right)).
+                line_dash_pattern(line_dash_pattern(:right, h)).
+                line(right - width.right / 2.0, top, right - width.right / 2.0, bottom).stroke
+            end
+          end
+
+          if width.bottom > 0
+            canvas.save_graphics_state do
+              canvas.polyline(right, bottom, left, bottom, inner_left, inner_bottom,
+                              inner_right, inner_bottom).
+                clip_path.end_path
+              canvas.stroke_color(color.bottom).
+                line_width(width.bottom).
+                line_cap_style(line_cap_style(:bottom)).
+                line_dash_pattern(line_dash_pattern(:bottom, w)).
+                line(right, bottom + width.bottom / 2.0, left, bottom + width.bottom / 2.0).stroke
+            end
+          end
+
+          if width.left > 0
+            canvas.save_graphics_state do
+              canvas.polyline(left, bottom, left, top, inner_left, inner_top,
+                              inner_left, inner_bottom).
+                clip_path.end_path
+              canvas.stroke_color(color.left).
+                line_width(width.left).
+                line_cap_style(line_cap_style(:left)).
+                line_dash_pattern(line_dash_pattern(:left, h)).
+                line(left + width.left / 2.0, bottom, left + width.left / 2.0, top).stroke
+            end
+          end
+        end
+
+        # Returns the line cap style for the given edge name.
+        def line_cap_style(edge)
+          case style.send(edge)
+          when :solid then :butt
+          when :dashed then :projecting_square
+          when :dashed_round, :dotted then :round
+          else
+            raise ArgumentError, "Invalid border style specified: #{style.send(edge)}"
+          end
+        end
+
+        # Returns the line dash pattern for the given edge name. The argument +length+ needs to
+        # contain the length of the edge.
+        def line_dash_pattern(edge, length)
+          case style.send(edge)
+          when :solid
+            0
+          when :dashed, :dashed_round
+            # Due to the used line cap styles, a dash of length w appears with a length of 2w. The
+            # gap between dashes is nominally 3w but adjusted so that full dashes start and end in
+            # the corners.
+            w = width.send(edge)
+            count = [(length.to_f / (w * 3)).floor, 1].max
+            gap = [(length - w * (count + 2)).to_f, 0].max / count
+            HexaPDF::Content::LineDashPattern.new([w, gap], w * 0.5 + gap)
+          when :dotted
+            # Adjust the gap so that full dots appear in the corners.
+            w = width.send(edge)
+            gap = (length - w).to_f / (length.to_f / (w * 2)).ceil
+            HexaPDF::Content::LineDashPattern.new([0, gap], [gap - w * 0.5, 0].max)
+          end
+        end
+
+      end
+
       UNSET = ::Object.new # :nodoc:
 
       # Creates a new Style object.
@@ -535,6 +695,20 @@ module HexaPDF
         end
       end
       alias_method(:margin=, :margin)
+
+      # :call-seq:
+      #   border(value = nil)
+      #
+      # The border around the contents, defaults to no border.
+      def border(value = UNSET)
+        if value == UNSET
+          @border ||= Border.new
+        else
+          @border = Border.new(value)
+          self
+        end
+      end
+      alias_method(:border=, :border)
 
       # The font size scaled appropriately.
       def scaled_font_size
