@@ -93,7 +93,7 @@ module HexaPDF
           end
         end
 
-        # Returns the distance between the baselines of the two given LineFragment objects.
+        # Returns the distance between the baselines of the two given Line objects.
         def baseline_distance(line1, line2)
           case type
           when :proportional then (line1.y_min.abs + line2.y_max) * value
@@ -102,8 +102,8 @@ module HexaPDF
           end
         end
 
-        # Returns the gap between the two given LineFragment objects, i.e. the distance between the
-        # y_min of the first line and the y_max of the second line.
+        # Returns the gap between the two given Line objects, i.e. the distance between the y_min of
+        # the first line and the y_max of the second line.
         def gap(line1, line2)
           case type
           when :proportional then (line1.y_min.abs + line2.y_max) * (value - 1)

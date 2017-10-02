@@ -3,9 +3,9 @@
 require 'test_helper'
 require 'hexapdf/document'
 
-describe HexaPDF::Layout::LineFragment::HeightCalculator do
+describe HexaPDF::Layout::Line::HeightCalculator do
   before do
-    @calc = HexaPDF::Layout::LineFragment::HeightCalculator.new
+    @calc = HexaPDF::Layout::Line::HeightCalculator.new
   end
 
   it "simulate the height as if an item was added" do
@@ -17,11 +17,11 @@ describe HexaPDF::Layout::LineFragment::HeightCalculator do
   end
 end
 
-describe HexaPDF::Layout::LineFragment do
+describe HexaPDF::Layout::Line do
   before do
     @doc = HexaPDF::Document.new
     @font = @doc.fonts.load("Times", custom_encoding: true)
-    @line = HexaPDF::Layout::LineFragment.new
+    @line = HexaPDF::Layout::Line.new
   end
 
   def setup_fragment(text)
@@ -36,7 +36,7 @@ describe HexaPDF::Layout::LineFragment do
     it "allows setting the items of the line fragment" do
       frag1 = setup_fragment("Hello")
       frag2 = HexaPDF::Layout::TextFragment.new(items: frag1.items.slice!(3, 2), style: frag1.style)
-      line = HexaPDF::Layout::LineFragment.new([frag1, frag2])
+      line = HexaPDF::Layout::Line.new([frag1, frag2])
       assert_equal(1, line.items.count)
       assert_equal(5, line.items[0].items.count)
     end

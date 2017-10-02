@@ -192,7 +192,7 @@ module HexaPDF
 
       # Returns the vertical alignment inside a line which is always :text for text fragments.
       #
-      # See LineFragment for details.
+      # See Line for details.
       def valign
         :text
       end

@@ -34,7 +34,7 @@
 require 'hexapdf/error'
 require 'hexapdf/layout/text_fragment'
 require 'hexapdf/layout/inline_box'
-require 'hexapdf/layout/line_fragment'
+require 'hexapdf/layout/line'
 require 'hexapdf/layout/numeric_refinements'
 
 module HexaPDF
@@ -322,7 +322,7 @@ module HexaPDF
           @last_breakpoint_line_items_index = 0
           @break_prohibited_state = false
 
-          @height_calc = LineFragment::HeightCalculator.new
+          @height_calc = Line::HeightCalculator.new
           @line_height = 0
         end
 
@@ -493,12 +493,12 @@ module HexaPDF
           @width + item.width <= @available_width
         end
 
-        # Creates a LineFragment object from the current line items.
+        # Creates a Line object from the current line items.
         def create_line
-          LineFragment.new(@line_items)
+          Line.new(@line_items)
         end
 
-        # Creates a LineFragment object from the current line items that ignores line justification.
+        # Creates a Line object from the current line items that ignores line justification.
         def create_unjustified_line
           create_line.tap(&:ignore_justification!)
         end
@@ -542,7 +542,7 @@ module HexaPDF
       # The items (TextFragment and InlineBox objects) of the text box that should be layed out.
       attr_reader :items
 
-      # Array of LineFragment objects describing the lines of the text box.
+      # Array of Line objects describing the lines of the text box.
       #
       # The array is only valid after #fit was called.
       attr_reader :lines

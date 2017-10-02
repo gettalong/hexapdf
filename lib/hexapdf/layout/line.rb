@@ -37,26 +37,25 @@ require 'hexapdf/layout/text_fragment'
 module HexaPDF
   module Layout
 
-    # A LineFragment describes a line of text and can contain TextFragment objects or InlineBox
-    # objects.
+    # A Line describes a line of text and can contain TextFragment objects or InlineBox objects.
     #
     # The items of a line fragment are aligned along the x-axis which coincides with the text
     # baseline. The vertical alignment is determined by the value of the #valign method:
     #
     # :text_top::
-    #     Align the top of the box with the top of the text of the LineFragment.
+    #     Align the top of the box with the top of the text of the Line.
     #
     # :text_bottom::
-    #     Align the bottom of the box with the bottom of the text of the LineFragment.
+    #     Align the bottom of the box with the bottom of the text of the Line.
     #
     # :baseline::
-    #     Align the bottom of the box with the baseline of the LineFragment.
+    #     Align the bottom of the box with the baseline of the Line.
     #
     # :top::
-    #     Align the top of the box with the top of the LineFragment.
+    #     Align the top of the box with the top of the Line.
     #
     # :bottom::
-    #     Align the bottom of the box with the bottom of the LineFragment.
+    #     Align the bottom of the box with the bottom of the Line.
     #
     # :text::
     #     This is a special alignment value for text fragment objects. The text fragment is aligned
@@ -86,7 +85,7 @@ module HexaPDF
     # implemented:
     #
     # #height:: The height of the item.
-    class LineFragment
+    class Line
 
       # Helper class for calculating the needed vertical dimensions of a line.
       class HeightCalculator
@@ -122,7 +121,7 @@ module HexaPDF
 
         # Returns the result of the calculations, the array [y_min, y_max, text_y_min, text_y_max].
         #
-        # See LineFragment for their meaning.
+        # See Line for their meaning.
         def result
           y_min = [@text_y_max - @max_text_top_height, @text_y_min].min
           y_max = [@text_y_min + @max_text_bottom_height, @max_base_height, @text_y_max].max
@@ -180,7 +179,7 @@ module HexaPDF
       # the baseline of this line.
       attr_accessor :y_offset
 
-      # Creates a new LineFragment object, adding all given items to it.
+      # Creates a new Line object, adding all given items to it.
       def initialize(items = [])
         @items = []
         items.each {|i| add(i)}
@@ -211,7 +210,7 @@ module HexaPDF
       alias :<< :add
 
       # :call-seq:
-      #   line_fragment.each {|item, x, y| block }
+      #   line.each {|item, x, y| block }
       #
       # Yields each item together with its horizontal offset from 0 and vertical offset from the
       # baseline.
@@ -287,7 +286,7 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   line_fragment.clear_cache   -> line_fragment
+      #   line.clear_cache   -> line
       #
       # Clears all cached values.
       #
@@ -300,7 +299,7 @@ module HexaPDF
       private
 
       # :call-seq:
-      #    line_fragment.calculate_y_dimensions     -> [y_min, y_max, text_y_min, text_y_max]
+      #    line.calculate_y_dimensions     -> [y_min, y_max, text_y_min, text_y_max]
       #
       # Calculates all y-values and returns them as array.
       #

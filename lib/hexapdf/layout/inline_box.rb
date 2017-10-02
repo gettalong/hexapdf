@@ -34,7 +34,7 @@
 module HexaPDF
   module Layout
 
-    # An InlineBox can be used as an item for a LineFragment so that inline graphics are possible.
+    # An InlineBox can be used as an item for a Line so that inline graphics are possible.
     # The box *must* have a fixed size!
     class InlineBox
 
@@ -46,7 +46,7 @@ module HexaPDF
 
       # The vertical alignment of the box.
       #
-      # Can be any supported value except :text - see LineFragment for all possible values.
+      # Can be any supported value except :text - see Line for all possible values.
       attr_reader :valign
 
       # :call-seq:
@@ -59,7 +59,7 @@ module HexaPDF
       # the block should draw inside the rectangle (0, 0, width, height).
       #
       # The +valign+ argument can be used to specify the vertical alignment of the box relative to
-      # other items in the LineFragment - see #valign and LineFragment.
+      # other items in the Line - see #valign and Line.
       def initialize(width, height, valign: :baseline, &block)
         @width = width
         @height = height

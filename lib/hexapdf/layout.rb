@@ -42,7 +42,7 @@ module HexaPDF
     autoload(:Style, 'hexapdf/layout/style')
     autoload(:TextFragment, 'hexapdf/layout/text_fragment')
     autoload(:InlineBox, 'hexapdf/layout/inline_box')
-    autoload(:LineFragment, 'hexapdf/layout/line_fragment')
+    autoload(:Line, 'hexapdf/layout/line')
     autoload(:TextShaper, 'hexapdf/layout/text_shaper')
     autoload(:TextBox, 'hexapdf/layout/text_box')
     autoload(:Box, 'hexapdf/layout/box')
