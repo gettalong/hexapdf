@@ -1,6 +1,6 @@
-# ## Text Box Line Wrapping
+# ## Text Layouter - Line Wrapping
 #
-# The [HexaPDF::Layout::TextBox] class can be used to easily lay out text,
+# The [HexaPDF::Layout::TextLayouter] class can be used to easily lay out text,
 # automatically wrapping it appropriately.
 #
 # Text is broken only at certain characters:
@@ -30,7 +30,7 @@
 # non-breaking spaces in "1 0 1".
 #
 # Usage:
-# : `ruby text_box_line_wrapping.rb`
+# : `ruby text_layout_line_wrapping.rb`
 #
 
 require 'hexapdf'
@@ -45,13 +45,13 @@ text = "Hello! Fly-fishing\nand wand\u{00AD}ering\taround - fanta\u{200B}stic" \
 x = 10
 y = 220
 [30, 60, 100, 160].each do |width|
-  box = HexaPDF::Layout::TextBox.create(text, width: width,
-                                        font: doc.fonts.load("Times"))
-  _, height = box.fit
-  box.draw(canvas, x, y)
+  layouter = HexaPDF::Layout::TextLayouter.create(text, width: width,
+                                                  font: doc.fonts.load("Times"))
+  _, height = layouter.fit
+  layouter.draw(canvas, x, y)
   canvas.stroke_color(255, 0, 0).line_width(0.2)
   canvas.rectangle(x, y, width, -height).stroke
   y -= height + 5
 end
 
-doc.write("text_box_line_wrapping.pdf", optimize: true)
+doc.write("text_layouter_line_wrapping.pdf", optimize: true)

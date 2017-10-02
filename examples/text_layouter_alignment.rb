@@ -1,15 +1,15 @@
-# ## Text Box Alignment
+# ## Text Layouter - Alignment
 #
-# The [HexaPDF::Layout::TextBox] class can be used to easily lay out text inside
-# a rectangular area, with various horizontal and vertical alignment options.
+# The [HexaPDF::Layout::TextLayouter] class can be used to easily lay out text
+# inside a rectangular area, with various horizontal and vertical alignment
+# options.
 #
-# The text inside the box can be aligned horizontally by setting
-# [HexaPDF::Layout::Style#align] and vertically by
-# [HexaPDF::Layout::Style#valign]. In this example, a sample text is laid out in
-# all possible combinations.
+# The text can be aligned horizontally by setting [HexaPDF::Layout::Style#align]
+# and vertically by [HexaPDF::Layout::Style#valign]. In this example, a sample
+# text is laid out in all possible combinations.
 #
 # Usage:
-# : `ruby text_box_alignment.rb`
+# : `ruby text_layouter_alignment.rb`
 #
 
 require 'hexapdf'
@@ -26,9 +26,9 @@ canvas.font("Times", size: 10, variant: :bold)
 width = 100
 height = 150
 y_base = 800
-box = HexaPDF::Layout::TextBox.create(sample_text, width: width,
-                                      height: height,
-                                      font: doc.fonts.load("Times"))
+tl = HexaPDF::Layout::TextLayouter.create(sample_text, width: width,
+                                          height: height,
+                                          font: doc.fonts.load("Times"))
 
 [:left, :center, :right, :justify].each_with_index do |align, x_index|
   x = x_index * (width + 20) + 70
@@ -38,10 +38,10 @@ box = HexaPDF::Layout::TextBox.create(sample_text, width: width,
     y = y_base - (height + 30) * y_index
     canvas.text(valign.to_s, at: [20, y - height / 2]) if x_index == 0
 
-    box.style.align(align).valign(valign)
-    box.draw(canvas, x, y, fit: true)
+    tl.style.align(align).valign(valign)
+    tl.draw(canvas, x, y, fit: true)
     canvas.stroke_color(128, 0, 0).rectangle(x, y, width, -height).stroke
   end
 end
 
-doc.write("text_box_alignment.pdf", optimize: true)
+doc.write("text_layouter_alignment.pdf", optimize: true)

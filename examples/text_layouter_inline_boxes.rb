@@ -1,7 +1,7 @@
-# ## Text Box with Inline Boxes
+# ## Text Layouter - Inline Boxes
 #
-# The [HexaPDF::Layout::TextBox] class can be used to easily lay out text mixed
-# with inline boxes.
+# The [HexaPDF::Layout::TextLayouter] class can be used to easily lay out text
+# mixed with inline boxes.
 #
 # Inline boxes are used for showing graphics that follow the flow of the text.
 # This means that their horizontal and their general vertical position is
@@ -14,7 +14,7 @@
 # and winking smileys to the top of the line.
 #
 # Usage:
-# : `ruby text_box_inline_boxes.rb`
+# : `ruby text_layouter_inline_boxes.rb`
 #
 
 require 'hexapdf'
@@ -48,9 +48,9 @@ items = sample_text.split(/(:-\)|;-\))/).map do |part|
   end
 end
 
-box = TextBox.new(items: items, width: 500, height: 700)
-box.style.align = :justify
-box.style.line_spacing(:proportional, 1.5)
-box.draw(doc.pages.add.canvas, 50, 800)
+layouter = TextLayouter.new(items: items, width: 500, height: 700)
+layouter.style.align = :justify
+layouter.style.line_spacing(:proportional, 1.5)
+layouter.draw(doc.pages.add.canvas, 50, 800)
 
-doc.write("text_box_inline_boxes.pdf")
+doc.write("text_layouter_inline_boxes.pdf")

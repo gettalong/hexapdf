@@ -4,7 +4,7 @@ require 'test_helper'
 require_relative '../content/common'
 require 'hexapdf/document'
 require 'hexapdf/layout/style'
-require 'hexapdf/layout/text_box'
+require 'hexapdf/layout/text_layouter'
 
 describe HexaPDF::Layout::Style::LineSpacing do
   before do
@@ -390,9 +390,9 @@ describe HexaPDF::Layout::Style do
   end
 
   it "has several dynamically generated properties with default values that take blocks" do
-    assert_equal(HexaPDF::Layout::TextBox::SimpleTextSegmentation,
+    assert_equal(HexaPDF::Layout::TextLayouter::SimpleTextSegmentation,
                  @style.text_segmentation_algorithm)
-    assert_equal(HexaPDF::Layout::TextBox::SimpleLineWrapping,
+    assert_equal(HexaPDF::Layout::TextLayouter::SimpleLineWrapping,
                  @style.text_line_wrapping_algorithm)
     assert_nil(@style.underlay_callback)
     assert_nil(@style.overlay_callback)

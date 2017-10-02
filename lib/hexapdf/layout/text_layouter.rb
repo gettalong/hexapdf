@@ -54,14 +54,14 @@ module HexaPDF
     #
     # Laying out text consists of two phases:
     #
-    # 1. The items of the text box are broken into pieces which are wrapped into Box, Glue or
-    #    Penalty objects. Additional Penalty objects marking line breaking opportunities are
-    #    inserted where needed. This step is done by the SimpleTextSegmentation module.
+    # 1. The items are broken into pieces which are wrapped into Box, Glue or Penalty objects.
+    #    Additional Penalty objects marking line breaking opportunities are inserted where needed.
+    #    This step is done by the SimpleTextSegmentation module.
     #
     # 2. The pieces are arranged into lines using a very simple algorithm that just puts the maximum
     #    number of consecutive pieces into each line. This step is done by the SimpleLineWrapping
     #    module.
-    class TextBox
+    class TextLayouter
 
       using NumericRefinements
 
@@ -522,12 +522,12 @@ module HexaPDF
       end
 
 
-      # Creates a new TextBox object for the given text and returns it.
+      # Creates a new TextLayouter object for the given text and returns it.
       #
       # See ::new for information on +height+.
       #
-      # The style of the text box can be specified using additional options, of which font is
-      # mandatory.
+      # The style that gets applied to the text and the layout itself can be specified using
+      # additional options, of which font is mandatory.
       def self.create(text, width:, height: nil, x_offsets: nil, **options)
         frag = TextFragment.create(text, **options)
         new(items: [frag], width: width, height: height, x_offsets: x_offsets, style: frag.style)
@@ -539,19 +539,19 @@ module HexaPDF
       # Style#text_segmentation_algorithm, Style#text_line_wrapping_algorithm
       attr_reader :style
 
-      # The items (TextFragment and InlineBox objects) of the text box that should be layed out.
+      # The items (TextFragment and InlineBox objects) that should be layed out.
       attr_reader :items
 
-      # Array of Line objects describing the lines of the text box.
+      # Array of Line objects describing the layed out lines.
       #
       # The array is only valid after #fit was called.
       attr_reader :lines
 
-      # The actual height of the text box. Can be +nil+ if the items have not been layed out yet,
-      # i.e. if #fit has not been called.
+      # The actual height of the layed out text. Can be +nil+ if the items have not been layed out
+      # yet, i.e. if #fit has not been called.
       attr_reader :actual_height
 
-      # Creates a new TextBox object with the given width containing the given items.
+      # Creates a new TextLayouter object with the given width containing the given items.
       #
       # The width can either be a simple number specifying a fixed width, or an object that responds
       # to #call(height, line_height) where +height+ is the bottom of last line and +line_height+ is
@@ -559,10 +559,10 @@ module HexaPDF
       # these height restrictions.
       #
       # The optional +x_offsets+ argument works like +width+ but can be used to specify (varying)
-      # offsets from the left of the box (e.g. when the left side of the text should follow a
-      # certain shape).
+      # offsets from the left side (e.g. when the left side of the text should follow a certain
+      # shape).
       #
-      # The height is optional and if not specified means that the text box has infinite height.
+      # The height is optional and if not specified means that the text layout has infinite height.
       def initialize(items: [], width:, height: nil, x_offsets: nil, style: Style.new)
         @style = style
         @lines = []
@@ -572,7 +572,7 @@ module HexaPDF
         @x_offsets = x_offsets && (x_offsets.respond_to?(:call) ? x_offsets : proc { x_offsets })
       end
 
-      # Sets the items to be arranged by the text box, clearing the internal state.
+      # Sets the items to be arranged by the text layouter, clearing the internal state.
       #
       # If the items array contains items before text segmentation, the text segmentation algorithm
       # is automatically applied.
@@ -586,16 +586,16 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   text_box.fit  -> [remaining_items, actual_height]
+      #   text_layouter.fit  -> [remaining_items, actual_height]
       #
-      # Fits the items into the text box and returns the remaining items as well as the actual
+      # Fits the items into the set area and returns the remaining items as well as the actual
       # height needed.
       #
-      # Note: If the text box height has not been set and variable line widths are used, no search
-      # for a possible vertical offset is done in case a single item doesn't fit.
+      # Note: If no height has been set and variable line widths are used, no search for a possible
+      # vertical offset is done in case a single item doesn't fit.
       #
       # This method is automatically called as part of the drawing routine but it can also be used
-      # by itself to determine the actual height of the text box.
+      # by itself to determine the actual height of the layed out text.
       def fit
         @lines.clear
         @actual_height = 0
@@ -653,7 +653,7 @@ module HexaPDF
         [rest, @actual_height]
       end
 
-      # Draws the text box onto the canvas with the top-left corner being at [x, y].
+      # Draws the layed out text onto the canvas with the top-left corner being at [x, y].
       #
       # Depending on the value of +fit+ the text may also be fitted:
       #
@@ -684,20 +684,19 @@ module HexaPDF
 
       private
 
-      # Returns the initial baseline offset from the top of the text box, based on the valign style
-      # option.
+      # Returns the initial baseline offset from the top, based on the valign style option.
       def initial_baseline_offset
         case style.valign
         when :top
           @lines.first.y_max
         when :center
           if @height == Float::INFINITY
-            raise HexaPDF::Error, "Can't vertically align a text box with unlimited height"
+            raise HexaPDF::Error, "Can't vertically align when using unlimited height"
           end
           (@height - @actual_height) / 2.0 + @lines.first.y_max
         when :bottom
           if @height == Float::INFINITY
-            raise HexaPDF::Error, "Can't vertically align a text box with unlimited height"
+            raise HexaPDF::Error, "Can't vertically align when using unlimited height"
           end
           (@height - @actual_height) + @lines.first.y_max
         end

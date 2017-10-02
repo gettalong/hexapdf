@@ -582,7 +582,7 @@ module HexaPDF
       #   text_segmentation_algorithm(algorithm = nil) {|items| block }
       #
       # The algorithm to use for text segmentation purposes, defaults to
-      # TextBox::SimpleTextSegmentation.
+      # TextLayouter::SimpleTextSegmentation.
       #
       # When setting the algorithm, either an object that responds to #call(items) or a block can be
       # used.
@@ -592,10 +592,11 @@ module HexaPDF
       # :call-seq:
       #   text_line_wrapping_algorithm(algorithm = nil) {|items, width_block| block }
       #
-      # The line wrapping algorithm that should be used, defaults to TextBox::SimpleLineWrapping.
+      # The line wrapping algorithm that should be used, defaults to
+      # TextLayouter::SimpleLineWrapping.
       #
       # When setting the algorithm, either an object that responds to #call or a block can be used.
-      # See TextBox::SimpleLineWrapping#call for the needed method signature.
+      # See TextLayouter::SimpleLineWrapping#call for the needed method signature.
 
       ##
       # :method: overlay_callback
@@ -624,8 +625,8 @@ module HexaPDF
       # box during the drawing operations.
 
       [
-        [:text_segmentation_algorithm, 'TextBox::SimpleTextSegmentation'],
-        [:text_line_wrapping_algorithm, 'TextBox::SimpleLineWrapping'],
+        [:text_segmentation_algorithm, 'TextLayouter::SimpleTextSegmentation'],
+        [:text_line_wrapping_algorithm, 'TextLayouter::SimpleLineWrapping'],
         [:underlay_callback, nil],
         [:overlay_callback, nil],
       ].each do |name, default|

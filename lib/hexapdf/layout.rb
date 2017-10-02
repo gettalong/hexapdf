@@ -44,7 +44,7 @@ module HexaPDF
     autoload(:InlineBox, 'hexapdf/layout/inline_box')
     autoload(:Line, 'hexapdf/layout/line')
     autoload(:TextShaper, 'hexapdf/layout/text_shaper')
-    autoload(:TextBox, 'hexapdf/layout/text_box')
+    autoload(:TextLayouter, 'hexapdf/layout/text_layouter')
     autoload(:Box, 'hexapdf/layout/box')
 
   end
