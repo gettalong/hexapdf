@@ -1,8 +1,11 @@
 # -*- encoding: utf-8 -*-
 
-require 'simplecov'
-SimpleCov.start do
-  add_filter '/test/'
+begin
+  require 'simplecov'
+  SimpleCov.start do
+    add_filter '/test/'
+  end
+rescue LoadError
 end
 
 gem 'minitest'
