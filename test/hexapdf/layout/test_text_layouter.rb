@@ -376,6 +376,20 @@ describe HexaPDF::Layout::TextLayouter do
     assert_equal(@font.decode_utf8("T"), layouter.items[0].item.items)
   end
 
+  describe "initialize" do
+    it "can use a Style object" do
+      style = HexaPDF::Layout::Style.new(font: @font, font_size: 20)
+      layouter = HexaPDF::Layout::TextLayouter.new(items: [], width: 10, style: style)
+      assert_equal(20, layouter.style.font_size)
+    end
+
+    it "can use a style options" do
+      layouter = HexaPDF::Layout::TextLayouter.new(items: [], width: 10, style:
+                                                   {font: @font, font_size: 20})
+      assert_equal(20, layouter.style.font_size)
+    end
+  end
+
   it "doesn't run the text segmentation algorithm on already segmented items" do
     item = HexaPDF::Layout::InlineBox.new(20, 0) {}
     layouter = HexaPDF::Layout::TextLayouter.new(items: [item], width: 100, height: 100)

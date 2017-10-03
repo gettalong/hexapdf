@@ -91,9 +91,11 @@ module HexaPDF
       attr_reader :style
 
       # Creates a new TextFragment object with the given items and style.
+      #
+      # The argument +style+ can either be a Style object or a hash of style options.
       def initialize(items:, style: Style.new)
         @items = items || []
-        @style = style
+        @style = (style.kind_of?(Style) ? style : Style.new(style))
       end
 
       # Draws the text onto the canvas at the given position.

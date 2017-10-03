@@ -12,6 +12,9 @@
 * Cross-reference subsection parsing can handle missing whitespace
 * Renamed HexaPDF::Layout::LineFragment to [HexaPDF::Layout::Line]
 * Renamed HexaPDF::Layout::TextBox to [HexaPDF::Layout::TextLayouter]
+* [HexaPDF::Layout::TextFragment#initialize] and
+  [HexaPDF::Layout::TextLayouter#initialize] to either take a Style object or
+  style options
 
 ### Fixed
 

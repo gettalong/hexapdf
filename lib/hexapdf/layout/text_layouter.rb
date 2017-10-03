@@ -563,8 +563,11 @@ module HexaPDF
       # shape).
       #
       # The height is optional and if not specified means that the text layout has infinite height.
+      #
+      # The +style+ argument can either be a Style object or a hash of style options. See #style for
+      # the properties that are used by the layouter.
       def initialize(items: [], width:, height: nil, x_offsets: nil, style: Style.new)
-        @style = style
+        @style = (style.kind_of?(Style) ? style : Style.new(style))
         @lines = []
         self.items = items
         @width = width

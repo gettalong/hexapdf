@@ -27,6 +27,23 @@ describe HexaPDF::Layout::TextFragment do
     assert_equal(13.66 + 4.34, frag.height)
   end
 
+  describe "initialize" do
+    before do
+      @items = @font.decode_utf8("Tom")
+    end
+
+    it "can use a Style object" do
+      style = HexaPDF::Layout::Style.new(font: @font, font_size: 20)
+      frag = HexaPDF::Layout::TextFragment.new(items: @items, style: style)
+      assert_equal(20, frag.style.font_size)
+    end
+
+    it "can use a style options" do
+      frag = HexaPDF::Layout::TextFragment.new(items: @items, style: {font: @font, font_size: 20})
+      assert_equal(20, frag.style.font_size)
+    end
+  end
+
   it "returns :text for valign" do
     assert_equal(:text, setup_fragment([]).valign)
   end
