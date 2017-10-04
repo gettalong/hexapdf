@@ -112,8 +112,6 @@ module HexaPDF
       # The coordinate system is translated so that the origin is at the lower left corner of the
       # contents box during the drawing operations.
       def draw(canvas, x, y)
-        return unless @draw_block
-
         if style.background_color
           canvas.save_graphics_state do
             canvas.fill_color(style.background_color).rectangle(x, y, width, height).fill
@@ -128,14 +126,22 @@ module HexaPDF
           style.border.draw(canvas, x, y, width, height)
         end
 
-        canvas.translate(x + style.padding.left + style.border.width.left,
-                         y + style.padding.bottom + style.border.width.bottom) do
-          @draw_block.call(canvas, self)
+        if @draw_block
+          canvas.translate(x + style.padding.left + style.border.width.left,
+                           y + style.padding.bottom + style.border.width.bottom) do
+            @draw_block.call(canvas, self)
+          end
         end
 
         if style.overlay_callback
           canvas.translate(x, y) { style.overlay_callback.call(canvas, self) }
         end
+      end
+
+      # Returns +true+ if no drawing operations are performed.
+      def empty?
+        !(@draw_block || style.background_color || style.underlay_callback ||
+          !style.border.none? || style.overlay_callback)
       end
 
     end
