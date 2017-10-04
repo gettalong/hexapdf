@@ -13,6 +13,11 @@
 # graphical representation, with normal smileys being aligned to the baseline
 # and winking smileys to the top of the line.
 #
+# An inline box is a simple wrapper around a generic box that adheres to the
+# necessary interface. Therefore they don't do any drawing operations themselves
+# but delegate to their wrapped box. This means, for example, that inline boxes
+# can use background colors or borders without doing anything special.
+#
 # Usage:
 # : `ruby text_layouter_inline_boxes.rb`
 #
@@ -36,12 +41,17 @@ size = 10
 items = sample_text.split(/(:-\)|;-\))/).map do |part|
   case part
   when ':-)'
-    InlineBox.new(size * 2, size * 2, valign: :baseline) do |box, canvas|
-      canvas.image(emoji_smile, at: [0, 0], width: box.width)
+    style = {background_color: [162, 234, 247], padding: 2}
+    InlineBox.create(content_width: size * 2, content_height: size * 2,
+                     style: style) do |canvas, box|
+      canvas.image(emoji_smile, at: [0, 0], width: box.content_width)
     end
   when ';-)'
-    InlineBox.new(size, size, valign: :top) do |box, canvas|
-      canvas.image(emoji_wink, at: [0, 0], width: box.width)
+    style = {padding: 5, margin: [0, 10],
+             border: {width: [1, 2], color: [200, 40]}}
+    InlineBox.create(content_width: size, content_height: size,
+                     valign: :top, style: style) do |canvas, box|
+      canvas.image(emoji_wink, at: [0, 0], width: box.content_width)
     end
   else
     TextFragment.create(part, font: doc.fonts.load("Times"), font_size: 18)
