@@ -5,27 +5,24 @@ require 'hexapdf/layout/inline_box'
 
 describe HexaPDF::Layout::InlineBox do
   before do
-    @box = HexaPDF::Layout::InlineBox.new(10, 15) {|box, canvas| [box, canvas]}
+    @box = HexaPDF::Layout::InlineBox.create(width: 10, height: 15, style: {margin: [15, 10]})
   end
 
-  describe "draw" do
-    before do
-      @canvas = Object.new
-      @canvas.define_singleton_method(:translate) {|x, y, &block| [x, y, block.call] }
+  it "draws the wrapped box at the correct position" do
+    canvas = Object.new
+    block = ->(c, x, y) do
+      assert_equal(canvas, c)
+      assert_equal(10, x)
+      assert_equal(15, y)
     end
-
-    it "returns the value of the drawing block" do
-      assert_equal([1, 2, [@box, @canvas]], @box.draw(@canvas, 1, 2))
-    end
-
-    it "returns nil if it is just a placeholder box" do
-      assert_nil(HexaPDF::Layout::InlineBox.new(10, 15).draw(@canvas, 1, 2))
+    @box.box.stub(:draw, block) do
+      @box.draw(canvas, 0, 0)
     end
   end
 
-  it "returns true if the inline box is just a place holder with no drawing operation" do
-    refute(@box.placeholder?)
-    assert(HexaPDF::Layout::InlineBox.new(10, 15).placeholder?)
+  it "returns true if the inline box is empty with no drawing operations" do
+    assert(@box.empty?)
+    refute(HexaPDF::Layout::InlineBox.create(width: 10, height: 15) {}.empty?)
   end
 
   describe "valign" do
@@ -34,9 +31,17 @@ describe HexaPDF::Layout::InlineBox do
     end
 
     it "can be changed on creation" do
-      box = HexaPDF::Layout::InlineBox.new(10, 15, valign: :test) {}
+      box = HexaPDF::Layout::InlineBox.create(width: 10, height: 15, valign: :test)
       assert_equal(:test, box.valign)
     end
+  end
+
+  it "returns the width including margins" do
+    assert_equal(30, @box.width)
+  end
+
+  it "returns the height including margins" do
+    assert_equal(45, @box.height)
   end
 
   it "returns 0 for x_min" do
@@ -44,6 +49,6 @@ describe HexaPDF::Layout::InlineBox do
   end
 
   it "returns width for x_max" do
-    assert_equal(10, @box.x_max)
+    assert_equal(@box.width, @box.x_max)
   end
 end

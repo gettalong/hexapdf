@@ -674,7 +674,7 @@ module HexaPDF
             line.each do |item, item_x, item_y|
               if item.kind_of?(TextFragment)
                 item.draw(canvas, line_x + item_x, y + item_y)
-              elsif !item.placeholder?
+              elsif !item.empty?
                 canvas.restore_graphics_state
                 item.draw(canvas, line_x + item_x, y + item_y)
                 canvas.save_graphics_state

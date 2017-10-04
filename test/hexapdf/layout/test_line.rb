@@ -9,9 +9,9 @@ describe HexaPDF::Layout::Line::HeightCalculator do
   end
 
   it "simulate the height as if an item was added" do
-    @calc << HexaPDF::Layout::InlineBox.new(10, 20, valign: :baseline) {}
+    @calc << HexaPDF::Layout::InlineBox.create(width: 10, height: 20, valign: :baseline) {}
     assert_equal([0, 20, 0, 0], @calc.result)
-    new_item = HexaPDF::Layout::InlineBox.new(10, 30, valign: :top) {}
+    new_item = HexaPDF::Layout::InlineBox.create(width: 10, height: 30, valign: :top) {}
     assert_equal(30, @calc.simulate_height(new_item))
     assert_equal([0, 20, 0, 0], @calc.result)
   end
@@ -29,7 +29,7 @@ describe HexaPDF::Layout::Line do
   end
 
   def setup_box(width, height, valign = :baseline)
-    HexaPDF::Layout::InlineBox.new(width, height, valign: valign) {}
+    HexaPDF::Layout::InlineBox.create(width: width, height: height, valign: valign) {}
   end
 
   describe "initialize" do

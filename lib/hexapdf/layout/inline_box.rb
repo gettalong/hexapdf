@@ -31,58 +31,61 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'hexapdf/layout/box'
+
 module HexaPDF
   module Layout
 
-    # An InlineBox can be used as an item for a Line so that inline graphics are possible.
-    # The box *must* have a fixed size!
+    # An InlineBox wraps a regular Box so that it can be used as an item for a Line. This enables
+    # inline graphics.
+    #
+    # The wrapped box *must* have a fixed size!
     class InlineBox
 
-      # The width of the box.
-      attr_reader :width
-
-      # The height of the box.
-      attr_reader :height
+      # Creates an InlineBox that wraps a basic Box. All arguments (except +valign+) and the block
+      # are passed to Box::new.
+      #
+      # See ::new for the +valign+ argument.
+      def self.create(valign: :baseline, **args, &block)
+        new(Box.new(**args, &block), valign: valign)
+      end
 
       # The vertical alignment of the box.
       #
       # Can be any supported value except :text - see Line for all possible values.
       attr_reader :valign
 
-      # :call-seq:
-      #    InlineBox.new(width, height, valign: :baseline) {|box, canvas| block}      -> inline_box
-      #
-      # Creates a new InlineBox object that uses the provided block when it is asked to draw itself
-      # on a canvas (see #draw).
-      #
-      # Since the final location of the box is not known beforehand, the drawing operations inside
-      # the block should draw inside the rectangle (0, 0, width, height).
+      # The wrapped Box object.
+      attr_reader :box
+
+      # Creates a new InlineBox object wrapping +box+.
       #
       # The +valign+ argument can be used to specify the vertical alignment of the box relative to
-      # other items in the Line - see #valign and Line.
-      def initialize(width, height, valign: :baseline, &block)
-        @width = width
-        @height = height
+      # other items in the Line.
+      def initialize(box, valign: :baseline)
+        @box = box
         @valign = valign
-        @draw_block = block
       end
 
-      # :call-seq:
-      #   box.draw(canvas, x, y)    -> block_result or nil
-      #
-      # Draws the contents of the box onto the canvas at the position (x, y), and returns the result
-      # of the drawing block (see #initialize). If no drawing block was specified, it returns +nil+.
-      #
-      # The coordinate system is translated so that the origin is at (x, y) during the drawing
-      # operations.
+      # Returns +true+ if this inline box is just a placeholder without drawing operations.
+      def empty?
+        box.empty?
+      end
+
+      # Returns the width of the wrapped box plus its left and right margins.
+      def width
+        box.width + box.style.margin.left + box.style.margin.right
+      end
+
+      # Returns the height of the wrapped box plus its top and bottom margins.
+      def height
+        box.height + box.style.margin.top + box.style.margin.bottom
+      end
+
+      # Draws the wrapped box. If the box has margins specified, the x and y offsets are correctly
+      # adjusted.
       def draw(canvas, x, y)
-        return if placeholder?
-        canvas.translate(x, y) { @draw_block.call(self, canvas) }
-      end
-
-      # Returns +true+ if this inline box is just a placeholder without a drawing operation.
-      def placeholder?
-        @draw_block.nil?
+        box.draw(canvas, x + box.style.margin.left, y + box.style.margin.bottom)
       end
 
       # The minimum x-coordinate which is always 0.
@@ -90,7 +93,7 @@ module HexaPDF
         0
       end
 
-      # The maximum x-coordinate which is equivalent to the width of the box.
+      # The maximum x-coordinate which is equivalent to the width of the inline box.
       def x_max
         width
       end

@@ -15,6 +15,7 @@
 * [HexaPDF::Layout::TextFragment#initialize] and
   [HexaPDF::Layout::TextLayouter#initialize] to either take a Style object or
   style options
+* [HexaPDF::Layout::InlineBox] to wrap a generic box
 
 ### Fixed
 

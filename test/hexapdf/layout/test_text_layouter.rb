@@ -8,13 +8,13 @@ require_relative "../content/common"
 module TestTextLayouterHelpers
   def boxes(*dims)
     dims.map do |width, height|
-      box = HexaPDF::Layout::InlineBox.new(width, height || 0) {}
+      box = HexaPDF::Layout::InlineBox.create(width: width, height: height || 0) {}
       HexaPDF::Layout::TextLayouter::Box.new(box)
     end
   end
 
   def glue(width)
-    HexaPDF::Layout::TextLayouter::Glue.new(HexaPDF::Layout::InlineBox.new(width, 0) {})
+    HexaPDF::Layout::TextLayouter::Glue.new(HexaPDF::Layout::InlineBox.create(width: width) {})
   end
 
   def penalty(penalty, item = nil)
@@ -68,7 +68,7 @@ describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
   end
 
   it "handles InlineBox objects" do
-    input = HexaPDF::Layout::InlineBox.new(10, 10) { }
+    input = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) { }
     result = @obj.call([input, input])
     assert_equal(2, result.size)
     assert_box(result[0], input)
@@ -230,7 +230,7 @@ module CommonLineWrappingTests
   end
 
   it "handles breaking at penalties with non-zero width if they fit on the line" do
-    item = HexaPDF::Layout::InlineBox.new(20, 0) {}
+    item = HexaPDF::Layout::InlineBox.create(width: 20) {}
     rest, lines = call(boxes(20, 60, 30).insert(1, penalty(0, item)).insert(-2, penalty(0, item)))
     assert(rest.empty?)
     assert_equal(2, lines.count)
@@ -240,7 +240,7 @@ module CommonLineWrappingTests
   end
 
   it "handles penalties with non-zero width if they don't fit on the line" do
-    item = HexaPDF::Layout::InlineBox.new(20, 0) {}
+    item = HexaPDF::Layout::InlineBox.create(width: 20) {}
     rest, lines = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(0, item)] + boxes(30))
     assert(rest.empty?)
     assert_equal(2, lines.count)
@@ -249,7 +249,7 @@ module CommonLineWrappingTests
   end
 
   it "handles breaking at prohibited breakpoints by back-tracking to the last valid breakpoint " do
-    item = HexaPDF::Layout::InlineBox.new(20, 0) {}
+    item = HexaPDF::Layout::InlineBox.create(width: 20) {}
     rest, lines = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(5000, item)] + boxes(30))
     assert(rest.empty?)
     assert_equal(2, lines.count)
@@ -345,7 +345,7 @@ describe HexaPDF::Layout::TextLayouter::SimpleLineWrapping do
         end
       end
       lines = []
-      item = HexaPDF::Layout::InlineBox.new(20, 10) {}
+      item = HexaPDF::Layout::InlineBox.create(width: 20, height: 10) {}
       items = boxes([20, 10]) + [penalty(0, item)] + boxes([40, 15])
       rest = @obj.call(items, width_block) do |line|
         height += line.height
@@ -391,7 +391,7 @@ describe HexaPDF::Layout::TextLayouter do
   end
 
   it "doesn't run the text segmentation algorithm on already segmented items" do
-    item = HexaPDF::Layout::InlineBox.new(20, 0) {}
+    item = HexaPDF::Layout::InlineBox.create(width: 20) {}
     layouter = HexaPDF::Layout::TextLayouter.new(items: [item], width: 100, height: 100)
     items = layouter.items
     assert_equal(1, items.length)
@@ -666,14 +666,14 @@ describe HexaPDF::Layout::TextLayouter do
 
     it "makes sure that text fragments don't pollute the graphics state for inline boxes" do
       frag = HexaPDF::Layout::TextFragment.create("Demo", font: @font)
-      inline_box = HexaPDF::Layout::InlineBox.new(10, 10) {|_, canvas| canvas.text("A")}
+      inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {|c, _| c.text("A")}
       layouter = HexaPDF::Layout::TextLayouter.new(items: [frag, inline_box], width: 200)
       assert_raises(HexaPDF::Error) { layouter.draw(@canvas, 0, 0) }
     end
 
     it "doesn't do unnecessary work for placeholder boxes" do
-      box1 = HexaPDF::Layout::InlineBox.new(10, 20)
-      box2 = HexaPDF::Layout::InlineBox.new(30, 40) { @canvas.line_width(2) }
+      box1 = HexaPDF::Layout::InlineBox.create(width: 10, height: 20)
+      box2 = HexaPDF::Layout::InlineBox.create(width: 30, height: 40) { @canvas.line_width(2) }
       layouter = HexaPDF::Layout::TextLayouter.new(items: [box1, box2], width: 200)
       layouter.draw(@canvas, 0, 0)
       assert_operators(@canvas.contents, [[:save_graphics_state],
