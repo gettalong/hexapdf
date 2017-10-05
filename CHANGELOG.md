@@ -12,8 +12,8 @@
 * Cross-reference subsection parsing can handle missing whitespace
 * Renamed HexaPDF::Layout::LineFragment to [HexaPDF::Layout::Line]
 * Renamed HexaPDF::Layout::TextBox to [HexaPDF::Layout::TextLayouter]
-* [HexaPDF::Layout::TextFragment#initialize] and
-  [HexaPDF::Layout::TextLayouter#initialize] to either take a Style object or
+* [HexaPDF::Layout::TextFragment::new] and
+  [HexaPDF::Layout::TextLayouter::new] to either take a Style object or
   style options
 * [HexaPDF::Layout::InlineBox] to wrap a generic box
 
@@ -25,11 +25,11 @@
 * Undefined method error in [HexaPDF::Content::Canvas] by raising a proper error
 * Invalid handling of fonts by [HexaPDF::Content::Canvas] when saving and
   restoring the graphics state
-* [HexaPDF::Layout::TextBox] so that text fragments don't pollute the graphics
+* HexaPDF::Layout::TextBox so that text fragments don't pollute the graphics
   state
 * [HexaPDF::Content::Operator::SetTextRenderingMode] to normalize the value
 * [HexaPDF::Stream#stream_source] to always return a decrypted stream
-* [HexaPDF::Layout::TextBox] to correctly indent all paragraphs, not just the
+* HexaPDF::Layout::TextBox to correctly indent all paragraphs, not just the
   first one
 
 
@@ -37,8 +37,8 @@
 
 ### Added
 
-* [HexaPDF::Layout::TextBox] for easy positioning and layouting of text
-* [HexaPDF::Layout::LineFragment] for single text line layout calculations
+* HexaPDF::Layout::TextBox for easy positioning and layouting of text
+* HexaPDF::Layout::LineFragment for single text line layout calculations
 * [HexaPDF::Layout::TextShaper] for text shaping functionality
 * [HexaPDF::Layout::TextFragment] for basic text metrics calculations
 * [HexaPDF::Layout::InlineBox] for fixed size inline graphics
