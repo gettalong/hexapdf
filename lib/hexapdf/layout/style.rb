@@ -41,6 +41,13 @@ module HexaPDF
     #
     # Each property except #font has a default value, so only the desired properties need to be
     # changed.
+    #
+    # Each property has three associated methods:
+    #
+    # property_name:: Getter method.
+    # property_name(*args) and property_name=:: Setter method.
+    # property_name?:: Tester method to see if a value has been set or if the default value has
+    #                  already been used.
     class Style
 
       # Defines how the distance between the baselines of two adjacent text lines is determined:
@@ -599,6 +606,9 @@ module HexaPDF
           def #{name}(value = UNSET#{extra_args})
             value == UNSET ? (@#{name} ||= #{default}) : (@#{name} = #{setter}; self)
           end
+          def #{name}?
+            defined?(@#{name})
+          end
         EOF
         alias_method("#{name}=", name)
       end
@@ -667,6 +677,9 @@ module HexaPDF
               @#{name} = (value != UNSET ? value : block)
               self
             end
+          end
+          def #{name}?
+            defined?(@#{name})
           end
         EOF
         alias_method("#{name}=", name)

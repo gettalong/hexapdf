@@ -393,6 +393,16 @@ describe HexaPDF::Layout::Style do
     assert_equal([[5], 2], @style.stroke_dash_pattern.to_operands)
   end
 
+  it "allows checking whether a property has been set or accessed" do
+    refute(@style.align?)
+    assert_equal(:left, @style.align)
+    assert(@style.align?)
+
+    refute(@style.valign?)
+    @style.valign = :bottom
+    assert(@style.valign?)
+  end
+
   it "has several dynamically generated properties with default values that take blocks" do
     assert_equal(HexaPDF::Layout::TextLayouter::SimpleTextSegmentation,
                  @style.text_segmentation_algorithm)

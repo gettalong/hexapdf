@@ -4,6 +4,8 @@
 
 * [HexaPDF::Layout::Box] as base class for all layout boxes
 * More styling properties for [HexaPDF::Layout::Style]
+* Methods for checking whether styling properties in [HexaPDF::Layout::Style]
+  have been accessed or set
 * [HexaPDF::FontLoader::FromFile] to allow specifying a font file directly
 
 ### Changed
