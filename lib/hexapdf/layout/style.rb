@@ -436,6 +436,24 @@ module HexaPDF
       # See: HexaPDF::Content::Canvas#text_rendering_mode
 
       ##
+      # :method: subscript
+      # :call-seq:
+      #   subscript(enable = false)
+      #
+      # Render the text as subscript, i.e. lower and in a smaller font size; defaults to false.
+      #
+      # If superscript is set, it will be deactivated.
+
+      ##
+      # :method: superscript
+      # :call-seq:
+      #   superscript(enable = false)
+      #
+      # Render the text as superscript, i.e. higher and in a smaller font size; defaults to false.
+      #
+      # If subscript is set, it will be deactivated.
+
+      ##
       # :method: fill_color
       # :call-seq:
       #   fill_color(color = nil)
@@ -581,6 +599,8 @@ module HexaPDF
         [:text_rise, 0],
         [:font_features, {}],
         [:text_rendering_mode, :fill],
+        [:subscript, false, "value; superscript(false) if superscript"],
+        [:superscript, false, "value; subscript(false) if subscript"],
         [:fill_color, "default_color"],
         [:fill_alpha, 1],
         [:stroke_color, "default_color"],
@@ -685,9 +705,25 @@ module HexaPDF
         alias_method("#{name}=", name)
       end
 
+      # The calculated text rise, taking superscript and subscript into account.
+      def calculated_text_rise
+        if superscript
+          text_rise + font_size * 0.33
+        elsif subscript
+          text_rise - font_size * 0.20
+        else
+          text_rise
+        end
+      end
+
+      # The calculated font size, taking superscript and subscript into account.
+      def calculated_font_size
+        (superscript || subscript ? 0.583 : 1) * font_size
+      end
+
       # The font size scaled appropriately.
       def scaled_font_size
-        @scaled_font_size ||= font_size / 1000.0 * scaled_horizontal_scaling
+        @scaled_font_size ||= calculated_font_size / 1000.0 * scaled_horizontal_scaling
       end
 
       # The character spacing scaled appropriately.

@@ -382,6 +382,8 @@ describe HexaPDF::Layout::Style do
     assert(@style.border.none?)
     assert_equal([[], 0], @style.stroke_dash_pattern.to_operands)
     assert_equal([:proportional, 1], [@style.line_spacing.type, @style.line_spacing.value])
+    refute(@style.subscript)
+    refute(@style.superscript)
   end
 
   it "allows using a non-standard setter for generated properties" do
@@ -419,22 +421,39 @@ describe HexaPDF::Layout::Style do
     assert_equal(:callable, @style.text_segmentation_algorithm)
   end
 
-  it "has methods for some derived and cached values" do
-    assert_equal(0.01, @style.scaled_font_size)
-    assert_equal(0, @style.scaled_character_spacing)
-    assert_equal(0, @style.scaled_word_spacing)
-    assert_equal(1, @style.scaled_horizontal_scaling)
+  describe "methods for some derived and cached values" do
+    before do
+      wrapped_font = Object.new
+      wrapped_font.define_singleton_method(:ascender) { 600 }
+      wrapped_font.define_singleton_method(:descender) { -100 }
+      font = Object.new
+      font.define_singleton_method(:scaling_factor) { 1 }
+      font.define_singleton_method(:wrapped_font) { wrapped_font }
+      @style.font = font
+    end
 
-    wrapped_font = Object.new
-    wrapped_font.define_singleton_method(:ascender) { 600 }
-    wrapped_font.define_singleton_method(:descender) { -100 }
-    font = Object.new
-    font.define_singleton_method(:scaling_factor) { 1 }
-    font.define_singleton_method(:wrapped_font) { wrapped_font }
-    @style.font = font
+    it "computes them correctly" do
+      assert_equal(0.01, @style.scaled_font_size)
+      assert_equal(0, @style.scaled_character_spacing)
+      assert_equal(0, @style.scaled_word_spacing)
+      assert_equal(1, @style.scaled_horizontal_scaling)
 
-    assert_equal(6, @style.scaled_font_ascender)
-    assert_equal(-1, @style.scaled_font_descender)
+      assert_equal(6, @style.scaled_font_ascender)
+      assert_equal(-1, @style.scaled_font_descender)
+    end
+
+    it "handles subscript" do
+      @style.subscript = true
+      assert_in_delta(5.83, @style.calculated_font_size)
+      assert_in_delta(0.00583, @style.scaled_font_size, 0.000001)
+      assert_in_delta(-2.00, @style.calculated_text_rise)
+    end
+
+    it "handles superscript" do
+      @style.superscript = true
+      assert_in_delta(5.83, @style.calculated_font_size)
+      assert_in_delta(3.30, @style.calculated_text_rise)
+    end
   end
 
   it "can clear cached values" do

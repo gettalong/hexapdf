@@ -111,11 +111,11 @@ module HexaPDF
 
         # Set general font related graphics state
         canvas.move_text_cursor(offset: [x, y])
-        canvas.font(style.font, size: style.font_size).
+        canvas.font(style.font, size: style.calculated_font_size).
           horizontal_scaling(style.horizontal_scaling).
           character_spacing(style.character_spacing).
           word_spacing(style.word_spacing).
-          text_rise(style.text_rise).
+          text_rise(style.calculated_text_rise).
           text_rendering_mode(style.text_rendering_mode)
 
         # Set fill and/or stroke related graphics state
@@ -152,24 +152,24 @@ module HexaPDF
 
       # The minimum y-coordinate, calculated using the scaled descender of the font.
       def y_min
-        @y_min ||= style.scaled_font_descender + style.text_rise
+        @y_min ||= style.scaled_font_descender + style.calculated_text_rise
       end
 
       # The maximum y-coordinate, calculated using the scaled ascender of the font.
       def y_max
-        @y_max ||= style.scaled_font_ascender + style.text_rise
+        @y_max ||= style.scaled_font_ascender + style.calculated_text_rise
       end
 
       # The minimum y-coordinate of any item.
       def exact_y_min
-        @exact_y_min ||= (@items.min_by(&:y_min)&.y_min || 0) * style.font_size / 1000.0 +
-          style.text_rise
+        @exact_y_min ||= (@items.min_by(&:y_min)&.y_min || 0) *
+          style.calculated_font_size / 1000.0 + style.calculated_text_rise
       end
 
       # The maximum y-coordinate of any item.
       def exact_y_max
-        @exact_y_max ||= (@items.max_by(&:y_max)&.y_max || 0) * style.font_size / 1000.0 +
-          style.text_rise
+        @exact_y_max ||= (@items.max_by(&:y_max)&.y_max || 0) *
+          style.calculated_font_size / 1000.0 + style.calculated_text_rise
       end
 
       # The width of the text fragment.
