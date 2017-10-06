@@ -582,17 +582,21 @@ module HexaPDF
         [:stroke_cap_style, :butt],
         [:stroke_join_style, :miter],
         [:stroke_miter_limit, 10.0],
+        [:stroke_dash_pattern, "Content::LineDashPattern.new",
+         "Content::LineDashPattern.normalize(value, phase)", ", phase = 0"],
         [:align, :left],
         [:valign, :top],
         [:text_indent, 0],
+        [:line_spacing, "LineSpacing.new(:single)",
+         "LineSpacing.new(value, value: extra_arg)", ", extra_arg = nil"],
         [:background_color, nil],
         [:padding, "Quad.new(0)", "Quad.new(value)"],
         [:margin, "Quad.new(0)", "Quad.new(value)"],
         [:border, "Border.new", "Border.new(value)"],
-      ].each do |name, default, setter = "value"|
+      ].each do |name, default, setter = "value", extra_args = ""|
         default = default.inspect unless default.kind_of?(String)
         module_eval(<<-EOF, __FILE__, __LINE__)
-          def #{name}(value = UNSET)
+          def #{name}(value = UNSET#{extra_args})
             value == UNSET ? (@#{name} ||= #{default}) : (@#{name} = #{setter}; self)
           end
         EOF
@@ -667,39 +671,6 @@ module HexaPDF
         EOF
         alias_method("#{name}=", name)
       end
-
-      # :call-seq:
-      #   stroke_dash_pattern(array = nil, phase = 0)
-      #
-      # The line dash pattern used for stroking operations (e.g. text outlines), defaults to a solid
-      # line.
-      #
-      # See: HexaPDF::Content::Canvas#line_dash_pattern
-      def stroke_dash_pattern(array = UNSET, phase = 0)
-        if array == UNSET
-          @stroke_dash_pattern ||= HexaPDF::Content::LineDashPattern.new
-        else
-          @stroke_dash_pattern = HexaPDF::Content::LineDashPattern.normalize(array, phase)
-          self
-        end
-      end
-      alias_method(:stroke_dash_pattern=, :stroke_dash_pattern)
-
-      # :call-seq:
-      #   line_spacing(type = nil, value = nil)
-      #
-      # The spacing between consecutive lines, defaults to type = :single.
-      #
-      # See: LineSpacing
-      def line_spacing(type = UNSET, value = nil)
-        if type == UNSET
-          @line_spacing ||= LineSpacing.new(:single)
-        else
-          @line_spacing = LineSpacing.new(type, value: value)
-          self
-        end
-      end
-      alias_method(:line_spacing=, :line_spacing)
 
       # The font size scaled appropriately.
       def scaled_font_size

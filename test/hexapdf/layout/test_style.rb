@@ -380,24 +380,17 @@ describe HexaPDF::Layout::Style do
     assert(@style.margin.simple?)
     assert_equal(0, @style.margin.top)
     assert(@style.border.none?)
+    assert_equal([[], 0], @style.stroke_dash_pattern.to_operands)
+    assert_equal([:proportional, 1], [@style.line_spacing.type, @style.line_spacing.value])
   end
 
   it "allows using a non-standard setter for generated properties" do
     @style.padding = [5, 3]
     assert_equal(5, @style.padding.top)
     assert_equal(3, @style.padding.left)
-  end
 
-  it "can set and retrieve stroke dash pattern objects" do
-    assert_equal([[], 0], @style.stroke_dash_pattern.to_operands)
     @style.stroke_dash_pattern(5, 2)
     assert_equal([[5], 2], @style.stroke_dash_pattern.to_operands)
-  end
-
-  it "can set and retrieve line spacing objects" do
-    assert_equal([:proportional, 1], [@style.line_spacing.type, @style.line_spacing.value])
-    @style.line_spacing = :double
-    assert_equal([:proportional, 2], [@style.line_spacing.type, @style.line_spacing.value])
   end
 
   it "has several dynamically generated properties with default values that take blocks" do
