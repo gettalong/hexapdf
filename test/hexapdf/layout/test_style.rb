@@ -375,6 +375,17 @@ describe HexaPDF::Layout::Style do
     assert_equal(:top, @style.valign)
     assert_equal(0, @style.text_indent)
     assert_nil(@style.background_color)
+    assert(@style.padding.simple?)
+    assert_equal(0, @style.padding.top)
+    assert(@style.margin.simple?)
+    assert_equal(0, @style.margin.top)
+    assert(@style.border.none?)
+  end
+
+  it "allows using a non-standard setter for generated properties" do
+    @style.padding = [5, 3]
+    assert_equal(5, @style.padding.top)
+    assert_equal(3, @style.padding.left)
   end
 
   it "can set and retrieve stroke dash pattern objects" do
@@ -403,34 +414,6 @@ describe HexaPDF::Layout::Style do
 
     @style.text_segmentation_algorithm(:callable)
     assert_equal(:callable, @style.text_segmentation_algorithm)
-  end
-
-  it "can set and retrieve padding values" do
-    padding = @style.padding
-    assert(padding.simple?)
-    assert_equal(0, padding.top)
-    @style.padding = [5, 3]
-    assert_equal(5, @style.padding.top)
-    assert_equal(3, @style.padding.left)
-  end
-
-  it "can set and retrieve margin values" do
-    margin = @style.margin
-    assert(margin.simple?)
-    assert_equal(0, margin.top)
-    @style.margin = [5, 3]
-    assert_equal(5, @style.margin.top)
-    assert_equal(3, @style.margin.left)
-  end
-
-  it "can set and retrieve border values" do
-    assert_kind_of(HexaPDF::Layout::Style::Border, @style.border)
-    assert(@style.border.none?)
-    assert_equal(0, @style.border.width.top)
-    @style.border(width: 5, color: 1, style: :dashed)
-    assert_equal(5, @style.border.width.top)
-    assert_equal(1, @style.border.color.top)
-    assert_equal(:dashed, @style.border.style.top)
   end
 
   it "has methods for some derived and cached values" do

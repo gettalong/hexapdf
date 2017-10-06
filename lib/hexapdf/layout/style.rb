@@ -544,6 +544,27 @@ module HexaPDF
       #
       # The color used for backgrounds, defaults to +nil+ (i.e. no background).
 
+      ##
+      # :method: padding
+      # :call-seq:
+      #   padding(value = nil)
+      #
+      # The padding between the border and the contents, defaults to 0 for all four sides.
+
+      ##
+      # :method: margin
+      # :call-seq:
+      #   margin(value = nil)
+      #
+      # The margin around a box, defaults to 0 for all four sides.
+
+      ##
+      # :method: border
+      # :call-seq:
+      #   border(value = nil)
+      #
+      # The border around the contents, defaults to no border.
+
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
         [:font_size, 10],
@@ -565,11 +586,14 @@ module HexaPDF
         [:valign, :top],
         [:text_indent, 0],
         [:background_color, nil],
-      ].each do |name, default|
+        [:padding, "Quad.new(0)", "Quad.new(value)"],
+        [:margin, "Quad.new(0)", "Quad.new(value)"],
+        [:border, "Border.new", "Border.new(value)"],
+      ].each do |name, default, setter = "value"|
         default = default.inspect unless default.kind_of?(String)
         module_eval(<<-EOF, __FILE__, __LINE__)
           def #{name}(value = UNSET)
-            value == UNSET ? (@#{name} ||= #{default}) : (@#{name} = value; self)
+            value == UNSET ? (@#{name} ||= #{default}) : (@#{name} = #{setter}; self)
           end
         EOF
         alias_method("#{name}=", name)
@@ -676,48 +700,6 @@ module HexaPDF
         end
       end
       alias_method(:line_spacing=, :line_spacing)
-
-      # :call-seq:
-      #   padding(value = nil)
-      #
-      # The padding between the border and the contents, defaults to 0 for all four sides.
-      def padding(value = UNSET)
-        if value == UNSET
-          @padding ||= Quad.new(0)
-        else
-          @padding = Quad.new(value)
-          self
-        end
-      end
-      alias_method(:padding=, :padding)
-
-      # :call-seq:
-      #   margin(value = nil)
-      #
-      # The margin around a box, defaults to 0 for all four sides.
-      def margin(value = UNSET)
-        if value == UNSET
-          @margin ||= Quad.new(0)
-        else
-          @margin = Quad.new(value)
-          self
-        end
-      end
-      alias_method(:margin=, :margin)
-
-      # :call-seq:
-      #   border(value = nil)
-      #
-      # The border around the contents, defaults to no border.
-      def border(value = UNSET)
-        if value == UNSET
-          @border ||= Border.new
-        else
-          @border = Border.new(value)
-          self
-        end
-      end
-      alias_method(:border=, :border)
 
       # The font size scaled appropriately.
       def scaled_font_size
