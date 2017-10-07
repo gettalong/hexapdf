@@ -7,16 +7,17 @@ require 'hexapdf/document'
 describe HexaPDF::FontLoader::Standard14 do
   before do
     @doc = HexaPDF::Document.new
+    @obj = HexaPDF::FontLoader::Standard14
   end
 
   it "loads the font if it is a standard PDF built-in font" do
-    wrapper = @doc.fonts.load("Times")
+    wrapper = @obj.call(@doc, "Times")
     assert_equal("Times-Roman", wrapper.wrapped_font.font_name)
-    wrapper = @doc.fonts.load("Helvetica", variant: :bold)
+    wrapper = @obj.call(@doc, "Helvetica", variant: :bold)
     assert_equal("Helvetica-Bold", wrapper.wrapped_font.font_name)
   end
 
   it "returns nil for unknown fonts" do
-    assert_nil(HexaPDF::FontLoader::Standard14.call(@doc, "Unknown"))
+    assert_nil(@obj.call(@doc, "Unknown"))
   end
 end

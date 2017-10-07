@@ -20,7 +20,7 @@ end
 describe HexaPDF::Layout::Line do
   before do
     @doc = HexaPDF::Document.new
-    @font = @doc.fonts.load("Times", custom_encoding: true)
+    @font = @doc.fonts.add("Times", custom_encoding: true)
     @line = HexaPDF::Layout::Line.new
   end
 

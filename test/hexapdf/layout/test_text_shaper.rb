@@ -21,7 +21,7 @@ describe HexaPDF::Layout::TextShaper do
 
   describe "Type1 font features" do
     before do
-      @font = @doc.fonts.load("Times", custom_encoding: true)
+      @font = @doc.fonts.add("Times", custom_encoding: true)
     end
 
     it "handles ligatures" do

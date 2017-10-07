@@ -33,6 +33,7 @@ page = doc.pages.add
 canvas = page.canvas
 canvas.font("Times", size: 10, variant: :bold)
 canvas.stroke_color(255, 0, 0).line_width(0.2)
+font = doc.fonts.add("Times")
 
 sample_text = "Lorem ipsum dolor sit amet, con\u{00AD}sectetur
 adipis\u{00AD}cing elit, sed do eiusmod tempor incididunt ut labore et
@@ -64,7 +65,7 @@ end
 layouter = TextLayouter.create(sample_text,
                                width: half_circle_widths,
                                height: radius * 2,
-                               font: doc.fonts.load("Times"))
+                               font: font)
 layouter.draw(canvas, 0, circle_top)
 canvas.circle(0, circle_top - radius, radius).stroke
 
@@ -73,7 +74,7 @@ layouter = TextLayouter.create(sample_text,
                                width: circle_widths,
                                x_offsets: left_half_circle_offsets,
                                height: radius * 2,
-                               font: doc.fonts.load("Times"),
+                               font: font,
                                align: :justify)
 layouter.draw(canvas, page.box(:media).width / 2.0 - radius, circle_top)
 canvas.circle(page.box(:media).width / 2.0, circle_top - radius, radius).stroke
@@ -83,7 +84,7 @@ layouter = TextLayouter.create(sample_text,
                                width: half_circle_widths,
                                x_offsets: left_half_circle_offsets,
                                height: radius * 2,
-                               font: doc.fonts.load("Times"),
+                               font: font,
                                align: :right)
 layouter.draw(canvas, page.box(:media).width - radius, circle_top)
 canvas.circle(page.box(:media).width, circle_top - radius, radius).stroke
@@ -113,7 +114,7 @@ end
 layouter = TextLayouter.create(sample_text,
                                width: half_diamond_widths,
                                height: 2 * diamond_width,
-                               font: doc.fonts.load("Times"))
+                               font: font)
 layouter.draw(canvas, 0, diamond_top)
 canvas.polyline(0, diamond_top, diamond_width, diamond_top - diamond_width,
                 0, diamond_top - 2 * diamond_width).stroke
@@ -123,7 +124,7 @@ layouter = TextLayouter.create(sample_text,
                                width: full_diamond_widths,
                                x_offsets: left_half_diamond_offsets,
                                height: 2 * diamond_width,
-                               font: doc.fonts.load("Times"),
+                               font: font,
                                align: :justify)
 left = page.box(:media).width / 2.0 - diamond_width
 layouter.draw(canvas, left, diamond_top)
@@ -137,7 +138,7 @@ layouter = TextLayouter.create(sample_text,
                                width: half_diamond_widths,
                                x_offsets: left_half_diamond_offsets,
                                height: 2 * diamond_width,
-                               font: doc.fonts.load("Times"),
+                               font: font,
                                align: :right)
 middle = page.box(:media).width
 layouter.draw(canvas, middle - diamond_width, diamond_top)
@@ -161,7 +162,7 @@ layouter = TextLayouter.create(sample_text,
                                width: sine_wave_widths,
                                x_offsets: sine_wave_offsets,
                                height: sine_wave_height,
-                               font: doc.fonts.load("Times"),
+                               font: font,
                                align: :justify)
 middle = page.box(:media).width / 2.0
 layouter.draw(canvas, middle - (sine_wave_height + 100) / 2, sine_wave_top)

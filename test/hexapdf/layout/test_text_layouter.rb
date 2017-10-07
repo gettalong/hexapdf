@@ -55,7 +55,7 @@ describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
 
   before do
     @doc = HexaPDF::Document.new
-    @font = @doc.fonts.load("Times")
+    @font = @doc.fonts.add("Times")
     @obj = HexaPDF::Layout::TextLayouter::SimpleTextSegmentation
   end
 
@@ -366,7 +366,7 @@ describe HexaPDF::Layout::TextLayouter do
 
   before do
     @doc = HexaPDF::Document.new
-    @font = @doc.fonts.load("Times")
+    @font = @doc.fonts.add("Times")
     @style = HexaPDF::Layout::Style.new(font: @font)
   end
 

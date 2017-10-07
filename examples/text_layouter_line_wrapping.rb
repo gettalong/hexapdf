@@ -46,7 +46,7 @@ x = 10
 y = 220
 [30, 60, 100, 160].each do |width|
   layouter = HexaPDF::Layout::TextLayouter.create(text, width: width,
-                                                  font: doc.fonts.load("Times"))
+                                                  font: doc.fonts.add("Times"))
   _, height = layouter.fit
   layouter.draw(canvas, x, y)
   canvas.stroke_color(255, 0, 0).line_width(0.2)

@@ -1607,7 +1607,7 @@ module HexaPDF
       # See: PDF1.7 s9.2.2
       def font(name = nil, size: nil, **options)
         if name
-          @font = (name.respond_to?(:dict) ? name : context.document.fonts.load(name, options))
+          @font = (name.respond_to?(:dict) ? name : context.document.fonts.add(name, options))
           if size
             font_size(size)
           else

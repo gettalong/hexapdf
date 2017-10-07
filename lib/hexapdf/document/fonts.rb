@@ -48,13 +48,13 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   fonts.load(name, **options)            -> font
+      #   fonts.add(name, **options)            -> font
       #
-      # Loads and returns the font (using the loaders specified with the configuration option
-      # 'font_loaders').
+      # Adds the font to the document and returns if (using the loaders specified with the
+      # configuration option 'font_loaders').
       #
       # If a font with the same parameters has been loaded before, the cached font object is used.
-      def load(name, **options)
+      def add(name, **options)
         options[:variant] ||= :none # assign default value for consistency with caching
         font = @loaded_fonts_cache[[name, options]]
         return font if font

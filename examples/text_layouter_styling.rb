@@ -41,21 +41,21 @@ officia deserunt mollit anim id est laborum.\u{2029}".tr("\n", ' ') * 3
 
 doc = HexaPDF::Document.new
 
-heading = Style.new(font: doc.fonts.load("Helvetica", variant: :bold),
+heading = Style.new(font: doc.fonts.add("Helvetica", variant: :bold),
                     font_size: 32, align: :center,
                     fill_color: [200], text_rendering_mode: :fill_stroke,
                     stroke_color: [255, 0, 0], stroke_alpha: 0.7,
                     stroke_width: 1, stroke_dash_pattern: [0.5, 1, 1.5],
                     stroke_cap_style: :round, stroke_join_style: :round)
-body = Style.new(font: doc.fonts.load("Times"),
+body = Style.new(font: doc.fonts.add("Times"),
                  font_size: 10, align: :justify,
                  text_indent: 20)
 body.line_spacing(:fixed, 16)
-highlight1 = Style.new(font: doc.fonts.load("Times", variant: :bold_italic),
+highlight1 = Style.new(font: doc.fonts.add("Times", variant: :bold_italic),
                        text_rendering_mode: :stroke,
                        stroke_color: [255, 0, 0], stroke_width: 0.2,
                        stroke_join_style: :round)
-highlight2 = Style.new(font: doc.fonts.load("Times", variant: :italic))
+highlight2 = Style.new(font: doc.fonts.add("Times", variant: :italic))
 highlight2.underlay_callback do |canv, box|
   canv.fill_color(240, 240, 0).opacity(fill_alpha: 0.5).
     rectangle(0, 0, box.width, box.height).fill
@@ -64,8 +64,8 @@ highlight2.overlay_callback do |canv, box|
   canv.line_width(1).stroke_color([0, 255, 0]).
     line(0, 0, box.width, box.height).stroke
 end
-highlight3 = Style.new(font: doc.fonts.load("Times"), superscript: true)
-intro = Style.new(font: doc.fonts.load("Times", variant: :bold),
+highlight3 = Style.new(font: doc.fonts.add("Times"), superscript: true)
+intro = Style.new(font: doc.fonts.add("Times", variant: :bold),
                   fill_color: [0, 0, 160], font_size: 14)
 
 canvas = doc.pages.add.canvas

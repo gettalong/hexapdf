@@ -28,7 +28,7 @@ height = 150
 y_base = 800
 tl = HexaPDF::Layout::TextLayouter.create(sample_text, width: width,
                                           height: height,
-                                          font: doc.fonts.load("Times"))
+                                          font: doc.fonts.add("Times"))
 
 [:left, :center, :right, :justify].each_with_index do |align, x_index|
   x = x_index * (width + 20) + 70

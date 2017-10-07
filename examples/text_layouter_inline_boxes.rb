@@ -54,7 +54,7 @@ items = sample_text.split(/(:-\)|;-\))/).map do |part|
       canvas.image(emoji_wink, at: [0, 0], width: box.content_width)
     end
   else
-    TextFragment.create(part, font: doc.fonts.load("Times"), font_size: 18)
+    TextFragment.create(part, font: doc.fonts.add("Times"), font_size: 18)
   end
 end
 

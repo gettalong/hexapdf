@@ -18,6 +18,8 @@
   [HexaPDF::Layout::TextLayouter::new] to either take a Style object or
   style options
 * [HexaPDF::Layout::InlineBox] to wrap a generic box
+* HexaPDF::Document::Fonts#load to [HexaPDF::Document::Fonts#add] for
+  consistency
 
 ### Fixed
 

@@ -6,7 +6,7 @@
 #
 # Before a TrueType font can be used, HexaPDF needs to be made aware of it. This
 # is done by setting the configuration option 'font.map'. For one-off usage of a
-# font file, the file name itself could also be used.
+# font file, the file name itself can also be used.
 #
 # Once that is done the [HexaPDF::Content::Canvas#font] method can be used as
 # usual.
@@ -18,11 +18,8 @@
 require 'hexapdf'
 
 doc = HexaPDF::Document.new
-doc.config['font.map'] = {
-  'myfont' => {none: ARGV.shift || File.join(__dir__, '../test/data/fonts/Ubuntu-Title.ttf')},
-}
-
-wrapper = doc.fonts.load('myfont')
+font_file = ARGV.shift || File.join(__dir__, '../test/data/fonts/Ubuntu-Title.ttf')
+wrapper = doc.fonts.add(font_file)
 max_gid = wrapper.wrapped_font[:maxp].num_glyphs
 
 255.times do |page|
@@ -31,7 +28,7 @@ max_gid = wrapper.wrapped_font[:maxp].num_glyphs
   canvas.font("Helvetica", size: 10)
   canvas.text("Font: #{wrapper.wrapped_font.full_name}", at: [50, 825])
 
-  canvas.font("myfont", size: 15)
+  canvas.font(font_file, size: 15)
   16.times do |y|
     canvas.move_text_cursor(offset: [50, 800 - y * 50], absolute: true)
     canvas.show_glyphs((0..15).map do |i|

@@ -1010,9 +1010,9 @@ describe HexaPDF::Content::Canvas do
     it "returns the set font" do
       assert_nil(@canvas.font)
       @canvas.font("Times", size: 10)
-      assert_same(@doc.fonts.load("Times"), @canvas.font)
+      assert_same(@doc.fonts.add("Times"), @canvas.font)
       @canvas.font(@canvas.font)
-      assert_same(@doc.fonts.load("Times"), @canvas.font)
+      assert_same(@doc.fonts.add("Times"), @canvas.font)
       @canvas.font("Helvetica", size: 10)
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 10]],
                                           [:set_leading, [12.0]],
@@ -1021,7 +1021,7 @@ describe HexaPDF::Content::Canvas do
 
     it "sets the font and optionally the font size" do
       @canvas.font("Times", size: 12, variant: :italic)
-      assert_same(@doc.fonts.load("Times", variant: :italic), @canvas.font)
+      assert_same(@doc.fonts.add("Times", variant: :italic), @canvas.font)
       assert_equal(12, @canvas.font_size)
       @canvas.font("Helvetica")
       assert_equal(12, @canvas.font_size)

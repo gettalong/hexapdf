@@ -9,7 +9,7 @@ require 'hexapdf/layout/text_fragment'
 describe HexaPDF::Layout::TextFragment do
   before do
     @doc = HexaPDF::Document.new
-    @font = @doc.fonts.load("Times", custom_encoding: true)
+    @font = @doc.fonts.add("Times", custom_encoding: true)
   end
 
   def setup_fragment(items, text_rise = 0)
