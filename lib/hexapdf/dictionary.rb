@@ -201,11 +201,9 @@ module HexaPDF
     end
 
     # Returns a dup of the underlying hash.
-    def to_hash
+    def to_h
       value.dup
     end
-    alias :to_h :to_hash
-
 
     private
 

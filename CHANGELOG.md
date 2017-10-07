@@ -21,6 +21,10 @@
 * HexaPDF::Document::Fonts#load to [HexaPDF::Document::Fonts#add] for
   consistency
 
+### Removed
+
+* HexaPDF::Dictionary#to_hash method
+
 ### Fixed
 
 * Parsing of PDF files containing a loop with respect to cross-reference tables

@@ -260,9 +260,9 @@ describe HexaPDF::Dictionary do
     end
   end
 
-  describe "to_hash" do
+  describe "to_h" do
     it "returns a shallow copy of the value" do
-      obj = @dict.to_hash
+      obj = @dict.to_h
       refute_equal(obj.object_id, @dict.value.object_id)
       assert_equal(obj, @dict.value)
     end
