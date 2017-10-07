@@ -22,6 +22,8 @@
 * [HexaPDF::Layout::InlineBox] to wrap a generic box
 * HexaPDF::Document::Fonts#load to [HexaPDF::Document::Fonts#add] for
   consistency
+* [HexaPDF::Document::Pages#add] to allow setting the paper orientation when
+  creating new pages
 
 ### Removed
 

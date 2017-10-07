@@ -55,27 +55,27 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   pages.add             -> new_page
-      #   pages.add(media_box)  -> new_page
-      #   pages.add(page)       -> page
+      #   pages.add                                     -> new_page
+      #   pages.add(media_box, orientation: :portrait)  -> new_page
+      #   pages.add(page)                               -> page
       #
       # Adds the page or a new empty page at the end and returns it.
       #
       # If no argument is given, a new page with the default dimensions (see configuration option
-      # 'page.default_media_box') is used. If the single argument is an array with four numbers
-      # (specifying the media box) or a symbol (referencing a pre-defined media box, see
-      # HexaPDF::Type::Page::PAPER_SIZE), the new page will have these dimensions.
-      def add(page = nil)
-        case page
-        when Array
+      # 'page.default_media_box') is used.
+      #
+      # If the single argument is an array with four numbers (specifying the media box), the new
+      # page will have these dimensions.
+      #
+      # If the single argument is a symbol, it is taken as referencing a pre-defined media box in
+      # HexaPDF::Type::Page::PAPER_SIZE for the new page. The optional argument +orientation+ can be
+      # used to change the orientation to :landscape if needed.
+      def add(page = nil, orientation: :portrait)
+        if page.kind_of?(Array)
           page = @document.add(Type: :Page, MediaBox: page)
-        when Symbol
-          if Type::Page::PAPER_SIZE.key?(page)
-            media_box = Type::Page::PAPER_SIZE[page].dup
-            page = @document.add(Type: :Page, MediaBox: media_box)
-          else
-            raise HexaPDF::Error, "Invalid page format specified: #{page}"
-          end
+        elsif page.kind_of?(Symbol)
+          box = Type::Page.media_box(page, orientation: orientation)
+          page = @document.add(Type: :Page, MediaBox: box)
         end
         @document.catalog.pages.add_page(page)
       end

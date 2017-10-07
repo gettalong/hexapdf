@@ -27,20 +27,20 @@ describe HexaPDF::Document::Pages do
     end
 
     it "adds a new empty page with the given page format" do
-      page = @doc.pages.add(:A4)
+      page = @doc.pages.add(:A4, orientation: :landscape)
       assert_same(page, @doc.pages[0])
-      assert_equal([0, 0, 595, 842], @doc.pages[0].box(:media).value)
+      assert_equal([0, 0, 842, 595], @doc.pages[0].box(:media).value)
     end
 
-    it "fails if an unknown page format is given" do
-      assert_raises(HexaPDF::Error) { @doc.pages.add(:A953) }
-    end
-
-    it "adds a given page to the end" do
+    it "adds the given page to the end" do
       page = @doc.pages.add
       new_page = @doc.add(Type: :Page)
       assert_same(new_page, @doc.pages.add(new_page))
       assert_equal([page, new_page], @doc.pages.root[:Kids])
+    end
+
+    it "fails if an unknown page format is given" do
+      assert_raises(HexaPDF::Error) { @doc.pages.add(:A953) }
     end
   end
 
