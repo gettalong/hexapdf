@@ -212,12 +212,13 @@ module HexaPDF
 
       private
 
-      # Returns a new page object, correctly initialized using the document's configuration
-      # options.
+      # Returns a new page object, correctly initialized using the document's configuration options.
       def new_page
-        media_box = config['page.default_media_box']
-        media_box = Page::PAPER_SIZE[media_box].dup if Page::PAPER_SIZE.key?(media_box)
-        document.add(Type: :Page, MediaBox: media_box)
+        box = config['page.default_media_box']
+        if box.kind_of?(Symbol)
+          box = Page.media_box(box, orientation: config['page.default_media_orientation'])
+        end
+        document.add(Type: :Page, MediaBox: box)
       end
 
       # Ensures that the /Count and /Parent fields of the whole page tree are set up correctly and

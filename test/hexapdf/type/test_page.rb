@@ -11,6 +11,20 @@ describe HexaPDF::Type::Page do
     @doc = HexaPDF::Document.new
   end
 
+  describe "::media_box" do
+    it "returns the media box for a given paper size" do
+      assert_equal([0, 0, 595, 842], HexaPDF::Type::Page.media_box(:A4))
+    end
+
+    it "respects the orientation key" do
+      assert_equal([0, 0, 842, 595], HexaPDF::Type::Page.media_box(:A4, orientation: :landscape))
+    end
+
+    it "fails if the paper size is unknown" do
+      assert_raises(HexaPDF::Error) { HexaPDF::Type::Page.media_box(:Unknown) }
+    end
+  end
+
   # Asserts that the page's contents contains the operators.
   def assert_operators(page, operators)
     processor = TestHelper::OperatorRecorder.new

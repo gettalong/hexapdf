@@ -224,6 +224,11 @@ module HexaPDF
   #    The value can either be a rectangle defining the paper size or a Symbol referencing one of
   #    the predefined paper sizes.
   #
+  # page.default_media_orientation::
+  #    The page orientation that is used for new pages that don't define a media box. It is only
+  #    used if 'page.default_media_box' references a predefined paper size. Default value is
+  #    :portrait. The other possible value is :landscape.
+  #
   # parser.on_correctable_error::
   #    Callback hook when the parser encounters an error that can be corrected.
   #
@@ -256,6 +261,7 @@ module HexaPDF
                       'image_loader.pdf.use_stringio' => true,
                       'io.chunk_size' => 2**16,
                       'page.default_media_box' => :A4,
+                      'page.default_media_orientation' => :portrait,
                       'parser.on_correctable_error' => proc { false },
                       'sorted_tree.max_leaf_node_size' => 64)
 

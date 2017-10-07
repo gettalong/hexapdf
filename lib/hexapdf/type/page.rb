@@ -31,6 +31,7 @@
 # is created or manipulated using HexaPDF.
 #++
 
+require 'hexapdf/error'
 require 'hexapdf/dictionary'
 require 'hexapdf/stream'
 require 'hexapdf/type/page_tree_node'
@@ -98,6 +99,17 @@ module HexaPDF
         Tabloid: [0, 0, 1224, 792].freeze,
         Executive: [0, 0, 522, 756].freeze,
       }.freeze
+
+      # Returns the media box for the given paper size. See PAPER_SIZE for the defined paper sizes.
+      def self.media_box(paper_size, orientation: :portrait)
+        unless PAPER_SIZE.key?(paper_size)
+          raise HexaPDF::Error, "Invalid paper size specified: #{paper_size}"
+        end
+
+        media_box = PAPER_SIZE[paper_size].dup
+        media_box[2], media_box[3] = media_box[3], media_box[2] if orientation == :landscape
+        media_box
+      end
 
       # The inheritable fields.
       INHERITABLE_FIELDS = [:Resources, :MediaBox, :CropBox, :Rotate].freeze

@@ -80,13 +80,16 @@ describe HexaPDF::Type::PageTreeNode do
   end
 
   describe "insert_page" do
-    it "uses an empty new page when none is provided" do
+    it "uses an empty new page when none is provided, respecting the set configuration options" do
+      @doc.config['page.default_media_box'] = :A4
+      @doc.config['page.default_media_orientation'] = :landscape
       page = @root.insert_page(3)
       assert_equal([page], @root[:Kids])
       assert_equal(1, @root.page_count)
       assert_equal(:Page, page[:Type])
       assert_equal(@root, page[:Parent])
       assert_kind_of(HexaPDF::Rectangle, page[:MediaBox])
+      assert_equal([0, 0, 842, 595], page[:MediaBox].value)
       assert_equal({}, page[:Resources].value)
       refute(@root.value.key?(:Parent))
     end

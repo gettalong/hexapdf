@@ -7,6 +7,8 @@
 * Methods for checking whether styling properties in [HexaPDF::Layout::Style]
   have been accessed or set
 * [HexaPDF::FontLoader::FromFile] to allow specifying a font file directly
+* Configuration option 'page.default_media_orientation' for settig the default
+  orientation of new pages
 
 ### Changed
 
