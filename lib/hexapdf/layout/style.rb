@@ -601,6 +601,8 @@ module HexaPDF
         [:text_rendering_mode, :fill],
         [:subscript, false, "value; superscript(false) if superscript"],
         [:superscript, false, "value; subscript(false) if subscript"],
+        [:underline, false],
+        [:strikeout, false],
         [:fill_color, "default_color"],
         [:fill_alpha, 1],
         [:stroke_color, "default_color"],
@@ -719,6 +721,30 @@ module HexaPDF
       # The calculated font size, taking superscript and subscript into account.
       def calculated_font_size
         (superscript || subscript ? 0.583 : 1) * font_size
+      end
+
+      # Returns the correct offset from the baseline for the underline.
+      def calculated_underline_position
+        calculated_text_rise +
+          calculated_font_size / 1000.0 * font.wrapped_font.underline_position *
+          font.scaling_factor - calculated_underline_thickness / 2.0
+      end
+
+      # Returns the correct thickness for the underline.
+      def calculated_underline_thickness
+        calculated_font_size / 1000.0 * font.wrapped_font.underline_thickness * font.scaling_factor
+      end
+
+      # Returns the correct offset from the baseline for the strikeout line.
+      def calculated_strikeout_position
+        calculated_text_rise +
+          calculated_font_size / 1000.0 * font.wrapped_font.strikeout_position *
+          font.scaling_factor - calculated_strikeout_thickness / 2.0
+      end
+
+      # Returns the correct thickness for the strikeout line.
+      def calculated_strikeout_thickness
+        calculated_font_size / 1000.0 * font.wrapped_font.strikeout_thickness * font.scaling_factor
       end
 
       # The font size scaled appropriately.

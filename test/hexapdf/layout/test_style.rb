@@ -466,6 +466,22 @@ describe HexaPDF::Layout::Style do
       assert_in_delta(5.83, @style.calculated_font_size)
       assert_in_delta(3.30, @style.calculated_text_rise)
     end
+
+    it "handles underline" do
+      @style.font.wrapped_font.define_singleton_method(:underline_position) { -100 }
+      @style.font.wrapped_font.define_singleton_method(:underline_thickness) { 10 }
+      @style.text_rise = 10
+      assert_in_delta(-1.05 + 10, @style.calculated_underline_position)
+      assert_equal(0.1, @style.calculated_underline_thickness)
+    end
+
+    it "handles strikeout" do
+      @style.font.wrapped_font.define_singleton_method(:strikeout_position) { 300 }
+      @style.font.wrapped_font.define_singleton_method(:strikeout_thickness) { 10 }
+      @style.text_rise = 10
+      assert_in_delta(2.95 + 10, @style.calculated_strikeout_position)
+      assert_equal(0.1, @style.calculated_strikeout_thickness)
+    end
   end
 
   it "can clear cached values" do

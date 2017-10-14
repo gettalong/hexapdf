@@ -81,6 +81,8 @@ module HexaPDF
       # * Style#text_rendering_mode
       # * Style#subscript
       # * Style#superscript
+      # * Style#underline
+      # * Style#strikeout
       # * Style#fill_color
       # * Style#fill_alpha
       # * Style#stroke_color
@@ -138,6 +140,26 @@ module HexaPDF
         end
 
         canvas.show_glyphs_only(items)
+
+        if style.underline
+          y_offset = style.calculated_underline_position
+          canvas.stroke_color(style.fill_color).
+            line_width(style.calculated_underline_thickness).
+            line_cap_style(:butt).
+            line_dash_pattern(0).
+            line(x, y + y_offset, x + width, y + y_offset).
+            stroke
+        end
+
+        if style.strikeout
+          y_offset = style.calculated_strikeout_position
+          canvas.stroke_color(style.fill_color).
+            line_width(style.calculated_strikeout_thickness).
+            line_cap_style(:butt).
+            line_dash_pattern(0).
+            line(x, y + y_offset, x + width, y + y_offset).
+            stroke
+        end
 
         if style.overlay_callback
           canvas.translate(x, y + y_min) { style.overlay_callback.call(canvas, self) }
