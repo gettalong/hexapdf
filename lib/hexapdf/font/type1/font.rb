@@ -76,6 +76,7 @@ module HexaPDF
         def_delegators :@metrics, :weight, :weight_class, :bounding_box, :italic_angle
         def_delegators :@metrics, :ascender, :descender, :cap_height, :x_height
         def_delegators :@metrics, :dominant_horizontal_stem_width, :dominant_vertical_stem_width
+        def_delegators :@metrics, :underline_thickness
 
         # Creates a new Type1 font object with the given font metrics.
         def initialize(metrics)
@@ -125,6 +126,28 @@ module HexaPDF
           @features ||= Set.new.tap do |set|
             set << :kern unless metrics.kerning_pairs.empty?
             set << :liga unless metrics.ligature_pairs.empty?
+          end
+        end
+
+        # Returns the distance from the baseline to the top of the underline.
+        def underline_position
+          @metrics.underline_position + @metrics.underline_thickness / 2.0
+        end
+
+        # Returns the distance from the baseline to the top of the strikeout line.
+        def strikeout_position
+          # We use the suggested value from the OpenType spec.
+          225
+        end
+
+        # Returns the thickness of the strikeout line.
+        def strikeout_thickness
+          # The OpenType spec suggests the width of an em-dash or 50, so we use that as
+          # approximation since the AFM files don't contain this information.
+          if (bbox = @metrics.character_metrics[:emdash]&.bbox)
+            bbox[3] - bbox[1]
+          else
+            50
           end
         end
 

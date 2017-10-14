@@ -88,6 +88,22 @@ describe HexaPDF::Font::TrueType::Font do
     it "returns the font's dominant vertical stem width" do
       assert_equal(80, @font.dominant_vertical_stem_width)
     end
+
+    it "returns the underline position" do
+      assert_equal(-125, @font.underline_position)
+    end
+
+    it "returns the underline thickness" do
+      assert_equal(50, @font.underline_thickness)
+    end
+
+    it "returns the strikeout position" do
+      assert_equal(256, @font.strikeout_position)
+    end
+
+    it "returns the strikeout thickness" do
+      assert_equal(48, @font.strikeout_thickness)
+    end
   end
 
   it "is able to return the ID of the missing glyph" do

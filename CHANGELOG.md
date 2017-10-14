@@ -9,6 +9,7 @@
 * [HexaPDF::FontLoader::FromFile] to allow specifying a font file directly
 * Configuration option 'page.default_media_orientation' for settig the default
   orientation of new pages
+* Convenience methods for getting underline and strikeout properties from fonts
 
 ### Changed
 

@@ -71,4 +71,34 @@ describe HexaPDF::Font::Type1::Font do
     assert_equal([:kern, :liga].to_set, FONT_TIMES.features)
     assert(FONT_SYMBOL.features.empty?)
   end
+
+  describe "underline properties" do
+    before do
+      @font.metrics.underline_position = -100
+      @font.metrics.underline_thickness = 50
+    end
+
+    it "returns the underline position" do
+      assert_equal(-75, @font.underline_position)
+    end
+
+    it "returns the underline thickness" do
+      assert_equal(50, @font.underline_thickness)
+    end
+  end
+
+  describe "strikeout properties" do
+    it "returns the strikeout position" do
+      assert_equal(225, @font.strikeout_position)
+    end
+
+    it "returns the strikeout thickness" do
+      assert_equal(50, @font.strikeout_thickness)
+
+      emdash = HexaPDF::Font::Type1::CharacterMetrics.new
+      emdash.bbox = [0, 200, 1000, 240]
+      @font.metrics.character_metrics[:emdash] = emdash
+      assert_equal(40, @font.strikeout_thickness)
+    end
+  end
 end

@@ -162,6 +162,26 @@ module HexaPDF
           weight / 5
         end
 
+        # Returns the distance from the baseline to the top of the underline.
+        def underline_position
+          self[:post].underline_position
+        end
+
+        # Returns the stroke width for the underline.
+        def underline_thickness
+          self[:post].underline_thickness
+        end
+
+        # Returns the distance from the baseline to the top of the strikeout line.
+        def strikeout_position
+          self[:"OS/2"].strikeout_position
+        end
+
+        # Returns the stroke width for the strikeout line.
+        def strikeout_thickness
+          self[:"OS/2"].strikeout_size
+        end
+
         # Returns th glyph ID of the missing glyph, i.e. 0.
         def missing_glyph_id
           0
