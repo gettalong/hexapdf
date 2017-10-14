@@ -81,7 +81,7 @@ module HexaPDF
             Fiber.yield(data)
           end
           begin
-            inflater.finish
+            (data = inflater.finish).empty? ? nil : data
           rescue
             raise FilterError, "Problem while decoding Flate encoded stream: #{$!}"
           end
