@@ -10,7 +10,7 @@
 # including using callbacks to further customize the appearance.
 #
 # Usage:
-# : `ruby text_layouter_styling.rb`
+# : `ruby text_layouter_styling.rb [FONT_FILE]`
 #
 
 require 'hexapdf'
@@ -40,7 +40,7 @@ end
 
 doc = HexaPDF::Document.new
 
-base_font = doc.fonts.add("Times")
+base_font = doc.fonts.add(ARGV[0] || "Times")
 base_style = {font: base_font, font_size: 15, text_indent: 20}
 styles = {
   "Fonts | Font Sizes | Colors" => [
@@ -63,6 +63,11 @@ styles = {
   "Subscript | Superscript" => [
     {**base_style, font_size: 15, subscript: true},
     {**base_style, font_size: 15, superscript: true},
+  ],
+  "Underline | Strikeout" => [
+    {**base_style, underline: true, strikeout: true},
+    {**base_style, underline: true, strikeout: true, text_rise: 5},
+    {**base_style, underline: true, strikeout: true, subscript: true},
   ],
   "Text Rendering Mode" => [
     {**base_style, text_rendering_mode: :stroke,
