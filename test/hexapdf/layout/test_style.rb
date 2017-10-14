@@ -433,13 +433,25 @@ describe HexaPDF::Layout::Style do
     end
 
     it "computes them correctly" do
-      assert_equal(0.01, @style.scaled_font_size)
-      assert_equal(0, @style.scaled_character_spacing)
-      assert_equal(0, @style.scaled_word_spacing)
-      assert_equal(1, @style.scaled_horizontal_scaling)
+      @style.horizontal_scaling(200).character_spacing(1).word_spacing(2)
+      assert_equal(0.02, @style.scaled_font_size)
+      assert_equal(2, @style.scaled_character_spacing)
+      assert_equal(4, @style.scaled_word_spacing)
+      assert_equal(2, @style.scaled_horizontal_scaling)
 
       assert_equal(6, @style.scaled_font_ascender)
       assert_equal(-1, @style.scaled_font_descender)
+    end
+
+    it "computes item widths correctly" do
+      @style.horizontal_scaling(200).character_spacing(1).word_spacing(2)
+
+      assert_equal(-1.0, @style.scaled_item_width(50))
+
+      obj = Object.new
+      obj.define_singleton_method(:width) { 100 }
+      obj.define_singleton_method(:apply_word_spacing?) { true }
+      assert_equal(8, @style.scaled_item_width(obj))
     end
 
     it "handles subscript" do
