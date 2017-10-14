@@ -79,6 +79,8 @@ module HexaPDF
       # * Style#word_spacing
       # * Style#text_rise
       # * Style#text_rendering_mode
+      # * Style#subscript
+      # * Style#superscript
       # * Style#fill_color
       # * Style#fill_alpha
       # * Style#stroke_color
