@@ -96,6 +96,7 @@ module HexaPDF
       # switches.
       def pdf_options(password)
         hash = {decryption_opts: {password: password}, config: {}}
+        HexaPDF::GlobalConfiguration['filter.predictor.strict'] = command_parser.strict
         hash[:config]['parser.on_correctable_error'] =
           if command_parser.strict
             proc { true }

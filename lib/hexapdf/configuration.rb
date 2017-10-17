@@ -325,6 +325,11 @@ module HexaPDF
   #
   #    See PDF1.7 s7.4.1, ADB sH.3 3.3
   #
+  # filter.predictor.strict::
+  #    Specifies whether the predictor algorithm used by LZWDecode and FlateDecode should operate in
+  #    strict mode, i.e. adhering to the PDF specification without correcting for common deficiences
+  #    of PDF writer libraries.
+  #
   # image_loader::
   #    An array with image loader implementations. When an image should be loaded, the array is
   #    iterated in sequence to find a suitable image loader.
@@ -383,6 +388,7 @@ module HexaPDF
                         Crypt: nil,
                         Encryption: 'HexaPDF::Filter::Encryption',
                       },
+                      'filter.predictor.strict' => false,
                       'color_space.map' => {
                         DeviceRGB: 'HexaPDF::Content::ColorSpace::DeviceRGB',
                         DeviceCMYK: 'HexaPDF::Content::ColorSpace::DeviceCMYK',

@@ -25,6 +25,8 @@
   consistency
 * [HexaPDF::Document::Pages#add] to allow setting the paper orientation when
   creating new pages
+* [HexaPDF::Filter::Predictor] to allow correcting some common problems
+  depending on the new configuration option 'filter.predictor.strict'
 
 ### Removed
 

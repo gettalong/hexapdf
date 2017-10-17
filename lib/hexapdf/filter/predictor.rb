@@ -33,6 +33,7 @@
 
 require 'fiber'
 require 'hexapdf/error'
+require 'hexapdf/configuration'
 require 'hexapdf/utils/bit_stream'
 
 module HexaPDF
@@ -254,8 +255,13 @@ module HexaPDF
             Fiber.yield(result) unless result.empty?
           end
 
-          unless pos == data.length
+          if pos != data.length && GlobalConfiguration['filter.predictor.strict']
             raise FilterError, "Data is missing for PNG predictor"
+          elsif pos != data.length && data.length != 1
+            result = ''.b
+            bytes_per_row = data.length - pos
+            row_action.call(result)
+            result
           end
         end
       end

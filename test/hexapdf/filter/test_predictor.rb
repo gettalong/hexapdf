@@ -88,12 +88,26 @@ describe HexaPDF::Filter::Predictor do
         end
       end
 
-      it "fails if data is missing" do
-        assert_raises(HexaPDF::FilterError) do
-          data = @testcases['up']
-          encoder = @obj.png_execute(:encoder, feeder(data[:source][0..-2], 1), data[:Predictor],
-                                     data[:Colors], data[:BitsPerComponent], data[:Columns])
-          collector(encoder)
+      it "handles a short last row if 'filter.predictor.strict' is false" do
+        data = @testcases['up']
+        encoder = @obj.png_execute(:encoder, feeder(data[:source][0..-3], 1), data[:Predictor],
+                                   data[:Colors], data[:BitsPerComponent], data[:Columns])
+        result = collector(encoder)
+        assert_equal(1 + 5 + 1 + 3, result.length)
+        assert_equal(data[:result][0..-3], result)
+      end
+
+      it "fails if the last row is missing data and 'filter.predictor.strict' is true " do
+        begin
+          HexaPDF::GlobalConfiguration['filter.predictor.strict'] = true
+          assert_raises(HexaPDF::FilterError) do
+            data = @testcases['up']
+            encoder = @obj.png_execute(:encoder, feeder(data[:source][0..-2], 1), data[:Predictor],
+                                       data[:Colors], data[:BitsPerComponent], data[:Columns])
+            collector(encoder)
+          end
+        ensure
+          HexaPDF::GlobalConfiguration['filter.predictor.strict'] = false
         end
       end
     end
@@ -107,12 +121,26 @@ describe HexaPDF::Filter::Predictor do
         end
       end
 
-      it "fails if data is missing" do
-        assert_raises(HexaPDF::FilterError) do
-          data = @testcases['up']
-          encoder = @obj.png_execute(:decoder, feeder(data[:result][0..-2], 1), data[:Predictor], data[:Colors],
-                                     data[:BitsPerComponent], data[:Columns])
-          collector(encoder)
+      it "handles a short last row if 'filter.predictor.strict' is false" do
+        data = @testcases['up']
+        encoder = @obj.png_execute(:decoder, feeder(data[:result][0..-3], 1), data[:Predictor],
+                                   data[:Colors], data[:BitsPerComponent], data[:Columns])
+        result = collector(encoder)
+        assert_equal(5 + 3, result.length)
+        assert_equal(data[:source][0..-3], result)
+      end
+
+      it "fails if the last row is missing data and 'filter.predictor.strict' is true " do
+        begin
+          HexaPDF::GlobalConfiguration['filter.predictor.strict'] = true
+          assert_raises(HexaPDF::FilterError) do
+            data = @testcases['up']
+            encoder = @obj.png_execute(:decoder, feeder(data[:result][0..-2], 1), data[:Predictor],
+                                       data[:Colors], data[:BitsPerComponent], data[:Columns])
+            collector(encoder)
+          end
+        ensure
+          HexaPDF::GlobalConfiguration['filter.predictor.strict'] = false
         end
       end
     end
