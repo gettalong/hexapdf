@@ -85,7 +85,7 @@ module HexaPDF
               case table.size
               when 510, 1022, 2046
                 code_length += 1
-              when 4095
+              when 4096
                 if code != CLEAR_TABLE
                   raise FilterError, "Maximum of 12bit for codes in LZW stream exceeded"
                 end

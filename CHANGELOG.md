@@ -46,6 +46,7 @@
 * [HexaPDF::Stream#stream_source] to always return a decrypted stream
 * HexaPDF::Layout::TextBox to correctly indent all paragraphs, not just the
   first one
+* One-off error in [HexaPDF::Filter::LZWDecode]
 
 
 ## 0.5.0 - 2017-06-24
