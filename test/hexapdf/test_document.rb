@@ -529,12 +529,8 @@ EOF
   end
 
   describe "task" do
-    after do
-      HexaPDF::GlobalConfiguration['task.map'].delete(:test)
-    end
-
     it "executes the given task with options" do
-      HexaPDF::GlobalConfiguration['task.map'][:test] = lambda do |doc, arg1:|
+      @doc.config['task.map'][:test] = lambda do |doc, arg1:|
         assert_equal(doc, @doc)
         assert_equal(:arg1, arg1)
       end
@@ -542,7 +538,7 @@ EOF
     end
 
     it "executes the given task with a block" do
-      HexaPDF::GlobalConfiguration['task.map'][:test] = lambda do |doc, **, &block|
+      @doc.config['task.map'][:test] = lambda do |doc, **, &block|
         assert_equal(doc, @doc)
         block.call('inside')
       end

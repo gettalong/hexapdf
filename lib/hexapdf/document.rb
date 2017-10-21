@@ -478,7 +478,7 @@ module HexaPDF
     #
     # See Task for more information.
     def task(name, **opts, &block)
-      task = GlobalConfiguration.constantize('task.map'.freeze, name) do
+      task = config.constantize('task.map'.freeze, name) do
         raise HexaPDF::Error, "No task named '#{name}' is available"
       end
       task.call(self, **opts, &block)

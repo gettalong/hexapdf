@@ -347,7 +347,7 @@ module HexaPDF
         image_data = ''.b
         mask_data = ''.b
 
-        flate_decode = GlobalConfiguration.constantize('filter.map', :FlateDecode)
+        flate_decode = @document.config.constantize('filter.map', :FlateDecode)
         source = flate_decode.decoder(Fiber.new(&image_data_proc(offset)))
 
         data = ''.b
@@ -381,7 +381,7 @@ module HexaPDF
         bpc = decode_parms[:BitsPerComponent]
         bytes_per_row = (width * bpc + 7) / 8 + 1
 
-        flate_decode = GlobalConfiguration.constantize('filter.map', :FlateDecode)
+        flate_decode = @document.config.constantize('filter.map', :FlateDecode)
         source = flate_decode.decoder(Fiber.new(&image_data_proc(offset)))
 
         mask_data = ''.b

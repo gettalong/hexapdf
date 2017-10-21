@@ -67,11 +67,7 @@ describe HexaPDF::Encryption::SecurityHandler do
 
   describe "class methods" do
     before do
-      HexaPDF::GlobalConfiguration['encryption.filter_map'][:Test] = TestHandler
-    end
-
-    after do
-      HexaPDF::GlobalConfiguration['encryption.filter_map'].delete(:Test)
+      @document.config['encryption.filter_map'][:Test] = TestHandler
     end
 
     describe "class set_up_encryption" do

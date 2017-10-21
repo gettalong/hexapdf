@@ -18,11 +18,7 @@ describe HexaPDF::Document::Images do
           s = HexaPDF::StreamData.new(s) if s.kind_of?(IO)
           doc.add({Subtype: :Image}, stream: s)
         end
-        HexaPDF::GlobalConfiguration['image_loader'].unshift(@loader)
-      end
-
-      after do
-        HexaPDF::GlobalConfiguration['image_loader'].delete(@loader)
+        @doc.config['image_loader'].unshift(@loader)
       end
 
       it "adds an image using a filename" do
@@ -49,13 +45,9 @@ describe HexaPDF::Document::Images do
     end
 
     it "fails if the needed image loader can't be resolved" do
-      begin
-        HexaPDF::GlobalConfiguration['image_loader'].unshift('SomeUnknownConstantHere')
-        exp = assert_raises(HexaPDF::Error) { @doc.images.add(StringIO.new('test')) }
-        assert_match(/image loader from configuration/, exp.message)
-      ensure
-        HexaPDF::GlobalConfiguration['image_loader'].shift
-      end
+      @doc.config['image_loader'].unshift('SomeUnknownConstantHere')
+      exp = assert_raises(HexaPDF::Error) { @doc.images.add(StringIO.new('test')) }
+      assert_match(/image loader from configuration/, exp.message)
     end
 
     it "fails if no image loader is found" do

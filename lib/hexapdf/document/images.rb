@@ -101,8 +101,8 @@ module HexaPDF
       # Returns the image loader (see HexaPDF::ImageLoader) for the given file or IO stream or
       # raises an error if no suitable image loader is found.
       def image_loader_for(file_or_io)
-        GlobalConfiguration['image_loader'].each_index do |index|
-          loader = GlobalConfiguration.constantize('image_loader', index) do
+        @document.config['image_loader'].each_index do |index|
+          loader = @document.config.constantize('image_loader', index) do
             raise HexaPDF::Error, "Couldn't retrieve image loader from configuration"
           end
           return loader if loader.handles?(file_or_io)

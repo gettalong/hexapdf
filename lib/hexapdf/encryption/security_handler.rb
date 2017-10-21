@@ -169,8 +169,8 @@ module HexaPDF
       #
       # See: #set_up_encryption (for the common encryption options).
       def self.set_up_encryption(document, handler_name, **options)
-        handler = GlobalConfiguration.constantize('encryption.filter_map', handler_name) do
-          GlobalConfiguration.constantize('encryption.sub_filter_map', handler_name) do
+        handler = document.config.constantize('encryption.filter_map', handler_name) do
+          document.config.constantize('encryption.sub_filter_map', handler_name) do
             raise HexaPDF::EncryptionError, "Could not find the specified security handler"
           end
         end
@@ -196,8 +196,8 @@ module HexaPDF
         if dict.nil?
           raise HexaPDF::EncryptionError, "No /Encrypt dictionary found"
         end
-        handler = HexaPDF::GlobalConfiguration.constantize('encryption.filter_map', dict[:Filter]) do
-          HexaPDF::GlobalConfiguration.constantize('encryption.sub_filter_map', dict[:SubFilter]) do
+        handler = document.config.constantize('encryption.filter_map', dict[:Filter]) do
+          document.config.constantize('encryption.sub_filter_map', dict[:SubFilter]) do
             raise HexaPDF::EncryptionError, "Could not find a suitable security handler"
           end
         end
@@ -452,12 +452,12 @@ module HexaPDF
 
       # Returns the class that is used for ARC4 encryption.
       def arc4_algorithm
-        @arc4_algorithm ||= HexaPDF::GlobalConfiguration.constantize('encryption.arc4')
+        @arc4_algorithm ||= document.config.constantize('encryption.arc4')
       end
 
       # Returns the class that is used for AES encryption.
       def aes_algorithm
-        @aes_algorithm ||= HexaPDF::GlobalConfiguration.constantize('encryption.aes')
+        @aes_algorithm ||= document.config.constantize('encryption.aes')
       end
 
       # Returns the class that is used for the identity algorithm which passes back the data as is

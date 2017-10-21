@@ -27,6 +27,9 @@
   creating new pages
 * [HexaPDF::Filter::Predictor] to allow correcting some common problems
   depending on the new configuration option 'filter.predictor.strict'
+* Moved configuration options 'encryption.aes', 'encryption.arc4',
+  'encryption.filter_map', 'encryption.sub_filter.map', 'filter.map',
+  'image_loader' and 'task.map' to the document specific configuration object
 
 ### Removed
 

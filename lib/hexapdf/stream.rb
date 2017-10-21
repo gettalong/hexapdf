@@ -248,7 +248,7 @@ module HexaPDF
     #
     # See: HexaPDF::Filter
     def filter_for_name(filter_name)
-      GlobalConfiguration.constantize('filter.map', filter_name) do
+      config.constantize('filter.map', filter_name) do
         raise HexaPDF::Error, "Unknown stream filter '#{filter_name}' encountered"
       end
     end

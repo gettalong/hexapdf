@@ -152,6 +152,44 @@ module HexaPDF
   #
   #    In nearly all cases this option should not be changed from its default setting!
   #
+  # encryption.aes::
+  #    The class that should be used for AES encryption. If the value is a String, it should
+  #    contain the name of a constant to such a class.
+  #
+  #    See HexaPDF::Encryption::AES for the general interface such a class must conform to and
+  #    HexaPDF::Encryption::RubyAES as well as HexaPDF::Encryption::FastAES for implementations.
+  #
+  # encryption.arc4::
+  #    The class that should be used for ARC4 encryption. If the value is a String, it should
+  #    contain the name of a constant to such a class.
+  #
+  #    See HexaPDF::Encryption::ARC4 for the general interface such a class must conform to and
+  #    HexaPDF::Encryption::RubyARC4 as well as HexaPDF::Encryption::FastARC4 for implementations.
+  #
+  # encryption.filter_map::
+  #    A mapping from a PDF name (a Symbol) to a security handler class (see
+  #    Encryption::SecurityHandler). If the value is a String, it should contain the name of a
+  #    constant to such a class.
+  #
+  #    PDF defines a standard security handler that is implemented
+  #    (HexaPDF::Encryption::StandardSecurityHandler) and assigned the :Standard name.
+  #
+  # encryption.sub_filter_map::
+  #    A mapping from a PDF name (a Symbol) to a security handler class (see
+  #    HexaPDF::Encryption::SecurityHandler). If the value is a String, it should contain the name
+  #    of a constant to such a class.
+  #
+  #    The sub filter map is used when the security handler defined by the encryption dictionary
+  #    is not available, but a compatible implementation is.
+  #
+  # filter.map::
+  #    A mapping from a PDF name (a Symbol) to a filter object (see Filter). If the value is a
+  #    String, it should contain the name of a constant that contains a filter object.
+  #
+  #    The most often used filters are implemented and readily available.
+  #
+  #    See PDF1.7 s7.4.1, ADB sH.3 3.3
+  #
   # font.map::
   #    Defines a mapping from font names and variants to font files.
   #
@@ -208,6 +246,16 @@ module HexaPDF
   #    to compute. It should not be set to values lower than 4, otherwise the approximation of a
   #    complete ellipse is visibly false.
   #
+  # image_loader::
+  #    An array with image loader implementations. When an image should be loaded, the array is
+  #    iterated in sequence to find a suitable image loader.
+  #
+  #    If a value is a String, it should contain the name of a constant that is an image loader
+  #    object.
+  #
+  #    See the HexaPDF::ImageLoader module for information on how to implement an image loader
+  #    object.
+  #
   # image_loader.pdf.use_stringio::
   #    A boolean determining whether images specified via file names should be read into memory
   #    all at once using a StringIO object.
@@ -248,137 +296,18 @@ module HexaPDF
   #
   # sorted_tree.max_leaf_node_size::
   #    The maximum number of nodes that should be in a leaf node of a node tree.
-  DefaultDocumentConfiguration =
-    Configuration.new('document.auto_decrypt' => true,
-                      'font.map' => {},
-                      'font.on_missing_glyph' => proc do |char, _type, font|
-                        HexaPDF::Font::InvalidGlyph.new(font, char)
-                      end,
-                      'font.on_missing_unicode_mapping' => proc do |code_point, font|
-                        raise HexaPDF::Error, "No Unicode mapping for code point #{code_point} " \
-                          "in font #{font[:BaseFont]}"
-                      end,
-                      'font_loader' => [
-                        'HexaPDF::FontLoader::Standard14',
-                        'HexaPDF::FontLoader::FromConfiguration',
-                        'HexaPDF::FontLoader::FromFile',
-                      ],
-                      'graphic_object.map' => {
-                        arc: 'HexaPDF::Content::GraphicObject::Arc',
-                        endpoint_arc: 'HexaPDF::Content::GraphicObject::EndpointArc',
-                        solid_arc: 'HexaPDF::Content::GraphicObject::SolidArc',
-                      },
-                      'graphic_object.arc.max_curves' => 6,
-                      'image_loader.pdf.use_stringio' => true,
-                      'io.chunk_size' => 2**16,
-                      'page.default_media_box' => :A4,
-                      'page.default_media_orientation' => :portrait,
-                      'parser.on_correctable_error' => proc { false },
-                      'sorted_tree.max_leaf_node_size' => 64)
-
-  # The global configuration object, providing the following options:
-  #
-  # color_space.map::
-  #    A mapping from a PDF name (a Symbol) to a color space class (see
-  #    HexaPDF::Content::ColorSpace). If the value is a String, it should contain the name of a
-  #    constant that contains a color space class.
-  #
-  #    Classes for the most often used color space families are implemented and readily available.
-  #
-  #    See PDF1.7 s8.6
-  #
-  # encryption.aes::
-  #    The class that should be used for AES encryption. If the value is a String, it should
-  #    contain the name of a constant to such a class.
-  #
-  #    See HexaPDF::Encryption::AES for the general interface such a class must conform to and
-  #    HexaPDF::Encryption::RubyAES as well as HexaPDF::Encryption::FastAES for implementations.
-  #
-  # encryption.arc4::
-  #    The class that should be used for ARC4 encryption. If the value is a String, it should
-  #    contain the name of a constant to such a class.
-  #
-  #    See HexaPDF::Encryption::ARC4 for the general interface such a class must conform to and
-  #    HexaPDF::Encryption::RubyARC4 as well as HexaPDF::Encryption::FastARC4 for implementations.
-  #
-  # encryption.filter_map::
-  #    A mapping from a PDF name (a Symbol) to a security handler class (see
-  #    Encryption::SecurityHandler). If the value is a String, it should contain the name of a
-  #    constant to such a class.
-  #
-  #    PDF defines a standard security handler that is implemented
-  #    (HexaPDF::Encryption::StandardSecurityHandler) and assigned the :Standard name.
-  #
-  # encryption.sub_filter_map::
-  #    A mapping from a PDF name (a Symbol) to a security handler class (see
-  #    HexaPDF::Encryption::SecurityHandler). If the value is a String, it should contain the name
-  #    of a constant to such a class.
-  #
-  #    The sub filter map is used when the security handler defined by the encryption dictionary
-  #    is not available, but a compatible implementation is.
-  #
-  # filter.flate_compression::
-  #    Specifies the compression level that should be used with the FlateDecode filter. The level
-  #    can range from 0 (no compression), 1 (best speed) to 9 (best compression, default).
-  #
-  # filter.flate_memory::
-  #    Specifies the memory level that should be used with the FlateDecode filter. The level can
-  #    range from 1 (minimum memory usage; slow, reduces compression) to 9 (maximum memory usage).
-  #
-  #    The HexaPDF default value of 6 has been found in tests to be nearly equivalent to the Zlib
-  #    default of 8 in terms of speed and compression level but uses less memory.
-  #
-  # filter.map::
-  #    A mapping from a PDF name (a Symbol) to a filter object (see Filter). If the value is a
-  #    String, it should contain the name of a constant that contains a filter object.
-  #
-  #    The most often used filters are implemented and readily available.
-  #
-  #    See PDF1.7 s7.4.1, ADB sH.3 3.3
-  #
-  # filter.predictor.strict::
-  #    Specifies whether the predictor algorithm used by LZWDecode and FlateDecode should operate in
-  #    strict mode, i.e. adhering to the PDF specification without correcting for common deficiences
-  #    of PDF writer libraries.
-  #
-  # image_loader::
-  #    An array with image loader implementations. When an image should be loaded, the array is
-  #    iterated in sequence to find a suitable image loader.
-  #
-  #    If a value is a String, it should contain the name of a constant that is an image loader
-  #    object.
-  #
-  #    See the HexaPDF::ImageLoader module for information on how to implement an image loader
-  #    object.
-  #
-  # object.type_map::
-  #    A mapping from a PDF name (a Symbol) to PDF object classes which is based on the /Type
-  #    field. If the value is a String, it should contain the name of a constant that contains a
-  #    PDF object class.
-  #
-  #    This mapping is used to provide automatic wrapping of objects in the HexaPDF::Document#wrap
-  #    method.
-  #
-  # object.subtype_map::
-  #    A mapping from a PDF name (a Symbol) to PDF object classes which is based on the /Subtype
-  #    field. If the value is a String, it should contain the name of a constant that contains a
-  #    PDF object class.
-  #
-  #    This mapping is used to provide automatic wrapping of objects in the HexaPDF::Document#wrap
-  #    method.
   #
   # task.map::
   #    A mapping from task names to callable task objects. See HexaPDF::Task for more information.
-  GlobalConfiguration =
-    Configuration.new('encryption.aes' => 'HexaPDF::Encryption::FastAES',
+  DefaultDocumentConfiguration =
+    Configuration.new('document.auto_decrypt' => true,
+                      'encryption.aes' => 'HexaPDF::Encryption::FastAES',
                       'encryption.arc4' => 'HexaPDF::Encryption::FastARC4',
                       'encryption.filter_map' => {
                         Standard: 'HexaPDF::Encryption::StandardSecurityHandler',
                       },
                       'encryption.sub_filter_map' => {
                       },
-                      'filter.flate_compression' => 9,
-                      'filter.flate_memory' => 6,
                       'filter.map' => {
                         ASCIIHexDecode: 'HexaPDF::Filter::ASCIIHexDecode',
                         AHx: 'HexaPDF::Filter::ASCIIHexDecode',
@@ -399,17 +328,92 @@ module HexaPDF
                         Crypt: nil,
                         Encryption: 'HexaPDF::Filter::Encryption',
                       },
+                      'font.map' => {},
+                      'font.on_missing_glyph' => proc do |char, _type, font|
+                        HexaPDF::Font::InvalidGlyph.new(font, char)
+                      end,
+                      'font.on_missing_unicode_mapping' => proc do |code_point, font|
+                        raise HexaPDF::Error, "No Unicode mapping for code point #{code_point} " \
+                          "in font #{font[:BaseFont]}"
+                      end,
+                      'font_loader' => [
+                        'HexaPDF::FontLoader::Standard14',
+                        'HexaPDF::FontLoader::FromConfiguration',
+                        'HexaPDF::FontLoader::FromFile',
+                      ],
+                      'graphic_object.map' => {
+                        arc: 'HexaPDF::Content::GraphicObject::Arc',
+                        endpoint_arc: 'HexaPDF::Content::GraphicObject::EndpointArc',
+                        solid_arc: 'HexaPDF::Content::GraphicObject::SolidArc',
+                      },
+                      'graphic_object.arc.max_curves' => 6,
+                      'image_loader' => [
+                        'HexaPDF::ImageLoader::JPEG',
+                        'HexaPDF::ImageLoader::PNG',
+                        'HexaPDF::ImageLoader::PDF',
+                      ],
+                      'image_loader.pdf.use_stringio' => true,
+                      'io.chunk_size' => 2**16,
+                      'page.default_media_box' => :A4,
+                      'page.default_media_orientation' => :portrait,
+                      'parser.on_correctable_error' => proc { false },
+                      'sorted_tree.max_leaf_node_size' => 64,
+                      'task.map' => {
+                        optimize: 'HexaPDF::Task::Optimize',
+                        dereference: 'HexaPDF::Task::Dereference',
+                      })
+
+  # The global configuration object, providing the following options:
+  #
+  # color_space.map::
+  #    A mapping from a PDF name (a Symbol) to a color space class (see
+  #    HexaPDF::Content::ColorSpace). If the value is a String, it should contain the name of a
+  #    constant that contains a color space class.
+  #
+  #    Classes for the most often used color space families are implemented and readily available.
+  #
+  #    See PDF1.7 s8.6
+  #
+  # filter.flate_compression::
+  #    Specifies the compression level that should be used with the FlateDecode filter. The level
+  #    can range from 0 (no compression), 1 (best speed) to 9 (best compression, default).
+  #
+  # filter.flate_memory::
+  #    Specifies the memory level that should be used with the FlateDecode filter. The level can
+  #    range from 1 (minimum memory usage; slow, reduces compression) to 9 (maximum memory usage).
+  #
+  #    The HexaPDF default value of 6 has been found in tests to be nearly equivalent to the Zlib
+  #    default of 8 in terms of speed and compression level but uses less memory.
+  #
+  # filter.predictor.strict::
+  #    Specifies whether the predictor algorithm used by LZWDecode and FlateDecode should operate in
+  #    strict mode, i.e. adhering to the PDF specification without correcting for common deficiences
+  #    of PDF writer libraries.
+  #
+  # object.type_map::
+  #    A mapping from a PDF name (a Symbol) to PDF object classes which is based on the /Type
+  #    field. If the value is a String, it should contain the name of a constant that contains a
+  #    PDF object class.
+  #
+  #    This mapping is used to provide automatic wrapping of objects in the HexaPDF::Document#wrap
+  #    method.
+  #
+  # object.subtype_map::
+  #    A mapping from a PDF name (a Symbol) to PDF object classes which is based on the /Subtype
+  #    field. If the value is a String, it should contain the name of a constant that contains a
+  #    PDF object class.
+  #
+  #    This mapping is used to provide automatic wrapping of objects in the HexaPDF::Document#wrap
+  #    method.
+  GlobalConfiguration =
+    Configuration.new('filter.flate_compression' => 9,
+                      'filter.flate_memory' => 6,
                       'filter.predictor.strict' => false,
                       'color_space.map' => {
                         DeviceRGB: 'HexaPDF::Content::ColorSpace::DeviceRGB',
                         DeviceCMYK: 'HexaPDF::Content::ColorSpace::DeviceCMYK',
                         DeviceGray: 'HexaPDF::Content::ColorSpace::DeviceGray',
                       },
-                      'image_loader' => [
-                        'HexaPDF::ImageLoader::JPEG',
-                        'HexaPDF::ImageLoader::PNG',
-                        'HexaPDF::ImageLoader::PDF',
-                      ],
                       'object.type_map' => {
                         XRef: 'HexaPDF::Type::XRefStream',
                         ObjStm: 'HexaPDF::Type::ObjectStream',
@@ -438,10 +442,6 @@ module HexaPDF
                         TrueType: 'HexaPDF::Type::FontTrueType',
                         CIDFontType0: 'HexaPDF::Type::CIDFont',
                         CIDFontType2: 'HexaPDF::Type::CIDFont',
-                      },
-                      'task.map' => {
-                        optimize: 'HexaPDF::Task::Optimize',
-                        dereference: 'HexaPDF::Task::Dereference',
                       })
 
 end

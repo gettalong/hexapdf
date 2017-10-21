@@ -238,7 +238,7 @@ module HexaPDF
         if filter == :FlateDecode && self[:DecodeParms] && self[:DecodeParms][:Predictor].to_i >= 10
           data = stream_source
         else
-          flate_decode = GlobalConfiguration.constantize('filter.map', :FlateDecode)
+          flate_decode = config.constantize('filter.map', :FlateDecode)
           data = flate_decode.encoder(stream_decoder, Predictor: 15, Colors: 1, Columns: info.width,
                                       BitsPerComponent: info.bits_per_component)
         end
