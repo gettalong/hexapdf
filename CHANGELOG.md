@@ -46,12 +46,12 @@
 * Undefined method error in [HexaPDF::Content::Canvas] by raising a proper error
 * Invalid handling of fonts by [HexaPDF::Content::Canvas] when saving and
   restoring the graphics state
-* HexaPDF::Layout::TextBox so that text fragments don't pollute the graphics
-  state
+* [HexaPDF::Layout::TextLayouter] so that text fragments don't pollute the
+  graphics state
 * [HexaPDF::Content::Operator::SetTextRenderingMode] to normalize the value
 * [HexaPDF::Stream#stream_source] to always return a decrypted stream
-* HexaPDF::Layout::TextBox to correctly indent all paragraphs, not just the
-  first one
+* [HexaPDF::Layout::TextLayouter] to correctly indent all paragraphs, not just
+  the first one
 * One-off error in [HexaPDF::Filter::LZWDecode]
 * [HexaPDF::Configuration#merge] to duplicate array values to avoid unwanted
   modifications
