@@ -20,6 +20,7 @@
 * [HexaPDF::Layout::TextFragment::new] and
   [HexaPDF::Layout::TextLayouter::new] to either take a Style object or
   style options
+* [HexaPDF::Layout::TextLayouter#fit] method signature
 * [HexaPDF::Layout::InlineBox] to wrap a generic box
 * HexaPDF::Document::Fonts#load to [HexaPDF::Document::Fonts#add] for
   consistency
@@ -37,6 +38,8 @@
 
 ### Fixed
 
+* [HexaPDF::Layout::TextLayouter#fit] to split text fragment into parts if the
+  fragment doesn't fit on an empty line
 * Parsing of PDF files containing a loop with respect to cross-reference tables
 * [HexaPDF::Layout::InlineBox] to act as placeholder if no drawing block is
   given

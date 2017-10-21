@@ -47,11 +47,10 @@ y = 220
 [30, 60, 100, 160].each do |width|
   layouter = HexaPDF::Layout::TextLayouter.create(text, width: width,
                                                   font: doc.fonts.add("Times"))
-  _, height = layouter.fit
   layouter.draw(canvas, x, y)
   canvas.stroke_color(255, 0, 0).line_width(0.2)
-  canvas.rectangle(x, y, width, -height).stroke
-  y -= height + 5
+  canvas.rectangle(x, y, width, -layouter.actual_height).stroke
+  y -= layouter.actual_height + 5
 end
 
 doc.write("text_layouter_line_wrapping.pdf", optimize: true)

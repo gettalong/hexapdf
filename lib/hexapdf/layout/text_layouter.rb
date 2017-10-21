@@ -589,10 +589,16 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   text_layouter.fit  -> [remaining_items, actual_height]
+      #   text_layouter.fit  -> [remaining_items, reason]
       #
-      # Fits the items into the set area and returns the remaining items as well as the actual
-      # height needed.
+      # Fits the items into the set area and returns the remaining items as well as the reason why
+      # there are remaining items.
+      #
+      # The reason can be +:success+ if there are no remaining items, +:box+ if a single text or
+      # inline box item is too wide to fit alone on a line, or +:height+ if there was not enough
+      # height for all items.
+      #
+      # The fitted lines can be retrieved via #lines and the total height via #actual_height.
       #
       # Note: If no height has been set and variable line widths are used, no search for a possible
       # vertical offset is done in case a single item doesn't fit.
@@ -603,6 +609,7 @@ module HexaPDF
         @lines.clear
         @actual_height = 0
 
+        rest = @items
         y_offset = 0
         indent = (style.text_indent != 0 ? style.text_indent : 0)
         width_block = if @width.respond_to?(:call)
@@ -611,49 +618,68 @@ module HexaPDF
                         proc { @width - indent }
                       end
 
-        rest = style.text_line_wrapping_algorithm.call(@items, width_block) do |line, item|
-          line << TextFragment.new(items: [], style: style) if item&.type != :box && line.items.empty?
-          new_height = @actual_height + line.height +
-            (@lines.empty? ? 0 : style.line_spacing.gap(@lines.last, line))
+        while true
+          too_wide_box = nil
 
-          if new_height <= @height && !line.items.empty?
-            # valid line found, use it
-            cur_width = width_block.call(line.height)
-            line.x_offset = indent + horizontal_alignment_offset(line, cur_width)
-            line.x_offset += @x_offsets.call(@actual_height, line.height) if @x_offsets
-            line.y_offset =  if y_offset
-                               y_offset + (@lines.last ? -@lines.last.y_min + line.y_max : 0)
-                             else
-                               style.line_spacing.baseline_distance(@lines.last, line)
-                             end
-            @actual_height = new_height
-            @lines << line
-            y_offset = nil
-            indent = if item&.type == :penalty && item.penalty == Penalty::PARAGRAPH_BREAK
-                       style.text_indent
-                     else
-                       0
-                     end
-            true
-          elsif new_height <= @height && @height != Float::INFINITY
-            # some height left but item didn't fit on the line, search downwards for usable space
-            old_height = @actual_height
-            while item.width > width_block.call(item.height) && @actual_height <= @height
-              @actual_height += item.height / 3
-            end
-            if @actual_height + item.height <= @height
-              y_offset = @actual_height - old_height
+          rest = style.text_line_wrapping_algorithm.call(rest, width_block) do |line, item|
+            line << TextFragment.new(items: [], style: style) if item&.type != :box && line.items.empty?
+            new_height = @actual_height + line.height +
+              (@lines.empty? ? 0 : style.line_spacing.gap(@lines.last, line))
+
+            if new_height > @height
+              nil
+            elsif !line.items.empty?
+              # valid line found, use it
+              cur_width = width_block.call(line.height)
+              line.x_offset = indent + horizontal_alignment_offset(line, cur_width)
+              line.x_offset += @x_offsets.call(@actual_height, line.height) if @x_offsets
+              line.y_offset =  if y_offset
+                                 y_offset + (@lines.last ? -@lines.last.y_min + line.y_max : 0)
+                               else
+                                 style.line_spacing.baseline_distance(@lines.last, line)
+                               end
+              @actual_height = new_height
+              @lines << line
+              y_offset = nil
+              indent = if item&.type == :penalty && item.penalty == Penalty::PARAGRAPH_BREAK
+                         style.text_indent
+                       else
+                         0
+                       end
               true
+            elsif @height != Float::INFINITY
+              # some height left but item didn't fit on the line, search downwards for usable space
+              old_height = @actual_height
+              while item.width > width_block.call(item.height) && @actual_height <= @height
+                @actual_height += item.height / 3
+              end
+              if @actual_height + item.height <= @height
+                y_offset = @actual_height - old_height
+                true
+              else
+                @actual_height = old_height
+                too_wide_box = item
+                nil
+              end
             else
-              @actual_height = old_height
+              too_wide_box = item
               nil
             end
+          end
+
+          if too_wide_box && too_wide_box.item.kind_of?(TextFragment) &&
+              too_wide_box.item.items.size > 1
+            rest[0..rest.index(too_wide_box)] = too_wide_box.item.items.map do |item|
+              Box.new(TextFragment.new(items: [item], style: too_wide_box.item.style))
+            end
+            too_wide_box = nil
           else
-            nil
+            reason = (too_wide_box ? :box : (rest.empty? ? :success : :height))
+            break
           end
         end
 
-        [rest, @actual_height]
+        [rest, reason]
       end
 
       # Draws the layed out text onto the canvas with the top-left corner being at [x, y].

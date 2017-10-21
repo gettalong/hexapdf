@@ -412,63 +412,70 @@ describe HexaPDF::Layout::TextLayouter do
 
       [60, proc { 60 }].each do |width|
         layouter = HexaPDF::Layout::TextLayouter.new(items: items, width: width, style: @style)
-        rest, = layouter.fit
+        rest, reason = layouter.fit
         assert_equal([40, 20, 40, 60, 20, 60, 20], layouter.lines.map(&:width))
         assert_equal([20, 0, 20, 0, 0, 0, 0], layouter.lines.map(&:x_offset))
         assert(rest.empty?)
+        assert_equal(:success, reason)
       end
     end
 
     it "fits using unlimited height" do
       layouter = HexaPDF::Layout::TextLayouter.new(items: boxes(*([[20, 20]] * 100)), width: 20,
                                                    style: @style)
-      rest, height = layouter.fit
+      rest, reason = layouter.fit
       assert(rest.empty?)
-      assert_equal(20 * 100, height)
+      assert_equal(:success, reason)
+      assert_equal(20 * 100, layouter.actual_height)
     end
 
     it "fits using a limited height" do
       layouter = HexaPDF::Layout::TextLayouter.new(items: boxes(*([[20, 20]] * 100)), width: 20,
                                                    height: 100, style: @style)
-      rest, height = layouter.fit
+      rest, reason = layouter.fit
       assert_equal(95, rest.count)
-      assert_equal(100, height)
+      assert_equal(:height, reason)
+      assert_equal(100, layouter.actual_height)
     end
 
     it "takes line spacing into account when calculating the height" do
       layouter = HexaPDF::Layout::TextLayouter.new(items: boxes(*([[20, 20]] * 5)), width: 20,
                                                    style: @style)
       layouter.style.line_spacing = :double
-      rest, height = layouter.fit
+      rest, reason = layouter.fit
       assert(rest.empty?)
-      assert_equal(20 * (5 + 4), height)
+      assert_equal(:success, reason)
+      assert_equal(20 * (5 + 4), layouter.actual_height)
     end
 
     it "handles empty lines" do
       items = boxes([20, 20]) + [penalty(-5000)] + boxes([30, 20]) + [penalty(-5000)] * 2 +
         boxes([20, 20]) + [penalty(-5000)] * 2
       layouter = HexaPDF::Layout::TextLayouter.new(items: items, width: 30, style: @style)
-      rest, height = layouter.fit
+      rest, reason = layouter.fit
       assert(rest.empty?)
+      assert_equal(:success, reason)
       assert_equal(5, layouter.lines.count)
-      assert_equal(20 + 20 + 9 + 20 + 9, height)
+      assert_equal(20 + 20 + 9 + 20 + 9, layouter.actual_height)
     end
 
     describe "fixed width" do
       it "stops if an item is wider than the available width, with unlimited height" do
         layouter = HexaPDF::Layout::TextLayouter.new(items: boxes([20, 20], [50, 20]), width: 30,
                                                      style: @style)
-        rest, height = layouter.fit
+        rest, reason = layouter.fit
         assert_equal(1, rest.count)
-        assert_equal(20, height)
+        assert_equal(:box, reason)
+        assert_equal(20, layouter.actual_height)
       end
 
-      it "stops if an item is wider than the available width, with limited height" do
+      it "stops if a box item is wider than the available width, with limited height" do
         layouter = HexaPDF::Layout::TextLayouter.new(items: boxes([20, 20], [50, 20]), width: 30,
                                                      height: 100, style: @style)
-        rest, height = layouter.fit
+        rest, reason = layouter.fit
         assert_equal(1, rest.count)
-        assert_equal(20, height)
+        assert_equal(:box, reason)
+        assert_equal(20, layouter.actual_height)
       end
     end
 
@@ -482,11 +489,12 @@ describe HexaPDF::Layout::TextLayouter do
         end
         layouter = HexaPDF::Layout::TextLayouter.new(items: boxes([20, 18]), width: width_block,
                                                      height: 100, style: @style)
-        rest, height = layouter.fit
+        rest, reason = layouter.fit
         assert(rest.empty?)
+        assert_equal(:success, reason)
         assert_equal(1, layouter.lines.count)
         assert_equal(24, layouter.lines[0].y_offset)
-        assert_equal(42, height)
+        assert_equal(42, layouter.actual_height)
       end
 
       it "searches for a vertical offset if an item is wider than the available width" do
@@ -499,13 +507,34 @@ describe HexaPDF::Layout::TextLayouter do
         end
         layouter = HexaPDF::Layout::TextLayouter.new(items: boxes(*([[20, 18]] * 7)),
                                                      width: width_block, height: 100, style: @style)
-        rest, height = layouter.fit
+        rest, reason = layouter.fit
         assert_equal(1, rest.count)
+        assert_equal(:height, reason)
         assert_equal(3, layouter.lines.count)
         assert_equal(0, layouter.lines[0].y_offset)
         assert_equal(18, layouter.lines[1].y_offset)
         assert_equal(48, layouter.lines[2].y_offset)
-        assert_equal(84, height)
+        assert_equal(84, layouter.actual_height)
+      end
+    end
+
+    it "breaks a text fragment into parts if it is wider than the available width" do
+      [100, nil].each do |height|
+        str = " Thisisaverylongstring"
+        frag = HexaPDF::Layout::TextFragment.create(str, font: @font)
+        layouter = HexaPDF::Layout::TextLayouter.new(items: [frag], width: 20, height: height,
+                                                     style: @style)
+        rest, reason = layouter.fit
+        assert(rest.empty?)
+        assert_equal(:success, reason)
+        assert_equal(str.strip.length, layouter.lines.sum {|l| l.items.sum {|i| i.items.count}})
+        assert_equal(45, layouter.actual_height)
+
+        layouter = HexaPDF::Layout::TextLayouter.new(items: [frag], width: 1, height: height,
+                                                     style: @style)
+        rest, reason = layouter.fit
+        assert_equal(str.strip.length, rest.count)
+        assert_equal(:box, reason)
       end
     end
 
@@ -523,8 +552,9 @@ describe HexaPDF::Layout::TextLayouter do
 
       layouter = HexaPDF::Layout::TextLayouter.new(items: items, width: 100)
       layouter.style.align = :justify
-      rest, _height = layouter.fit
+      rest, reason = layouter.fit
       assert(rest.empty?)
+      assert_equal(:success, reason)
       assert_equal(9, layouter.lines[0].items.count)
       assert_in_delta(100, layouter.lines[0].width)
       assert_equal(-250, layouter.lines[0].items[1].items[0])
@@ -537,9 +567,10 @@ describe HexaPDF::Layout::TextLayouter do
       x_offsets = lambda {|height, line_height| height + line_height}
       layouter = HexaPDF::Layout::TextLayouter.new(items: boxes(*([[20, 10]] * 7)), width: 60,
                                                    x_offsets: x_offsets, height: 100, style: @style)
-      rest, height = layouter.fit
+      rest, reason = layouter.fit
       assert(rest.empty?)
-      assert_equal(30, height)
+      assert_equal(:success, reason)
+      assert_equal(30, layouter.actual_height)
       assert_equal(10, layouter.lines[0].x_offset)
       assert_equal(20, layouter.lines[1].x_offset)
       assert_equal(30, layouter.lines[2].x_offset)
@@ -627,8 +658,8 @@ describe HexaPDF::Layout::TextLayouter do
       @layouter = HexaPDF::Layout::TextLayouter.new(items: [@frag], width: @width, height: top)
       @layouter.style.valign = :center
 
-      _, height = @layouter.fit
-      initial_baseline = top - ((top - height) / 2) - @frag.y_max
+      @layouter.fit
+      initial_baseline = top - ((top - @layouter.actual_height) / 2) - @frag.y_max
       @layouter.draw(@canvas, 5, top)
       assert_positions(@canvas.contents,
                        [[5, initial_baseline],
@@ -642,8 +673,8 @@ describe HexaPDF::Layout::TextLayouter do
       @layouter = HexaPDF::Layout::TextLayouter.new(items: [@frag], width: @width, height: top)
       @layouter.style.valign = :bottom
 
-      _, height = @layouter.fit
-      initial_baseline = height - @frag.y_max
+      @layouter.fit
+      initial_baseline = @layouter.actual_height - @frag.y_max
       @layouter.draw(@canvas, 5, top)
       assert_positions(@canvas.contents,
                        [[5, initial_baseline],

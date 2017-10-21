@@ -32,10 +32,10 @@ end
 # Draws the text at the given [x, y] position onto the canvas and returns the
 # new y position.
 def draw_text(layouter, canvas, x, y)
-  rest, height = layouter.fit
+  rest, = layouter.fit
   raise "Error" unless rest.empty?
   layouter.draw(canvas, x, y)
-  y - height
+  y - layouter.actual_height
 end
 
 doc = HexaPDF::Document.new
