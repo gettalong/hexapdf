@@ -84,12 +84,23 @@ module HexaPDF
     # object (or hash) and this configuration object.
     #
     # If a key already has a value in this object, its value is overwritten by the one from
-    # +config+. However, hash values are merged instead of being overwritten.
+    # +config+. However, hash values are merged instead of being overwritten. Array values are
+    # duplicated.
     def merge(config)
       config = (config.kind_of?(self.class) ? config.options : config)
-      self.class.new(options.merge(config) do |_key, old, new|
-                       old.kind_of?(Hash) && new.kind_of?(Hash) ? old.merge(new) : new
-                     end)
+      merged_config = options.each_with_object({}) do |(key, old), conf|
+        new = config[key]
+        conf[key] = if old.kind_of?(Hash) && new.kind_of?(Hash)
+                      old.merge(new)
+                    elsif new.kind_of?(Array) || old.kind_of?(Array)
+                      (new || old).dup
+                    elsif config.key?(key)
+                      new
+                    else
+                      old
+                    end
+      end
+      self.class.new(merged_config)
     end
 
     # :call-seq:

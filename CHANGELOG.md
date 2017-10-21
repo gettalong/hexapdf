@@ -47,6 +47,8 @@
 * HexaPDF::Layout::TextBox to correctly indent all paragraphs, not just the
   first one
 * One-off error in [HexaPDF::Filter::LZWDecode]
+* [HexaPDF::Configuration#merge] to duplicate array values to avoid unwanted
+  modifications
 
 
 ## 0.5.0 - 2017-06-24

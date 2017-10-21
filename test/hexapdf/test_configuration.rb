@@ -30,13 +30,19 @@ describe HexaPDF::Configuration do
 
   it "can create a new config object by merging another one or a hash" do
     @config['hash'] = {'test' => :test, 'other' => :other}
+    @config['array'] = [5, 6]
     config = @config.merge('test' => :other)
     assert_equal(:other, config['test'])
 
     config['hash']['test'] = :other
-    config = @config.merge(config)
-    assert_equal(:other, config['hash']['test'])
-    assert_equal(:other, config['hash']['other'])
+    config1 = @config.merge(config)
+    assert_equal(:other, config1['hash']['test'])
+    assert_equal(:other, config1['hash']['other'])
+
+    config2 = @config.merge(config)
+    config2['array'].unshift(4)
+    assert_equal([4, 5, 6], config2['array'])
+    assert_equal([5, 6], config['array'])
   end
 
   describe "constantize" do
