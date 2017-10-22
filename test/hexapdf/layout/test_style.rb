@@ -344,6 +344,73 @@ describe HexaPDF::Layout::Style::Border do
   end
 end
 
+describe HexaPDF::Layout::Style::Layers do
+  before do
+    @layers = HexaPDF::Layout::Style::Layers.new
+  end
+
+  it "can be initialized with an array of layers" do
+    data = [-> {}]
+    layers = HexaPDF::Layout::Style::Layers.new(data)
+    assert_equal(data, layers.enum_for(:each, {}).to_a)
+  end
+
+  describe "add and each" do
+    it "can use a given block" do
+      block = proc { true}
+      @layers.add(&block)
+      assert_equal([block], @layers.enum_for(:each, {}).to_a)
+    end
+
+    it "can store a reference" do
+      @layers.add(:link, option: :value)
+      value = Object.new
+      value.define_singleton_method(:new) {|*args| :new }
+      config = Object.new
+      config.define_singleton_method(:constantize) {|*args| value }
+      assert_equal([:new], @layers.enum_for(:each, config).to_a)
+    end
+
+    it "fails if neither a block nor a name is given when adding a layer" do
+      assert_raises(ArgumentError) { @layers.add }
+    end
+  end
+
+  it "can determine whether layers are defined" do
+    assert(@layers.none?)
+    @layers.add {}
+    refute(@layers.none?)
+  end
+
+  it "draws the layers onto a canvas" do
+    box = Object.new
+    value = nil
+    klass = Class.new
+    klass.send(:define_method, :initialize) {|**args| @args = args }
+    klass.send(:define_method, :call) do |canvas, _|
+      value = @args
+      canvas.line_width(5)
+    end
+    canvas = HexaPDF::Document.new.pages.add.canvas
+    canvas.context.document.config['style.layers_map'][:test] = klass
+
+    @layers.add {|canv, ibox| assert_equal(box, ibox); canv.line_width(10)}
+    @layers.add(:test, option: :value)
+    @layers.draw(canvas, 10, 15, box)
+    ops = [[:save_graphics_state],
+           [:concatenate_matrix, [1, 0, 0, 1, 10, 15]],
+           [:save_graphics_state],
+           [:set_line_width, [10]],
+           [:restore_graphics_state],
+           [:save_graphics_state],
+           [:set_line_width, [5]],
+           [:restore_graphics_state],
+           [:restore_graphics_state]]
+    assert_operators(canvas.contents, ops)
+    assert_equal({option: :value}, value)
+  end
+end
+
 describe HexaPDF::Layout::Style do
   before do
     @style = HexaPDF::Layout::Style.new
@@ -384,6 +451,8 @@ describe HexaPDF::Layout::Style do
     assert_equal([:proportional, 1], [@style.line_spacing.type, @style.line_spacing.value])
     refute(@style.subscript)
     refute(@style.superscript)
+    assert_kind_of(HexaPDF::Layout::Style::Layers, @style.underlays)
+    assert_kind_of(HexaPDF::Layout::Style::Layers, @style.overlays)
   end
 
   it "allows using a non-standard setter for generated properties" do
@@ -410,8 +479,6 @@ describe HexaPDF::Layout::Style do
                  @style.text_segmentation_algorithm)
     assert_equal(HexaPDF::Layout::TextLayouter::SimpleLineWrapping,
                  @style.text_line_wrapping_algorithm)
-    assert_nil(@style.underlay_callback)
-    assert_nil(@style.overlay_callback)
 
     block = proc { :y }
     @style.text_segmentation_algorithm(&block)

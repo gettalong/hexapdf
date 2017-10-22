@@ -102,20 +102,24 @@ describe HexaPDF::Layout::TextFragment do
       assert_equal({Type: :ExtGState, CA: 0.5, ca: 1}, @canvas.resources[:ExtGState][:GS1])
     end
 
-    it "invokes the underlay callback" do
-      setup_with_style(underlay_callback: proc { @canvas.stroke_color(0.5) })
+    it "invokes the underlays" do
+      setup_with_style(underlays: [proc { @canvas.stroke_color(0.5) }])
       assert_draw_operators(front: [[:save_graphics_state],
                                     [:concatenate_matrix, [1, 0, 0, 1, 10, 15 + @fragment.y_min]],
+                                    [:save_graphics_state],
                                     [:set_device_gray_stroking_color, [0.5]],
+                                    [:restore_graphics_state],
                                     [:restore_graphics_state]])
     end
 
-    it "invokes the overlay callback" do
-      setup_with_style(overlay_callback: proc { @canvas.stroke_color(0.5) })
+    it "invokes the overlays" do
+      setup_with_style(overlays: [proc { @canvas.stroke_color(0.5) }])
       assert_draw_operators(back: [[:end_text],
                                    [:save_graphics_state],
                                    [:concatenate_matrix, [1, 0, 0, 1, 10, 15 + @fragment.y_min]],
+                                   [:save_graphics_state],
                                    [:set_device_gray_stroking_color, [0.5]],
+                                   [:restore_graphics_state],
                                    [:restore_graphics_state]])
     end
 

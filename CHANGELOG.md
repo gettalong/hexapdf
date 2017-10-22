@@ -10,6 +10,8 @@
 * Configuration option 'page.default_media_orientation' for settig the default
   orientation of new pages
 * Convenience methods for getting underline and strikeout properties from fonts
+* Configuration option 'style.layers_map' for pre-defining overlay and underlay
+  callback objects for [HexaPDF::Layout::Style]
 
 ### Changed
 

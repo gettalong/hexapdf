@@ -54,12 +54,12 @@ box.style.padding([20, 5, 10, 15])
 box.style.border(width: [20, 40, 30, 15],
                  color: [[46, 185, 206], [206, 199, 46], [188, 46, 206], [59, 206, 46]],
                  style: [:solid, :dashed, :dashed_round, :dotted])
-box.style.underlay_callback do |canv, _|
+box.style.underlays.add do |canv, _|
   canv.stroke_color([255, 0, 0]).line_width(10).line_cap_style(:butt).
     line(0, 0, box.width, box.height).line(0, box.height, box.width, 0).
     stroke
 end
-box.style.overlay_callback do |canv, _|
+box.style.overlays.add do |canv, _|
   canv.stroke_color([0, 0, 255]).line_width(5).
     rectangle(10, 10, box.width - 20, box.height - 20).stroke
 end

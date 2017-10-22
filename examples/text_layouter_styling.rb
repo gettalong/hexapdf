@@ -77,14 +77,14 @@ styles = {
      stroke_dash_pattern: [0.5, 1, 1.5], stroke_cap_style: :round},
   ],
   "Underlays | Overlays" => [
-    {**base_style, underlay_callback: lambda do |canv, box|
+    {**base_style, underlays: [lambda do |canv, box|
        canv.fill_color(240, 240, 0).opacity(fill_alpha: 0.5).
          rectangle(0, 0, box.width, box.height).fill
-      end},
-    {**base_style, overlay_callback: lambda do |canv, box|
+      end]},
+    {**base_style, overlays: [lambda do |canv, box|
        canv.line_width(1).stroke_color([0, 255, 0]).
          line(0, -box.y_min, box.width, box.y_max - box.y_min).stroke
-      end},
+      end]},
   ],
 }
 

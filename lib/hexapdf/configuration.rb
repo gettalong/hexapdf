@@ -297,6 +297,11 @@ module HexaPDF
   # sorted_tree.max_leaf_node_size::
   #    The maximum number of nodes that should be in a leaf node of a node tree.
   #
+  # style.layers_map::
+  #    A mapping from style layer names to layer objects.
+  #
+  #    See HexaPDF::Layout::Style::Layers for more information.
+  #
   # task.map::
   #    A mapping from task names to callable task objects. See HexaPDF::Task for more information.
   DefaultDocumentConfiguration =
@@ -358,6 +363,8 @@ module HexaPDF
                       'page.default_media_orientation' => :portrait,
                       'parser.on_correctable_error' => proc { false },
                       'sorted_tree.max_leaf_node_size' => 64,
+                      'style.layers_map' => {
+                      },
                       'task.map' => {
                         optimize: 'HexaPDF::Task::Optimize',
                         dereference: 'HexaPDF::Task::Dereference',

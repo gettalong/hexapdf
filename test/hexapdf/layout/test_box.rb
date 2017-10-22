@@ -51,8 +51,8 @@ describe HexaPDF::Layout::Box do
       box.style.background_color = 0.5
       box.style.border(width: 5)
       box.style.padding([10, 20])
-      box.style.underlay_callback {|canvas, _| canvas.line_width(10) }
-      box.style.overlay_callback {|canvas, _| canvas.line_width(20) }
+      box.style.underlays.add {|canvas, _| canvas.line_width(10) }
+      box.style.overlays.add {|canvas, _| canvas.line_width(20) }
 
       @canvas = HexaPDF::Document.new.pages.add.canvas
       box.draw(@canvas, 5, 5)
@@ -63,7 +63,9 @@ describe HexaPDF::Layout::Box do
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
                                           [:concatenate_matrix, [1, 0, 0, 1, 5, 5]],
+                                          [:save_graphics_state],
                                           [:set_line_width, [10]],
+                                          [:restore_graphics_state],
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
                                           [:set_line_width, [5]],
@@ -76,7 +78,9 @@ describe HexaPDF::Layout::Box do
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
                                           [:concatenate_matrix, [1, 0, 0, 1, 5, 5]],
+                                          [:save_graphics_state],
                                           [:set_line_width, [20]],
+                                          [:restore_graphics_state],
                                           [:restore_graphics_state]])
     end
 
@@ -93,8 +97,8 @@ describe HexaPDF::Layout::Box do
       refute(create_box {}.empty?)
       refute(create_box(style: {background_color: [5]}).empty?)
       refute(create_box(style: {border: {width: 1}}).empty?)
-      refute(create_box(style: {underlay_callback: proc {}}).empty?)
-      refute(create_box(style: {overlay_callback: proc {}}).empty?)
+      refute(create_box(style: {underlays: [proc {}]}).empty?)
+      refute(create_box(style: {overlays: [proc {}]}).empty?)
     end
   end
 end

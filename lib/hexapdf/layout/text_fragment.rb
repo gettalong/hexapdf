@@ -111,9 +111,7 @@ module HexaPDF
       def draw(canvas, x, y)
         return if items.empty?
 
-        if style.underlay_callback
-          canvas.translate(x, y + y_min) { style.underlay_callback.call(canvas, self) }
-        end
+        style.underlays.draw(canvas, x, y + y_min, self)
 
         # Set general font related graphics state
         canvas.move_text_cursor(offset: [x, y])
@@ -161,9 +159,7 @@ module HexaPDF
             stroke
         end
 
-        if style.overlay_callback
-          canvas.translate(x, y + y_min) { style.overlay_callback.call(canvas, self) }
-        end
+        style.overlays.draw(canvas, x, y + y_min, self)
       end
 
       # The minimum x-coordinate of the first glyph.

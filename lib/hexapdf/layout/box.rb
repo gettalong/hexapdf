@@ -118,9 +118,7 @@ module HexaPDF
           end
         end
 
-        if style.underlay_callback
-          canvas.translate(x, y) { style.underlay_callback.call(canvas, self) }
-        end
+        style.underlays.draw(canvas, x, y, self)
 
         unless style.border.none?
           style.border.draw(canvas, x, y, width, height)
@@ -133,15 +131,13 @@ module HexaPDF
           end
         end
 
-        if style.overlay_callback
-          canvas.translate(x, y) { style.overlay_callback.call(canvas, self) }
-        end
+        style.overlays.draw(canvas, x, y, self)
       end
 
       # Returns +true+ if no drawing operations are performed.
       def empty?
-        !(@draw_block || style.background_color || style.underlay_callback ||
-          !style.border.none? || style.overlay_callback)
+        !(@draw_block || style.background_color || !style.underlays.none? ||
+          !style.border.none? || !style.overlays.none?)
       end
 
     end

@@ -343,6 +343,76 @@ module HexaPDF
 
       end
 
+      # Represents layers that can be drawn under or over a box.
+      #
+      # There are two ways to specify layers via #add:
+      #
+      # * Directly by providing a callable object.
+      #
+      # * By reference to a callable object or class in the 'style.layers_map' configuration option.
+      #   The reference name is looked up in the configuration option using
+      #   HexaPDF::Configuration#constantize. If the resulting object is a callable object, it is
+      #   used; otherwise it is assumed that it is a class and an object is instantiated, passing in
+      #   any options given on #add.
+      #
+      # The object resolved in this way needs to respond to #call(canvas, box) where +canvas+ is the
+      # HexaPDF::Content::Canvas object on which it should be drawn and +box+ is a box-like object
+      # (e.g. Box or TextFragment). The coordinate system is translated so that the origin is at the
+      # lower right corner of the box during the drawing operations.
+      class Layers
+
+        # Creates a new Layers object popuplated with the given +layers+.
+        def initialize(layers = [])
+          @layers = layers
+        end
+
+        # :call-seq:
+        #   layers.add {|canvas, box| block}
+        #   layers.add(name, **options)
+        #
+        # Adds a new layer object.
+        #
+        # The layer object can either be specified as a block or by reference to a configured layer
+        # object in 'style.layers_map'. In this case +name+ is used as the reference and the options
+        # are passed to layer object if it needs initialization.
+        def add(name = nil, **options, &block)
+          if block_given?
+            @layers << block
+          elsif name
+            @layers << [name, options]
+          else
+            raise ArgumentError, "Layer object name or block missing"
+          end
+        end
+
+        # Draws all layer objects onto the canvas at the position [x, y] for the given box.
+        def draw(canvas, x, y, box)
+          return if none?
+
+          canvas.translate(x, y) do
+            each(canvas.context.document.config) do |layer|
+              canvas.save_graphics_state { layer.call(canvas, box) }
+            end
+          end
+        end
+
+        # Yields all layer objects. Objects that have been specified via a reference are first
+        # resolved using the provided configuration object.
+        def each(config) #:yield: layer
+          @layers.each do |obj, options|
+            obj = config.constantize('style.layers_map', obj) unless obj.respond_to?(:call)
+            obj = obj.new(**options) unless obj.respond_to?(:call)
+            yield(obj)
+          end
+        end
+
+        # Returns +true+ if there are no layers defined.
+        def none?
+          @layers.empty?
+        end
+
+      end
+
       UNSET = ::Object.new # :nodoc:
 
       # Creates a new Style object.
@@ -590,6 +660,22 @@ module HexaPDF
       #
       # The border around the contents, defaults to no border.
 
+      ##
+      # :method: overlays
+      # :call-seq:
+      #   overlays(layers = nil)
+      #
+      # A Layers object containing all the layers that should be drawn over the box; defaults to no
+      # layers being drawn.
+
+      ##
+      # :method: underlays
+      # :call-seq:
+      #   underlays(layers = nil)
+      #
+      # A Layers object containing all the layers that should be drawn under the box; defaults to no
+      # layers being drawn.
+
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
         [:font_size, 10],
@@ -622,6 +708,8 @@ module HexaPDF
         [:padding, "Quad.new(0)", "Quad.new(value)"],
         [:margin, "Quad.new(0)", "Quad.new(value)"],
         [:border, "Border.new", "Border.new(value)"],
+        [:overlays, "Layers.new", "Layers.new(value)"],
+        [:underlays, "Layers.new", "Layers.new(value)"],
       ].each do |name, default, setter = "value", extra_args = ""|
         default = default.inspect unless default.kind_of?(String)
         module_eval(<<-EOF, __FILE__, __LINE__)
@@ -658,37 +746,9 @@ module HexaPDF
       # When setting the algorithm, either an object that responds to #call or a block can be used.
       # See TextLayouter::SimpleLineWrapping#call for the needed method signature.
 
-      ##
-      # :method: overlay_callback
-      # :call-seq:
-      #   overlay_callback(callable = nil) {|canvas, box| block }
-      #
-      # A callable object that is called after the box using the style has drawn its content;
-      # defaults to +nil+.
-      #
-      # When setting the callable, either an object that responds to #call or a block can be used.
-      #
-      # The coordinate system is translated so that the origin is at the lower right corner of the
-      # box during the drawing operations.
-
-      ##
-      # :method: underlay_callback
-      # :call-seq:
-      #   underlay_callback(callable = nil) {|canvas, box| block }
-      #
-      # A callable object that is called before the box using the style draws its content; defaults
-      # to +nil+.
-      #
-      # When setting the callable, either an object that responds to #call or a block can be used.
-      #
-      # The coordinate system is translated so that the origin is at the lower right corner of the
-      # box during the drawing operations.
-
       [
         [:text_segmentation_algorithm, 'TextLayouter::SimpleTextSegmentation'],
         [:text_line_wrapping_algorithm, 'TextLayouter::SimpleLineWrapping'],
-        [:underlay_callback, nil],
-        [:overlay_callback, nil],
       ].each do |name, default|
         default = default.inspect unless default.kind_of?(String)
         module_eval(<<-EOF, __FILE__, __LINE__)
