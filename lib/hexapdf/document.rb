@@ -276,16 +276,15 @@ module HexaPDF
     # of the +type+ and +subtype+ options as well as on the 'object.type_map' and
     # 'object.subtype_map' global configuration options:
     #
-    # * If *only* +type+ or +subtype+ is provided and a mapping is found, the resulting class is
-    #   used.
+    # * First +type+ is used to try to determine the class. If it is already a Class object, it is
+    #   used, otherwise the type is looked up in 'object.type_map'.
     #
-    # * If both +type+ and +subtype+ are provided and and a mapping for +subtype+ is found, the
-    #   resulting class is used. If no mapping is found but there is a mapping for +type+, the
-    #   mapped class is used.
+    # * If +subtype+ is provided or can be determined because +obj+ is a hash with a :Subtype or :S
+    #   field, the type and subtype together are used to look up a special subtype class in
+    #   'object.subtype_map'.
     #
-    # * If there is no valid class after the above steps, HexaPDF::Stream is used if a stream
-    #   is given, HexaPDF::Dictionary is used if the given objecct is a hash or else
-    #   HexaPDF::Object is used.
+    # * If there is no valid class after the above steps, HexaPDF::Stream is used if a stream is
+    #   given, HexaPDF::Dictionary if the given objecct is a hash or else HexaPDF::Object is used.
     #
     # Options:
     #
@@ -316,26 +315,26 @@ module HexaPDF
 
       if type.kind_of?(Class)
         klass = type
+        type = (klass <= HexaPDF::Dictionary ? klass.type : nil)
       else
-        if data.value.kind_of?(Hash)
-          type ||= deref(data.value[:Type])
-          subtype ||= deref(data.value[:Subtype])
-        end
-
-        if subtype
-          klass = GlobalConfiguration.constantize('object.subtype_map'.freeze, subtype) { nil }
-        end
-        if type && !klass
-          klass = GlobalConfiguration.constantize('object.type_map'.freeze, type) { nil }
-        end
-        klass ||= if data.stream
-                    HexaPDF::Stream
-                  elsif data.value.kind_of?(Hash)
-                    HexaPDF::Dictionary
-                  else
-                    HexaPDF::Object
-                  end
+        type ||= deref(data.value[:Type]) if data.value.kind_of?(Hash)
+        klass = GlobalConfiguration.constantize('object.type_map'.freeze, type) { nil } if type
       end
+
+      if data.value.kind_of?(Hash)
+        subtype ||= deref(data.value[:Subtype]) || deref(data.value[:S])
+      end
+      if subtype
+        klass = GlobalConfiguration.constantize('object.subtype_map'.freeze, type, subtype) { klass }
+      end
+
+      klass ||= if data.stream
+                  HexaPDF::Stream
+                elsif data.value.kind_of?(Hash)
+                  HexaPDF::Dictionary
+                else
+                  HexaPDF::Object
+                end
 
       klass.new(data, document: self)
     end

@@ -34,6 +34,8 @@
   'encryption.filter_map', 'encryption.sub_filter.map', 'filter.map',
   'image_loader' and 'task.map' to the document specific configuration object
 * [HexaPDF::Configuration#constantize] can now dig into hierarchical values
+* [HexaPDF::Document#wrap] class resolution and configuration option structure
+  of 'object.subtype_map'
 
 ### Removed
 

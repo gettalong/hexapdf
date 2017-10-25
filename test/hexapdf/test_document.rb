@@ -264,15 +264,18 @@ EOF
 
   describe "wrap" do
     before do
-      @myclass = Class.new(HexaPDF::Object)
-      @myclass2 = Class.new(HexaPDF::Object)
+      @myclass = Class.new(HexaPDF::Dictionary)
+      @myclass.define_type(:MyClass)
+      @myclass2 = Class.new(HexaPDF::Dictionary)
       HexaPDF::GlobalConfiguration['object.type_map'][:MyClass] = @myclass
-      HexaPDF::GlobalConfiguration['object.subtype_map'][:TheSecond] = @myclass2
+      HexaPDF::GlobalConfiguration['object.subtype_map'][nil][:Global] = @myclass2
+      HexaPDF::GlobalConfiguration['object.subtype_map'][:MyClass] = {TheSecond: @myclass2}
     end
 
     after do
       HexaPDF::GlobalConfiguration['object.type_map'].delete(:MyClass)
-      HexaPDF::GlobalConfiguration['object.subtype_map'].delete(:TheSecond)
+      HexaPDF::GlobalConfiguration['object.subtype_map'][nil].delete(:Global)
+      HexaPDF::GlobalConfiguration['object.subtype_map'][:MyClass].delete(:TheSecond)
     end
 
     it "uses a suitable default type if no special type is specified" do
@@ -324,16 +327,18 @@ EOF
 
     it "uses the type/subtype information in the hash that should be wrapped" do
       assert_kind_of(@myclass, @doc.wrap(Type: :MyClass))
-      assert_kind_of(@myclass2, @doc.wrap(Subtype: :TheSecond))
-      assert_kind_of(@myclass2, @doc.wrap(Type: :MyClass, Subtype: :TheSecond))
+      refute_kind_of(@myclass2, @doc.wrap(Subtype: :TheSecond))
+      assert_kind_of(@myclass2, @doc.wrap(Subtype: :Global))
+      assert_kind_of(@myclass2, @doc.wrap(Type: :MyClass, S: :TheSecond))
       assert_kind_of(@myclass, @doc.wrap(Type: :MyClass, Subtype: :TheThird))
     end
 
     it "respects the given type/subtype arguments" do
       assert_kind_of(@myclass, @doc.wrap({Type: :Other}, type: :MyClass))
-      assert_kind_of(@myclass2, @doc.wrap({Subtype: :Other}, subtype: :TheSecond))
+      assert_kind_of(@myclass2, @doc.wrap({Subtype: :Other}, subtype: :Global))
       assert_kind_of(@myclass2, @doc.wrap({Type: :Other, Subtype: :Other},
                                           type: :MyClass, subtype: :TheSecond))
+      assert_kind_of(@myclass2, @doc.wrap({Subtype: :TheSecond}, type: @myclass))
     end
 
     it "directly uses a class given via the type argument" do
