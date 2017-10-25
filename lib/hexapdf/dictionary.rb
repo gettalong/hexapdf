@@ -117,6 +117,19 @@ module HexaPDF
       @fields.each(&block) if defined?(@fields)
     end
 
+    # Defines the static PDF type of the class in cases where this is possible, i.e. when the class
+    # implements one specific PDF type (e.g. the HexaPDF::Type::Catalog class).
+    def self.define_type(type)
+      @type = type
+    end
+
+    # Returns the statically defined PDF type of the class.
+    #
+    # See ::define_type
+    def self.type
+      defined?(@type) && @type
+    end
+
 
     # Returns the value for the given dictionary entry.
     #
@@ -190,9 +203,10 @@ module HexaPDF
       self
     end
 
-    # Returns the value of the /Type field or, if not set, the result of Object#type.
+    # Returns, in order or availability, the value of ::type, the /Type field or the result of
+    # Object#type.
     def type
-      self[:Type] || super
+      self.class.type || self[:Type] || super
     end
 
     # Returns +true+ if the dictionary contains no entries.

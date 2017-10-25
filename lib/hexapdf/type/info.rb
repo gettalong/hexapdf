@@ -44,6 +44,8 @@ module HexaPDF
     # See: PDF1.7 s14.3.3, Trailer
     class Info < Dictionary
 
+      define_type :XXInfo
+
       define_field :Title,        type: String, version: '1.1'
       define_field :Author,       type: String
       define_field :Subject,      type: String, version: '1.1'
@@ -57,11 +59,6 @@ module HexaPDF
       # Info dictionaries must always be indirect.
       def must_be_indirect?
         true
-      end
-
-      # Returns +:XXInfo+.
-      def type
-        :XXInfo
       end
 
     end

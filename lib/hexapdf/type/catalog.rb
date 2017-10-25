@@ -46,7 +46,9 @@ module HexaPDF
     # See: PDF1.7 s7.7.2, Trailer
     class Catalog < Dictionary
 
-      define_field :Type,              type: Symbol,     required: true, default: :Catalog
+      define_type :Catalog
+
+      define_field :Type,              type: Symbol,     required: true, default: self.type
       define_field :Version,           type: Symbol,     version: '1.4'
       define_field :Extensions,        type: Dictionary, version: '1.7'
       # Pages field is required but this is handled in #perform_validation

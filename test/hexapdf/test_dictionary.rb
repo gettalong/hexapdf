@@ -69,6 +69,16 @@ describe HexaPDF::Dictionary do
       refute(HexaPDF::Dictionary.field(:Test))
       assert_equal([], HexaPDF::Dictionary.each_field.to_a)
     end
+
+    it "allows defining a static type" do
+      @test_class.define_type(:MyClass)
+      assert_equal(:MyClass, @test_class.type)
+      assert_equal(:MyClass, @test_class.new({}).type)
+    end
+
+    it "::type returns nil if no static type has been defined" do
+      assert_nil(@test_class.type)
+    end
   end
 
   describe "after_data_change" do

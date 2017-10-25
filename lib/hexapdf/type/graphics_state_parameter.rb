@@ -45,7 +45,9 @@ module HexaPDF
     # See: PDF1.7 s8.4.5, s8.1
     class GraphicsStateParameter < Dictionary
 
-      define_field :Type,          type: Symbol, required: true, default: :ExtGState
+      define_type :ExtGState
+
+      define_field :Type,          type: Symbol, required: true, default: self.type
       define_field :LW,            type: Numeric, version: "1.3"
       define_field :LC,            type: Integer, version: "1.3"
       define_field :LJ,            type: Integer, version: "1.3"

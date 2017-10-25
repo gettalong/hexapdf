@@ -42,7 +42,9 @@ module HexaPDF
     # This class is the base class for all font objects, be it simple fonts or composite fonts.
     class Font < Dictionary
 
-      define_field :Type, type: Symbol, required: true, default: :Font
+      define_type :Font
+
+      define_field :Type, type: Symbol, required: true, default: self.type
       define_field :BaseFont, type: Symbol, required: true
       define_field :ToUnicode, type: Stream, version: '1.2'
 

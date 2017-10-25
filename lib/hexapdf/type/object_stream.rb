@@ -95,8 +95,9 @@ module HexaPDF
 
       end
 
+      define_type :ObjStm
 
-      define_field :Type,    type: Symbol, required: true, default: :ObjStm, version: '1.5'
+      define_field :Type,    type: Symbol, required: true, default: self.type, version: '1.5'
       define_field :N,       type: Integer # not required, will be auto-filled on #write_objects
       define_field :First,   type: Integer # not required, will be auto-filled on #write_objects
       define_field :Extends, type: Stream

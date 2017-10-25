@@ -48,7 +48,9 @@ module HexaPDF
       Info = Struct.new(:type, :width, :height, :color_space, :indexed, :components,
                         :bits_per_component, :writable, :extension)
 
-      define_field :Type,             type: Symbol,          default: :XObject
+      define_type :XObject
+
+      define_field :Type,             type: Symbol,          default: self.type
       define_field :Subtype,          type: Symbol,          required: true, default: :Image
       define_field :Width,            type: Integer,         required: true
       define_field :Height,           type: Integer,         required: true

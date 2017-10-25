@@ -44,6 +44,8 @@ module HexaPDF
     # See: PDF1.7 s12.2, Catalog
     class ViewerPreferences < Dictionary
 
+      define_type :XXViewerPreferences
+
       define_field :HideToolbar,           type: Boolean, default: false
       define_field :HideMenubar,           type: Boolean, default: false
       define_field :HideWindowUI,          type: Boolean, default: false
@@ -61,11 +63,6 @@ module HexaPDF
       define_field :PickTrayByPDFSize,     type: Boolean, version: '1.7'
       define_field :PrintPageRange,        type: Array,   version: '1.7'
       define_field :NumCopies,             type: Integer, version: '1.7'
-
-      # Returns +:XXViewerPreferences+.
-      def type
-        :XXViewerPreferences
-      end
 
     end
 

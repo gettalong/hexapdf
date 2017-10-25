@@ -63,21 +63,19 @@ module HexaPDF
       # The type used for the /EF field of a FileSpecification
       class EFDictionary < Dictionary
 
+        define_type :XXFilespecEFDictionary
+
         define_field :F,    type: :EmbeddedFile
         define_field :UF,   type: :EmbeddedFile
         define_field :DOS,  type: :EmbeddedFile
         define_field :Mac,  type: :EmbeddedFile
         define_field :Unix, type: :EmbeddedFile
 
-        # Returns +:XXFilespecEFDictionary+
-        def type
-          :XXFilespecEFDictionary
-        end
-
       end
 
+      define_type :Filespec
 
-      define_field :Type, type: Symbol, default: :Filespec, required: true
+      define_field :Type, type: Symbol, default: self.type, required: true
       define_field :FS,   type: Symbol
       define_field :F,    type: PDFByteString
       define_field :UF,   type: String, version: '1.7'

@@ -47,6 +47,8 @@ module HexaPDF
     # See: PDF1.7 s7.7.4, HexaPDF::Catalog, HexaPDF::NameTreeNode
     class Names < Dictionary
 
+      define_type :XXNames
+
       define_field :Dests,                  type: NameTreeNode, version: '1.2'
       define_field :AP,                     type: NameTreeNode, version: '1.3'
       define_field :JavaScript,             type: NameTreeNode, version: '1.3'
@@ -57,11 +59,6 @@ module HexaPDF
       define_field :EmbeddedFiles,          type: NameTreeNode, version: '1.4'
       define_field :AlternatePresentations, type: NameTreeNode, version: '1.4'
       define_field :Renditions,             type: NameTreeNode, version: '1.5'
-
-      # Returns +:XXNames+.
-      def type
-        :XXNames
-      end
 
     end
 

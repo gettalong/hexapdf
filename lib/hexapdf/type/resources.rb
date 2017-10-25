@@ -44,6 +44,8 @@ module HexaPDF
     # See: PDF1.7 s7.8.3
     class Resources < Dictionary
 
+      define_type :XXResources
+
       define_field :ExtGState, type: Dictionary
       define_field :ColorSpace, type: Dictionary
       define_field :Pattern, type: Dictionary
@@ -52,11 +54,6 @@ module HexaPDF
       define_field :Font, type: Dictionary
       define_field :ProcSet, type: Array
       define_field :Properties, type: Dictionary, version: '1.2'
-
-      # Returns +:XXResources+.
-      def type
-        :XXResources
-      end
 
       # Returns the color space stored under the given name.
       #

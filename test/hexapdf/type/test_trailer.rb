@@ -16,10 +16,6 @@ describe HexaPDF::Type::Trailer do
     @obj = HexaPDF::Type::Trailer.new({Size: 10, Root: root}, document: @doc)
   end
 
-  it "uses a custom type" do
-    assert_equal(:XXTrailer, @obj.type)
-  end
-
   it "returns the catalog object, creating it if needed" do
     doc = Minitest::Mock.new
     doc.expect(:add, :val, [{Type: :Catalog}])

@@ -46,7 +46,9 @@ module HexaPDF
 
       extend Utils::BitField
 
-      define_field :Type,         type: Symbol,        required: true, default: :FontDescriptor
+      define_type :FontDescriptor
+
+      define_field :Type,         type: Symbol,        required: true, default: self.type
       define_field :FontName,     type: Symbol,        required: true
       define_field :FontFamily,   type: PDFByteString, version: '1.5'
       define_field :FontStretch,  type: Symbol,        version: '1.5'

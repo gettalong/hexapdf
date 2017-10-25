@@ -55,6 +55,8 @@ module HexaPDF
     #      XRefStream
     class Trailer < Dictionary
 
+      define_type :XXTrailer
+
       define_field :Size,    type: Integer, indirect: false # will be auto-set when written
       define_field :Prev,    type: Integer
       define_field :Root,    type: :Catalog, indirect: true
@@ -62,11 +64,6 @@ module HexaPDF
       define_field :Info,    type: :XXInfo, indirect: true
       define_field :ID,      type: Array
       define_field :XRefStm, type: Integer, version: '1.5'
-
-      # Returns +:XXTrailer+.
-      def type
-        :XXTrailer
-      end
 
       # Returns the document's Catalog (see Type::Catalog), creating it if needed.
       def catalog

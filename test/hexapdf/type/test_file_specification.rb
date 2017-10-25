@@ -6,13 +6,6 @@ require 'stringio'
 require 'hexapdf/type/file_specification'
 require 'hexapdf/document'
 
-describe HexaPDF::Type::FileSpecification::EFDictionary do
-  it "uses a custom type" do
-    obj = HexaPDF::Type::FileSpecification::EFDictionary.new({})
-    assert_equal(:XXFilespecEFDictionary, obj.type)
-  end
-end
-
 describe HexaPDF::Type::FileSpecification do
   before do
     @doc = HexaPDF::Document.new
