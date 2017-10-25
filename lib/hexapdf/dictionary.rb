@@ -254,7 +254,7 @@ module HexaPDF
     def perform_validation(&block)
       super
       each_set_key_or_required_field do |name, field|
-        obj = key?(name) && self[name] || nil
+        obj = key?(name) ? self[name] : nil
 
         # Validate nested objects
         validate_nested(obj, &block)
