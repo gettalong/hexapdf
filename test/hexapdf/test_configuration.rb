@@ -57,9 +57,9 @@ describe HexaPDF::Configuration do
     end
 
     it "returns a constant for a nested option" do
-      @config['test'] = {'test' => 'HexaPDF', 'const' => HexaPDF}
-      assert_equal(HexaPDF, @config.constantize('test', 'test'))
-      assert_equal(HexaPDF, @config.constantize('test', 'const'))
+      @config['test'] = {'test' => ['HexaPDF'], 'const' => {'const' => HexaPDF}}
+      assert_equal(HexaPDF, @config.constantize('test', 'test', 0))
+      assert_equal(HexaPDF, @config.constantize('test', 'const', 'const'))
 
       @config['test'] = ['HexaPDF', HexaPDF]
       assert_equal(HexaPDF, @config.constantize('test', 0))

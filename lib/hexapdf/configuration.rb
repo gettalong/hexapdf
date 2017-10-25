@@ -104,26 +104,26 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   config.constantize(name, key = nil)                  -> constant
-    #   config.constantize(name, key = nil) {|name| block}   -> obj
+    #   config.constantize(name, *keys)                  -> constant
+    #   config.constantize(name, *keys) {|name| block}   -> obj
     #
-    # Returns the constant the option +name+ is referring to. If +key+ is provided and the value
-    # of the option +name+ responds to \#[], the constant to which +key+ refers is returned.
+    # Returns the constant the option +name+ is referring to. If +keys+ are provided and the value
+    # of the option +name+ responds to \#dig, the constant to which the keys refer is returned.
     #
     # If no constant can be found and no block is provided, an error is raised. If a block is
     # provided it is called with the option name and its result will be returned.
     #
     #   config.constantize('encryption.aes')      #=> HexaPDF::Encryption::FastAES
     #   config.constantize('filter.map', :Fl)     #=> HexaPDF::Filter::FlateDecode
-    def constantize(name, key = :__unset)
+    def constantize(name, *keys)
       data = self[name]
-      data = data[key] if key != :__unset && data.respond_to?(:[])
+      data = data.dig(*keys) if data.respond_to?(:dig)
       (data = ::Object.const_get(data) rescue nil) if data.kind_of?(String)
       if data.nil? && block_given?
         data = yield(name)
       elsif data.nil?
         raise HexaPDF::Error, "Error getting constant for configuration option '#{name}'" <<
-          (key == :__unset ? "" : " and key '#{key}'")
+          (keys.empty? ? "" : " and keys '#{keys.join(', ')}'")
       end
       data
     end
