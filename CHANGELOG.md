@@ -57,6 +57,7 @@
 * One-off error in [HexaPDF::Filter::LZWDecode]
 * [HexaPDF::Configuration#merge] to duplicate array values to avoid unwanted
   modifications
+* [HexaPDF::Dictionary#key?] to return false if the key is present but nil
 
 
 ## 0.5.0 - 2017-06-24

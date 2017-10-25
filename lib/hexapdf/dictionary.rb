@@ -166,9 +166,9 @@ module HexaPDF
       end
     end
 
-    # Returns +true+ if the given key is present in the dictionary.
+    # Returns +true+ if the given key is present in the dictionary and not +nil+.
     def key?(key)
-      value.key?(key)
+      !value[key].nil?
     end
 
     # Deletes the name-value pair from the dictionary and returns the value. If such a pair does

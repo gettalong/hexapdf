@@ -166,6 +166,21 @@ describe HexaPDF::Dictionary do
     end
   end
 
+  describe "key?" do
+    it "returns false for unset keys" do
+      refute(@dict.key?(:UnsetKey))
+    end
+
+    it "returns false for keys with a nil value" do
+      @dict[:NilKey] = nil
+      refute(@dict.key?(:NilKey))
+    end
+
+    it "returns true for keys with a non-nil value" do
+      assert(@dict.key?(:Other))
+    end
+  end
+
   describe "validate_fields" do
     before do
       @test_class.define_field(:Inherited, type: [Array, Symbol], required: true, indirect: false)
