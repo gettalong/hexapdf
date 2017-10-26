@@ -364,6 +364,7 @@ module HexaPDF
                       'parser.on_correctable_error' => proc { false },
                       'sorted_tree.max_leaf_node_size' => 64,
                       'style.layers_map' => {
+                        link: 'HexaPDF::Layout::Style::LinkLayer',
                       },
                       'task.map' => {
                         optimize: 'HexaPDF::Task::Optimize',

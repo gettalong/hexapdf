@@ -5,6 +5,7 @@ require_relative '../content/common'
 require 'hexapdf/document'
 require 'hexapdf/layout/style'
 require 'hexapdf/layout/text_layouter'
+require 'hexapdf/layout/box'
 
 describe HexaPDF::Layout::Style::LineSpacing do
   before do
@@ -408,6 +409,75 @@ describe HexaPDF::Layout::Style::Layers do
            [:restore_graphics_state]]
     assert_operators(canvas.contents, ops)
     assert_equal({option: :value}, value)
+  end
+end
+
+describe HexaPDF::Layout::Style::LinkLayer do
+  describe "initialize" do
+    it "fails if more than one possible target is chosen" do
+      assert_raises(ArgumentError) { HexaPDF::Layout::Style::LinkLayer.new(dest: true, uri: true) }
+      assert_raises(ArgumentError) { HexaPDF::Layout::Style::LinkLayer.new(dest: true, file: true) }
+      assert_raises(ArgumentError) { HexaPDF::Layout::Style::LinkLayer.new(uri: true, file: true) }
+    end
+
+    it "fails if an invalid border is provided" do
+      assert_raises(ArgumentError) { HexaPDF::Layout::Style::LinkLayer.new(border: 5) }
+    end
+  end
+
+  describe "call" do
+    before do
+      @canvas = HexaPDF::Document.new.pages.add.canvas
+      @canvas.translate(10, 10)
+      @box = HexaPDF::Layout::Box.new(width: 15, height: 10)
+    end
+
+    def call_link(hash)
+      link = HexaPDF::Layout::Style::LinkLayer.new(hash)
+      link.call(@canvas, @box)
+      @canvas.context[:Annots][0]
+    end
+
+    it "sets general values like /Rect and /QuadPoints" do
+      annot = call_link(dest: true)
+      assert_equal(:Link, annot[:Subtype])
+      assert_equal([10, 10, 25, 20], annot[:Rect].value)
+      assert_equal([10, 10, 25, 10, 25, 20, 10, 20], annot[:QuadPoints])
+    end
+
+    it "removes the border by default" do
+      annot = call_link(dest: true)
+      assert_equal([0, 0, 0], annot[:Border])
+    end
+
+    it "uses a default border if no specific border style is specified" do
+      annot = call_link(dest: true, border: true)
+      assert_equal([0, 0, 1], annot[:Border])
+    end
+
+    it "uses the specified border and border color" do
+      annot = call_link(dest: true, border: [10, 10, 2], border_color: [255])
+      assert_equal([10, 10, 2], annot[:Border])
+      assert_equal([1.0], annot[:C])
+    end
+
+    it "works for simple destinations" do
+      annot = call_link(dest: [@canvas.context, :FitH])
+      assert_equal([@canvas.context, :FitH], annot[:Dest])
+      assert_nil(annot[:A])
+    end
+
+    it "works for URIs" do
+      annot = call_link(uri: "test.html")
+      assert_equal({S: :URI, URI: "test.html"}, annot[:A].value)
+      assert_nil(annot[:Dest])
+    end
+
+    it "works for files" do
+      annot = call_link(file: "local-file.pdf")
+      assert_equal({S: :Launch, F: "local-file.pdf", NewWindow: true}, annot[:A].value)
+      assert_nil(annot[:Dest])
+    end
   end
 end
 

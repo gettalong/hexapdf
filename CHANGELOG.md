@@ -16,6 +16,8 @@
   GoToR, Launch and URI actions
 * [HexaPDF::Type::Annotation] as well as specific implementations for the Text
   Link annotations
+* [HexaPDF::Layout::Style::LinkLayer] for easy adding of in-document, URI and
+  file links
 
 ### Changed
 

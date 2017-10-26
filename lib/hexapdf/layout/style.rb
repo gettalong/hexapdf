@@ -413,6 +413,82 @@ module HexaPDF
 
       end
 
+      # The LinkLayer class provides support for linking to in-document or remote destinations for
+      # Style objects using link annotations. Typical use cases would be linking to a (named)
+      # destination on a different page or executing a URI action.
+      #
+      # See: PDF1.7 s12.5.6.6, Layers, HexaPDF::Type::Annotations::Link
+      class LinkLayer
+
+        # Creates a new LinkLayer object.
+        #
+        # The following arguments are allowed (note that only *one* of +dest+, +uri+ or +file+ may
+        # be specified):
+        #
+        # +dest+::
+        #   The destination array or a name of a named destination for in-document links.
+        #
+        # +uri+::
+        #   The URI to link to.
+        #
+        # +file+::
+        #   The file that should be opened or, if it refers to an application, the application that
+        #   should be launched. Can either be a string or a Filespec object. Also see:
+        #   HexaPDF::Type::FileSpecification.
+        #
+        # +border+::
+        #   If set to +true+, a standard border is used. Also accepts an array that adheres to the
+        #   rules for annotation borders.
+        #
+        # +border_color+::
+        #   Defines the border color. Can be an array with 0 (transparent), 1 (grayscale), 3 (RGB)
+        #   or 4 (CMYK) values.
+        #
+        # Examples:
+        #   LinkLayer.new(dest: [page, :XYZ, nil, nil, nil], border: true)
+        #   LinkLayer.new(uri: "https://my.example.com/path", border: [5 5 2])
+        def initialize(dest: nil, uri: nil, file: nil, border: false, border_color: nil)
+          if dest && (uri || file) || uri && file
+            raise ArgumentError, "Only one of dest, uri and file is allowed"
+          end
+          @dest = dest
+          @action = if uri
+                      {S: :URI, URI: uri}
+                    elsif file
+                      {S: :Launch, F: file, NewWindow: true}
+                    end
+          @border = case border
+                    when false then [0, 0, 0]
+                    when true then nil
+                    when Array then border
+                    else raise ArgumentError, "Invalid value for border: #{border}"
+                    end
+          @border_color = border_color
+        end
+
+        # Creates the needed link annotation if possible, i.e. if the context of the canvas is a page.
+        def call(canvas, box)
+          return unless canvas.context.type == :Page
+          page = canvas.context
+          matrix = canvas.graphics_state.ctm
+          quad_points = [*matrix.evaluate(0, 0), *matrix.evaluate(box.width, 0),
+                         *matrix.evaluate(box.width, box.height), *matrix.evaluate(0, box.height)]
+          x_minmax = quad_points.values_at(0, 2, 4, 6).minmax
+          y_minmax = quad_points.values_at(1, 3, 5, 7).minmax
+          annot = {
+            Subtype: :Link,
+            Rect: [x_minmax[0], y_minmax[0], x_minmax[1], y_minmax[1]],
+            QuadPoints: quad_points,
+            Dest: @dest,
+            A: @action,
+            Border: @border,
+            C: @border_color && canvas.color_from_specification(@border_color).components,
+          }
+          (page[:Annots] ||= []) << page.document.add(annot)
+        end
+
+      end
+
       UNSET = ::Object.new # :nodoc:
 
       # Creates a new Style object.
