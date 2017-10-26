@@ -39,9 +39,10 @@ def draw_text(layouter, canvas, x, y)
 end
 
 doc = HexaPDF::Document.new
+canvas = doc.pages.add.canvas
 
 base_font = doc.fonts.add(ARGV[0] || "Times")
-base_style = {font: base_font, font_size: 15, text_indent: 20}
+base_style = {font: base_font, font_size: 12, text_indent: 20}
 styles = {
   "Fonts | Font Sizes | Colors" => [
     {font: doc.fonts.add("Times", variant: :italic),
@@ -86,9 +87,20 @@ styles = {
          line(0, -box.y_min, box.width, box.y_max - box.y_min).stroke
       end]},
   ],
+  "Links" => [
+    {**base_style, overlays: [
+      [:link, dest: [canvas.context, :FitR, 100, 300, 200, 400]],
+    ]},
+    {**base_style, overlays: [
+      [:link, uri: "https://hexapdf.gettalong.org",
+       border: [0, 0, 2, [3, 3]], border_color: [89, 150, 220]],
+    ]},
+    {**base_style, overlays: [
+      [:link, file: "text_layouter_styling.pdf", border: true],
+    ]},
+  ],
 }
 
-canvas = doc.pages.add.canvas
 y = 800
 left = 50
 width = 500
