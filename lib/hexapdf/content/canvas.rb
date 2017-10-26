@@ -1848,6 +1848,18 @@ module HexaPDF
         self
       end
 
+      # Creates a color object from the given color specification. See #stroke_color for details
+      # on the possible color specifications.
+      def color_from_specification(spec)
+        if spec.length == 1 && spec[0].kind_of?(String)
+          resources.color_space(:DeviceRGB).color(*spec[0].scan(/../).map!(&:hex))
+        elsif spec.length == 1 && spec[0].respond_to?(:color_space)
+          spec[0]
+        else
+          resources.color_space(color_space_for_components(spec)).color(*spec)
+        end
+      end
+
       private
 
       # Invokes the given operator with the operands and serializes it.
@@ -1979,18 +1991,6 @@ module HexaPDF
           raise ArgumentError, "Block only allowed with arguments"
         else
           graphics_state.send(name)
-        end
-      end
-
-      # Creates a color object from the given color specification. See #stroke_color for details
-      # on the possible color specifications.
-      def color_from_specification(spec)
-        if spec.length == 1 && spec[0].kind_of?(String)
-          resources.color_space(:DeviceRGB).color(*spec[0].scan(/../).map!(&:hex))
-        elsif spec.length == 1 && spec[0].respond_to?(:color_space)
-          spec[0]
-        else
-          resources.color_space(color_space_for_components(spec)).color(*spec)
         end
       end
 
