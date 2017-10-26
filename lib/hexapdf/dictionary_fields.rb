@@ -325,24 +325,26 @@ module HexaPDF
     # converted to the corresponding file specification dictionary.
     module FileSpecificationConverter
 
-      # This converter is only used for the :FileSpec type.
+      # This converter is only used for the :Filespec type.
       def self.usable_for?(type)
         type == :Filespec
       end
 
-      # FileSpecs can also be simple hashes or strings.
+      # Filespecs can also be simple hashes or strings.
       def self.additional_types
         [Hash, String]
       end
 
       # Returns +true+ if the given data is a string file specification.
-      def self.convert?(data, _type)
-        data.kind_of?(String)
+      def self.convert?(data, type)
+        !data.kind_of?(type.first) &&
+          (data.kind_of?(Hash) || data.kind_of?(HexaPDF::Dictionary) || data.kind_of?(String))
       end
 
-      # Converts the string file specification into a full file specification.
+      # Converts a string file specification or a hash into a full file specification.
       def self.convert(data, type, document)
-        document.wrap({F: data}, type: type.first)
+        data = {F: data} if data.kind_of?(String)
+        document.wrap(data, type: type.first)
       end
 
     end

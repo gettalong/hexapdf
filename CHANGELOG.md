@@ -61,6 +61,9 @@
 * [HexaPDF::Configuration#merge] to duplicate array values to avoid unwanted
   modifications
 * [HexaPDF::Dictionary#key?] to return false if the key is present but nil
+* [HexaPDF::DictionaryFields::FileSpecificationConverter] to convert hash and
+  dictionaries
+* Field /F definition in [HexaPDF::Stream]
 
 
 ## 0.5.0 - 2017-06-24

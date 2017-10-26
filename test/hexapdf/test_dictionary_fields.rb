@@ -154,11 +154,20 @@ describe HexaPDF::DictionaryFields do
     end
 
     it "allows conversion from a string" do
-      refute(@field.convert?({}))
+      assert(@field.convert?("test"))
 
       @doc = Minitest::Mock.new
       @doc.expect(:wrap, :data, [{F: 'test'}, {type: HexaPDF::Type::FileSpecification}])
       @field.convert('test', @doc)
+      @doc.verify
+    end
+
+    it "allows conversion from a hash/dictionary" do
+      assert(@field.convert?({}))
+
+      @doc = Minitest::Mock.new
+      @doc.expect(:wrap, :data, [{F: 'test'}, {type: HexaPDF::Type::FileSpecification}])
+      @field.convert({F: 'test'}, @doc)
       @doc.verify
     end
   end
