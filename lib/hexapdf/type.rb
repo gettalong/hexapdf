@@ -32,6 +32,7 @@
 #++
 
 require 'hexapdf/type/actions'
+require 'hexapdf/type/annotations'
 
 module HexaPDF
 

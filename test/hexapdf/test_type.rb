@@ -11,5 +11,8 @@ describe HexaPDF::Type do
     HexaPDF::Type::Actions.constants.each do |const|
       HexaPDF::Type::Actions.const_get(const) # no assert needed here
     end
+    HexaPDF::Type::Annotations.constants.each do |const|
+      HexaPDF::Type::Annotations.const_get(const) # no assert needed here
+    end
   end
 end

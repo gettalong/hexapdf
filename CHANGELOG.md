@@ -14,6 +14,8 @@
   callback objects for [HexaPDF::Layout::Style]
 * [HexaPDF::Type::Action] as well as specific implementations for the GoTo,
   GoToR, Launch and URI actions
+* [HexaPDF::Type::Annotation] as well as specific implementations for the Text
+  Link annotations
 
 ### Changed
 
