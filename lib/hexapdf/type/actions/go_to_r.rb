@@ -31,41 +31,24 @@
 # is created or manipulated using HexaPDF.
 #++
 
-require 'hexapdf/type/actions'
+require 'hexapdf/type/action'
 
 module HexaPDF
-
-  # == Overview
-  #
-  # The Type module contains implementations of the types defined in the PDF specification.
-  #
-  # Each type class is derived from either the Dictionary class or the Stream class, depending on
-  # whether the type has an associated stream.
   module Type
+    module Actions
 
-    autoload(:XRefStream, 'hexapdf/type/xref_stream')
-    autoload(:ObjectStream, 'hexapdf/type/object_stream')
-    autoload(:Trailer, 'hexapdf/type/trailer')
-    autoload(:Info, 'hexapdf/type/info')
-    autoload(:Catalog, 'hexapdf/type/catalog')
-    autoload(:ViewerPreferences, 'hexapdf/type/viewer_preferences')
-    autoload(:PageTreeNode, 'hexapdf/type/page_tree_node')
-    autoload(:Page, 'hexapdf/type/page')
-    autoload(:Names, 'hexapdf/type/names')
-    autoload(:FileSpecification, 'hexapdf/type/file_specification')
-    autoload(:EmbeddedFile, 'hexapdf/type/embedded_file')
-    autoload(:Resources, 'hexapdf/type/resources')
-    autoload(:GraphicsStateParameter, 'hexapdf/type/graphics_state_parameter')
-    autoload(:Image, 'hexapdf/type/image')
-    autoload(:Form, 'hexapdf/type/form')
-    autoload(:Font, 'hexapdf/type/font')
-    autoload(:FontDescriptor, 'hexapdf/type/font_descriptor')
-    autoload(:FontSimple, 'hexapdf/type/font_simple')
-    autoload(:FontType1, 'hexapdf/type/font_type1')
-    autoload(:FontTrueType, 'hexapdf/type/font_true_type')
-    autoload(:FontType0, 'hexapdf/type/font_type0')
-    autoload(:CIDFont, 'hexapdf/type/cid_font')
+      # A remote Go-To action dictionary jumps to a destination in a different PDF file.
+      #
+      # See: PDF1.7 s12.6.4.3
+      class GoToR < Action
 
+        define_field :S,         type: Symbol, required: true, default: :GoToR
+        define_field :F,         type: :Filespec, required: true
+        define_field :D,         type: [Symbol, PDFByteString, Array], required: true
+        define_field :NewWindow, type: Boolean, version: '1.2'
+
+      end
+
+    end
   end
-
 end

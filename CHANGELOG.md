@@ -12,6 +12,8 @@
 * Convenience methods for getting underline and strikeout properties from fonts
 * Configuration option 'style.layers_map' for pre-defining overlay and underlay
   callback objects for [HexaPDF::Layout::Style]
+* [HexaPDF::Type::Action] as well as specific implementations for the GoTo,
+  GoToR, Launch and URI actions
 
 ### Changed
 

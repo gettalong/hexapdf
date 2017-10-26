@@ -31,41 +31,26 @@
 # is created or manipulated using HexaPDF.
 #++
 
-require 'hexapdf/type/actions'
+require 'hexapdf/dictionary'
 
 module HexaPDF
-
-  # == Overview
-  #
-  # The Type module contains implementations of the types defined in the PDF specification.
-  #
-  # Each type class is derived from either the Dictionary class or the Stream class, depending on
-  # whether the type has an associated stream.
   module Type
 
-    autoload(:XRefStream, 'hexapdf/type/xref_stream')
-    autoload(:ObjectStream, 'hexapdf/type/object_stream')
-    autoload(:Trailer, 'hexapdf/type/trailer')
-    autoload(:Info, 'hexapdf/type/info')
-    autoload(:Catalog, 'hexapdf/type/catalog')
-    autoload(:ViewerPreferences, 'hexapdf/type/viewer_preferences')
-    autoload(:PageTreeNode, 'hexapdf/type/page_tree_node')
-    autoload(:Page, 'hexapdf/type/page')
-    autoload(:Names, 'hexapdf/type/names')
-    autoload(:FileSpecification, 'hexapdf/type/file_specification')
-    autoload(:EmbeddedFile, 'hexapdf/type/embedded_file')
-    autoload(:Resources, 'hexapdf/type/resources')
-    autoload(:GraphicsStateParameter, 'hexapdf/type/graphics_state_parameter')
-    autoload(:Image, 'hexapdf/type/image')
-    autoload(:Form, 'hexapdf/type/form')
-    autoload(:Font, 'hexapdf/type/font')
-    autoload(:FontDescriptor, 'hexapdf/type/font_descriptor')
-    autoload(:FontSimple, 'hexapdf/type/font_simple')
-    autoload(:FontType1, 'hexapdf/type/font_type1')
-    autoload(:FontTrueType, 'hexapdf/type/font_true_type')
-    autoload(:FontType0, 'hexapdf/type/font_type0')
-    autoload(:CIDFont, 'hexapdf/type/cid_font')
+    # Represents a generic PDF action dictionary.
+    #
+    # Action dictionaries are used, for example, by annotations or outline items to specify the
+    # action that should be performed. Each action class should be defined under the Actions module.
+    #
+    # See: PDF1.7 s12.6
+    class Action < Dictionary
+
+      define_type :Action
+
+      define_field :Type, type: Symbol, default: self.type
+      define_field :S,    type: Symbol, required: true
+      define_field :Next, type: [Dictionary, Hash, Array], version: '1.2'
+
+    end
 
   end
-
 end

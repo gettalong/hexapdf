@@ -440,6 +440,8 @@ module HexaPDF
                         XXResources: 'HexaPDF::Type::Resources',
                         XXTrailer: 'HexaPDF::Type::Trailer',
                         XXViewerPreferences: 'HexaPDF::Type::ViewerPreferences',
+                        Action: 'HexaPDF::Type::Action',
+                        XXLaunchActionWinParameters: 'HexaPDF::Type::Actions::Launch::WinParameters',
                       },
                       'object.subtype_map' => {
                         nil => {
@@ -450,6 +452,10 @@ module HexaPDF
                           TrueType: 'HexaPDF::Type::FontTrueType',
                           CIDFontType0: 'HexaPDF::Type::CIDFont',
                           CIDFontType2: 'HexaPDF::Type::CIDFont',
+                          GoTo: 'HexaPDF::Type::Actions::GoTo',
+                          GoToR: 'HexaPDF::Type::Actions::GoToR',
+                          Launch: 'HexaPDF::Type::Actions::Launch',
+                          URI: 'HexaPDF::Type::Actions::URI',
                         },
                         XObject: {
                           Image: 'HexaPDF::Type::Image',
@@ -461,6 +467,12 @@ module HexaPDF
                           TrueType: 'HexaPDF::Type::FontTrueType',
                           CIDFontType0: 'HexaPDF::Type::CIDFont',
                           CIDFontType2: 'HexaPDF::Type::CIDFont',
+                        },
+                        Action: {
+                          GoTo: 'HexaPDF::Type::Actions::GoTo',
+                          GoToR: 'HexaPDF::Type::Actions::GoToR',
+                          Launch: 'HexaPDF::Type::Actions::Launch',
+                          URI: 'HexaPDF::Type::Actions::URI',
                         },
                       })
 
