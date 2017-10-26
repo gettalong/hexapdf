@@ -48,31 +48,31 @@ module HexaPDF
 
       define_type :FontDescriptor
 
-      define_field :Type,         type: Symbol,        required: true, default: self.type
-      define_field :FontName,     type: Symbol,        required: true
+      define_field :Type,         type: Symbol, required: true, default: self.type
+      define_field :FontName,     type: Symbol, required: true
       define_field :FontFamily,   type: PDFByteString, version: '1.5'
-      define_field :FontStretch,  type: Symbol,        version: '1.5'
-      define_field :FontWeight,   type: Numeric,       version: '1.5'
-      define_field :Flags,        type: Integer,       required: true
+      define_field :FontStretch,  type: Symbol, version: '1.5'
+      define_field :FontWeight,   type: Numeric, version: '1.5'
+      define_field :Flags,        type: Integer, required: true
       define_field :FontBBox,     type: Rectangle
-      define_field :ItalicAngle,  type: Numeric,       required: true
+      define_field :ItalicAngle,  type: Numeric, required: true
       define_field :Ascent,       type: Numeric
       define_field :Descent,      type: Numeric
-      define_field :Leading,      type: Numeric,       default: 0
+      define_field :Leading,      type: Numeric, default: 0
       define_field :CapHeight,    type: Numeric
-      define_field :XHeight,      type: Numeric,       default: 0
+      define_field :XHeight,      type: Numeric, default: 0
       define_field :StemV,        type: Numeric
-      define_field :StemH,        type: Numeric,       default: 0
-      define_field :AvgWidth,     type: Numeric,       default: 0
-      define_field :MaxWidth,     type: Numeric,       default: 0
-      define_field :MissingWidth, type: Numeric,       default: 0
+      define_field :StemH,        type: Numeric, default: 0
+      define_field :AvgWidth,     type: Numeric, default: 0
+      define_field :MaxWidth,     type: Numeric, default: 0
+      define_field :MissingWidth, type: Numeric, default: 0
       define_field :FontFile,     type: Stream
-      define_field :FontFile2,    type: Stream,        version: '1.1'
-      define_field :FontFile3,    type: Stream,        version: '1.2'
-      define_field :CharSet,      type: [String,       PDFByteString], version: '1.1'
+      define_field :FontFile2,    type: Stream, version: '1.1'
+      define_field :FontFile3,    type: Stream, version: '1.2'
+      define_field :CharSet,      type: [String, PDFByteString], version: '1.1'
 
       define_field :Style,        type: Dictionary
-      define_field :Lang,         type: Symbol,        version: '1.5'
+      define_field :Lang,         type: Symbol, version: '1.5'
       define_field :FD,           type: Dictionary
       define_field :CIDSet,       type: Stream
 
