@@ -42,18 +42,16 @@ module HexaPDF
     # The byte position in the PDF file where the error occured.
     attr_reader :pos
 
-    # Creates a new malformed PDF error object for the given exception or exception message.
+    # Creates a new malformed PDF error object for the given exception message.
     #
-    # The byte position where the error occured can be given via the optional +pos+ argument.
-    def initialize(msg_or_error, pos: nil)
-      super(msg_or_error)
-      set_backtrace(msg_or_error.backtrace) if msg_or_error.kind_of?(Exception)
+    # The byte position where the error occured has to be given via the +pos+ argument.
+    def initialize(message, pos:)
+      super(message)
       @pos = pos
     end
 
     def message # :nodoc:
-      pos_msg = @pos.nil? ? '' : " around position #{pos}"
-      "PDF malformed#{pos_msg}: #{super}"
+      "PDF malformed around position #{pos}: #{super}"
     end
 
   end

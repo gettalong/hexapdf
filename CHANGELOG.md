@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::MalformedPDFError.new] method signature
+
+
 ## 0.6.0 - 2017-10-27
 
 ### Added
