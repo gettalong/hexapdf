@@ -11,7 +11,7 @@ describe HexaPDF::Font::Type1::AFMParser do
   describe "::parse" do
     before do
       @file = Tempfile.new('hexapdf-afm')
-      @file.write("StartFontMetrics 4.1\nFontName Test\nEndFontMetrics\n")
+      @file.write("StartFontMetrics 4.1\nFontName Test\nEndFontMetrics\nFontName Other\n")
       @file.close
     end
 

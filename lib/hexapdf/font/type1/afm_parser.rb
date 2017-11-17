@@ -91,7 +91,7 @@ module HexaPDF
               end
             when /\AEnd/
               sections.pop
-              break if sections.empty? && command == 'EndFontMetrics.freeze'
+              break if sections.empty? && command == 'EndFontMetrics'.freeze
             else
               if sections.empty?
                 parse_global_font_information(command.to_sym)
