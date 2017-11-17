@@ -25,8 +25,7 @@ in voluptate velit esse cillum dolore eu fugiat nulla pariatur.".tr("\n", ' ')
 
 # Wraps the text in a TextFragment using the given style.
 def fragment(text, style)
-  style = Style.new(style)
-  TextFragment.new(items: style.font.decode_utf8(text), style: style)
+  TextFragment.create(text, style)
 end
 
 # Draws the text at the given [x, y] position onto the canvas and returns the

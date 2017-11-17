@@ -16,15 +16,23 @@ describe HexaPDF::Layout::TextFragment do
     style = HexaPDF::Layout::Style.new(font: @font, font_size: 20,
                                        horizontal_scaling: 200, character_spacing: 1,
                                        word_spacing: 2, text_rise: text_rise)
-    @fragment = HexaPDF::Layout::TextFragment.new(items: items, style: style)
+    @fragment = HexaPDF::Layout::TextFragment.new(items, style)
   end
 
-  it "creates a TextFragment from text and options" do
-    frag = HexaPDF::Layout::TextFragment.create("Tom", font: @font, font_size: 20,
-                                                font_features: {kern: true})
-    assert_equal(4, frag.items.length)
-    assert_equal(36.18, frag.width)
-    assert_equal(13.66 + 4.34, frag.height)
+  describe "create" do
+    it "creates a TextFragment from text and options" do
+      frag = HexaPDF::Layout::TextFragment.create("Tom", font: @font, font_size: 20,
+                                                  font_features: {kern: true})
+      assert_equal(4, frag.items.length)
+      assert_equal(36.18, frag.width)
+      assert_equal(13.66 + 4.34, frag.height)
+    end
+
+    it "creates a TextFragment from text and a Style object" do
+      style = HexaPDF::Layout::Style.new(font: @font)
+      frag = HexaPDF::Layout::TextFragment.create("Tom", style)
+      assert_equal(style, frag.style)
+    end
   end
 
   describe "initialize" do
@@ -34,12 +42,12 @@ describe HexaPDF::Layout::TextFragment do
 
     it "can use a Style object" do
       style = HexaPDF::Layout::Style.new(font: @font, font_size: 20)
-      frag = HexaPDF::Layout::TextFragment.new(items: @items, style: style)
+      frag = HexaPDF::Layout::TextFragment.new(@items, style)
       assert_equal(20, frag.style.font_size)
     end
 
-    it "can use a style options" do
-      frag = HexaPDF::Layout::TextFragment.new(items: @items, style: {font: @font, font_size: 20})
+    it "can use style options" do
+      frag = HexaPDF::Layout::TextFragment.new(@items, font: @font, font_size: 20)
       assert_equal(20, frag.style.font_size)
     end
   end

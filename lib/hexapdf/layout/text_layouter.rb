@@ -222,14 +222,14 @@ module HexaPDF
                 box_items << glyph if glyph && !glyph.kind_of?(Numeric) && glyph.str == '-'.freeze
 
                 unless box_items.empty?
-                  result << Box.new(TextFragment.new(items: box_items.freeze, style: item.style))
+                  result << Box.new(TextFragment.new(box_items.freeze, item.style))
                 end
 
                 if glyph
                   case glyph.str
                   when ' '
                     glues[item.style] ||=
-                      Glue.new(TextFragment.new(items: [glyph].freeze, style: item.style))
+                      Glue.new(TextFragment.new([glyph].freeze, item.style))
                     result << glues[item.style]
                   when "\n", "\v", "\f", "\u{85}", "\u{2029}"
                     result << Penalty::MandatoryParagraphBreak
@@ -243,14 +243,14 @@ module HexaPDF
                     result << Penalty::Standard
                   when "\t"
                     spaces = [item.style.font.decode_utf8(" ").first] * 8
-                    result << Glue.new(TextFragment.new(items: spaces.freeze, style: item.style))
+                    result << Glue.new(TextFragment.new(spaces.freeze, item.style))
                   when "\u{00AD}"
                     hyphen = item.style.font.decode_utf8("-").first
-                    frag = TextFragment.new(items: [hyphen].freeze, style: item.style)
+                    frag = TextFragment.new([hyphen].freeze, item.style)
                     result << Penalty.new(Penalty::Standard.penalty, frag.width, item: frag)
                   when "\u{00A0}"
                     space = item.style.font.decode_utf8(" ").first
-                    frag = TextFragment.new(items: [space].freeze, style: item.style)
+                    frag = TextFragment.new([space].freeze, item.style)
                     result << Penalty.new(Penalty::ProhibitedBreak.penalty, frag.width, item: frag)
                   when "\u{200B}"
                     result << Penalty.new(0)
@@ -622,7 +622,7 @@ module HexaPDF
           too_wide_box = nil
 
           rest = style.text_line_wrapping_algorithm.call(rest, width_block) do |line, item|
-            line << TextFragment.new(items: [], style: style) if item&.type != :box && line.items.empty?
+            line << TextFragment.new([], style) if item&.type != :box && line.items.empty?
             new_height = @actual_height + line.height +
               (@lines.empty? ? 0 : style.line_spacing.gap(@lines.last, line))
 
@@ -670,7 +670,7 @@ module HexaPDF
           if too_wide_box && too_wide_box.item.kind_of?(TextFragment) &&
               too_wide_box.item.items.size > 1
             rest[0..rest.index(too_wide_box)] = too_wide_box.item.items.map do |item|
-              Box.new(TextFragment.new(items: [item], style: too_wide_box.item.style))
+              Box.new(TextFragment.new([item], too_wide_box.item.style))
             end
             too_wide_box = nil
           else
@@ -764,7 +764,7 @@ module HexaPDF
             frag = line.items[indexes[i]]
             value = -frag.items[indexes[i + 1]].width * adjustment
             if frag.items.frozen?
-              value = HexaPDF::Layout::TextFragment.new(items: [value], style: frag.style)
+              value = HexaPDF::Layout::TextFragment.new([value], frag.style)
               line.items.insert(indexes[i], value)
             else
               frag.items.insert(indexes[i + 1], value)

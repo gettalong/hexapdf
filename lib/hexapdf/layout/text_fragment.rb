@@ -58,10 +58,12 @@ module HexaPDF
 
       # Creates a new TextFragment object for the given text, shapes it and returns it.
       #
-      # The style of the text fragment can be specified using additional options, of which font is
-      # mandatory.
-      def self.create(text, font:, **options)
-        fragment = new(items: font.decode_utf8(text), style: Style.new(font: font, **options))
+      # The needed style of the text fragment can either be specified by the +style+ argument or via
+      # the +options+ (in which case a new Style object is created). Regardless of the way, the
+      # resulting style object needs at least the font set.
+      def self.create(text, style = nil, **options)
+        style = (style.nil? ? Style.new(options) : style)
+        fragment = new(style.font.decode_utf8(text), style)
         TextShaper.new.shape_text(fragment)
       end
 
@@ -99,8 +101,8 @@ module HexaPDF
       # Creates a new TextFragment object with the given items and style.
       #
       # The argument +style+ can either be a Style object or a hash of style options.
-      def initialize(items:, style: Style.new)
-        @items = items || []
+      def initialize(items, style)
+        @items = items
         @style = (style.kind_of?(Style) ? style : Style.new(style))
       end
 

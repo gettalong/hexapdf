@@ -3,6 +3,8 @@
 ### Changed
 
 * [HexaPDF::MalformedPDFError.new] method signature
+* [HexaPDF::Layout::TextFragment.new] and [HexaPDF::Layout::TextFragment.create]
+  method signatures
 
 
 ## 0.6.0 - 2017-10-27

@@ -16,7 +16,7 @@ describe HexaPDF::Layout::TextShaper do
 
   def setup_fragment(items, **options)
     style = HexaPDF::Layout::Style.new(font: @font, font_size: 20, font_features: options)
-    HexaPDF::Layout::TextFragment.new(items: items, style: style)
+    HexaPDF::Layout::TextFragment.new(items, style)
   end
 
   describe "Type1 font features" do

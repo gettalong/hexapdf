@@ -61,7 +61,7 @@ describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
 
   def setup_fragment(text, style = nil)
     if style
-      HexaPDF::Layout::TextFragment.new(items: style.font.decode_utf8(text), style: style)
+      HexaPDF::Layout::TextFragment.create(text, style)
     else
       HexaPDF::Layout::TextFragment.create(text, font: @font)
     end

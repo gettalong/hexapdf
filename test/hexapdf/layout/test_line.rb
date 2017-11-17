@@ -35,7 +35,7 @@ describe HexaPDF::Layout::Line do
   describe "initialize" do
     it "allows setting the items of the line fragment" do
       frag1 = setup_fragment("Hello")
-      frag2 = HexaPDF::Layout::TextFragment.new(items: frag1.items.slice!(3, 2), style: frag1.style)
+      frag2 = HexaPDF::Layout::TextFragment.new(frag1.items.slice!(3, 2), frag1.style)
       line = HexaPDF::Layout::Line.new([frag1, frag2])
       assert_equal(1, line.items.count)
       assert_equal(5, line.items[0].items.count)
@@ -50,7 +50,7 @@ describe HexaPDF::Layout::Line do
 
     it "combines text fragments if possible" do
       frag1 = setup_fragment("Home")
-      frag2 = HexaPDF::Layout::TextFragment.new(items: frag1.items.slice!(2, 2), style: frag1.style)
+      frag2 = HexaPDF::Layout::TextFragment.new(frag1.items.slice!(2, 2), frag1.style)
       @line << setup_fragment("o") << :other << frag1 << frag2
       assert_equal(3, @line.items.length)
       assert_equal(4, @line.items.last.items.length)
@@ -58,7 +58,7 @@ describe HexaPDF::Layout::Line do
 
     it "duplicates the first of two combinable text fragments if its items are frozen" do
       frag1 = setup_fragment("Home")
-      frag2 = HexaPDF::Layout::TextFragment.new(items: frag1.items.slice!(2, 2), style: frag1.style)
+      frag2 = HexaPDF::Layout::TextFragment.new(frag1.items.slice!(2, 2), frag1.style)
       frag1.items.freeze
       frag2.items.freeze
 
