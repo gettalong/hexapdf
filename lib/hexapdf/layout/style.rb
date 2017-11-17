@@ -493,14 +493,23 @@ module HexaPDF
 
       # Creates a new Style object.
       #
-      # The +options+ hash may be used to set the initial values of properties by using keys
+      # The +properties+ hash may be used to set the initial values of properties by using keys
       # equivalent to the property names.
       #
       # Example:
       #   Style.new(font_size: 15, align: :center, valign: center)
-      def initialize(**options)
-        options.each {|key, value| send(key, value)}
+      def initialize(**properties)
+        update(properties)
         @scaled_item_widths = {}
+      end
+
+      # :call-seq:
+      #   style.update(**properties)    -> style
+      #
+      # Updates the style's properties using the key-value pairs specified by the +properties+ hash.
+      def update(**properties)
+        properties.each {|key, value| send(key, value)}
+        self
       end
 
       ##
