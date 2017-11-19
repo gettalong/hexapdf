@@ -48,6 +48,13 @@ module TestTextLayouterHelpers
       assert_equal(item.items, obj.item.items)
     end
   end
+
+  def assert_line_wrapping(result, widths)
+    rest, lines = *result
+    assert(rest.empty?)
+    assert_equal(widths.length, lines.count)
+    widths.each_with_index {|width, index| assert_equal(width, lines[index].width)}
+  end
 end
 
 describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
@@ -163,98 +170,71 @@ module CommonLineWrappingTests
 
   it "breaks before a box if it doesn't fit onto the line anymore" do
     rest, lines = call(boxes(25, 50, 25, 10))
-    assert(rest.empty?)
-    assert_equal(2, lines.count)
+    assert_line_wrapping([rest, lines], [100, 10])
     lines.each {|line| line.items.each {|item| assert_kind_of(HexaPDF::Layout::InlineBox, item)}}
-    assert_equal(100, lines[0].width)
-    assert_equal(10, lines[1].width)
   end
 
   it "breaks at a glue and ignores it if it doesn't fit onto the line anymore" do
-    rest, lines = call(boxes(90, 20).insert(-2, glue(20)))
-    assert(rest.empty?)
-    assert_equal(2, lines.count)
-    assert_equal(90, lines[0].width)
-    assert_equal(20, lines[1].width)
+    result = call(boxes(90) + [glue(20)] + boxes(20))
+    assert_line_wrapping(result, [90, 20])
   end
 
   it "handles spaces at the start of a line" do
-    rest, lines = call(boxes(25, 50).unshift(glue(15)))
-    assert(rest.empty?)
-    assert_equal(1, lines.count)
-    assert_equal(75, lines[0].width)
+    rest, lines = call([glue(15)] + boxes(25, 50))
+    assert_line_wrapping([rest, lines], [75])
     assert_equal(25, lines[0].items[0].width)
   end
 
   it "handles spaces at the end of a line" do
-    rest, lines = call(boxes(20, 50, 20).insert(-2, glue(10)).insert(-2, glue(10)))
-    assert(rest.empty?)
-    assert_equal(2, lines.count)
-    assert_equal(70, lines[0].width)
-    assert_equal(20, lines[1].width)
+    rest, lines = call(boxes(20, 50) + [glue(10), glue(10)] + boxes(20))
+    assert_line_wrapping([rest, lines], [70, 20])
     assert_equal(50, lines[0].items[-1].width)
   end
 
   it "handles spaces at the end of a line before a mandatory break" do
-    rest, lines = call(boxes(20, 50, 20).insert(-2, glue(10)).insert(-2, penalty(-5000)))
-    assert(rest.empty?)
-    assert_equal(2, lines.count)
-    assert_equal(70, lines[0].width)
-    assert_equal(20, lines[1].width)
+    rest, lines = call(boxes(20, 50) + [glue(10), penalty(-5000)] + boxes(20))
+    assert_line_wrapping([rest, lines], [70, 20])
     assert_equal(50, lines[0].items[-1].width)
   end
 
   it "handles multiple glue items after another" do
-    rest, lines = call(boxes(20, 20, 50, 20).insert(1, glue(20)).insert(1, glue(20)))
-    assert(rest.empty?)
-    assert_equal(2, lines.count)
-    assert_equal(80, lines[0].width)
-    assert_equal(70, lines[1].width)
+    result = call(boxes(20) + [glue(20), glue(20)] + boxes(20, 50, 20))
+    assert_line_wrapping(result, [80, 70])
   end
 
   it "handles mandatory line breaks" do
-    rest, lines = call(boxes(20, 20).insert(-2, penalty(-5000)))
-    assert(rest.empty?)
-    assert_equal(2, lines.count)
-    assert_equal(20, lines[0].width)
-    assert_equal(20, lines[1].width)
+    rest, lines = call(boxes(20) + [penalty(-5000)] + boxes(20))
+    assert_line_wrapping([rest, lines], [20, 20])
     assert(lines[0].ignore_justification?)
   end
 
   it "handles breaking at penalties with zero width" do
-    rest, lines = call(boxes(80, 10, 20).insert(1, penalty(0)).insert(-2, penalty(0)))
-    assert(rest.empty?)
-    assert_equal(2, lines.count)
-    assert_equal(90, lines[0].width)
-    assert_equal(20, lines[1].width)
+    result = call(boxes(80) + [penalty(0)] + boxes(10) + [penalty(0)] + boxes(20))
+    assert_line_wrapping(result, [90, 20])
   end
 
   it "handles breaking at penalties with non-zero width if they fit on the line" do
-    item = HexaPDF::Layout::InlineBox.create(width: 20) {}
-    rest, lines = call(boxes(20, 60, 30).insert(1, penalty(0, item)).insert(-2, penalty(0, item)))
-    assert(rest.empty?)
-    assert_equal(2, lines.count)
-    assert_equal(100, lines[0].width)
-    assert_equal(30, lines[1].width)
-    assert_same(item, lines[0].items[-1])
+    pitem = penalty(0, boxes(20).first)
+    rest, lines = call(boxes(20) + [pitem] + boxes(50) + [glue(10), pitem] + boxes(30))
+    assert_line_wrapping([rest, lines], [100, 30])
+    assert_same(pitem.item, lines[0].items[-1])
   end
 
   it "handles penalties with non-zero width if they don't fit on the line" do
-    item = HexaPDF::Layout::InlineBox.create(width: 20) {}
-    rest, lines = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(0, item)] + boxes(30))
-    assert(rest.empty?)
-    assert_equal(2, lines.count)
-    assert_equal(70, lines[0].width)
-    assert_equal(40, lines[1].width)
+    item = boxes(20).first
+    result = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(0, item)] + boxes(30))
+    assert_line_wrapping(result, [70, 40])
   end
 
-  it "handles breaking at prohibited breakpoints by back-tracking to the last valid breakpoint " do
-    item = HexaPDF::Layout::InlineBox.create(width: 20) {}
-    rest, lines = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(5000, item)] + boxes(30))
-    assert(rest.empty?)
-    assert_equal(2, lines.count)
-    assert_equal(70, lines[0].width)
-    assert_equal(60, lines[1].width)
+  it "handles prohibited breakpoint penalties with zero width" do
+    result = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(5000)] + boxes(30))
+    assert_line_wrapping(result, [70, 40])
+  end
+
+  it "handles prohibited breakpoint penalties with non-zero width" do
+    item = boxes(20).first
+    result = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(5000, item)] + boxes(30))
+    assert_line_wrapping(result, [70, 60])
   end
 
   it "stops when nil is returned by the block: last item is a box" do
