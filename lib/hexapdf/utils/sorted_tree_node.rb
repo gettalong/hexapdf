@@ -51,6 +51,8 @@ module HexaPDF
     #
     #   For example, for name trees this would be String.
     #
+    # Note: Like with HexaPDF::Dictionary, the keys are assumed to always be direct objects!
+    #
     # See: HexaPDF::NameTreeNode, HexaPDF::NumberTreeNode
     module SortedTreeNode
 
@@ -131,7 +133,6 @@ module HexaPDF
         return unless stack.last[container_name][index] == key
 
         value = stack.last[container_name].delete_at(index)
-        document.delete(value) if value.kind_of?(HexaPDF::Object)
         value = stack.last[container_name].delete_at(index)
 
         stack.last[:Limits] = stack.last[container_name].values_at(0, -2) if stack.last[:Limits]
