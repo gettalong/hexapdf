@@ -98,6 +98,10 @@ module HexaPDF
       # Makes this cross-reference stream represent the data in the given HexaPDF::XRefSection and
       # Type::Trailer.
       #
+      # The +xref_section+ needs to contain an entry for this cross-reference stream and it is
+      # necessary that this entry is the one with the highest byte position (for calculating the
+      # correct /W entry).
+      #
       # The given cross-reference section is *not* stored but only used to rewrite the associated
       # stream to reflect the cross-reference section. The dictionary is updated with the
       # information from the trailer and the needed entries for the cross-reference section.
