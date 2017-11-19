@@ -220,6 +220,12 @@ module CommonLineWrappingTests
     assert_same(pitem.item, lines[0].items[-1])
   end
 
+  it "handles breaking at penalties with non-zero width that fit on the line and are followed by 1+ penalties" do
+    pitem = penalty(0, boxes(20).first)
+    result = call(boxes(80) + [pitem, penalty(0), penalty(0)] + boxes(30))
+    assert_line_wrapping(result, [100, 30])
+  end
+
   it "handles penalties with non-zero width if they don't fit on the line" do
     item = boxes(20).first
     result = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(0, item)] + boxes(30))

@@ -6,6 +6,10 @@
 * [HexaPDF::Layout::TextFragment.new] and [HexaPDF::Layout::TextFragment.create]
   method signatures
 
+### Fixed
+
+* Misspelt variable name in [HexaPDF::Layout::TextLayouter::SimpleLineWrapping]
+
 
 ## 0.6.0 - 2017-10-27
 

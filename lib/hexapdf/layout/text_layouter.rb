@@ -421,7 +421,7 @@ module HexaPDF
                 if item_fits_on_line?(item)
                   next_index = index + 1
                   next_item = @items[next_index]
-                  next_item = @items[n_index += 1] while next_item && next_item.type == :penalty
+                  next_item = @items[next_index += 1] while next_item && next_item.type == :penalty
                   new_height = @height_calc.simulate_height(next_item.item)
                   if next_item && @width + next_item.width > @width_block.call(new_height)
                     @line_items.concat(@glue_items).push(item.item)
