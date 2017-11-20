@@ -246,13 +246,12 @@ module HexaPDF
         end
         io << png_chunk('IDAT', Filter.string_from_source(data))
 
-        io << png_chunk('IEND', '')
+        io << png_chunk('IEND')
       end
 
       # Returns the binary representation of the PNG chunk for the given chunk type and data.
-      def png_chunk(type, data = nil)
-        [data.to_s.length].pack("N") << type << data.to_s <<
-          [Zlib.crc32(data, Zlib.crc32(type))].pack("N")
+      def png_chunk(type, data = '')
+        [data.length].pack("N") << type << data << [Zlib.crc32(data, Zlib.crc32(type))].pack("N")
       end
 
     end
