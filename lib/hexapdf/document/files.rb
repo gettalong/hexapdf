@@ -110,8 +110,7 @@ module HexaPDF
           end if tree
 
           @document.pages.each do |page|
-            next unless page[:Annots]
-            page[:Annots].each do |annot|
+            page[:Annots]&.each do |annot|
               annot = @document.deref(annot)
               next unless annot[:Subtype] == :FileAttachment
               spec = @document.deref(annot[:FS])
