@@ -2,9 +2,9 @@
 
 ### Changed
 
-* [HexaPDF::MalformedPDFError.new] method signature
-* [HexaPDF::Layout::TextFragment.new] and [HexaPDF::Layout::TextFragment.create]
-  method signatures
+* [HexaPDF::MalformedPDFError::new] method signature
+* [HexaPDF::Layout::TextFragment::new] and
+  [HexaPDF::Layout::TextFragment::create] method signatures
 
 ### Fixed
 
