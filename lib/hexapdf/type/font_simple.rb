@@ -96,8 +96,8 @@ module HexaPDF
       # the code point is missing.
       def width(code)
         widths = self[:Widths]
-        first_char = self[:FirstChar] || -1
-        last_char = self[:LastChar] || -1
+        first_char = self[:FirstChar]
+        last_char = self[:LastChar]
 
         if widths && code >= first_char && code <= last_char
           widths[code - first_char]
