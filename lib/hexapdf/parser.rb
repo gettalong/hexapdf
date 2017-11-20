@@ -339,7 +339,7 @@ module HexaPDF
     # HexaPDF::MalformedPDFError. Otherwise the error is corrected and parsing continues.
     #
     # If the option +force+ is used, the block is not called and the error is raised immediately.
-    def maybe_raise(msg, pos: nil, force: false)
+    def maybe_raise(msg, pos:, force: false)
       if force || @document.config['parser.on_correctable_error'].call(@document, msg, pos)
         error = HexaPDF::MalformedPDFError.new(msg, pos: pos)
         error.set_backtrace(caller(1))
