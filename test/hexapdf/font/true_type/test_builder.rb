@@ -9,7 +9,6 @@ describe HexaPDF::Font::TrueType::Builder do
   before do
     font_file = File.join(TEST_DATA_DIR, "fonts", "Ubuntu-Title.ttf")
     @font = HexaPDF::Font::TrueType::Font.new(File.open(font_file))
-    @subsetter = HexaPDF::Font::TrueType::Subsetter.new(@font)
   end
 
   after do

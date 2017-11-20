@@ -70,7 +70,7 @@ describe HexaPDF::Encryption::SecurityHandler do
       @document.config['encryption.filter_map'][:Test] = TestHandler
     end
 
-    describe "class set_up_encryption" do
+    describe "set_up_encryption" do
       it "fails if the requested security handler cannot be found" do
         assert_raises(HexaPDF::EncryptionError) do
           HexaPDF::Encryption::SecurityHandler.set_up_encryption(@document, :non_standard)

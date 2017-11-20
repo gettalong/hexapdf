@@ -125,7 +125,7 @@ module CommonTokenizerTests
   it "next_object: works for all PDF object types, including array and dictionary" do
     create_tokenizer(<<-EOF.chomp.gsub(/^ {8}/, ''))
         true false null 123 34.5 (string) <4E6F76> /Name
-        [5 6 /Name] <</Name 5>>
+        [5 6 /Name] <</Name 5/Null null>>
         EOF
     assert_equal(true, @tokenizer.next_object)
     assert_equal(false, @tokenizer.next_object)

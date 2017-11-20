@@ -8,6 +8,15 @@ describe HexaPDF::Layout::InlineBox do
     @box = HexaPDF::Layout::InlineBox.create(width: 10, height: 15, style: {margin: [15, 10]})
   end
 
+  it "needs a box to wrap and an optional alignment on initialization" do
+    ibox = HexaPDF::Layout::InlineBox.new(@box)
+    assert_equal(@box, ibox.box)
+    assert_equal(:baseline, ibox.valign)
+
+    ibox = HexaPDF::Layout::InlineBox.new(@box, valign: :top)
+    assert_equal(:top, ibox.valign)
+  end
+
   it "draws the wrapped box at the correct position" do
     canvas = Object.new
     block = ->(c, x, y) do

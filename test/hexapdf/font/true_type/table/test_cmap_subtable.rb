@@ -49,6 +49,8 @@ describe HexaPDF::Font::TrueType::Table::CmapSubtable do
 
       assert_equal(0, t.gid_to_code(255))
       assert_equal(234, t.gid_to_code(233))
+
+      assert_raises(HexaPDF::Error) { table([0, 20, 0].pack('n3') + "a" * 20) }
     end
 
     it "works for format 2" do

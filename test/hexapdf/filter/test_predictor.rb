@@ -31,6 +31,12 @@ describe HexaPDF::Filter::Predictor do
     end
   end
 
+  it "just returns the source if no processing needs to be done" do
+    source = feeder("test")
+    assert_same(source, @obj.encoder(source, Predictor: 1))
+    assert_same(source, @obj.encoder(source, {}))
+  end
+
   describe "png predictor" do
     include CommonPredictorTests
 

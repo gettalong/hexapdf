@@ -63,6 +63,12 @@ describe HexaPDF::Importer do
       assert_equal(["one", "two"], @obj[:array])
     end
 
+    it "duplicates the stream if it is a string" do
+      src_obj = @source.add({}, stream: 'data')
+      dst_obj = @importer.import(src_obj)
+      refute_same(dst_obj.data.stream, src_obj.data.stream)
+    end
+
     it "does not import objects of type Catalog or Pages" do
       @obj[:catalog] = @source.catalog
       @obj[:pages] = @source.catalog.pages

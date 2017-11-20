@@ -26,7 +26,7 @@ describe HexaPDF::Task::Optimize do
   end
 
   def assert_xrefstms_generated
-    assert(@doc.revisions.all? {|rev| rev.any? {|obj| obj.type == :XRef}})
+    assert(@doc.revisions.all? {|rev| rev.find_all {|obj| obj.type == :XRef}.size == 1})
   end
 
   def assert_no_objstms
@@ -96,6 +96,7 @@ describe HexaPDF::Task::Optimize do
 
     it "deletes object and xref streams" do
       @doc.add(Type: :ObjStm)
+      @doc.add(Type: :XRef)
       @doc.task(:optimize, object_streams: :delete, xref_streams: :delete)
       assert_no_objstms
       assert_no_xrefstms
@@ -116,6 +117,12 @@ describe HexaPDF::Task::Optimize do
       @doc.task(:optimize, xref_streams: :generate)
       assert_xrefstms_generated
       assert_default_deleted
+    end
+
+    it "reuses an xref stream in generatation mode" do
+      @doc.add(Type: :XRef)
+      @doc.task(:optimize, xref_streams: :generate)
+      assert_xrefstms_generated
     end
 
     it "deletes xref streams" do

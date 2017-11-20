@@ -87,6 +87,12 @@ describe HexaPDF::Layout::Style::Quad do
       assert_equal(5, quad.right)
       assert_equal(5, quad.bottom)
       assert_equal(5, quad.left)
+
+      quad = create_quad([5])
+      assert_equal(5, quad.top)
+      assert_equal(5, quad.right)
+      assert_equal(5, quad.bottom)
+      assert_equal(5, quad.left)
     end
 
     it "works with two values" do
@@ -366,9 +372,9 @@ describe HexaPDF::Layout::Style::Layers do
     it "can store a reference" do
       @layers.add(:link, option: :value)
       value = Object.new
-      value.define_singleton_method(:new) {|*args| :new }
+      value.define_singleton_method(:new) {|*| :new }
       config = Object.new
-      config.define_singleton_method(:constantize) {|*args| value }
+      config.define_singleton_method(:constantize) {|*| value }
       assert_equal([:new], @layers.enum_for(:each, config).to_a)
     end
 
@@ -395,6 +401,7 @@ describe HexaPDF::Layout::Style::Layers do
     canvas = HexaPDF::Document.new.pages.add.canvas
     canvas.context.document.config['style.layers_map'][:test] = klass
 
+    @layers.draw(canvas, 10, 15, box)
     @layers.add {|canv, ibox| assert_equal(box, ibox); canv.line_width(10)}
     @layers.add(:test, option: :value)
     @layers.draw(canvas, 10, 15, box)
@@ -435,7 +442,12 @@ describe HexaPDF::Layout::Style::LinkLayer do
     def call_link(hash)
       link = HexaPDF::Layout::Style::LinkLayer.new(hash)
       link.call(@canvas, @box)
-      @canvas.context[:Annots][0]
+      @canvas.context[:Annots]&.first
+    end
+
+    it "does nothing if the context is not a page object" do
+      @canvas = HexaPDF::Document.new.add(Type: :XObject, Subtype: :Form).canvas
+      assert_nil(call_link(dest: true))
     end
 
     it "sets general values like /Rect and /QuadPoints" do

@@ -26,6 +26,10 @@ describe HexaPDF::Filter::ASCIIHexDecode do
       assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded + '4e6f7gzz'))))
     end
 
+    it "assumes the missing char is '0' if the input length is odd" do
+      assert_equal(@decoded.chop << ' ', collector(@obj.decoder(feeder(@encoded.chop.chop))))
+    end
+
     it "fails on invalid characters" do
       assert_raises(HexaPDF::FilterError) { @obj.decoder(feeder('f0f0z')).resume }
     end

@@ -101,6 +101,10 @@ describe HexaPDF::Type::XRefStream do
       assert_equal(100, @obj.value[:Size])
       assert_equal([0, 3], @obj.value[:Index])
       assert_equal([1, 1, 2], @obj.value[:W])
+
+      @section.add_in_use_entry(1, 0, 256**2)
+      @obj.update_with_xref_section_and_trailer(@section, Size: 100)
+      assert_equal([1, 4, 2], @obj.value[:W])
     end
 
     it "updates the stream with the new information" do

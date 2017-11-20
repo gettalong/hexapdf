@@ -42,10 +42,12 @@ describe HexaPDF::Type::ObjectStream do
     @obj.add_object(5)
     @obj.add_object(7)
     @obj.add_object(9)
+    @obj.add_object(5)
     assert_equal(0, @obj.object_index(5))
     assert_equal(1, @obj.object_index(7))
     assert_equal(2, @obj.object_index(9))
 
+    @obj.delete_object(5)
     @obj.delete_object(5)
     assert_equal(0, @obj.object_index(9))
     assert_equal(1, @obj.object_index(7))

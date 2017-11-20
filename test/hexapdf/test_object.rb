@@ -91,6 +91,11 @@ describe HexaPDF::Object do
     end
   end
 
+  it "returns the document or raises an error if none is set" do
+    assert_equal(:document, HexaPDF::Object.new(nil, document: :document).document)
+    assert_raises(HexaPDF::Error) { HexaPDF::Object.new(nil).document }
+  end
+
   describe "null?" do
     it "works for nil values" do
       assert(HexaPDF::Object.new(nil).null?)
@@ -150,11 +155,12 @@ describe HexaPDF::Object do
     assert_equal(:two, hash[HexaPDF::Object.new(:data, oid: 2)])
   end
 
-  it "can be sorted together with Reference objects" do
+  it "is sortable w.r.t to other objects implementing #oid and #gen, like Reference" do
     a = HexaPDF::Object.new(:data, oid: 1)
     b = HexaPDF::Object.new(:data, oid: 1, gen: 1)
     c = HexaPDF::Reference.new(5, 7)
     assert_equal([a, b, c], [b, c, a].sort)
+    assert_nil(HexaPDF::Object.new(:data, oid: 1) <=> 5)
   end
 
   describe "deep_copy" do
@@ -164,6 +170,12 @@ describe HexaPDF::Object do
       refute_equal(copy, obj)
       assert_equal(copy.value, obj.value)
       refute_same(copy.value[:a], obj.value[:a])
+    end
+
+    it "duplicates the stream if it is a string" do
+      obj = HexaPDF::Object.new(nil, stream: "data")
+      copy = obj.deep_copy
+      refute_same(copy.data.stream, obj.data.stream)
     end
   end
 

@@ -99,6 +99,10 @@ describe HexaPDF::Type::Page do
     end
 
     it "returns the correct bleed, trim and art boxes" do
+      @page[:MediaBox] = :media
+      assert_equal(:media, @page.box(:bleed))
+      assert_equal(:media, @page.box(:trim))
+      assert_equal(:media, @page.box(:art))
       @page[:CropBox] = :crop
       assert_equal(:crop, @page.box(:bleed))
       assert_equal(:crop, @page.box(:trim))

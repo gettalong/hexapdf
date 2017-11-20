@@ -15,11 +15,13 @@ describe HexaPDF::Reference do
     assert_raises(ArgumentError) { HexaPDF::Reference.new(5, 'b') }
   end
 
-  it "is sortable" do
-    assert_equal([HexaPDF::Reference.new(1, 0), HexaPDF::Reference.new(1, 1),
-                  HexaPDF::Reference.new(5, 7)],
-                 [HexaPDF::Reference.new(5, 7), HexaPDF::Reference.new(1, 1),
-                  HexaPDF::Reference.new(1, 0)].sort)
+  it "is sortable w.r.t to other objects implementing #oid and #gen" do
+    obj = Object.new
+    obj.define_singleton_method(:oid) { 1 }
+    obj.define_singleton_method(:gen) { 0 }
+    assert_equal([obj, HexaPDF::Reference.new(1, 1), HexaPDF::Reference.new(5, 7)],
+                 [HexaPDF::Reference.new(5, 7), HexaPDF::Reference.new(1, 1), obj].sort)
+    assert_nil(HexaPDF::Reference.new(1, 0) <=> 5)
   end
 
   it "is comparable to itself" do
