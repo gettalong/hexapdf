@@ -78,7 +78,6 @@ module HexaPDF
 
     end
 
-
     # The password-based standard security handler of the PDF specification, identified by a
     # /Filter value of /Standard.
     #
@@ -98,7 +97,6 @@ module HexaPDF
     #
     # See: PDF1.7 s7.6.3, PDF2.0 s7.6.3
     class StandardSecurityHandler < SecurityHandler
-
 
       # Defines all available permissions.
       #
@@ -168,7 +166,6 @@ module HexaPDF
 
       end
 
-
       # Defines all possible options that can be passed to a StandardSecurityHandler when setting
       # up encryption.
       class EncryptionOptions
@@ -202,7 +199,7 @@ module HexaPDF
           @permissions = process_permissions(data.delete(:permissions) { Permissions::ALL })
           @algorithm = data.delete(:algorithm) { :arc4 }
           @encrypt_metadata = data.delete(:encrypt_metadata) { true }
-          if data.size > 0
+          unless data.empty?
             raise ArgumentError, "Invalid encryption options: #{data.keys.join(', ')}"
           end
         end
@@ -420,7 +417,7 @@ module HexaPDF
 
           data = arc4_algorithm.encrypt(key, user_password)
           if dict[:R] >= 3
-            19.times {|i| data = arc4_algorithm.encrypt(xor_key(key, i + 1), data)}
+            19.times {|i| data = arc4_algorithm.encrypt(xor_key(key, i + 1), data) }
           end
 
           data
@@ -459,7 +456,7 @@ module HexaPDF
           key = compute_user_encryption_key(password)
           data = Digest::MD5.digest(PASSWORD_PADDING + document.trailer[:ID][0])
           data = arc4_algorithm.encrypt(key, data)
-          19.times {|i| data = arc4_algorithm.encrypt(xor_key(key, i + 1), data)}
+          19.times {|i| data = arc4_algorithm.encrypt(xor_key(key, i + 1), data) }
           data << "hexapdfhexapdfhe"
         elsif dict[:R] == 6
           validation_salt = random_bytes(8)
@@ -548,7 +545,7 @@ module HexaPDF
           userpwd = arc4_algorithm.decrypt(key, dict[:O])
         else
           userpwd = dict[:O]
-          20.times {|i| userpwd = arc4_algorithm.decrypt(xor_key(key, 19 - i), userpwd)}
+          20.times {|i| userpwd = arc4_algorithm.decrypt(xor_key(key, 19 - i), userpwd) }
         end
 
         userpwd

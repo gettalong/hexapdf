@@ -60,7 +60,6 @@ describe HexaPDF::Type::FontType0 do
     end
   end
 
-
   describe "handling of /Encoding value" do
     it "can use predefined CMaps" do
       assert_equal([0x2121], @font.decode("\x21\x21"))

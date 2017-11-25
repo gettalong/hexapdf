@@ -62,7 +62,7 @@ describe HexaPDF::Dictionary do
     it "can iterate over all fields" do
       @inherited_class = Class.new(@test_class)
       @inherited_class.define_field(:Inherited, type: [Array, Symbol])
-      assert_equal([:Boolean, :Array, :TestClass, :Inherited], @inherited_class.each_field.map {|k, _| k})
+      assert_equal([:Boolean, :Array, :TestClass, :Inherited], @inherited_class.each_field.map {|k, _| k })
     end
 
     it "allows field access without subclassing" do
@@ -149,7 +149,7 @@ describe HexaPDF::Dictionary do
       assert_equal(7, @dict.value[:NewValue])
     end
 
-    it "stores the value inside the current value HexaPDF::Object but only if the given one is not such an object" do
+    it "stores the value in an existing HexaPDF::Object but only if it is not such an object" do
       @dict[:Object] = [4, 5]
       assert_equal([4, 5], @dict.value[:Object].value)
 
@@ -256,7 +256,10 @@ describe HexaPDF::Dictionary do
     end
 
     it "validates direct PDF objects nested in hashes" do
-      @obj[:TestClass] = {Inherited: :symbol, Nested: {Nested: {TestClass: @test_class.new(nil, document: self)}}}
+      @obj[:TestClass] = {
+        Inherited: :symbol,
+        Nested: {Nested: {TestClass: @test_class.new(nil, document: self)}},
+      }
       refute(@obj.validate)
       @obj[:TestClass][:Nested][:Nested][:TestClass][:Inherited] = :symbol
       assert(@obj.validate)

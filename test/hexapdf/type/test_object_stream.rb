@@ -19,7 +19,6 @@ describe HexaPDF::Type::ObjectStream::Data do
   end
 end
 
-
 describe HexaPDF::Type::ObjectStream do
   before do
     @doc = Object.new

@@ -57,8 +57,8 @@ module HexaPDF
         args = Shellwords.split(command)
         files.each do |file|
           begin
-            HexaPDF::CLI::Application.new.parse(args.map {|a| a.gsub(/{}/, file)})
-          rescue
+            HexaPDF::CLI::Application.new.parse(args.map {|a| a.gsub(/{}/, file) })
+          rescue StandardError
             if command_parser.verbosity_warning?
               $stderr.puts "Error processing '#{file}': #{$!.message}"
             end

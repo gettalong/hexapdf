@@ -358,7 +358,7 @@ module HexaPDF
                 if item_fits_on_line?(item)
                   next_index = index + 1
                   next_item = @items[next_index]
-                  next_item = @items[next_index += 1] while next_item && next_item.type == :penalty
+                  next_item = @items[next_index += 1] while next_item&.type == :penalty
                   if next_item && !item_fits_on_line?(next_item)
                     @line_items.concat(@glue_items).push(item.item)
                     @width += item.width
@@ -421,7 +421,7 @@ module HexaPDF
                 if item_fits_on_line?(item)
                   next_index = index + 1
                   next_item = @items[next_index]
-                  next_item = @items[next_index += 1] while next_item && next_item.type == :penalty
+                  next_item = @items[next_index += 1] while next_item&.type == :penalty
                   new_height = @height_calc.simulate_height(next_item.item)
                   if next_item && @width + next_item.width > @width_block.call(new_height)
                     @line_items.concat(@glue_items).push(item.item)
@@ -520,7 +520,6 @@ module HexaPDF
         end
 
       end
-
 
       # Creates a new TextLayouter object for the given text and returns it.
       #
@@ -667,8 +666,8 @@ module HexaPDF
             end
           end
 
-          if too_wide_box && too_wide_box.item.kind_of?(TextFragment) &&
-              too_wide_box.item.items.size > 1
+          if too_wide_box && (too_wide_box.item.kind_of?(TextFragment) &&
+                              too_wide_box.item.items.size > 1)
             rest[0..rest.index(too_wide_box)] = too_wide_box.item.items.map do |item|
               Box.new(TextFragment.new([item], too_wide_box.item.style))
             end

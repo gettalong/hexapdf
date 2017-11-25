@@ -61,15 +61,12 @@ module HexaPDF
             encoding = encoding_from_font if encoding.nil?
             encoding
           when HexaPDF::Dictionary, Hash
-            encoding = val[:BaseEncoding]
-            encoding = HexaPDF::Font::Encoding.for_name(encoding) if encoding
-            unless encoding
-              if embedded? || symbolic?
-                encoding = encoding_from_font
-              else
-                encoding = HexaPDF::Font::Encoding.for_name(:StandardEncoding)
-              end
-            end
+            encoding = val[:BaseEncoding] && HexaPDF::Font::Encoding.for_name(val[:BaseEncoding])
+            encoding ||= if embedded? || symbolic?
+                           encoding_from_font
+                         else
+                           HexaPDF::Font::Encoding.for_name(:StandardEncoding)
+                         end
             encoding = difference_encoding(encoding, val[:Differences]) if val.key?(:Differences)
             encoding
           when nil
@@ -88,8 +85,7 @@ module HexaPDF
       # Returns the UTF-8 string for the given character code, or calls the configuration option
       # 'font.on_missing_unicode_mapping' if no mapping was found.
       def to_utf8(code)
-        (to_unicode_cmap && to_unicode_cmap.to_unicode(code)) ||
-          encoding.unicode(code) || missing_unicode_mapping(code)
+        to_unicode_cmap&.to_unicode(code) || encoding.unicode(code) || missing_unicode_mapping(code)
       end
 
       # Returns the unscaled width of the given code point in glyph units, or 0 if the width for
@@ -116,7 +112,7 @@ module HexaPDF
       # Returns +true+ if the font is a symbolic font, +false+ if it is not, and +nil+ if it is
       # not known.
       def symbolic?
-        self[:FontDescriptor] && self[:FontDescriptor].flagged?(:symbolic) || nil
+        self[:FontDescriptor]&.flagged?(:symbolic)
       end
 
       # Returns whether word spacing is applicable when using this font.

@@ -19,13 +19,13 @@ describe 'HexaPDF.data_dir' do
   end
 
   it "returns the global data directory if the local one isn't found" do
-    File.stub(:directory?, lambda {|path| path == @local ? false : true}) do
+    File.stub(:directory?, lambda {|path| path != @local }) do
       assert_equal(@global, HexaPDF.data_dir)
     end
   end
 
   it "fails if no data directory is found" do
-    File.stub(:directory?, lambda {|_path| false}) do
+    File.stub(:directory?, lambda {|_path| false }) do
       assert_raises { HexaPDF.data_dir }
     end
   end

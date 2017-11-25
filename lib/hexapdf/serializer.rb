@@ -171,7 +171,7 @@ module HexaPDF
     # See PDF1.7 s7.3.5
     NAME_SUBSTS = {} # :nodoc:
     [0..32, 127..255, Tokenizer::DELIMITER.bytes, Tokenizer::WHITESPACE.bytes, [35]].each do |a|
-      a.each {|c| NAME_SUBSTS[c.chr] = "##{c.to_s(16).rjust(2, "0")}"}
+      a.each {|c| NAME_SUBSTS[c.chr] = "##{c.to_s(16).rjust(2, '0')}" }
     end
     NAME_REGEXP = /[^!-~&&[^##{Regexp.escape(Tokenizer::DELIMITER)}#{Regexp.escape(Tokenizer::WHITESPACE)}]]/ # :nodoc:
     NAME_CACHE = Utils::LRUCache.new(1000) # :nodoc:
@@ -183,7 +183,7 @@ module HexaPDF
       NAME_CACHE[obj] ||=
         begin
           str = obj.to_s.force_encoding(Encoding::BINARY)
-          str.gsub!(NAME_REGEXP) {|m| NAME_SUBSTS[m]}
+          str.gsub!(NAME_REGEXP) {|m| NAME_SUBSTS[m] }
           "/#{str}"
         end
     end
@@ -200,7 +200,7 @@ module HexaPDF
       while index < obj.size
         tmp = __serialize(obj[index])
         str << " ".freeze unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
-          BYTE_IS_DELIMITER[str.getbyte(-1)]
+            BYTE_IS_DELIMITER[str.getbyte(-1)]
         str << tmp
         index += 1
       end
@@ -217,7 +217,7 @@ module HexaPDF
         str << __serialize(k)
         tmp = __serialize(v)
         str << " ".freeze unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
-          BYTE_IS_DELIMITER[str.getbyte(-1)]
+            BYTE_IS_DELIMITER[str.getbyte(-1)]
         str << tmp
       end
       str << ">>".freeze
@@ -232,13 +232,13 @@ module HexaPDF
       if @encrypter && @object.kind_of?(HexaPDF::Object) && @object.indirect?
         obj = encrypter.encrypt_string(obj, @object)
       elsif obj.encoding != Encoding::BINARY
-        obj = if obj =~ /[^ -~\t\r\n]/
+        obj = if obj.match?(/[^ -~\t\r\n]/)
                 "\xFE\xFF".b << obj.encode(Encoding::UTF_16BE).force_encoding(Encoding::BINARY)
               else
                 obj.b
               end
       end
-      "(" << obj.gsub(/[\(\)\\\r]/n) {|m| STRING_ESCAPE_MAP[m]} << ")".freeze
+      "(" << obj.gsub(/[\(\)\\\r]/n) {|m| STRING_ESCAPE_MAP[m] } << ")".freeze
     end
 
     # The ISO PDF specification differs in respect to the supported date format. When converting

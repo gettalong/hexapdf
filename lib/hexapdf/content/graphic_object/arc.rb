@@ -159,7 +159,7 @@ module HexaPDF
         def draw(canvas, move_to_start: true)
           @max_curves = canvas.context.document.config['graphic_object.arc.max_curves']
           canvas.move_to(*start_point) if move_to_start
-          curves.each {|curve| canvas.curve_to(*curve)}
+          curves.each {|curve| canvas.curve_to(*curve) }
         end
 
         # Returns an array of arrays that contain the points for the Bezier curves which are used

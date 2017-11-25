@@ -16,8 +16,8 @@ describe HexaPDF::Font::TrueType::Table::Head do
   describe "initialize" do
     it "reads the data from the associated file" do
       table = create_table(:Head)
-      assert_equal('1.0', '%1.1f' % table.version)
-      assert_equal('2.1', '%1.1f' % table.font_revision)
+      assert_equal('1.0', sprintf('%1.1f', table.version))
+      assert_equal('2.1', sprintf('%1.1f', table.font_revision))
       assert_equal(42, table.checksum_adjustment)
       assert_equal(3, table.flags)
       assert_equal(64, table.units_per_em)

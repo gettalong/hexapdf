@@ -75,7 +75,7 @@ module HexaPDF
 
       define_type :Filespec
 
-      define_field :Type, type: Symbol, default: self.type, required: true
+      define_field :Type, type: Symbol, default: type, required: true
       define_field :FS,   type: Symbol
       define_field :F,    type: PDFByteString
       define_field :UF,   type: String, version: '1.7'
@@ -88,7 +88,6 @@ module HexaPDF
       define_field :RF,   type: Dictionary, version: '1.3'
       define_field :Desc, type: String, version: '1.6'
       define_field :CI,   type: Dictionary, version: '1.7'
-
 
       # Returns +true+ if this file specification references an URL and not a file.
       def url?
@@ -130,7 +129,7 @@ module HexaPDF
         begin
           URI(url)
         rescue URI::InvalidURIError => e
-          raise HexaPDF::Error.new(e)
+          raise HexaPDF::Error, e
         end
         self.path = url
         self[:FS] = :URL
@@ -214,11 +213,11 @@ module HexaPDF
       # in the EmbeddedFiles name tree is also deleted.
       def unembed
         return unless key?(:EF)
-        self[:EF].each {|_key, ef_stream| document.delete(ef_stream)}
+        self[:EF].each {|_, ef_stream| document.delete(ef_stream) }
 
         if document.catalog.key?(:Names) && document.catalog[:Names].key?(:EmbeddedFiles)
           tree = document.catalog[:Names][:EmbeddedFiles]
-          tree.each_entry.find_all {|_, spec| document.deref(spec) == self}.each do |name, _|
+          tree.each_entry.find_all {|_, spec| document.deref(spec) == self }.each do |(name, _)|
             tree.delete_entry(name)
           end
         end

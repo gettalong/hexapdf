@@ -47,7 +47,7 @@ describe HexaPDF::Serializer do
     assert_serialized("100", 100)
     assert_serialized("-100", -100)
     assert_serialized("0", 0)
-    assert_serialized("1208925819614629174706176", 1208925819614629174706176)
+    assert_serialized("1208925819614629174706176", 1_208_925_819_614_629_174_706_176)
   end
 
   it "serializes floats with a precision of 4" do
@@ -105,7 +105,8 @@ describe HexaPDF::Serializer do
       assert_serialized("(D:20150416094100+01'00')", Time.new(2015, 04, 16, 9, 41, 0, 3600))
       assert_serialized("(D:20150416094100-01'20')", Time.new(2015, 04, 16, 9, 41, 0, -4800))
       assert_serialized("(D:20150416000000+02'00')", Date.parse("2015-04-16 9:41:00 +02:00"))
-      assert_serialized("(D:20150416094100+02'00')", DateTime.parse("2015-04-16 9:41:00 +02:00"))
+      assert_serialized("(D:20150416094100+02'00')",
+                        Time.parse("2015-04-16 9:41:00 +02:00").to_datetime)
     ensure
       ENV['TZ'] = tz
     end

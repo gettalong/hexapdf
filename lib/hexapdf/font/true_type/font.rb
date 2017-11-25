@@ -66,7 +66,6 @@ module HexaPDF
           'font.true_type.unknown_format' => :ignore,
         }
 
-
         # The IO stream associated with this file.
         attr_reader :io
 

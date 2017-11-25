@@ -47,8 +47,10 @@ describe HexaPDF::Filter do
       assert_equal(@str, collector(@obj.source_from_io(@io, chunk_size: 200)))
 
       assert_equal(@str[0...20], collector(@obj.source_from_io(@io, length: 20, chunk_size: 100)))
-      assert_equal(@str[20...40], collector(@obj.source_from_io(@io, pos: 20, length: 20, chunk_size: 100)))
-      assert_equal(@str[20...40], collector(@obj.source_from_io(@io, pos: 20, length: 20, chunk_size: 5)))
+      assert_equal(@str[20...40],
+                   collector(@obj.source_from_io(@io, pos: 20, length: 20, chunk_size: 100)))
+      assert_equal(@str[20...40],
+                   collector(@obj.source_from_io(@io, pos: 20, length: 20, chunk_size: 5)))
     end
 
     it "fails if not all requested bytes could be read" do
@@ -76,7 +78,7 @@ describe HexaPDF::Filter do
       assert_equal(@str[100..-1], collector(@obj.source_from_file(@file.path, pos: 100)))
       assert_equal(@str[100..-1].length, @obj.source_from_file(@file.path, pos: 100).length)
 
-      assert_equal(@str[50...100], collector(@obj.source_from_file(@file.path, pos: 50, length: 50)))
+      assert_equal(@str[50..99], collector(@obj.source_from_file(@file.path, pos: 50, length: 50)))
       assert_equal(50, @obj.source_from_file(@file.path, length: 50).length)
     end
 

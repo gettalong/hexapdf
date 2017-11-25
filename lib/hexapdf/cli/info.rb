@@ -78,10 +78,10 @@ module HexaPDF
         HexaPDF::Document.open(file, options) do |doc|
           output_line("File name", file)
           output_line("File size", File.stat(file).size.to_s + " bytes")
-          INFO_KEYS.each do |name|
+          @auto_decrypt && INFO_KEYS.each do |name|
             next unless doc.trailer.info.key?(name)
             output_line(name.to_s, doc.trailer.info[name].to_s)
-          end if @auto_decrypt
+          end
 
           if doc.encrypted? && @auto_decrypt
             details = doc.security_handler.encryption_details

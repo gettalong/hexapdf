@@ -45,6 +45,7 @@ module HexaPDF
         #
         # See: https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6OS2.html
         class OS2 < Table
+
           extend HexaPDF::Utils::BitField
 
           # The version of the table.
@@ -109,7 +110,7 @@ module HexaPDF
           # Information concerning the nature of the font patterns.
           attr_accessor :selection
           bit_field(:selection, italic: 0, underscore: 1, negative: 2, outlined: 3, strikeout: 4,
-                    bold: 5, regular: 6, use_typo_metrics: 7, wws: 8, oblique: 9)
+                                bold: 5, regular: 6, use_typo_metrics: 7, wws: 8, oblique: 9)
 
           # The minimum Unicode index in this font.
           attr_accessor :first_char_index

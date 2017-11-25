@@ -38,7 +38,7 @@ describe HexaPDF::Type::FontDescriptor do
 
   describe "validation" do
     it "fails if more than one of /FontFile{,2,3} are set" do
-      assert(@font_desc.validate {|*args| p args})
+      assert(@font_desc.validate {|*args| p args })
       @font_desc[:FontFile] = @font_desc[:FontFile2] = @doc.add({}, stream: 'test')
       refute(@font_desc.validate)
     end

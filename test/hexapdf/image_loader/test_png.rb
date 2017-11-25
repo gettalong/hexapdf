@@ -15,7 +15,7 @@ describe HexaPDF::ImageLoader::PNG do
     it "works for png files" do
       @images.each do |image|
         assert(@loader.handles?(image))
-        File.open(image, 'rb') {|file| assert(@loader.handles?(file))}
+        File.open(image, 'rb') {|file| assert(@loader.handles?(file)) }
       end
     end
   end
@@ -30,7 +30,7 @@ describe HexaPDF::ImageLoader::PNG do
     assert_equal(height, image[:Height])
     assert_equal(bpc, image[:BitsPerComponent])
     assert_equal(color_space, image[:ColorSpace]) if color_space
-    data = stream.map {|row| [row.map {|i| i.to_s(2).rjust(bpc, '0')}.join("")].pack('B*')}.join("")
+    data = stream.map {|row| [row.map {|i| i.to_s(2).rjust(bpc, '0') }.join("")].pack('B*') }.join("")
     assert_equal(data, image.stream)
   end
 
@@ -231,7 +231,7 @@ describe HexaPDF::ImageLoader::PNG do
           zip(image[:ColorSpace][1][:Matrix]).each do |r, e|
           assert_in_delta(r, e, 0.0001)
         end
-        if png =~ /srgb/
+        if png.match?(/srgb/)
           assert_equal(:AbsoluteColorimetric, image[:Intent])
         end
       end

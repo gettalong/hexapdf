@@ -94,9 +94,8 @@ module HexaPDF
       # two converters could potentially be used for the same type, the one that appears earlier
       # is used.
       def self.converter_for(type)
-        @converters.find {|converter| converter.usable_for?(type)}
+        @converters.find {|converter| converter.usable_for?(type) }
       end
-
 
       # Returns +true+ if the value for this field needs to be an indirect object, +false+ if it
       # needs to be a direct object or +nil+ if it can be either.
@@ -158,8 +157,8 @@ module HexaPDF
 
       # Returns +true+ if the given object is valid for this field.
       def valid_object?(obj)
-        type.any? {|t| obj.kind_of?(t)} ||
-          (obj.kind_of?(HexaPDF::Object) && type.any? {|t| obj.value.kind_of?(t)})
+        type.any? {|t| obj.kind_of?(t) } ||
+          (obj.kind_of?(HexaPDF::Object) && type.any? {|t| obj.value.kind_of?(t) })
       end
 
       # If a converter was defined, it is used. Otherwise +false+ is returned.
@@ -320,7 +319,6 @@ module HexaPDF
 
     end
 
-
     # Converter module for file specification fields. A file specification in string format is
     # converted to the corresponding file specification dictionary.
     module FileSpecificationConverter
@@ -348,7 +346,6 @@ module HexaPDF
       end
 
     end
-
 
     # Converter module for fields of type Rectangle.
     module RectangleConverter

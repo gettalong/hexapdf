@@ -15,7 +15,8 @@ describe HexaPDF::Filter::ASCIIHexDecode do
 
   describe "decoder" do
     it "ignores whitespace in the input" do
-      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded.scan(/./).map {|a| "#{a} \r\t"}.join("\n"), 1))))
+      with_whitespace = @encoded.scan(/./).map {|a| "#{a} \r\t" }.join("\n")
+      assert_equal(@decoded, collector(@obj.decoder(feeder(with_whitespace, 1))))
     end
 
     it "works without the EOD marker" do

@@ -79,7 +79,7 @@ module HexaPDF
         maybe_raise_on_existing_file(out_file)
         with_document(in_file, password: @password, out_file: out_file) do |doc|
           arrange_pages(doc) unless @pages == '1-e'
-          @embed_files.each {|file| doc.files.add(file, embed: true)}
+          @embed_files.each {|file| doc.files.add(file, embed: true) }
           apply_encryption_options(doc)
           apply_optimization_options(doc)
         end

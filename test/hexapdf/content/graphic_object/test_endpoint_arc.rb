@@ -19,7 +19,6 @@ describe HexaPDF::Content::GraphicObject::EndpointArc do
     end
   end
 
-
   describe "configure" do
     it "changes the values" do
       arc = HexaPDF::Content::GraphicObject::EndpointArc.new

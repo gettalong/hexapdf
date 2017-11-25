@@ -47,7 +47,7 @@ module HexaPDF
 
       define_type :Annot
 
-      define_field :Type,         type: Symbol, default: self.type
+      define_field :Type,         type: Symbol, default: type
       define_field :Subtype,      type: Symbol, required: true
       define_field :Rect,         type: Rectangle, required: true
       define_field :Contents,     type: String

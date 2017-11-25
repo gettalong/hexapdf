@@ -51,7 +51,6 @@ module HexaPDF
       define_field :DW2,             type: Array, default: [880, -1100]
       define_field :W2,              type: Array
 
-
       # Returns the unscaled width of the given CID in glyph units, or 0 if the width for the CID is
       # missing.
       #
@@ -101,11 +100,11 @@ module HexaPDF
             entry = array[index]
             value = array[index + 1]
             if value.kind_of?(Array)
-              value.each_with_index {|width, i| result[entry + i] = width}
+              value.each_with_index {|width, i| result[entry + i] = width }
               index += 2
             else
               width = array[index + 2]
-              entry.upto(value) {|cid| result[cid] = width}
+              entry.upto(value) {|cid| result[cid] = width }
               index += 3
             end
           end

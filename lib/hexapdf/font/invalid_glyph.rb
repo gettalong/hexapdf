@@ -51,16 +51,16 @@ module HexaPDF
       def id
         @font.missing_glyph_id
       end
-      alias_method :name, :id
+      alias name id
 
       # Returns 0.
       def x_min
         0
       end
-      alias_method :x_max, :x_min
-      alias_method :y_min, :x_min
-      alias_method :y_max, :x_min
-      alias_method :width, :x_min
+      alias x_max x_min
+      alias y_min x_min
+      alias y_max x_min
+      alias width x_min
 
       # Word spacing is never applied for the invalid glyph, so +false+ is returned.
       def apply_word_spacing?

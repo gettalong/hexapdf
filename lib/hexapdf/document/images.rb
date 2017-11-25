@@ -67,7 +67,7 @@ module HexaPDF
                end
         if name
           name = File.absolute_path(name)
-          image = find {|im| im.source_path == name}
+          image = find {|im| im.source_path == name }
         end
         unless image
           image = image_loader_for(file_or_io).load(@document, file_or_io)

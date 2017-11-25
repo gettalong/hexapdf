@@ -463,7 +463,7 @@ module HexaPDF
       def line_width(width = nil, &block)
         gs_getter_setter(:line_width, :w, width, &block)
       end
-      alias :line_width= :line_width
+      alias line_width= line_width
 
       # :call-seq:
       #   canvas.line_cap_style                    => current_line_cap_style
@@ -497,7 +497,7 @@ module HexaPDF
       def line_cap_style(style = nil, &block)
         gs_getter_setter(:line_cap_style, :J, style && LineCapStyle.normalize(style), &block)
       end
-      alias :line_cap_style= :line_cap_style
+      alias line_cap_style= line_cap_style
 
       # :call-seq:
       #   canvas.line_join_style                    => current_line_join_style
@@ -531,7 +531,7 @@ module HexaPDF
       def line_join_style(style = nil, &block)
         gs_getter_setter(:line_join_style, :j, style && LineJoinStyle.normalize(style), &block)
       end
-      alias :line_join_style= :line_join_style
+      alias line_join_style= line_join_style
 
       # :call-seq:
       #   canvas.miter_limit                    => current_miter_limit
@@ -564,7 +564,7 @@ module HexaPDF
       def miter_limit(limit = nil, &block)
         gs_getter_setter(:miter_limit, :M, limit, &block)
       end
-      alias :miter_limit= :miter_limit
+      alias miter_limit= miter_limit
 
       # :call-seq:
       #   canvas.line_dash_pattern                                  => current_line_dash_pattern
@@ -613,7 +613,7 @@ module HexaPDF
         gs_getter_setter(:line_dash_pattern, :d, value && LineDashPattern.normalize(value, phase),
                          &block)
       end
-      alias :line_dash_pattern= :line_dash_pattern
+      alias line_dash_pattern= line_dash_pattern
 
       # :call-seq:
       #   canvas.rendering_intent                       => current_rendering_intent
@@ -651,7 +651,7 @@ module HexaPDF
       def rendering_intent(intent = nil, &bk)
         gs_getter_setter(:rendering_intent, :ri, intent && RenderingIntent.normalize(intent), &bk)
       end
-      alias :rendering_intent= :rendering_intent
+      alias rendering_intent= rendering_intent
 
       # :call-seq:
       #   canvas.stroke_color                             => current_stroke_color
@@ -718,7 +718,7 @@ module HexaPDF
       def stroke_color(*color, &block)
         color_getter_setter(:stroke_color, color, :RG, :G, :K, :CS, :SCN, &block)
       end
-      alias :stroke_color= :stroke_color
+      alias stroke_color= stroke_color
 
       # The fill color defines the color used for non-stroking operations, i.e. for filling paths.
       #
@@ -727,7 +727,7 @@ module HexaPDF
       def fill_color(*color, &block)
         color_getter_setter(:fill_color, color, :rg, :g, :k, :cs, :scn, &block)
       end
-      alias :fill_color= :fill_color
+      alias fill_color= fill_color
 
       # :call-seq:
       #   canvas.opacity                                           => current_values
@@ -956,7 +956,7 @@ module HexaPDF
           check_poly_points(points)
           move_to(*point_on_line(points[0], points[1], points[2], points[3], distance: radius))
           points.concat(points[0, 4])
-          0.step(points.length - 6, 2) {|i| line_with_rounded_corner(*points[i, 6], radius)}
+          0.step(points.length - 6, 2) {|i| line_with_rounded_corner(*points[i, 6], radius) }
         end
         close_subpath
       end
@@ -1085,7 +1085,7 @@ module HexaPDF
         unless obj.respond_to?(:configure)
           obj = context.document.config.constantize('graphic_object.map', obj)
         end
-        obj = obj.configure(options) if options.size > 0 || !obj.respond_to?(:draw)
+        obj = obj.configure(options) unless options.empty? && obj.respond_to?(:draw)
         obj
       end
 
@@ -1276,7 +1276,7 @@ module HexaPDF
 
         obj
       end
-      alias :image :xobject
+      alias image xobject
 
       # :call-seq:
       #   canvas.character_spacing                       => current_character_spacing
@@ -1310,7 +1310,7 @@ module HexaPDF
       def character_spacing(amount = nil, &bk)
         gs_getter_setter(:character_spacing, :Tc, amount, &bk)
       end
-      alias :character_spacing= :character_spacing
+      alias character_spacing= character_spacing
 
       # :call-seq:
       #   canvas.word_spacing                       => current_word_spacing
@@ -1347,7 +1347,7 @@ module HexaPDF
       def word_spacing(amount = nil, &bk)
         gs_getter_setter(:word_spacing, :Tw, amount, &bk)
       end
-      alias :word_spacing= :word_spacing
+      alias word_spacing= word_spacing
 
       # :call-seq:
       #   canvas.horizontal_scaling                        => current_horizontal_scaling
@@ -1381,7 +1381,7 @@ module HexaPDF
       def horizontal_scaling(amount = nil, &bk)
         gs_getter_setter(:horizontal_scaling, :Tz, amount, &bk)
       end
-      alias :horizontal_scaling= :horizontal_scaling
+      alias horizontal_scaling= horizontal_scaling
 
       # :call-seq:
       #   canvas.leading                       => current_leading
@@ -1412,7 +1412,7 @@ module HexaPDF
       def leading(amount = nil, &bk)
         gs_getter_setter(:leading, :TL, amount, &bk)
       end
-      alias :leading= :leading
+      alias leading= leading
 
       # :call-seq:
       #   canvas.text_rendering_mode                     => current_text_rendering_mode
@@ -1448,7 +1448,7 @@ module HexaPDF
       def text_rendering_mode(m = nil, &bk)
         gs_getter_setter(:text_rendering_mode, :Tr, m && TextRenderingMode.normalize(m), &bk)
       end
-      alias :text_rendering_mode= :text_rendering_mode
+      alias text_rendering_mode= text_rendering_mode
 
       # :call-seq:
       #   canvas.text_rise                       => current_text_rise
@@ -1480,7 +1480,7 @@ module HexaPDF
       def text_rise(amount = nil, &bk)
         gs_getter_setter(:text_rise, :Ts, amount, &bk)
       end
-      alias :text_rise= :text_rise
+      alias text_rise= text_rise
 
       # :call-seq:
       #   canvas.begin_text(force_new: false)      -> canvas
@@ -1620,7 +1620,7 @@ module HexaPDF
           @font
         end
       end
-      alias :font= :font
+      alias font= font
 
       # :call-seq:
       #   canvas.font_size                                  => font_size
@@ -1655,7 +1655,7 @@ module HexaPDF
           graphics_state.font_size
         end
       end
-      alias :font_size= :font_size
+      alias font_size= font_size
 
       # :call-seq:
       #   canvas.text(text)                  -> canvas
@@ -1962,7 +1962,7 @@ module HexaPDF
       # Utility method that abstracts the implementation of the stroke and fill color methods.
       def color_getter_setter(name, color, rg, g, k, cs, scn)
         color.flatten!
-        if color.length > 0
+        if !color.empty?
           raise_unless_at_page_description_level_or_in_text
           color = color_from_specification(color)
 

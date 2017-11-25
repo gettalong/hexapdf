@@ -97,7 +97,7 @@ module HexaPDF
 
       define_type :ObjStm
 
-      define_field :Type,    type: Symbol, required: true, default: self.type, version: '1.5'
+      define_field :Type,    type: Symbol, required: true, default: type, version: '1.5'
       define_field :N,       type: Integer # not required, will be auto-filled on #write_objects
       define_field :First,   type: Integer # not required, will be auto-filled on #write_objects
       define_field :Extends, type: Stream
@@ -110,7 +110,7 @@ module HexaPDF
       def parse_stream
         data = stream
         oids, offsets = parse_oids_and_offsets(data)
-        oids.each {|oid| add_object(Reference.new(oid, 0))}
+        oids.each {|oid| add_object(Reference.new(oid, 0)) }
         Data.new(data, oids, offsets)
       end
 
@@ -200,7 +200,7 @@ module HexaPDF
         first = value[:First].to_i
 
         stream_tokenizer = Tokenizer.new(StringIO.new(data))
-        data.size > 0 && value[:N].to_i.times do
+        !data.empty? && value[:N].to_i.times do
           oids << stream_tokenizer.next_object
           offsets << first + stream_tokenizer.next_object
         end

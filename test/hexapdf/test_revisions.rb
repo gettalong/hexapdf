@@ -7,65 +7,65 @@ require 'stringio'
 
 describe HexaPDF::Revisions do
   before do
-    @io = StringIO.new(<<EOF)
-%PDF-1.7
-1 0 obj
-10
-endobj
+    @io = StringIO.new(<<~EOF)
+      %PDF-1.7
+      1 0 obj
+      10
+      endobj
 
-2 0 obj
-20
-endobj
+      2 0 obj
+      20
+      endobj
 
-xref
-0 3
-0000000000 65535 f 
-0000000009 00000 n 
-0000000028 00000 n 
-trailer
-<< /Size 3 >>
-startxref
-47
-%%EOF
+      xref
+      0 3
+      0000000000 65535 f 
+      0000000009 00000 n 
+      0000000028 00000 n 
+      trailer
+      << /Size 3 >>
+      startxref
+      47
+      %%EOF
 
-2 0 obj
-300
-endobj
+      2 0 obj
+      300
+      endobj
 
-3 0 obj
-<< /Type /XRef /Size 4 /Index [2 1] /W [1 1 1] /Filter /ASCIIHexDecode /Length 6
->>stream
-019E00
-endstream
-endobj
+      3 0 obj
+      << /Type /XRef /Size 4 /Index [2 1] /W [1 1 1] /Filter /ASCIIHexDecode /Length 6
+      >>stream
+      019E00
+      endstream
+      endobj
 
-2 0 obj
-200
-endobj
+      2 0 obj
+      200
+      endobj
 
-xref
-2 2
-0000000301 00000 n 
-0000000178 00000 n 
-trailer
-<< /Size 4 /Prev 47 >>
-startxref
-321
-%%EOF
+      xref
+      2 2
+      0000000301 00000 n 
+      0000000178 00000 n 
+      trailer
+      << /Size 4 /Prev 47 >>
+      startxref
+      321
+      %%EOF
 
-2 0 obj
-400
-endobj
+      2 0 obj
+      400
+      endobj
 
-xref
-2 1
-0000000422 00000 n 
-trailer
-<< /Size 4 /Prev 321 /XRefStm 178 >>
-startxref
-442
-%%EOF
-EOF
+      xref
+      2 1
+      0000000422 00000 n 
+      trailer
+      << /Size 4 /Prev 321 /XRefStm 178 >>
+      startxref
+      442
+      %%EOF
+    EOF
     @doc = HexaPDF::Document.new(io: @io)
     @revisions = @doc.revisions
   end
@@ -82,13 +82,13 @@ EOF
     it "allows deleting a revision by index" do
       rev = @revisions.revision(0)
       @revisions.delete(0)
-      refute(@revisions.any? {|r| r == rev})
+      refute(@revisions.any? {|r| r == rev })
     end
 
     it "allows deleting a revision by specifying a revision" do
       rev = @revisions.revision(0)
       @revisions.delete(rev)
-      refute(@revisions.any? {|r| r == rev})
+      refute(@revisions.any? {|r| r == rev })
     end
 
     it "fails when trying to delete the only existing revision" do
@@ -125,35 +125,35 @@ EOF
   end
 
   it "handles invalid PDFs that have a loop via the xref /Prev or /XRefStm entries" do
-    io = StringIO.new(<<EOF)
-%PDF-1.7
-1 0 obj
-10
-endobj
+    io = StringIO.new(<<~EOF)
+      %PDF-1.7
+      1 0 obj
+      10
+      endobj
 
-xref
-0 2
-0000000000 65535 f 
-0000000009 00000 n 
-trailer
-<< /Size 2 /Prev 148>>
-startxref
-28
-%%EOF
+      xref
+      0 2
+      0000000000 65535 f 
+      0000000009 00000 n 
+      trailer
+      << /Size 2 /Prev 148>>
+      startxref
+      28
+      %%EOF
 
-2 0 obj
-300
-endobj
+      2 0 obj
+      300
+      endobj
 
-xref
-2 1
-0000000301 00000 n 
-trailer
-<< /Size 3 /Prev 28 /XRefStm 148>>
-startxref
-148
-%%EOF
-EOF
+      xref
+      2 1
+      0000000301 00000 n 
+      trailer
+      << /Size 3 /Prev 28 /XRefStm 148>>
+      startxref
+      148
+      %%EOF
+    EOF
     doc = HexaPDF::Document.new(io: io)
     assert_equal(2, doc.revisions.count)
   end

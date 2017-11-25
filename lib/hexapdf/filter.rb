@@ -52,7 +52,6 @@ module HexaPDF
 
   end
 
-
   # == Overview
   #
   # A stream filter is used to compress a stream or to encode it in an ASCII compatible way; or

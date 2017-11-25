@@ -53,7 +53,7 @@ module TestTextLayouterHelpers
     rest, lines = *result
     assert(rest.empty?)
     assert_equal(widths.length, lines.count)
-    widths.each_with_index {|width, index| assert_equal(width, lines[index].width)}
+    widths.each_with_index {|width, index| assert_equal(width, lines[index].width) }
   end
 end
 
@@ -75,7 +75,7 @@ describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
   end
 
   it "handles InlineBox objects" do
-    input = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) { }
+    input = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {}
     result = @obj.call([input, input])
     assert_equal(2, result.size)
     assert_box(result[0], input)
@@ -171,7 +171,7 @@ module CommonLineWrappingTests
   it "breaks before a box if it doesn't fit onto the line anymore" do
     rest, lines = call(boxes(25, 50, 25, 10))
     assert_line_wrapping([rest, lines], [100, 10])
-    lines.each {|line| line.items.each {|item| assert_kind_of(HexaPDF::Layout::InlineBox, item)}}
+    lines.each {|line| line.items.each {|item| assert_kind_of(HexaPDF::Layout::InlineBox, item) } }
   end
 
   it "breaks at a glue and ignores it if it doesn't fit onto the line anymore" do
@@ -513,7 +513,7 @@ describe HexaPDF::Layout::TextLayouter do
         rest, reason = layouter.fit
         assert(rest.empty?)
         assert_equal(:success, reason)
-        assert_equal(str.strip.length, layouter.lines.sum {|l| l.items.sum {|i| i.items.count}})
+        assert_equal(str.strip.length, layouter.lines.sum {|l| l.items.sum {|i| i.items.count } })
         assert_equal(45, layouter.actual_height)
 
         layouter = HexaPDF::Layout::TextLayouter.new(items: [frag], width: 1, height: height,
@@ -550,7 +550,7 @@ describe HexaPDF::Layout::TextLayouter do
     end
 
     it "applies the optional horizontal offsets if set" do
-      x_offsets = lambda {|height, line_height| height + line_height}
+      x_offsets = lambda {|height, line_height| height + line_height }
       layouter = HexaPDF::Layout::TextLayouter.new(items: boxes(*([[20, 10]] * 7)), width: 60,
                                                    x_offsets: x_offsets, height: 100, style: @style)
       rest, reason = layouter.fit
@@ -568,7 +568,7 @@ describe HexaPDF::Layout::TextLayouter do
       processor = TestHelper::OperatorRecorder.new
       HexaPDF::Content::Parser.new.parse(content, processor)
       result = processor.recorded_ops
-      result.select! {|name, _| name == :set_text_matrix}.map! {|_, ops| ops[-2, 2]}
+      result.select! {|name, _| name == :set_text_matrix }.map! {|_, ops| ops[-2, 2] }
       positions.each_with_index do |(x, y), index|
         assert_in_delta(x, result[index][0], 0.00001)
         assert_in_delta(y, result[index][1], 0.00001)
@@ -683,7 +683,7 @@ describe HexaPDF::Layout::TextLayouter do
 
     it "makes sure that text fragments don't pollute the graphics state for inline boxes" do
       frag = HexaPDF::Layout::TextFragment.create("Demo", font: @font)
-      inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {|c, _| c.text("A")}
+      inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {|c, _| c.text("A") }
       layouter = HexaPDF::Layout::TextLayouter.new(items: [frag, inline_box], width: 200)
       assert_raises(HexaPDF::Error) { layouter.draw(@canvas, 0, 0) }
     end

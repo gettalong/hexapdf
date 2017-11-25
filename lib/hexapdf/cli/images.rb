@@ -104,7 +104,6 @@ module HexaPDF
         end
       end
 
-
       # Extracts the images with the given indices.
       def extract_images(doc)
         done = Set.new

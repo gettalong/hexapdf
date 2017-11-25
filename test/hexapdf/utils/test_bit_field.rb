@@ -4,9 +4,11 @@ require 'test_helper'
 require 'hexapdf/utils/bit_field'
 
 class TestBitField
+
   extend HexaPDF::Utils::BitField
   attr_accessor :data
   bit_field(:data, {bit0: 0, bit1: 1, bit5: 5}, lister: "list", getter: "get", setter: "set")
+
 end
 
 describe HexaPDF::Utils::BitField do

@@ -6,7 +6,9 @@ require 'hexapdf/task/optimize'
 
 describe HexaPDF::Task::Optimize do
   class TestType < HexaPDF::Dictionary
+
     define_field :Optional, type: Symbol, default: :Optional
+
   end
 
   before do
@@ -21,20 +23,20 @@ describe HexaPDF::Task::Optimize do
   end
 
   def assert_objstms_generated
-    assert(@doc.revisions.all? {|rev| rev.any? {|obj| obj.type == :ObjStm}})
-    assert(@doc.revisions.all? {|rev| rev.any? {|obj| obj.type == :XRef}})
+    assert(@doc.revisions.all? {|rev| rev.any? {|obj| obj.type == :ObjStm } })
+    assert(@doc.revisions.all? {|rev| rev.any? {|obj| obj.type == :XRef } })
   end
 
   def assert_xrefstms_generated
-    assert(@doc.revisions.all? {|rev| rev.find_all {|obj| obj.type == :XRef}.size == 1})
+    assert(@doc.revisions.all? {|rev| rev.find_all {|obj| obj.type == :XRef }.size == 1 })
   end
 
   def assert_no_objstms
-    assert(@doc.each(current: false).all? {|obj| obj.type != :ObjStm})
+    assert(@doc.each(current: false).all? {|obj| obj.type != :ObjStm })
   end
 
   def assert_no_xrefstms
-    assert(@doc.each(current: false).all? {|obj| obj.type != :XRef})
+    assert(@doc.each(current: false).all? {|obj| obj.type != :XRef })
   end
 
   def assert_default_deleted
@@ -90,8 +92,8 @@ describe HexaPDF::Task::Optimize do
       assert_objstms_generated
       assert_default_deleted
       assert_nil(@doc.object(objstm).value)
-      assert(3, @doc.revisions.current.find_all {|obj| obj.type == :ObjStm}.size)
-      assert([xref], @doc.revisions.current.find_all {|obj| obj.type == :XRef})
+      assert(3, @doc.revisions.current.find_all {|obj| obj.type == :ObjStm }.size)
+      assert([xref], @doc.revisions.current.find_all {|obj| obj.type == :XRef })
     end
 
     it "deletes object and xref streams" do

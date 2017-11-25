@@ -48,7 +48,7 @@ module HexaPDF
 
       define_type :Catalog
 
-      define_field :Type,              type: Symbol,     required: true, default: self.type
+      define_field :Type,              type: Symbol,     required: true, default: type
       define_field :Version,           type: Symbol,     version: '1.4'
       define_field :Extensions,        type: Dictionary, version: '1.7'
       # Pages field is required but this is handled in #perform_validation
@@ -99,7 +99,7 @@ module HexaPDF
         unless key?(:Pages)
           yield("A PDF document needs a page tree", true)
           value[:Pages] = document.add(Type: :Pages)
-          value[:Pages].validate {|msg, correctable| yield(msg, correctable)}
+          value[:Pages].validate {|msg, correctable| yield(msg, correctable) }
         end
       end
 

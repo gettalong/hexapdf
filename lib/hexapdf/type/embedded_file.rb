@@ -72,7 +72,7 @@ module HexaPDF
 
       define_type :EmbeddedFile
 
-      define_field :Type,    type: Symbol, default: self.type, version: '1.3'
+      define_field :Type,    type: Symbol, default: type, version: '1.3'
       define_field :Subtype, type: Symbol
       define_field :Params,  type: :XXEmbeddedFileParameters
 

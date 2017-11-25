@@ -161,8 +161,6 @@ module HexaPDF
             line = data[pos + 1, bytes_per_row - 1]
 
             case data.getbyte(pos)
-            when PREDICTOR_PNG_NONE
-              # nothing to do
             when PREDICTOR_PNG_SUB
               bytes_per_pixel.upto(bytes_per_row - 2) do |i|
                 line.setbyte(i, line.getbyte(i) + line.getbyte(i - bytes_per_pixel))
@@ -202,8 +200,6 @@ module HexaPDF
             next_last_line = line.dup
 
             case predictor
-            when PREDICTOR_PNG_NONE
-              # nothing to do
             when PREDICTOR_PNG_SUB
               bytes_per_row.downto(bytes_per_pixel + 1) do |i|
                 line.setbyte(i, line.getbyte(i) - line.getbyte(i - bytes_per_pixel))

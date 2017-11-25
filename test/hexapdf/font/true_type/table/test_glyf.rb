@@ -8,8 +8,8 @@ describe HexaPDF::Font::TrueType::Table::Glyf do
   before do
     loca = Object.new
     loca.define_singleton_method(:offsets) { @offsets ||= [] }
-    loca.define_singleton_method(:offset) {|i| @offsets[i]}
-    loca.define_singleton_method(:length) {|i| @offsets[i + 1] - @offsets[i]}
+    loca.define_singleton_method(:offset) {|i| @offsets[i] }
+    loca.define_singleton_method(:length) {|i| @offsets[i + 1] - @offsets[i] }
     loca.offsets << 0 << 0
     data = [1, -10, -20, 100, 150].pack('s>5')
     loca.offsets << data.size

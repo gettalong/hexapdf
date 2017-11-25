@@ -132,7 +132,7 @@ module HexaPDF
         index = find_in_leaf_node(stack.last[container_name], key)
         return unless stack.last[container_name][index] == key
 
-        value = stack.last[container_name].delete_at(index)
+        stack.last[container_name].delete_at(index) # deletes key
         value = stack.last[container_name].delete_at(index)
 
         stack.last[:Limits] = stack.last[container_name].values_at(0, -2) if stack.last[:Limits]
@@ -140,10 +140,10 @@ module HexaPDF
         stack.reverse_each.inject do |nested_node, node|
           if (!nested_node[container_name] || nested_node[container_name].empty?) &&
               (!nested_node[:Kids] || nested_node[:Kids].empty?)
-            node[:Kids].delete_at(node[:Kids].index {|n| document.deref(n) == nested_node})
+            node[:Kids].delete_at(node[:Kids].index {|n| document.deref(n) == nested_node })
             document.delete(nested_node)
           end
-          if node[:Kids].size > 0 && node[:Limits]
+          if !node[:Kids].empty? && node[:Limits]
             node[:Limits][0] = document.deref(node[:Kids][0])[:Limits][0]
             node[:Limits][1] = document.deref(node[:Kids][-1])[:Limits][1]
           end
@@ -288,12 +288,12 @@ module HexaPDF
           parent.delete(container_name)
           parent[:Kids] = [node1, node2]
         else
-          node1 = document.add(document.wrap({}, type: self.class))
-          node1[container_name] = leaf_node[container_name].slice!(split_point..-1)
-          node1[:Limits] = node1[container_name].values_at(0, -2)
+          node = document.add(document.wrap({}, type: self.class))
+          node[container_name] = leaf_node[container_name].slice!(split_point..-1)
+          node[:Limits] = node[container_name].values_at(0, -2)
           leaf_node[:Limits][1] = leaf_node[container_name][-2]
-          index = 1 + parent[:Kids].index {|o| document.deref(o) == leaf_node}
-          parent[:Kids].insert(index, node1)
+          index = 1 + parent[:Kids].index {|o| document.deref(o) == leaf_node }
+          parent[:Kids].insert(index, node)
         end
       end
 

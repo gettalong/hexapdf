@@ -17,13 +17,17 @@ describe HexaPDF::Encryption::AES do
       end
 
       def process(data)
-        raise "invalid data" if data.length == 0 || data.length % 16 != 0
+        raise "invalid data" if data.empty? || data.length % 16 != 0
         data
       end
     end
 
     @padding_data = (0..15).map do |length|
-      {plain: '5' * length, cipher_padding: '5' * length + (16 - length).chr * (16 - length), length: 32}
+      {
+        plain: '5' * length,
+        cipher_padding: '5' * length + (16 - length).chr * (16 - length),
+        length: 32,
+      }
     end
     @padding_data << {plain: '5' * 16, cipher_padding: '5' * 16 + 16.chr * 16, length: 48}
   end
@@ -73,7 +77,8 @@ describe HexaPDF::Encryption::AES do
 
     it "returns the decrypted result without padding and with IV removed on decryption_fiber" do
       @padding_data.each do |data|
-        result = @algorithm_class.decryption_fiber('some key' * 2, Fiber.new {'iv' * 8 + data[:cipher_padding]})
+        result = @algorithm_class.decryption_fiber('some key' * 2,
+                                                   Fiber.new { 'iv' * 8 + data[:cipher_padding] })
         result = TestHelper.collector(result)
         assert_equal(data[:plain], result)
       end
@@ -106,7 +111,8 @@ describe HexaPDF::Encryption::AES do
     it "fails on decryption if not enough bytes are provided" do
       [4, 20, 40].each do |length|
         assert_raises(HexaPDF::EncryptionError) do
-          TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, Fiber.new { 'a' * length }))
+          TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4,
+                                                                 Fiber.new { 'a' * length }))
         end
       end
     end

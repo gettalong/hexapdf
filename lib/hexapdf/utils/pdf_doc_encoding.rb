@@ -85,7 +85,7 @@ module HexaPDF
 
       # Converts the given string to UTF-8, assuming it contains bytes in PDFDocEncoding.
       def self.convert_to_utf8(str)
-        str.each_byte.with_object('') {|byte, result| result << CHARACTER_MAP[byte]}
+        str.each_byte.with_object('') {|byte, result| result << CHARACTER_MAP[byte] }
       end
 
     end

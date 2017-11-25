@@ -35,7 +35,7 @@ describe HexaPDF::Font::Type1::AFMParser do
       basename = File.basename(file, '.*')
       assert_equal(basename, metrics.font_name, basename)
       assert_equal(basename.sub(/-.*/, ''), metrics.family_name, basename)
-      assert(metrics.character_metrics.size > 0, basename)
+      refute(metrics.character_metrics.empty?, basename)
     end
   end
 

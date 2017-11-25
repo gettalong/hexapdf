@@ -110,7 +110,7 @@ describe HexaPDF::Object do
         invoked[:method] = true
         block.call("error", true)
       end
-      assert(obj.validate {|*a| invoked[:block] = a})
+      assert(obj.validate {|*a| invoked[:block] = a })
       assert_equal([:method, :block], invoked.keys)
       assert_equal(["error", true], invoked[:block])
 
@@ -125,7 +125,7 @@ describe HexaPDF::Object do
         block.call("error", false)
         invoked[:after] = true
       end
-      refute(obj.validate {|*a| invoked[:block] = a})
+      refute(obj.validate {|*a| invoked[:block] = a })
       refute(invoked.key?(:after))
     end
   end
@@ -182,7 +182,7 @@ describe HexaPDF::Object do
   describe "validation" do
     before do
       @doc = Object.new
-      @doc.define_singleton_method(:add) {|obj| obj.oid = 1}
+      @doc.define_singleton_method(:add) {|obj| obj.oid = 1 }
     end
 
     it "validates that the object is indirect if it must be indirect" do

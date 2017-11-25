@@ -156,22 +156,19 @@ module HexaPDF
           # Returns the specific Universal color space used for this color.
           attr_reader :color_space
 
+          # Returns the componets of the universal color, i.e. all arguments provided on
+          # initialization.
+          attr_reader :components
+
           # Creates a new universal color with the given components.
           def initialize(color_space, *components)
             @color_space = color_space
             @components = components
           end
 
-          # Returns the componets of the universal color, i.e. all arguments provided on
-          # initialization.
-          def components
-            @components
-          end
-
         end
 
       end
-
 
       # The DeviceRGB color space.
       class DeviceRGB
@@ -233,7 +230,6 @@ module HexaPDF
         end
 
       end
-
 
       # The DeviceCMYK color space.
       class DeviceCMYK
@@ -297,7 +293,6 @@ module HexaPDF
         end
 
       end
-
 
       # The DeviceGray color space.
       class DeviceGray

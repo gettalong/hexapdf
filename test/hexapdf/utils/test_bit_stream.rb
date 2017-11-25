@@ -30,7 +30,7 @@ describe HexaPDF::Utils::BitStreamReader do
 
   describe "read" do
     it "allows reading any number of bits" do
-      @reader << "\xaa" * 8  # 10101010 * 8
+      @reader << "\xaa" * 8 # 10101010 * 8
       assert_equal(1, @reader.read(1))
       assert_equal(0, @reader.read(1))
       assert_equal(2, @reader.read(2))

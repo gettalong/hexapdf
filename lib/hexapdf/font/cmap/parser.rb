@@ -70,7 +70,7 @@ module HexaPDF
           end
 
           cmap
-        rescue => e
+        rescue StandardError => e
           raise HexaPDF::Error, "Error parsing CMap: #{e.message}", e.backtrace
         end
 

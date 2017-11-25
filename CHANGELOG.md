@@ -5,6 +5,8 @@
 * [HexaPDF::MalformedPDFError::new] method signature
 * [HexaPDF::Layout::TextFragment::new] and
   [HexaPDF::Layout::TextFragment::create] method signatures
+* [HexaPDF::Encryption::SecurityHandler#set_up_encryption] argument `force_V4`
+  to `force_v4`
 
 ### Fixed
 

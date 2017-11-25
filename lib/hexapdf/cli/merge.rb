@@ -144,14 +144,14 @@ module HexaPDF
         @files.each do |s|
           page_list = s.file.pages.to_a
           s.pages = parse_pages_specification(s.pages, s.file.pages.count)
-          s.pages.each {|arr| arr[0] = page_list[arr[0]]}
+          s.pages.each {|arr| arr[0] = page_list[arr[0]] }
         end
 
         if @interleave
           max_pages_per_file = 0
           all = @files.each_with_index.map do |spec, findex|
             list = []
-            spec.pages.each {|index, rotation| list << [spec.file, findex, index, rotation]}
+            spec.pages.each {|index, rotation| list << [spec.file, findex, index, rotation] }
             max_pages_per_file = list.size if list.size > max_pages_per_file
             list
           end
@@ -165,7 +165,7 @@ module HexaPDF
           end
         else
           @files.each_with_index do |s, findex|
-            s.pages.each {|page, rotation| import_page(page_tree, findex, page, rotation)}
+            s.pages.each {|page, rotation| import_page(page_tree, findex, page, rotation) }
           end
         end
       end

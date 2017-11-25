@@ -26,7 +26,7 @@ describe HexaPDF::Type::PageTreeNode do
   #       @pages[6]
   #       @pages[7]
   def define_multilevel_page_tree
-    @pages = 8.times.map { @doc.add(Type: :Page) }
+    @pages = Array.new(8) { @doc.add(Type: :Page) }
     @kid1 = @doc.add(Type: :Pages, Parent: @root, Count: 5)
     @kid11 = @doc.add(Type: :Pages, Parent: @kid1)
     @kid11.add_page(@pages[0])
@@ -221,7 +221,7 @@ describe HexaPDF::Type::PageTreeNode do
       @kid12[:Count] = 100
 
       called_msg = ''
-      refute(@root.validate(auto_correct: false) {|msg, _| called_msg = msg})
+      refute(@root.validate(auto_correct: false) {|msg, _| called_msg = msg })
       assert_match(/Count.*invalid/, called_msg)
 
       assert(@root.validate)
@@ -235,7 +235,7 @@ describe HexaPDF::Type::PageTreeNode do
       @kid2.delete(:Parent)
 
       called_msg = ''
-      refute(@root.validate(auto_correct: false) {|msg, _| called_msg = msg})
+      refute(@root.validate(auto_correct: false) {|msg, _| called_msg = msg })
       assert_match(/Parent.*invalid/, called_msg)
 
       assert(@root.validate)
@@ -245,7 +245,7 @@ describe HexaPDF::Type::PageTreeNode do
 
     it "removes invalid objects from the page tree (like null objects)" do
       define_multilevel_page_tree
-      assert(@root.validate(auto_correct: false) {|m, _| p m})
+      assert(@root.validate(auto_correct: false) {|m, _| p m })
 
       @doc.delete(@pages[3])
       refute(@root.validate(auto_correct: false)) do |msg, _|

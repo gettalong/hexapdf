@@ -49,7 +49,9 @@ module HexaPDF
       # object.
       #
       # See: ITU T.81 B1.1.3
-      SOF_MARKERS = [0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF].freeze
+      SOF_MARKERS = [
+        0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF
+      ].freeze
 
       # Adobe uses the marker 0xEE (APPE) for its purposes. We need to use it for determinig
       # whether to invert the colors for CMYK/YCCK images or not (Adobe does this...).
@@ -87,7 +89,7 @@ module HexaPDF
       # Creates a PDF image object from the JPEG file or IO stream.
       def self.load(document, file_or_io)
         dict = if file_or_io.kind_of?(String)
-                 File.open(file_or_io, 'rb') {|io| image_data_from_io(io)}
+                 File.open(file_or_io, 'rb') {|io| image_data_from_io(io) }
                else
                  image_data_from_io(file_or_io)
                end

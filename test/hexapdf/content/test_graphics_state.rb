@@ -5,6 +5,7 @@ require 'hexapdf/content/graphics_state'
 
 # Dummy class used as wrapper so that constant lookup works correctly
 class GraphicsStateWrapper < Minitest::Spec
+
   include HexaPDF::Content
 
   describe NamedValue do
@@ -146,4 +147,5 @@ class GraphicsStateWrapper < Minitest::Spec
       assert_raises(HexaPDF::Error) { @gs.restore }
     end
   end
+
 end

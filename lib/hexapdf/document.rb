@@ -129,11 +129,11 @@ module HexaPDF
       @version = '1.2'
 
       @revisions = Revisions.from_io(self, io)
-      if encrypted? && @config['document.auto_decrypt']
-        @security_handler = Encryption::SecurityHandler.set_up_decryption(self, decryption_opts)
-      else
-        @security_handler = nil
-      end
+      @security_handler = if encrypted? && @config['document.auto_decrypt']
+                            Encryption::SecurityHandler.set_up_decryption(self, decryption_opts)
+                          else
+                            nil
+                          end
 
       @listeners = {}
       @cache = Hash.new {|h, k| h[k] = {} }
@@ -178,7 +178,7 @@ module HexaPDF
     # because this method takes *all* revisions into account. Also see the discussion on #each for
     # more information.
     def object?(ref)
-      @revisions.any? {|rev| rev.object?(ref)}
+      @revisions.any? {|rev| rev.object?(ref) }
     end
 
     # :call-seq:
@@ -241,7 +241,7 @@ module HexaPDF
       when :current
         @revisions.current.delete(ref, mark_as_free: mark_as_free)
       when :all
-        @revisions.each {|rev| rev.delete(ref, mark_as_free: mark_as_free)}
+        @revisions.each {|rev| rev.delete(ref, mark_as_free: mark_as_free) }
       else
         raise ArgumentError, "Unsupported option revision: #{revision}"
       end
@@ -354,10 +354,10 @@ module HexaPDF
       case object
       when Hash
         seen[object] = true
-        object.each_with_object({}) {|(key, val), memo| memo[key] = unwrap(val, seen.dup)}
+        object.each_with_object({}) {|(key, val), memo| memo[key] = unwrap(val, seen.dup) }
       when Array
         seen[object] = true
-        object.map {|inner_o| unwrap(inner_o, seen.dup)}
+        object.map {|inner_o| unwrap(inner_o, seen.dup) }
       when HexaPDF::PDFData
         seen[object] = true
         unwrap(object.value, seen.dup)
@@ -415,7 +415,7 @@ module HexaPDF
 
     # Dispatches the message +name+ with the given arguments to all registered listeners.
     def dispatch_message(name, *args)
-      @listeners[name] && @listeners[name].each {|obj| obj.call(*args)}
+      @listeners[name]&.each {|obj| obj.call(*args) }
     end
 
     # Caches the value or the return value of the given block using the given Object::PDFData and
@@ -508,7 +508,7 @@ module HexaPDF
     # Sets the version of the PDF document. The argument must be a string in the format 'M.N'
     # where M is the major version and N the minor version (e.g. '1.4' or '2.0').
     def version=(value)
-      raise ArgumentError, "PDF version must follow format M.N" unless value.to_s =~ /\A\d\.\d\z/
+      raise ArgumentError, "PDF version must follow format M.N" unless value.to_s.match?(/\A\d\.\d\z/)
       @version = value.to_s
     end
 
@@ -615,7 +615,7 @@ module HexaPDF
       dispatch_message(:before_write)
 
       if file_or_io.kind_of?(String)
-        File.open(file_or_io, 'w+') {|file| Writer.write(self, file)}
+        File.open(file_or_io, 'w+') {|file| Writer.write(self, file) }
       else
         Writer.write(self, file_or_io)
       end

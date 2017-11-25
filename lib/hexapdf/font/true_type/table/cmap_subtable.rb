@@ -144,7 +144,6 @@ module HexaPDF
               "#{format.inspect})>"
           end
 
-
           # Cmap format 0
           module Format0
 
@@ -159,12 +158,11 @@ module HexaPDF
               raise HexaPDF::Error, "Invalid length #{length} for cmap format 0" if length != 262
               code_map = io.read(256).unpack('C*')
               gid_map = {}
-              code_map.each_with_index {|glyph, index| gid_map[glyph] = index}
+              code_map.each_with_index {|glyph, index| gid_map[glyph] = index }
               [code_map, gid_map]
             end
 
           end
-
 
           # Cmap format 2
           module Format2
@@ -234,9 +232,7 @@ module HexaPDF
               end
             end
 
-
           end
-
 
           # Cmap format 4
           module Format4
@@ -262,7 +258,8 @@ module HexaPDF
               mapper(end_codes, start_codes, id_deltas, id_range_offsets, glyph_indexes)
             end
 
-            def self.mapper(end_codes, start_codes, id_deltas, id_range_offsets, glyph_indexes) #:nodoc:
+            # :nodoc:
+            def self.mapper(end_codes, start_codes, id_deltas, id_range_offsets, glyph_indexes)
               compute_glyph_id = lambda do |index, code|
                 offset = id_range_offsets[index]
                 if offset != 0
@@ -276,7 +273,7 @@ module HexaPDF
               end
 
               code_map = Hash.new do |h, code|
-                i = end_codes.bsearch_index {|c| c >= code}
+                i = end_codes.bsearch_index {|c| c >= code }
                 glyph_id = (i && start_codes[i] <= code ? compute_glyph_id.call(i, code) : 0)
                 h[code] = glyph_id unless glyph_id == 0
               end
@@ -291,7 +288,6 @@ module HexaPDF
             end
 
           end
-
 
           # Cmap format 6
           module Format6
@@ -316,7 +312,6 @@ module HexaPDF
 
           end
 
-
           # Cmap format 10
           module Format10
 
@@ -340,7 +335,6 @@ module HexaPDF
 
           end
 
-
           # Cmap format 12
           module Format12
 
@@ -359,19 +353,18 @@ module HexaPDF
             # arrays.
             def self.mapper(groups) #:nodoc:
               code_map = Hash.new do |h, code|
-                group = groups.bsearch {|g| g[1] >= code}
+                group = groups.bsearch {|g| g[1] >= code }
                 h[code] = group[2] + (code - group[0]) if group && group[0] <= code
               end
-              groups_by_gid = groups.sort_by {|g| g[2]}
+              groups_by_gid = groups.sort_by {|g| g[2] }
               gid_map = Hash.new do |h, gid|
-                group = groups_by_gid.bsearch {|g| g[2] + g[1] - g[0] >= gid}
+                group = groups_by_gid.bsearch {|g| g[2] + g[1] - g[0] >= gid }
                 h[gid] = group[0] + (gid - group[2]) if group && group[2] <= gid
               end
               [code_map, gid_map]
             end
 
           end
-
 
         end
 

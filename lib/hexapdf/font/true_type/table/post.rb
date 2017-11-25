@@ -110,7 +110,6 @@ module HexaPDF
                            end
           end
 
-
           # 'post' table format 1
           module Format1
 
@@ -151,7 +150,6 @@ module HexaPDF
 
           end
 
-
           # 'post' table format 2
           module Format2
 
@@ -184,7 +182,6 @@ module HexaPDF
 
           end
 
-
           # 'post' table format 3
           module Format3
 
@@ -198,7 +195,6 @@ module HexaPDF
             end
 
           end
-
 
           # 'post' table format 4
           module Format4

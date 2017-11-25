@@ -21,10 +21,10 @@ describe HexaPDF::Tokenizer do
     assert_equal(HexaPDF::Reference.new(2, 15), @tokenizer.next_object)
   end
 
-  it "next_token: should not fail when resetting the position (due to the use of the internal StringScanner buffer)" do
+  it "next_token: should not fail when resetting the position (due to use of an internal buffer)" do
     create_tokenizer("0 1 2 3 4 " * 4000)
     4000.times do
-      5.times {|i| assert_equal(i, @tokenizer.next_token)}
+      5.times {|i| assert_equal(i, @tokenizer.next_token) }
     end
   end
 end

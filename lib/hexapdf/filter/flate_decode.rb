@@ -56,7 +56,7 @@ module HexaPDF
 
         # Returns the next available stream of the pool, already reset to its initial state.
         def next_available
-          @pool.find(-> { e = @creator.call; @pool << e; e }, &:finished?).tap(&:reset)
+          @pool.find(lambda { e = @creator.call; @pool << e; e }, &:finished?).tap(&:reset)
         end
 
       end
@@ -75,15 +75,15 @@ module HexaPDF
           while source.alive? && (data = source.resume)
             begin
               data = inflater.inflate(data)
-            rescue
-              raise FilterError, "Problem while decoding Flate encoded stream: #{$!}"
+            rescue StandardError => e
+              raise FilterError, "Problem while decoding Flate encoded stream: #{e}"
             end
             Fiber.yield(data)
           end
           begin
             (data = inflater.finish).empty? ? nil : data
-          rescue
-            raise FilterError, "Problem while decoding Flate encoded stream: #{$!}"
+          rescue StandardError => e
+            raise FilterError, "Problem while decoding Flate encoded stream: #{e}"
           end
         end
 

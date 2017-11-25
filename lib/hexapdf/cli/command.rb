@@ -243,7 +243,7 @@ module HexaPDF
       # Applies the chosen stream mode to the given object.
       def optimize_stream(obj)
         return if @out_options.streams == :preserve || !obj.respond_to?(:set_filter) ||
-          Array(obj[:Filter]).any? {|f| IGNORED_FILTERS[f]}
+            Array(obj[:Filter]).any? {|f| IGNORED_FILTERS[f] }
 
         obj.set_filter(@out_options.streams == :compress ? :FlateDecode : nil)
       end
@@ -251,9 +251,9 @@ module HexaPDF
       # Optimize the object if it is a font object.
       def optimize_font(obj)
         return unless @out_options.optimize_fonts && obj.kind_of?(HexaPDF::Type::Font) &&
-          (obj[:Subtype] == :TrueType ||
-           (obj[:Subtype] == :Type0 && obj.descendant_font[:Subtype] == :CIDFontType2)) &&
-          obj.embedded?
+            (obj[:Subtype] == :TrueType ||
+             (obj[:Subtype] == :Type0 && obj.descendant_font[:Subtype] == :CIDFontType2)) &&
+            obj.embedded?
 
         font = HexaPDF::Font::TrueType::Font.new(StringIO.new(obj.font_file.stream))
         data = HexaPDF::Font::TrueType::Optimizer.build_for_pdf(font)
@@ -268,7 +268,7 @@ module HexaPDF
         if @out_options.encryption == :add
           doc.encrypt(algorithm: @out_options.enc_algorithm,
                       key_length: @out_options.enc_key_length,
-                      force_V4: @out_options.enc_force_v4,
+                      force_v4: @out_options.enc_force_v4,
                       permissions: @out_options.enc_permissions,
                       owner_password: @out_options.enc_owner_pwd,
                       user_password: @out_options.enc_user_pwd)
@@ -300,7 +300,7 @@ module HexaPDF
             end_nr = ($2 == 'e' ? count : [$2.to_i, count].min) - 1
             step = ($3 ? $3.to_i : 1) * (start_nr > end_nr ? -1 : 1)
             rotation = ROTATE_MAP[$4]
-            start_nr.step(to: end_nr, by: step) {|n| arr << [n, rotation]}
+            start_nr.step(to: end_nr, by: step) {|n| arr << [n, rotation] }
           else
             raise OptionParser::InvalidArgument, "invalid page range format: #{str}"
           end
@@ -315,15 +315,13 @@ module HexaPDF
         if $stdin.tty?
           read_from_console(prompt)
         else
-          pwd = $stdin.gets
-          pwd = read_from_console(prompt) unless pwd
-          pwd.chomp
+          ($stdin.gets || read_from_console(prompt)).chomp
         end
       end
 
       # Removes unused pages and page tree nodes from the document.
       def remove_unused_pages(doc)
-        retained = doc.pages.each_with_object({}) {|page, h| h[page.data] = true}
+        retained = doc.pages.each_with_object({}) {|page, h| h[page.data] = true }
         retained[doc.pages.root.data] = true
         doc.each(current: false) do |obj|
           next unless obj.kind_of?(HexaPDF::Dictionary)
@@ -338,7 +336,7 @@ module HexaPDF
       # Displays the given prompt, reads from the console without echo and returns the read string.
       def read_from_console(prompt)
         IO.console.write("#{prompt}: ")
-        str = IO.console.noecho {|io| io.gets.chomp}
+        str = IO.console.noecho {|io| io.gets.chomp }
         puts
         str
       end

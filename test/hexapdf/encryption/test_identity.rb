@@ -15,7 +15,7 @@ describe HexaPDF::Encryption::Identity do
   end
 
   it "returns the source Fiber unmodified for encryption_fiber/decryption_fiber" do
-    f = Fiber.new {'data'}
+    f = Fiber.new { 'data' }
     assert_equal(f, @algorithm_class.encryption_fiber('key', f))
   end
 end

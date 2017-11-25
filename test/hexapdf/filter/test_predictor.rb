@@ -9,13 +9,15 @@ describe HexaPDF::Filter::Predictor do
   module CommonPredictorTests
     def test_decoding_through_decoder_method
       @testcases.each do |name, data|
-        assert_equal(data[:source], collector(@obj.decoder(feeder(data[:result].dup), data)), "test case: #{name}")
+        assert_equal(data[:source], collector(@obj.decoder(feeder(data[:result].dup), data)),
+                     "test case: #{name}")
       end
     end
 
     def test_encoding_through_encoder_method
       @testcases.each do |name, data|
-        assert_equal(data[:result], collector(@obj.encoder(feeder(data[:source].dup), data)), "test case: #{name}")
+        assert_equal(data[:result], collector(@obj.encoder(feeder(data[:source].dup), data)),
+                     "test case: #{name}")
       end
     end
   end

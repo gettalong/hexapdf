@@ -69,7 +69,6 @@ module HexaPDF
 
     end
 
-
     # Defines all available line cap styles as constants. Each line cap style is an instance of
     # NamedValue. For use with Content::GraphicsState#line_cap_style.
     #
@@ -102,7 +101,6 @@ module HexaPDF
       PROJECTING_SQUARE_CAP = NamedValue.new(:projecting_square, 2)
 
     end
-
 
     # Defines all available line join styles as constants. Each line join style is an instance of
     # NamedValue. For use with Content::GraphicsState#line_join_style.
@@ -137,7 +135,6 @@ module HexaPDF
       BEVEL_JOIN = NamedValue.new(:bevel, 2)
 
     end
-
 
     # The line dash pattern defines how a line should be dashed. For use with
     # Content::GraphicsState#line_dash_pattern.
@@ -186,7 +183,7 @@ module HexaPDF
       # non-negative and must not all be zero.
       def initialize(array = [], phase = 0)
         if phase < 0 || (!array.empty? &&
-          array.inject(0) {|m, n| m < 0 ? m : (n < 0 ? -1 : m + n)} <= 0)
+          array.inject(0) {|m, n| m < 0 ? m : (n < 0 ? -1 : m + n) } <= 0)
           raise ArgumentError, "Invalid line dash pattern: #{array.inspect} #{phase.inspect}"
         end
         @array = array.freeze
@@ -205,7 +202,6 @@ module HexaPDF
       end
 
     end
-
 
     # Defines all available rendering intents as constants. For use with
     # Content::GraphicsState#rendering_intent.
@@ -240,7 +236,6 @@ module HexaPDF
       PERCEPTUAL = :Perceptual
 
     end
-
 
     # Defines all available text rendering modes as constants. Each text rendering mode is an
     # instance of NamedValue. For use with Content::GraphicsState#text_rendering_mode.
@@ -299,7 +294,6 @@ module HexaPDF
       CLIP = NamedValue.new(:clip, 7)
 
     end
-
 
     # A GraphicsState object holds all the graphic control parameters needed for correct
     # operation when parsing or creating a content stream with a Processor object.
@@ -360,7 +354,6 @@ module HexaPDF
       # interpreted as shape values or opacity values.
       attr_accessor :alpha_source
 
-
       # The text matrix.
       #
       # This attribute is non-nil only when inside a text object.
@@ -417,7 +410,6 @@ module HexaPDF
       # all glyphs together are treated as one elementary object (knockout = +true+).
       attr_accessor :text_knockout
 
-
       # The scaled character spacing used in glyph displacement calculations.
       #
       # This returns the value T_c multiplied by #scaled_horizontal_scaling.
@@ -446,7 +438,6 @@ module HexaPDF
       #
       # See PDF1.7 s9.4.4
       attr_reader :scaled_horizontal_scaling
-
 
       # Initializes the graphics state parameters to their default values.
       def initialize

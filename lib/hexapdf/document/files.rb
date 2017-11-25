@@ -49,8 +49,8 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   files.add(filename, name: File.basename(filename), description: nil, embed: true) -> file_spec
-      #   files.add(io, name:, description: nil)                      -> file_spec
+      #   files.add(filename, name: nil, description: nil, embed: true) -> file_spec
+      #   files.add(io, name:, description: nil)                        -> file_spec
       #
       # Adds the file or IO to the PDF document and returns the corresponding file specification
       # object.
@@ -58,8 +58,11 @@ module HexaPDF
       # Options:
       #
       # name::
-      #     The name that should be used for the file path. This name is also for registering the
-      #     file in the EmbeddedFiles name tree.
+      #     The name that should be used for the file path. This name is also used for registering
+      #     the file in the EmbeddedFiles name tree.
+      #
+      #     When a filename is given, the basename of the file is used by default for +name+ if it
+      #     is not specified.
       #
       # description::
       #     A description of the file.
@@ -104,10 +107,10 @@ module HexaPDF
         else
           seen = {}
           tree = @document.catalog[:Names] && @document.catalog[:Names][:EmbeddedFiles]
-          tree.each_entry do |_, spec|
+          tree&.each_entry do |_, spec|
             seen[spec] = true
             yield(spec)
-          end if tree
+          end
 
           @document.pages.each do |page|
             page[:Annots]&.each do |annot|

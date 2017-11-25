@@ -153,7 +153,7 @@ module HexaPDF
             #   {left_char: {right_char: kern_value}}
             def self.parse(io, _length)
               number_of_pairs = io.read(8).unpack('n').first
-              pairs = Hash.new {|h, k| h[k] = {}}
+              pairs = Hash.new {|h, k| h[k] = {} }
               io.read(number_of_pairs * 6).unpack('n*').each_slice(3) do |left, right, value|
                 pairs[left][right] = (value < 0x8000 ? value : -(value ^ 0xffff) - 1)
               end

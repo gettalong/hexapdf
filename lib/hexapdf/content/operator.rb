@@ -982,7 +982,6 @@ module HexaPDF
 
       end
 
-
       # Implementation of the 'TJ' operator.
       #
       # See: PDF1.7 s9.4.3
@@ -998,7 +997,6 @@ module HexaPDF
         end
 
       end
-
 
       # Mapping of operator names to their default operator implementations.
       DEFAULT_OPERATORS = {
@@ -1064,7 +1062,7 @@ module HexaPDF
         '"'.to_sym => SetSpacingMoveTextNextLineAndShowText.new,
         TJ: ShowTextWithPositioning.new,
       }
-      DEFAULT_OPERATORS.default_proc = proc {|h, k| h[k] = BaseOperator.new(k.to_s)}
+      DEFAULT_OPERATORS.default_proc = proc {|h, k| h[k] = BaseOperator.new(k.to_s) }
 
     end
 

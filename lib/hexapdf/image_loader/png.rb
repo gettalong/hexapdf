@@ -162,7 +162,7 @@ module HexaPDF
               if @color_type == INDEXED
                 trns = io.read(length).unpack('C*')
               elsif @color_type == TRUECOLOR || @color_type == GREYSCALE
-                dict[:Mask] = io.read(length).unpack('n*').map {|val| [val, val]}.flatten
+                dict[:Mask] = io.read(length).unpack('n*').map {|val| [val, val] }.flatten
               else
                 io.seek(length, IO::SEEK_CUR)
               end
@@ -179,7 +179,7 @@ module HexaPDF
               end
             when 'cHRM' # PNG s11.3.3.1
               chrm = io.read(length)
-              @chrm = chrm.unpack('N8').map {|v| v / 100_000.0} unless @intent # sRGB trumps cHRM
+              @chrm = chrm.unpack('N8').map {|v| v / 100_000.0 } unless @intent # sRGB trumps cHRM
             else
               io.seek(length, IO::SEEK_CUR)
             end

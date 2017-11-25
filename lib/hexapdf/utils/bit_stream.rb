@@ -58,7 +58,7 @@ module HexaPDF
         @pos = 0
         self
       end
-      alias :<< :append_data
+      alias << append_data
 
       # Returns the number of remaining bits that can be read.
       def remaining_bits

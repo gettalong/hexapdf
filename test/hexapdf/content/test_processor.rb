@@ -141,7 +141,7 @@ describe HexaPDF::Content::Processor do
         lry = @font.bounding_box[3] / 1000.0 * @processor.graphics_state.font_size +
           @processor.graphics_state.text_rise
         arr = ["Hül".encode("Windows-1252"), 20, " le".encode("Windows-1252")]
-        width = "Hül le".encode("Windows-1252").codepoints.inject(0) {|s, cp| s + @font.width(cp)}
+        width = "Hül le".encode("Windows-1252").codepoints.inject(0) {|s, cp| s + @font.width(cp) }
         width = (width - 20) * @processor.graphics_state.scaled_font_size +
           6 * @processor.graphics_state.scaled_character_spacing +
           @processor.graphics_state.scaled_word_spacing

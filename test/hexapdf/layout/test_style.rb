@@ -10,7 +10,7 @@ require 'hexapdf/layout/box'
 describe HexaPDF::Layout::Style::LineSpacing do
   before do
     @line1 = Object.new
-    @line1.define_singleton_method(:y_min) { - 1}
+    @line1.define_singleton_method(:y_min) { - 1 }
     @line1.define_singleton_method(:y_max) { 2 }
     @line2 = Object.new
     @line2.define_singleton_method(:y_min) { -3 }
@@ -357,14 +357,14 @@ describe HexaPDF::Layout::Style::Layers do
   end
 
   it "can be initialized with an array of layers" do
-    data = [-> {}]
+    data = [lambda {}]
     layers = HexaPDF::Layout::Style::Layers.new(data)
     assert_equal(data, layers.enum_for(:each, {}).to_a)
   end
 
   describe "add and each" do
     it "can use a given block" do
-      block = proc { true}
+      block = proc { true }
       @layers.add(&block)
       assert_equal([block], @layers.enum_for(:each, {}).to_a)
     end
@@ -402,7 +402,7 @@ describe HexaPDF::Layout::Style::Layers do
     canvas.context.document.config['style.layers_map'][:test] = klass
 
     @layers.draw(canvas, 10, 15, box)
-    @layers.add {|canv, ibox| assert_equal(box, ibox); canv.line_width(10)}
+    @layers.add {|canv, ibox| assert_equal(box, ibox); canv.line_width(10) }
     @layers.add(:test, option: :value)
     @layers.draw(canvas, 10, 15, box)
     ops = [[:save_graphics_state],

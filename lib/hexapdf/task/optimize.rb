@@ -157,7 +157,7 @@ module HexaPDF
                 count = 0
               end
             end
-            objstms.each {|objstm| doc.add(objstm, revision: rev_index)}
+            objstms.each {|objstm| doc.add(objstm, revision: rev_index) }
             doc.add({Type: :XRef}, revision: rev_index) unless xref_stream
           end
         end
@@ -222,7 +222,8 @@ module HexaPDF
         end
 
         def process(op, operands) #:nodoc:
-          @result << HexaPDF::Content::Operator::DEFAULT_OPERATORS[op.intern].serialize(@serializer, *operands)
+          @result << HexaPDF::Content::Operator::DEFAULT_OPERATORS[op.intern].
+            serialize(@serializer, *operands)
         end
 
       end

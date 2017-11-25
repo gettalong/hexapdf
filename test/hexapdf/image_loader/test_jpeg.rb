@@ -15,7 +15,7 @@ describe HexaPDF::ImageLoader::JPEG do
     it "works for jpeg files" do
       @images.each do |image|
         assert(@loader.handles?(image))
-        File.open(image, 'rb') {|file| assert(@loader.handles?(file))}
+        File.open(image, 'rb') {|file| assert(@loader.handles?(file)) }
       end
     end
   end

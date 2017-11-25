@@ -110,7 +110,7 @@ module HexaPDF
         unless value[:Root]
           yield("A PDF document must have a Catalog dictionary", true)
           value[:Root] = document.add(Type: :Catalog)
-          value[:Root].validate {|message, correctable| yield(message, correctable)}
+          value[:Root].validate {|message, correctable| yield(message, correctable) }
         end
 
         if value[:Encrypt] && (!document.security_handler ||

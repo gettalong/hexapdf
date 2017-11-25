@@ -82,7 +82,7 @@ describe HexaPDF::Revision do
       assert_equal(0, obj.gen)
     end
 
-    it "loads an object that is defined in the cross-reference section by using only the object number" do
+    it "loads an object that is defined in the cross-reference section using the object number" do
       obj = @rev.object(2)
       refute_nil(obj)
     end

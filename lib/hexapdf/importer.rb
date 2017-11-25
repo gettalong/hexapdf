@@ -50,16 +50,18 @@ module HexaPDF
   class Importer
 
     class NullableWeakRef < WeakRef #:nodoc:
+
       def __getobj__ #:nodoc:
         super rescue nil
       end
+
     end
 
     # Returns the Importer object for copying objects from the +source+ to the +destination+
     # document.
     def self.for(source:, destination:)
       @map ||= {}
-      @map.keep_if {|_, v| v.source.weakref_alive? && v.destination.weakref_alive?}
+      @map.keep_if {|_, v| v.source.weakref_alive? && v.destination.weakref_alive? }
       source = NullableWeakRef.new(source)
       destination = NullableWeakRef.new(destination)
       @map[[source.hash, destination.hash]] ||= new(source: source, destination: destination)
@@ -108,7 +110,7 @@ module HexaPDF
           obj[k] = duplicate(v)
         end
       when Array
-        object.map {|v| duplicate(v)}
+        object.map {|v| duplicate(v) }
       when HexaPDF::Reference
         import(@source.object(object))
       when HexaPDF::Object

@@ -59,7 +59,7 @@ describe HexaPDF::Layout::TextFragment do
   describe "draw" do
     def setup_with_style(**styles)
       setup_fragment(@font.decode_utf8('H'), 2)
-      styles.each {|name, value| @fragment.style.send(name, value)}
+      styles.each {|name, value| @fragment.style.send(name, value) }
       @canvas = @doc.pages.add.canvas
       @fragment.draw(@canvas, 10, 15)
     end

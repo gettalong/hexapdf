@@ -50,7 +50,7 @@ module HexaPDF
 
       define_type :XObject
 
-      define_field :Type,             type: Symbol,          default: self.type
+      define_field :Type,             type: Symbol,          default: type
       define_field :Subtype,          type: Symbol,          required: true, default: :Image
       define_field :Width,            type: Integer,         required: true
       define_field :Height,           type: Integer,         required: true
@@ -226,14 +226,14 @@ module HexaPDF
           if info.color_space == :rgb
             palette = palette_data[0, palette_data.length - palette_data.length % 3]
           else
-            palette_data.each_byte {|byte| palette << byte << byte << byte}
+            palette_data.each_byte {|byte| palette << byte << byte << byte }
           end
           io << png_chunk('PLTE', palette)
         end
 
-        if self[:Mask].kind_of?(Array) && self[:Mask].each_slice(2).all? {|a, b| a == b} &&
+        if self[:Mask].kind_of?(Array) && self[:Mask].each_slice(2).all? {|a, b| a == b } &&
             (color_type == ImageLoader::PNG::TRUECOLOR || color_type == ImageLoader::PNG::GREYSCALE)
-          io << png_chunk('tRNS', self[:Mask].each_slice(2).map {|a, _| a}.pack('n*'))
+          io << png_chunk('tRNS', self[:Mask].each_slice(2).map {|a, _| a }.pack('n*'))
         end
 
         filter, = *self[:Filter]

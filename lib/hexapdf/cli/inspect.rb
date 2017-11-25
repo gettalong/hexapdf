@@ -94,7 +94,7 @@ module HexaPDF
       end
 
       def execute(file) #:nodoc:
-        with_document(file, password: @password) {|doc| send("do_#{@exec}", doc)}
+        with_document(file, password: @password) {|doc| send("do_#{@exec}", doc) }
       end
 
       private
@@ -117,7 +117,7 @@ module HexaPDF
         pages.each do |index, _|
           page = page_list[index]
           str = "page #{index + 1} (#{page.oid},#{page.gen}): "
-          str << Array(page[:Contents]).map {|c| "#{c.oid},#{c.gen}"}.join(" ")
+          str << Array(page[:Contents]).map {|c| "#{c.oid},#{c.gen}" }.join(" ")
           puts str
         end
       end

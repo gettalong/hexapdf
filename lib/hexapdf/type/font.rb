@@ -44,7 +44,7 @@ module HexaPDF
 
       define_type :Font
 
-      define_field :Type, type: Symbol, required: true, default: self.type
+      define_field :Type, type: Symbol, required: true, default: type
       define_field :BaseFont, type: Symbol, required: true
       define_field :ToUnicode, type: Stream, version: '1.2'
 
@@ -56,7 +56,7 @@ module HexaPDF
       # Returns the UTF-8 string for the given character code, or calls the configuration option
       # 'font.on_missing_unicode_mapping' if no mapping was found.
       def to_utf8(code)
-        to_unicode_cmap && to_unicode_cmap.to_unicode(code) || missing_unicode_mapping(code)
+        to_unicode_cmap&.to_unicode(code) || missing_unicode_mapping(code)
       end
 
       # Returns the bounding box of the font or +nil+ if it is not found.

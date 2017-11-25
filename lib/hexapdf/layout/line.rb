@@ -93,7 +93,7 @@ module HexaPDF
         # Creates a new calculator with the given initial items.
         def initialize(items = [])
           reset
-          items.each {|item| add(item)}
+          items.each {|item| add(item) }
         end
 
         # Adds a new item to be considered when calculating the various dimensions.
@@ -117,7 +117,7 @@ module HexaPDF
           end
           self
         end
-        alias_method :<<, :add
+        alias << add
 
         # Returns the result of the calculations, the array [y_min, y_max, text_y_min, text_y_max].
         #
@@ -182,7 +182,7 @@ module HexaPDF
       # Creates a new Line object, adding all given items to it.
       def initialize(items = [])
         @items = []
-        items.each {|i| add(i)}
+        items.each {|i| add(i) }
         @x_offset = 0
         @y_offset = 0
       end
@@ -207,7 +207,7 @@ module HexaPDF
         end
         self
       end
-      alias :<< :add
+      alias << add
 
       # :call-seq:
       #   line.each {|item, x, y| block }

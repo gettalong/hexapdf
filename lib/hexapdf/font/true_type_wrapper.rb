@@ -109,7 +109,6 @@ module HexaPDF
 
       private_constant :Glyph
 
-
       # Returns the wrapped TrueType font object.
       attr_reader :wrapped_font
 
@@ -211,7 +210,7 @@ module HexaPDF
                            FontName: @wrapped_font.font_name.intern,
                            FontWeight: @wrapped_font.weight,
                            Flags: 0,
-                           FontBBox: @wrapped_font.bounding_box.map {|m| m * scaling_factor},
+                           FontBBox: @wrapped_font.bounding_box.map {|m| m * scaling_factor },
                            ItalicAngle: @wrapped_font.italic_angle || 0,
                            Ascent: @wrapped_font.ascender * scaling_factor,
                            Descent: @wrapped_font.descender * scaling_factor,
@@ -235,9 +234,9 @@ module HexaPDF
         end
 
         fd.flag(:fixed_pitch) if @wrapped_font[:post].is_fixed_pitch? ||
-          @wrapped_font[:hhea].num_of_long_hor_metrics == 1
+            @wrapped_font[:hhea].num_of_long_hor_metrics == 1
         fd.flag(:italic) if @wrapped_font[:'OS/2'].selection_include?(:italic) ||
-          @wrapped_font[:'OS/2'].selection_include?(:oblique)
+            @wrapped_font[:'OS/2'].selection_include?(:oblique)
         fd.flag(:symbolic)
 
         cid_font = @document.add(Type: :Font, Subtype: :CIDFontType2,
@@ -265,7 +264,7 @@ module HexaPDF
         return unless @subsetter
 
         tag = ''
-        data = @encoded_glyphs.each_with_object(''.b) {|(g, v), s| s << g.id.to_s << v}
+        data = @encoded_glyphs.each_with_object(''.b) {|(g, v), s| s << g.id.to_s << v }
         hash = Digest::MD5.hexdigest(data << @wrapped_font.font_name).to_i(16)
         while hash != 0 && tag.length < 6
           hash, mod = hash.divmod(UPPERCASE_LETTERS.length)
@@ -295,7 +294,7 @@ module HexaPDF
       # Adds the /DW and /W fields to the CIDFont dictionary.
       def complete_width_information
         default_width = glyph(3, " ").width.to_i
-        widths = @encoded_glyphs.keys.reject {|g| g.width == default_width}.map! do |glyph|
+        widths = @encoded_glyphs.keys.reject {|g| g.width == default_width }.map! do |glyph|
           [(@subsetter ? @subsetter.subset_glyph_id(glyph.id) : glyph.id), glyph.width]
         end.sort!
         @dict[:DescendantFonts].first.set_widths(widths, default_width: default_width)

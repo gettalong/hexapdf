@@ -83,7 +83,7 @@ describe HexaPDF::Content::Canvas do
     end
 
     it "is serialized correctly when a block is used" do
-      @canvas.save_graphics_state { }
+      @canvas.save_graphics_state {}
       assert_operators(@canvas.contents, [[:save_graphics_state], [:restore_graphics_state]])
     end
 
@@ -714,8 +714,8 @@ describe HexaPDF::Content::Canvas do
     it "draws the, optionally configured, graphic object onto the canvas" do
       obj = Object.new
       obj.define_singleton_method(:options) { @options }
-      obj.define_singleton_method(:configure) {|**kwargs| @options = kwargs; self}
-      obj.define_singleton_method(:draw) {|canvas| canvas.move_to(@options[:x], @options[:y])}
+      obj.define_singleton_method(:configure) {|**kwargs| @options = kwargs; self }
+      obj.define_singleton_method(:draw) {|canvas| canvas.move_to(@options[:x], @options[:y]) }
       @canvas.draw(obj, x: 5, y: 6)
       assert_operators(@canvas.contents, [[:move_to, [5, 6]]])
     end
@@ -961,7 +961,7 @@ describe HexaPDF::Content::Canvas do
     it "invokes the operator implementation" do
       @canvas.text_matrix(1, 2, 3, 4, 5, 6)
       assert_operators(@canvas.contents, [[:begin_text],
-                                          [:set_text_matrix, [1, 2, 3, 4, 5,6]]])
+                                          [:set_text_matrix, [1, 2, 3, 4, 5, 6]]])
     end
 
     it "returns the canvas object" do
@@ -1002,7 +1002,7 @@ describe HexaPDF::Content::Canvas do
     end
 
     it "fails if invoked outside a text object" do
-      assert_raises_in_graphics_object(:none, :path, :clipping_path)  { @canvas.text_cursor }
+      assert_raises_in_graphics_object(:none, :path, :clipping_path) { @canvas.text_cursor }
     end
   end
 
@@ -1074,8 +1074,7 @@ describe HexaPDF::Content::Canvas do
                                           [:show_text_with_positioning, [['', -10, "Ha", -35, "l lo"]]],
                                           [:set_font_and_size, [:F1, 10]],
                                           [:set_leading, [12]],
-                                          [:show_text_with_positioning, [["Hal"]]],
-                                         ])
+                                          [:show_text_with_positioning, [["Hal"]]]])
     end
 
     it "fails if no valid font is set" do
@@ -1094,8 +1093,7 @@ describe HexaPDF::Content::Canvas do
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 20]],
                                           [:set_leading, [24]],
                                           [:begin_text],
-                                          [:show_text_with_positioning, [["Ha", -35, "l lo"]]],
-                                         ])
+                                          [:show_text_with_positioning, [["Ha", -35, "l lo"]]]])
     end
 
     it "fails if no valid font is set" do
@@ -1112,8 +1110,7 @@ describe HexaPDF::Content::Canvas do
                                           [:set_leading, [12]],
                                           [:begin_text],
                                           [:set_text_matrix, [1, 0, 0, 1, 100, 100]],
-                                          [:show_text_with_positioning, [["Hallo"]]],
-                                         ])
+                                          [:show_text_with_positioning, [["Hallo"]]]])
     end
 
     it "shows text, possibly split over multiple lines" do
@@ -1130,8 +1127,7 @@ describe HexaPDF::Content::Canvas do
                                           [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
                                           [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
                                           [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
-                                          [:show_text_with_positioning, [["H"]]],
-                                         ])
+                                          [:show_text_with_positioning, [["H"]]]])
     end
 
     it "fails if no valid font is set" do
@@ -1172,7 +1168,7 @@ describe HexaPDF::Content::Canvas do
     end
 
     it "is serialized correctly when a block is used" do
-      @canvas.marked_content_sequence(:tag, property_list: {key: 5}) { }
+      @canvas.marked_content_sequence(:tag, property_list: {key: 5}) {}
       assert_operators(@canvas.contents, [[:begin_marked_content_with_property_list, [:tag, :P1]],
                                           [:end_marked_content]])
     end

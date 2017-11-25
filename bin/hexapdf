@@ -3,4 +3,3 @@
 require 'hexapdf/cli'
 
 HexaPDF::CLI.run
-

@@ -89,7 +89,6 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     end
   end
 
-
   before do
     @document = HexaPDF::Document.new
     @handler = HexaPDF::Encryption::StandardSecurityHandler.new(@document)
@@ -125,10 +124,12 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
 
     it "sets the correct revision independent /P value" do
       dict = @handler.set_up_encryption
-      assert_equal(@handler.class::Permissions::ALL | @handler.class::Permissions::RESERVED - 2**32,
+      assert_equal(@handler.class::Permissions::ALL | \
+                   @handler.class::Permissions::RESERVED - 2**32,
                    dict[:P])
       dict = @handler.set_up_encryption(permissions: @handler.class::Permissions::COPY_CONTENT)
-      assert_equal(@handler.class::Permissions::COPY_CONTENT | @handler.class::Permissions::RESERVED - 2**32,
+      assert_equal(@handler.class::Permissions::COPY_CONTENT | \
+                   @handler.class::Permissions::RESERVED - 2**32,
                    dict[:P])
       dict = @handler.set_up_encryption(permissions: [:modify_content, :modify_annotation])
       assert_equal(@handler.class::Permissions::MODIFY_CONTENT | \
@@ -171,7 +172,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
         assert_equal(:StdCF, d[:StmF])
       end
 
-      dict = @handler.set_up_encryption(key_length: 128, algorithm: :arc4, force_V4: true)
+      dict = @handler.set_up_encryption(key_length: 128, algorithm: :arc4, force_v4: true)
       refute(dict.value.key?(:UE))
       refute(dict.value.key?(:OE))
       refute(dict.value.key?(:Perms))
@@ -190,12 +191,12 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       crypt_filter.call(dict, 6, :AESV3, 32)
     end
 
-    it "uses the password keyword as fallback, the user password as owner password if the latter is not set" do
-      dict1 = @document.unwrap(@handler.set_up_encryption(password: 'user', owner_password: 'owner'))
-      dict2 = @document.unwrap(@handler.set_up_encryption(password: 'owner', user_password: 'user'))
-      dict3 = @document.unwrap(@handler.set_up_encryption(user_password: 'user', owner_password: 'owner'))
-      dict4 = @document.unwrap(@handler.set_up_encryption(user_password: 'test', owner_password: 'test'))
-      dict5 = @document.unwrap(@handler.set_up_encryption(user_password: 'test'))
+    it "uses the password keyword as fallback, the user password as owner password if necessary" do
+      dict1 = @handler.set_up_encryption(password: 'user', owner_password: 'owner')
+      dict2 = @handler.set_up_encryption(password: 'owner', user_password: 'user')
+      dict3 = @handler.set_up_encryption(user_password: 'user', owner_password: 'owner')
+      dict4 = @handler.set_up_encryption(user_password: 'test', owner_password: 'test')
+      dict5 = @handler.set_up_encryption(user_password: 'test')
 
       assert_equal(dict1[:U], dict2[:U])
       assert_equal(dict2[:U], dict3[:U])
@@ -212,7 +213,6 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       assert_raises(ArgumentError) { @handler.set_up_encryption(unknown: 'test') }
     end
   end
-
 
   describe "prepare_decryption" do
     it "fails if the /Filter value is incorrect" do
@@ -278,7 +278,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     end
   end
 
-  it "encryption key stays valid even if default dictionary values are set while setting up decryption" do
+  it "encryption key stays valid even if default dict values are set while setting up decryption" do
     @document.encrypt(key_length: 128, algorithm: :aes)
     assert(@document.security_handler.encryption_key_valid?)
 

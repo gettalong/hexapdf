@@ -64,7 +64,6 @@ module HexaPDF
 
   end
 
-
   # Objects of the PDF object system.
   #
   # == Overview
@@ -130,9 +129,9 @@ module HexaPDF
     def self.deep_copy(object)
       case object
       when Hash
-        object.each_with_object({}) {|(key, val), memo| memo[key] = deep_copy(val)}
+        object.each_with_object({}) {|(key, val), memo| memo[key] = deep_copy(val) }
       when Array
-        object.map {|o| deep_copy(o)}
+        object.map {|o| deep_copy(o) }
       when HexaPDF::Object
         (object.indirect? || object.must_be_indirect? ? object : deep_copy(object.value))
       when HexaPDF::Reference
@@ -143,7 +142,6 @@ module HexaPDF
         object.dup
       end
     end
-
 
     # The wrapped HexaPDF::PDFData value.
     #
@@ -365,9 +363,9 @@ module HexaPDF
       if obj.kind_of?(HexaPDF::Object) && !obj.indirect?
         obj.validate(&block)
       elsif obj.kind_of?(Hash)
-        obj.each_value {|val| validate_nested(val, &block)}
+        obj.each_value {|val| validate_nested(val, &block) }
       elsif obj.kind_of?(Array)
-        obj.each {|val| validate_nested(val, &block)}
+        obj.each {|val| validate_nested(val, &block) }
       end
     end
 

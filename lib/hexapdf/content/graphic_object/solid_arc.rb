@@ -138,12 +138,10 @@ module HexaPDF
                                         inclination: @inclination, clockwise: false)
             if angle_difference == 0
               arc.draw(canvas)
-              canvas.close_subpath
             else
               canvas.move_to(@cx, @cy)
               canvas.line_to(*arc.start_point)
               arc.draw(canvas, move_to_start: false)
-              canvas.close_subpath
             end
           else
             inner = canvas.graphic_object(:arc, cx: @cx, cy: @cy, a: @inner_a, b: @inner_b,
@@ -152,18 +150,16 @@ module HexaPDF
             outer = canvas.graphic_object(:arc, cx: @cx, cy: @cy, a: @outer_a, b: @outer_b,
                                           start_angle: @start_angle, end_angle: @end_angle,
                                           inclination: @inclination, clockwise: false)
+            outer.draw(canvas)
             if angle_difference == 0
-              outer.draw(canvas)
               canvas.close_subpath
               inner.draw(canvas)
-              canvas.close_subpath
             else
-              outer.draw(canvas)
               canvas.line_to(*inner.start_point)
               inner.draw(canvas, move_to_start: false)
-              canvas.close_subpath
             end
           end
+          canvas.close_subpath
         end
 
       end

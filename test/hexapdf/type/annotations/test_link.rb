@@ -13,7 +13,7 @@ describe HexaPDF::Type::Annotations::Link do
   describe "validation" do
     it "checks for valid /H value" do
       @annot[:H] = :invalid
-      refute(@annot.validate {|msg| assert_match(/contains invalid value/, msg)})
+      refute(@annot.validate {|msg| assert_match(/contains invalid value/, msg) })
     end
   end
 end

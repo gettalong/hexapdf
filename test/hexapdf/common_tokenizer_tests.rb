@@ -8,8 +8,7 @@ module CommonTokenizerTests
   it "next_token: returns all available kinds of tokens on next_token" do
     create_tokenizer(<<-EOF.chomp.gsub(/^ {8}/, ''))
         % Regular tokens
-          		
-        true false
+          		true false
         123 +17 -98 0 0059
         34.5 -3.62 +123.6 4. -.002 .002 0.0
 
@@ -66,9 +65,9 @@ module CommonTokenizerTests
       :"The_Key_of_F#_Minor", :AB, :"",
       '[', 5, 6, :Name, ']', '[', 5, 6, :Name, ']',
       '<<', :Name, 5, '>>'
-    ].each {|t| t.force_encoding('BINARY') if t.respond_to?(:force_encoding)}
+    ].each {|t| t.force_encoding('BINARY') if t.respond_to?(:force_encoding) }
 
-    while expected_tokens.length > 0
+    until expected_tokens.empty?
       expected_token = expected_tokens.shift
       token = @tokenizer.next_token
       assert_equal(expected_token, token)
@@ -206,8 +205,8 @@ module CommonTokenizerTests
 
   it "next_xref_entry: fails on invalidly formatted entries" do
     create_tokenizer("0000000001 00001 g \n")
-    assert_raises(RuntimeError) { @tokenizer.next_xref_entry { raise }}
+    assert_raises(RuntimeError) { @tokenizer.next_xref_entry { raise } }
     create_tokenizer("0000000001 00001 n\n")
-    assert_raises(RuntimeError) { @tokenizer.next_xref_entry { raise }}
+    assert_raises(RuntimeError) { @tokenizer.next_xref_entry { raise } }
   end
 end

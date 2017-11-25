@@ -130,7 +130,6 @@ module HexaPDF
       defined?(@type) && @type
     end
 
-
     # Returns the value for the given dictionary entry.
     #
     # This method should be used instead of direct access to the value because it provides
@@ -150,14 +149,14 @@ module HexaPDF
       field = self.class.field(name)
       data = if key?(name)
                value[name]
-             elsif field && field.default?
+             elsif field&.default?
                value[name] = field.default
              end
       value[name] = data = document.deref(data) if data.kind_of?(HexaPDF::Reference)
       if data.class == HexaPDF::Object || (data.kind_of?(HexaPDF::Object) && data.value.nil?)
         data = data.value
       end
-      self[name] = data = field.convert(data, document) if field && field.convert?(data)
+      self[name] = data = field.convert(data, document) if field&.convert?(data)
       data
     end
 
@@ -199,7 +198,7 @@ module HexaPDF
     # Note that the yielded value is already preprocessed like in #[].
     def each
       return to_enum(__method__) unless block_given?
-      value.each_key {|name| yield(name, self[name])}
+      value.each_key {|name| yield(name, self[name]) }
       self
     end
 
@@ -244,7 +243,7 @@ module HexaPDF
 
     # Iterates over all currently set fields and those that are required.
     def each_set_key_or_required_field #:yields: name, field
-      value.each_key {|name| yield(name, self.class.field(name))}
+      value.each_key {|name| yield(name, self.class.field(name)) }
       self.class.each_field do |name, field|
         yield(name, field) if field.required? && !value.key?(name)
       end
@@ -287,11 +286,11 @@ module HexaPDF
           obj = value[name] # we need the unwrapped object!
           if field.indirect && (!obj.kind_of?(HexaPDF::Object) || !obj.indirect?)
             yield("Field #{name} needs to be an indirect object", true)
-            value[name] = obj = document.add(obj)
+            value[name] = document.add(obj)
           elsif !field.indirect && obj.kind_of?(HexaPDF::Object) && obj.indirect?
             yield("Field #{name} needs to be a direct object", true)
             document.delete(obj)
-            value[name] = obj = obj.value
+            value[name] = obj.value
           end
         end
       end

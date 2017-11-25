@@ -48,13 +48,14 @@ module HexaPDF
         def encrypt(_key, data)
           data
         end
-        alias :decrypt :encrypt
+        alias decrypt encrypt
 
         # Just returns the given +source+ fiber.
         def encryption_fiber(_key, source)
           source
         end
-        alias :decryption_fiber :encryption_fiber
+        alias decryption_fiber encryption_fiber
+
       end
 
     end

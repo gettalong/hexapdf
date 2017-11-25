@@ -25,7 +25,7 @@ describe HexaPDF::XRefSection do
 
   describe "each_subsection" do
     def assert_subsections(result)
-      assert_equal(result, @xref_section.each_subsection.map {|s| s.map(&:oid)})
+      assert_equal(result, @xref_section.each_subsection.map {|s| s.map(&:oid) })
     end
 
     it "works for newly initialized objects" do

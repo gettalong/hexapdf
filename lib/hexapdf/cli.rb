@@ -52,7 +52,7 @@ module HexaPDF
     # Runs the CLI application.
     def self.run(args = ARGV)
       Application.new.parse(args)
-    rescue => e
+    rescue StandardError => e
       $stderr.puts "Problem encountered: #{e.message}"
       exit(1)
     end

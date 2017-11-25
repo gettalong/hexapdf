@@ -52,12 +52,12 @@ module HexaPDF
       EOD = 257 # :nodoc:
 
       INITIAL_ENCODER_TABLE = {} #:nodoc:
-      0.upto(255) {|i| INITIAL_ENCODER_TABLE[i.chr.freeze] = i}
+      0.upto(255) {|i| INITIAL_ENCODER_TABLE[i.chr.freeze] = i }
       INITIAL_ENCODER_TABLE[CLEAR_TABLE] = CLEAR_TABLE
       INITIAL_ENCODER_TABLE[EOD] = EOD
 
       INITIAL_DECODER_TABLE = {} #:nodoc:
-      0.upto(255) {|i| INITIAL_DECODER_TABLE[i] = i.chr}
+      0.upto(255) {|i| INITIAL_DECODER_TABLE[i] = i.chr }
       INITIAL_DECODER_TABLE[CLEAR_TABLE] = CLEAR_TABLE
       INITIAL_DECODER_TABLE[EOD] = EOD
 

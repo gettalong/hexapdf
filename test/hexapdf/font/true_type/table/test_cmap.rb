@@ -11,7 +11,7 @@ describe HexaPDF::Font::TrueType::Table::Cmap do
       [0, 1, 28],
       [3, 1, 28 + f0.length],
       [1, 0, 28],
-    ].map {|a| a.pack('n2N')}.join('') << f0 << f0
+    ].map {|a| a.pack('n2N') }.join('') << f0 << f0
     set_up_stub_true_type_font(data)
   end
 

@@ -145,7 +145,6 @@ module HexaPDF
 
       end
 
-
       # Represents a box composed of GlyphBox objects.
       #
       # The bounding box methods #lower_left, #lower_right, #upper_left, #upper_right are computed
@@ -387,10 +386,10 @@ module HexaPDF
       # text strings together with positioning information (+TJ+ operator).
       def decode_text(data)
         if data.kind_of?(Array)
-          data = data.each_with_object(''.b) {|obj, result| result << obj if obj.kind_of?(String)}
+          data = data.each_with_object(''.b) {|obj, result| result << obj if obj.kind_of?(String) }
         end
         font = graphics_state.font
-        font.decode(data).map {|code_point| font.to_utf8(code_point)}.join('')
+        font.decode(data).map {|code_point| font.to_utf8(code_point) }.join('')
       end
 
       # Decodes the given text object and returns it as a CompositeBox object.

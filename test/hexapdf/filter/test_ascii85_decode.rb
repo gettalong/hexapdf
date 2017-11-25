@@ -13,8 +13,7 @@ describe HexaPDF::Filter::ASCII85Decode do
                          ['Nov shmoz ka pop.12', ':2b:uF(fE/H6@!3+E27</ho*~>'],
                          ['Nov shmoz ka pop.123', ':2b:uF(fE/H6@!3+E27</ho+;~>'],
                          ["\0\0\0\0Nov shmoz ka pop.", 'z:2b:uF(fE/H6@!3+E27</c~>'],
-                         ["Nov \x0\x0\x0\x0shmoz ka pop.", ':2b:uzF(fE/H6@!3+E27</c~>'],
-                        ]
+                         ["Nov \x0\x0\x0\x0shmoz ka pop.", ':2b:uzF(fE/H6@!3+E27</c~>']]
     @decoded = @all_test_cases[0][0]
     @encoded = @all_test_cases[0][1]
   end
@@ -25,7 +24,7 @@ describe HexaPDF::Filter::ASCII85Decode do
     end
 
     it "ignores whitespace in the input" do
-      encoded = @encoded.dup.scan(/./).map {|a| "#{a} \r\t"}.join("\n")
+      encoded = @encoded.dup.scan(/./).map {|a| "#{a} \r\t" }.join("\n")
       assert_equal(@decoded, collector(@obj.decoder(feeder(encoded))))
     end
 

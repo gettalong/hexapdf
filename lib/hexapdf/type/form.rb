@@ -44,7 +44,7 @@ module HexaPDF
 
       define_type :XObject
 
-      define_field :Type,          type: Symbol,     default: self.type
+      define_field :Type,          type: Symbol,     default: type
       define_field :Subtype,       type: Symbol,     required: true, default: :Form
       define_field :FormType,      type: Integer,    default: 1
       define_field :BBox,          type: Rectangle,  required: true

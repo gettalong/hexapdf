@@ -175,10 +175,10 @@ module HexaPDF
       return to_enum(__method__) unless block_given?
 
       if defined?(@all_objects_loaded)
-        @objects.each {|_oid, _gen, data| yield(data)}
+        @objects.each {|_oid, _gen, data| yield(data) }
       else
         seen = {}
-        @objects.each {|oid, _gen, data| seen[oid] = true; yield(data)}
+        @objects.each {|oid, _gen, data| seen[oid] = true; yield(data) }
         @xref_section.each do |oid, _gen, data|
           next if seen.key?(oid)
           yield(@objects[oid] || load_object(data))

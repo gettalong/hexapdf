@@ -123,7 +123,7 @@ module HexaPDF
 
     # Merges the entries from the given cross-reference section into this one.
     def merge!(xref_section)
-      xref_section.each {|oid, gen, data| self[oid, gen] = data}
+      xref_section.each {|oid, gen, data| self[oid, gen] = data }
     end
 
     # :call-seq:

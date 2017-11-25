@@ -61,7 +61,7 @@ module HexaPDF
         return new(document) if io.nil?
 
         parser = Parser.new(io, document)
-        object_loader = lambda {|xref_entry| parser.load_object(xref_entry)}
+        object_loader = lambda {|xref_entry| parser.load_object(xref_entry) }
 
         revisions = []
         xref_section, trailer = parser.load_revision(parser.startxref_offset)
@@ -116,7 +116,7 @@ module HexaPDF
     def revision(index)
       @revisions[index]
     end
-    alias :[] :revision
+    alias [] revision
 
     # Returns the current revision.
     def current
@@ -181,7 +181,7 @@ module HexaPDF
         end
       end
       _first, *other = *@revisions[range]
-      other.each {|rev| @revisions.delete(rev)}
+      other.each {|rev| @revisions.delete(rev) }
       self
     end
 

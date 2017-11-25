@@ -68,7 +68,7 @@ module HexaPDF
           if source.respond_to?(:read)
             new(source).parse
           else
-            File.open(source) {|file| new(file).parse}
+            File.open(source) {|file| new(file).parse }
           end
         end
 

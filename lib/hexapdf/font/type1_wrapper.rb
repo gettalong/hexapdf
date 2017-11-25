@@ -47,7 +47,7 @@ module HexaPDF
 
         # The name of the glyph.
         attr_reader :name
-        alias_method :id, :name
+        alias id name
 
         # The string representation of the glyph.
         attr_reader :str
@@ -97,7 +97,6 @@ module HexaPDF
       end
 
       private_constant :Glyph
-
 
       # Returns the wrapped Type1 font object.
       attr_reader :wrapped_font
@@ -221,13 +220,13 @@ module HexaPDF
         min, max = @encoding.code_to_name.keys.minmax
         @dict[:FirstChar] = min
         @dict[:LastChar] = max
-        @dict[:Widths] = (min..max).map {|code| glyph(@encoding.name(code)).width}
+        @dict[:Widths] = (min..max).map {|code| glyph(@encoding.name(code)).width }
 
         if VALID_ENCODING_NAMES.include?(@encoding.encoding_name)
           @dict[:Encoding] = @encoding.encoding_name
         else
           differences = [min]
-          (min..max).each {|code| differences << @encoding.name(code)}
+          (min..max).each {|code| differences << @encoding.name(code) }
           @dict[:Encoding] = {Differences: differences}
         end
       end

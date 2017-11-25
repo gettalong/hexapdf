@@ -61,7 +61,7 @@ module HexaPDF
 
       define_type :Pages
 
-      define_field :Type,   type: Symbol, required: true, default: self.type
+      define_field :Type,   type: Symbol, required: true, default: type
       define_field :Parent, type: Dictionary, indirect: true
       define_field :Kids,   type: Array, required: true, default: []
       define_field :Count,  type: Integer, required: true, default: 0
@@ -71,7 +71,6 @@ module HexaPDF
       define_field :MediaBox,  type: Rectangle
       define_field :CropBox,   type: Rectangle
       define_field :Rotate,    type: Integer
-
 
       # Returns +true+ since page tree objects must always be indirect.
       def must_be_indirect?
@@ -175,7 +174,7 @@ module HexaPDF
         return nil unless page && page[:Parent]
 
         parent = page[:Parent]
-        index = parent[:Kids].index {|kid| document.deref(kid).data == page.data}
+        index = parent[:Kids].index {|kid| document.deref(kid).data == page.data }
 
         if index
           ancestors = [parent]
@@ -260,7 +259,7 @@ module HexaPDF
 
         if self[:Count] == 0
           yield("A PDF document needs at least one page", true)
-          add_page.validate {|msg, correctable| yield(msg, correctable)}
+          add_page.validate {|msg, correctable| yield(msg, correctable) }
         end
       end
 

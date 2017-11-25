@@ -48,7 +48,7 @@ module HexaPDF
 
       define_type :FontDescriptor
 
-      define_field :Type,         type: Symbol, required: true, default: self.type
+      define_field :Type,         type: Symbol, required: true, default: type
       define_field :FontName,     type: Symbol, required: true
       define_field :FontFamily,   type: PDFByteString, version: '1.5'
       define_field :FontStretch,  type: Symbol, version: '1.5'
@@ -75,7 +75,6 @@ module HexaPDF
       define_field :Lang,         type: Symbol, version: '1.5'
       define_field :FD,           type: Dictionary
       define_field :CIDSet,       type: Stream
-
 
       bit_field(:raw_flags, {fixed_pitch: 0, serif: 1, symbolic: 2, script: 3, nonsymbolic: 5,
                              italic: 6, all_cap: 16, small_cap: 17, force_bold: 18},

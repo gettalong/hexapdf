@@ -6,7 +6,7 @@ require 'hexapdf/utils/lru_cache'
 describe HexaPDF::Utils::LRUCache do
   before do
     @cache = HexaPDF::Utils::LRUCache.new(5)
-    5.times {|i| @cache[i] = i * 2}
+    5.times {|i| @cache[i] = i * 2 }
   end
 
   it "removes the LRU item when the size is reached" do

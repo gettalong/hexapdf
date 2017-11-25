@@ -189,7 +189,7 @@ describe HexaPDF::Layout::Line do
         [@line.items[4], @line.items[0].width + 30, @line.text_y_min],
         [@line.items[5], @line.items[0].width + 40, @line.y_min],
       ]
-      assert_equal(result, @line.to_enum(:each).map {|*a| a})
+      assert_equal(result, @line.to_enum(:each).map {|*a| a })
     end
 
     it "fails if an item uses an invalid valign value" do

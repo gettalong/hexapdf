@@ -82,7 +82,6 @@ describe HexaPDF::Type::Image do
       refute(info.indexed)
       assert(info.writable)
 
-
       @image[:ColorSpace] = :DeviceCMYK
       @image[:Filter] = :DCTDecode
       info = @image.info
@@ -99,14 +98,12 @@ describe HexaPDF::Type::Image do
       refute(info.indexed)
       refute(info.writable)
 
-
       @image[:ColorSpace] = [:Indexed, :DeviceRGB, 1, "\x80".b * 6]
       info = @image.info
       assert_equal(:rgb, info.color_space)
       assert_equal(3, info.components)
       assert(info.indexed)
       assert(info.writable)
-
 
       @image[:ColorSpace] = :ICCBased
       info = @image.info

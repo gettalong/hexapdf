@@ -19,7 +19,7 @@ describe HexaPDF::Layout::InlineBox do
 
   it "draws the wrapped box at the correct position" do
     canvas = Object.new
-    block = ->(c, x, y) do
+    block = lambda do |c, x, y|
       assert_equal(canvas, c)
       assert_equal(10, x)
       assert_equal(15, y)

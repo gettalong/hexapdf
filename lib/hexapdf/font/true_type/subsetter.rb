@@ -163,7 +163,7 @@ module HexaPDF
         # Adds the components of compound glyphs to the subset.
         def add_glyph_components
           glyf = @font[:glyf]
-          @glyph_map.keys.each {|gid| glyf[gid].components&.each {|cgid| use_glyph(cgid)}}
+          @glyph_map.keys.each {|gid| glyf[gid].components&.each {|cgid| use_glyph(cgid) } }
         end
 
       end

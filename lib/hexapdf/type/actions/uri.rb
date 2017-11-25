@@ -53,7 +53,7 @@ module HexaPDF
           unless self[:URI].ascii_only?
             yield("URIs have to contain ASCII characters only", true)
             uri = self[:URI].dup.force_encoding(Encoding::BINARY)
-            uri.encode!(Encoding::US_ASCII, fallback: ->(c) { "%#{c.ord.to_s(16).upcase}"})
+            uri.encode!(Encoding::US_ASCII, fallback: lambda {|c| "%#{c.ord.to_s(16).upcase}" })
             self[:URI] = uri
           end
         end

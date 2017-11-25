@@ -41,7 +41,6 @@ describe HexaPDF::Content::Operator::SingleNumericArgumentOperator do
   end
 end
 
-
 module CommonOperatorTests
   extend Minitest::Spec::DSL
 
@@ -97,7 +96,6 @@ def describe_operator(name, symbol, &block)
   klass.send(:include, one_time_module)
   klass
 end
-
 
 describe_operator :SaveGraphicsState, :q do
   it "saves the graphics state" do
@@ -196,7 +194,7 @@ describe_operator :SetGraphicsStateParameters, :gs do
                                                RI: 2, SA: true, BM: :Multiply, CA: 0.5, ca: 0.5,
                                                AIS: true, TK: false, Font: [:Test, 10]}}
     @processor.resources.define_singleton_method(:document) do
-      Object.new.tap {|obj| obj.define_singleton_method(:deref) {|o| o}}
+      Object.new.tap {|obj| obj.define_singleton_method(:deref) {|o| o } }
     end
 
     invoke(:Name)

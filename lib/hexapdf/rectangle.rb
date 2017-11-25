@@ -87,7 +87,7 @@ module HexaPDF
     # upper-right corner.
     def after_data_change
       super
-      unless value.kind_of?(Array) && value.size == 4 && value.all? {|i| i.kind_of?(Numeric)}
+      unless value.kind_of?(Array) && value.size == 4 && value.all? {|i| i.kind_of?(Numeric) }
         raise ArgumentError, "A PDF rectangle structure must contain an array of four numbers"
       end
       value[0], value[2] = value[2], value[0] if value[0] > value[2]
@@ -96,7 +96,7 @@ module HexaPDF
 
     def perform_validation #:nodoc:
       super
-      unless value.kind_of?(Array) && value.size == 4 && value.all? {|i| i.kind_of?(Numeric)}
+      unless value.kind_of?(Array) && value.size == 4 && value.all? {|i| i.kind_of?(Numeric) }
         yield("A PDF rectangle structure must contain an array of four numbers", false)
       end
     end

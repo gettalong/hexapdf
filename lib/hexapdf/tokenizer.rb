@@ -67,7 +67,6 @@ module HexaPDF
 
     WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/ # :nodoc:
 
-
     # The IO object from the tokens are read.
     attr_reader :io
 
@@ -228,7 +227,7 @@ module HexaPDF
 
     private
 
-    TOKEN_CACHE = Hash.new {|h, k| h[k] = Token.new(k)} # :nodoc:
+    TOKEN_CACHE = Hash.new {|h, k| h[k] = Token.new(k) } # :nodoc:
     TOKEN_CACHE['true'] = true
     TOKEN_CACHE['false'] = false
     TOKEN_CACHE['null'] = nil
@@ -241,7 +240,7 @@ module HexaPDF
       TOKEN_CACHE[str.freeze]
     end
 
-    REFERENCE_RE = /[#{WHITESPACE}]+([+-]?\d+)[#{WHITESPACE}]+R(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/ # :nodoc:
+    REFERENCE_RE = /[#{WHITESPACE}]+([+-]?\d+)[#{WHITESPACE}]+R#{WHITESPACE_OR_DELIMITER_RE}/ # :nodoc:
 
     # Parses the number (integer or real) at the current position.
     #
@@ -382,7 +381,6 @@ module HexaPDF
       end
       result
     end
-
 
     # Prepares the StringScanner by filling its string instance with enough bytes.
     #

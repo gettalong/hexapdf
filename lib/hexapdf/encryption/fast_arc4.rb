@@ -58,8 +58,8 @@ module HexaPDF
       def process(data)
         @cipher.update(data)
       end
-      alias :decrypt :process
-      alias :encrypt :process
+      alias decrypt process
+      alias encrypt process
 
     end
 

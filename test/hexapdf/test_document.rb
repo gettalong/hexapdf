@@ -7,46 +7,46 @@ require 'stringio'
 
 describe HexaPDF::Document do
   before do
-    @io = StringIO.new(<<EOF)
-%PDF-1.7
-1 0 obj
-10
-endobj
+    @io = StringIO.new(<<~EOF)
+      %PDF-1.7
+      1 0 obj
+      10
+      endobj
 
-2 0 obj
-20
-endobj
+      2 0 obj
+      20
+      endobj
 
-3 0 obj
-30
-endobj
+      3 0 obj
+      30
+      endobj
 
-xref
-0 4
-0000000000 65535 f 
-0000000009 00000 n 
-0000000028 00000 n 
-0000000047 00000 n 
-trailer
-<< /Size 4 >>
-startxref
-66
-%%EOF
+      xref
+      0 4
+      0000000000 65535 f 
+      0000000009 00000 n 
+      0000000028 00000 n 
+      0000000047 00000 n 
+      trailer
+      << /Size 4 >>
+      startxref
+      66
+      %%EOF
 
-2 0 obj
-200
-endobj
+      2 0 obj
+      200
+      endobj
 
-xref
-2 2
-0000000197 00000 n 
-0000000000 00001 f 
-trailer
-<< /Size 4 /Prev 66 >>
-startxref
-217
-%%EOF
-EOF
+      xref
+      2 2
+      0000000197 00000 n 
+      0000000000 00001 f 
+      trailer
+      << /Size 4 /Prev 66 >>
+      startxref
+      217
+      %%EOF
+    EOF
     @io_doc = HexaPDF::Document.new(io: @io)
     @doc = HexaPDF::Document.new
   end
@@ -195,7 +195,7 @@ EOF
       assert_raises(HexaPDF::Error) { @doc.add(obj) }
     end
 
-    it "fails if the object number of the object to be added is already associated with another object" do
+    it "fails if the object number is already associated with another object" do
       obj = @doc.add(5)
       assert_raises(HexaPDF::Error) { @doc.add(@doc.wrap(5, oid: obj.oid, gen: 1)) }
     end
@@ -395,7 +395,7 @@ EOF
 
     it "yields the revision as second argument if the block accepts exactly two arguments" do
       objs = [[10, 20, 30], [200, nil]]
-      data = @io_doc.revisions.map.with_index {|rev, i| objs[i].map {|o| [o, rev]}}.reverse.flatten
+      data = @io_doc.revisions.map.with_index {|rev, i| objs[i].map {|o| [o, rev] } }.reverse.flatten
       @io_doc.each(current: false) do |obj, rev|
         assert(data.shift == obj.value)
         assert_equal(data.shift, rev)
@@ -450,7 +450,6 @@ EOF
     end
   end
 
-
   describe "write" do
     it "writes the document to a file" do
       begin
@@ -498,14 +497,14 @@ EOF
       io = StringIO.new(''.b)
       @io_doc.write(io)
       doc = HexaPDF::Document.new(io: io)
-      assert_equal(0, doc.each.count {|o| o.type == :ObjStm})
+      assert_equal(0, doc.each.count {|o| o.type == :ObjStm })
     end
 
     it "allows optimizing the file by using object streams" do
       io = StringIO.new(''.b)
       @io_doc.write(io, optimize: true)
       doc = HexaPDF::Document.new(io: io)
-      assert_equal(2, doc.each.count {|o| o.type == :ObjStm})
+      assert_equal(2, doc.each.count {|o| o.type == :ObjStm })
     end
   end
 
@@ -547,7 +546,7 @@ EOF
         assert_equal(doc, @doc)
         block.call('inside')
       end
-      assert_equal(:done, @doc.task(:test) {|msg| assert_equal('inside', msg); :done})
+      assert_equal(:done, @doc.task(:test) {|msg| assert_equal('inside', msg); :done })
     end
 
     it "fails if the given task is not available" do
@@ -558,9 +557,9 @@ EOF
   describe "listener interface" do
     it "allows registering and dispatching messages" do
       args = []
-      callable = lambda {|*a| args << [:callable, a]}
+      callable = lambda {|*a| args << [:callable, a] }
       @doc.register_listener(:something, callable)
-      @doc.register_listener(:something) {|*a| args << [:block, a]}
+      @doc.register_listener(:something) {|*a| args << [:block, a] }
       @doc.dispatch_message(:something, :arg)
       assert_equal([[:callable, [:arg]], [:block, [:arg]]], args)
     end

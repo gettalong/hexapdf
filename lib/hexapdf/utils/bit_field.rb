@@ -68,7 +68,7 @@ module HexaPDF
         value_setter = "#{name}="
 
         define_method(lister) do
-          bit_names.map {|n| send(getter, n) ? n : nil}.compact
+          bit_names.map {|n| send(getter, n) ? n : nil }.compact
         end
         define_method(getter) do |bit|
           (send(value_getter) || 0)[mapping[bit]] == 1
@@ -76,7 +76,7 @@ module HexaPDF
         define_method(setter) do |*bits, clear_existing: false|
           send(value_setter, 0) if clear_existing || send(value_getter).nil?
           result = send(value_getter)
-          bits.each {|bit| result |= 1 << mapping[bit]}
+          bits.each {|bit| result |= 1 << mapping[bit] }
           send(value_setter, result)
         end
       end

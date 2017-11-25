@@ -32,7 +32,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
   describe "decode_utf8" do
     it "returns an array of glyph objects" do
       assert_equal("Test",
-                   @font_wrapper.decode_utf8("Test").map {|g| @cmap.gid_to_code(g.id)}.pack('U*'))
+                   @font_wrapper.decode_utf8("Test").map {|g| @cmap.gid_to_code(g.id) }.pack('U*'))
     end
 
     it "invokes font.on_missing_glyph for UTF-8 characters for which no glyph exists" do
@@ -110,7 +110,8 @@ describe HexaPDF::Font::TrueTypeWrapper do
       cidfont = dict[:DescendantFonts][0]
       assert_equal(:Font, cidfont[:Type])
       assert_equal(:CIDFontType2, cidfont[:Subtype])
-      assert_equal({Registry: "Adobe", Ordering: "Identity", Supplement: 0}, cidfont[:CIDSystemInfo])
+      assert_equal({Registry: "Adobe", Ordering: "Identity", Supplement: 0},
+                   cidfont[:CIDSystemInfo])
       assert_equal(:Identity, cidfont[:CIDToGIDMap])
       assert_equal(@font_wrapper.glyph(3).width, cidfont[:DW])
       assert_equal([2, [glyph.width]], cidfont[:W])

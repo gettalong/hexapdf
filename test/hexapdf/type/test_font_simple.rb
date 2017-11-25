@@ -18,8 +18,8 @@ describe HexaPDF::Type::FontSimple do
                                Descent: -100, CapHeight: 800, StemV: 20)
     @font = @doc.add({Type: :Font, Encoding: :WinAnsiEncoding,
                       BaseFont: :Embedded, FontDescriptor: font_descriptor, ToUnicode: cmap,
-                      FirstChar: 32, LastChar: 34, Widths: [600, 0, 700]
-                     }, type: HexaPDF::Type::FontSimple)
+                      FirstChar: 32, LastChar: 34, Widths: [600, 0, 700]},
+                     type: HexaPDF::Type::FontSimple)
   end
 
   describe "encoding" do

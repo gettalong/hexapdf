@@ -58,7 +58,6 @@ module HexaPDF
       DefaultDocumentConfiguration.merge(values)
     end
 
-
     # Creates a new Configuration object using the provided hash argument.
     def initialize(options = {})
       @options = options
@@ -68,7 +67,7 @@ module HexaPDF
     def key?(name)
       options.key?(name)
     end
-    alias :option? :key?
+    alias option? key?
 
     # Returns the value for the configuration option +name+.
     def [](name)

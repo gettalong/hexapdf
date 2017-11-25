@@ -10,42 +10,42 @@ describe HexaPDF::Parser do
     @document = HexaPDF::Document.new
     @document.add(@document.wrap(10, oid: 1, gen: 0))
 
-    create_parser(<<EOF)
-%PDF-1.7
+    create_parser(<<~EOF)
+      %PDF-1.7
 
-1 0 obj
-10
-endobj
+      1 0 obj
+      10
+      endobj
 
-2 0 obj
-[ 5 6 <</Length 10 >> (name) <4E6F762073 686D6F7A20	6B612070
-6F702E>]
-endobj
+      2 0 obj
+      [ 5 6 <</Length 10 >> (name) <4E6F762073 686D6F7A20	6B612070
+      6F702E>]
+      endobj
 
-3 15 obj<< /Length 1 0 R/Hallo 6/Filter /Fl/DecodeParms<<>> >>stream
-Hallo PDF!endstream
-endobj
+      3 15 obj<< /Length 1 0 R/Hallo 6/Filter /Fl/DecodeParms<<>> >>stream
+      Hallo PDF!endstream
+      endobj
 
-4 0 obj
-<</Type /XRef /Length 3 /W [1 1 1] /Index [1 1] /Size 2 >> stream
-\x01\x0A\x00
-endstream
-endobj
+      4 0 obj
+      <</Type /XRef /Length 3 /W [1 1 1] /Index [1 1] /Size 2 >> stream
+      \x01\x0A\x00
+      endstream
+      endobj
 
-xref
-0 4
-0000000000 65535 f 
-0000000010 00000 n 
-0000000029 00000 n 
-0000000000 65535 f 
-3 1
-0000000556 00000 n 
-trailer
-<< /Test (now) >>
-startxref
-308
-%%EOF
-EOF
+      xref
+      0 4
+      0000000000 65535 f 
+      0000000010 00000 n 
+      0000000029 00000 n 
+      0000000000 65535 f 
+      3 1
+      0000000556 00000 n 
+      trailer
+      << /Test (now) >>
+      startxref
+      308
+      %%EOF
+    EOF
   end
 
   def create_parser(str)

@@ -144,12 +144,12 @@ module HexaPDF
         # Creates a new encrypted stream data object by utilizing the given stream data object as
         # template. The arguments +key+ and +algorithm+ are used for decrypting purposes.
         def initialize(obj, key, algorithm)
-          obj.instance_variables.each {|v| instance_variable_set(v, obj.instance_variable_get(v))}
+          obj.instance_variables.each {|v| instance_variable_set(v, obj.instance_variable_get(v)) }
           @key = key
           @algorithm = algorithm
         end
 
-        alias :undecrypted_fiber :fiber
+        alias undecrypted_fiber fiber
 
         # Returns a fiber like HexaPDF::StreamData#fiber, but one wrapped in a decrypting fiber.
         def fiber(*args)
@@ -214,7 +214,6 @@ module HexaPDF
 
         handler.freeze
       end
-
 
       # A hash containing information about the used encryption. This information is only
       # available once the security handler has been set up for decryption or encryption.
@@ -310,11 +309,11 @@ module HexaPDF
       #   The encryption algorithm. Possible values are :arc4 for ARC4 encryption with key lengths
       #   of 40 to 128 bit or :aes for AES encryption with key lengths of 128 or 256 bit.
       #
-      # force_V4::
+      # force_v4::
       #   Forces the use of protocol version 4 when key_length=128 and algorithm=:arc4.
       #
       # See: PDF1.7 s7.6.1, PDF2.0 s7.6.1
-      def set_up_encryption(key_length: 128, algorithm: :aes, force_V4: false, **options)
+      def set_up_encryption(key_length: 128, algorithm: :aes, force_v4: false, **options)
         @dict = document.wrap({}, type: encryption_dictionary_class)
 
         dict[:V] =
@@ -324,7 +323,7 @@ module HexaPDF
           when 48, 56, 64, 72, 80, 88, 96, 104, 112, 120
             2
           when 128
-            (algorithm == :aes || force_V4 ? 4 : 2)
+            (algorithm == :aes || force_v4 ? 4 : 2)
           when 256
             5
           else
@@ -508,9 +507,9 @@ module HexaPDF
       def each_string_in_object(obj, &block) # :yields: str
         case obj
         when Hash
-          obj.each_value {|val| each_string_in_object(val, &block)}
+          obj.each_value {|val| each_string_in_object(val, &block) }
         when Array
-          obj.each {|inner_o| each_string_in_object(inner_o, &block)}
+          obj.each {|inner_o| each_string_in_object(inner_o, &block) }
         when String
           yield(obj)
         end

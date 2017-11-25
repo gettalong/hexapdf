@@ -55,15 +55,13 @@ module HexaPDF
         autoload(:OS2,  'hexapdf/font/true_type/table/os2')
         autoload(:Kern, 'hexapdf/font/true_type/table/kern')
 
-
         # The time Epoch used in sfnt-formatted font files.
         TIME_EPOCH = Time.new(1904, 1, 1)
 
         # Calculates the checksum for the given data.
         def self.calculate_checksum(data)
-          data.unpack('N*').inject(0) {|sum, long| sum + long} % 2**32
+          data.unpack('N*').inject(0) {|sum, long| sum + long } % 2**32
         end
-
 
         # The TrueType font object associated with this table.
         attr_reader :font

@@ -63,7 +63,7 @@ module HexaPDF
           end
 
           tables['head'][8, 4] = [0xB1B0AFBA - checksum].pack('N')
-          tables.each_value {|data| font_data << data}
+          tables.each_value {|data| font_data << data }
 
           font_data
         end

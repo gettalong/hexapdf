@@ -14,7 +14,7 @@ describe HexaPDF::ImageLoader::PDF do
   describe "handles?" do
     it "works for PDF files" do
       assert(@loader.handles?(@pdf))
-      File.open(@pdf, 'rb') {|file| assert(@loader.handles?(file))}
+      File.open(@pdf, 'rb') {|file| assert(@loader.handles?(file)) }
     end
   end
 

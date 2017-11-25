@@ -13,7 +13,6 @@ require 'minitest/autorun'
 require 'fiber'
 require 'zlib'
 
-
 TEST_DATA_DIR = File.join(__dir__, 'data')
 MINIMAL_PDF = File.read(File.join(TEST_DATA_DIR, 'minimal.pdf')).freeze
 
@@ -25,7 +24,7 @@ module TestHelper
   def assert_method_invoked(object, name, *expected_values, check_block: false)
     args = []
     block = []
-    object.define_singleton_method(name) {|*la, &lb| args << la; block << lb}
+    object.define_singleton_method(name) {|*la, &lb| args << la; block << lb }
     yield
     assert_equal(expected_values, args, "Incorrect arguments for #{object.class}##{name}")
     block.each do |block_arg|
@@ -39,7 +38,7 @@ module TestHelper
 
   def feeder(string, len = string.length)
     Fiber.new do
-      while string.length > 0
+      until string.empty?
         Fiber.yield string.slice!(0, len).force_encoding('BINARY')
       end
     end
@@ -54,6 +53,4 @@ module TestHelper
   end
 end
 
-class Minitest::Spec
-  include TestHelper
-end
+Minitest::Spec.send(:include, TestHelper)

@@ -87,7 +87,7 @@ describe HexaPDF::Configuration do
     end
 
     it "returns the result of the given block when no constant is found" do
-      assert_equal(:test, @config.constantize('unk') {|name| assert_equal('unk', name); :test})
+      assert_equal(:test, @config.constantize('unk') {|name| assert_equal('unk', name); :test })
     end
   end
 end

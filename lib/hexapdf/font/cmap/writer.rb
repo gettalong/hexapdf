@@ -134,7 +134,7 @@ module HexaPDF
           while size > 0
             count = [MAX_ENTRIES_IN_SECTION, size].min
             result << "#{count} begin#{type}\n"
-            index.upto(index + count - 1) {|i| result << yield(i)}
+            index.upto(index + count - 1) {|i| result << yield(i) }
             result << "end#{type}\n"
             index += count
             size -= count
@@ -145,25 +145,25 @@ module HexaPDF
 
         # Returns the CMap file template for a ToUnicode CMap.
         def to_unicode_template
-          <<-TEMPLATE
-/CIDInit /ProcSet findresource begin
-12 dict begin
-begincmap
-/CIDSystemInfo
-<< /Registry (Adobe)
-/Ordering (UCS)
-/Supplement 0
->> def
-/CMapName /Adobe-Identity-UCS def
-/CMapType 2 def
-1 begincodespacerange
-<0000> <FFFF>
-endcodespacerange
-%s
-endcmap
-CMapName currentdict /CMap defineresource pop
-end
-end
+          <<~TEMPLATE
+            /CIDInit /ProcSet findresource begin
+            12 dict begin
+            begincmap
+            /CIDSystemInfo
+            << /Registry (Adobe)
+            /Ordering (UCS)
+            /Supplement 0
+            >> def
+            /CMapName /Adobe-Identity-UCS def
+            /CMapType 2 def
+            1 begincodespacerange
+            <0000> <FFFF>
+            endcodespacerange
+            %s
+            endcmap
+            CMapName currentdict /CMap defineresource pop
+            end
+            end
           TEMPLATE
         end
 

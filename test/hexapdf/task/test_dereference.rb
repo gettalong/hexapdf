@@ -21,8 +21,8 @@ describe HexaPDF::Task::Dereference do
 
     checker = lambda do |val, done = {}|
       case val
-      when Array then val.all? {|v| checker.call(v, done)}
-      when Hash then val.all? {|_, v| checker.call(v, done)}
+      when Array then val.all? {|v| checker.call(v, done) }
+      when Hash then val.all? {|_, v| checker.call(v, done) }
       when HexaPDF::Reference
         false
       when HexaPDF::Object

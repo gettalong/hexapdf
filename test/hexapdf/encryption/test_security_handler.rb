@@ -58,7 +58,6 @@ describe HexaPDF::Encryption::SecurityHandler do
 
   end
 
-
   before do
     @document = HexaPDF::Document.new
     @obj = @document.add({})
@@ -125,7 +124,7 @@ describe HexaPDF::Encryption::SecurityHandler do
     it "sets the correct /V value for the given key length and algorithm" do
       [[40, :arc4, 1], [128, :arc4, 2], [128, :arc4, 4],
        [128, :aes, 4], [256, :aes, 5]].each do |length, algorithm, version|
-        @handler.set_up_encryption(key_length: length, algorithm: algorithm, force_V4: version == 4)
+        @handler.set_up_encryption(key_length: length, algorithm: algorithm, force_v4: version == 4)
         assert_equal(version, @handler.dict[:V])
       end
     end
@@ -200,9 +199,8 @@ describe HexaPDF::Encryption::SecurityHandler do
     end
   end
 
-
   describe "set_up_decryption" do
-    it "sets the handlers's dictionary to the encryption dictionary wrapped in a custom class and returns it" do
+    it "wraps the given hash in an encryption dictionary class, uses it for its dict, returns it" do
       dict = @handler.set_up_decryption(Filter: :test, V: 1)
       assert_equal(dict, @handler.dict)
       assert_kind_of(HexaPDF::Encryption::EncryptionDictionary, @handler.dict)
@@ -222,13 +220,14 @@ describe HexaPDF::Encryption::SecurityHandler do
     it "selects the correct algorithm based on the /V and /CF values" do
       @enc = @handler.dup
 
-      [[:arc4, 40, {V: 1}],
-       [:arc4, 80, {V: 2, Length: 80}],
-       [:arc4, 128, {V: 4, StrF: :Mine, CF: {Mine: {CFM: :V2}}}],
-       [:aes, 128, {V: 4, StrF: :Mine, CF: {Mine: {CFM: :AESV2}}}],
-       [:aes, 256, {V: 5, StrF: :Mine, CF: {Mine: {CFM: :AESV3}}}],
-       [:identity, 128, {V: 4, StrF: :Mine, CF: {Mine: {CFM: :None}}}],
-       [:identity, 128, {V: 4, CF: {Mine: {CFM: :AESV2}}}],
+      [
+        [:arc4, 40, {V: 1}],
+        [:arc4, 80, {V: 2, Length: 80}],
+        [:arc4, 128, {V: 4, StrF: :Mine, CF: {Mine: {CFM: :V2}}}],
+        [:aes, 128, {V: 4, StrF: :Mine, CF: {Mine: {CFM: :AESV2}}}],
+        [:aes, 256, {V: 5, StrF: :Mine, CF: {Mine: {CFM: :AESV3}}}],
+        [:identity, 128, {V: 4, StrF: :Mine, CF: {Mine: {CFM: :None}}}],
+        [:identity, 128, {V: 4, CF: {Mine: {CFM: :AESV2}}}],
       ].each do |alg, length, dict|
         @enc.strf = alg
         @enc.set_up_encryption(key_length: length, algorithm: (alg == :identity ? :aes : alg))
@@ -239,8 +238,8 @@ describe HexaPDF::Encryption::SecurityHandler do
     end
 
     it "selects the correct algorithm for string, stream and embedded file decryption" do
-      @handler.set_up_decryption({V: 4, StrF: :Mine, StmF: :Mine, EFF: :Mine,
-                                  CF: {Mine: {CFM: :V2}}})
+      @handler.set_up_decryption(V: 4, StrF: :Mine, StmF: :Mine, EFF: :Mine,
+                                 CF: {Mine: {CFM: :V2}})
       assert_equal(HexaPDF::Encryption::FastARC4, @handler.send(:embedded_file_algorithm))
       assert_equal(HexaPDF::Encryption::FastARC4, @handler.send(:string_algorithm))
       assert_equal(HexaPDF::Encryption::FastARC4, @handler.send(:stream_algorithm))
@@ -267,7 +266,6 @@ describe HexaPDF::Encryption::SecurityHandler do
       assert_match(/Unsupported encryption method/i, exp.message)
     end
   end
-
 
   describe "decrypt" do
     before do
@@ -307,7 +305,6 @@ describe HexaPDF::Encryption::SecurityHandler do
     end
   end
 
-
   describe "encryption" do
     before do
       @handler.set_up_encryption(key_length: 128, algorithm: :arc4)
@@ -336,7 +333,6 @@ describe HexaPDF::Encryption::SecurityHandler do
       assert_equal('string', @handler.encrypt_stream(@stream).resume)
     end
   end
-
 
   it "works correctly with different decryption and encryption handlers" do
     test_file = File.join(TEST_DATA_DIR, 'standard-security-handler', 'nopwd-arc4-40bit-V1.pdf')

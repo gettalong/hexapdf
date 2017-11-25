@@ -134,7 +134,6 @@ module HexaPDF
 
           end
 
-
           # Holds records for the same name type (e.g. :font_name, :postscript_name, ...).
           class Records < Array
 
@@ -147,7 +146,6 @@ module HexaPDF
             end
 
           end
-
 
           # The format of the table.
           attr_accessor :format
@@ -173,7 +171,7 @@ module HexaPDF
             @format, count, string_offset = read_formatted(6, 'n3')
             string_offset += directory_entry.offset
 
-            @records = Hash.new {|h, k| h[k] = Records.new}
+            @records = Hash.new {|h, k| h[k] = Records.new }
             @language_tags = {}
 
             record_rows = Array.new(count) { read_formatted(12, 'n6') }

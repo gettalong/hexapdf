@@ -466,7 +466,8 @@ module HexaPDF
           @border_color = border_color
         end
 
-        # Creates the needed link annotation if possible, i.e. if the context of the canvas is a page.
+        # Creates the needed link annotation if possible, i.e. if the context of the canvas is a
+        # page.
         def call(canvas, box)
           return unless canvas.context.type == :Page
           page = canvas.context
@@ -508,7 +509,7 @@ module HexaPDF
       #
       # Updates the style's properties using the key-value pairs specified by the +properties+ hash.
       def update(**properties)
-        properties.each {|key, value| send(key, value)}
+        properties.each {|key, value| send(key, value) }
         self
       end
 
@@ -807,7 +808,6 @@ module HexaPDF
         EOF
         alias_method("#{name}=", name)
       end
-
 
       ##
       # :method: text_segmentation_algorithm

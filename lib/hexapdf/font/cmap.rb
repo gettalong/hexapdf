@@ -82,7 +82,6 @@ module HexaPDF
         Writer.new.create_to_unicode_cmap(mapping)
       end
 
-
       # The registry part of the CMap version.
       attr_accessor :registry
 

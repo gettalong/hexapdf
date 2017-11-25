@@ -18,7 +18,7 @@ describe HexaPDF::Font::TrueType::Optimizer do
     it "builds a font file that is optimized for use with PDFs" do
       font_data = HexaPDF::Font::TrueType::Optimizer.build_for_pdf(@font)
       built_font = HexaPDF::Font::TrueType::Font.new(StringIO.new(font_data))
-      %I(FFTM GDEF GPOS GSUB name post).each do |table|
+      [:FFTM, :GDEF, :GPOS, :GSUB, :name, :post].each do |table|
         refute(built_font[table])
       end
     end

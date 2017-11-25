@@ -90,9 +90,9 @@ module HexaPDF
       def recurse(val) #:nodoc:
         case val
         when Hash
-          val.each {|k, v| val[k] = recurse(v)}
+          val.each {|k, v| val[k] = recurse(v) }
         when Array
-          val.map! {|v| recurse(v)}
+          val.map! {|v| recurse(v) }
         when HexaPDF::Reference
           dereference(@doc.object(val))
         when HexaPDF::Object

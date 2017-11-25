@@ -69,8 +69,8 @@ module HexaPDF
       attr_reader :style
 
       # :call-seq:
-      #    Box.new(content_width: 0, content_height: 0, style: Style.new) {|canvas, box| block} -> box
-      #    Box.new(width: 0, height: 0, style: Style.new) {|canvas, box| block} -> box
+      #    Box.new(content_width: 0, content_height: 0, style: Style.new) {|canv, box| block} -> box
+      #    Box.new(width: 0, height: 0, style: Style.new) {|canv, box| block} -> box
       #
       # Creates a new Box object with the given width and height for its content that uses the
       # provided block when it is asked to draw itself on a canvas (see #draw).

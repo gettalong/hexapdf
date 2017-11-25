@@ -66,7 +66,7 @@ module HexaPDF
         def encrypt(key, data)
           new(key).process(data)
         end
-        alias :decrypt :encrypt
+        alias decrypt encrypt
 
         # Returns a Fiber object that encrypts the data from the given source fiber with the
         # +key+.
@@ -78,7 +78,7 @@ module HexaPDF
             end
           end
         end
-        alias :decryption_fiber :encryption_fiber
+        alias decryption_fiber encryption_fiber
 
       end
 

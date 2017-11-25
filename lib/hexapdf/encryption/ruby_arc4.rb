@@ -70,8 +70,8 @@ module HexaPDF
         end
         result
       end
-      alias :decrypt :process
-      alias :encrypt :process
+      alias decrypt process
+      alias encrypt process
 
       private
 

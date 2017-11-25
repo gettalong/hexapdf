@@ -65,10 +65,10 @@ module HexaPDF
           %s(TimesNewRoman,Bold) => %s(Times-Bold),
           %s(TimesNewRoman,BoldItalic) => %s(Times-BoldItalic),
         }
-        %i(Times-Roman Times-Bold Times-Italic Times-BoldItalic
+        %i[Times-Roman Times-Bold Times-Italic Times-BoldItalic
            Helvetica Helvetica-Bold Helvetica-Oblique Helvetica-BoldOblique
            Courier Courier-Bold Courier-Oblique Courier-BoldOblique
-           Symbol ZapfDingbats).each {|name| @mapping[name] = name}
+           Symbol ZapfDingbats].each {|name| @mapping[name] = name }
 
         # Returns +true+ if the given name is the name of a standard font.
         def self.standard_font?(name)

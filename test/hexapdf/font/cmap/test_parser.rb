@@ -6,46 +6,46 @@ require 'hexapdf/font/cmap/parser'
 describe HexaPDF::Font::CMap::Parser do
   describe "::parse" do
     it "parses CMap data correctly" do
-      data = <<EOF
-/CIDInit /ProcSet findresource begin
-12 dict begin
-begincmap
-/H usecmap
-/CIDSystemInfo
-<< /Registry (Adobe)
-/Ordering (UCS)
-/Supplement 0
->> def
-/CMapName /Adobe-Identity-UCS def
-/CMapType 2 def
-/WMode 0 def
-4 begincodespacerange
-<00>   <20>
-<8140> <9ffc>
-<a0>   <de>
-<e040> <fbec>
-endcodespacerange
-2 begincidchar
-<8143> 8286
-<8144> 8274
-endcidchar
-2 begincidrange
-<8145> <8145> 8123
-<8146> <8148> 9000
-endcidrange
-2 beginbfrange
-<0000> <005E> <0020>
-<1379> <137B> <90FE>
-<005F> <0061> [ <00660066> <00660069> <00660066006C> ]
-endbfrange
-1 beginbfchar
-<3A51> <D840DC3E>
-endbfchar
-endcmap
-CMapName currentdict /CMap defineresource pop
-end
-end
-EOF
+      data = <<~EOF
+        /CIDInit /ProcSet findresource begin
+        12 dict begin
+        begincmap
+        /H usecmap
+        /CIDSystemInfo
+        << /Registry (Adobe)
+        /Ordering (UCS)
+        /Supplement 0
+        >> def
+        /CMapName /Adobe-Identity-UCS def
+        /CMapType 2 def
+        /WMode 0 def
+        4 begincodespacerange
+        <00>   <20>
+        <8140> <9ffc>
+        <a0>   <de>
+        <e040> <fbec>
+        endcodespacerange
+        2 begincidchar
+        <8143> 8286
+        <8144> 8274
+        endcidchar
+        2 begincidrange
+        <8145> <8145> 8123
+        <8146> <8148> 9000
+        endcidrange
+        2 beginbfrange
+        <0000> <005E> <0020>
+        <1379> <137B> <90FE>
+        <005F> <0061> [ <00660066> <00660069> <00660066006C> ]
+        endbfrange
+        1 beginbfchar
+        <3A51> <D840DC3E>
+        endbfchar
+        endcmap
+        CMapName currentdict /CMap defineresource pop
+        end
+        end
+      EOF
       cmap = HexaPDF::Font::CMap.parse(data)
       assert_equal("Adobe", cmap.registry)
       assert_equal("UCS", cmap.ordering)

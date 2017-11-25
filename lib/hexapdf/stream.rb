@@ -190,7 +190,7 @@ module HexaPDF
     def stream_encoder(source = stream_source)
       encoder_data = [document.unwrap(self[:Filter])].flatten.
         zip([document.unwrap(self[:DecodeParms])].flatten).
-        delete_if {|f, _| f.nil?}
+        delete_if {|f, _| f.nil? }
 
       if data.stream.kind_of?(StreamData)
         decoder_data = data.stream.filter.zip(data.stream.decode_parms)

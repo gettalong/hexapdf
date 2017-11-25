@@ -5,37 +5,37 @@ require 'hexapdf/font/cmap/writer'
 
 describe HexaPDF::Font::CMap::Writer do
   before do
-    @cmap_data = <<EOF
-/CIDInit /ProcSet findresource begin
-12 dict begin
-begincmap
-/CIDSystemInfo
-<< /Registry (Adobe)
-/Ordering (UCS)
-/Supplement 0
->> def
-/CMapName /Adobe-Identity-UCS def
-/CMapType 2 def
-1 begincodespacerange
-<0000> <FFFF>
-endcodespacerange
-2 beginbfchar
-<0060><0090>
-<3A51><d840dc3e>
-endbfchar
-2 beginbfrange
-<0000><005E><0020>
-<1379><137B><90fe>
-endbfrange
-endcmap
-CMapName currentdict /CMap defineresource pop
-end
-end
-EOF
+    @cmap_data = <<~EOF
+      /CIDInit /ProcSet findresource begin
+      12 dict begin
+      begincmap
+      /CIDSystemInfo
+      << /Registry (Adobe)
+      /Ordering (UCS)
+      /Supplement 0
+      >> def
+      /CMapName /Adobe-Identity-UCS def
+      /CMapType 2 def
+      1 begincodespacerange
+      <0000> <FFFF>
+      endcodespacerange
+      2 beginbfchar
+      <0060><0090>
+      <3A51><d840dc3e>
+      endbfchar
+      2 beginbfrange
+      <0000><005E><0020>
+      <1379><137B><90fe>
+      endbfrange
+      endcmap
+      CMapName currentdict /CMap defineresource pop
+      end
+      end
+    EOF
     @mapping = []
-    0x00.upto(0x5e) {|i| @mapping << [i, 0x20 + i]}
+    0x00.upto(0x5e) {|i| @mapping << [i, 0x20 + i] }
     @mapping << [0x60, 0x90]
-    0x1379.upto(0x137B) {|i| @mapping << [i, 0x90FE + i - 0x1379]}
+    0x1379.upto(0x137B) {|i| @mapping << [i, 0x90FE + i - 0x1379] }
     @mapping << [0x3A51, 0x2003E]
   end
 

@@ -43,6 +43,7 @@ module HexaPDF
         #
         # See: https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6head.html
         class Head < Table
+
           extend HexaPDF::Utils::BitField
 
           # The version of the font (a Rational).

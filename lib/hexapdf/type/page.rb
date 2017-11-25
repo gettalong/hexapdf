@@ -119,7 +119,7 @@ module HexaPDF
 
       define_type :Page
 
-      define_field :Type,                 type: Symbol, required: true, default: self.type
+      define_field :Type,                 type: Symbol, required: true, default: type
       define_field :Parent,               type: :Pages, required: true, indirect: true
       define_field :LastModified,         type: PDFDate, version: '1.3'
       define_field :Resources,            type: :XXResources
@@ -238,7 +238,7 @@ module HexaPDF
       # or by creating a new one if no content stream exists.
       def contents=(data)
         first, *rest = self[:Contents]
-        rest.each {|stream| document.delete(stream)}
+        rest.each {|stream| document.delete(stream) }
         if first
           self[:Contents] = first
           document.deref(first).stream = data
@@ -370,11 +370,10 @@ module HexaPDF
       def perform_validation(&block)
         super
         REQUIRED_INHERITABLE_FIELDS.each do |name|
-          if self[name].nil?
-            yield("Inheritable page field #{name} not set", name == :Resources)
-            self[:Resources] = {}
-            self[:Resources].validate(&block)
-          end
+          next if self[name]
+          yield("Inheritable page field #{name} not set", name == :Resources)
+          self[:Resources] = {}
+          self[:Resources].validate(&block)
         end
       end
 

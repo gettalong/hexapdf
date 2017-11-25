@@ -83,7 +83,6 @@ module HexaPDF
         # Dominant width of vertical stems.
         attr_accessor :dominant_vertical_stem_width
 
-
         # Distance from the baseline for centering underlining strokes.
         attr_accessor :underline_position
 
@@ -96,7 +95,6 @@ module HexaPDF
 
         # Boolean specifying if the font is a fixed pitch (monospaced) font.
         attr_accessor :is_fixed_pitch
-
 
         # Mapping of character codes and names to CharacterMetrics objects.
         attr_accessor :character_metrics

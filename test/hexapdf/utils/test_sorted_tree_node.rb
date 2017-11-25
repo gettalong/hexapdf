@@ -88,7 +88,7 @@ describe HexaPDF::Utils::SortedTreeNode do
 
     it "splits nodes if needed" do
       @doc.config['sorted_tree.max_leaf_node_size'] = 4
-      %w[a c e m k i g d b l j f h].each {|key| @root.add_entry(key, 1)}
+      %w[a c e m k i g d b l j f h].each {|key| @root.add_entry(key, 1) }
       refute(@root.value.key?(:Limits))
       refute(@root.value.key?(:Names))
       assert_equal(6, @root[:Kids].size)
@@ -136,8 +136,8 @@ describe HexaPDF::Utils::SortedTreeNode do
 
   describe "delete" do
     it "works with only the root node" do
-      %w[a b c d e f g].each {|name| @root.add_entry(name, 1)}
-      %w[g b a unknown e d c].each {|name| @root.delete_entry(name)}
+      %w[a b c d e f g].each {|name| @root.add_entry(name, 1) }
+      %w[g b a unknown e d c].each {|name| @root.delete_entry(name) }
       refute(@root.value.key?(:Kids))
       refute(@root.value.key?(:Limits))
       assert_equal(['f', 1], @root[:Names])
@@ -146,7 +146,7 @@ describe HexaPDF::Utils::SortedTreeNode do
 
     it "works with multiple levels of intermediate nodes" do
       add_multilevel_entries
-      %w[c f i m unknown o q s u].each {|name| @root.delete_entry(name)}
+      %w[c f i m unknown o q s u].each {|name| @root.delete_entry(name) }
       refute(@root.value.key?(:Names))
       refute(@root.value.key?(:Limits))
       assert(@root[:Kids].empty?)

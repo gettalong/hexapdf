@@ -87,7 +87,7 @@ module HexaPDF
     # cross-reference section or stream if applicable.
     def write_revision(rev, previous_xref_pos = nil)
       xref_stream, object_streams = xref_and_object_streams(rev)
-      obj_to_stm = object_streams.each_with_object({}) {|stm, m| m.update(stm.write_objects(rev))}
+      obj_to_stm = object_streams.each_with_object({}) {|stm, m| m.update(stm.write_objects(rev)) }
 
       xref_section = XRefSection.new
       xref_section.add_free_entry(0, 65535) if previous_xref_pos.nil?
@@ -147,7 +147,7 @@ module HexaPDF
         end
       end
 
-      if object_streams.size > 0 && xref_stream.nil?
+      if !object_streams.empty? && xref_stream.nil?
         raise HexaPDF::Error, "Cannot use object streams when there is no xref stream"
       end
 
@@ -156,9 +156,9 @@ module HexaPDF
 
     # Writes the single indirect object which may be a stream object or another object.
     def write_indirect_object(obj)
-      @io << "#{obj.oid} #{obj.gen} obj\n".freeze
+      @io << "#{obj.oid} #{obj.gen} obj\n"
       @serializer.serialize_to_io(obj, @io)
-      @io << "\nendobj\n".freeze
+      @io << "\nendobj\n"
     end
 
     # Writes the cross-reference section.
@@ -170,9 +170,9 @@ module HexaPDF
         @io << "#{entries.empty? ? 0 : entries.first.oid} #{entries.size}\n"
         entries.each do |entry|
           if entry.in_use?
-            @io << sprintf("%010d %05d n \n".freeze, entry.pos, entry.gen).freeze
+            @io << sprintf("%010d %05d n \n", entry.pos, entry.gen).freeze
           elsif entry.free?
-            @io << "0000000000 65535 f \n".freeze
+            @io << "0000000000 65535 f \n"
           else
             # Should never occur since we create the xref section!
             raise HexaPDF::Error, "Cannot use xref type #{entry.type} in cross-reference section"

@@ -7,7 +7,6 @@ require 'tempfile'
 require 'hexapdf/configuration'
 require 'hexapdf/stream'
 
-
 describe HexaPDF::StreamData do
   it "fails if no valid source is specified on creation" do
     assert_raises(ArgumentError) { HexaPDF::StreamData.new }
@@ -60,7 +59,6 @@ describe HexaPDF::StreamData do
     end
   end
 end
-
 
 describe HexaPDF::Stream do
   include TestHelper
@@ -134,7 +132,7 @@ describe HexaPDF::Stream do
   def encoded_data(str, encoders = [])
     map = @document.config['filter.map']
     tmp = feeder(str)
-    encoders.each {|e| tmp = ::Object.const_get(map[e]).encoder(tmp)}
+    encoders.each {|e| tmp = ::Object.const_get(map[e]).encoder(tmp) }
     collector(tmp)
   end
 
@@ -153,7 +151,7 @@ describe HexaPDF::Stream do
     end
 
     it "works with a Proc object inside StreamData" do
-      @stm.stream = HexaPDF::StreamData.new(proc {'testing'})
+      @stm.stream = HexaPDF::StreamData.new(proc { 'testing' })
       assert_equal('testing', collector(@stm.stream_decoder))
     end
 

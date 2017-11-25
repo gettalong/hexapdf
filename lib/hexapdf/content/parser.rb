@@ -133,7 +133,6 @@ module HexaPDF
 
     end
 
-
     # This class knows how to correctly parse a content stream.
     #
     # == Overview

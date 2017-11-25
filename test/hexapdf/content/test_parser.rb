@@ -45,8 +45,8 @@ describe HexaPDF::Content::Parser do
       assert_equal([[:inline_image, [{CS: :RGB}, @image_data]],
                     [:restore_graphics_state],
                     [:save_graphics_state],
-                    [:concatenate_matrix, [1308, 0, 0, 1, 485.996, 4531.67]]
-                   ], @processor.recorded_ops)
+                    [:concatenate_matrix, [1308, 0, 0, 1, 485.996, 4531.67]]],
+                   @processor.recorded_ops)
     end
 
     it "parses a content stream with an inline image with EI in image data at end of stream" do

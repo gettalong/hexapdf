@@ -25,7 +25,7 @@ describe HexaPDF::Filter::RunLengthDecode do
 
   describe "encoder" do
     it "works with single byte input" do
-      assert_equal(@encoded.chars.map {|a| "\0#{a}"}.join << "\x80".force_encoding(Encoding::BINARY),
+      assert_equal(@encoded.chars.map {|a| "\0#{a}" }.join << "\x80".b,
                    collector(@obj.encoder(feeder(@encoded.dup, 1))))
     end
   end

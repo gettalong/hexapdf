@@ -18,7 +18,7 @@ describe HexaPDF::Filter::FlateDecode do
 
   describe "decoder" do
     it "applies the Predictor after decoding" do
-      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded_predictor.dup), @predictor_opts)))
+      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded_predictor), @predictor_opts)))
     end
 
     it "fails on invalid input" do
@@ -29,7 +29,7 @@ describe HexaPDF::Filter::FlateDecode do
 
   describe "encoder" do
     it "applies the Predictor before encoding" do
-      assert_equal(@encoded_predictor, collector(@obj.encoder(feeder(@decoded.dup), @predictor_opts)))
+      assert_equal(@encoded_predictor, collector(@obj.encoder(feeder(@decoded), @predictor_opts)))
     end
   end
 end

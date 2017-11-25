@@ -255,7 +255,7 @@ module HexaPDF
 
       trailer = @tokenizer.next_object
       unless trailer.kind_of?(Hash)
-        raise_malformed("Trailer is a #{trailer.class} instead of a dictionary ", pos: @tokenizer.pos)
+        raise_malformed("Trailer is #{trailer.class} instead of dictionary ", pos: @tokenizer.pos)
       end
 
       [xref, trailer]

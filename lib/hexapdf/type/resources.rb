@@ -70,7 +70,7 @@ module HexaPDF
           if space_definition.nil?
             raise HexaPDF::Error, "Color space '#{name}' not found in the resources"
           elsif space_definition.kind_of?(Array)
-            space_definition.map! {|item| document.deref(item)}
+            space_definition.map! {|item| document.deref(item) }
             space_family = space_definition[0]
           else
             space_family = space_definition
@@ -97,7 +97,7 @@ module HexaPDF
         color_space_dict = self[:ColorSpace]
 
         name, _value = color_space_dict.value.find do |_k, v|
-          v.map! {|item| document.deref(item)}
+          v.map! {|item| document.deref(item) }
           v == definition
         end
         unless name
@@ -180,7 +180,7 @@ module HexaPDF
       def object_setter(dict_name, prefix, object)
         self[dict_name] = {} unless key?(dict_name)
         dict = self[dict_name]
-        name, _value = dict.each.find {|_, dict_obj| dict_obj == object}
+        name, _value = dict.each.find {|_, dict_obj| dict_obj == object }
         unless name
           name = create_resource_name(dict.value, prefix)
           dict[name] = object

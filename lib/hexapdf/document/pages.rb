@@ -139,8 +139,8 @@ module HexaPDF
       def count
         @document.catalog.pages.page_count
       end
-      alias :size :count
-      alias :length :count
+      alias size count
+      alias length count
 
     end
 

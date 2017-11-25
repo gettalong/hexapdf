@@ -13,7 +13,7 @@ describe HexaPDF::Document::Images do
     describe "using a custom image loader" do
       before do
         @loader = Object.new
-        @loader.define_singleton_method(:handles?) {|*| true}
+        @loader.define_singleton_method(:handles?) {|*| true }
         @loader.define_singleton_method(:load) do |doc, s|
           s = HexaPDF::StreamData.new(s) if s.kind_of?(IO)
           doc.add({Subtype: :Image}, stream: s)

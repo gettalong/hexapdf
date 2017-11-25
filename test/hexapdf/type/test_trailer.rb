@@ -85,7 +85,7 @@ describe HexaPDF::Type::Trailer do
       def (@doc).add(val) HexaPDF::Object.new(val, oid: 3) end
 
       message = ''
-      refute(@obj.validate(auto_correct: false) {|m, _| message = m})
+      refute(@obj.validate(auto_correct: false) {|m, _| message = m })
       assert_match(/Catalog/, message)
       assert(@obj.validate)
     end

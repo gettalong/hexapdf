@@ -30,7 +30,7 @@ module AESEncryptionTests
     TEST_VECTOR_FILES.each do |filename|
       name, size, mode = File.basename(filename, '.data.gz').split('-')
       size = size.to_i / 8
-      data = Zlib::GzipReader.open(filename) {|io| io.read}.force_encoding(Encoding::BINARY)
+      data = Zlib::GzipReader.open(filename, &:read).force_encoding(Encoding::BINARY)
       data.scan(/(.{#{size}})(.{16})(.{16})(.{16})/m).each_with_index do |(key, iv, plain, cipher), index|
         aes = @algorithm_class.new(key, iv, mode.intern)
         assert_equal(cipher, aes.process(plain),
@@ -66,8 +66,8 @@ module ARC4EncryptionTests
   def setup
     super
     @encrypted = ['BBF316E8D940AF0AD3', '1021BF0420', '45A01F645FC35B383552544B9BF5'].
-      map {|c| [c].pack('H*')}
-    @plain = ['Plaintext', 'pedia', 'Attack at dawn'].each {|s| s.force_encoding('BINARY')}
+      map {|c| [c].pack('H*') }
+    @plain = ['Plaintext', 'pedia', 'Attack at dawn'].each {|s| s.force_encoding('BINARY') }
     @keys = ['Key', 'Wiki', 'Secret']
   end
 
