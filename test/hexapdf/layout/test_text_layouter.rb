@@ -110,11 +110,12 @@ describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
   end
 
   it "insert a mandatory break when an Unicode line boundary characters is encountered" do
-    frag = setup_fragment("A\rB\r\nC\nD\vE\fF\u{85}G\u{2029}H\u{2028}I")
+    frag = setup_fragment("A\rB\r\nC\nD\vE\fF\u{85}G\u{2029}H\u{2028}I\r")
+    frag.items << 5 << frag.items[-2]
 
     result = @obj.call([frag])
-    assert_equal(17, result.size)
-    [1, 3, 5, 7, 9, 11, 13].each do |index|
+    assert_equal(20, result.size)
+    [1, 3, 5, 7, 9, 11, 13, 17, 19].each do |index|
       assert_penalty(result[index],
                      HexaPDF::Layout::TextLayouter::Penalty::MandatoryParagraphBreak.penalty)
     end

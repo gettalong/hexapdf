@@ -236,7 +236,8 @@ module HexaPDF
                   when "\u{2028}"
                     result << Penalty::MandatoryLineBreak
                   when "\r"
-                    if item.items[i + 1]&.kind_of?(Numeric) || item.items[i + 1].str != "\n"
+                    if !item.items[i + 1] || item.items[i + 1].kind_of?(Numeric) ||
+                        item.items[i + 1].str != "\n"
                       result << Penalty::MandatoryParagraphBreak
                     end
                   when '-'
