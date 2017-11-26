@@ -29,34 +29,34 @@ describe HexaPDF::Filter do
       @io = StringIO.new(@str.dup)
     end
 
+    def from_io(**opts)
+      collector(@obj.source_from_io(@io, **opts))
+    end
+
     it "converts an IO into a source via #source_from_io" do
-      assert_equal(@str, collector(@obj.source_from_io(@io)))
+      assert_equal(@str, from_io)
 
-      assert_equal(@str, collector(@obj.source_from_io(@io, pos: -10)))
-      assert_equal(@str[10..-1], collector(@obj.source_from_io(@io, pos: 10)))
-      assert_equal("", collector(@obj.source_from_io(@io, pos: 200)))
+      assert_equal(@str, from_io(pos: -10))
+      assert_equal(@str[10..-1], from_io(pos: 10))
+      assert_equal("", from_io(pos: 200))
 
-      assert_equal("", collector(@obj.source_from_io(@io, length: 0)))
-      assert_equal(@str[0...100], collector(@obj.source_from_io(@io, length: 100)))
-      assert_equal(@str, collector(@obj.source_from_io(@io, length: -15)))
+      assert_equal("", from_io(length: 0))
+      assert_equal(@str[0...100], from_io(length: 100))
+      assert_equal(@str, from_io(length: -15))
       assert_equal(100, @obj.source_from_io(@io, length: 100).length)
 
-      assert_equal(@str, collector(@obj.source_from_io(@io, chunk_size: -15)))
-      assert_equal(@str, collector(@obj.source_from_io(@io, chunk_size: 0)))
-      assert_equal(@str, collector(@obj.source_from_io(@io, chunk_size: 100)))
-      assert_equal(@str, collector(@obj.source_from_io(@io, chunk_size: 200)))
+      assert_equal(@str, from_io(chunk_size: -15))
+      assert_equal(@str, from_io(chunk_size: 0))
+      assert_equal(@str, from_io(chunk_size: 100))
+      assert_equal(@str, from_io(chunk_size: 200))
 
-      assert_equal(@str[0...20], collector(@obj.source_from_io(@io, length: 20, chunk_size: 100)))
-      assert_equal(@str[20...40],
-                   collector(@obj.source_from_io(@io, pos: 20, length: 20, chunk_size: 100)))
-      assert_equal(@str[20...40],
-                   collector(@obj.source_from_io(@io, pos: 20, length: 20, chunk_size: 5)))
+      assert_equal(@str[0...20], from_io(length: 20, chunk_size: 100))
+      assert_equal(@str[20...40], from_io(pos: 20, length: 20, chunk_size: 100))
+      assert_equal(@str[20...40], from_io(pos: 20, length: 20, chunk_size: 5))
     end
 
     it "fails if not all requested bytes could be read" do
-      assert_raises(HexaPDF::FilterError) do
-        collector(@obj.source_from_io(@io, length: 200))
-      end
+      assert_raises(HexaPDF::FilterError) { from_io(length: 200) }
     end
   end
 
@@ -71,21 +71,23 @@ describe HexaPDF::Filter do
       @file.unlink
     end
 
+    def from_file(**opts)
+      @obj.source_from_file(@file.path, **opts)
+    end
+
     it "converts the file into a source fiber" do
-      assert_equal(@str, collector(@obj.source_from_file(@file.path)))
-      assert_equal(@file.size, @obj.source_from_file(@file.path).length)
+      assert_equal(@str, collector(from_file))
+      assert_equal(@file.size, from_file.length)
 
-      assert_equal(@str[100..-1], collector(@obj.source_from_file(@file.path, pos: 100)))
-      assert_equal(@str[100..-1].length, @obj.source_from_file(@file.path, pos: 100).length)
+      assert_equal(@str[100..-1], collector(from_file(pos: 100)))
+      assert_equal(@str[100..-1].length, from_file(pos: 100).length)
 
-      assert_equal(@str[50..99], collector(@obj.source_from_file(@file.path, pos: 50, length: 50)))
-      assert_equal(50, @obj.source_from_file(@file.path, length: 50).length)
+      assert_equal(@str[50..99], collector(from_file(pos: 50, length: 50)))
+      assert_equal(50, from_file(length: 50).length)
     end
 
     it "fails if more bytes are requested than stored in the file" do
-      assert_raises(HexaPDF::FilterError) do
-        collector(@obj.source_from_file(@file.path, length: 200))
-      end
+      assert_raises(HexaPDF::FilterError) { collector(from_file(length: 200)) }
     end
   end
 
