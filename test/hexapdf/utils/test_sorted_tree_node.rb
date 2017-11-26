@@ -93,11 +93,17 @@ describe HexaPDF::Utils::SortedTreeNode do
       refute(@root.value.key?(:Names))
       assert_equal(6, @root[:Kids].size)
       assert_equal(['a', 1, 'b', 1], @root[:Kids][0][:Names])
+      assert_equal(['a', 'b'], @root[:Kids][0][:Limits])
       assert_equal(['c', 1, 'd', 1], @root[:Kids][1][:Names])
+      assert_equal(['c', 'd'], @root[:Kids][1][:Limits])
       assert_equal(['e', 1, 'f', 1], @root[:Kids][2][:Names])
+      assert_equal(['e', 'f'], @root[:Kids][2][:Limits])
       assert_equal(['g', 1, 'h', 1, 'i', 1], @root[:Kids][3][:Names])
+      assert_equal(['g', 'i'], @root[:Kids][3][:Limits])
       assert_equal(['j', 1, 'k', 1], @root[:Kids][4][:Names])
+      assert_equal(['j', 'k'], @root[:Kids][4][:Limits])
       assert_equal(['l', 1, 'm', 1], @root[:Kids][5][:Names])
+      assert_equal(['l', 'm'], @root[:Kids][5][:Limits])
     end
 
     it "fails if not called on the root node" do
