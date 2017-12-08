@@ -7,6 +7,7 @@
   [HexaPDF::Layout::TextFragment::create] method signatures
 * [HexaPDF::Encryption::SecurityHandler#set_up_encryption] argument `force_V4`
   to `force_v4`
+* [HexaPDF::Layout::TextLayouter#draw] to return result of #fit if possible
 
 ### Fixed
 

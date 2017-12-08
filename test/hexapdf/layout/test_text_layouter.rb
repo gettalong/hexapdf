@@ -587,6 +587,19 @@ describe HexaPDF::Layout::TextLayouter do
       @line2w = HexaPDF::Layout::TextFragment.create("more text.", font: @font).width
     end
 
+    it "returns the result of #fit if #fit needs to be run" do
+      rest, reason = @layouter.draw(@canvas, 0, 0)
+      assert(rest.empty?)
+      assert_equal(:success, reason)
+
+      @layouter.items = [HexaPDF::Layout::InlineBox.create(width: @width + 10) {}]
+      rest, reason = @layouter.draw(@canvas, 0, 0)
+      assert_equal(1, rest.size)
+      assert_equal(:box, reason)
+
+      assert_nil(@layouter.draw(@canvas, 0, 0))
+    end
+
     it "can horizontally align the contents to the left" do
       top = 100
       @layouter.style.align = :left

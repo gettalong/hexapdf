@@ -682,6 +682,9 @@ module HexaPDF
         [rest, reason]
       end
 
+      # :call-seq:
+      #   tl.draws(canvas, x, y, fit: :if_needed) -> [remaining_items, reason] or nil
+      #
       # Draws the layed out text onto the canvas with the top-left corner being at [x, y].
       #
       # Depending on the value of +fit+ the text may also be fitted:
@@ -689,9 +692,11 @@ module HexaPDF
       # * If +true+, then #fit is always called.
       # * If +:if_needed+, then #fit is only called if it has not been called before.
       # * If +false+, then #fit is never called.
+      #
+      # If #fit was called, its return value is returned. Otherwise +nil+ is returned.
       def draw(canvas, x, y, fit: :if_needed)
-        self.fit if fit == true || (!@actual_height && fit == :if_needed)
-        return if @lines.empty?
+        fit_result = self.fit if fit == true || (!@actual_height && fit == :if_needed)
+        return fit_result if @lines.empty?
 
         canvas.save_graphics_state do
           y -= initial_baseline_offset + @lines.first.y_offset
@@ -709,6 +714,8 @@ module HexaPDF
             y -= @lines[index + 1].y_offset if @lines[index + 1]
           end
         end
+
+        fit_result
       end
 
       private
