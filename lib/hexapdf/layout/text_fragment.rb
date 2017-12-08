@@ -108,8 +108,8 @@ module HexaPDF
 
       # Draws the text onto the canvas at the given position.
       #
-      # Before the text is drawn using HexaPDF::Content;:Canvas#show_glyphs, the text properties
-      # mentioned in the description of #style are set.
+      # Before the text is drawn using HexaPDF::Content;:Canvas#show_glyphs_only, the text
+      # properties mentioned in the description of #style are set.
       def draw(canvas, x, y)
         return if items.empty?
 
