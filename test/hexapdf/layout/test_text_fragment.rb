@@ -76,7 +76,7 @@ describe HexaPDF::Layout::TextFragment do
         [:set_word_spacing, [2]],
         [:set_text_rise, [2]],
         *middle,
-        [:show_text_with_positioning, [['!']]],
+        [:show_text, ['!']],
         *back,
       ].compact
       assert_operators(@canvas.contents, ops)

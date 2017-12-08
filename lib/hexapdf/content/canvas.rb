@@ -1744,16 +1744,18 @@ module HexaPDF
         raise_unless_font_set
         begin_text
 
-        result = [''.b]
+        simple = true
+        result = [last = ''.b]
         glyphs.each do |item|
           if item.kind_of?(Numeric)
-            result << item << ''.b
+            simple = false
+            result << item << (last = ''.b)
           else
-            result[-1] << @font.encode(item)
+            last << @font.encode(item)
           end
         end
 
-        serialize1(:TJ, result)
+        simple ? serialize1(:Tj, result[0]) : serialize1(:TJ, result)
         self
       end
 

@@ -1084,7 +1084,7 @@ describe HexaPDF::Content::Canvas do
   end
 
   describe "show_glyphs_only" do
-    it "serializes correctly" do
+    it "serializes positioned glyphs correctly" do
       @canvas.font("Times", size: 20)
       font = @canvas.font
       @canvas.show_glyphs_only(font.decode_utf8("Hal lo").insert(2, -35))
@@ -1094,6 +1094,16 @@ describe HexaPDF::Content::Canvas do
                                           [:set_leading, [24]],
                                           [:begin_text],
                                           [:show_text_with_positioning, [["Ha", -35, "l lo"]]]])
+    end
+
+    it "serializes unpositioned glyphs correctly" do
+      @canvas.font("Times", size: 20)
+      font = @canvas.font
+      @canvas.show_glyphs_only(font.decode_utf8("Hallo"))
+      assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 20]],
+                                          [:set_leading, [24]],
+                                          [:begin_text],
+                                          [:show_text, ["Hallo"]]])
     end
 
     it "fails if no valid font is set" do
