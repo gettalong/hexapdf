@@ -184,17 +184,17 @@ module HexaPDF
 
       # Encodes the glyph and returns the code string.
       def encode(glyph)
-        @encoded_glyphs[glyph] ||=
+        (@encoded_glyphs[glyph.id] ||=
           begin
             if glyph.kind_of?(InvalidGlyph)
               raise HexaPDF::Error, "Glyph for #{glyph.str.inspect} missing"
             end
             if @subsetter
-              [@subsetter.use_glyph(glyph.id)].pack('n')
+              [[@subsetter.use_glyph(glyph.id)].pack('n'), glyph]
             else
-              [glyph.id].pack('n')
+              [[glyph.id].pack('n'), glyph]
             end
-          end
+          end)[0]
       end
 
       private
@@ -264,7 +264,7 @@ module HexaPDF
         return unless @subsetter
 
         tag = ''
-        data = @encoded_glyphs.each_with_object(''.b) {|(g, v), s| s << g.id.to_s << v }
+        data = @encoded_glyphs.each_with_object(''.b) {|(id, v), s| s << id.to_s << v[0] }
         hash = Digest::MD5.hexdigest(data << @wrapped_font.font_name).to_i(16)
         while hash != 0 && tag.length < 6
           hash, mod = hash.divmod(UPPERCASE_LETTERS.length)
@@ -294,8 +294,8 @@ module HexaPDF
       # Adds the /DW and /W fields to the CIDFont dictionary.
       def complete_width_information
         default_width = glyph(3, " ").width.to_i
-        widths = @encoded_glyphs.keys.reject {|g| g.width == default_width }.map! do |glyph|
-          [(@subsetter ? @subsetter.subset_glyph_id(glyph.id) : glyph.id), glyph.width]
+        widths = @encoded_glyphs.reject {|_, v| v[1].width == default_width }.map do |id, v|
+          [(@subsetter ? @subsetter.subset_glyph_id(id) : id), v[1].width]
         end.sort!
         @dict[:DescendantFonts].first.set_widths(widths, default_width: default_width)
       end
@@ -304,11 +304,10 @@ module HexaPDF
       # correctly.
       def create_to_unicode_cmap
         stream = HexaPDF::StreamData.new do
-          mapping = @encoded_glyphs.keys.map do |glyph|
+          mapping = @encoded_glyphs.keys.map! do |id|
             # Using 0xFFFD as mentioned in Adobe #5411, last line before section 1.5
-            [(@subsetter ? @subsetter.subset_glyph_id(glyph.id) : glyph.id),
-             @cmap.gid_to_code(glyph.id) || 0xFFFD]
-          end.sort_by(&:first)
+            [(@subsetter ? @subsetter.subset_glyph_id(id) : id), @cmap.gid_to_code(id) || 0xFFFD]
+          end.sort_by!(&:first)
           HexaPDF::Font::CMap.create_to_unicode_cmap(mapping)
         end
         stream_obj = @document.add({}, stream: stream)
