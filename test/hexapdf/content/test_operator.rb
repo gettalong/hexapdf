@@ -559,7 +559,7 @@ end
 
 describe_operator :ShowText, :Tj do
   it "serializes correctly" do
-    assert_serialized("Some Text")
+    assert_equal("(Some Text)Tj\n", call(:serialize, @serializer, "Some Text"))
   end
 end
 
@@ -580,7 +580,7 @@ describe_operator :MoveTextNextLineAndShowText, :"'" do
   end
 
   it "serializes correctly" do
-    assert_serialized("Some Text")
+    assert_equal("(Some Text)'\n", call(:serialize, @serializer, "Some Text"))
   end
 end
 
@@ -607,12 +607,13 @@ describe_operator :SetSpacingMoveTextNextLineAndShowText, :'"' do
   end
 
   it "serializes correctly" do
-    assert_serialized(10, 15, "Some Text")
+    assert_equal("10 15 (Some Text)\"\n", call(:serialize, @serializer, 10, 15, "Some Text"))
   end
 end
 
 describe_operator :ShowTextWithPositioning, :TJ do
   it "serializes correctly" do
-    assert_serialized(["Some Text", 15, "other text", 20, "final text"])
+    assert_equal("[(Some Text)15(other text)20(final text)]TJ\n",
+                 call(:serialize, @serializer, ["Some Text", 15, "other text", 20, "final text"]))
   end
 end

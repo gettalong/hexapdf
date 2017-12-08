@@ -933,7 +933,7 @@ module HexaPDF
         end
 
         def serialize(serializer, text) #:nodoc:
-          "#{serializer.serialize_string(text)} Tj\n".freeze
+          "#{serializer.serialize_string(text)}Tj\n".freeze
         end
 
       end
@@ -953,7 +953,7 @@ module HexaPDF
         end
 
         def serialize(serializer, text)
-          "#{serializer.serialize_string(text)} '\n".freeze
+          "#{serializer.serialize_string(text)}'\n".freeze
         end
 
       end
@@ -977,7 +977,7 @@ module HexaPDF
         def serialize(serializer, word_space, char_space, text) #:nodoc:
           "#{serializer.serialize_numeric(word_space)} " \
             "#{serializer.serialize_numeric(char_space)} " \
-            "#{serializer.serialize_string(text)} \"\n".freeze
+            "#{serializer.serialize_string(text)}\"\n".freeze
         end
 
       end
@@ -993,7 +993,7 @@ module HexaPDF
         end
 
         def serialize(serializer, array) #:nodoc:
-          "#{serializer.serialize_array(array)} TJ\n".freeze
+          "#{serializer.serialize_array(array)}TJ\n".freeze
         end
 
       end
