@@ -170,7 +170,7 @@ module HexaPDF
 
       # Returns an array of glyph objects representing the characters in the UTF-8 encoded string.
       def decode_utf8(str)
-        str.each_codepoint.map do |c|
+        str.codepoints.map! do |c|
           @codepoint_to_glyph[c] ||=
             begin
               if (gid = @cmap[c])
