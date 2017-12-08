@@ -229,16 +229,19 @@ module HexaPDF
     #
     # See: PDF1.7 s7.3.4
     def serialize_string(obj)
-      if @encrypter && @object.kind_of?(HexaPDF::Object) && @object.indirect?
-        obj = encrypter.encrypt_string(obj, @object)
-      elsif obj.encoding != Encoding::BINARY
-        obj = if obj.match?(/[^ -~\t\r\n]/)
+      obj = if @encrypter && @object.kind_of?(HexaPDF::Object) && @object.indirect?
+              encrypter.encrypt_string(obj, @object)
+            elsif obj.encoding != Encoding::BINARY
+              if obj.match?(/[^ -~\t\r\n]/)
                 "\xFE\xFF".b << obj.encode(Encoding::UTF_16BE).force_encoding(Encoding::BINARY)
               else
                 obj.b
               end
-      end
-      "(" << obj.gsub(/[\(\)\\\r]/n) {|m| STRING_ESCAPE_MAP[m] } << ")".freeze
+            else
+              obj.dup
+            end
+      obj.gsub!(/[\(\)\\\r]/n, STRING_ESCAPE_MAP)
+      "(#{obj})".freeze
     end
 
     # The ISO PDF specification differs in respect to the supported date format. When converting
