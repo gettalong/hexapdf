@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -122,7 +122,7 @@ module HexaPDF
         @type.concat(Array(@converter.additional_types))
         @type.map! do |type|
           if type.kind_of?(Symbol)
-            HexaPDF::GlobalConfiguration.constantize('object.type_map'.freeze, type)
+            HexaPDF::GlobalConfiguration.constantize('object.type_map', type)
           else
             type
           end

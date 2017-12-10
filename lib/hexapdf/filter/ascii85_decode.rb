@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -149,7 +149,7 @@ module HexaPDF
               VALUE_TO_CHAR[num / POW85_2 % 85] << VALUE_TO_CHAR[num / POW85_1 % 85] <<
               VALUE_TO_CHAR[num % 85])[0, rlen + 1] << "~>").force_encoding(Encoding::BINARY)
           else
-            "~>".force_encoding(Encoding::BINARY)
+            "~>".b
           end
         end
       end

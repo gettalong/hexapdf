@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -70,10 +70,10 @@ module HexaPDF
 
           def load_from_io #:nodoc:
             with_io_pos(0) do
-              @tag, num_tables = read_formatted(12, "a4n".freeze) # ignore 3 fields
+              @tag, num_tables = read_formatted(12, "a4n") # ignore 3 fields
               @tables = {}
               num_tables.times do
-                entry = Entry.new(*read_formatted(16, "a4NNN".freeze))
+                entry = Entry.new(*read_formatted(16, "a4NNN"))
                 @tables[entry.tag] = entry
               end
             end

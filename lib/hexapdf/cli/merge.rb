@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -44,7 +44,7 @@ module HexaPDF
       def initialize #:nodoc:
         super('merge', takes_commands: false)
         short_desc("Merge multiple PDF files")
-        long_desc(<<-EOF.gsub!(/^ */, ''))
+        long_desc(<<~EOF)
           This command merges pages from multiple PDFs into one output file which can optionally be
           encrypted/decrypted and optimized in various ways.
 

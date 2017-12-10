@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -49,7 +49,7 @@ module HexaPDF
       def initialize #:nodoc:
         super('info', takes_commands: false)
         short_desc("Show document information")
-        long_desc(<<-EOF.gsub!(/^ */, ''))
+        long_desc(<<~EOF)
           This command extracts information from the Info dictionary of a PDF file as well
           as some other useful information like the used PDF version and encryption information.
         EOF

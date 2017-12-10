@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -91,7 +91,7 @@ module HexaPDF
               end
             when /\AEnd/
               sections.pop
-              break if sections.empty? && command == 'EndFontMetrics'.freeze
+              break if sections.empty? && command == 'EndFontMetrics'
             else
               if sections.empty?
                 parse_global_font_information(command.to_sym)
@@ -180,7 +180,7 @@ module HexaPDF
         # internal buffer.
         def each_line
           read_line
-          unless parse_name == 'StartFontMetrics'.freeze
+          unless parse_name == 'StartFontMetrics'
             raise HexaPDF::Error, "The AFM file has to start with StartFontMetrics, not #{@line}"
           end
           until @io.eof?
@@ -197,7 +197,7 @@ module HexaPDF
         # Parses and returns the name at the start of the line, with whitespace stripped.
         def parse_name
           result = @line[/\S+\s*/].to_s
-          @line[0, result.size] = ''.freeze
+          @line[0, result.size] = ''
           result.strip!
           result
         end
@@ -221,7 +221,7 @@ module HexaPDF
 
         # Parses the boolean at the start of the line.
         def parse_boolean
-          parse_name == 'true'.freeze
+          parse_name == 'true'
         end
 
       end

@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -157,8 +157,8 @@ module HexaPDF
         str.codepoints.map! do |c|
           @codepoint_to_glyph[c] ||=
             begin
-              name = Encoding::GlyphList.unicode_to_name('' << c, @zapf_dingbats_opt)
-              name = "u" << c.to_s(16).rjust(6, '0') if name == :'.notdef'
+              name = Encoding::GlyphList.unicode_to_name(+'' << c, @zapf_dingbats_opt)
+              name = +"u" << c.to_s(16).rjust(6, '0') if name == :'.notdef'
               glyph(name)
             end
         end

@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -219,7 +219,7 @@ module HexaPDF
                 end
 
                 # A hyphen belongs to the text fragment
-                box_items << glyph if glyph && !glyph.kind_of?(Numeric) && glyph.str == '-'.freeze
+                box_items << glyph if glyph && !glyph.kind_of?(Numeric) && glyph.str == '-'
 
                 unless box_items.empty?
                   result << Box.new(TextFragment.new(box_items.freeze, item.style))
@@ -757,7 +757,7 @@ module HexaPDF
         line.items.each_with_index do |item, item_index|
           next if item.kind_of?(InlineBox)
           item.items.each_with_index do |glyph, glyph_index|
-            if !glyph.kind_of?(Numeric) && glyph.str == ' '.freeze
+            if !glyph.kind_of?(Numeric) && glyph.str == ' '
               sum += glyph.width * item.style.scaled_font_size
               indexes << item_index << glyph_index
             end

@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -42,7 +42,7 @@ module HexaPDF
       def initialize #:nodoc:
         super('optimize', takes_commands: false)
         short_desc("Optimize the size of a PDF file")
-        long_desc(<<-EOF.gsub!(/^ */, ''))
+        long_desc(<<~EOF)
           This command uses several optimization strategies to reduce the file size of the PDF file.
 
           By default, all strategies except page compression are used since page compression may

@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -227,7 +227,7 @@ module HexaPDF
       # streams' data!
       def contents
         Array(self[:Contents]).each_with_object("".b) do |content_stream, content|
-          content << " ".freeze unless content.empty?
+          content << " " unless content.empty?
           content << document.deref(content_stream).stream
         end
       end

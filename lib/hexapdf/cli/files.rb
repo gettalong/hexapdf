@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -44,7 +44,7 @@ module HexaPDF
       def initialize #:nodoc:
         super('files', takes_commands: false)
         short_desc("List or extract embedded files from a PDF file")
-        long_desc(<<-EOF.gsub!(/^ */, ''))
+        long_desc(<<~EOF)
           If the option --extract is not given, the available files are listed with their names and
           indices. The --extract option can then be used to extract one or more files.
         EOF

@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -443,7 +443,7 @@ module HexaPDF
       def initialize
         @ctm = TransformationMatrix.new
         @stroke_color = @fill_color =
-          GlobalConfiguration.constantize('color_space.map'.freeze, :DeviceGray).new.default_color
+          GlobalConfiguration.constantize('color_space.map', :DeviceGray).new.default_color
         @line_width = 1.0
         @line_cap_style = LineCapStyle::BUTT_CAP
         @line_join_style = LineJoinStyle::MITER_JOIN

@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -954,7 +954,7 @@ module HexaPDF
 
       # Returns the default color for an empty PDF page, i.e. black.
       def default_color
-        GlobalConfiguration.constantize('color_space.map'.freeze, :DeviceGray).new.default_color
+        GlobalConfiguration.constantize('color_space.map', :DeviceGray).new.default_color
       end
 
     end

@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -112,17 +112,17 @@ module HexaPDF
         case filter
         when :DCTDecode
           result.type = :jpeg
-          result.extension = 'jpg'.freeze
+          result.extension = 'jpg'
         when :JPXDecode
           result.type = :jp2
-          result.extension = 'jpx'.freeze
+          result.extension = 'jpx'
         when :JBIG2Decode
           result.type = :jbig2
         when :CCITTFaxDecode
           result.type = :ccitt
         else
           result.type = :png
-          result.extension = 'png'.freeze
+          result.extension = 'png'
         end
 
         if rest || ![:FlateDecode, :DCTDecode, :JPXDecode, nil].include?(filter)
@@ -177,7 +177,7 @@ module HexaPDF
         end
 
         io = if name_or_io.kind_of?(String)
-               File.open(name_or_io.sub(/\.#{info.extension}\z/, '') + "." + info.extension, "wb")
+               File.open(name_or_io.sub(/\.#{info.extension}\z/, '') << "." << info.extension, "wb")
              else
                name_or_io
              end

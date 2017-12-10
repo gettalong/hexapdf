@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -44,7 +44,7 @@ module HexaPDF
     class BitStreamReader
 
       # Creates a new object, optionally providing the string from where the bits should be read.
-      def initialize(data = '')
+      def initialize(data = +'')
         @data = data.force_encoding(Encoding::BINARY)
         @pos = 0
         @bit_cache = 0

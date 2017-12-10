@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -87,7 +87,7 @@ module HexaPDF
         def encoding
           @encoding ||=
             begin
-              if @metrics.encoding_scheme == 'AdobeStandardEncoding'.freeze
+              if @metrics.encoding_scheme == 'AdobeStandardEncoding'
                 Encoding.for_name(:StandardEncoding)
               elsif font_name == 'ZapfDingbats' || font_name == 'Symbol'
                 Encoding.for_name((font_name + "Encoding").to_sym)

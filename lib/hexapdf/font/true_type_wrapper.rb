@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -161,7 +161,7 @@ module HexaPDF
         @id_to_glyph[id] ||=
           begin
             if id >= 0 && id < @wrapped_font[:maxp].num_glyphs
-              Glyph.new(@wrapped_font, id, str || ('' << (@cmap.gid_to_code(id) || 0xFFFD)))
+              Glyph.new(@wrapped_font, id, str || (+'' << (@cmap.gid_to_code(id) || 0xFFFD)))
             else
               @document.config['font.on_missing_glyph'].call("\u{FFFD}", font_type, @wrapped_font)
             end
@@ -174,9 +174,9 @@ module HexaPDF
           @codepoint_to_glyph[c] ||=
             begin
               if (gid = @cmap[c])
-                glyph(gid, '' << c)
+                glyph(gid, +'' << c)
               else
-                @document.config['font.on_missing_glyph'].call('' << c, font_type, @wrapped_font)
+                @document.config['font.on_missing_glyph'].call(+'' << c, font_type, @wrapped_font)
               end
             end
         end
@@ -263,7 +263,7 @@ module HexaPDF
       def update_font_name
         return unless @subsetter
 
-        tag = ''
+        tag = +''
         data = @encoded_glyphs.each_with_object(''.b) {|(id, v), s| s << id.to_s << v[0] }
         hash = Digest::MD5.hexdigest(data << @wrapped_font.font_name).to_i(16)
         while hash != 0 && tag.length < 6

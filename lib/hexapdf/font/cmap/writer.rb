@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -57,14 +57,14 @@ module HexaPDF
           result = create_sections("bfchar", chars.size / 2) do |index|
             index *= 2
             sprintf("<%04X>", chars[index]) << "<" <<
-              (''.force_encoding(::Encoding::UTF_16BE) << chars[index + 1]).unpack('H*').first <<
+              ((+'').force_encoding(::Encoding::UTF_16BE) << chars[index + 1]).unpack('H*').first <<
               ">\n"
           end
 
           result << create_sections("bfrange", ranges.size / 3) do |index|
             index *= 3
             sprintf("<%04X><%04X>", ranges[index], ranges[index + 1]) << "<" <<
-              (''.force_encoding(::Encoding::UTF_16BE) << ranges[index + 2]).unpack('H*').first <<
+              ((+'').force_encoding(::Encoding::UTF_16BE) << ranges[index + 2]).unpack('H*').first <<
               ">\n"
           end
 
@@ -129,7 +129,7 @@ module HexaPDF
         def create_sections(type, size)
           return '' if size == 0
 
-          result = ""
+          result = +""
           index = 0
           while size > 0
             count = [MAX_ENTRIES_IN_SECTION, size].min

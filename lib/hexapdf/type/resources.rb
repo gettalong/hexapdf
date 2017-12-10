@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -64,7 +64,7 @@ module HexaPDF
       def color_space(name)
         case name
         when :DeviceRGB, :DeviceGray, :DeviceCMYK
-          GlobalConfiguration.constantize('color_space.map'.freeze, name).new
+          GlobalConfiguration.constantize('color_space.map', name).new
         else
           space_definition = self[:ColorSpace] && self[:ColorSpace][name]
           if space_definition.nil?
@@ -77,7 +77,7 @@ module HexaPDF
             space_definition = [space_definition]
           end
 
-          GlobalConfiguration.constantize('color_space.map'.freeze, space_family) do
+          GlobalConfiguration.constantize('color_space.map', space_family) do
             HexaPDF::Content::ColorSpace::Universal
           end.new(space_definition)
         end
@@ -118,7 +118,7 @@ module HexaPDF
       #
       # If there already exists a name for the given XObject, it is just returned.
       def add_xobject(object)
-        object_setter(:XObject, 'XO'.freeze, object)
+        object_setter(:XObject, 'XO', object)
       end
 
       # Returns the graphics state parameter dictionary (see Type::GraphicsStateParameter) stored
@@ -134,7 +134,7 @@ module HexaPDF
       #
       # If there already exists a name for the given dictionary, it is just returned.
       def add_ext_gstate(object)
-        object_setter(:ExtGState, 'GS'.freeze, object)
+        object_setter(:ExtGState, 'GS', object)
       end
 
       # Returns the font dictionary stored under the given name.
@@ -148,7 +148,7 @@ module HexaPDF
       #
       # If there already exists a name for the given dictionary, it is just returned.
       def add_font(object)
-        object_setter(:Font, 'F'.freeze, object)
+        object_setter(:Font, 'F', object)
       end
 
       # Returns the property list stored under the given name.
@@ -162,7 +162,7 @@ module HexaPDF
       #
       # If there already exists a name for the given property list, it is just returned.
       def add_property_list(dict)
-        object_setter(:Properties, 'P'.freeze, dict)
+        object_setter(:Properties, 'P', dict)
       end
 
       private

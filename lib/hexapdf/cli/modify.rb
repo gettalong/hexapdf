@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -49,7 +49,7 @@ module HexaPDF
       def initialize #:nodoc:
         super('modify', takes_commands: false)
         short_desc("Modify a PDF file")
-        long_desc(<<-EOF.gsub!(/^ */, ''))
+        long_desc(<<~EOF)
           This command modifies a PDF file. It can be used to select pages that should appear in
           the output file and/or rotate them. The output file can also be encrypted/decrypted and
           optimized in various ways.

@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -96,11 +96,11 @@ module HexaPDF
       gen = @tokenizer.next_token
       tok = @tokenizer.next_token
       unless oid.kind_of?(Integer) && gen.kind_of?(Integer) &&
-          tok.kind_of?(Tokenizer::Token) && tok == 'obj'.freeze
+          tok.kind_of?(Tokenizer::Token) && tok == 'obj'
         raise_malformed("No valid object found", pos: offset)
       end
 
-      if (tok = @tokenizer.peek_token) && tok.kind_of?(Tokenizer::Token) && tok == 'endobj'.freeze
+      if (tok = @tokenizer.peek_token) && tok.kind_of?(Tokenizer::Token) && tok == 'endobj'
         maybe_raise("No indirect object value between 'obj' and 'endobj'", pos: @tokenizer.pos)
         object = nil
       else
@@ -109,7 +109,7 @@ module HexaPDF
 
       tok = @tokenizer.next_token
 
-      if tok.kind_of?(Tokenizer::Token) && tok == 'stream'.freeze
+      if tok.kind_of?(Tokenizer::Token) && tok == 'stream'
         unless object.kind_of?(Hash)
           raise_malformed("A stream needs a dictionary, not a(n) #{object.class}", pos: offset)
         end
@@ -135,7 +135,7 @@ module HexaPDF
         @tokenizer.pos = pos + length
 
         tok = @tokenizer.next_token
-        unless tok.kind_of?(Tokenizer::Token) && tok == 'endstream'.freeze
+        unless tok.kind_of?(Tokenizer::Token) && tok == 'endstream'
           maybe_raise("Invalid stream length, keyword endstream not found", pos: @tokenizer.pos)
           @tokenizer.pos = pos
           if @tokenizer.scan_until(/(?=\n?endstream)/)
@@ -154,7 +154,7 @@ module HexaPDF
                                 decode_parms: @document.unwrap(object[:DecodeParms]))
       end
 
-      unless tok.kind_of?(Tokenizer::Token) && tok == 'endobj'.freeze
+      unless tok.kind_of?(Tokenizer::Token) && tok == 'endobj'
         maybe_raise("Indirect object must be followed by keyword endobj", pos: @tokenizer.pos)
       end
 
@@ -234,7 +234,7 @@ module HexaPDF
           end
           if xref.entry?(oid)
             next
-          elsif type == 'n'.freeze
+          elsif type == 'n'
             if pos == 0 || gen > 65535
               maybe_raise("Invalid in use cross-reference entry in cross-reference section",
                           pos: @tokenizer.pos)

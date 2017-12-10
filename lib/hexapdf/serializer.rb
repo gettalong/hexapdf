@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -162,7 +162,7 @@ module HexaPDF
     #
     # See: PDF1.7 s7.3.3
     def serialize_float(obj)
-      obj.abs < 0.0001 && obj != 0 ? sprintf("%.6f".freeze, obj) : obj.round(6).to_s
+      obj.abs < 0.0001 && obj != 0 ? sprintf("%.6f", obj) : obj.round(6).to_s
     end
 
     # The regexp matches all characters that need to be escaped and the substs hash contains the
@@ -195,32 +195,32 @@ module HexaPDF
     #
     # See: PDF1.7 s7.3.6
     def serialize_array(obj)
-      str = "["
+      str = +"["
       index = 0
       while index < obj.size
         tmp = __serialize(obj[index])
-        str << " ".freeze unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
+        str << " " unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
             BYTE_IS_DELIMITER[str.getbyte(-1)]
         str << tmp
         index += 1
       end
-      str << "]".freeze
+      str << "]"
     end
 
     # Serializes a Hash object (i.e. a PDF dictionary object).
     #
     # See: PDF1.7 s7.3.7
     def serialize_hash(obj)
-      str = "<<"
+      str = +"<<"
       obj.each do |k, v|
         next if v.nil? || (v.respond_to?(:null?) && v.null?)
         str << __serialize(k)
         tmp = __serialize(v)
-        str << " ".freeze unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
+        str << " " unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
             BYTE_IS_DELIMITER[str.getbyte(-1)]
         str << tmp
       end
-      str << ">>".freeze
+      str << ">>"
     end
 
     STRING_ESCAPE_MAP = {"(" => "\\(", ")" => "\\)", "\\" => "\\\\", "\r" => "\\r"}.freeze # :nodoc:
@@ -241,7 +241,7 @@ module HexaPDF
               obj.dup
             end
       obj.gsub!(/[\(\)\\\r]/n, STRING_ESCAPE_MAP)
-      "(#{obj})".freeze
+      "(#{obj})"
     end
 
     # The ISO PDF specification differs in respect to the supported date format. When converting
@@ -285,7 +285,7 @@ module HexaPDF
 
     # See: PDF1.7 s7.3.10
     def serialize_hexapdf_reference(obj)
-      "#{obj.oid} #{obj.gen} R".freeze
+      "#{obj.oid} #{obj.gen} R"
     end
 
     # Serializes the streams dictionary and its stream.
@@ -307,11 +307,11 @@ module HexaPDF
       if @io && fiber.respond_to?(:length) && fiber.length >= 0
         obj.value[:Length] = fiber.length
         @io << __serialize(obj.value)
-        @io << "stream\n".freeze
+        @io << "stream\n"
         while fiber.alive? && (data = fiber.resume)
           @io << data.freeze
         end
-        @io << "\nendstream".freeze
+        @io << "\nendstream"
 
         nil
       else
@@ -319,9 +319,9 @@ module HexaPDF
         obj.value[:Length] = data.size
 
         str = __serialize(obj.value)
-        str << "stream\n".freeze
+        str << "stream\n"
         str << data
-        str << "\nendstream".freeze
+        str << "\nendstream"
       end
     end
 

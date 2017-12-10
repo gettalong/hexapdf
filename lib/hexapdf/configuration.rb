@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -121,7 +121,7 @@ module HexaPDF
       if data.nil? && block_given?
         data = yield(name)
       elsif data.nil?
-        raise HexaPDF::Error, "Error getting constant for configuration option '#{name}'" <<
+        raise HexaPDF::Error, "Error getting constant for configuration option '#{name}'" +
           (keys.empty? ? "" : " and keys '#{keys.join(', ')}'")
       end
       data

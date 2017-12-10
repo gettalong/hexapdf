@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -87,7 +87,7 @@ module HexaPDF
           else
             name = name.to_s
             if name =~ /\Auni([0-9A-F]{4})\Z/ || name =~ /\Au([0-9A-f]{4,6})\Z/
-              '' << $1.hex
+              +'' << $1.hex
             end
           end
         end
@@ -130,10 +130,10 @@ module HexaPDF
           uni2name = {}
           File.open(file, 'rb') do |f|
             while (line = f.gets)
-              next if line.start_with?('#'.freeze)
-              index = line.index(';'.freeze)
+              next if line.start_with?('#')
+              index = line.index(';')
               name = line[0, index].to_sym
-              codes = line[index + 1, 50].split(" ".freeze).map(&:hex).pack('U*'.freeze)
+              codes = line[index + 1, 50].split(" ").map(&:hex).pack('U*')
               name2uni[name] = codes
               uni2name[codes] = name unless uni2name.key?(codes)
             end

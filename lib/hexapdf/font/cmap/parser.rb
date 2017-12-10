@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -52,17 +52,17 @@ module HexaPDF
           while (token = tokenizer.next_token) != HexaPDF::Tokenizer::NO_MORE_TOKENS
             if token.kind_of?(HexaPDF::Tokenizer::Token)
               case token
-              when 'beginbfchar'.freeze then parse_bf_char(tokenizer, cmap)
-              when 'beginbfrange'.freeze then parse_bf_range(tokenizer, cmap)
-              when 'begincidchar'.freeze then parse_cid_char(tokenizer, cmap)
-              when 'begincidrange'.freeze then parse_cid_range(tokenizer, cmap)
-              when 'begincodespacerange'.freeze then parse_codespace_range(tokenizer, cmap)
+              when 'beginbfchar' then parse_bf_char(tokenizer, cmap)
+              when 'beginbfrange' then parse_bf_range(tokenizer, cmap)
+              when 'begincidchar' then parse_cid_char(tokenizer, cmap)
+              when 'begincidrange' then parse_cid_range(tokenizer, cmap)
+              when 'begincodespacerange' then parse_codespace_range(tokenizer, cmap)
               when 'endcmap' then break
               end
             elsif token.kind_of?(Symbol)
               value = tokenizer.next_token
               if value.kind_of?(HexaPDF::Tokenizer::Token)
-                parse_cmap(cmap, token) if value == 'usecmap'.freeze
+                parse_cmap(cmap, token) if value == 'usecmap'
               else
                 parse_dict_mapping(cmap, token, value)
               end
@@ -162,7 +162,7 @@ module HexaPDF
             if dest.kind_of?(String)
               codepoint = dest.force_encoding(::Encoding::UTF_16BE).ord
               code1.upto(code2) do |code|
-                cmap.add_unicode_mapping(code, '' << codepoint)
+                cmap.add_unicode_mapping(code, +'' << codepoint)
                 codepoint += 1
               end
             elsif dest.kind_of?(Array)

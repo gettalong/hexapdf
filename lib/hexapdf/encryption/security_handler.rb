@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -472,8 +472,8 @@ module HexaPDF
         key = encryption_key
         return key if dict[:V] == 5
 
-        key += [oid, gen].pack('VXv'.freeze)
-        key << "sAlT".freeze if algorithm.ancestors.include?(AES)
+        key += [oid, gen].pack('VXv')
+        key << "sAlT" if algorithm.ancestors.include?(AES)
         n_plus_5 = key_length + 5
         Digest::MD5.digest(key)[0, (n_plus_5 > 16 ? 16 : n_plus_5)]
       end

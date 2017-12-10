@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -42,7 +42,7 @@ module HexaPDF
       def initialize #:nodoc:
         super('inspect', takes_commands: false)
         short_desc("Dig into the internal structure of a PDF file")
-        long_desc(<<-EOF.gsub!(/^ */, ''))
+        long_desc(<<~EOF)
           Inspects a PDF file for debugging or testing purposes. This command is useful when one
           needs to inspect the internal object structure or a stream of a PDF file. A PDF object is
           always shown in the PDF syntax.
@@ -116,7 +116,7 @@ module HexaPDF
         page_list = doc.pages.to_a
         pages.each do |index, _|
           page = page_list[index]
-          str = "page #{index + 1} (#{page.oid},#{page.gen}): "
+          str = +"page #{index + 1} (#{page.oid},#{page.gen}): "
           str << Array(page[:Contents]).map {|c| "#{c.oid},#{c.gen}" }.join(" ")
           puts str
         end

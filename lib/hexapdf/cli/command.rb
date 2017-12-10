@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -47,8 +47,8 @@ module HexaPDF
       module Extensions #:nodoc:
         def help_banner #:nodoc:
           "hexapdf #{HexaPDF::VERSION} - Versatile PDF Manipulation Tool\n" \
-            "Copyright (c) 2014-2017 Thomas Leitner; licensed under the AGPLv3\n\n" <<
-            format(usage, indent: 7) << "\n\n"
+            "Copyright (c) 2014-2017 Thomas Leitner; licensed under the AGPLv3\n\n" \
+            "#{format(usage, indent: 7)}\n\n"
         end
       end
 
@@ -277,7 +277,7 @@ module HexaPDF
         end
       end
 
-      PAGE_NUMBER_SPEC = "([1-9]\\d*|e)".freeze #:nodoc:
+      PAGE_NUMBER_SPEC = "([1-9]\\d*|e)" #:nodoc:
       ROTATE_MAP = {'l' => -90, 'r' => 90, 'd' => 180, 'n' => :none}.freeze #:nodoc:
 
       # Parses the pages specification string and returns an array of tuples containing a page
@@ -295,7 +295,7 @@ module HexaPDF
             page_num = ($1 == 'e' ? count : str.to_i)
             next if page_num > count
             arr << [page_num - 1, ROTATE_MAP[$2]]
-          when /\A#{PAGE_NUMBER_SPEC}-#{PAGE_NUMBER_SPEC}(?:\/([1-9]\d*))?(l|r|d|n)?\z/
+          when /\A#{PAGE_NUMBER_SPEC}-#{PAGE_NUMBER_SPEC}(?:\/([1-9]\d*))?(l|r|d|n)?\z/o
             start_nr = ($1 == 'e' ? count : [$1.to_i, count].min) - 1
             end_nr = ($2 == 'e' ? count : [$2.to_i, count].min) - 1
             step = ($3 ? $3.to_i : 1) * (start_nr > end_nr ? -1 : 1)

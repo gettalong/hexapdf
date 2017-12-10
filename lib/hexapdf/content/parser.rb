@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -120,7 +120,7 @@ module HexaPDF
         if (val = @ss.scan(/[+-]?\d++(?!\.)/))
           val.to_i
         elsif (val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/))
-          val << '0'.freeze if val.getbyte(-1) == 46 # dot '.'
+          val << '0' if val.getbyte(-1) == 46 # dot '.'
           Float(val)
         else
           parse_keyword
@@ -159,7 +159,7 @@ module HexaPDF
         params = []
         while (obj = tokenizer.next_object(allow_keyword: true)) != Tokenizer::NO_MORE_TOKENS
           if obj.kind_of?(Tokenizer::Token)
-            if obj == 'BI'.freeze
+            if obj == 'BI'
               params = parse_inline_image(tokenizer)
             end
             processor.process(obj.to_sym, params)
@@ -179,7 +179,7 @@ module HexaPDF
         # BI has already been read, so read the image dictionary
         dict = {}
         while (key = tokenizer.next_object(allow_keyword: true))
-          if key == 'ID'.freeze
+          if key == 'ID'
             break
           elsif key == Tokenizer::NO_MORE_TOKENS
             raise HexaPDF::Error, "EOS while trying to read dictionary key for inline image"

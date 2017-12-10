@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -56,12 +56,12 @@ module HexaPDF
     # Characters defined as whitespace.
     #
     # See: PDF1.7 s7.2.2
-    WHITESPACE = "\0\t\n\f\r ".freeze
+    WHITESPACE = "\0\t\n\f\r "
 
     # Characters defined as delimiters.
     #
     # See: PDF1.7 s7.2.2
-    DELIMITER = "()<>{}/[]%".freeze
+    DELIMITER = "()<>{}/[]%"
 
     WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/ # :nodoc:
 
@@ -253,7 +253,7 @@ module HexaPDF
         tmp = Reference.new(tmp, @ss[1].to_i) if @ss.scan(REFERENCE_RE)
         tmp
       elsif (val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/))
-        val << '0'.freeze if val.getbyte(-1) == 46 # dot '.'
+        val << '0' if val.getbyte(-1) == 46 # dot '.'
         Float(val)
       else
         parse_keyword
@@ -325,8 +325,8 @@ module HexaPDF
       end
 
       @ss.pos += 1
-      data.tr!(WHITESPACE, "".freeze)
-      [data].pack('H*'.freeze)
+      data.tr!(WHITESPACE, "")
+      [data].pack('H*')
     end
 
     # Parses the name at the current position.

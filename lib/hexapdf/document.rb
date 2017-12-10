@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -318,14 +318,14 @@ module HexaPDF
         type = (klass <= HexaPDF::Dictionary ? klass.type : nil)
       else
         type ||= deref(data.value[:Type]) if data.value.kind_of?(Hash)
-        klass = GlobalConfiguration.constantize('object.type_map'.freeze, type) { nil } if type
+        klass = GlobalConfiguration.constantize('object.type_map', type) { nil } if type
       end
 
       if data.value.kind_of?(Hash)
         subtype ||= deref(data.value[:Subtype]) || deref(data.value[:S])
       end
       if subtype
-        klass = GlobalConfiguration.constantize('object.subtype_map'.freeze, type, subtype) { klass }
+        klass = GlobalConfiguration.constantize('object.subtype_map', type, subtype) { klass }
       end
 
       klass ||= if data.stream
@@ -477,7 +477,7 @@ module HexaPDF
     #
     # See Task for more information.
     def task(name, **opts, &block)
-      task = config.constantize('task.map'.freeze, name) do
+      task = config.constantize('task.map', name) do
         raise HexaPDF::Error, "No task named '#{name}' is available"
       end
       task.call(self, **opts, &block)
@@ -501,7 +501,7 @@ module HexaPDF
     #
     # See: PDF1.7 s7.2.2
     def version
-      catalog_version = (catalog[:Version] || '1.0'.freeze).to_s
+      catalog_version = (catalog[:Version] || '1.0').to_s
       (@version < catalog_version ? catalog_version : @version)
     end
 

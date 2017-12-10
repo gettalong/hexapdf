@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -102,9 +102,9 @@ module HexaPDF
         def serialize(serializer, *operands)
           result = ''.b
           operands.each do |operand|
-            result << serializer.serialize(operand) << " ".freeze
+            result << serializer.serialize(operand) << " "
           end
-          result << name << "\n".freeze
+          result << name << "\n"
         end
 
       end
@@ -115,7 +115,7 @@ module HexaPDF
 
         def initialize(name) #:nodoc:
           super(name)
-          @serialized = "#{name}\n".freeze
+          @serialized = "#{name}\n"
         end
 
         def invoke(_processor) # :nodoc:
@@ -277,7 +277,7 @@ module HexaPDF
 
         def serialize(serializer, dash_array, dash_phase) #:nodoc:
           "#{serializer.serialize_array(dash_array)} " \
-            "#{serializer.serialize_integer(dash_phase)} d\n".freeze
+            "#{serializer.serialize_integer(dash_phase)} d\n"
         end
 
       end
@@ -297,7 +297,7 @@ module HexaPDF
         end
 
         def serialize(serializer, intent) #:nodoc:
-          "#{serializer.serialize_symbol(intent)} ri\n".freeze
+          "#{serializer.serialize_symbol(intent)} ri\n"
         end
 
       end
@@ -342,7 +342,7 @@ module HexaPDF
         end
 
         def serialize(serializer, name) #:nodoc:
-          "#{serializer.serialize_symbol(name)} gs\n".freeze
+          "#{serializer.serialize_symbol(name)} gs\n"
         end
 
       end
@@ -362,7 +362,7 @@ module HexaPDF
         end
 
         def serialize(serializer, name) #:nodoc:
-          "#{serializer.serialize_symbol(name)} CS\n".freeze
+          "#{serializer.serialize_symbol(name)} CS\n"
         end
 
       end
@@ -382,7 +382,7 @@ module HexaPDF
         end
 
         def serialize(serializer, name) #:nodoc:
-          "#{serializer.serialize_symbol(name)} cs\n".freeze
+          "#{serializer.serialize_symbol(name)} cs\n"
         end
 
       end
@@ -461,7 +461,7 @@ module HexaPDF
 
         def serialize(serializer, r, g, b) #:nodoc:
           "#{serializer.serialize_numeric(r)} #{serializer.serialize_numeric(g)} " \
-            "#{serializer.serialize_numeric(b)} RG\n".freeze
+            "#{serializer.serialize_numeric(b)} RG\n"
         end
 
       end
@@ -483,7 +483,7 @@ module HexaPDF
 
         def serialize(serializer, r, g, b) #:nodoc:
           "#{serializer.serialize_numeric(r)} #{serializer.serialize_numeric(g)} " \
-            "#{serializer.serialize_numeric(b)} rg\n".freeze
+            "#{serializer.serialize_numeric(b)} rg\n"
         end
 
       end
@@ -505,7 +505,7 @@ module HexaPDF
 
         def serialize(serializer, c, m, y, k) #:nodoc:
           "#{serializer.serialize_numeric(c)} #{serializer.serialize_numeric(m)} " \
-            "#{serializer.serialize_numeric(y)} #{serializer.serialize_numeric(k)} K\n".freeze
+            "#{serializer.serialize_numeric(y)} #{serializer.serialize_numeric(k)} K\n"
         end
 
       end
@@ -527,7 +527,7 @@ module HexaPDF
 
         def serialize(serializer, c, m, y, k) #:nodoc:
           "#{serializer.serialize_numeric(c)} #{serializer.serialize_numeric(m)} " \
-            "#{serializer.serialize_numeric(y)} #{serializer.serialize_numeric(k)} k\n".freeze
+            "#{serializer.serialize_numeric(y)} #{serializer.serialize_numeric(k)} k\n"
         end
 
       end
@@ -547,7 +547,7 @@ module HexaPDF
         end
 
         def serialize(serializer, x, y) #:nodoc:
-          "#{serializer.serialize_numeric(x)} #{serializer.serialize_numeric(y)} m\n".freeze
+          "#{serializer.serialize_numeric(x)} #{serializer.serialize_numeric(y)} m\n"
         end
 
       end
@@ -568,7 +568,7 @@ module HexaPDF
 
         def serialize(serializer, x, y, w, h) #:nodoc:
           "#{serializer.serialize_numeric(x)} #{serializer.serialize_numeric(y)} " \
-            "#{serializer.serialize_numeric(w)} #{serializer.serialize_numeric(h)} re\n".freeze
+            "#{serializer.serialize_numeric(w)} #{serializer.serialize_numeric(h)} re\n"
         end
 
       end
@@ -587,7 +587,7 @@ module HexaPDF
         end
 
         def serialize(serializer, x, y) #:nodoc:
-          "#{serializer.serialize_numeric(x)} #{serializer.serialize_numeric(y)} l\n".freeze
+          "#{serializer.serialize_numeric(x)} #{serializer.serialize_numeric(y)} l\n"
         end
 
       end
@@ -605,7 +605,7 @@ module HexaPDF
         def serialize(serializer, x1, y1, x2, y2, x3, y3) #:nodoc:
           "#{serializer.serialize_numeric(x1)} #{serializer.serialize_numeric(y1)} " \
             "#{serializer.serialize_numeric(x2)} #{serializer.serialize_numeric(y2)} " \
-            "#{serializer.serialize_numeric(x3)} #{serializer.serialize_numeric(y3)} c\n".freeze
+            "#{serializer.serialize_numeric(x3)} #{serializer.serialize_numeric(y3)} c\n"
         end
 
       end
@@ -622,7 +622,7 @@ module HexaPDF
 
         def serialize(serializer, x2, y2, x3, y3) #:nodoc:
           "#{serializer.serialize_numeric(x2)} #{serializer.serialize_numeric(y2)} " \
-            "#{serializer.serialize_numeric(x3)} #{serializer.serialize_numeric(y3)} v\n".freeze
+            "#{serializer.serialize_numeric(x3)} #{serializer.serialize_numeric(y3)} v\n"
         end
 
       end
@@ -639,7 +639,7 @@ module HexaPDF
 
         def serialize(serializer, x1, y1, x3, y3) #:nodoc:
           "#{serializer.serialize_numeric(x1)} #{serializer.serialize_numeric(y1)} " \
-            "#{serializer.serialize_numeric(x3)} #{serializer.serialize_numeric(y3)} y\n".freeze
+            "#{serializer.serialize_numeric(x3)} #{serializer.serialize_numeric(y3)} y\n"
         end
 
       end
@@ -678,12 +678,12 @@ module HexaPDF
         end
 
         def serialize(serializer, dict, data) #:nodoc:
-          result = "BI\n"
+          result = +"BI\n"
           dict.each do |k, v|
-            result << serializer.serialize_symbol(k) << ' '.freeze
-            result << serializer.serialize(v) << ' '.freeze
+            result << serializer.serialize_symbol(k) << ' '
+            result << serializer.serialize(v) << ' '
           end
-          result << "ID\n".freeze << data << "EI\n"
+          result << "ID\n" << data << "EI\n"
         end
 
       end
@@ -768,7 +768,7 @@ module HexaPDF
         end
 
         def serialize(serializer, font, size) #:nodoc:
-          "#{serializer.serialize_symbol(font)} #{serializer.serialize_numeric(size)} Tf\n".freeze
+          "#{serializer.serialize_symbol(font)} #{serializer.serialize_numeric(size)} Tf\n"
         end
 
       end
@@ -856,7 +856,7 @@ module HexaPDF
         end
 
         def serialize(serializer, tx, ty) #:nodoc:
-          "#{serializer.serialize_numeric(tx)} #{serializer.serialize_numeric(ty)} Td\n".freeze
+          "#{serializer.serialize_numeric(tx)} #{serializer.serialize_numeric(ty)} Td\n"
         end
 
       end
@@ -877,7 +877,7 @@ module HexaPDF
         end
 
         def serialize(serializer, tx, ty) #:nodoc:
-          "#{serializer.serialize_numeric(tx)} #{serializer.serialize_numeric(ty)} TD\n".freeze
+          "#{serializer.serialize_numeric(tx)} #{serializer.serialize_numeric(ty)} TD\n"
         end
 
       end
@@ -900,7 +900,7 @@ module HexaPDF
         def serialize(serializer, a, b, c, d, e, f) #:nodoc:
           "#{serializer.serialize_numeric(a)} #{serializer.serialize_numeric(b)} " \
             "#{serializer.serialize_numeric(c)} #{serializer.serialize_numeric(d)} " \
-            "#{serializer.serialize_numeric(e)} #{serializer.serialize_numeric(f)} Tm\n".freeze
+            "#{serializer.serialize_numeric(e)} #{serializer.serialize_numeric(f)} Tm\n"
         end
 
       end
@@ -933,7 +933,7 @@ module HexaPDF
         end
 
         def serialize(serializer, text) #:nodoc:
-          "#{serializer.serialize_string(text)}Tj\n".freeze
+          "#{serializer.serialize_string(text)}Tj\n"
         end
 
       end
@@ -953,7 +953,7 @@ module HexaPDF
         end
 
         def serialize(serializer, text)
-          "#{serializer.serialize_string(text)}'\n".freeze
+          "#{serializer.serialize_string(text)}'\n"
         end
 
       end
@@ -977,7 +977,7 @@ module HexaPDF
         def serialize(serializer, word_space, char_space, text) #:nodoc:
           "#{serializer.serialize_numeric(word_space)} " \
             "#{serializer.serialize_numeric(char_space)} " \
-            "#{serializer.serialize_string(text)}\"\n".freeze
+            "#{serializer.serialize_string(text)}\"\n"
         end
 
       end
@@ -993,7 +993,7 @@ module HexaPDF
         end
 
         def serialize(serializer, array) #:nodoc:
-          "#{serializer.serialize_array(array)}TJ\n".freeze
+          "#{serializer.serialize_array(array)}TJ\n"
         end
 
       end

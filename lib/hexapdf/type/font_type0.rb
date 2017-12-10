@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -103,7 +103,7 @@ module HexaPDF
       #
       # See: PDF1.7 s9.3.3
       def word_spacing_applicable?
-        @word_spacing_applicable ||= ((cmap.read_codes("\x20".freeze) && true) rescue false)
+        @word_spacing_applicable ||= ((cmap.read_codes("\x20") && true) rescue false)
       end
 
       private

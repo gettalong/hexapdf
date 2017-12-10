@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -320,7 +320,7 @@ module HexaPDF
               length, type = io.read(8).unpack('Na4') # PNG s5.3
               break if type != 'IDAT'
 
-              chunk_size = @document.config['io.chunk_size'.freeze]
+              chunk_size = @document.config['io.chunk_size']
               while length > 0
                 chunk_size = length if chunk_size > length
                 Fiber.yield(io.read(chunk_size))
@@ -363,7 +363,7 @@ module HexaPDF
               mask_data << data.byteslice(i, bytes_per_alpha)
               i += bytes_per_alpha
             end
-            data[0, bytes_per_row] = ''.freeze
+            data[0, bytes_per_row] = ''
           end
         end
 

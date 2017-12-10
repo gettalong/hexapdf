@@ -44,6 +44,10 @@ Metrics/BlockNesting:
 Style/Encoding:
   Enabled: false
 
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - test/**/*.rb
+
 Style/StringLiterals:
   Enabled: false # we don't care
 
@@ -227,7 +231,3 @@ Performance/HashEachMethods:
 # Style/RescueModifier
 # Style/PerlBackrefs
 # Style/IfUnlessModifier
-
-
-Style/FrozenStringLiteralComment:
-  Enabled: false #TODO for later

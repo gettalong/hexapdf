@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -45,7 +45,7 @@ module HexaPDF
       def initialize #:nodoc:
         super('images', takes_commands: false)
         short_desc("List or extract images from a PDF file")
-        long_desc(<<-EOF.gsub!(/^ */, ''))
+        long_desc(<<~EOF)
           If the option --extract is not given, the available images are listed with their index and
           additional information, sorted by page number. The --extract option can then be used to
           extract one or more images, saving them to files called `prefix-n.ext` where the prefix

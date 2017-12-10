@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -84,7 +84,7 @@ module HexaPDF
 
           # Returns the name for the given glpyh id or ".notdef" if the given glyph id has no name.
           def [](glyph_id)
-            @glyph_names[glyph_id] || '.notdef'.freeze
+            @glyph_names[glyph_id] || '.notdef'
           end
 
           private

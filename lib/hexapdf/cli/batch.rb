@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
@@ -43,7 +43,7 @@ module HexaPDF
       def initialize #:nodoc:
         super('batch', takes_commands: false)
         short_desc("Execute a single command on multiple files")
-        long_desc(<<-EOF.gsub!(/^ */, ''))
+        long_desc(<<~EOF)
           This command allows executing a single command for multiple input files, thereby reducing
           the overall execution time.
 

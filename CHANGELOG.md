@@ -2,6 +2,7 @@
 
 ### Changed
 
+* All Ruby source files use frozen string literal pragma
 * [HexaPDF::MalformedPDFError::new] method signature
 * [HexaPDF::Layout::TextFragment::new] and
   [HexaPDF::Layout::TextFragment::create] method signatures
