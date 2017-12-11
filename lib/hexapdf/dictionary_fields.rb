@@ -306,7 +306,7 @@ module HexaPDF
 
       # Returns +true+ if the given data should be converted to a Time object.
       def self.convert?(data, _type)
-        data.kind_of?(String) && data =~ DATE_RE
+        data.kind_of?(String) && data.match?(DATE_RE)
       end
 
       # Converts the string into a Time object.
