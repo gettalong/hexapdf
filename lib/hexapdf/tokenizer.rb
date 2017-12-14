@@ -56,7 +56,7 @@ module HexaPDF
     # Characters defined as whitespace.
     #
     # See: PDF1.7 s7.2.2
-    WHITESPACE = "\0\t\n\f\r "
+    WHITESPACE = " \n\r\0\t\f"
 
     # Characters defined as delimiters.
     #
@@ -65,7 +65,7 @@ module HexaPDF
 
     WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/ # :nodoc:
 
-    WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE)}#{Regexp.escape(DELIMITER)}])/ # :nodoc:
+    WHITESPACE_OR_DELIMITER_RE = /(?=[#{Regexp.escape(WHITESPACE + DELIMITER)}])/ # :nodoc:
 
     # The IO object from the tokens are read.
     attr_reader :io
