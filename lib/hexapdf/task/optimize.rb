@@ -222,7 +222,7 @@ module HexaPDF
         end
 
         def process(op, operands) #:nodoc:
-          @result << HexaPDF::Content::Operator::DEFAULT_OPERATORS[op.intern].
+          @result << HexaPDF::Content::Operator::DEFAULT_OPERATORS[op].
             serialize(@serializer, *operands)
         end
 

@@ -49,7 +49,7 @@ module HexaPDF
           tokenizer = HexaPDF::Content::Tokenizer.new(string)
           cmap = CMap.new
 
-          while (token = tokenizer.next_token) != HexaPDF::Tokenizer::NO_MORE_TOKENS
+          until (token = tokenizer.next_token) == HexaPDF::Tokenizer::NO_MORE_TOKENS
             if token.kind_of?(HexaPDF::Tokenizer::Token)
               case token
               when 'beginbfchar' then parse_bf_char(tokenizer, cmap)

@@ -236,8 +236,8 @@ module HexaPDF
     #
     # See: PDF1.7 s7.2
     def parse_keyword
-      str = scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/).freeze
-      TOKEN_CACHE[str.freeze]
+      str = scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
+      TOKEN_CACHE[str]
     end
 
     REFERENCE_RE = /[#{WHITESPACE}]+([+-]?\d+)[#{WHITESPACE}]+R#{WHITESPACE_OR_DELIMITER_RE}/ # :nodoc:
