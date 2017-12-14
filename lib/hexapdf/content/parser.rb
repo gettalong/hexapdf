@@ -41,7 +41,14 @@ module HexaPDF
     # More efficient tokenizer for content streams. This tokenizer class works directly on a
     # string and not on an IO.
     #
-    # Note: Indirect object references are *not* supported by this tokenizer!
+    # Changes:
+    #
+    # * Since a content stream is normally parsed front to back, a StopIteration error can be raised
+    #   instead of returning +NO_MORE_TOKENS+ once the end of the string is reached to avoid costly
+    #   checks in each iteration. If this behaviour is wanted, pass "raise_on_eos: true" in the
+    #   constructor.
+    #
+    # * Indirect object references are *not* supported by this tokenizer!
     #
     # See: PDF1.7 s7.2
     class Tokenizer < HexaPDF::Tokenizer #:nodoc:
@@ -50,9 +57,10 @@ module HexaPDF
       attr_reader :string
 
       # Creates a new tokenizer.
-      def initialize(string)
+      def initialize(string, raise_on_eos: false)
         @ss = StringScanner.new(string)
         @string = string
+        @raise_on_eos = raise_on_eos
       end
 
       # See: HexaPDF::Tokenizer#pos
@@ -104,10 +112,12 @@ module HexaPDF
         elsif byte == 123 || byte == 125 # { }
           Token.new(@ss.get_byte)
         elsif byte == 37 # %
-          return NO_MORE_TOKENS unless @ss.skip_until(/(?=[\r\n])/)
+          unless @ss.skip_until(/(?=[\r\n])/)
+            (@raise_on_eos ? (raise StopIteration) : (return NO_MORE_TOKENS))
+          end
           next_token
         elsif byte == -1
-          NO_MORE_TOKENS
+          @raise_on_eos ? raise(StopIteration) : NO_MORE_TOKENS
         else
           parse_keyword
         end
@@ -117,11 +127,11 @@ module HexaPDF
 
       # See: HexaPDF::Tokenizer#parse_number
       def parse_number
-        if (val = @ss.scan(/[+-]?\d++(?!\.)/))
-          val.to_i
-        elsif (val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/))
+        if (val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/))
           val << '0' if val.getbyte(-1) == 46 # dot '.'
           Float(val)
+        elsif (val = @ss.scan(/[+-]?\d++/))
+          val.to_i
         else
           parse_keyword
         end
@@ -155,9 +165,10 @@ module HexaPDF
 
       # Parses the contents and calls the processor object for each parsed operator.
       def parse(contents, processor)
-        tokenizer = Tokenizer.new(contents)
+        tokenizer = Tokenizer.new(contents, raise_on_eos: true)
         params = []
-        while (obj = tokenizer.next_object(allow_keyword: true)) != Tokenizer::NO_MORE_TOKENS
+        loop do
+          obj = tokenizer.next_object(allow_keyword: true)
           if obj.kind_of?(Tokenizer::Token)
             if obj == 'BI'
               params = parse_inline_image(tokenizer)
@@ -178,7 +189,7 @@ module HexaPDF
       def parse_inline_image(tokenizer)
         # BI has already been read, so read the image dictionary
         dict = {}
-        while (key = tokenizer.next_object(allow_keyword: true))
+        while (key = tokenizer.next_object(allow_keyword: true) rescue Tokenizer::NO_MORE_TOKENS)
           if key == 'ID'
             break
           elsif key == Tokenizer::NO_MORE_TOKENS
@@ -186,7 +197,7 @@ module HexaPDF
           elsif !key.kind_of?(Symbol)
             raise HexaPDF::Error, "Inline image dictionary keys must be PDF name objects"
           end
-          value = tokenizer.next_object
+          value = tokenizer.next_object rescue Tokenizer::NO_MORE_TOKENS
           if value == Tokenizer::NO_MORE_TOKENS
             raise HexaPDF::Error, "EOS while trying to read dictionary value for inline image"
           end
@@ -212,7 +223,7 @@ module HexaPDF
           # Check if we found EI inside of the image data
           count = 0
           while count < MAX_TOKEN_CHECK
-            token = tokenizer.next_object(allow_keyword: true) rescue break
+            token = tokenizer.next_object(allow_keyword: true) rescue Tokenizer::NO_MORE_TOKENS
             if token == Tokenizer::NO_MORE_TOKENS
               count += MAX_TOKEN_CHECK
             elsif token.kind_of?(Tokenizer::Token) &&
