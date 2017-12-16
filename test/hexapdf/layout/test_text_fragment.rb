@@ -140,14 +140,16 @@ describe HexaPDF::Layout::TextFragment do
                                      [:set_line_width, [5]],
                                      [:set_line_cap_style, [1]],
                                      [:set_line_dash_pattern, [[5], 0]]],
-        back: [[:set_device_gray_stroking_color, [0]],
+        back: [[:end_text],
+               [:save_graphics_state],
+               [:set_device_gray_stroking_color, [0]],
                [:set_line_width, [@fragment.style.calculated_underline_thickness]],
                [:set_line_cap_style, [0]],
                [:set_line_dash_pattern, [[], 0]],
-               [:end_text],
                [:move_to, [10, 15]],
                [:line_to, [40.88, 15]],
-               [:stroke_path]])
+               [:stroke_path],
+               [:restore_graphics_state]])
     end
 
     it "draws the strikeout line" do
@@ -159,14 +161,16 @@ describe HexaPDF::Layout::TextFragment do
                                      [:set_line_width, [5]],
                                      [:set_line_cap_style, [1]],
                                      [:set_line_dash_pattern, [[5], 0]]],
-        back: [[:set_device_gray_stroking_color, [0]],
+        back: [[:end_text],
+               [:save_graphics_state],
+               [:set_device_gray_stroking_color, [0]],
                [:set_line_width, [@fragment.style.calculated_strikeout_thickness]],
                [:set_line_cap_style, [0]],
                [:set_line_dash_pattern, [[], 0]],
-               [:end_text],
                [:move_to, [10, 21.01]],
                [:line_to, [40.88, 21.01]],
-               [:stroke_path]])
+               [:stroke_path],
+               [:restore_graphics_state]])
     end
   end
 

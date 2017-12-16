@@ -143,22 +143,26 @@ module HexaPDF
 
         if style.underline
           y_offset = style.calculated_underline_position
-          canvas.stroke_color(style.fill_color).
-            line_width(style.calculated_underline_thickness).
-            line_cap_style(:butt).
-            line_dash_pattern(0).
-            line(x, y + y_offset, x + width, y + y_offset).
-            stroke
+          canvas.save_graphics_state do
+            canvas.stroke_color(style.fill_color).
+              line_width(style.calculated_underline_thickness).
+              line_cap_style(:butt).
+              line_dash_pattern(0).
+              line(x, y + y_offset, x + width, y + y_offset).
+              stroke
+          end
         end
 
         if style.strikeout
           y_offset = style.calculated_strikeout_position
-          canvas.stroke_color(style.fill_color).
-            line_width(style.calculated_strikeout_thickness).
-            line_cap_style(:butt).
-            line_dash_pattern(0).
-            line(x, y + y_offset, x + width, y + y_offset).
-            stroke
+          canvas.save_graphics_state do
+            canvas.stroke_color(style.fill_color).
+              line_width(style.calculated_strikeout_thickness).
+              line_cap_style(:butt).
+              line_dash_pattern(0).
+              line(x, y + y_offset, x + width, y + y_offset).
+              stroke
+          end
         end
 
         style.overlays.draw(canvas, x, y + y_min, self)
