@@ -4,6 +4,14 @@ require 'test_helper'
 require 'hexapdf/importer'
 require 'hexapdf/document'
 
+describe HexaPDF::Importer::NullableWeakRef do
+  it "returns nil instead of an error when the referred-to object is GCed" do
+    obj = HexaPDF::Importer::NullableWeakRef.new(Object.new)
+    GC.start
+    assert_equal("", obj.to_s)
+  end
+end
+
 describe HexaPDF::Importer do
   before do
     @source = HexaPDF::Document.new
