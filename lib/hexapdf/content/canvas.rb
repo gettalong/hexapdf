@@ -1700,6 +1700,7 @@ module HexaPDF
       #
       # This method is usually not invoked directly but by higher level methods like #text.
       def show_glyphs(glyphs)
+        return if glyphs.empty?
         raise_unless_font_set
         begin_text
 
@@ -1736,6 +1737,7 @@ module HexaPDF
       # #text_cursor and other methods using the current text matrix are invalid until the next call
       # to #text_matrix or #end_text.
       def show_glyphs_only(glyphs)
+        return if glyphs.empty?
         raise_unless_font_set
         begin_text
 
