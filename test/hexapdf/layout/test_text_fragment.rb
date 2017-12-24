@@ -70,7 +70,6 @@ describe HexaPDF::Layout::TextFragment do
         [:begin_text],
         [:set_text_matrix, [1, 0, 0, 1, 10, 15]],
         [:set_font_and_size, [:F1, 20]],
-        [:set_leading, [24.0]],
         [:set_horizontal_scaling, [200]],
         [:set_character_spacing, [1]],
         [:set_word_spacing, [2]],

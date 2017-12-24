@@ -1015,7 +1015,6 @@ describe HexaPDF::Content::Canvas do
       assert_same(@doc.fonts.add("Times"), @canvas.font)
       @canvas.font("Helvetica", size: 10)
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 10]],
-                                          [:set_leading, [12.0]],
                                           [:set_font_and_size, [:F2, 10]]])
     end
 
@@ -1035,16 +1034,9 @@ describe HexaPDF::Content::Canvas do
       assert_equal(10, @canvas.font_size)
     end
 
-    it "sets the font size and, optionally, the leading" do
+    it "sets the font size" do
       @canvas.font("Times", size: 10)
       assert_equal(10, @canvas.font_size)
-      assert_equal(12, @canvas.leading)
-      @canvas.font_size(10, leading: 20)
-      assert_equal(10, @canvas.font_size)
-      assert_equal(20, @canvas.leading)
-      @canvas.font_size(10, leading: nil)
-      assert_equal(10, @canvas.font_size)
-      assert_equal(20, @canvas.leading)
     end
 
     it "fails if no valid font is already set" do
@@ -1066,14 +1058,12 @@ describe HexaPDF::Content::Canvas do
       @canvas.font_size(10)
       @canvas.show_glyphs(font.decode_utf8("Hal"))
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 20]],
-                                          [:set_leading, [24]],
                                           [:set_horizontal_scaling, [200]],
                                           [:set_character_spacing, [1]],
                                           [:set_word_spacing, [2]],
                                           [:begin_text],
                                           [:show_text_with_positioning, [['', -10, "Ha", -35, "l lo"]]],
                                           [:set_font_and_size, [:F1, 10]],
-                                          [:set_leading, [12]],
                                           [:show_text_with_positioning, [["Hal"]]]])
     end
 
@@ -1091,7 +1081,6 @@ describe HexaPDF::Content::Canvas do
       assert_equal(0, @canvas.text_cursor[0])
       assert_equal(0, @canvas.text_cursor[1])
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 20]],
-                                          [:set_leading, [24]],
                                           [:begin_text],
                                           [:show_text_with_positioning, [["Ha", -35, "l lo"]]]])
     end
@@ -1101,7 +1090,6 @@ describe HexaPDF::Content::Canvas do
       font = @canvas.font
       @canvas.show_glyphs_only(font.decode_utf8("Hallo"))
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 20]],
-                                          [:set_leading, [24]],
                                           [:begin_text],
                                           [:show_text, ["Hallo"]]])
     end
@@ -1117,7 +1105,6 @@ describe HexaPDF::Content::Canvas do
       @canvas.font("Times", size: 10)
       @canvas.text("Hallo", at: [100, 100])
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 10]],
-                                          [:set_leading, [12]],
                                           [:begin_text],
                                           [:set_text_matrix, [1, 0, 0, 1, 100, 100]],
                                           [:show_text_with_positioning, [["Hallo"]]]])
@@ -1127,7 +1114,6 @@ describe HexaPDF::Content::Canvas do
       @canvas.font("Times", size: 10)
       @canvas.text("H\u{D A}H\u{A}H\u{B}H\u{c}H\u{D}H\u{85}H\u{2028}H\u{2029}H")
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 10]],
-                                          [:set_leading, [12]],
                                           [:begin_text],
                                           [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
                                           [:show_text_with_positioning, [["H"]]], [:move_text_next_line],

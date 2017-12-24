@@ -1623,15 +1623,12 @@ module HexaPDF
       alias font= font
 
       # :call-seq:
-      #   canvas.font_size                                  => font_size
-      #   canvas.font_size(size, leading: size * 1.2)       => canvas
+      #   canvas.font_size            => font_size
+      #   canvas.font_size(size       => canvas
       #
       # Specifies the font size.
       #
       # Note that an error is raised if no font has been set before!
-      #
-      # The leading can be additionally set and defaults to the font size times 1.2. If the leading
-      # should not be changed, +nil+ has to be passed for +leading+.
       #
       # Returns the current font size when no argument is given.
       #
@@ -1639,17 +1636,15 @@ module HexaPDF
       #
       #   canvas.font_size(12)
       #   canvas.font_size                       # => 12
-      #   canvas.font_size(12, leading: 20)
       #   canvas.font_size = 12
       #
       # See: PDF1.7 s9.2.2
-      def font_size(size = nil, leading: size && size * 1.2)
+      def font_size(size = nil)
         if size
           unless @font
             raise HexaPDF::Error, "A font needs to be set before the font size can be set"
           end
           invoke_font_operator(@font.dict, size)
-          self.leading(leading) if leading
           self
         else
           graphics_state.font_size

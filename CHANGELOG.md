@@ -10,6 +10,10 @@
   to `force_v4`
 * [HexaPDF::Layout::TextLayouter#draw] to return result of #fit if possible
 
+### Removed
+
+* Optional `leading` argument to HexaPDF::Content::Canvas#font_size method
+
 ### Fixed
 
 * Misspelt variable name in [HexaPDF::Layout::TextLayouter::SimpleLineWrapping]
