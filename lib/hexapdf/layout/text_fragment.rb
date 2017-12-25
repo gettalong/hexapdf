@@ -106,39 +106,71 @@ module HexaPDF
         @style = (style.kind_of?(Style) ? style : Style.new(style))
       end
 
+      # The precision used to determine whether two floats represent the same value.
+      PRECISION = 0.000001 # :nodoc:
+
       # Draws the text onto the canvas at the given position.
       #
-      # Before the text is drawn using HexaPDF::Content;:Canvas#show_glyphs_only, the text
-      # properties mentioned in the description of #style are set.
-      def draw(canvas, x, y)
-        return if items.empty?
-
+      # This method is the main styled text drawing facility and therefore some optimizations are
+      # done:
+      #
+      # * The text is drawn using HexaPDF::Content;:Canvas#show_glyphs_only which means that the
+      #   text matrix is *not* updated. Therefore the caller must *not* rely on it!
+      #
+      # * All text style properties mentioned in the description of #style are set except if
+      #   +ignore_text_properties+ is set to +true+. Note that this only applies to style properties
+      #   that directly affect text drawing, so, for example, underlays/overlays and
+      #   underlining/strikeout is always done.
+      #
+      #   The caller should set +ignore_text_properties+ to +true+ if the graphics state hasn't been
+      #   changed. This is the case, for example, if the last thing drawn was a text fragment with
+      #   the same style.
+      #
+      # * It is assumed that the text matrix is not rotated, skewed, etc. so that setting the text
+      #   position can be done using the optimal method.
+      def draw(canvas, x, y, ignore_text_properties: false)
         style.underlays.draw(canvas, x, y + y_min, self)
 
-        # Set general font related graphics state
-        canvas.move_text_cursor(offset: [x, y])
-        canvas.font(style.font, size: style.calculated_font_size).
-          horizontal_scaling(style.horizontal_scaling).
-          character_spacing(style.character_spacing).
-          word_spacing(style.word_spacing).
-          text_rise(style.calculated_text_rise).
-          text_rendering_mode(style.text_rendering_mode)
+        # Set general font related graphics state if necessary
+        unless ignore_text_properties
+          canvas.font(style.font, size: style.calculated_font_size).
+            horizontal_scaling(style.horizontal_scaling).
+            character_spacing(style.character_spacing).
+            word_spacing(style.word_spacing).
+            text_rise(style.calculated_text_rise).
+            text_rendering_mode(style.text_rendering_mode)
 
-        # Set fill and/or stroke related graphics state
-        canvas.opacity(fill_alpha: style.fill_alpha, stroke_alpha: style.stroke_alpha)
-        trm = canvas.text_rendering_mode
-        if trm.value.even? # text is filled
-          canvas.fill_color(style.fill_color)
-        end
-        if trm == :stroke || trm == :fill_stroke || trm == :stroke_clip || trm == :fill_stroke_clip
-          canvas.stroke_color(style.stroke_color).
-            line_width(style.stroke_width).
-            line_cap_style(style.stroke_cap_style).
-            line_join_style(style.stroke_join_style).
-            miter_limit(style.stroke_miter_limit).
-            line_dash_pattern(style.stroke_dash_pattern)
+          # Set fill and/or stroke related graphics state
+          canvas.opacity(fill_alpha: style.fill_alpha, stroke_alpha: style.stroke_alpha)
+          trm = canvas.text_rendering_mode
+          if trm.value.even? # text is filled
+            canvas.fill_color(style.fill_color)
+          end
+          if trm == :stroke || trm == :fill_stroke || trm == :stroke_clip || trm == :fill_stroke_clip
+            canvas.stroke_color(style.stroke_color).
+              line_width(style.stroke_width).
+              line_cap_style(style.stroke_cap_style).
+              line_join_style(style.stroke_join_style).
+              miter_limit(style.stroke_miter_limit).
+              line_dash_pattern(style.stroke_dash_pattern)
+          end
         end
 
+        canvas.begin_text
+        tlm = canvas.graphics_state.tlm
+        tx = x - tlm.e
+        ty = y - tlm.f
+        if tx.abs < PRECISION
+          if (ty + canvas.graphics_state.leading).abs < PRECISION
+            canvas.move_text_cursor
+          else
+            canvas.move_text_cursor(offset: [0, ty], absolute: false)
+          end
+        elsif ty.abs < PRECISION
+          canvas.move_text_cursor(offset: [tx, 0], absolute: false)
+        else
+          canvas.move_text_cursor(offset: [x, y])
+        end
         canvas.show_glyphs_only(items)
 
         if style.underline

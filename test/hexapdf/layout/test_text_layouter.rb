@@ -569,7 +569,17 @@ describe HexaPDF::Layout::TextLayouter do
       processor = TestHelper::OperatorRecorder.new
       HexaPDF::Content::Parser.new.parse(content, processor)
       result = processor.recorded_ops
-      result.select! {|name, _| name == :set_text_matrix }.map! {|_, ops| ops[-2, 2] }
+      leading = (result.select {|name, _| name == :set_leading } || [0]).map(&:last).flatten.first
+      pos = [0, 0]
+      result.select! {|name, _| name == :set_text_matrix || name == :move_text_next_line }.
+        map! do |name, ops|
+        if name == :set_text_matrix
+          pos = ops[-2, 2]
+        elsif name == :move_text_next_line
+          pos[1] -= leading
+        end
+        pos.dup
+      end
       positions.each_with_index do |(x, y), index|
         assert_in_delta(x, result[index][0], 0.00001)
         assert_in_delta(y, result[index][1], 0.00001)

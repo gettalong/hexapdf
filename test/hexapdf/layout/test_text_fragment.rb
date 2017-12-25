@@ -67,14 +67,14 @@ describe HexaPDF::Layout::TextFragment do
     def assert_draw_operators(*args, front: [], middle: args, back: [])
       ops = [
         *front,
-        [:begin_text],
-        [:set_text_matrix, [1, 0, 0, 1, 10, 15]],
         [:set_font_and_size, [:F1, 20]],
         [:set_horizontal_scaling, [200]],
         [:set_character_spacing, [1]],
         [:set_word_spacing, [2]],
         [:set_text_rise, [2]],
         *middle,
+        [:begin_text],
+        [:set_text_matrix, [1, 0, 0, 1, 10, 15]],
         [:show_text, ['!']],
         *back,
       ].compact
@@ -84,6 +84,47 @@ describe HexaPDF::Layout::TextFragment do
     it "draws text onto the canvas" do
       setup_with_style
       assert_draw_operators
+    end
+
+    it "doesn't set the text properties if instructed to do so" do
+      setup_fragment([])
+      @canvas = @doc.pages.add.canvas
+      @fragment.draw(@canvas, 10, 15, ignore_text_properties: true)
+      assert_operators(@canvas.contents, [[:begin_text],
+                                          [:set_text_matrix, [1, 0, 0, 1, 10, 15]]])
+    end
+
+    describe "uses an appropriate text position setter" do
+      before do
+        setup_fragment([])
+        @canvas = @doc.pages.add.canvas
+      end
+
+      it "with text leading graphics state" do
+        @canvas.begin_text.leading(10)
+        @fragment.draw(@canvas, 0, -10, ignore_text_properties: true)
+        assert_operators(@canvas.contents, [[:begin_text],
+                                            [:set_leading, [10]],
+                                            [:move_text_next_line]])
+      end
+
+      it "only horizontal movement" do
+        @fragment.draw(@canvas, 20, 0, ignore_text_properties: true)
+        assert_operators(@canvas.contents, [[:begin_text],
+                                            [:move_text, [20, 0]]])
+      end
+
+      it "only vertical movement" do
+        @fragment.draw(@canvas, 0, 10, ignore_text_properties: true)
+        assert_operators(@canvas.contents, [[:begin_text],
+                                            [:move_text, [0, 10]]])
+      end
+
+      it "horizontal and vertical movement" do
+        @fragment.draw(@canvas, 10, 10, ignore_text_properties: true)
+        assert_operators(@canvas.contents, [[:begin_text],
+                                            [:set_text_matrix, [1, 0, 0, 1, 10, 10]]])
+      end
     end
 
     it "draws styled filled text" do
@@ -200,12 +241,6 @@ describe HexaPDF::Layout::TextFragment do
 
     it "calculates the height" do
       assert_equal(13.66 + 4.34, @fragment.height)
-    end
-
-    it "draws nothing" do
-      canvas = @doc.pages.add.canvas
-      @fragment.draw(canvas, 10, 15)
-      assert_operators(canvas.contents, [])
     end
   end
 

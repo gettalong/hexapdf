@@ -698,17 +698,24 @@ module HexaPDF
         fit_result = self.fit if fit == true || (!@actual_height && fit == :if_needed)
         return fit_result if @lines.empty?
 
+        last_item = nil
         canvas.save_graphics_state do
+          if @lines.size > 1
+            canvas.leading(style.line_spacing.baseline_distance(@lines[0], @lines[1]))
+          end
           y -= initial_baseline_offset + @lines.first.y_offset
           @lines.each_with_index do |line, index|
             line_x = x + line.x_offset
             line.each do |item, item_x, item_y|
               if item.kind_of?(TextFragment)
-                item.draw(canvas, line_x + item_x, y + item_y)
+                item.draw(canvas, line_x + item_x, y + item_y,
+                          ignore_text_properties: last_item&.style == item.style)
+                last_item = item
               elsif !item.empty?
                 canvas.restore_graphics_state
                 item.draw(canvas, line_x + item_x, y + item_y)
                 canvas.save_graphics_state
+                last_item = nil
               end
             end
             y -= @lines[index + 1].y_offset if @lines[index + 1]
