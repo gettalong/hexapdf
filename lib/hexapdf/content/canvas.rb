@@ -1897,7 +1897,7 @@ module HexaPDF
 
       # Invokes the font operator using the given PDF font dictionary.
       def invoke_font_operator(font, font_size)
-        if graphics_state.font != font || graphics_state.font_size != font_size
+        unless graphics_state.font == font && graphics_state.font_size == font_size
           invoke(:Tf, resources.add_font(font), font_size)
         end
       end
