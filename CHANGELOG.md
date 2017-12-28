@@ -19,6 +19,8 @@
 * Misspelt variable name in [HexaPDF::Layout::TextLayouter::SimpleLineWrapping]
 * [HexaPDF::Layout::TextLayouter::SimpleTextSegmentation] to work if the last
   character in a text fragment is \r
+* [HexaPDF::Layout::TextLayouter] to work if an optional break point (think
+  soft-hyphen) is followed by whitespace
 
 
 ## 0.6.0 - 2017-10-27

@@ -113,6 +113,11 @@ module HexaPDF
           @shrinkability = shrinkability
         end
 
+        # The width of the item.
+        def width
+          @item.width
+        end
+
         # Returns :glue.
         def type
           :glue

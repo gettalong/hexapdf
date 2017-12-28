@@ -233,6 +233,12 @@ module CommonLineWrappingTests
     assert_line_wrapping(result, [70, 40])
   end
 
+  it "handles breaking at penalties with non-zero width surrounded by glue" do
+    item = boxes(20).first
+    result = call(boxes(70) + [glue(10)] + [penalty(0, item)] + [glue(30)] + boxes(30))
+    assert_line_wrapping(result, [100, 30])
+  end
+
   it "handles prohibited breakpoint penalties with zero width" do
     result = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(5000)] + boxes(30))
     assert_line_wrapping(result, [70, 40])
