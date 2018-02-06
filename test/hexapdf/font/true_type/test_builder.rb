@@ -17,7 +17,7 @@ describe HexaPDF::Font::TrueType::Builder do
 
   it "builds the font file" do
     tables = {
-      "loca" => @font[:loca].raw_data,
+      "loca" => @font[:loca].raw_data << "0",
       "head" => @font[:head].raw_data,
       "glyf" => @font[:glyf].raw_data,
       "maxp" => @font[:maxp].raw_data,
@@ -27,11 +27,14 @@ describe HexaPDF::Font::TrueType::Builder do
 
     assert(built_font[:head].checksum_valid?)
     assert_equal(@font[:glyf].raw_data, built_font[:glyf].raw_data)
+    assert(built_font.directory.entry('glyf').offset % 4 == 0)
     assert(built_font[:glyf].checksum_valid?)
-    assert_equal(@font[:loca].raw_data, built_font[:loca].raw_data)
+    assert_equal(@font[:loca].raw_data << "0", built_font[:loca].raw_data)
     assert(built_font[:loca].checksum_valid?)
+    assert(built_font.directory.entry('loca').offset % 4 == 0)
     assert_equal(@font[:maxp].raw_data, built_font[:maxp].raw_data)
     assert(built_font[:maxp].checksum_valid?)
+    assert(built_font.directory.entry('maxp').offset % 4 == 0)
 
     tables = built_font.directory.instance_variable_get(:@tables)
     assert_equal(tables.keys.sort, tables.keys)

@@ -23,6 +23,8 @@
   soft-hyphen) is followed by whitespace
 * [HexaPDF::Font::TrueType::Builder] to correctly order the entries in the
   table directory
+* [HexaPDF::Font::TrueType::Builder] to pad the table data to achieve the
+  correct alignment
 
 
 ## 0.6.0 - 2017-10-27
