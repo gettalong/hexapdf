@@ -21,6 +21,8 @@
   character in a text fragment is \r
 * [HexaPDF::Layout::TextLayouter] to work if an optional break point (think
   soft-hyphen) is followed by whitespace
+* [HexaPDF::Font::TrueType::Builder] to correctly order the entries in the
+  table directory
 
 
 ## 0.6.0 - 2017-10-27

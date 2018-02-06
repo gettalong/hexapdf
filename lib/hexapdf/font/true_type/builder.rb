@@ -51,8 +51,12 @@ module HexaPDF
           offset = font_data.length + tables.length * 16
           checksum = Table.calculate_checksum(font_data)
 
-          # prepare head table for checksumming
-          tables['head'][8, 4] = "\0\0\0\0"
+          # Prepare head table for checksumming
+          head_table = tables['head']
+          head_table[8, 4] = "\0\0\0\0"
+
+          # The directory table needs to be sorted in ascending order by tag
+          tables = tables.sort
 
           tables.each do |tag, data|
             table_checksum = Table.calculate_checksum(data)
@@ -62,8 +66,8 @@ module HexaPDF
             offset += data.length
           end
 
-          tables['head'][8, 4] = [0xB1B0AFBA - checksum].pack('N')
-          tables.each_value {|data| font_data << data }
+          head_table[8, 4] = [0xB1B0AFBA - checksum].pack('N')
+          tables.each {|_, data| font_data << data }
 
           font_data
         end
