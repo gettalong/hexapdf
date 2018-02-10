@@ -44,13 +44,14 @@ text = "Hello! Fly-fishing\nand wand\u{00AD}ering\taround - fanta\u{200B}stic" \
 
 x = 10
 y = 220
+frag = HexaPDF::Layout::TextFragment.create(text, font: doc.fonts.add("Times"))
+layouter = HexaPDF::Layout::TextLayouter.new
 [30, 60, 100, 160].each do |width|
-  layouter = HexaPDF::Layout::TextLayouter.create(text, width: width,
-                                                  font: doc.fonts.add("Times"))
-  layouter.draw(canvas, x, y)
+  result = layouter.fit([frag], width: width)
+  result.draw(canvas, x, y)
   canvas.stroke_color(255, 0, 0).line_width(0.2)
-  canvas.rectangle(x, y, width, -layouter.actual_height).stroke
-  y -= layouter.actual_height + 5
+  canvas.rectangle(x, y, width, -result.height).stroke
+  y -= result.height + 5
 end
 
 doc.write("text_layouter_line_wrapping.pdf", optimize: true)

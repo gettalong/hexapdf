@@ -30,11 +30,10 @@ end
 
 # Draws the text at the given [x, y] position onto the canvas and returns the
 # new y position.
-def draw_text(layouter, canvas, x, y)
-  rest, = layouter.fit
-  raise "Error" unless rest.empty?
-  layouter.draw(canvas, x, y)
-  y - layouter.actual_height
+def draw_text(result, canvas, x, y)
+  raise "Error" unless result.remaining_items.empty?
+  result.draw(canvas, x, y)
+  y - result.height
 end
 
 doc = HexaPDF::Document.new
@@ -103,7 +102,7 @@ styles = {
 y = 800
 left = 50
 width = 500
-
+layouter = TextLayouter.new(base_style)
 styles.each do |desc, variations|
   items = sample_text.split(/(Lorem ipsum dolor|\b\w{2,5}\b)/).map do |str|
     if str.length >= 3 && str.length <= 5
@@ -117,8 +116,7 @@ styles.each do |desc, variations|
     end
   end
   items.unshift(fragment(desc + ": ", fill_color: [255, 0, 0], **base_style))
-  layouter = TextLayouter.new(items: items, width: width, style: base_style)
-  y = draw_text(layouter, canvas, left, y) - 20
+  y = draw_text(layouter.fit(items, width: width), canvas, left, y) - 20
 end
 
 doc.write("text_layouter_styling.pdf", optimize: true)

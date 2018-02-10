@@ -13,7 +13,7 @@
 #
 # Both, the line widths and the horizontal offsets can be calculated given a
 # certain height, and this is exactly what HexaPDF uses. If the `width` argument
-# to [HexaPDF::Layout::TextLayouter::new] is an object responding to #call (e.g.
+# to [HexaPDF::Layout::TextLayouter#fit] is an object responding to #call (e.g.
 # a lambda), it is used for determining the line widths. And the `x_offsets`
 # argument can be used in a similar way for the horizontal offsets.
 #
@@ -41,6 +41,9 @@ dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
 ullamco laboris nisi ut aliquip ex ea commodo consequat.
 ".tr("\n", ' ') * 10
 
+items = [TextFragment.create(sample_text, font: font)]
+layouter = TextLayouter.new
+
 ########################################################################
 # Circly things on the top
 radius = 100
@@ -62,31 +65,24 @@ left_half_circle_offsets = lambda do |height, line_height|
 end
 
 # Left: right half circle
-layouter = TextLayouter.create(sample_text,
-                               width: half_circle_widths,
-                               height: radius * 2,
-                               font: font)
-layouter.draw(canvas, 0, circle_top)
+result = layouter.fit(items, width: half_circle_widths, height: radius * 2)
+result.draw(canvas, 0, circle_top)
 canvas.circle(0, circle_top - radius, radius).stroke
 
 # Center: full circle
-layouter = TextLayouter.create(sample_text,
-                               width: circle_widths,
-                               x_offsets: left_half_circle_offsets,
-                               height: radius * 2,
-                               font: font,
-                               align: :justify)
-layouter.draw(canvas, page.box(:media).width / 2.0 - radius, circle_top)
+layouter.style.align = :justify
+result = layouter.fit(items, width: circle_widths,
+                      x_offsets: left_half_circle_offsets,
+                      height: radius * 2)
+result.draw(canvas, page.box(:media).width / 2.0 - radius, circle_top)
 canvas.circle(page.box(:media).width / 2.0, circle_top - radius, radius).stroke
 
 # Right: left half circle
-layouter = TextLayouter.create(sample_text,
-                               width: half_circle_widths,
-                               x_offsets: left_half_circle_offsets,
-                               height: radius * 2,
-                               font: font,
-                               align: :right)
-layouter.draw(canvas, page.box(:media).width - radius, circle_top)
+layouter.style.align = :right
+result = layouter.fit(items, width: half_circle_widths,
+                      x_offsets: left_half_circle_offsets,
+                      height: radius * 2)
+result.draw(canvas, page.box(:media).width - radius, circle_top)
 canvas.circle(page.box(:media).width, circle_top - radius, radius).stroke
 
 
@@ -111,40 +107,35 @@ left_half_diamond_offsets = lambda do |height, line_height|
 end
 
 # Left: right half diamond
-layouter = TextLayouter.create(sample_text,
-                               width: half_diamond_widths,
-                               height: 2 * diamond_width,
-                               font: font)
-layouter.draw(canvas, 0, diamond_top)
+layouter.style.align = :left
+result = layouter.fit(items, width: half_diamond_widths, height: 2 * diamond_width)
+result.draw(canvas, 0, diamond_top)
 canvas.polyline(0, diamond_top, diamond_width, diamond_top - diamond_width,
                 0, diamond_top - 2 * diamond_width).stroke
 
 # Center: full diamond
-layouter = TextLayouter.create(sample_text,
-                               width: full_diamond_widths,
-                               x_offsets: left_half_diamond_offsets,
-                               height: 2 * diamond_width,
-                               font: font,
-                               align: :justify)
+layouter.style.align = :justify
+result = layouter.fit(items, width: full_diamond_widths,
+                      x_offsets: left_half_diamond_offsets,
+                      height: 2 * diamond_width)
 left = page.box(:media).width / 2.0 - diamond_width
-layouter.draw(canvas, left, diamond_top)
+result.draw(canvas, left, diamond_top)
 canvas.polyline(left + diamond_width, diamond_top,
                 left + 2 * diamond_width, diamond_top - diamond_width,
                 left + diamond_width, diamond_top - 2 * diamond_width,
                 left, diamond_top - diamond_width).close_subpath.stroke
 
 # Right: left half diamond
-layouter = TextLayouter.create(sample_text,
-                               width: half_diamond_widths,
-                               x_offsets: left_half_diamond_offsets,
-                               height: 2 * diamond_width,
-                               font: font,
-                               align: :right)
+layouter.style.align = :right
+result = layouter.fit(items, width: half_diamond_widths,
+                      x_offsets: left_half_diamond_offsets,
+                      height: 2 * diamond_width)
 middle = page.box(:media).width
-layouter.draw(canvas, middle - diamond_width, diamond_top)
+result.draw(canvas, middle - diamond_width, diamond_top)
 canvas.polyline(middle, diamond_top,
                 middle - diamond_width, diamond_top - diamond_width,
                 middle, diamond_top - 2 * diamond_width).stroke
+
 
 ########################################################################
 # Sine wave thing at the bottom
@@ -158,13 +149,11 @@ end
 sine_wave_widths = lambda do |height, line_height|
   sine_wave_height + 100 + sine_wave_offsets.call(height, line_height) * -2
 end
-layouter = TextLayouter.create(sample_text,
-                               width: sine_wave_widths,
-                               x_offsets: sine_wave_offsets,
-                               height: sine_wave_height,
-                               font: font,
-                               align: :justify)
+layouter.style.align = :justify
+result = layouter.fit(items, width: sine_wave_widths,
+                      x_offsets: sine_wave_offsets,
+                      height: sine_wave_height)
 middle = page.box(:media).width / 2.0
-layouter.draw(canvas, middle - (sine_wave_height + 100) / 2, sine_wave_top)
+result.draw(canvas, middle - (sine_wave_height + 100) / 2, sine_wave_top)
 
 doc.write("text_layouter_shapes.pdf", optimize: true)

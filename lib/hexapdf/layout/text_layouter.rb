@@ -527,36 +527,88 @@ module HexaPDF
 
       end
 
-      # Creates a new TextLayouter object for the given text and returns it.
-      #
-      # See ::new for information on +height+.
-      #
-      # The style that gets applied to the text and the layout itself can be specified using
-      # additional options, of which font is mandatory.
-      def self.create(text, width:, height: nil, x_offsets: nil, **options)
-        frag = TextFragment.create(text, **options)
-        new(items: [frag], width: width, height: height, x_offsets: x_offsets, style: frag.style)
+      # Encapsulates the result of layouting items using a TextLayouter and provides a method for
+      # drawing the result (i.e. the layed out lines) on a canvas.
+      class Result
+
+        # The status after layouting the items:
+        #
+        # +:success+:: There are no remaining items.
+        # +:box_too_wide+:: A single text or inline box was too wide to fit alone on a line.
+        # +:height+:: There was not enough height for all items to layout.
+        #
+        # Even if the result is not +:success+, the layouting may still be successful depending on
+        # the usage. For example, if we expect that there may be too many items to fit, +:height+ is
+        # still a success.
+        attr_reader :status
+
+        # Array of layed out lines.
+        attr_reader :lines
+
+        # The actual height of all layed out lines (this includes a possible offset for the first
+        # line).
+        attr_reader :height
+
+        # The remaining items that couldn't be layed out.
+        attr_reader :remaining_items
+
+        # Creates a new Result structure.
+        def initialize(status, lines, height, remaining_items)
+          @status = status
+          @lines = lines
+          @height = height
+          @remaining_items = remaining_items
+        end
+
+        # Draws the layed out lines onto the canvas with the top-left corner being at [x, y].
+        def draw(canvas, x, y)
+          last_item = nil
+          canvas.save_graphics_state do
+            # Best effort for leading in case we have an evenly spaced paragraph
+            canvas.leading(@lines[1].y_offset) if @lines.size > 1
+            @lines.each_with_index do |line, index|
+              y -= @lines[index].y_offset
+              line_x = x + line.x_offset
+              line.each do |item, item_x, item_y|
+                if item.kind_of?(TextFragment)
+                  item.draw(canvas, line_x + item_x, y + item_y,
+                            ignore_text_properties: last_item&.style == item.style)
+                  last_item = item
+                elsif !item.empty?
+                  canvas.restore_graphics_state
+                  item.draw(canvas, line_x + item_x, y + item_y)
+                  canvas.save_graphics_state
+                  last_item = nil
+                end
+              end
+            end
+          end
+        end
+
       end
 
       # The style to be applied.
       #
       # Only the following properties are used: Style#text_indent, Style#align, Style#valign,
-      # Style#text_segmentation_algorithm, Style#text_line_wrapping_algorithm
+      # Style#line_spacing, Style#text_segmentation_algorithm, Style#text_line_wrapping_algorithm
       attr_reader :style
 
-      # The items (TextFragment and InlineBox objects) that should be layed out.
-      attr_reader :items
-
-      # Array of Line objects describing the layed out lines.
+      # Creates a new TextLayouter object with the given style.
       #
-      # The array is only valid after #fit was called.
-      attr_reader :lines
+      # The +style+ argument can either be a Style object or a hash of style options. See #style for
+      # the properties that are used by the layouter.
+      def initialize(style = Style.new)
+        @style = (style.kind_of?(Style) ? style : Style.new(style))
+      end
 
-      # The actual height of the layed out text. Can be +nil+ if the items have not been layed out
-      # yet, i.e. if #fit has not been called.
-      attr_reader :actual_height
-
-      # Creates a new TextLayouter object with the given width containing the given items.
+      # :call-seq:
+      #   text_layouter.fit(items, width:, height: nil, x_offsets: nil) -> result
+      #
+      # Fits the items into the given area and returns a Result object with all the information.
+      #
+      # The text segmentation algorithm specified via #style is applied to the items in case they
+      # are not already in segmented form. This also means that Result#remaining_items always
+      # contains segmented items.
       #
       # The width can either be a simple number specifying a fixed width, or an object that responds
       # to #call(height, line_height) where +height+ is the bottom of last line and +line_height+ is
@@ -569,58 +621,27 @@ module HexaPDF
       #
       # The height is optional and if not specified means that the text layout has infinite height.
       #
-      # The +style+ argument can either be a Style object or a hash of style options. See #style for
-      # the properties that are used by the layouter.
-      def initialize(items: [], width:, height: nil, x_offsets: nil, style: Style.new)
-        @style = (style.kind_of?(Style) ? style : Style.new(style))
-        @lines = []
-        self.items = items
-        @width = width
-        @height = height || Float::INFINITY
-        @x_offsets = x_offsets && (x_offsets.respond_to?(:call) ? x_offsets : proc { x_offsets })
-      end
-
-      # Sets the items to be arranged by the text layouter, clearing the internal state.
-      #
-      # If the items array contains items before text segmentation, the text segmentation algorithm
-      # is automatically applied.
-      def items=(items)
+      # Note: If no height has been set and variable line widths are used, no search for a possible
+      # vertical offset is done in case a single item doesn't fit.
+      def fit(items, width:, height: nil, x_offsets: nil)
         unless items.empty? || items[0].respond_to?(:type)
           items = style.text_segmentation_algorithm.call(items)
         end
-        @items = items.freeze
-        @lines.clear
-        @actual_height = nil
-      end
 
-      # :call-seq:
-      #   text_layouter.fit  -> [remaining_items, reason]
-      #
-      # Fits the items into the set area and returns the remaining items as well as the reason why
-      # there are remaining items.
-      #
-      # The reason can be +:success+ if there are no remaining items, +:box+ if a single text or
-      # inline box item is too wide to fit alone on a line, or +:height+ if there was not enough
-      # height for all items.
-      #
-      # The fitted lines can be retrieved via #lines and the total height via #actual_height.
-      #
-      # Note: If no height has been set and variable line widths are used, no search for a possible
-      # vertical offset is done in case a single item doesn't fit.
-      #
-      # This method is automatically called as part of the drawing routine but it can also be used
-      # by itself to determine the actual height of the layed out text.
-      def fit
-        @lines.clear
-        @actual_height = 0
+        lines = []
+        actual_height = 0
+        height ||= Float::INFINITY
+        if x_offsets
+          x_offsets_block = (x_offsets.respond_to?(:call) ? x_offsets : proc { x_offsets })
+        end
 
-        rest = @items
+        rest = items
         y_offset = 0
         indent = (style.text_indent != 0 ? style.text_indent : 0)
-        width_block = if @width.respond_to?(:call)
-                        proc {|h| @width.call(@actual_height, h) - indent }
+        width_block = if width.respond_to?(:call)
+                        proc {|h| width.call(actual_height, h) - indent }
                       else
-                        proc { @width - indent }
+                        proc { width - indent }
                       end
 
         while true
@@ -628,23 +649,23 @@ module HexaPDF
 
           rest = style.text_line_wrapping_algorithm.call(rest, width_block) do |line, item|
             line << TextFragment.new([], style) if item&.type != :box && line.items.empty?
-            new_height = @actual_height + line.height +
-              (@lines.empty? ? 0 : style.line_spacing.gap(@lines.last, line))
+            new_height = actual_height + line.height +
+              (lines.empty? ? 0 : style.line_spacing.gap(lines.last, line))
 
-            if new_height > @height
+            if new_height > height
               nil
             elsif !line.items.empty?
               # valid line found, use it
               cur_width = width_block.call(line.height)
               line.x_offset = indent + horizontal_alignment_offset(line, cur_width)
-              line.x_offset += @x_offsets.call(@actual_height, line.height) if @x_offsets
+              line.x_offset += x_offsets_block.call(actual_height, line.height) if x_offsets_block
               line.y_offset =  if y_offset
-                                 y_offset + (@lines.last ? -@lines.last.y_min + line.y_max : 0)
+                                 y_offset + (lines.last ? -lines.last.y_min + line.y_max : 0)
                                else
-                                 style.line_spacing.baseline_distance(@lines.last, line)
+                                 style.line_spacing.baseline_distance(lines.last, line)
                                end
-              @actual_height = new_height
-              @lines << line
+              actual_height = new_height
+              lines << line
               y_offset = nil
               indent = if item&.type == :penalty && item.penalty == Penalty::PARAGRAPH_BREAK
                          style.text_indent
@@ -652,17 +673,17 @@ module HexaPDF
                          0
                        end
               true
-            elsif @height != Float::INFINITY
+            elsif height != Float::INFINITY
               # some height left but item didn't fit on the line, search downwards for usable space
-              old_height = @actual_height
-              while item.width > width_block.call(item.height) && @actual_height <= @height
-                @actual_height += item.height / 3
+              old_height = actual_height
+              while item.width > width_block.call(item.height) && actual_height <= height
+                actual_height += item.height / 3
               end
-              if @actual_height + item.height <= @height
-                y_offset = @actual_height - old_height
+              if actual_height + item.height <= height
+                y_offset = actual_height - old_height
                 true
               else
-                @actual_height = old_height
+                actual_height = old_height
                 too_wide_box = item
                 nil
               end
@@ -679,74 +700,35 @@ module HexaPDF
             end
             too_wide_box = nil
           else
-            reason = (too_wide_box ? :box : (rest.empty? ? :success : :height))
+            status = (too_wide_box ? :box_too_wide : (rest.empty? ? :success : :height))
             break
           end
         end
 
-        [rest, reason]
-      end
-
-      # :call-seq:
-      #   tl.draws(canvas, x, y, fit: :if_needed) -> [remaining_items, reason] or nil
-      #
-      # Draws the layed out text onto the canvas with the top-left corner being at [x, y].
-      #
-      # Depending on the value of +fit+ the text may also be fitted:
-      #
-      # * If +true+, then #fit is always called.
-      # * If +:if_needed+, then #fit is only called if it has not been called before.
-      # * If +false+, then #fit is never called.
-      #
-      # If #fit was called, its return value is returned. Otherwise +nil+ is returned.
-      def draw(canvas, x, y, fit: :if_needed)
-        fit_result = self.fit if fit == true || (!@actual_height && fit == :if_needed)
-        return fit_result if @lines.empty?
-
-        last_item = nil
-        canvas.save_graphics_state do
-          if @lines.size > 1
-            canvas.leading(style.line_spacing.baseline_distance(@lines[0], @lines[1]))
-          end
-          y -= initial_baseline_offset + @lines.first.y_offset
-          @lines.each_with_index do |line, index|
-            line_x = x + line.x_offset
-            line.each do |item, item_x, item_y|
-              if item.kind_of?(TextFragment)
-                item.draw(canvas, line_x + item_x, y + item_y,
-                          ignore_text_properties: last_item&.style == item.style)
-                last_item = item
-              elsif !item.empty?
-                canvas.restore_graphics_state
-                item.draw(canvas, line_x + item_x, y + item_y)
-                canvas.save_graphics_state
-                last_item = nil
-              end
-            end
-            y -= @lines[index + 1].y_offset if @lines[index + 1]
-          end
+        unless lines.empty?
+          lines.first.y_offset += initial_baseline_offset(lines, height, actual_height)
         end
 
-        fit_result
+        Result.new(status, lines, actual_height, rest)
       end
 
       private
 
       # Returns the initial baseline offset from the top, based on the valign style option.
-      def initial_baseline_offset
+      def initial_baseline_offset(lines, height, actual_height)
         case style.valign
         when :top
-          @lines.first.y_max
+          lines.first.y_max
         when :center
-          if @height == Float::INFINITY
+          if height == Float::INFINITY
             raise HexaPDF::Error, "Can't vertically align when using unlimited height"
           end
-          (@height - @actual_height) / 2.0 + @lines.first.y_max
+          (height - actual_height) / 2.0 + lines.first.y_max
         when :bottom
-          if @height == Float::INFINITY
+          if height == Float::INFINITY
             raise HexaPDF::Error, "Can't vertically align when using unlimited height"
           end
-          (@height - @actual_height) + @lines.first.y_max
+          (height - actual_height) + lines.first.y_max
         end
       end
 

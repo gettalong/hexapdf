@@ -6,14 +6,18 @@ width = ARGV[1].to_i
 height = 1000
 
 doc = HexaPDF::Document.new
-tl = HexaPDF::Layout::TextLayouter.create(File.read(file), width: width, height: height,
+tf = HexaPDF::Layout::TextFragment.create(File.read(file),
                                           font_features: {kern: false}, font_size: 10,
                                           font: doc.fonts.add(ARGV[3] || "Times"))
-tl.style.line_spacing(:fixed, 11.16)
+tf.style.line_spacing(:fixed, 11.16)
+items = [tf]
+tl = HexaPDF::Layout::TextLayouter.new(tf.style)
 
-while !tl.items.empty?
+while !items.empty?
   canvas = doc.pages.add([0, 0, width, height]).canvas
-  tl.items, = tl.draw(canvas, 0, height)
+  result = tl.fit(items, width: width, height: height)
+  result.draw(canvas, 0, height)
+  items = result.remaining_items
 end
 
 doc.write(ARGV[2])

@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::Layout::TextLayouter] to return a new
+  [HexaPDF::Layout::TextLayouter::Result] structure when `#fit` is called that
+  includes the `#draw` method
+
 ## 0.7.0 - 2018-06-19
 
 ### Changed

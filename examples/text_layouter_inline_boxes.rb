@@ -58,9 +58,9 @@ items = sample_text.split(/(:-\)|;-\))/).map do |part|
   end
 end
 
-layouter = TextLayouter.new(items: items, width: 500, height: 700)
+layouter = TextLayouter.new
 layouter.style.align = :justify
 layouter.style.line_spacing(:proportional, 1.5)
-layouter.draw(doc.pages.add.canvas, 50, 800)
+layouter.fit(items, width: 500, height: 700).draw(doc.pages.add.canvas, 50, 800)
 
 doc.write("text_layouter_inline_boxes.pdf")

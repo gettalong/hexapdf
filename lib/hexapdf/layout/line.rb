@@ -175,8 +175,8 @@ module HexaPDF
       # An optional vertical offset that should be taken into account when positioning the line.
       #
       # For the first line in a paragraph this describes the offset from the top of the box to the
-      # top of the line. For all other lines it describes the offset from the previous baseline to
-      # the baseline of this line.
+      # baseline of the line. For all other lines it describes the offset from the previous baseline
+      # to the baseline of this line.
       attr_accessor :y_offset
 
       # Creates a new Line object, adding all given items to it.
