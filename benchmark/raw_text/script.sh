@@ -50,6 +50,7 @@ for ttf in "${TTFS[@]}"; do
     bench_cmd "reportlab/C | ${key} ${ttf: -3}" python3 $BMDIR/rlcli.py $file ${OUT_FILE} $ttf
     bench_cmd "tcpdf       | ${key} ${ttf: -3}" php $BMDIR/tcpdf.php $file ${OUT_FILE} $ttf
     bench_cmd "PDF::API2   | ${key} ${ttf: -3}" perl $BMDIR/pdfapi.pl $file ${OUT_FILE} $ttf
+    bench_cmd "pdfkit      | ${key} ${ttf: -3}" nodejs $BMDIR/pdfkit.js $file ${OUT_FILE} $ttf
     bench_separator
   done
 done
