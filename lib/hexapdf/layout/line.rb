@@ -290,7 +290,7 @@ module HexaPDF
       #
       # Clears all cached values.
       #
-      # This method needs to be called if the fragment's items are changed!
+      # This method needs to be called if the line's items are changed!
       def clear_cache
         @x_max = @y_min = @y_max = @text_y_min = @text_y_max = @width = nil
         self
