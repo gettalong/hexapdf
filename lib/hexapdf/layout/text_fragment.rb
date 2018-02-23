@@ -212,12 +212,12 @@ module HexaPDF
 
       # The minimum y-coordinate, calculated using the scaled descender of the font.
       def y_min
-        @y_min ||= style.scaled_font_descender + style.calculated_text_rise
+        style.scaled_y_min
       end
 
       # The maximum y-coordinate, calculated using the scaled ascender of the font.
       def y_max
-        @y_max ||= style.scaled_font_ascender + style.calculated_text_rise
+        style.scaled_y_max
       end
 
       # The minimum y-coordinate of any item.
@@ -263,7 +263,7 @@ module HexaPDF
       #
       # This method needs to be called if the fragment's items or attributes are changed!
       def clear_cache
-        @x_min = @x_max = @y_min = @y_max = @exact_y_min = @exact_y_max = @width = @height = nil
+        @x_min = @x_max = @exact_y_min = @exact_y_max = @width = @height = nil
         self
       end
 

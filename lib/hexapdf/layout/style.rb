@@ -922,6 +922,16 @@ module HexaPDF
         @descender ||= font.wrapped_font.descender * font.scaling_factor * font_size / 1000
       end
 
+      # The minimum y-coordinate, calculated using the scaled descender of the font.
+      def scaled_y_min
+        @scaled_y_min ||= scaled_font_descender + calculated_text_rise
+      end
+
+      # The maximum y-coordinate, calculated using the scaled descender of the font.
+      def scaled_y_max
+        @scaled_y_max ||= scaled_font_ascender + calculated_text_rise
+      end
+
       # Returns the width of the item scaled appropriately (by taking font size, characters spacing,
       # word spacing and horizontal scaling into account).
       #
@@ -947,6 +957,7 @@ module HexaPDF
       def clear_cache
         @scaled_font_size = @scaled_character_spacing = @scaled_word_spacing = nil
         @scaled_horizontal_scaling = @ascender = @descender = nil
+        @scaled_y_min = @scaled_y_max = nil
         @scaled_item_widths.clear
       end
 
