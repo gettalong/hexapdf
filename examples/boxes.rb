@@ -17,7 +17,7 @@ doc = HexaPDF::Document.new
 
 annotate_box = lambda do |canvas, box|
   text = ""
-  canvas.font("Times", size: 6)
+  canvas.font("Times", size: 6).leading(7)
 
   if (data = box.style.padding)
     text << "Padding (TRBL): #{data.top}, #{data.right}, #{data.bottom}, #{data.left}\n"
