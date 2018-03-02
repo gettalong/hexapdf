@@ -29,7 +29,7 @@ The list of the benchmarked libraries:
 
 **Prawn**
 
-: Homepage: <http://hexapdf.gettalong.org>\\
+: Homepage: <http://prawnpdf.org>\\
   Language: Ruby\\
   Version: 2.2.2
 
@@ -42,6 +42,18 @@ The list of the benchmarked libraries:
   ReportLab has a module that implements some features in C to speed up the execution. Both versions
   are used in the benchmark.
 
+**jPDFWriter**
+
+: Homepage: <https://www.qoppa.com/pdfwriter/>\\
+  Language: Java\\
+  Version: v2016R1
+
+  Qoppa Software provides the free jPDFWriter library which is needed for benchmarking this library.
+  The Java source code file for the benchmark needs to be compiled and the jPDFWriter-JAR put onto
+  the `CLASSPATH` environment variable.
+
+  Note that TrueType fonts don't seem to be supported.
+
 **TCPDF**
 
 : Homepage: <https://tcpdf.org/>\\
@@ -53,3 +65,9 @@ The list of the benchmarked libraries:
 : Homepage: <http://search.cpan.org/perldoc/PDF::API2>\\
   Language: Perl\\
   Version: 2.030
+
+**PDFKit**
+
+: Homepage: <https://pdfkit.org/>\\
+  Language: Javascript\\
+  Version: 0.8.3
