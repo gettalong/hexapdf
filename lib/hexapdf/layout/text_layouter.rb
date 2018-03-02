@@ -687,10 +687,18 @@ module HexaPDF
         width_spec_index = 0
         width_block =
           if width.respond_to?(:call)
+            last_actual_height = nil
+            last_line_height = nil
             proc do |h|
               line_height = [line_height, h || 0].max
-              spec = width.call(actual_height, line_height)
-              spec = [0, spec] unless spec.kind_of?(Array)
+              if last_actual_height != actual_height || last_line_height != line_height
+                spec = width.call(actual_height, line_height)
+                spec = [0, spec] unless spec.kind_of?(Array)
+                last_actual_height = actual_height
+                last_line_height = line_height
+              else
+                spec = width_spec
+              end
               if spec == width_spec
                 # no changes, just need to return the width of the current part
                 width_spec[width_spec_index * 2 + 1] - (width_spec_index == 0 ? indent : 0)
