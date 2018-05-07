@@ -120,12 +120,13 @@ module HexaPDF
           result.type = :jbig2
         when :CCITTFaxDecode
           result.type = :ccitt
+          result.extension = 'tiff'
         else
           result.type = :png
           result.extension = 'png'
         end
 
-        if rest || ![:FlateDecode, :DCTDecode, :JPXDecode, nil].include?(filter)
+        if rest || ![:FlateDecode, :DCTDecode, :JPXDecode, :CCITTFaxDecode, nil].include?(filter)
           result.writable = false
         end
 
@@ -187,6 +188,8 @@ module HexaPDF
           while source.alive? && (chunk = source.resume)
             io << chunk
           end
+        elsif info.type == :ccitt
+          write_tiff(io, info)
         else
           write_png(io, info)
         end
@@ -252,6 +255,48 @@ module HexaPDF
       # Returns the binary representation of the PNG chunk for the given chunk type and data.
       def png_chunk(type, data = '')
         [data.length].pack("N") << type << data << [Zlib.crc32(data, Zlib.crc32(type))].pack("N")
+      end
+
+      # Writes the image as TIFF to the given IO stream.
+      def write_tiff(io, info)
+        stream = stream_source
+
+        # header
+        io << ['49492A00'].pack('H*')
+
+        # offset to IFD
+        pad_size = stream.length % 2
+        io << [stream.length + 8 + pad_size].pack('L')
+
+        # data
+        io << Filter.string_from_source(stream)
+
+        # pad to word boundary
+        io << [0].pack('C') * pad_size
+
+        decode_params = [self[:DecodeParms]].flatten[0]
+        compression = if decode_params[:K] > 0 # G3-2D
+                        3
+                      elsif decode_params[:K] < 0 # G4-2D
+                        4
+                      else # G3-1D
+                        2
+                      end
+
+        # IFD entries
+        ifd_entries = [
+            [0x0100, 3, 1, info.width], # width
+            [0x0101, 3, 1, info.height], # height
+            [0x0102, 3, 1, info.bits_per_component], # bits per sample
+            [0x0103, 3, 1, compression], # compression
+            [0x0106, 3, 1, decode_params[:BlackIs1] === false ? 1 : 0], # photometric interpretation
+            [0x0111, 4, 1, 8], # strip offsets
+            [0x0115, 3, 1, 1], # sample per pixel
+            [0x0117, 4, 1, stream.length + pad_size], # strip bytes count
+        ]
+        io << [ifd_entries.size].pack('v')
+        ifd_entries.each { |b| io << b.pack('vvVV') }
+        io << [0].pack('V')
       end
 
     end
