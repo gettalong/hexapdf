@@ -1,11 +1,10 @@
-# -*- encoding: utf-8 -*-
-# frozen_string_literal: true
+# -*- encoding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # This file is part of HexaPDF.
 #
 # HexaPDF - A Versatile PDF Creation and Manipulation Library For Ruby
-# Copyright (C) 2014-2017 Thomas Leitner
+# Copyright (C) 2014-2018 Thomas Leitner
 #
 # HexaPDF is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License version 3 as
