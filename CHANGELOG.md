@@ -25,6 +25,8 @@
   table directory
 * [HexaPDF::Font::TrueType::Builder] to pad the table data to achieve the
   correct alignment
+* [HexaPDF::Filter::FlateDecode] by removing the Zlib pools since ther were
+  not thread safe
 
 
 ## 0.6.0 - 2017-10-27
