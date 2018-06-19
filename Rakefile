@@ -94,7 +94,7 @@ namespace :dev do
     File.open("hexapdf.gemspec", 'w+') {|f| f.puts(contents)}
   end
 
-  CODING_LINE = "# -*- encoding: utf-8 -*-\n"
+  CODING_LINE = "# -*- encoding: utf-8; frozen_string_literal: true -*-\n"
 
   desc "Insert/Update copyright notice"
   task :update_copyright do
