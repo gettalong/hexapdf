@@ -177,7 +177,7 @@ module HexaPDF
         DEFAULT = new
 
         # Returns the DeviceRGB color space object.
-        def self.new
+        def self.new(_definition = nil)
           DEFAULT
         end
 
@@ -238,7 +238,7 @@ module HexaPDF
         DEFAULT = new
 
         # Returns the DeviceCMYK color space object.
-        def self.new
+        def self.new(_definition = nil)
           DEFAULT
         end
 
@@ -301,7 +301,7 @@ module HexaPDF
         DEFAULT = new
 
         # Returns the DeviceGray color space object.
-        def self.new
+        def self.new(_definition = nil)
           DEFAULT
         end
 

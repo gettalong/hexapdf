@@ -27,6 +27,8 @@
   correct alignment
 * [HexaPDF::Filter::FlateDecode] by removing the Zlib pools since ther were
   not thread safe
+* All color space classes to accept the color space definition as argument to
+  `::new`
 
 
 ## 0.6.0 - 2017-10-27

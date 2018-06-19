@@ -10,6 +10,10 @@ module CommonColorSpaceTests
     assert_equal(@color_space, @color.color_space)
   end
 
+  it "the color space class accepts the color space definition as argument to ::new" do
+    assert_equal(1, @color_space.class.method(:new).arity.abs)
+  end
+
   it "the color space responds to :default_color" do
     assert(@color_space.respond_to?(:default_color))
     assert_equal(0, @color_space.method(:default_color).arity)
