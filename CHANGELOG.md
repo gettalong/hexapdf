@@ -1,4 +1,4 @@
-## Unreleased
+## 0.7.0 - 2018-06-19
 
 ### Changed
 
