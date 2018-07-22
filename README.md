@@ -93,7 +93,8 @@ So why use HexaPDF?
 
 ## License
 
-See the LICENSE file for licensing details.
+AGPL - see the LICENSE file for licensing details. Commercial licenses are available at
+<https://gettalong.at/hexapdf/>.
 
 Some included files have a different license:
 
