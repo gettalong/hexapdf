@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'prawn'
 
 bottom_margin = 72 + 0.5 * 72

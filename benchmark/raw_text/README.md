@@ -19,6 +19,9 @@ text multiple times (1x, 5x and 10x by default). Additionally, all multiplicatio
 combined once with the standard PDF Type1 font Times-Roman and once with a TrueType font (DejaVu
 Sans by default).
 
+Each benchmark script (except the jPDFWriter and pdfkit ones) can be invoked standalone in the
+following way: `script-executable TXT_FILE OUTPUT_FILE [TTF_FILE]`.
+
 The list of the benchmarked libraries:
 
 **HexaPDF**
@@ -58,13 +61,13 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://tcpdf.org/>\\
   Language: PHP\\
-  Version: 6.2.12
+  Version: 6.2.13
 
 **PDF::API2**
 
 : Homepage: <http://search.cpan.org/perldoc/PDF::API2>\\
   Language: Perl\\
-  Version: 2.030
+  Version: 2.033
 
 **PDFKit**
 

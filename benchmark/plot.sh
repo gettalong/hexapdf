@@ -5,8 +5,10 @@ if [[ $# -lt 1 ]]; then
   exit 1
 fi
 
-cd $1
+BENCH_DIR=$(echo $1 | tr -d '/')
+
+cd $BENCH_DIR &>/dev/null
 shift
 
-./script.sh "$@" | tee >(ruby ../generate_plot_data.rb > /tmp/plot.data 2>/dev/null)
+./script.sh "$@" | tee >(ruby ../generate_plot_data.rb > /tmp/plot_${BENCH_DIR}.data 2>/dev/null)
 gnuplot -p plot.cfg 2>/dev/null

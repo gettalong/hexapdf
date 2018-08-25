@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from reportlab.pdfgen import canvas
 from reportlab import rl_config
 import sys

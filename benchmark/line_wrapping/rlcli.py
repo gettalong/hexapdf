@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 from reportlab.platypus import *
 from reportlab.platypus.doctemplate import _doNothing

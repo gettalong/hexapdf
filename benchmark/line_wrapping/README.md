@@ -14,6 +14,9 @@ In the case of pages with a width of 400 no line wrapping needs to be done becau
 source text is shorter than 400 points. In the other cases lines need to be actually wrapped and the
 number of pages increases. With a width of 50 even words need sometimes to be broken.
 
+Each benchmark script can be invoked standalone in the following way: `script-executable TXT_FILE
+WIDTH OUTPUT_FILE [TTF_FILE]`.
+
 The list of the benchmarked libraries:
 
 **HexaPDF**
@@ -38,4 +41,4 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://tcpdf.org/>\\
   Language: PHP\\
-  Version: 6.2.12
+  Version: 6.2.13

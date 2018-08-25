@@ -56,7 +56,22 @@ The list of the benchmarked applications:
   Version: Latest version\\
   Abilities: Any combination of C, S and P
 
-  We want to benchmark `hexapdf` with increasing levels of compression.
+  We want to benchmark `hexapdf` with increasing levels of compression, using the following
+  invocations:
+
+  None of C, S, or P
+  : `hexapdf optimize INPUT --no-compact --object-streams=preserve --xref-streams=preserve
+    --streams=preserve --no-optimize-fonts OUTPUT`
+
+  C
+  : `hexapdf optimize INPUT --compact --object-streams=preserve --xref-streams=preserve
+    --streams=preserve --no-optimize-fonts OUTPUT`
+
+  CS (so this would be the standard mode of operation)
+  : `hexapdf optimize INPUT OUTPUT`
+
+  CSP
+  : `hexapdf optimize INPUT --compress-pages OUTPUT`
 
 **origami**
 
@@ -67,13 +82,17 @@ The list of the benchmarked applications:
   Similar to HexaPDF Origami is a framework for manipulating PDF files. Since it is also written in
   Ruby, it makes for a good comparison.
 
+  The `origami.rb` script can be invoked like `ruby origami.rb INPUT OUTPUT`.
+
 **combine_pdf**
 
 : Homepage: <https://github.com/boazsegev/combine_pdf>\\
-  Version: 1.0.7\\
+  Version: 1.0.15\\
   Abilities: ?
 
   CombinePDF is a tool for merging PDF files, written in Ruby.
+
+  The `combine_pdf.rb` script can be invoked like `ruby combine_pdf.rb INPUT OUTPUT`.
 
 **pdftk**
 
@@ -86,15 +105,21 @@ The list of the benchmarked applications:
   native code using GCJ.
 
   The application doesn't have options for optimizing a PDF file but it can be assumed that it
-  removes unused and deleted objects.
+  removes unused and deleted objects when invoked like `pdftk INPUT output OUTPUT`.
+
+  *Note* that GCJ was deprecated and newer versions of Ubuntu don't include the pdftk package
+  anymore!
 
 **qpdf**
 
 : Homepage: <http://qpdf.sourceforge.net/>\\
-  Version: 7.0.0\\
+  Version: 8.0.2\\
   Abilities: C, CS
 
   QPDF is a command line application for transforming PDF files written in C++.
+
+  The standard `C` mode of operation is invoked with `qpdf INPUT OUTPUT` whereas the CS mode would
+  need an additional option `--object-streams=generate`.
 
 **smpdf**
 : Homepage: <http://www.coherentpdf.com/compression.html>\\
@@ -104,6 +129,8 @@ The list of the benchmarked applications:
   This is a commercial application but can be used for evaluation purposes. There is no way to
   configure the operations done but judging from its output it seems it does all of the lossless
   operations.
+
+  Invocation is done like this: `smpdf INPUT -o OUTPUT`.
 
 
 The standard files used in the benchmark (*not* available in the HexaPDF distribution) vary in file

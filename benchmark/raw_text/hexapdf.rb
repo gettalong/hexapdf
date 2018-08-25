@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 $:.unshift(File.join(__dir__, '../../lib'))
 require 'hexapdf'
 
