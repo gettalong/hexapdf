@@ -4,12 +4,13 @@
 
 FILES=($BMDIR/*.pdf)
 
-benchmark_help $1 <<EOF
-Usage: $(basename $0) [PDF files...]"
+bench_parse_opts "$@" <<EOF
+$(bench_help "[PDF files...]")
 
 PDF files  - One or more PDF files
              Default: All PDF files in the benchmark directory
 EOF
+set -- "${BENCH_ARGS[@]}"
 
 OUT_FILE=/tmp/bench-result.pdf
 

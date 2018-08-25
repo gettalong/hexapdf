@@ -5,8 +5,8 @@
 KEYS="1x 5x 10x"
 TTFS=("" "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf");
 
-benchmark_help $1 <<EOF
-Usage: $(basename $0) [multiplier] [font files...]"
+bench_parse_opts "$@" <<EOF
+$(bench_help "[multiplier] [font files...]")
 
 multiplier - A space separated string of multiplier values
              Default: "${KEYS}"
@@ -17,6 +17,7 @@ font files - One or more TrueType font files
 If an empty string is used for a font file, the benchmark is run using a
 built-in PDF font.
 EOF
+set -- "${BENCH_ARGS[@]}"
 
 OUT_FILE=/tmp/bench-result.pdf
 IN_FILE=$BMDIR/odyssey.txt

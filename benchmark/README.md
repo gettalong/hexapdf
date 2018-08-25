@@ -14,8 +14,9 @@ To run a benchmark just execute the `script.sh` file in the benchmark direcctory
 
     optimization/script.sh
 
-The script may take arguments to control the execution of the benchmark, use `script.sh -h` to show
-some help.
+It is possible to restrict the benchmark to certain executables by specifying them using the `-t`
+option. In addition the script may take arguments to control the execution of the benchmark, use
+`script.sh -h` to show the help and what arguments are available.
 
 
 ## Generating Graphs
