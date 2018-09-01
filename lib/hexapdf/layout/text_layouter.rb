@@ -50,9 +50,11 @@ module HexaPDF
     #
     # * The first line may be indented by setting Style#text_indent which may also be negative.
     #
+    # * Text can be fitted into arbitrarily shaped areas, even containing holes.
+    #
     # == Layouting Algorithm
     #
-    # Laying out text consists of two phases:
+    # Laying out text consists of three phases:
     #
     # 1. The items are broken into pieces which are wrapped into Box, Glue or Penalty objects.
     #    Additional Penalty objects marking line breaking opportunities are inserted where needed.
@@ -61,6 +63,10 @@ module HexaPDF
     # 2. The pieces are arranged into lines using a very simple algorithm that just puts the maximum
     #    number of consecutive pieces into each line. This step is done by the SimpleLineWrapping
     #    module.
+    #
+    # 3. The lines of step two may actually not be whole lines but line fragments if the area has
+    #    holes or other discontinuities. The #fit method deals with those so that the line wrapping
+    #    algorithm can be separate.
     class TextLayouter
 
       using NumericRefinements
@@ -273,7 +279,8 @@ module HexaPDF
       # Implementation of a simple line wrapping algorithm.
       #
       # The algorithm arranges the given items so that the maximum number is put onto each line,
-      # taking the differences of Box, Glue and Penalty items into account.
+      # taking the differences of Box, Glue and Penalty items into account. It is not as advanced as
+      # say Knuth's line wrapping algorithm in that it doesn't optimize paragraphs.
       class SimpleLineWrapping
 
         # :call-seq:
@@ -301,6 +308,12 @@ module HexaPDF
         # should continue, or falsy if it should stop. If the yielded line is empty and the yielded
         # item is a box item, this single item didn't fit into the available width; the caller has
         # to handle this situation, e.g. by stopping.
+        #
+        # In case of varying widths, the +width_block+ may also return +nil+ in which case the
+        # algorithm should revert back to a stored item index and then start as if beginning a new
+        # line. Which index to use is told the algorithm through the special return value
+        # +:store_start_of_line+ of the yielded-to block. When this return value is used, the
+        # current start of the line index should be stored for later use.
         #
         # After the algorithm is finished, it returns the unused items.
         def self.call(items, width_block, &block)
@@ -390,7 +403,7 @@ module HexaPDF
 
         # Performs the line wrapping with variable widths.
         def variable_width_wrapping
-          index = 0
+          index = @stored_index = 0
 
           while (item = @items[index])
             case item.type
@@ -399,6 +412,12 @@ module HexaPDF
               if new_height > @line_height
                 @line_height = new_height
                 @available_width = @width_block.call(@line_height)
+                if !@available_width || @width > @available_width
+                  index = (@available_width ? @beginning_of_line_index : @stored_index)
+                  item = @items[index]
+                  reset_after_line_break_variable_width(index, @line_height)
+                  redo
+                end
               end
               if add_box_item(item.item)
                 @height_calc << item.item
@@ -407,19 +426,19 @@ module HexaPDF
                   index = reset_line_to_last_breakpoint_state
                   item = @items[index]
                 end
-                break unless yield(create_line, item)
-                reset_after_line_break(index)
+                break unless (action = yield(create_line, item))
+                reset_after_line_break_variable_width(index, 0, action)
                 redo
               end
             when :glue
               unless add_glue_item(item.item, index)
-                break unless yield(create_line, item)
-                reset_after_line_break(index + 1)
+                break unless (action = yield(create_line, item))
+                reset_after_line_break_variable_width(index + 1, 0, action)
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
-                break unless yield(create_unjustified_line, item)
-                reset_after_line_break(index + 1)
+                break unless (action = yield(create_unjustified_line, item))
+                reset_after_line_break_variable_width(index + 1, 0, action)
               elsif item.penalty >= Penalty::INFINITY
                 @break_prohibited_state = true
                 add_box_item(item.item) if item.width > 0
@@ -510,8 +529,9 @@ module HexaPDF
         end
 
         # Resets the line state variables to their initial values. The +index+ specifies the items
-        # index of the first item on the new line.
-        def reset_after_line_break(index)
+        # index of the first item on the new line. The +line_height+ specifies the line height to
+        # use for getting the available width.
+        def reset_after_line_break(index, line_height = 0)
           @beginning_of_line_index = index
           @line_items.clear
           @width = 0
@@ -519,10 +539,20 @@ module HexaPDF
           @last_breakpoint_index = index
           @last_breakpoint_line_items_index = 0
           @break_prohibited_state = false
-          @available_width = @width_block.call(0)
+          @available_width = @width_block.call(line_height)
+        end
 
-          @line_height = 0
+        # Specialized reset method for variable width wrapping.
+        #
+        # * The arguments +index+ and +line_height+ are also passed to #reset_after_line_break.
+        #
+        # * If the +action+ argument is +:store_start_of_line+, the stored item index is reset to
+        #   the index of the first item of the line.
+        def reset_after_line_break_variable_width(index, line_height, action = :none)
+          @stored_index = @beginning_of_line_index if action == :store_start_of_line
+          @line_height = line_height
           @height_calc.reset
+          reset_after_line_break(index, line_height)
         end
 
       end
@@ -602,88 +632,147 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   text_layouter.fit(items, width:, height:, x_offsets: nil) -> result
+      #   text_layouter.fit(items, width, height) -> result
       #
       # Fits the items into the given area and returns a Result object with all the information.
+      #
+      # The +height+ argument is just a number specifying the maximum height that can be used.
+      #
+      # The +width+ argument can be one of the following:
+      #
+      # **a number**::
+      #     In this case the layed out lines have this number as maximum width. This is the standard
+      #     case and means that the area in which the text is layed out is a rectangle.
+      #
+      # **an array with an even number of numbers**::
+      #     The array has to be of the form [offset, width, offset, width, ...], so the even indices
+      #     specify offsets (relative to the current position, not absolute offsets from the left),
+      #     the odd indices widths. This allows laying out lines containing holes in them.
+      #
+      #     A simple example: [15, 100, 30, 40]. This means that a space of 15 on the left is never
+      #     used, then comes text with a maximum width of 100, starting at the absolute offset 15,
+      #     followed by a hole with a width of 30 and then text again with a width of 40, starting
+      #     at the absolute offset 145 (=15 + 100 + 30).
+      #
+      # **an object responding to #call(height, line_height)**::
+      #
+      #     The provided argument +height+ is the bottom of last line (or 0 in case of the first
+      #     line) and +line_height+ is the height of the line to be layed out. The return value has
+      #     to be of one of the forms above (i.e. a single number or an array of numbers) and should
+      #     describe the area given these height restrictions.
+      #
+      #     This allows laying out text inside complex, arbitrarily formed shapes and can be used,
+      #     for example, for flowing text around objects.
       #
       # The text segmentation algorithm specified via #style is applied to the items in case they
       # are not already in segmented form. This also means that Result#remaining_items always
       # contains segmented items.
-      #
-      # The width can either be a simple number specifying a fixed width, or an object that responds
-      # to #call(height, line_height) where +height+ is the bottom of last line and +line_height+ is
-      # the height of the line to be layed out. The return value should be the available width given
-      # these height restrictions.
-      #
-      # The optional +x_offsets+ argument works like +width+ but can be used to specify (varying)
-      # offsets from the left side (e.g. when the left side of the text should follow a certain
-      # shape).
-      #
-      # Note: If no height has been set and variable line widths are used, no search for a possible
-      # vertical offset is done in case a single item doesn't fit.
-      def fit(items, width:, height:, x_offsets: nil)
+      def fit(items, width, height)
         unless items.empty? || items[0].respond_to?(:type)
           items = style.text_segmentation_algorithm.call(items)
         end
 
+        # result variables
         lines = []
         actual_height = 0
-        if x_offsets
-          x_offsets_block = (x_offsets.respond_to?(:call) ? x_offsets : proc { x_offsets })
-        end
-
         rest = items
+
+        # processing state variables
+        indent = style.text_indent
+        line_fragments = []
+        line_height = 0
+        last_line = nil
         y_offset = 0
-        indent = (style.text_indent != 0 ? style.text_indent : 0)
-        width_block = if width.respond_to?(:call)
-                        proc {|h| width.call(actual_height, h) - indent }
-                      else
-                        proc { width - indent }
-                      end
+        width_spec = nil
+        width_spec_index = 0
+        width_block =
+          if width.respond_to?(:call)
+            proc do |h|
+              line_height = [line_height, h || 0].max
+              spec = width.call(actual_height, line_height)
+              spec = [0, spec] unless spec.kind_of?(Array)
+              if spec == width_spec
+                # no changes, just need to return the width of the current part
+                width_spec[width_spec_index * 2 + 1] - (width_spec_index == 0 ? indent : 0)
+              elsif line_fragments.each_with_index.all? {|l, i| l.width <= spec[i * 2 + 1] }
+                # width_spec changed, parts can only get smaller but processed parts still fit
+                width_spec = spec
+                width_spec[width_spec_index * 2 + 1] - (width_spec_index == 0 ? indent : 0)
+              else
+                # width_spec changed and some processed part doesn't fit anymore, retry from start
+                line_fragments.clear
+                width_spec = spec
+                width_spec_index = 0
+                nil
+              end
+            end
+          elsif width.kind_of?(Array)
+            width_spec = width
+            proc { width_spec[width_spec_index * 2 + 1] - (width_spec_index == 0 ? indent : 0) }
+          else
+            width_spec = [0, width]
+            proc { width - indent }
+          end
 
         while true
           too_wide_box = nil
 
           rest = style.text_line_wrapping_algorithm.call(rest, width_block) do |line, item|
+            # make sure empty lines broken by mandatory paragraph breaks are not empty
             line << TextFragment.new([], style) if item&.type != :box && line.items.empty?
-            new_height = actual_height + line.height +
-              (lines.empty? ? 0 : style.line_spacing.gap(lines.last, line))
 
-            if new_height > height
-              nil
-            elsif !line.items.empty?
+            # item didn't fit into first part, find next available part
+            if line.items.empty? && line_fragments.empty?
+              old_height = actual_height
+              while item.width > width_block.call(item.height) && actual_height <= height
+                width_spec_index += 1
+                if width_spec_index >= width_spec.size / 2
+                  actual_height += item.height / 3
+                  width_spec_index = 0
+                end
+              end
+              if actual_height + item.height <= height
+                width_spec_index.times { line_fragments << Line.new }
+                y_offset = actual_height - old_height
+                next true
+              else
+                actual_height = old_height
+                too_wide_box = item
+                next nil
+              end
+            end
+
+            # continue with line fragments of current line if there are still parts and items
+            # available; also handles the case if at least the first fragment is not empty and a
+            # single item didn't fit into at least one of the other parts
+            line_fragments << line
+            unless line_fragments.size == width_spec.size / 2 || !item || item.type == :penalty
+              width_spec_index += 1
+              next (width_spec_index == 1 ? :store_start_of_line : true)
+            end
+
+            combined_line = create_combined_line(line_fragments)
+            new_height = actual_height + combined_line.height +
+              (last_line ? style.line_spacing.gap(last_line, combined_line) : 0)
+
+            if new_height <= height
               # valid line found, use it
-              cur_width = width_block.call(line.height)
-              line.x_offset = indent + horizontal_alignment_offset(line, cur_width)
-              line.x_offset += x_offsets_block.call(actual_height, line.height) if x_offsets_block
-              line.y_offset =  if y_offset
-                                 y_offset + (lines.last ? -lines.last.y_min + line.y_max : 0)
-                               else
-                                 style.line_spacing.baseline_distance(lines.last, line)
-                               end
-              actual_height = new_height
-              lines << line
-              y_offset = nil
+              apply_offsets(line_fragments, width_spec, indent, last_line, combined_line, y_offset)
+              lines.concat(line_fragments)
+              line_fragments.clear
+              width_spec_index = 0
               indent = if item&.type == :penalty && item.penalty == Penalty::PARAGRAPH_BREAK
                          style.text_indent
                        else
                          0
                        end
+              last_line = combined_line
+              actual_height = new_height
+              line_height = 0
+              y_offset = nil
               true
             else
-              # some height left but item didn't fit on the line, search downwards for usable space
-              old_height = actual_height
-              while item.width > width_block.call(item.height) && actual_height <= height
-                actual_height += item.height / 3
-              end
-              if actual_height + item.height <= height
-                y_offset = actual_height - old_height
-                true
-              else
-                actual_height = old_height
-                too_wide_box = item
-                nil
-              end
+              nil
             end
           end
 
@@ -707,6 +796,48 @@ module HexaPDF
       end
 
       private
+
+      # :nodoc:
+      #
+      # A dummy line class for use with Style#line_spacing methods in case a line actually consists
+      # of multiple line fragments.
+      DummyLine = Struct.new(:y_min, :y_max) do
+        def height
+          y_max - y_min
+        end
+      end
+
+      # Creates a line combining all items from the given line fragments for height calculations.
+      def create_combined_line(line_frags)
+        if line_frags.size == 1
+          line_frags[0]
+        else
+          calc = Line::HeightCalculator.new
+          line_frags.each {|l| l.items.each {|i| calc << i } }
+          y_min, y_max, = calc.result
+          DummyLine.new(y_min, y_max)
+        end
+      end
+
+      # Applies the necessary x- and y-offsets to the line fragments.
+      def apply_offsets(line_frags, width_spec, indent, last_line, combined_line, y_offset)
+        cumulated_width = 0
+        line_frags.each_with_index do |line, index|
+          line.x_offset = cumulated_width + indent
+          line.x_offset += width_spec[index * 2]
+          line.x_offset += horizontal_alignment_offset(line, width_spec[index * 2 + 1] - indent)
+          cumulated_width += width_spec[index * 2] + width_spec[index * 2 + 1]
+          if index == 0
+            line.y_offset = if y_offset
+                              y_offset + combined_line.y_max -
+                                (last_line ? last_line.y_min : line.y_max)
+                            else
+                              style.line_spacing.baseline_distance(last_line, combined_line)
+                            end
+          end
+          indent = 0
+        end
+      end
 
       # Returns the initial baseline offset from the top, based on the valign style option.
       def initial_baseline_offset(lines, height, actual_height)

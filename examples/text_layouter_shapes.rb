@@ -47,8 +47,8 @@ layouter = TextLayouter.new
 ########################################################################
 # Circly things on the top
 radius = 100
-circle_top = 800
-half_circle_widths = lambda do |height, line_height|
+circle_top = 840
+half_circle_width = lambda do |height, line_height|
   sum = height + line_height
   if sum <= radius * 2
     [Math.sqrt(radius**2 - (radius - height)**2),
@@ -57,31 +57,29 @@ half_circle_widths = lambda do |height, line_height|
     0
   end
 end
-circle_widths = lambda do |height, line_height|
-  2 * half_circle_widths.call(height, line_height)
+circle = lambda do |height, line_height|
+  w = half_circle_width.call(height, line_height)
+  [radius - w, 2 * w]
 end
-left_half_circle_offsets = lambda do |height, line_height|
-  radius - half_circle_widths.call(height, line_height)
+left_half_circle = lambda do |height, line_height|
+  w = half_circle_width.call(height, line_height)
+  [radius - w, w]
 end
 
 # Left: right half circle
-result = layouter.fit(items, width: half_circle_widths, height: radius * 2)
+result = layouter.fit(items, half_circle_width, radius * 2)
 result.draw(canvas, 0, circle_top)
 canvas.circle(0, circle_top - radius, radius).stroke
 
 # Center: full circle
 layouter.style.align = :justify
-result = layouter.fit(items, width: circle_widths,
-                      x_offsets: left_half_circle_offsets,
-                      height: radius * 2)
+result = layouter.fit(items, circle, radius * 2)
 result.draw(canvas, page.box(:media).width / 2.0 - radius, circle_top)
 canvas.circle(page.box(:media).width / 2.0, circle_top - radius, radius).stroke
 
 # Right: left half circle
 layouter.style.align = :right
-result = layouter.fit(items, width: half_circle_widths,
-                      x_offsets: left_half_circle_offsets,
-                      height: radius * 2)
+result = layouter.fit(items, left_half_circle, radius * 2)
 result.draw(canvas, page.box(:media).width - radius, circle_top)
 canvas.circle(page.box(:media).width, circle_top - radius, radius).stroke
 
@@ -90,8 +88,8 @@ canvas.circle(page.box(:media).width, circle_top - radius, radius).stroke
 # Pointy, diamondy things in the middle
 
 diamond_width = 100
-diamond_top = circle_top - 2 * radius - 50
-half_diamond_widths = lambda do |height, line_height|
+diamond_top = circle_top - 2 * radius - 10
+half_diamond_width = lambda do |height, line_height|
   sum = height + line_height
   if sum < diamond_width
     height
@@ -99,25 +97,25 @@ half_diamond_widths = lambda do |height, line_height|
     [diamond_width * 2 - sum, 0].max
   end
 end
-full_diamond_widths = lambda do |height, line_height|
-  2 * half_diamond_widths.call(height, line_height)
+full_diamond = lambda do |height, line_height|
+  w = half_diamond_width.call(height, line_height)
+  [diamond_width - w, 2 * w]
 end
-left_half_diamond_offsets = lambda do |height, line_height|
-  diamond_width - half_diamond_widths.call(height, line_height)
+left_half_diamond = lambda do |height, line_height|
+  w = half_diamond_width.call(height, line_height)
+  [diamond_width - w, w]
 end
 
 # Left: right half diamond
 layouter.style.align = :left
-result = layouter.fit(items, width: half_diamond_widths, height: 2 * diamond_width)
+result = layouter.fit(items, half_diamond_width, 2 * diamond_width)
 result.draw(canvas, 0, diamond_top)
 canvas.polyline(0, diamond_top, diamond_width, diamond_top - diamond_width,
                 0, diamond_top - 2 * diamond_width).stroke
 
 # Center: full diamond
 layouter.style.align = :justify
-result = layouter.fit(items, width: full_diamond_widths,
-                      x_offsets: left_half_diamond_offsets,
-                      height: 2 * diamond_width)
+result = layouter.fit(items, full_diamond, 2 * diamond_width)
 left = page.box(:media).width / 2.0 - diamond_width
 result.draw(canvas, left, diamond_top)
 canvas.polyline(left + diamond_width, diamond_top,
@@ -127,9 +125,7 @@ canvas.polyline(left + diamond_width, diamond_top,
 
 # Right: left half diamond
 layouter.style.align = :right
-result = layouter.fit(items, width: half_diamond_widths,
-                      x_offsets: left_half_diamond_offsets,
-                      height: 2 * diamond_width)
+result = layouter.fit(items, left_half_diamond, 2 * diamond_width)
 middle = page.box(:media).width
 result.draw(canvas, middle - diamond_width, diamond_top)
 canvas.polyline(middle, diamond_top,
@@ -138,22 +134,44 @@ canvas.polyline(middle, diamond_top,
 
 
 ########################################################################
-# Sine wave thing at the bottom
+# Sine wave thing next
 
 sine_wave_height = 200.0
-sine_wave_top = diamond_top - 2 * diamond_width - 50
-sine_wave_offsets = lambda do |height, line_height|
-  [40 * Math.sin(2 * Math::PI * (height / sine_wave_height)),
-   40 * Math.sin(2 * Math::PI * (height + line_height) / sine_wave_height)].max
-end
-sine_wave_widths = lambda do |height, line_height|
-  sine_wave_height + 100 + sine_wave_offsets.call(height, line_height) * -2
+sine_wave_top = diamond_top - 2 * diamond_width - 10
+sine_wave = lambda do |height, line_height|
+  offset = [40 * Math.sin(2 * Math::PI * (height / sine_wave_height)),
+            40 * Math.sin(2 * Math::PI * (height + line_height) / sine_wave_height)].max
+  [offset, sine_wave_height + 100 + offset * -2]
 end
 layouter.style.align = :justify
-result = layouter.fit(items, width: sine_wave_widths,
-                      x_offsets: sine_wave_offsets,
-                      height: sine_wave_height)
+result = layouter.fit(items, sine_wave, sine_wave_height)
 middle = page.box(:media).width / 2.0
 result.draw(canvas, middle - (sine_wave_height + 100) / 2, sine_wave_top)
+
+########################################################################
+# And finally a house
+
+house_top = sine_wave_top - sine_wave_height - 10
+outer_width = 300.0
+inner_width = 100.0
+house = lambda do |height, line_height|
+  sum = height + line_height
+  first_part = (outer_width / 2 - inner_width / 2)
+  if (0..first_part).cover?(sum)
+    [-height, outer_width + height * 2]
+  elsif (first_part..(first_part + inner_width)).cover?(height) ||
+      (first_part..(first_part + inner_width)).cover?(sum)
+    [0, first_part, inner_width, first_part]
+  elsif sum <= outer_width
+    outer_width
+  else
+    0
+  end
+end
+layouter.style.align = :justify
+result = layouter.fit(items, house, 200)
+
+middle = page.box(:media).width / 2.0
+result.draw(canvas, middle - (outer_width / 2), house_top)
 
 doc.write("text_layouter_shapes.pdf", optimize: true)

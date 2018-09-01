@@ -39,7 +39,7 @@ tl = HexaPDF::Layout::TextLayouter.new
     canvas.text(valign.to_s, at: [20, y - height / 2]) if x_index == 0
 
     tl.style.align(align).valign(valign)
-    tl.fit([tf], width: width, height: height).draw(canvas, x, y)
+    tl.fit([tf], width, height).draw(canvas, x, y)
     canvas.stroke_color(128, 0, 0).rectangle(x, y, width, -height).stroke
   end
 end

@@ -116,7 +116,7 @@ styles.each do |desc, variations|
     end
   end
   items.unshift(fragment(desc + ": ", fill_color: [255, 0, 0], **base_style))
-  y = draw_text(layouter.fit(items, width: width, height: 400), canvas, left, y) - 20
+  y = draw_text(layouter.fit(items, width, 400), canvas, left, y) - 20
 end
 
 doc.write("text_layouter_styling.pdf", optimize: true)

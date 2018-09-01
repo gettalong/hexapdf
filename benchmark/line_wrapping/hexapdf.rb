@@ -15,7 +15,7 @@ tl = HexaPDF::Layout::TextLayouter.new(tf.style)
 
 while !items.empty?
   canvas = doc.pages.add([0, 0, width, height]).canvas
-  result = tl.fit(items, width: width, height: height)
+  result = tl.fit(items, width, height)
   result.draw(canvas, 0, height)
   items = result.remaining_items
 end
