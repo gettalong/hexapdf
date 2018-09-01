@@ -47,7 +47,7 @@ y = 220
 frag = HexaPDF::Layout::TextFragment.create(text, font: doc.fonts.add("Times"))
 layouter = HexaPDF::Layout::TextLayouter.new
 [30, 60, 100, 160].each do |width|
-  result = layouter.fit([frag], width: width)
+  result = layouter.fit([frag], width: width, height: 400)
   result.draw(canvas, x, y)
   canvas.stroke_color(255, 0, 0).line_width(0.2)
   canvas.rectangle(x, y, width, -result.height).stroke

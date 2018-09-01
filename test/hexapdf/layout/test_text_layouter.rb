@@ -390,7 +390,7 @@ describe HexaPDF::Layout::TextLayouter do
       @style.text_indent = 20
 
       [60, proc { 60 }].each do |width|
-        result = @layouter.fit(items, width: width)
+        result = @layouter.fit(items, width: width, height: 200)
         assert_equal([40, 20, 40, 60, 20, 60, 20], result.lines.map(&:width))
         assert_equal([20, 0, 20, 0, 0, 0, 0], result.lines.map(&:x_offset))
         assert(result.remaining_items.empty?)
@@ -399,7 +399,7 @@ describe HexaPDF::Layout::TextLayouter do
     end
 
     it "fits using unlimited height" do
-      result = @layouter.fit(boxes(*([[20, 20]] * 100)), width: 20)
+      result = @layouter.fit(boxes(*([[20, 20]] * 100)), width: 20, height: 10_000)
       assert(result.remaining_items.empty?)
       assert_equal(:success, result.status)
       assert_equal(20 * 100, result.height)
@@ -414,7 +414,7 @@ describe HexaPDF::Layout::TextLayouter do
 
     it "takes line spacing into account when calculating the height" do
       @style.line_spacing = :double
-      result = @layouter.fit(boxes(*([[20, 20]] * 5)), width: 20)
+      result = @layouter.fit(boxes(*([[20, 20]] * 5)), width: 20, height: 200)
       assert(result.remaining_items.empty?)
       assert_equal(:success, result.status)
       assert_equal(20 * (5 + 4), result.height)
@@ -423,7 +423,7 @@ describe HexaPDF::Layout::TextLayouter do
     it "handles empty lines" do
       items = boxes([20, 20]) + [penalty(-5000)] + boxes([30, 20]) + [penalty(-5000)] * 2 +
         boxes([20, 20]) + [penalty(-5000)] * 2
-      result = @layouter.fit(items, width: 30)
+      result = @layouter.fit(items, width: 30, height: 100)
       assert(result.remaining_items.empty?)
       assert_equal(:success, result.status)
       assert_equal(5, result.lines.count)
@@ -432,7 +432,7 @@ describe HexaPDF::Layout::TextLayouter do
 
     describe "fixed width" do
       it "stops if an item is wider than the available width, with unlimited height" do
-        result = @layouter.fit(boxes([20, 20], [50, 20]), width: 30)
+        result = @layouter.fit(boxes([20, 20], [50, 20]), width: 30, height: 100)
         assert_equal(1, result.remaining_items.count)
         assert_equal(:box_too_wide, result.status)
         assert_equal(20, result.height)
@@ -482,19 +482,17 @@ describe HexaPDF::Layout::TextLayouter do
     end
 
     it "breaks a text fragment into parts if it is wider than the available width" do
-      [100, nil].each do |height|
-        str = " Thisisaverylongstring"
-        frag = HexaPDF::Layout::TextFragment.create(str, font: @font)
-        result = @layouter.fit([frag], width: 20, height: height)
-        assert(result.remaining_items.empty?)
-        assert_equal(:success, result.status)
-        assert_equal(str.strip.length, result.lines.sum {|l| l.items.sum {|i| i.items.count } })
-        assert_equal(45, result.height)
+      str = " Thisisaverylongstring"
+      frag = HexaPDF::Layout::TextFragment.create(str, font: @font)
+      result = @layouter.fit([frag], width: 20, height: 100)
+      assert(result.remaining_items.empty?)
+      assert_equal(:success, result.status)
+      assert_equal(str.strip.length, result.lines.sum {|l| l.items.sum {|i| i.items.count } })
+      assert_equal(45, result.height)
 
-        result = @layouter.fit([frag], width: 1, height: height)
-        assert_equal(str.strip.length, result.remaining_items.count)
-        assert_equal(:box_too_wide, result.status)
-      end
+      result = @layouter.fit([frag], width: 1, height: 100)
+      assert_equal(str.strip.length, result.remaining_items.count)
+      assert_equal(:box_too_wide, result.status)
     end
 
     describe "horizontal alignment" do
@@ -504,19 +502,19 @@ describe HexaPDF::Layout::TextLayouter do
 
       it "aligns the contents to the left" do
         @style.align = :left
-        result = @layouter.fit(@items, width: 100)
+        result = @layouter.fit(@items, width: 100, height: 100)
         assert_equal(0, result.lines[0].x_offset)
       end
 
       it "aligns the contents to the center" do
         @style.align = :center
-        result = @layouter.fit(@items, width: 100)
+        result = @layouter.fit(@items, width: 100, height: 100)
         assert_equal(10, result.lines[0].x_offset)
       end
 
       it "aligns the contents to the right" do
         @style.align = :right
-        result = @layouter.fit(@items, width: 100)
+        result = @layouter.fit(@items, width: 100, height: 100)
         assert_equal(20, result.lines[0].x_offset)
       end
     end
@@ -543,17 +541,6 @@ describe HexaPDF::Layout::TextLayouter do
         result = @layouter.fit(@items, width: 40, height: 100)
         assert_equal(100 - 20 * 2 + 20, result.lines[0].y_offset)
       end
-
-      it "raises an error if vertical alignment is :center/:bottom and unlimited height is used" do
-        assert_raises(HexaPDF::Error) do
-          @style.valign = :center
-          @layouter.fit(@items, width: 40)
-        end
-        assert_raises(HexaPDF::Error) do
-          @style.valign = :bottom
-          @layouter.fit(@items, width: 40)
-        end
-      end
     end
 
     it "post-processes lines for justification if needed" do
@@ -569,7 +556,7 @@ describe HexaPDF::Layout::TextLayouter do
       # -> Each space must be doubled!
 
       @style.align = :justify
-      result = @layouter.fit(items, width: 100)
+      result = @layouter.fit(items, width: 100, height: 100)
       assert(result.remaining_items.empty?)
       assert_equal(:success, result.status)
       assert_equal(9, result.lines[0].items.count)
@@ -582,13 +569,13 @@ describe HexaPDF::Layout::TextLayouter do
 
     describe "x_offsets" do
       it "using a fixed number" do
-        result = @layouter.fit(boxes(*([[20, 10]] * 3)), width: 20, x_offsets: 10)
+        result = @layouter.fit(boxes(*([[20, 10]] * 3)), width: 20, height: 100, x_offsets: 10)
         assert_equal([10, 10, 10], result.lines.map(&:x_offset))
       end
 
       it "using a proc" do
         x_offsets = lambda {|height, line_height| height + line_height }
-        result = @layouter.fit(boxes(*([[20, 10]] * 3)), width: 20, x_offsets: x_offsets)
+        result = @layouter.fit(boxes(*([[20, 10]] * 3)), width: 20, height: 100, x_offsets: x_offsets)
         assert_equal([10, 20, 30], result.lines.map(&:x_offset))
       end
     end
@@ -645,12 +632,12 @@ describe HexaPDF::Layout::TextLayouter do
 
     it "makes sure that text fragments don't pollute the graphics state for inline boxes" do
       inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {|c, _| c.text("A") }
-      result = @layouter.fit([@frag, inline_box], width: 200)
+      result = @layouter.fit([@frag, inline_box], width: 200, height: 100)
       assert_raises(HexaPDF::Error) { result.draw(@canvas, 0, 0) } # bc font should be reset to nil
     end
 
     it "doesn't do unnecessary work for consecutive text fragments with same style" do
-      @layouter.fit([@frag], width: 200).draw(@canvas, 0, 0)
+      @layouter.fit([@frag], width: 200, height: 100).draw(@canvas, 0, 0)
       assert_operators(@canvas.contents, [[:save_graphics_state],
                                           [:set_leading, [9.0]],
                                           [:set_font_and_size, [:F1, 10]],
@@ -666,7 +653,7 @@ describe HexaPDF::Layout::TextLayouter do
     it "doesn't do unnecessary work for placeholder boxes" do
       box1 = HexaPDF::Layout::InlineBox.create(width: 10, height: 20)
       box2 = HexaPDF::Layout::InlineBox.create(width: 30, height: 40) { @canvas.line_width(2) }
-      @layouter.fit([box1, box2], width: 200).draw(@canvas, 0, 0)
+      @layouter.fit([box1, box2], width: 200, height: 100).draw(@canvas, 0, 0)
       assert_operators(@canvas.contents, [[:save_graphics_state],
                                           [:restore_graphics_state],
                                           [:save_graphics_state],

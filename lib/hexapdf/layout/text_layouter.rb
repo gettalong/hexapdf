@@ -602,7 +602,7 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   text_layouter.fit(items, width:, height: nil, x_offsets: nil) -> result
+      #   text_layouter.fit(items, width:, height:, x_offsets: nil) -> result
       #
       # Fits the items into the given area and returns a Result object with all the information.
       #
@@ -619,18 +619,15 @@ module HexaPDF
       # offsets from the left side (e.g. when the left side of the text should follow a certain
       # shape).
       #
-      # The height is optional and if not specified means that the text layout has infinite height.
-      #
       # Note: If no height has been set and variable line widths are used, no search for a possible
       # vertical offset is done in case a single item doesn't fit.
-      def fit(items, width:, height: nil, x_offsets: nil)
+      def fit(items, width:, height:, x_offsets: nil)
         unless items.empty? || items[0].respond_to?(:type)
           items = style.text_segmentation_algorithm.call(items)
         end
 
         lines = []
         actual_height = 0
-        height ||= Float::INFINITY
         if x_offsets
           x_offsets_block = (x_offsets.respond_to?(:call) ? x_offsets : proc { x_offsets })
         end
@@ -673,7 +670,7 @@ module HexaPDF
                          0
                        end
               true
-            elsif height != Float::INFINITY
+            else
               # some height left but item didn't fit on the line, search downwards for usable space
               old_height = actual_height
               while item.width > width_block.call(item.height) && actual_height <= height
@@ -687,9 +684,6 @@ module HexaPDF
                 too_wide_box = item
                 nil
               end
-            else
-              too_wide_box = item
-              nil
             end
           end
 
@@ -720,14 +714,8 @@ module HexaPDF
         when :top
           lines.first.y_max
         when :center
-          if height == Float::INFINITY
-            raise HexaPDF::Error, "Can't vertically align when using unlimited height"
-          end
           (height - actual_height) / 2.0 + lines.first.y_max
         when :bottom
-          if height == Float::INFINITY
-            raise HexaPDF::Error, "Can't vertically align when using unlimited height"
-          end
           (height - actual_height) + lines.first.y_max
         end
       end
