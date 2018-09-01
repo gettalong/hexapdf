@@ -46,6 +46,7 @@ module HexaPDF
     autoload(:TextShaper, 'hexapdf/layout/text_shaper')
     autoload(:TextLayouter, 'hexapdf/layout/text_layouter')
     autoload(:Box, 'hexapdf/layout/box')
+    autoload(:Frame, 'hexapdf/layout/frame')
 
   end
 

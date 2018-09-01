@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Layout::Frame] for box positioning and easier text layouting
+  inside an arbitrary polygon
+
 ### Changed
 
 * [HexaPDF::Layout::TextLayouter#fit] to allow fitting text into arbitrarily
@@ -8,6 +13,7 @@
   [HexaPDF::Layout::TextLayouter::Result] structure when `#fit` is called that
   includes the `#draw` method
 * [HexaPDF::Layout::TextLayouter#fit] to require the height argument
+
 
 ## 0.7.0 - 2018-06-19
 
