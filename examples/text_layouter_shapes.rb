@@ -14,8 +14,7 @@
 # Both, the line widths and the horizontal offsets can be calculated given a
 # certain height, and this is exactly what HexaPDF uses. If the `width` argument
 # to [HexaPDF::Layout::TextLayouter#fit] is an object responding to #call (e.g.
-# a lambda), it is used for determining the line widths. And the `x_offsets`
-# argument can be used in a similar way for the horizontal offsets.
+# a lambda), it is used for determining the line widths and offsets.
 #
 # This example shows text layed out in various shapes, using the above mentioned
 # techniques.
