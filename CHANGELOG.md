@@ -42,7 +42,7 @@
   table directory
 * [HexaPDF::Font::TrueType::Builder] to pad the table data to achieve the
   correct alignment
-* [HexaPDF::Filter::FlateDecode] by removing the Zlib pools since ther were
+* [HexaPDF::Filter::FlateDecode] by removing the Zlib pools since they were
   not thread safe
 * All color space classes to accept the color space definition as argument to
   `::new`
