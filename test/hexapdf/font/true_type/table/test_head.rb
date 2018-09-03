@@ -8,7 +8,7 @@ describe HexaPDF::Font::TrueType::Table::Head do
   before do
     data = [1, 0, 2, 6554, 0, 42, 0x5f0f, 0x3CF5, 3, 64].pack('n*')
     @time = Time.new(2016, 05, 01)
-    data << ([(@time - HexaPDF::Font::TrueType::Table::TIME_EPOCH).to_i] * 2).pack('Q>*')
+    data << ([(@time - HexaPDF::Font::TrueType::Table::TIME_EPOCH).to_i] * 2).pack('q>*')
     data << [-132, -152, 3423, 4231, 3, 9, -2, 0, 0].pack('s>4n2s>3')
     set_up_stub_true_type_font(data)
   end
@@ -43,8 +43,12 @@ describe HexaPDF::Font::TrueType::Table::Head do
 
   describe "checksum_valid?" do
     it "checks whether an entry's checksum is valid" do
-      data = 254.chr * 12 + [0x5F0F3CF5].pack('N') + 254.chr * 36 + 0.chr * 4
-      @entry.checksum = (0xfefefefe * 11 + 0x5F0F3CF5) % 2**32
+      data = 254.chr * 12 + # fields before checksum field
+        [0x5F0F3CF5].pack('N') + # checksum field
+        254.chr * 4 +
+        0.chr * 4 + 254.chr * 4 + 0.chr * 4 + 254.chr * 4 + # date fields
+        254.chr * 16 + 0.chr * 4
+      @entry.checksum = (0xfefefefe * 9 + 0x5F0F3CF5) % 2**32
       table = create_table(:Head, data)
       assert(table.checksum_valid?)
     end
