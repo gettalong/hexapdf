@@ -19,7 +19,7 @@ describe HexaPDF::Reference do
     obj = Object.new
     obj.define_singleton_method(:oid) { 1 }
     obj.define_singleton_method(:gen) { 0 }
-    obj.define_singleton_method(:<=>, &HexaPDF::Reference.method(:<=>))
+    obj.define_singleton_method(:<=>) {|o| HexaPDF::Reference.new(oid, gen) <=> o }
     assert_equal([obj, HexaPDF::Reference.new(1, 1), HexaPDF::Reference.new(5, 7)],
                  [HexaPDF::Reference.new(5, 7), HexaPDF::Reference.new(1, 1), obj].sort)
     assert_nil(HexaPDF::Reference.new(1, 0) <=> 5)
