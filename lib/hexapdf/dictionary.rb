@@ -78,6 +78,10 @@ module HexaPDF
     #        If a Symbol object instead of a class is provided, the class is looked up using the
     #        'object.type_map' global configuration option when necessary to support lazy loading.
     #
+    #        Note that if multiple types are allowed and one of the allowed types is Dictionary (or
+    #        a Symbol), it has to be the first in the list. Otherwise automatic type conversion
+    #        functions won't work correctly.
+    #
     # required:: Specifies whether this field is required.
     #
     # default:: Specifies the default value for the field, if any.
@@ -156,7 +160,9 @@ module HexaPDF
       if data.class == HexaPDF::Object || (data.kind_of?(HexaPDF::Object) && data.value.nil?)
         data = data.value
       end
-      self[name] = data = field.convert(data, document) if field&.convert?(data)
+      if (result = field&.convert(data, document))
+        self[name] = data = result
+      end
       data
     end
 

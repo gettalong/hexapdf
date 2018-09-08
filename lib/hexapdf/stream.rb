@@ -116,10 +116,10 @@ module HexaPDF
 
     define_field :Length,       type: Integer # not required, will be auto-filled when writing
     define_field :Filter,       type: [Symbol, Array]
-    define_field :DecodeParms,  type: [Dictionary, Hash, Array]
+    define_field :DecodeParms,  type: [Dictionary, Array]
     define_field :F,            type: :Filespec, version: '1.2'
     define_field :FFilter,      type: [Symbol, Array], version: '1.2'
-    define_field :FDecodeParms, type: [Dictionary, Hash, Array], version: '1.2'
+    define_field :FDecodeParms, type: [Dictionary, Array], version: '1.2'
     define_field :DL,           type: Integer
 
     # Stream objects must always be indirect.

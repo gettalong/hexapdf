@@ -69,7 +69,7 @@ module HexaPDF
       define_field :FontFile,     type: Stream
       define_field :FontFile2,    type: Stream, version: '1.1'
       define_field :FontFile3,    type: Stream, version: '1.2'
-      define_field :CharSet,      type: [String, PDFByteString], version: '1.1'
+      define_field :CharSet,      type: [PDFByteString, String], version: '1.1'
 
       define_field :Style,        type: Dictionary
       define_field :Lang,         type: Symbol, version: '1.5'

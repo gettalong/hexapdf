@@ -14,6 +14,10 @@
   includes the `#draw` method
 * [HexaPDF::Layout::TextLayouter#fit] to require the height argument
 
+### Fixed
+
+* Validation and conversion of dictionary fields with multiple possible types
+
 
 ## 0.7.0 - 2018-06-19
 

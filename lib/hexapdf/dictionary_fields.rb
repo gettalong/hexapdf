@@ -55,13 +55,10 @@ module HexaPDF
   #   Should return +nil+, a single type class or an array of type classes which will additionally
   #   be allowed for the field.
   #
-  # convert?(data, type)::
-  #   Should return +true+ if the given +data+ object can be converted. The +type+ argument is the
-  #   result of the Field#type method call.
-  #
   # convert(data, type, document)::
-  #   Should return the +converted+ data. The +type+ argument is the result of the Field#type method
-  #   call and +document+ is the HexaPDF::Document for which the data should be converted.
+  #   Should return the +converted+ data if conversion is possible and +nil+ otherwise. The +type+
+  #   argument is the result of the Field#type method call and +document+ is the HexaPDF::Document
+  #   for which the data should be converted.
   module DictionaryFields
 
     # This constant should *always* be used for boolean fields.
@@ -112,14 +109,14 @@ module HexaPDF
         @type = [type].flatten
         @type_mapped = false
         @required, @default, @indirect, @version = required, default, indirect, version
-        @converter = self.class.converter_for(type)
+        @converters = @type.map {|t| self.class.converter_for(t) }.compact
       end
 
       # Returns the array with valid types for this field.
       def type
         return @type if @type_mapped
         @type_mapped = true
-        @type.concat(Array(@converter.additional_types))
+        @type.concat(@converters.map(&:additional_types).compact.flatten)
         @type.map! do |type|
           if type.kind_of?(Symbol)
             HexaPDF::GlobalConfiguration.constantize('object.type_map', type)
@@ -161,39 +158,13 @@ module HexaPDF
           (obj.kind_of?(HexaPDF::Object) && type.any? {|t| obj.value.kind_of?(t) })
       end
 
-      # If a converter was defined, it is used. Otherwise +false+ is returned.
-      #
-      # See: #convert
-      def convert?(data)
-        @converter.convert?(data, type)
-      end
-
-      # If a converter was defined, it is used for converting the data. Otherwise this is a Noop -
-      # it just returns the data.
-      #
-      # See: #convert?
+      # Converts the data into a useful object if possible. Otherwise returns +nil+.
       def convert(data, document)
-        @converter.convert(data, type, document)
-      end
-
-    end
-
-    # Does nothing.
-    module IdentityConverter
-
-      def self.usable_for?(_type) #:nodoc:
-        true
-      end
-
-      def self.additional_types #:nodoc:
-      end
-
-      def self.convert?(_data, _type) #:nodoc:
-        false
-      end
-
-      def self.convert(data, _type, _document) #:nodoc:
-        data
+        @converters.each do |converter|
+          result = converter.convert(data, type, document)
+          return result unless result.nil?
+        end
+        nil
       end
 
     end
@@ -214,15 +185,11 @@ module HexaPDF
         Hash
       end
 
-      # Returns +true+ if the given data value can be converted to the Dictionary subclass
-      # specified by type (see Field#type).
-      def self.convert?(data, type)
-        !data.kind_of?(type.first) && (data.kind_of?(Hash) ||
-          data.kind_of?(HexaPDF::Dictionary))
-      end
-
-      # Wraps the given data value in the PDF specific type class.
+      # Wraps the given data value in the PDF specific type class if it can be converted. Otherwise
+      # returns +nil+.
       def self.convert(data, type, document)
+        return if data.kind_of?(type.first) || !(data.kind_of?(Hash) ||
+          data.kind_of?(HexaPDF::Dictionary))
         document.wrap(data, type: type.first)
       end
 
@@ -240,13 +207,11 @@ module HexaPDF
       def self.additional_types
       end
 
-      # Returns +true+ if the given data should be converted to a UTF-8 encoded string.
-      def self.convert?(data, _type)
-        data.kind_of?(String) && data.encoding == Encoding::BINARY
-      end
-
-      # Converts the string into UTF-8 encoding, assuming it is currently a binary string.
+      # Converts the string into UTF-8 encoding, assuming it is a binary string. Otherwise +nil+ is
+      # returned.
       def self.convert(str, _type, _document)
+        return unless str.kind_of?(String) && str.encoding == Encoding::BINARY
+
         if str.getbyte(0) == 254 && str.getbyte(1) == 255
           str[2..-1].force_encoding(Encoding::UTF_16BE).encode(Encoding::UTF_8)
         else
@@ -270,13 +235,10 @@ module HexaPDF
         String
       end
 
-      # Returns +true+ if the given data should be converted to a UTF-8 encoded string.
-      def self.convert?(data, _type)
-        data.kind_of?(String) && data.encoding != Encoding::BINARY
-      end
-
-      # Converts the string into UTF-8 encoding, assuming it is currently a binary string.
+      # Converts the string into binary encoding, assuming it is a non-binary string. Otherwise
+      # returns +nil+.
       def self.convert(str, _type, _document)
+        return if !str.kind_of?(String) || str.encoding == Encoding::BINARY
         str.force_encoding(Encoding::BINARY)
       end
 
@@ -304,14 +266,11 @@ module HexaPDF
       # :nodoc:
       DATE_RE = /\AD:(\d{4})(\d\d)?(\d\d)?(\d\d)?(\d\d)?(\d\d)?([Z+-])?(?:(\d\d)(?:'|'(\d\d)'?|\z)?)?\z/n
 
-      # Returns +true+ if the given data should be converted to a Time object.
-      def self.convert?(data, _type)
-        data.kind_of?(String) && data.match?(DATE_RE)
-      end
-
-      # Converts the string into a Time object.
+      # Checks if the given object is a string and converts into a Time object if possible.
+      # Otherwise returns +nil+.
       def self.convert(str, _type, _document)
-        m = DATE_RE.match(str)
+        return unless str.kind_of?(String) && (m = str.match(DATE_RE))
+
         utc_offset = (m[7].nil? || m[7] == 'Z' ? 0 : "#{m[7]}#{m[8]}:#{m[9] || '00'}")
         Time.new(m[1].to_i, (m[2] ? m[2].to_i : 1), (m[3] ? m[3].to_i : 1),
                  m[4].to_i, m[5].to_i, m[6].to_i, utc_offset)
@@ -333,14 +292,12 @@ module HexaPDF
         [Hash, String]
       end
 
-      # Returns +true+ if the given data is a string file specification.
-      def self.convert?(data, type)
-        !data.kind_of?(type.first) &&
-          (data.kind_of?(Hash) || data.kind_of?(HexaPDF::Dictionary) || data.kind_of?(String))
-      end
-
-      # Converts a string file specification or a hash into a full file specification.
+      # Converts a string file specification or a hash into a full file specification. Otherwise
+      # returns +nil+.
       def self.convert(data, type, document)
+        return if data.kind_of?(type.first) ||
+          !(data.kind_of?(Hash) || data.kind_of?(HexaPDF::Dictionary) || data.kind_of?(String))
+
         data = {F: data} if data.kind_of?(String)
         document.wrap(data, type: type.first)
       end
@@ -360,21 +317,16 @@ module HexaPDF
         Array
       end
 
-      # Returns +true+ if the given data value is an Array.
-      def self.convert?(data, _type)
-        data.kind_of?(Array)
-      end
-
-      # Wraps the given data value in the Rectangle class.
+      # Wraps a given array in the Rectangle class. Otherwise returns +nil+.
       def self.convert(data, _type, document)
+        return unless data.kind_of?(Array)
         document.wrap(data, type: Rectangle)
       end
 
     end
 
     Field.converters.replace([FileSpecificationConverter, DictionaryConverter, StringConverter,
-                              PDFByteStringConverter, DateConverter, RectangleConverter,
-                              IdentityConverter])
+                              PDFByteStringConverter, DateConverter, RectangleConverter])
 
   end
 

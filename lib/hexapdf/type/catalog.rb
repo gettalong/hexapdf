@@ -61,7 +61,7 @@ module HexaPDF
       define_field :PageMode,          type: Symbol,     default: :UseNone
       define_field :Outlines,          type: Dictionary, indirect: true
       define_field :Threads,           type: Array,      version: '1.1'
-      define_field :OpenAction,        type: [Array, Dictionary, Hash], version: '1.1'
+      define_field :OpenAction,        type: [Dictionary, Array], version: '1.1'
       define_field :AA,                type: Dictionary, version: '1.4'
       define_field :URI,               type: Dictionary, version: '1.1'
       define_field :AcroForm,          type: Dictionary, version: '1.2'

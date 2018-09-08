@@ -46,7 +46,7 @@ module HexaPDF
         define_field :T,            type: String, version: '1.1'
         define_field :Popup,        type: :Annotation, version: '1.3'
         define_field :CA,           type: Numeric, default: 1.0, version: '1.4'
-        define_field :RC,           type: [String, Stream], version: '1.5'
+        define_field :RC,           type: [Stream, String], version: '1.5'
         define_field :CreationDate, type: PDFDate, version: '1.5'
         define_field :IRT,          type: Dictionary, version: '1.5'
         define_field :Subj,         type: String, version: '1.5'

@@ -49,7 +49,7 @@ module HexaPDF
     class FontType0 < Font
 
       define_field :Subtype, type: Symbol, required: true, default: :Type0
-      define_field :Encoding, type: [Symbol, Stream], required: true
+      define_field :Encoding, type: [Stream, Symbol], required: true
       define_field :DescendantFonts, type: Array, required: true
 
       # Returns the CID font of this type 0 font.

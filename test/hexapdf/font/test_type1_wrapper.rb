@@ -75,7 +75,7 @@ describe HexaPDF::Font::Type1Wrapper do
         code = @symbol_wrapper.encode(@symbol_wrapper.glyph(:plus))
         @doc.dispatch_message(:complete_objects)
         assert_equal("\x21", code)
-        assert_equal({Differences: [32, :space, :plus]}, @symbol_wrapper.dict[:Encoding])
+        assert_equal({Differences: [32, :space, :plus]}, @symbol_wrapper.dict[:Encoding].value)
       end
     end
   end

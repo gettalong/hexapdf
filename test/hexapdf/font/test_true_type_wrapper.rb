@@ -111,7 +111,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
       assert_equal(:Font, cidfont[:Type])
       assert_equal(:CIDFontType2, cidfont[:Subtype])
       assert_equal({Registry: "Adobe", Ordering: "Identity", Supplement: 0},
-                   cidfont[:CIDSystemInfo])
+                   cidfont[:CIDSystemInfo].value)
       assert_equal(:Identity, cidfont[:CIDToGIDMap])
       assert_equal(@font_wrapper.glyph(3).width, cidfont[:DW])
       assert_equal([2, [glyph.width]], cidfont[:W])

@@ -129,7 +129,7 @@ module HexaPDF
       define_field :TrimBox,              type: Rectangle, version: '1.3'
       define_field :ArtBox,               type: Rectangle, version: '1.3'
       define_field :BoxColorInfo,         type: Dictionary, version: '1.4'
-      define_field :Contents,             type: [Array, Stream]
+      define_field :Contents,             type: [Stream, Array]
       define_field :Rotate,               type: Integer, default: 0
       define_field :Group,                type: Dictionary, version: '1.4'
       define_field :Thumb,                type: Stream

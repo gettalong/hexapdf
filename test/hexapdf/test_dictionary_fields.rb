@@ -10,7 +10,7 @@ describe HexaPDF::DictionaryFields do
 
   describe "Field" do
     before do
-      @field = self.class::Field.new([:Integer, Integer], true, 500, false, '1.2')
+      @field = self.class::Field.new([:Integer, self.class::PDFByteString], true, 500, false, '1.2')
       HexaPDF::GlobalConfiguration['object.type_map'][:Integer] = Integer
     end
 
@@ -27,22 +27,26 @@ describe HexaPDF::DictionaryFields do
     end
 
     it "maps string types to constants" do
-      assert_equal([Integer], @field.type)
+      assert_equal([Integer, self.class::PDFByteString, Hash, String], @field.type)
     end
 
-    it "uses the additional types from a converter" do
-      @field = self.class::Field.new(self.class::PDFByteString)
-      assert_equal([self.class::PDFByteString, String], @field.type)
-    end
+    describe "convert" do
+      it "returns the converted object, using the first usable converter" do
+        doc = Minitest::Mock.new
+        doc.expect(:wrap, :data, [Hash, Hash])
+        @field.convert({}, doc)
+        doc.verify
 
-    it "does not allow any conversion with the identity converter" do
-      x = '5'
-      refute(@field.convert?(x))
-      assert_same(x, @field.convert(x, self))
+        assert(@field.convert('str', self).encoding == Encoding::BINARY)
+      end
+
+      it "returns nil for unconvertable objects" do
+        assert_nil(@field.convert(5.5, self))
+      end
     end
 
     it "can check for a valid object" do
-      refute(@field.valid_object?('Test'))
+      refute(@field.valid_object?(5.5))
       assert(@field.valid_object?(5))
       assert(@field.valid_object?(HexaPDF::Object.new(5)))
     end
@@ -59,17 +63,19 @@ describe HexaPDF::DictionaryFields do
     end
 
     it "allows conversion from a hash" do
-      assert(@field.convert?({}))
       @doc.expect(:wrap, :data, [Hash, Hash])
       @field.convert({Test: :value}, @doc)
       @doc.verify
     end
 
     it "allows conversion from a Dictionary" do
-      assert(@field.convert?(HexaPDF::Dictionary.new({})))
       @doc.expect(:wrap, :data, [HexaPDF::Dictionary, Hash])
       @field.convert(HexaPDF::Dictionary.new(Test: :value), @doc)
       @doc.verify
+    end
+
+    it "doesn't allow conversion from nil" do
+      refute(@field.convert(nil, @doc))
     end
   end
 
@@ -79,7 +85,7 @@ describe HexaPDF::DictionaryFields do
     end
 
     it "allows conversion to UTF-8 string from binary" do
-      assert(@field.convert?('test'.b))
+      refute(@field.convert("test", self))
 
       str = @field.convert("\xfe\xff\x00t\x00e\x00s\x00t".b, self)
       assert_equal('test', str)
@@ -100,8 +106,7 @@ describe HexaPDF::DictionaryFields do
     end
 
     it "allows conversion to a binary string" do
-      assert(@field.convert?('test'))
-      refute(@field.convert?('test'.b))
+      refute(@field.convert('test'.b, self))
 
       str = @field.convert("test", self)
       assert_equal('test', str)
@@ -119,9 +124,7 @@ describe HexaPDF::DictionaryFields do
     end
 
     it "allows conversion to a Time object from a binary string" do
-      date = "D:199812231952-08'00".b
-      refute(@field.convert?('test'.b))
-      assert(@field.convert?(date))
+      refute(@field.convert('test'.b, self))
 
       [
         ["D:1998", [1998, 01, 01, 00, 00, 00, "-00:00"]],
@@ -155,8 +158,6 @@ describe HexaPDF::DictionaryFields do
     end
 
     it "allows conversion from a string" do
-      assert(@field.convert?("test"))
-
       @doc = Minitest::Mock.new
       @doc.expect(:wrap, :data, [{F: 'test'}, {type: HexaPDF::Type::FileSpecification}])
       @field.convert('test', @doc)
@@ -164,8 +165,6 @@ describe HexaPDF::DictionaryFields do
     end
 
     it "allows conversion from a hash/dictionary" do
-      assert(@field.convert?({}))
-
       @doc = Minitest::Mock.new
       @doc.expect(:wrap, :data, [{F: 'test'}, {type: HexaPDF::Type::FileSpecification}])
       @field.convert({F: 'test'}, @doc)
@@ -183,9 +182,6 @@ describe HexaPDF::DictionaryFields do
     end
 
     it "allows conversion to a Rectangle from an Array" do
-      assert(@field.convert?([5, 6]))
-      refute(@field.convert?(:name))
-
       doc = Minitest::Mock.new
       doc.expect(:wrap, :data, [[0, 1, 2, 3], type: HexaPDF::Rectangle])
       @field.convert([0, 1, 2, 3], doc)
