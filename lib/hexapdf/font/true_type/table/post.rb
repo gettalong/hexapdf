@@ -160,7 +160,7 @@ module HexaPDF
             # returns the contained glyph name map.
             def self.parse(io, length)
               end_pos = io.pos + length
-              num_glyphs = io.read(2).unpack('n').first
+              num_glyphs = io.read(2).unpack1('n')
               glyph_name_index = io.read(2 * num_glyphs).unpack('n*')
               names = []
               names << io.read(io.getbyte).force_encoding(::Encoding::UTF_8) while io.pos < end_pos

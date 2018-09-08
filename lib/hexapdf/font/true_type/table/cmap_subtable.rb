@@ -117,7 +117,7 @@ module HexaPDF
           # +true+ is returned. Otherwise nothing is done and +false+ is returned.
           def parse(io, offset)
             io.pos = offset
-            @format = io.read(2).unpack('n').first
+            @format = io.read(2).unpack1('n')
             if [8, 10, 12].include?(@format)
               io.pos += 2
               length, @language = io.read(8).unpack('N2')
@@ -245,7 +245,7 @@ module HexaPDF
             #
             # It is assumed that the first six bytes of the subtable have already been consumed.
             def self.parse(io, length)
-              seg_count_x2 = io.read(8).unpack('n').first
+              seg_count_x2 = io.read(8).unpack1('n')
               end_codes = io.read(seg_count_x2).unpack('n*')
               io.pos += 2
               start_codes = io.read(seg_count_x2).unpack('n*')
@@ -346,7 +346,7 @@ module HexaPDF
             #
             # It is assumed that the first twelve bytes of the subtable have already been consumed.
             def self.parse(io, _length)
-              mapper(Array.new(io.read(4).unpack('N').first) { io.read(12).unpack('N3') })
+              mapper(Array.new(io.read(4).unpack1('N')) { io.read(12).unpack('N3') })
             end
 
             # The parameter +groups+ is an array containing [start_code, end_code, start_glyph_id]

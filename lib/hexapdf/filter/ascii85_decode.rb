@@ -144,7 +144,7 @@ module HexaPDF
 
           if rest
             rlen = rest.length
-            num = (rest + "\0" * (4 - rlen)).unpack('N').first
+            num = (rest + "\0" * (4 - rlen)).unpack1('N')
             ((VALUE_TO_CHAR[num / POW85_4 % 85] + VALUE_TO_CHAR[num / POW85_3 % 85] <<
               VALUE_TO_CHAR[num / POW85_2 % 85] << VALUE_TO_CHAR[num / POW85_1 % 85] <<
               VALUE_TO_CHAR[num % 85])[0, rlen + 1] << "~>").force_encoding(Encoding::BINARY)

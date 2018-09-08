@@ -70,7 +70,7 @@ module HexaPDF
       def self.encoder(source, _ = nil)
         Fiber.new do
           while source.alive? && (data = source.resume)
-            Fiber.yield(data.unpack('H*').first.force_encoding(Encoding::BINARY))
+            Fiber.yield(data.unpack1('H*').force_encoding(Encoding::BINARY))
           end
           '>'.b
         end

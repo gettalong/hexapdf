@@ -57,14 +57,14 @@ module HexaPDF
           result = create_sections("bfchar", chars.size / 2) do |index|
             index *= 2
             sprintf("<%04X>", chars[index]) << "<" <<
-              ((+'').force_encoding(::Encoding::UTF_16BE) << chars[index + 1]).unpack('H*').first <<
+              ((+'').force_encoding(::Encoding::UTF_16BE) << chars[index + 1]).unpack1('H*') <<
               ">\n"
           end
 
           result << create_sections("bfrange", ranges.size / 3) do |index|
             index *= 3
             sprintf("<%04X><%04X>", ranges[index], ranges[index + 1]) << "<" <<
-              ((+'').force_encoding(::Encoding::UTF_16BE) << ranges[index + 2]).unpack('H*').first <<
+              ((+'').force_encoding(::Encoding::UTF_16BE) << ranges[index + 2]).unpack1('H*') <<
               ">\n"
           end
 

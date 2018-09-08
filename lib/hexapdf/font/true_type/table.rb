@@ -137,7 +137,7 @@ module HexaPDF
 
         # Reads a 16.16-bit signed fixed-point integer and returns a Rational as result.
         def read_fixed
-          Rational(io.read(4).unpack('i>').first, 65536)
+          Rational(io.read(4).unpack1('i>'), 65536)
         end
 
       end

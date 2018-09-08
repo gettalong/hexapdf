@@ -56,7 +56,7 @@ module HexaPDF
           #
           # A preferred table is always a table mapping Unicode characters.
           def preferred_table
-            tables.select(&:unicode?).sort_by(&:format).last
+            tables.select(&:unicode?).max_by(&:format)
           end
 
           private

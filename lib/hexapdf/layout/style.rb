@@ -798,7 +798,7 @@ module HexaPDF
         [:underlays, "Layers.new", "Layers.new(value)"],
       ].each do |name, default, setter = "value", extra_args = ""|
         default = default.inspect unless default.kind_of?(String)
-        module_eval(<<-EOF, __FILE__, __LINE__)
+        module_eval(<<-EOF, __FILE__, __LINE__ + 1)
           def #{name}(value = UNSET#{extra_args})
             value == UNSET ? (@#{name} ||= #{default}) : (@#{name} = #{setter}; self)
           end
@@ -836,7 +836,7 @@ module HexaPDF
         [:text_line_wrapping_algorithm, 'TextLayouter::SimpleLineWrapping'],
       ].each do |name, default|
         default = default.inspect unless default.kind_of?(String)
-        module_eval(<<-EOF, __FILE__, __LINE__)
+        module_eval(<<-EOF, __FILE__, __LINE__ + 1)
           def #{name}(value = UNSET, &block)
             if value == UNSET && !block
               @#{name} ||= #{default}
@@ -914,12 +914,12 @@ module HexaPDF
 
       # The ascender of the font scaled appropriately.
       def scaled_font_ascender
-        @ascender ||= font.wrapped_font.ascender * font.scaling_factor * font_size / 1000
+        @scaled_font_ascender ||= font.wrapped_font.ascender * font.scaling_factor * font_size / 1000
       end
 
       # The descender of the font scaled appropriately.
       def scaled_font_descender
-        @descender ||= font.wrapped_font.descender * font.scaling_factor * font_size / 1000
+        @scaled_font_descender ||= font.wrapped_font.descender * font.scaling_factor * font_size / 1000
       end
 
       # The minimum y-coordinate, calculated using the scaled descender of the font.
@@ -956,7 +956,7 @@ module HexaPDF
       # ascender, descender.
       def clear_cache
         @scaled_font_size = @scaled_character_spacing = @scaled_word_spacing = nil
-        @scaled_horizontal_scaling = @ascender = @descender = nil
+        @scaled_horizontal_scaling = @scaled_font_ascender = @scaled_font_descender = nil
         @scaled_y_min = @scaled_y_max = nil
         @scaled_item_widths.clear
       end

@@ -39,7 +39,7 @@ module TestHelper
   def feeder(string, len = string.length)
     Fiber.new do
       until string.empty?
-        Fiber.yield string.slice!(0, len).force_encoding('BINARY')
+        Fiber.yield(string.slice!(0, len).force_encoding('BINARY'))
       end
     end
   end

@@ -524,7 +524,7 @@ module HexaPDF
         decrypted = aes_algorithm.new(encryption_key, "\0" * 16, :decrypt).process(dict[:Perms])
         if decrypted[9, 3] != "adb"
           raise HexaPDF::EncryptionError, "/Perms field cannot be decrypted"
-        elsif (dict[:P] & 0xFFFFFFFF) != (decrypted[0, 4].unpack('V').first & 0xFFFFFFFF)
+        elsif (dict[:P] & 0xFFFFFFFF) != (decrypted[0, 4].unpack1('V') & 0xFFFFFFFF)
           raise HexaPDF::EncryptionError, "Decrypted permissions don't match /P"
         elsif decrypted[8] != (dict[:EncryptMetadata] ? 'T' : 'F')
           raise HexaPDF::EncryptionError, "Decrypted /Perms field doesn't match /EncryptMetadata"

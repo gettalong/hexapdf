@@ -146,7 +146,7 @@ module HexaPDF
 
       # Returns +true+ if the default value can safely be duplicated with #dup.
       def duplicatable_default?
-        @cached_dupdefault ||= HexaPDF::Object::NOT_DUPLICATABLE_CLASSES.none? do |klass|
+        @duplicatable_default ||= HexaPDF::Object::NOT_DUPLICATABLE_CLASSES.none? do |klass|
           @default.kind_of?(klass)
         end
       end

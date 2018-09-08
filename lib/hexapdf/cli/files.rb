@@ -88,7 +88,7 @@ module HexaPDF
           if (params = ef_stream[:Params]) && !params.empty?
             data = []
             data << "size: #{params[:Size]}" if params.key?(:Size)
-            data << "md5: #{params[:CheckSum].unpack('H*').first}" if params.key?(:CheckSum)
+            data << "md5: #{params[:CheckSum].unpack1('H*')}" if params.key?(:CheckSum)
             data << "ctime: #{params[:CreationDate]}" if params.key?(:CreationDate)
             data << "mtime: #{params[:ModDate]}" if params.key?(:ModDate)
             $stdout.write(" (#{data.join(', ')})")

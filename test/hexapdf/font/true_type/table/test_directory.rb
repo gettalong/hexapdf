@@ -22,7 +22,7 @@ describe HexaPDF::Font::TrueType::Table::Directory do
       dir = HexaPDF::Font::TrueType::Table::Directory.new(@file, @self_entry)
       entry = dir.entry('CUST')
       assert_equal('CUST', entry.tag)
-      assert_equal('----'.unpack('N').first, entry.checksum)
+      assert_equal('----'.unpack1('N'), entry.checksum)
       assert_equal(28, entry.offset)
       assert_equal(5, entry.length)
     end

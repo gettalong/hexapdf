@@ -167,12 +167,12 @@ module HexaPDF
                 io.seek(length, IO::SEEK_CUR)
               end
             when 'sRGB' # PNG s11.3.3.5
-              @intent = io.read(length).unpack('C').first
+              @intent = io.read(length).unpack1('C')
               dict[:Intent] = RENDERING_INTENT_MAP[@intent]
               @chrm = SRGB_CHRM
               @gamma = 2.2
             when 'gAMA' # PNG s11.3.3.2
-              gamma = 100_000.0 / io.read(length).unpack('N').first
+              gamma = 100_000.0 / io.read(length).unpack1('N')
               unless @intent || gamma == 1.0 # sRGB trumps gAMA
                 @gamma = gamma
                 @chrm ||= SRGB_CHRM # don't overwrite data from a cHRM chunk

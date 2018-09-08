@@ -76,7 +76,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       end
     end
 
-    if basename !~ /\Auserpwd/
+    unless basename.start_with?("userpwd")
       it "can decrypt the encrypted file #{basename} with the owner password" do
         begin
           doc = HexaPDF::Document.new(io: StringIO.new(File.binread(file)),

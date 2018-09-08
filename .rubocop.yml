@@ -1,6 +1,10 @@
 AllCops:
+  Include:
+    - bin/*
+    - lib/**/*.rb
+    - test/**/*.rb
   Exclude:
-    - !ruby/regexp /^((?!hexapdf\/(bin|lib|test)).)*$/
+    - '[^blt]*/**/*'
   TargetRubyVersion: 2.4
 
 
@@ -68,7 +72,10 @@ Style/SymbolArray:
 Style/WordArray:
   MinSize: 5
 
-Style/TrailingCommaInLiteral:
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: comma
 
 Style/ClassCheck:
@@ -119,7 +126,7 @@ Style/Documentation:
 Style/GuardClause:
   Enabled: false # false alarms
 
-Style/MethodMissing:
+Style/MethodMissingSuper:
   Enabled: false # why the need to fallback to super?
 
 Style/Next:
@@ -160,6 +167,15 @@ Style/SpecialGlobalVars:
 
 Style/MultipleComparison:
   Enabled: false # why should an array be created? especially if only two items are compared
+
+Style/AccessModifierDeclarations:
+  Enabled: false
+
+Style/WhileUntilModifier:
+  Enabled: false # I prefer to use either one or the other, depending on context
+
+Style/FormatStringToken:
+  Enabled: false # I don't care about this
 
 
 Layout/AlignHash:
@@ -211,9 +227,19 @@ Naming/VariableNumber:
   Exclude:
     - lib/hexapdf/encryption/security_handler.rb # bc of n_plus_5
 
+Naming/ConstantName:
+  Exclude:
+    - lib/hexapdf/dictionary_fields.rb
+
+Naming/MemoizedInstanceVariableName:
+  Exclude:
+    - lib/hexapdf/font/encoding/glyph_list.rb
+
 Naming/HeredocDelimiterNaming:
   Enabled: false # we like our delimiters short and obvious
 
+Naming/UncommunicativeMethodParamName:
+  Enabled: false # for points the names x,y are perfectly reasonable
 
 Lint/LiteralAsCondition:
   Enabled: false # we use while true
@@ -221,9 +247,6 @@ Lint/LiteralAsCondition:
 Lint/HandleExceptions:
   Exclude:
     - test/test_helper.rb
-
-Performance/HashEachMethods:
-  Enabled: false # false alarms
 
 
 # These cops should be run manually from time to time

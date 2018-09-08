@@ -74,7 +74,6 @@ module HexaPDF
                    "numbers. The generation number defaults to 0 if not given.") do |str|
           @exec = :stream
           @param = str
-          @raw = (@raw ? @raw : false)
         end
         options.on("--raw", "Modifies --stream to show the raw stream data instead of the " \
                    "filtered one.") do

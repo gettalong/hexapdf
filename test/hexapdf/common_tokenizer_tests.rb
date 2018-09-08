@@ -51,7 +51,7 @@ module CommonTokenizerTests
         <</Name 5>>
 
         % Test
-        EOF
+    EOF
 
     expected_tokens = [
       true, false,
@@ -125,7 +125,7 @@ module CommonTokenizerTests
     create_tokenizer(<<-EOF.chomp.gsub(/^ {8}/, ''))
         true false null 123 34.5 (string) <4E6F76> /Name
         [5 6 /Name] <</Name 5/Null null>>
-        EOF
+    EOF
     assert_equal(true, @tokenizer.next_object)
     assert_equal(false, @tokenizer.next_object)
     assert_nil(@tokenizer.next_object)

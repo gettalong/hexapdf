@@ -63,7 +63,7 @@ module HexaPDF
             table_checksum = Table.calculate_checksum(data)
             data << "\0" * (4 - original_data_length % 4) if original_data_length % 4 != 0
             # tag, offset, data.length are all 32bit uint, table_checksum for header and body
-            checksum += tag.unpack('N').first + 2 * table_checksum + offset + data.length
+            checksum += tag.unpack1('N') + 2 * table_checksum + offset + data.length
             font_data << [tag, table_checksum, offset, original_data_length].pack('a4N3')
             offset += data.length
           end

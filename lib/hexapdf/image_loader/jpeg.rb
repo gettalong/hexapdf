@@ -116,7 +116,7 @@ module HexaPDF
 
           # B1.1.4 - next two bytes are the length of the segment (except for RSTm or TEM markers
           # but those shouldn't appear here)
-          length = io.read(2).unpack('n').first
+          length = io.read(2).unpack1('n')
 
           if code1 == ADOBE_MARKER # Adobe apps invert the colors when using CMYK color space
             invert_colors = true
