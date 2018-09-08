@@ -72,7 +72,7 @@ namespace :dev do
 
     s.author = 'Thomas Leitner'
     s.email = 't_leitner@gmx.at'
-    s.homepage = "http://hexapdf.gettalong.org"
+    s.homepage = "https://hexapdf.gettalong.org"
   end
 
   Gem::PackageTask.new(spec) do |pkg|
