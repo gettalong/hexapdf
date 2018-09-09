@@ -118,6 +118,23 @@ describe HexaPDF::Type::Page do
     it "fails if an unknown box type is supplied" do
       assert_raises(ArgumentError) { @page.box(:undefined) }
     end
+
+    it "sets the correct box" do
+      @page.box(:media, :media)
+      assert_equal(:media, @page.box(:media))
+      @page.box(:crop, :crop)
+      assert_equal(:crop, @page.box(:crop))
+      @page.box(:bleed, :bleed)
+      assert_equal(:bleed, @page.box(:bleed))
+      @page.box(:trim, :trim)
+      assert_equal(:trim, @page.box(:trim))
+      @page.box(:art, :art)
+      assert_equal(:art, @page.box(:art))
+    end
+
+    it "fails if an unknown box type is supplied when setting a box" do
+      assert_raises(ArgumentError) { @page.box(:undefined, [1, 2, 3, 4]) }
+    end
   end
 
   describe "contents" do

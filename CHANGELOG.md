@@ -10,6 +10,7 @@
 ### Changed
 
 * [HexaPDF::Document#validate] to also yield the object that failed validation
+* [HexaPDF::Type::Page#box] to allow setting the value for a box
 * [HexaPDF::Layout::TextLayouter#fit] to allow fitting text into arbitrarily
   shaped areas
 * [HexaPDF::Layout::TextLayouter] to return a new

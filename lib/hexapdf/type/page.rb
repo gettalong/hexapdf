@@ -182,7 +182,13 @@ module HexaPDF
         end
       end
 
-      # Returns the rectangle defining a certain kind of box for the page.
+      # :call-seq:
+      #   page.box(type = :media)              -> box
+      #   page.box(type = :media, rectangle)   -> rectangle
+      #
+      # If no +rectangle+ is given, returns the rectangle defining a certain kind of box for the
+      # page. Otherwise sets the value for the given box type to +rectangle+ (an array with four
+      # values or a HexaPDF::Rectangle).
       #
       # This method should be used instead of directly accessing any of /MediaBox, /CropBox,
       # /BleedBox, /ArtBox or /TrimBox because it also takes the fallback values into account!
@@ -209,15 +215,24 @@ module HexaPDF
       #     author. The default is the crop box.
       #
       # See: PDF1.7 s14.11.2
-      def box(type = :media)
-        case type
-        when :media then self[:MediaBox]
-        when :crop then self[:CropBox] || self[:MediaBox]
-        when :bleed then self[:BleedBox] || self[:CropBox] || self[:MediaBox]
-        when :trim then self[:TrimBox] || self[:CropBox] || self[:MediaBox]
-        when :art then self[:ArtBox] || self[:CropBox] || self[:MediaBox]
+      def box(type = :media, rectangle = nil)
+        if rectangle
+          case type
+          when :media, :crop, :bleed, :trim, :art
+            self["#{type.capitalize}Box".to_sym] = rectangle
+          else
+            raise ArgumentError, "Unsupported page box type provided: #{type}"
+          end
         else
-          raise ArgumentError, "Unsupported page box type provided: #{type}"
+          case type
+          when :media then self[:MediaBox]
+          when :crop then self[:CropBox] || self[:MediaBox]
+          when :bleed then self[:BleedBox] || self[:CropBox] || self[:MediaBox]
+          when :trim then self[:TrimBox] || self[:CropBox] || self[:MediaBox]
+          when :art then self[:ArtBox] || self[:CropBox] || self[:MediaBox]
+          else
+            raise ArgumentError, "Unsupported page box type provided: #{type}"
+          end
         end
       end
 
