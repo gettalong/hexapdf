@@ -115,11 +115,12 @@ module HexaPDF
       # Writes the document to the given file or does nothing if +out_file+ is +nil+.
       def write_document(doc, out_file)
         if out_file
-          doc.validate(auto_correct: true) do |msg, correctable|
+          doc.validate(auto_correct: true) do |object, msg, correctable|
             if command_parser.strict && !correctable
               raise "Validation error: #{msg}"
             elsif command_parser.verbosity_info?
-              $stderr.puts "#{correctable ? 'Corrected' : 'Ignored'} validation problem: #{msg}"
+              $stderr.puts "#{correctable ? 'Corrected' : 'Ignored'} validation problem " \
+                "for object (#{object.oid},#{object.gen}): #{msg}"
             end
           end
           doc.write(out_file, validate: false)

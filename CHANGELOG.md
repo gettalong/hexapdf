@@ -7,6 +7,7 @@
 
 ### Changed
 
+* [HexaPDF::Document#validate] to also yield the object that failed validation
 * [HexaPDF::Layout::TextLayouter#fit] to allow fitting text into arbitrarily
   shaped areas
 * [HexaPDF::Layout::TextLayouter] to return a new

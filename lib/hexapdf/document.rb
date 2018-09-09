@@ -554,8 +554,8 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   doc.validate(auto_correct: true)                               -> true or false
-    #   doc.validate(auto_correct: true) {|msg, correctable| block }   -> true or false
+    #   doc.validate(auto_correct: true)                                       -> true or false
+    #   doc.validate(auto_correct: true) {|object, msg, correctable| block }   -> true or false
     #
     # Validates all objects of the document, with optional auto-correction, and returns +true+ if
     # everything is fine.
@@ -563,9 +563,13 @@ module HexaPDF
     # If a block is given, it is called on validation problems.
     #
     # See HexaPDF::Object#validate for more information.
-    def validate(auto_correct: true, &block)
+    def validate(auto_correct: true)
+      cur_obj = trailer
+      block = (block_given? ? lambda {|msg, correctable| yield(cur_obj, msg, correctable) } : nil)
+
       result = trailer.validate(auto_correct: auto_correct, &block)
       each(current: false) do |obj|
+        cur_obj = obj
         result &&= obj.validate(auto_correct: auto_correct, &block)
       end
       result
@@ -601,9 +605,9 @@ module HexaPDF
       end
 
       if validate
-        self.validate(auto_correct: true) do |msg, correctable|
+        self.validate(auto_correct: true) do |obj, msg, correctable|
           next if correctable
-          raise HexaPDF::Error, "Validation error: #{msg}"
+          raise HexaPDF::Error, "Validation error for (#{obj.oid},#{obj.gen}): #{msg}"
         end
       end
 
