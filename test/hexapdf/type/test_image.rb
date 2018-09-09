@@ -11,6 +11,16 @@ describe HexaPDF::Type::Image do
     @doc = HexaPDF::Document.new
   end
 
+  it "returns the width of the image" do
+    @image = @doc.wrap(Subtype: :Image, Width: 10)
+    assert_equal(10, @image.width)
+  end
+
+  it "returns the height of the image" do
+    @image = @doc.wrap(Subtype: :Image, Height: 10)
+    assert_equal(10, @image.height)
+  end
+
   describe "info" do
     before do
       @image = @doc.wrap(Subtype: :Image, Width: 10, Height: 5, ColorSpace: :DeviceRGB,

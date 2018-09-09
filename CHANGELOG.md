@@ -4,6 +4,8 @@
 
 * [HexaPDF::Layout::Frame] for box positioning and easier text layouting
   inside an arbitrary polygon
+* [HexaPDF::Type::Image#width] and [HexaPDF::Type::Image#height] convenience
+  methods
 
 ### Changed
 

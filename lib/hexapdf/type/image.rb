@@ -76,6 +76,16 @@ module HexaPDF
       # facility and not when the image is part of a loaded PDF file.
       attr_accessor :source_path
 
+      # Returns the width of the image.
+      def width
+        self[:Width]
+      end
+
+      # Returns the height of the image.
+      def height
+        self[:Height]
+      end
+
       # Returns an Info structure with information about the image.
       #
       # Available accessors:
