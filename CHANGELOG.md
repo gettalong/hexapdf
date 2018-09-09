@@ -6,6 +6,7 @@
   inside an arbitrary polygon
 * [HexaPDF::Type::Image#width] and [HexaPDF::Type::Image#height] convenience
   methods
+* [HexaPDF::Type::FontType3] for Type 3 font support
 
 ### Changed
 

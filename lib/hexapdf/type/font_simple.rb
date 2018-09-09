@@ -164,7 +164,7 @@ module HexaPDF
         super()
         return if ignore_missing_font_fields
 
-        [:FirstChar, :LastChar, :Widths, :FontDescriptor].each do |field|
+        [:FirstChar, :LastChar, :Widths].each do |field|
           yield("Required field #{field} is not set", false) if self[field].nil?
         end
         if self[:Widths].length != (self[:LastChar] - self[:FirstChar] + 1)

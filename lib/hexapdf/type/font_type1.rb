@@ -100,6 +100,7 @@ module HexaPDF
       end
 
       define_field :Subtype, type: Symbol, required: true, default: :Type1
+      define_field :BaseFont, type: Symbol, required: true
 
       # Returns the unscaled width of the given code point in glyph units, or 0 if the width for the
       # code point is missing.
@@ -153,7 +154,12 @@ module HexaPDF
 
       # Validates the Type1 font dictionary.
       def perform_validation
-        super(ignore_missing_font_fields: StandardFonts.standard_font?(self[:BaseFont]))
+        std_font = StandardFonts.standard_font?(self[:BaseFont])
+        super(ignore_missing_font_fields: std_font)
+
+        if !std_font && self[:FontDescriptor].nil?
+          yield("Required field FontDescriptor is not set", false)
+        end
       end
 
     end

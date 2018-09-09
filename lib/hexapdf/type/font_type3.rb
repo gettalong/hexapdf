@@ -36,17 +36,23 @@ require 'hexapdf/type/font_simple'
 module HexaPDF
   module Type
 
-    # Represents a TrueType font.
-    class FontTrueType < FontSimple
+    # Represents a Type 3 font.
+    #
+    # See: PDF1.7 s9.6.5
+    class FontType3 < FontSimple
 
-      define_field :Subtype, type: Symbol, required: true, default: :TrueType
-      define_field :BaseFont, type: Symbol, required: true
+      define_field :Subtype,    type: Symbol, required: true, default: :Type3
+      define_field :Name,       type: Symbol
+      define_field :FontBBox,   type: Rectangle, required: true
+      define_field :FontMatrix, type: Array, required: true
+      define_field :CharProcs,  type: Dictionary, required: true
+      define_field :Resources,  type: Dictionary, version: '1.2'
 
       private
 
       def perform_validation
         super
-        yield("Required field FontDescriptor is not set", false) if self[:FontDescriptor].nil?
+        yield("Required field Encoding is not set", false) if self[:Encoding].nil?
       end
 
     end

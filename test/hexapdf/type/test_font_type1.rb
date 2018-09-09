@@ -124,5 +124,11 @@ describe HexaPDF::Type::FontType1 do
     it "allows empty fields for standard fonts" do
       assert(@font.validate)
     end
+
+    it "requires that the FontDescriptor key is set for non-standard fonts" do
+      assert(@embedded_font.validate)
+      @embedded_font.delete(:FontDescriptor)
+      refute(@embedded_font.validate)
+    end
   end
 end

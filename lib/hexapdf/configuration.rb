@@ -467,6 +467,7 @@ module HexaPDF
                         Font: {
                           Type0: 'HexaPDF::Type::FontType0',
                           Type1: 'HexaPDF::Type::FontType1',
+                          Type3: 'HexaPDF::Type::FontType3',
                           TrueType: 'HexaPDF::Type::FontTrueType',
                           CIDFontType0: 'HexaPDF::Type::CIDFont',
                           CIDFontType2: 'HexaPDF::Type::CIDFont',

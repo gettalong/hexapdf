@@ -45,7 +45,6 @@ module HexaPDF
       define_type :Font
 
       define_field :Type, type: Symbol, required: true, default: type
-      define_field :BaseFont, type: Symbol, required: true
       define_field :ToUnicode, type: Stream, version: '1.2'
 
       # Font objects must always be indirect.

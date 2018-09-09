@@ -44,6 +44,7 @@ module HexaPDF
 
       DEFAULT_WIDTH = 1000 # :nodoc:
 
+      define_field :BaseFont,        type: Symbol, required: true
       define_field :CIDSystemInfo,   type: Dictionary, required: true
       define_field :FontDescriptor,  type: :FontDescriptor, indirect: true, required: true
       define_field :DW,              type: Integer, default: DEFAULT_WIDTH
