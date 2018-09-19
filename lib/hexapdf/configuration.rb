@@ -349,6 +349,7 @@ module HexaPDF
                         arc: 'HexaPDF::Content::GraphicObject::Arc',
                         endpoint_arc: 'HexaPDF::Content::GraphicObject::EndpointArc',
                         solid_arc: 'HexaPDF::Content::GraphicObject::SolidArc',
+                        geom2d: 'HexaPDF::Content::GraphicObject::Geom2D',
                       },
                       'graphic_object.arc.max_curves' => 6,
                       'image_loader' => [

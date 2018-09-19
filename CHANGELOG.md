@@ -9,6 +9,7 @@
 * [HexaPDF::Type::Image#width] and [HexaPDF::Type::Image#height] convenience
   methods
 * [HexaPDF::Type::FontType3] for Type 3 font support
+* [HexaPDF::Content::GraphicObject::Geom2D] for [Geom2D] object drawing support
 
 ### Changed
 
@@ -24,6 +25,8 @@
 ### Fixed
 
 * Validation and conversion of dictionary fields with multiple possible types
+
+[geom2d]: https://github.com/gettalong/geom2d
 
 
 ## 0.7.0 - 2018-06-19

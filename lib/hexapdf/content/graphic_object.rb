@@ -74,6 +74,7 @@ module HexaPDF
       autoload(:Arc, 'hexapdf/content/graphic_object/arc')
       autoload(:EndpointArc, 'hexapdf/content/graphic_object/endpoint_arc')
       autoload(:SolidArc, 'hexapdf/content/graphic_object/solid_arc')
+      autoload(:Geom2D, 'hexapdf/content/graphic_object/geom2d')
 
     end
 
