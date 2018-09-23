@@ -110,6 +110,16 @@ module HexaPDF
                       @style.border.width.top + @style.border.width.bottom)].max
       end
 
+      # Fits the box into the Frame and returns the needed width and height as array.
+      #
+      # The default implementation uses the whole available space for width and height if they were
+      # initially set to 0. Otherwise the specified dimensions are used.
+      def fit(frame)
+        aw = @width = (@initial_width > 0 ? @initial_width : frame.available_width)
+        ah = @height = (@initial_height > 0 ? @initial_height : frame.available_height)
+        [aw, ah]
+      end
+
       # Draws the content of the box onto the canvas at the position (x, y).
       #
       # The coordinate system is translated so that the origin is at the lower left corner of the

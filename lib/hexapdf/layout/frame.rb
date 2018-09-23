@@ -31,7 +31,6 @@
 # is created or manipulated using HexaPDF.
 #++
 
-require 'hexapdf/layout/style'
 require 'hexapdf/layout/width_from_polygon'
 require 'geom2d/polygon'
 
@@ -41,15 +40,26 @@ module HexaPDF
     # A Frame describes the available space for placing boxes and provides additional methods for
     # calculating the needed information for the actual placement.
     #
-    # In addition to the frame's box which is always rectangular a frame also has an *outline* which
-    # may be an arbitrary polygon or even set of polygons. The outline is normally used when placing
-    # text inside the frame.
+    # == Usage
     #
-    # For example, a frame can describe the area of a page that is meant for visual content. When an
-    # image is placed at the top left, the area it occupies is removed from the outline of the
-    # frame. When text is added later, it could flow around that image by using the frame's outline.
+    # After a Frame object is initialized, the #draw method can be used to draw a box onto frame. If
+    # drawing is successful, the next box can be drawn. Otherwise, #find_next_region should be
+    # called to determine the next region for placing the box. If the call returns +true+, a region
+    # was found and #draw can be tried again. Once #find_next_region returns +false+ the frame has
+    # no more space for placing boxes.
+    #
+    # == Frame Shape and Contour Line
+    #
+    # A frame's shape is used to determine the available space for laying out boxes and its contour
+    # line is used whenever text should be flown around objects. They are normally the same but can
+    # differ if a box with an arbitrary contour line is drawn onto the frame.
+    #
+    # Initially, a frame has a rectangular shape. However, once boxes are added and the frame's
+    # available area gets reduced, a frame may have a polygon set consisting of arbitrary
+    # rectilinear polygons as shape.
+    #
+    # In contrast to the frame's shape its contour line may be a completely arbitrary polygon set.
     class Frame
-
 
       # The x-coordinate of the bottom-left corner.
       attr_reader :left
@@ -63,36 +73,224 @@ module HexaPDF
       # The height of the frame.
       attr_reader :height
 
-      # The outline of the frame (a Geom2D::Polygon or Geom2D::PolygonSet).
-      attr_reader :outline
+      # The shape of the frame, a Geom2D::PolygonSet consisting of rectilinear polygons.
+      attr_reader :shape
 
-      # Creates a new Frame object for the given rectangular area. If the outline of the frame
-      # (should be a Geom2D::Polygon or Geom2D::PolygonSet) is not specified, then the rectangular
-      # area is used as outline.
-      def initialize(left, bottom, width, height, outline: nil)
+      # The contour line of the frame, a Geom2D::PolygonSet consisting of arbitrary polygons.
+      attr_reader :contour_line
+
+      # The x-coordinate where the next box will be placed.
+      attr_reader :x
+
+      # The y-coordinate where the next box will be placed.
+      attr_reader :y
+
+      # The available width for placing a box.
+      attr_reader :available_width
+
+      # The available height for placing a box.
+      attr_reader :available_height
+
+      # Creates a new Frame object for the given rectangular area.
+      #
+      # If the contour line of the frame is not specified, then the rectangular area is used as
+      # contour line.
+      def initialize(left, bottom, width, height, contour_line: nil)
         @left = left
         @bottom = bottom
         @width = width
         @height = height
-        @outline = outline || Geom2D::Polygon([left, bottom], [left, bottom + height],
-                                              [left + width, bottom + height],
-                                              [left + width, bottom])
+        @contour_line = contour_line || Geom2D::PolygonSet.new(
+          [Geom2D::Polygon([left, bottom], [left, bottom + height],
+                           [left + width, bottom + height],
+                           [left + width, bottom])]
+        )
+
+        @shape = Geom2D::PolygonSet.new(
+          [Geom2D::Polygon([left, bottom], [left, bottom + height],
+                           [left + width, bottom + height],
+                           [left + width, bottom])]
+        )
+        @x = left
+        @y = bottom + height
+        @available_width = width
+        @available_height = height
+        @region_selection = :max_height
       end
 
-      # Returns a width specification for the frame outline that can be used, for example, with
-      # TextLayouter.
+      # Draws the given box onto the canvas at the frame's current position. Returns +true+ if
+      # drawing was possible, +false+ otherwise.
+      #
+      # When positioning the box, the style properties "position" and "position_hint" are taken into
+      # account.
+      #
+      # After a box is successfully drawn, the frame's shape and contour line are adjusted to remove
+      # the occupied area.
+      def draw(canvas, box)
+        width = box.width
+        height = box.height
+
+        if box.style.position != :absolute
+          width, height = box.fit(self)
+          return false if width > available_width || height > available_height
+        end
+
+        case box.style.position
+        when :absolute
+          x, y = box.style.position_hint
+          rectangle = Geom2D::Polygon([x, y], [x + width, y],
+                                      [x + width, y + height], [x, y + height])
+        when :float
+          x = (box.style.position_hint == :right ? @x + available_width - width : @x)
+          y = @y - height
+          rectangle = Geom2D::Polygon([x, @y], [x + width, @y], [x + width, y], [x, y])
+        else
+          x = case box.style.position_hint
+              when :right then @x + available_width - width
+              when :center then @x + (available_width - width) / 2.0
+              else @x
+              end
+          y = @y - height
+          rectangle = Geom2D::Polygon([left, @y], [left + self.width, @y],
+                                      [left + self.width, y], [left, y])
+        end
+
+        box.draw(canvas, x, y)
+        remove_area(rectangle)
+
+        true
+      end
+
+      # Finds the next region for placing boxes. Returns +false+ if no useful region was found.
+      #
+      # This method should be called after drawing a box using #draw was not successful. It finds a
+      # different region on each invocation. So if a box doesn't fit into the first region, this
+      # method should be called again to find another region and to try again.
+      #
+      # The first tried region starts at the top-most, left-most vertex of the polygon and uses the
+      # maximum width. The next tried region uses the maximum height. If both don't work, part of
+      # the frame's shape is removed to try again.
+      def find_next_region
+        case @region_selection
+        when :max_width
+          find_max_width_region
+          @region_selection = :max_height
+        when :max_height
+          x, y, aw, ah = @x, @y, @available_width, @available_height
+          find_max_height_region
+          if @x == x && @y == y && @available_width == aw && @available_height == ah
+            trim_shape
+          else
+            @region_selection = :trim_shape
+          end
+        else
+          trim_shape
+        end
+
+        available_width != 0
+      end
+
+      # Removes the given *rectilinear* polygon from both the frame's shape and the frame's contour
+      # line.
+      def remove_area(polygon)
+        @shape = Geom2D::Algorithms::PolygonOperation.run(@shape, polygon, :difference)
+        @contour_line = Geom2D::Algorithms::PolygonOperation.run(@contour_line, polygon,
+                                                                 :difference)
+        @region_selection = :max_width
+        find_next_region
+      end
+
+      # Returns a width specification for the frame's contour line that can be used, for example,
+      # with TextLayouter.
       #
       # Since not all text may start at the top of the frame, the offset argument can be used to
       # specify a vertical offset from the top of the frame where layouting should start.
       #
-      # To be compatible with TextLayouter, the top left corner of the bounding box of the frame is
-      # the origin of the coordinate system for the width specification, with positive x-values to
-      # the right and positive y-values downwards.
+      # To be compatible with TextLayouter, the top left corner of the bounding box of the frame's
+      # contour line is the origin of the coordinate system for the width specification, with
+      # positive x-values to the right and positive y-values downwards.
       #
       # Depending on the complexity of the frame, the result may be any of the allowed width
       # specifications of TextLayouter#fit.
       def width_specification(offset = 0)
-        WidthFromPolygon.new(@outline, offset)
+        WidthFromPolygon.new(@contour_line, offset)
+      end
+
+      private
+
+      # Finds the region with the maximum width.
+      def find_max_width_region
+        return unless (segments = find_starting_point)
+
+        x_right = @x + @available_width
+
+        # Available height can be determined by finding the segment with the highest y-coordinate
+        # which lies (maybe only partly) between the vertical lines @x and x_right.
+        segments.select! {|s| s.max.x > @x && s.min.x < x_right }
+        @available_height = @y - segments.last.start_point.y
+      end
+
+      # Finds the region with the maximum height.
+      def find_max_height_region
+        return unless (segments = find_starting_point)
+
+        # Find segment with maximum y-coordinate directly below (@x,@y), this determines the
+        # available height
+        index = segments.rindex {|s| s.min.x <= @x && @x < s.max.x }
+        y1 = segments[index].start_point.y
+        @available_height = @y - y1
+
+        # Find segment with minium min.x coordinate whose y-coordinate is between y1 and @y and
+        # min.x > @x, for getting the available width
+        segments.select! {|s| s.min.x > @x && y1 <= s.start_point.y && s.start_point.y <= @y }
+        segment = segments.min_by {|s| s.min.x }
+        @available_width = segment.min.x - @x if segment
+      end
+
+      # Trims the frame's shape so that the next starting point is different.
+      def trim_shape
+        return unless (segments = find_starting_point)
+
+        # Just use the second top-most segment
+        # TODO: not the optimal solution!
+        index = segments.rindex {|s| s.start_point.y < @y }
+        y = segments[index].start_point.y
+        remove_area(Geom2D::Polygon([left, y], [left + width, y],
+                                    [left + width, @y], [left, @y]))
+      end
+
+      # Finds and sets the top-left point for the next region. This is always the top-most,
+      # left-most vertex of the frame's shape.
+      #
+      # If successful, additionally sets the available width to the length of the segment containing
+      # the point and returns the sorted horizontal segments except the top-most one.
+      #
+      # Otherwise, sets all region specific values to zero and returns +nil+.
+      def find_starting_point
+        segments = sorted_horizontal_segments
+        if segments.empty?
+          @x = @y = @available_width = @available_height = 0
+          return
+        end
+
+        top_segment = segments.pop
+        @x = top_segment.min.x
+        @y = top_segment.start_point.y
+        @available_width = top_segment.length
+
+        segments
+      end
+
+      # Returns the horizontal segments of the frame's shape, sorted by maximum y-, then minimum
+      # x-coordinate.
+      def sorted_horizontal_segments
+        @shape.each_segment.select(&:horizontal?).sort! do |a, b|
+          if a.start_point.y == b.start_point.y
+            b.start_point.x <=> a.start_point.x
+          else
+            a.start_point.y <=> b.start_point.y
+          end
+        end
       end
 
     end

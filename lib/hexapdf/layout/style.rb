@@ -762,6 +762,52 @@ module HexaPDF
       # A Layers object containing all the layers that should be drawn under the box; defaults to no
       # layers being drawn.
 
+      ##
+      # :method: position
+      # :call-seq:
+      #   position(value = nil)
+      #
+      # Specifies how a box should be positioned in a frame. The property #position_hint provides
+      # additional, position specific data. Defaults to :default.
+      #
+      # Possible values:
+      #
+      # :default:: Position the box at the current position. The exact horizontal position is given
+      #            via the position hint. Space to the left/right of the box can't be used for other
+      #            boxes.
+      #
+      # :float:: Position the box at the current position but let it "float" so that the space to
+      #          the left/right can still be used. The position hint specifies where the box should
+      #          float.
+      #
+      # :absolute:: Position the box at an absolute position relative to the frame. The coordinates
+      #             are given via the position hint.
+
+      ##
+      # :method: position_hint
+      # :call-seq:
+      #   position_hint(value = nil)
+      #
+      # Specifies additional information on how a box should be positioned in a frame. The exact
+      # meaning depends on the value of the #position property.
+      #
+      # Possible values depending on the #position property:
+      #
+      # :default::
+      #
+      #   :left:: (default) Align the box to the left side of the available region.
+      #   :right:: Align the box to the right side of the available region.
+      #   :center:: Horizontally center the box in the available region.
+      #
+      # :float::
+      #
+      #   :left:: (default) Float the box to the left side of the available region.
+      #   :right::  Float the box to the right side of the available region.
+      #
+      # :absolute::
+      #
+      #    An array with the x- and y-coordinate of the position.
+
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
         [:font_size, 10],
@@ -796,6 +842,8 @@ module HexaPDF
         [:border, "Border.new", "Border.new(value)"],
         [:overlays, "Layers.new", "Layers.new(value)"],
         [:underlays, "Layers.new", "Layers.new(value)"],
+        [:position, :default],
+        [:position_hint, nil],
       ].each do |name, default, setter = "value", extra_args = ""|
         default = default.inspect unless default.kind_of?(String)
         module_eval(<<-EOF, __FILE__, __LINE__ + 1)
