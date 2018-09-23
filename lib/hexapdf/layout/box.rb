@@ -39,23 +39,36 @@ module HexaPDF
     #
     # HexaPDF uses the following box model:
     #
-    # * Each box can specify a content width and content height. Padding, border and margin are
-    #   *outside* of this content rectangle.
+    # * Each box can specify a width and height. Padding and border are inside, the margin outside
+    #   of this rectangle.
     #
-    # * The #width and #height accessors can be used to get the width and height of the box
-    #   including padding and the border.
+    # * The #content_width and #content_height accessors can be used to get the width and height of
+    #   the content box without padding and the border.
     #
+    # * If width or height is set to zero, they are determined automatically during layouting.
     class Box
 
-      # The width of the content box, i.e. without padding or borders.
+      # Creates a new Box object, using the provided block as drawing block (see ::new). Any
+      # additional keyword arguments are used for creating the box's Style object.
       #
-      # The value 0 means that the width is dynamically determined.
-      attr_reader :content_width
+      # If +content_box+ is +true+, the width and height are taken to mean the content width and
+      # height and the style's padding and border are removed from them appropriately.
+      def self.create(width: 0, height: 0, content_box: false, **style, &block)
+        style = Style.new(style)
+        if content_box
+          width += style.padding.left + style.padding.right +
+            style.border.width.left + style.border.width.right
+          height += style.padding.top + style.padding.bottom +
+            style.border.width.top + style.border.width.bottom
+        end
+        new(width: width, height: height, style: style, &block)
+      end
 
-      # The height of the content box, i.e. without padding or borders.
-      #
-      # The value 0 means that the height is dynamically determined.
-      attr_reader :content_height
+      # The width of the box, including padding and/or borders.
+      attr_reader :width
+
+      # The height of the box, including padding and/or borders.
+      attr_reader :height
 
       # The style to be applied.
       #
@@ -69,48 +82,38 @@ module HexaPDF
       attr_reader :style
 
       # :call-seq:
-      #    Box.new(content_width: 0, content_height: 0, style: Style.new) {|canv, box| block} -> box
       #    Box.new(width: 0, height: 0, style: Style.new) {|canv, box| block} -> box
       #
-      # Creates a new Box object with the given width and height for its content that uses the
-      # provided block when it is asked to draw itself on a canvas (see #draw).
-      #
-      # Alternative to specifying the content width/height, it is also possible to specify the box
-      # width/height. The content width is then immediately calculated using the border and padding
-      # information from the style and stored.
+      # Creates a new Box object with the given width and height that uses the provided block when
+      # it is asked to draw itself on a canvas (see #draw).
       #
       # Since the final location of the box is not known beforehand, the drawing operations inside
       # the block should draw inside the rectangle (0, 0, content_width, content_height) - note that
       # the width and height of the box may not be known beforehand.
-      def initialize(content_width: 0, content_height: 0, width: 0, height: 0,
-                     style: Style.new, &block)
+      def initialize(width: 0, height: 0, style: Style.new, &block)
+        @width = @initial_width = width
+        @height = @initial_height = height
         @style = (style.kind_of?(Style) ? style : Style.new(style))
         @draw_block = block
-        @content_width = content_width
-        @content_width = [width - self.width, 0].max if width != 0 && @content_width == 0
-        @content_height = content_height
-        @content_height = [height - self.height, 0].max if height != 0 && @content_height == 0
+        @outline = nil
       end
 
-      # Returns the width of the box, including padding and border widths.
-      def width
-        @content_width + @style.padding.left + @style.padding.right +
-          @style.border.width.left + @style.border.width.right
+      # The width of the content box, i.e. without padding and/or borders.
+      def content_width
+        [0, width - (@style.padding.left + @style.padding.right +
+                     @style.border.width.left + @style.border.width.right)].max
       end
 
-      # Returns the height of the box, including padding and border widths.
-      def height
-        @content_height + @style.padding.top + @style.padding.bottom +
-          @style.border.width.top + @style.border.width.bottom
+      # The height of the content box, i.e. without padding and/or borders.
+      def content_height
+        [0, height - (@style.padding.top + @style.padding.bottom +
+                      @style.border.width.top + @style.border.width.bottom)].max
       end
 
-      # :call-seq:
-      #   box.draw(canvas, x, y)
-      #
-      # Draws the contents of the box onto the canvas at the position (x, y).
+      # Draws the content of the box onto the canvas at the position (x, y).
       #
       # The coordinate system is translated so that the origin is at the lower left corner of the
-      # contents box during the drawing operations.
+      # **content box** during the drawing operations.
       def draw(canvas, x, y)
         if style.background_color
           canvas.save_graphics_state do

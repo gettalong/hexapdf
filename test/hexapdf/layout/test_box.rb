@@ -10,21 +10,31 @@ describe HexaPDF::Layout::Box do
     HexaPDF::Layout::Box.new(*args, &block)
   end
 
-  describe "initialize" do
+  describe "::create" do
+    it "passes the block on to #initialize" do
+      block = proc {}
+      box = HexaPDF::Layout::Box.create(&block)
+      assert_same(block, box.instance_eval { @draw_block })
+    end
+
+    it "allows specifying style options" do
+      box = HexaPDF::Layout::Box.create(background_color: 20)
+      assert_equal(20, box.style.background_color)
+    end
+
     it "takes content width and height" do
-      box = create_box(content_width: 100, content_height: 200)
+      box = HexaPDF::Layout::Box.create(width: 100, height: 200, content_box: true,
+                                        padding: 10, border: {width: 10})
       assert_equal(100, box.content_width)
       assert_equal(200, box.content_height)
     end
+  end
 
+  describe "initialize" do
     it "takes box width and height" do
       box = create_box(width: 100, height: 200)
-      assert_equal(100, box.content_width)
-      assert_equal(200, box.content_height)
-
-      box = create_box(width: 100, height: 200, style: {padding: [20, 10], border: {width: [10, 5]}})
-      assert_equal(70, box.content_width)
-      assert_equal(140, box.content_height)
+      assert_equal(100, box.width)
+      assert_equal(200, box.height)
     end
 
     it "allows passing a Style object or a hash" do
@@ -36,16 +46,11 @@ describe HexaPDF::Layout::Box do
     end
   end
 
-  it "returns the full width and height of the box" do
-    box = create_box(content_width: 100, content_height: 200,
-                     style: {padding: [20, 10], border: {width: [10, 5]}})
-    assert_equal(130, box.width)
-    assert_equal(260, box.height)
   end
 
   describe "draw" do
     it "draws the box onto the canvas" do
-      box = create_box(content_width: 100, content_height: 100) do |canvas, _|
+      box = create_box(width: 150, height: 130) do |canvas, _|
         canvas.line_width(15)
       end
       box.style.background_color = 0.5

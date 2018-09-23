@@ -5,7 +5,7 @@ require 'hexapdf/layout/inline_box'
 
 describe HexaPDF::Layout::InlineBox do
   before do
-    @box = HexaPDF::Layout::InlineBox.create(width: 10, height: 15, style: {margin: [15, 10]})
+    @box = HexaPDF::Layout::InlineBox.create(width: 10, height: 15, margin: [15, 10])
   end
 
   it "needs a box to wrap and an optional alignment on initialization" do

@@ -21,6 +21,7 @@
   [HexaPDF::Layout::TextLayouter::Result] structure when `#fit` is called that
   includes the `#draw` method
 * [HexaPDF::Layout::TextLayouter#fit] to require the height argument
+* Refactored [HexaPDF::Layout::Box] to make using it a bit easier
 
 ### Fixed
 

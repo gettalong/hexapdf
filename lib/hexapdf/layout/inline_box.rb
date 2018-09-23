@@ -43,11 +43,11 @@ module HexaPDF
     class InlineBox
 
       # Creates an InlineBox that wraps a basic Box. All arguments (except +valign+) and the block
-      # are passed to Box::new.
+      # are passed to Box::create.
       #
       # See ::new for the +valign+ argument.
       def self.create(valign: :baseline, **args, &block)
-        new(Box.new(**args, &block), valign: valign)
+        new(Box.create(**args, &block), valign: valign)
       end
 
       # The vertical alignment of the box.

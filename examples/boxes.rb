@@ -37,32 +37,40 @@ end
 
 canvas = doc.pages.add.canvas
 
-[[1, 200], [5, 220], [15, 240]].each_with_index do |(width, red), row|
-  [[:solid, 180], [:dashed, 200], [:dashed_round, 220],
+[[1, 140], [5, 190], [15, 240]].each_with_index do |(width, red), row|
+  [[:solid, 140], [:dashed, 177], [:dashed_round, 207],
    [:dotted, 240]].each_with_index do |(style, green), column|
-    box = HexaPDF::Layout::Box.new(content_width: 100, content_height: 100, &annotate_box)
-    box.style.border(width: width, style: style)
-    box.style.background_color([red, green, 0])
+    box = HexaPDF::Layout::Box.create(
+      width: 100, height: 100, content_box: true,
+      border: {width: width, style: style},
+      background_color: [red, green, 0],
+      &annotate_box)
     box.draw(canvas, 20 + 140 * column, 700 - 150 * row)
   end
 end
 
 # The whole kitchen sink
-box = HexaPDF::Layout::Box.new(content_width: 470, content_height: 200, &annotate_box)
-box.style.background_color([255, 255, 180])
-box.style.padding([20, 5, 10, 15])
-box.style.border(width: [20, 40, 30, 15],
-                 color: [[46, 185, 206], [206, 199, 46], [188, 46, 206], [59, 206, 46]],
-                 style: [:solid, :dashed, :dashed_round, :dotted])
-box.style.underlays.add do |canv, _|
-  canv.stroke_color([255, 0, 0]).line_width(10).line_cap_style(:butt).
-    line(0, 0, box.width, box.height).line(0, box.height, box.width, 0).
-    stroke
-end
-box.style.overlays.add do |canv, _|
-  canv.stroke_color([0, 0, 255]).line_width(5).
-    rectangle(10, 10, box.width - 20, box.height - 20).stroke
-end
+box = HexaPDF::Layout::Box.create(
+  width: 470, height: 200, content_box: true,
+  padding: [20, 5, 10, 15],
+  border: {width: [20, 40, 30, 15],
+           color: [[46, 185, 206], [206, 199, 46], [188, 46, 206], [59, 206, 46]],
+           style: [:solid, :dashed, :dashed_round, :dotted]},
+  background_color: [255, 255, 180],
+  underlays: [
+    lambda do |canv, _|
+      canv.stroke_color([255, 0, 0]).line_width(10).line_cap_style(:butt).
+        line(0, 0, box.width, box.height).line(0, box.height, box.width, 0).
+        stroke
+    end
+  ],
+  overlays: [
+    lambda do |canv, _|
+      canv.stroke_color([0, 0, 255]).line_width(5).
+        rectangle(10, 10, box.width - 20, box.height - 20).stroke
+    end
+  ],
+  &annotate_box)
 box.draw(canvas, 20, 100)
 
 doc.write("boxes.pdf", optimize: true)
