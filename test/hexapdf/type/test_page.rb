@@ -137,6 +137,42 @@ describe HexaPDF::Type::Page do
     end
   end
 
+  describe "orientation" do
+    before do
+      @page = @doc.pages.add
+    end
+
+    it "returns :portrait for appropriate media boxes and rotation values" do
+      @page.box(:media, [0, 0, 100, 300])
+      assert_equal(:portrait, @page.orientation)
+      @page[:Rotate] = 0
+      assert_equal(:portrait, @page.orientation)
+      @page[:Rotate] = 180
+      assert_equal(:portrait, @page.orientation)
+
+      @page.box(:media, [0, 0, 300, 100])
+      @page[:Rotate] = 90
+      assert_equal(:portrait, @page.orientation)
+      @page[:Rotate] = 270
+      assert_equal(:portrait, @page.orientation)
+    end
+
+    it "returns :landscape for appropriate media boxes and rotation values" do
+      @page.box(:media, [0, 0, 300, 100])
+      assert_equal(:landscape, @page.orientation)
+      @page[:Rotate] = 0
+      assert_equal(:landscape, @page.orientation)
+      @page[:Rotate] = 180
+      assert_equal(:landscape, @page.orientation)
+
+      @page.box(:media, [0, 0, 100, 300])
+      @page[:Rotate] = 90
+      assert_equal(:landscape, @page.orientation)
+      @page[:Rotate] = 270
+      assert_equal(:landscape, @page.orientation)
+    end
+  end
+
   describe "contents" do
     it "returns the contents of a single content stream" do
       page = @doc.pages.add

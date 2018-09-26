@@ -10,6 +10,7 @@
   methods
 * [HexaPDF::Type::FontType3] for Type 3 font support
 * [HexaPDF::Content::GraphicObject::Geom2D] for [Geom2D] object drawing support
+* [HexaPDF::Type::Page#orientation] for easy determination of page orientation
 
 ### Changed
 

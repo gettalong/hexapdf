@@ -236,6 +236,18 @@ module HexaPDF
         end
       end
 
+      # Returns the orientation of the media box, either :portrait or :landscape.
+      def orientation
+        box = self[:MediaBox]
+        rotation = self[:Rotate]
+        if (box.height > box.width && (rotation == 0 || rotation == 180)) ||
+            (box.height < box.width && (rotation == 90 || rotation == 270))
+          :portrait
+        else
+          :landscape
+        end
+      end
+
       # Returns the concatenated stream data from the content streams as binary string.
       #
       # Note: Any modifications done to the returned value *won't* be reflected in any of the
