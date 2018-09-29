@@ -36,6 +36,7 @@ require 'hexapdf/dictionary'
 require 'hexapdf/stream'
 require 'hexapdf/type/page_tree_node'
 require 'hexapdf/content'
+require 'hexapdf/content/transformation_matrix'
 
 module HexaPDF
   module Type
@@ -245,6 +246,51 @@ module HexaPDF
           :portrait
         else
           :landscape
+        end
+      end
+
+      # Rotates the page +angle+ degrees counterclockwise where +angle+ has to be a multiple of 90.
+      #
+      # Positive values rotate the page to the left, negative values to the right. If +flatten+ is
+      # +true+, the rotation is not done via the page's meta data but by "rotating" the canvas
+      # itself.
+      #
+      # Note that the :Rotate key of a page object describes the angle in a clockwise orientation
+      # but this method uses counterclockwise rotation to be consistent with other rotation methods
+      # (e.g. HexaPDF::Content::Canvas#rotate).
+      def rotate(angle, flatten: false)
+        if angle % 90 != 0
+          raise ArgumentError, "Page rotation has to be multiple of 90 degrees"
+        end
+
+        cw_angle = (self[:Rotate] - angle) % 360
+
+        if flatten
+          delete(:Rotate)
+          return if cw_angle == 0
+
+          matrix, llx, lly, urx, ury = \
+            case cw_angle
+            when 90
+              [HexaPDF::Content::TransformationMatrix.new(0, -1, 1, 0),
+               box.right, box.bottom, box.left, box.top]
+            when 180
+              [HexaPDF::Content::TransformationMatrix.new(-1, 0, 0, -1),
+               box.right, box.top, box.left, box.bottom]
+            when 270
+              [HexaPDF::Content::TransformationMatrix.new(0, 1, -1, 0),
+               box.left, box.top, box.right, box.bottom]
+            end
+          [:MediaBox, :CropBox, :BleedBox, :TrimBox, :ArtBox].each do |box|
+            next unless key?(box)
+            self[box].value = matrix.evaluate(llx, lly).concat(matrix.evaluate(urx, ury))
+          end
+
+          before_contents = document.add({}, stream: " q #{matrix.to_a.join(' ')} cm ")
+          after_contents = document.add({}, stream: " Q ")
+          self[:Contents] = [before_contents, *self[:Contents], after_contents]
+        else
+          self[:Rotate] = cw_angle
         end
       end
 

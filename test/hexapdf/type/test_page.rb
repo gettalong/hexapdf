@@ -173,6 +173,67 @@ describe HexaPDF::Type::Page do
     end
   end
 
+  describe "rotate" do
+    before do
+      @page = @doc.pages.add
+      reset_media_box
+    end
+
+    def reset_media_box
+      @page.box(:media, [50, 100, 200, 300])
+    end
+
+    it "works directly on the :Rotate key" do
+      @page.rotate(90)
+      assert_equal(270, @page[:Rotate])
+
+      @page.rotate(180)
+      assert_equal(90, @page[:Rotate])
+
+      @page.rotate(-90)
+      assert_equal(180, @page[:Rotate])
+    end
+
+    describe "flatten" do
+      it "adjust all page boxes" do
+        @page.box(:crop, @page.box)
+        @page.box(:bleed, @page.box)
+        @page.box(:trim, @page.box)
+        @page.box(:art, @page.box)
+
+        @page.rotate(90, flatten: true)
+        box = [-300, 50, -100, 200]
+        assert_equal(box, @page.box(:media).value)
+        assert_equal(box, @page.box(:crop).value)
+        assert_equal(box, @page.box(:bleed).value)
+        assert_equal(box, @page.box(:trim).value)
+        assert_equal(box, @page.box(:art).value)
+      end
+
+      it "works correctly for 90 degrees" do
+        @page.rotate(90, flatten: true)
+        assert_equal([-300, 50, -100, 200], @page.box(:media).value)
+        assert_equal(" q 0 1 -1 0 0 0 cm   Q ", @page.contents)
+      end
+
+      it "works correctly for 180 degrees" do
+        @page.rotate(180, flatten: true)
+        assert_equal([-200, -300, -50, -100], @page.box(:media).value)
+        assert_equal(" q -1 0 0 -1 0 0 cm   Q ", @page.contents)
+      end
+
+      it "works correctly for 270 degrees" do
+        @page.rotate(270, flatten: true)
+        assert_equal([100, -200, 300, -50], @page.box(:media).value)
+        assert_equal(" q 0 -1 1 0 0 0 cm   Q ", @page.contents)
+      end
+    end
+
+    it "fails if the angle is not a multiple of 90" do
+      assert_raises(ArgumentError) { @page.rotate(27) }
+    end
+  end
+
   describe "contents" do
     it "returns the contents of a single content stream" do
       page = @doc.pages.add
