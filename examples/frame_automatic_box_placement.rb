@@ -53,7 +53,7 @@ end
 
 # Absolutely positioned box
 draw_box.call(width: 100, height: 100, position: :absolute,
-              position_hint: [300, 300])
+              position_hint: [250, 250])
 
 # Fixed sized box with automatic width
 draw_box.call(height: 100)

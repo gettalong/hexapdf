@@ -138,6 +138,8 @@ module HexaPDF
         case box.style.position
         when :absolute
           x, y = box.style.position_hint
+          x += left
+          y += bottom
           rectangle = Geom2D::Polygon([x, y], [x + width, y],
                                       [x + width, y + height], [x, y + height])
         when :float

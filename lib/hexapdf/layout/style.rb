@@ -806,7 +806,9 @@ module HexaPDF
       #
       # :absolute::
       #
-      #    An array with the x- and y-coordinate of the position.
+      #    An array with the x- and y-coordinates of the bottom left corner of the absolutely
+      #    positioned box. The coordinates are taken as being relative to the bottom left corner of
+      #    the frame into which the box is drawn.
 
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],

@@ -42,7 +42,7 @@ describe HexaPDF::Layout::Frame do
 
   describe "draw" do
     before do
-      @frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100)
+      @frame = HexaPDF::Layout::Frame.new(10, 10, 100, 100)
       @canvas = Minitest::Mock.new
     end
 
@@ -50,32 +50,32 @@ describe HexaPDF::Layout::Frame do
       box = HexaPDF::Layout::Box.create(width: 50, height: 50,
                                         position: :absolute, position_hint: [10, 10])
       assert(@frame.draw(@canvas, box))
-      assert_equal([[[0, 0], [100, 0], [100, 100], [0, 100]],
-                    [[10, 10], [60, 10], [60, 60], [10, 60]]], @frame.shape.polygons.map(&:to_a))
+      assert_equal([[[10, 10], [110, 10], [110, 110], [10, 110]],
+                    [[20, 20], [70, 20], [70, 70], [20, 70]]], @frame.shape.polygons.map(&:to_a))
     end
 
     describe "default position" do
       it "draws the box on the left side" do
         box = HexaPDF::Layout::Box.create(width: 50, height: 50) {}
-        @canvas.expect(:translate, nil, [0, 50])
+        @canvas.expect(:translate, nil, [10, 60])
         assert(@frame.draw(@canvas, box))
-        assert_equal([[[0, 0], [100, 0], [100, 50], [0, 50]]], @frame.shape.polygons.map(&:to_a))
+        assert_equal([[[10, 10], [110, 10], [110, 60], [10, 60]]], @frame.shape.polygons.map(&:to_a))
         @canvas.verify
       end
 
       it "draws the box on the right side" do
         box = HexaPDF::Layout::Box.create(width: 50, height: 50, position_hint: :right) {}
-        @canvas.expect(:translate, nil, [50, 50])
+        @canvas.expect(:translate, nil, [60, 60])
         assert(@frame.draw(@canvas, box))
-        assert_equal([[[0, 0], [100, 0], [100, 50], [0, 50]]], @frame.shape.polygons.map(&:to_a))
+        assert_equal([[[10, 10], [110, 10], [110, 60], [10, 60]]], @frame.shape.polygons.map(&:to_a))
         @canvas.verify
       end
 
       it "draws the box in the center" do
         box = HexaPDF::Layout::Box.create(width: 50, height: 50, position_hint: :center) {}
-        @canvas.expect(:translate, nil, [25, 50])
+        @canvas.expect(:translate, nil, [35, 60])
         assert(@frame.draw(@canvas, box))
-        assert_equal([[[0, 0], [100, 0], [100, 50], [0, 50]]], @frame.shape.polygons.map(&:to_a))
+        assert_equal([[[10, 10], [110, 10], [110, 60], [10, 60]]], @frame.shape.polygons.map(&:to_a))
         @canvas.verify
       end
     end
@@ -83,9 +83,9 @@ describe HexaPDF::Layout::Frame do
     describe "floating boxes" do
       it "draws the box on the left side" do
         box = HexaPDF::Layout::Box.create(width: 50, height: 50, position: :float) {}
-        @canvas.expect(:translate, nil, [0, 50])
+        @canvas.expect(:translate, nil, [10, 60])
         assert(@frame.draw(@canvas, box))
-        assert_equal([[[0, 0], [100, 0], [100, 100], [50, 100], [50, 50], [0, 50]]],
+        assert_equal([[[10, 10], [110, 10], [110, 110], [60, 110], [60, 60], [10, 60]]],
                      @frame.shape.polygons.map(&:to_a))
         @canvas.verify
       end
@@ -93,9 +93,9 @@ describe HexaPDF::Layout::Frame do
       it "draws the box on the right side" do
         box = HexaPDF::Layout::Box.create(width: 50, height: 50,
                                           position: :float, position_hint: :right) {}
-        @canvas.expect(:translate, nil, [50, 50])
+        @canvas.expect(:translate, nil, [60, 60])
         assert(@frame.draw(@canvas, box))
-        assert_equal([[[0, 0], [100, 0], [100, 50], [50, 50], [50, 100], [0, 100]]],
+        assert_equal([[[10, 10], [110, 10], [110, 60], [60, 60], [60, 110], [10, 110]]],
                      @frame.shape.polygons.map(&:to_a))
         @canvas.verify
       end
