@@ -48,7 +48,7 @@ module HexaPDF
         attr_accessor :name
 
         # Character bounding box as array of four numbers, specifying the x- and y-coordinates of
-        # the lower-left corner and the x- and y-coordinates of the upper-right corner.
+        # the bottom left corner and the x- and y-coordinates of the top right corner.
         attr_accessor :bbox
 
       end

@@ -43,30 +43,30 @@ module HexaPDF
   # This class simplifies the usage of rectangles by automatically normalizing the coordinates so
   # that they are in the order:
   #
-  #   [llx, lly, urx, ury]
+  #   [left, bottom, right, top]
   #
-  # where +llx+ is the lower-left x-coordinate, +lly+ is the lower-left y-coordinate, +urx+ is the
-  # upper-right x-coordinate and +ury+ is the upper-right y-coordinate.
+  # where +left+ is the bottom left x-coordinate, +bottom+ is the bottom left y-coordinate, +right+
+  # is the top right x-coordinate and +top+ is the top right y-coordinate.
   #
   # See: PDF1.7 s7.9.5
   class Rectangle < HexaPDF::Object
 
-    # Returns the x-coordinate of the lower-left corner.
+    # Returns the x-coordinate of the bottom-left corner.
     def left
       value[0]
     end
 
-    # Returns the x-coordinate of the upper-right corner.
+    # Returns the x-coordinate of the top-right corner.
     def right
       value[2]
     end
 
-    # Returns the y-coordinate of the lower-left corner.
+    # Returns the y-coordinate of the bottom-left corner.
     def bottom
       value[1]
     end
 
-    # Returns the y-coordinate of the upper-right corner.
+    # Returns the y-coordinate of the top-right corner.
     def top
       value[3]
     end
@@ -83,8 +83,8 @@ module HexaPDF
 
     private
 
-    # Ensures that the value is an array containing four numbers that specify the lower-left and
-    # upper-right corner.
+    # Ensures that the value is an array containing four numbers that specify the bottom left and
+    # top right corner.
     def after_data_change
       super
       unless value.kind_of?(Array) && value.size == 4 && value.all? {|i| i.kind_of?(Numeric) }

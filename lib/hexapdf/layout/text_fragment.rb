@@ -49,7 +49,7 @@ module HexaPDF
     # The items of a text fragment may be frozen to indicate that the fragment is potentially used
     # multiple times.
     #
-    # The rectangle with the lower-left corner (#x_min, #y_min) and the upper right corner (#x_max,
+    # The rectangle with the bottom left corner (#x_min, #y_min) and the top right corner (#x_max,
     # #y_max) describes the minimum bounding box of the whole text fragment and is usually *not*
     # equal to the box (0, 0)-(#width, #height).
     class TextFragment

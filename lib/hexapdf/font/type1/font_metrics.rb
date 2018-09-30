@@ -60,7 +60,7 @@ module HexaPDF
         attr_accessor :weight
 
         # The font bounding box as array of four numbers, specifying the x- and y-coordinates of the
-        # lower-left corner and the x- and y-coordinates of the upper-right corner.
+        # bottom left corner and the x- and y-coordinates of the top right corner.
         attr_accessor :bounding_box
 
         # The y-value of the top of the capital H (or 0 or nil if the font doesn't contain a capital

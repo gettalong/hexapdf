@@ -861,14 +861,14 @@ module HexaPDF
       #   canvas.rectangle(x, y, width, height, radius: 0)       => canvas
       #
       # Appends a rectangle to the current path as a complete subpath (drawn in counterclockwise
-      # direction), with the lower-left corner specified by +x+ and +y+ and the given +width+ and
+      # direction), with the bottom left corner specified by +x+ and +y+ and the given +width+ and
       # +height+.
       #
       # If +radius+ is greater than 0, the corners are rounded with the given radius.
       #
       # If there is no current path when the method is invoked, a new path is automatically begun.
       #
-      # The current point is set to the lower-left corner if +radius+ is zero, otherwise it is set
+      # The current point is set to the bottom left corner if +radius+ is zero, otherwise it is set
       # to (x, y + radius).
       #
       # Examples:
@@ -1226,7 +1226,7 @@ module HexaPDF
       # If the filename or the IO specifies a PDF file, the first page of this file is used to
       # create a form XObject which is then drawn.
       #
-      # The +at+ argument has to be an array containing two numbers specifying the lower-left
+      # The +at+ argument has to be an array containing two numbers specifying the bottom left
       # corner at which to draw the XObject.
       #
       # If +width+ and +height+ are specified, the drawn XObject will have exactly these

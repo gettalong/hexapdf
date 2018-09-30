@@ -3,7 +3,7 @@
 # This example shows many of the operations that the canvas implementation
 # allows.
 #
-# Note that the PDF canvas has its origin in the lower left corner of the page.
+# Note that the PDF canvas has its origin in the bottom left corner of the page.
 # This means the coordinate (100, 50) is 100 PDF points from the left side and
 # 50 PDF points from the bottom. One PDF point is equal to 1/72 inch.
 #

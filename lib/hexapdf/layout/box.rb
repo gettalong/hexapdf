@@ -122,7 +122,7 @@ module HexaPDF
 
       # Draws the content of the box onto the canvas at the position (x, y).
       #
-      # The coordinate system is translated so that the origin is at the lower left corner of the
+      # The coordinate system is translated so that the origin is at the bottom left corner of the
       # **content box** during the drawing operations.
       def draw(canvas, x, y)
         if style.background_color
