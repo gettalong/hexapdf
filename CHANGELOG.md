@@ -12,6 +12,7 @@
 * [HexaPDF::Content::GraphicObject::Geom2D] for [Geom2D] object drawing support
 * [HexaPDF::Type::Page#orientation] for easy determination of page orientation
 * [HexaPDF::Type::Page#rotate] for rotating a page
+* [HexaPDF::Layout::Style::Quad#set] for setting all values at once
 
 ### Changed
 

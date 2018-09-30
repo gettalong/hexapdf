@@ -138,12 +138,17 @@ module HexaPDF
         # The value for right.
         attr_accessor :right
 
+        # Creates a new Quad object. See #set for more information.
+        def initialize(obj)
+          set(obj)
+        end
+
         # :call-seq:
-        #   Quad.new(value)
-        #   Quad.new(array)
-        #   Quad.new(quad)
+        #   quad.set(value)
+        #   quad.set(array)
+        #   quad.set(quad)
         #
-        # Creates a new Quad object.
+        # Sets all values of the quad.
         #
         # * If a single value is provided that is neither a Quad nor an array, it is handled as if
         #   an array with one value was given.
@@ -159,7 +164,7 @@ module HexaPDF
         #     third value.
         #   * Four or more values: Top is set to the first, right to the second, bottom to the third
         #     and left to the fourth value.
-        def initialize(obj)
+        def set(obj)
           case obj
           when Quad
             @top = obj.top
