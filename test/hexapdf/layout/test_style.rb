@@ -164,6 +164,8 @@ describe HexaPDF::Layout::Style::Border do
         assert_operators(@canvas.contents, [[:save_graphics_state],
                                             [:set_device_gray_stroking_color, [0.5]],
                                             [:set_line_width, [10]],
+                                            [:append_rectangle, [0, 0, 100, 100]],
+                                            [:clip_path_non_zero], [:end_path],
                                             [:append_rectangle, [5, 5, 90, 90]],
                                             [:stroke_path],
                                             [:restore_graphics_state]])
@@ -340,6 +342,72 @@ describe HexaPDF::Layout::Style::Border do
                [:move_to, [15, 0]], [:line_to, [15, 200]], [:stroke_path],
                [:restore_graphics_state], [:restore_graphics_state]]
         assert_operators(@canvas.contents, ops)
+      end
+    end
+
+    describe "border width greater than edge length" do
+      it "works for solid borders" do
+        border = create_border(width: 100, style: :solid)
+        border.draw(@canvas, 0, 0, 10, 10)
+        assert_operators(@canvas.contents, [[:save_graphics_state],
+                                            [:set_line_width, [100]],
+                                            [:append_rectangle, [0, 0, 10, 10]],
+                                            [:clip_path_non_zero], [:end_path],
+                                            [:append_rectangle, [50, 50, -90, -90]],
+                                            [:stroke_path],
+                                            [:restore_graphics_state]])
+      end
+
+      it "works for dashed borders" do
+        border = create_border(width: 100, style: :dashed)
+        border.draw(@canvas, 0, 0, 10, 10)
+        assert_operators(@canvas.contents, [[:save_graphics_state],
+                                            [:set_line_width, [100]],
+                                            [:set_line_cap_style, [2]],
+                                            [:append_rectangle, [0, 0, 10, 10]],
+                                            [:clip_path_non_zero], [:end_path],
+                                            [:set_line_dash_pattern, [[100, 0], 50]],
+                                            [:move_to, [0, -40]], [:line_to, [10, -40]],
+                                            [:move_to, [10, 50]], [:line_to, [0, 50]],
+                                            [:stroke_path],
+                                            [:move_to, [-40, 10]], [:line_to, [-40, 0]],
+                                            [:move_to, [50, 0]], [:line_to, [50, 10]],
+                                            [:stroke_path],
+                                            [:restore_graphics_state]])
+      end
+      it "works for dashed-round borders" do
+        border = create_border(width: 100, style: :dashed_round)
+        border.draw(@canvas, 0, 0, 10, 10)
+        assert_operators(@canvas.contents, [[:save_graphics_state],
+                                            [:set_line_width, [100]],
+                                            [:set_line_cap_style, [1]],
+                                            [:append_rectangle, [0, 0, 10, 10]],
+                                            [:clip_path_non_zero], [:end_path],
+                                            [:set_line_dash_pattern, [[100, 0], 50]],
+                                            [:move_to, [0, -40]], [:line_to, [10, -40]],
+                                            [:move_to, [10, 50]], [:line_to, [0, 50]],
+                                            [:stroke_path],
+                                            [:move_to, [-40, 10]], [:line_to, [-40, 0]],
+                                            [:move_to, [50, 0]], [:line_to, [50, 10]],
+                                            [:stroke_path],
+                                            [:restore_graphics_state]])
+      end
+      it "works for dotted borders" do
+        border = create_border(width: 100, style: :dotted)
+        border.draw(@canvas, 0, 0, 10, 10)
+        assert_operators(@canvas.contents, [[:save_graphics_state],
+                                            [:set_line_width, [100]],
+                                            [:set_line_cap_style, [1]],
+                                            [:append_rectangle, [0, 0, 10, 10]],
+                                            [:clip_path_non_zero], [:end_path],
+                                            [:set_line_dash_pattern, [[0, 1], 0]],
+                                            [:move_to, [0, -40]], [:line_to, [10, -40]],
+                                            [:move_to, [10, 50]], [:line_to, [0, 50]],
+                                            [:stroke_path],
+                                            [:move_to, [-40, 10]], [:line_to, [-40, 0]],
+                                            [:move_to, [50, 0]], [:line_to, [50, 10]],
+                                            [:stroke_path],
+                                            [:restore_graphics_state]])
       end
     end
 

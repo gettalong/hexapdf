@@ -29,6 +29,7 @@
 ### Fixed
 
 * Validation and conversion of dictionary fields with multiple possible types
+* Box border drawing when border width is greater than edge length
 
 [geom2d]: https://github.com/gettalong/geom2d
 

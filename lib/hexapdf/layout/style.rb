@@ -234,12 +234,11 @@ module HexaPDF
             miter_limit(10).
             line_cap_style(line_cap_style(:top))
 
+          canvas.rectangle(x, y, w, h).clip_path.end_path
           if style.top == :solid
             canvas.line_dash_pattern(0).
               rectangle(x + offset, y + offset, w - 2 * offset, h - 2 * offset).stroke
           else
-            canvas.rectangle(x, y, w, h).clip_path.end_path
-
             canvas.line_dash_pattern(line_dash_pattern(:top, w)).
               line(x, y + h - offset, x + w, y + h - offset).
               line(x + w, y + offset, x, y + offset).stroke
@@ -341,7 +340,7 @@ module HexaPDF
           when :dotted
             # Adjust the gap so that full dots appear in the corners.
             w = width.send(edge)
-            gap = (length - w).to_f / (length.to_f / (w * 2)).ceil
+            gap = [(length - w).to_f / (length.to_f / (w * 2)).ceil, 1].max
             HexaPDF::Content::LineDashPattern.new([0, gap], [gap - w * 0.5, 0].max)
           end
         end
