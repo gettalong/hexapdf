@@ -55,19 +55,28 @@ describe HexaPDF::Layout::Box do
 
     it "fits a fixed sized box" do
       box = create_box(width: 50, height: 50)
-      assert_equal([50, 50], box.fit(@frame))
+      assert(box.fit(@frame))
+      assert_equal(50, box.width)
+      assert_equal(50, box.height)
     end
 
     it "uses the maximum available width" do
       box = create_box(height: 50)
-      assert_equal([100, 50], box.fit(@frame))
+      assert(box.fit(@frame))
       assert_equal(100, box.width)
+      assert_equal(50, box.height)
     end
 
     it "uses the maximum available height" do
       box = create_box(width: 50)
-      assert_equal([50, 100], box.fit(@frame))
+      assert(box.fit(@frame))
+      assert_equal(50, box.width)
       assert_equal(100, box.height)
+    end
+
+    it "returns false if the box doesn't fit" do
+      box = create_box(width: 101)
+      refute(box.fit(@frame))
     end
   end
 

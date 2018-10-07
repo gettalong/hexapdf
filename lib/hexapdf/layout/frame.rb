@@ -127,13 +127,12 @@ module HexaPDF
       # After a box is successfully drawn, the frame's shape and contour line are adjusted to remove
       # the occupied area.
       def draw(canvas, box)
+        if box.style.position != :absolute
+          return false unless box.fit(self)
+        end
+
         width = box.width
         height = box.height
-
-        if box.style.position != :absolute
-          width, height = box.fit(self)
-          return false if width > available_width || height > available_height
-        end
 
         case box.style.position
         when :absolute
