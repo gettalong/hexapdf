@@ -583,10 +583,10 @@ module HexaPDF
         attr_reader :remaining_items
 
         # Creates a new Result structure.
-        def initialize(status, lines, height, remaining_items)
+        def initialize(status, lines, remaining_items)
           @status = status
           @lines = lines
-          @height = height
+          @height = @lines.sum(&:y_offset) - @lines.last.y_min
           @remaining_items = remaining_items
         end
 
@@ -800,7 +800,7 @@ module HexaPDF
           lines.first.y_offset += initial_baseline_offset(lines, height, actual_height)
         end
 
-        Result.new(status, lines, actual_height, rest)
+        Result.new(status, lines, rest)
       end
 
       private

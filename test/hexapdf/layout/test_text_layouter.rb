@@ -582,18 +582,21 @@ describe HexaPDF::Layout::TextLayouter do
         @style.valign = :top
         result = @layouter.fit(@items, 40, 100)
         assert_equal(result.lines[0].y_max, result.lines[0].y_offset)
+        assert_equal(40, result.height)
       end
 
       it "aligns the contents to the center" do
         @style.valign = :center
         result = @layouter.fit(@items, 40, 100)
         assert_equal((100 - 40) / 2 + 20, result.lines[0].y_offset)
+        assert_equal(70, result.height)
       end
 
       it "aligns the contents to the bottom" do
         @style.valign = :bottom
         result = @layouter.fit(@items, 40, 100)
         assert_equal(100 - 20 * 2 + 20, result.lines[0].y_offset)
+        assert_equal(100, result.height)
       end
     end
 
@@ -663,7 +666,7 @@ describe HexaPDF::Layout::TextLayouter do
       result = @layouter.fit([@frag], @width, top)
       result.draw(@canvas, 5, top)
 
-      initial_baseline = top - ((top - result.height) / 2) - @frag.y_max
+      initial_baseline = top - result.lines.first.y_offset
       assert_positions(@canvas.contents,
                        [[5 + (@width - @line1w) / 2, initial_baseline],
                         [5 + (@width - @line2w) / 2, initial_baseline - @frag.height],
