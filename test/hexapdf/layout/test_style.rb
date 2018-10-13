@@ -157,6 +157,12 @@ describe HexaPDF::Layout::Style::Border do
       @canvas = HexaPDF::Document.new.pages.add.canvas
     end
 
+    it "draws nothing if no border is defined" do
+      border = create_border
+      border.draw(@canvas, 0, 0, 100, 100)
+      assert_operators(@canvas.contents, [])
+    end
+
     describe "simple - same width, color and style on all sides" do
       it "works with style solid" do
         border = create_border(width: 10, color: 0.5, style: :solid)

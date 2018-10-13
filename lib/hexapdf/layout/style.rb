@@ -214,6 +214,8 @@ module HexaPDF
 
         # Draws the border onto the canvas, inside the rectangle (x, y, w, h).
         def draw(canvas, x, y, w, h)
+          return if none?
+
           canvas.save_graphics_state do
             if width.simple? && color.simple? && style.simple?
               draw_simple_border(canvas, x, y, w, h)
