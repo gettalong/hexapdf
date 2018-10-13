@@ -50,7 +50,7 @@ module HexaPDF
       # :call-seq:
       #   fonts.add(name, **options)            -> font
       #
-      # Adds the font to the document and returns if (using the loaders specified with the
+      # Adds the font to the document and returns it (using the loaders specified with the
       # configuration option 'font_loaders').
       #
       # If a font with the same parameters has been loaded before, the cached font object is used.
