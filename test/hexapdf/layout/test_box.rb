@@ -125,8 +125,13 @@ describe HexaPDF::Layout::Box do
 
     it "draws nothing onto the canvas if the box is empty" do
       @canvas = HexaPDF::Document.new.pages.add.canvas
-      create_box.draw(@canvas, 5, 5)
+      box = create_box
+      box.draw(@canvas, 5, 5)
       assert_operators(@canvas.contents, [])
+      refute(box.style.background_color?)
+      refute(box.style.underlays?)
+      refute(box.style.border?)
+      refute(box.style.overlays?)
     end
   end
 

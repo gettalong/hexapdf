@@ -129,7 +129,7 @@ module HexaPDF
       # * It is assumed that the text matrix is not rotated, skewed, etc. so that setting the text
       #   position can be done using the optimal method.
       def draw(canvas, x, y, ignore_text_properties: false)
-        style.underlays.draw(canvas, x, y + y_min, self)
+        style.underlays.draw(canvas, x, y + y_min, self) if style.underlays?
 
         # Set general font related graphics state if necessary
         unless ignore_text_properties
@@ -173,7 +173,7 @@ module HexaPDF
         end
         canvas.show_glyphs_only(items)
 
-        if style.underline
+        if style.underline? && style.underline
           y_offset = style.calculated_underline_position
           canvas.save_graphics_state do
             canvas.stroke_color(style.fill_color).
@@ -185,7 +185,7 @@ module HexaPDF
           end
         end
 
-        if style.strikeout
+        if style.strikeout? && style.strikeout
           y_offset = style.calculated_strikeout_position
           canvas.save_graphics_state do
             canvas.stroke_color(style.fill_color).
@@ -197,7 +197,7 @@ module HexaPDF
           end
         end
 
-        style.overlays.draw(canvas, x, y + y_min, self)
+        style.overlays.draw(canvas, x, y + y_min, self) if style.overlays?
       end
 
       # The minimum x-coordinate of the first glyph.
