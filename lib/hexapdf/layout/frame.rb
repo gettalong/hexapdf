@@ -61,6 +61,8 @@ module HexaPDF
     # In contrast to the frame's shape its contour line may be a completely arbitrary polygon set.
     class Frame
 
+      include Geom2D::Utils
+
       # The x-coordinate of the bottom-left corner.
       attr_reader :left
 
@@ -80,15 +82,24 @@ module HexaPDF
       attr_reader :contour_line
 
       # The x-coordinate where the next box will be placed.
+      #
+      # Note: Since the algorithm for #draw takes the margin of a box into account, the actual
+      # x-coordinate (and y-coordinate, available width and available height) might be different.
       attr_reader :x
 
       # The y-coordinate where the next box will be placed.
+      #
+      # Also see the note in the #x documentation for further information.
       attr_reader :y
 
       # The available width for placing a box.
+      #
+      # Also see the note in the #x documentation for further information.
       attr_reader :available_width
 
       # The available height for placing a box.
+      #
+      # Also see the note in the #x documentation for further information.
       attr_reader :available_height
 
       # Creates a new Frame object for the given rectangular area.
@@ -101,15 +112,11 @@ module HexaPDF
         @width = width
         @height = height
         @contour_line = contour_line || Geom2D::PolygonSet.new(
-          [Geom2D::Polygon([left, bottom], [left, bottom + height],
-                           [left + width, bottom + height],
-                           [left + width, bottom])]
+          [create_rectangle(left, bottom, left + width, bottom + height)]
         )
 
         @shape = Geom2D::PolygonSet.new(
-          [Geom2D::Polygon([left, bottom], [left, bottom + height],
-                           [left + width, bottom + height],
-                           [left + width, bottom])]
+          [create_rectangle(left, bottom, left + width, bottom + height)]
         )
         @x = left
         @y = bottom + height
@@ -121,14 +128,27 @@ module HexaPDF
       # Draws the given box onto the canvas at the frame's current position. Returns +true+ if
       # drawing was possible, +false+ otherwise.
       #
-      # When positioning the box, the style properties "position" and "position_hint" are taken into
-      # account.
+      # When positioning the box, the style properties "position", "position_hint" and "margin" are
+      # taken into account. Note that the margin is ignored if a box's side coincides with the
+      # frame's original boundary.
       #
       # After a box is successfully drawn, the frame's shape and contour line are adjusted to remove
       # the occupied area.
       def draw(canvas, box)
+        aw = available_width
+        ah = available_height
+        used_margin_left = used_margin_right = used_margin_top = 0
+
         if box.style.position != :absolute
-          return false unless box.fit(self)
+          if box.style.margin?
+            margin = box.style.margin
+            ah -= margin.bottom unless float_equal(@y - ah, @bottom)
+            ah -= used_margin_top = margin.top unless float_equal(@y, @bottom + @height)
+            aw -= used_margin_right = margin.right unless float_equal(@x + aw, @left + @width)
+            aw -= used_margin_left = margin.left unless float_equal(@x, @left)
+          end
+
+          return false unless box.fit(aw, ah, self)
         end
 
         width = box.width
@@ -139,21 +159,38 @@ module HexaPDF
           x, y = box.style.position_hint
           x += left
           y += bottom
-          rectangle = Geom2D::Polygon([x, y], [x + width, y],
-                                      [x + width, y + height], [x, y + height])
+          rectangle = if box.style.margin?
+                        margin = box.style.margin
+                        create_rectangle(x - margin.left, y - margin.bottom,
+                                         x + width + margin.right, y + height + margin.top)
+                      else
+                        create_rectangle(x, y, x + width, y + height)
+                      end
         when :float
-          x = (box.style.position_hint == :right ? @x + available_width - width : @x)
-          y = @y - height
-          rectangle = Geom2D::Polygon([x, @y], [x + width, @y], [x + width, y], [x, y])
+          x = @x + used_margin_left
+          x += aw - width if box.style.position_hint == :right
+          y = @y - height - used_margin_top
+          # We can use the real margins from the box because they either have the desired effect or
+          # just extend the rectangle outside the frame.
+          rectangle = create_rectangle(x - (margin&.left || 0), y - (margin&.bottom || 0),
+                                       x + width + (margin&.right || 0), @y)
         else
           x = case box.style.position_hint
-              when :right then @x + available_width - width
-              when :center then @x + (available_width - width) / 2.0
-              else @x
+              when :right
+                @x + used_margin_left + aw - width
+              when :center
+                max_margin = [used_margin_left, used_margin_right].max
+                # If we have enough space left for equal margins, we center perfectly
+                if available_width - width >= 2 * max_margin
+                  @x + (available_width - width) / 2.0
+                else
+                  @x + used_margin_left + (aw - width) / 2.0
+                end
+              else
+                @x + used_margin_left
               end
-          y = @y - height
-          rectangle = Geom2D::Polygon([left, @y], [left + self.width, @y],
-                                      [left + self.width, y], [left, y])
+          y = @y - height - used_margin_top
+          rectangle = create_rectangle(left, y - (margin&.bottom || 0), left + self.width, @y)
         end
 
         box.draw(canvas, x, y)
@@ -218,6 +255,13 @@ module HexaPDF
       end
 
       private
+
+      # Creates a Geom2D::Polygon object representing the rectangle with the bottom left corner
+      # (blx, bly) and the top right corner (trx, try).
+      def create_rectangle(blx, bly, trx, try)
+        Geom2D::Polygon(Geom2D::Point(blx, bly), Geom2D::Point(trx, bly),
+                        Geom2D::Point(trx, try), Geom2D::Point(blx, try))
+      end
 
       # Finds the region with the maximum width.
       def find_max_width_region

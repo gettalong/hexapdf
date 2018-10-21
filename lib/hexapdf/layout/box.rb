@@ -114,10 +114,10 @@ module HexaPDF
       #
       # The default implementation uses the whole available space for width and height if they were
       # initially set to 0. Otherwise the specified dimensions are used.
-      def fit(frame)
-        @width = (@initial_width > 0 ? @initial_width : frame.available_width)
-        @height = (@initial_height > 0 ? @initial_height : frame.available_height)
-        @width <= frame.available_width && @height <= frame.available_height
+      def fit(available_width, available_height, frame)
+        @width = (@initial_width > 0 ? @initial_width : available_width)
+        @height = (@initial_height > 0 ? @initial_height : available_height)
+        @width <= available_width && @height <= available_height
       end
 
       # Draws the content of the box onto the canvas at the position (x, y).

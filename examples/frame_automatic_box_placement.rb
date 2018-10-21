@@ -51,8 +51,8 @@ draw_box = lambda do |**args|
   canvas = doc.pages.add.canvas
 end
 
-# Absolutely positioned box
-draw_box.call(width: 100, height: 100, position: :absolute,
+# Absolutely positioned box with margin
+draw_box.call(width: 100, height: 100, position: :absolute, margin: 10,
               position_hint: [250, 250])
 
 # Fixed sized box with automatic width
@@ -71,8 +71,9 @@ draw_box.call(width: 100, height: 100, position: :float, position_hint: :left)
 # Fixed sized floating box again, floating to the right
 draw_box.call(width: 100, height: 100, position: :float, position_hint: :right)
 
-# Fixed sized floating box again, floating to the left
-draw_box.call(width: 100, height: 100, position: :float, position_hint: :left)
+# Fixed sized floating box again, floating to the left with margin
+draw_box.call(width: 100, height: 100, position: :float, position_hint: :left,
+              margin: [0, 10])
 
 # Fixed sized box, no floating
 draw_box.call(width: 100, height: 100)

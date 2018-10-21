@@ -25,7 +25,7 @@ describe HexaPDF::Layout::Frame do
 
   describe "contour_line" do
     it "has a contour line equal to the bounding box by default" do
-      assert_equal([[5, 10], [5, 160], [105, 160], [105, 10]], @frame.contour_line.polygons[0].to_a)
+      assert_equal([[5, 10], [105, 10], [105, 160], [5, 160]], @frame.contour_line.polygons[0].to_a)
     end
 
     it "can have a custom contour line polygon" do
@@ -46,58 +46,183 @@ describe HexaPDF::Layout::Frame do
       @canvas = Minitest::Mock.new
     end
 
-    it "draws the box at the given absolute position" do
-      box = HexaPDF::Layout::Box.create(width: 50, height: 50,
-                                        position: :absolute, position_hint: [10, 10])
-      assert(@frame.draw(@canvas, box))
-      assert_equal([[[10, 10], [110, 10], [110, 110], [10, 110]],
-                    [[20, 20], [70, 20], [70, 70], [20, 70]]], @frame.shape.polygons.map(&:to_a))
+    # Creates a box with the given option, storing it in @box, and draws it inside @frame. It is
+    # checked whether the box coordinates are pos and whether the frame has the shape given by
+    # points.
+    def check_box(box_opts, pos, points)
+      @box = HexaPDF::Layout::Box.create(box_opts) {}
+      @canvas.expect(:translate, nil, pos)
+      assert(@frame.draw(@canvas, @box))
+      assert_equal(points, @frame.shape.polygons.map(&:to_a))
+      @canvas.verify
+    end
+
+    # Removes a 10pt area from the :left, :right or :top.
+    def remove_area(*areas)
+      areas.each do |area|
+        @frame.remove_area(
+          case area
+          when :left then Geom2D::Polygon([10, 10], [10, 110], [20, 110], [20, 10])
+          when :right then Geom2D::Polygon([100, 10], [100, 110], [110, 110], [110, 10])
+          when :top then Geom2D::Polygon([10, 110], [110, 110], [110, 100], [10, 100])
+          end
+        )
+      end
+    end
+
+    describe "absolute position" do
+      it "draws the box at the given absolute position" do
+        check_box(
+          {width: 50, height: 50, position: :absolute, position_hint: [10, 10]},
+          [20, 20],
+          [[[10, 10], [110, 10], [110, 110], [10, 110]],
+           [[20, 20], [70, 20], [70, 70], [20, 70]]]
+        )
+      end
+
+      it "always removes the whole margin box from the frame" do
+        check_box(
+          {width: 50, height: 50, position: :absolute, position_hint: [10, 10],
+           margin: [10, 20, 30, 40]},
+          [20, 20],
+          [[[10, 80], [90, 80], [90, 10], [110, 10], [110, 110], [10, 110]]]
+        )
+      end
     end
 
     describe "default position" do
       it "draws the box on the left side" do
-        box = HexaPDF::Layout::Box.create(width: 50, height: 50) {}
-        @canvas.expect(:translate, nil, [10, 60])
-        assert(@frame.draw(@canvas, box))
-        assert_equal([[[10, 10], [110, 10], [110, 60], [10, 60]]], @frame.shape.polygons.map(&:to_a))
-        @canvas.verify
+        check_box({width: 50, height: 50},
+                  [10, 60],
+                  [[[10, 10], [110, 10], [110, 60], [10, 60]]])
       end
 
       it "draws the box on the right side" do
-        box = HexaPDF::Layout::Box.create(width: 50, height: 50, position_hint: :right) {}
-        @canvas.expect(:translate, nil, [60, 60])
-        assert(@frame.draw(@canvas, box))
-        assert_equal([[[10, 10], [110, 10], [110, 60], [10, 60]]], @frame.shape.polygons.map(&:to_a))
-        @canvas.verify
+        check_box({width: 50, height: 50, position_hint: :right},
+                  [60, 60],
+                  [[[10, 10], [110, 10], [110, 60], [10, 60]]])
       end
 
       it "draws the box in the center" do
-        box = HexaPDF::Layout::Box.create(width: 50, height: 50, position_hint: :center) {}
-        @canvas.expect(:translate, nil, [35, 60])
-        assert(@frame.draw(@canvas, box))
-        assert_equal([[[10, 10], [110, 10], [110, 60], [10, 60]]], @frame.shape.polygons.map(&:to_a))
-        @canvas.verify
+        check_box({width: 50, height: 50, position_hint: :center},
+                  [35, 60],
+                  [[[10, 10], [110, 10], [110, 60], [10, 60]]])
+      end
+
+      describe "with margin" do
+        [:left, :center, :right].each do |hint|
+          it "ignores all margins if the box fills the whole frame, with position hint #{hint}" do
+            check_box({margin: 10, position_hint: hint},
+                      [10, 10], [])
+            assert_equal(100, @box.width)
+            assert_equal(100, @box.height)
+          end
+
+          it "ignores the left/top/right margin if the available bounds coincide with the " \
+            "frame's, with position hint #{hint}" do
+            check_box({height: 50, margin: 10, position_hint: hint},
+                      [10, 60],
+                      [[[10, 10], [110, 10], [110, 50], [10, 50]]])
+          end
+
+          it "doesn't ignore top margin if the available bounds' top doesn't coincide with the " \
+            "frame's top, with position hint #{hint}" do
+            remove_area(:top)
+            check_box({height: 50, margin: 10, position_hint: hint},
+                      [10, 40],
+                      [[[10, 10], [110, 10], [110, 30], [10, 30]]])
+            assert_equal(100, @box.width)
+          end
+
+          it "doesn't ignore left margin if the available bounds' left doesn't coincide with the " \
+            "frame's left, with position hint #{hint}" do
+            remove_area(:left)
+            check_box({height: 50, margin: 10, position_hint: hint},
+                      [30, 60],
+                      [[[20, 10], [110, 10], [110, 50], [20, 50]]])
+            assert_equal(80, @box.width)
+          end
+
+          it "doesn't ignore right margin if the available bounds' right doesn't coincide with " \
+            "the frame's right, with position hint #{hint}" do
+            remove_area(:right)
+            check_box({height: 50, margin: 10, position_hint: hint},
+                      [10, 60],
+                      [[[10, 10], [100, 10], [100, 50], [10, 50]]])
+            assert_equal(80, @box.width)
+          end
+        end
+
+        it "perfectly centers a box if possible, margins ignored" do
+          check_box({width: 50, height: 10, margin: [10, 10, 10, 20], position_hint: :center},
+                    [35, 100],
+                    [[[10, 10], [110, 10], [110, 90], [10, 90]]])
+        end
+
+        it "perfectly centers a box if possible, margins not ignored" do
+          remove_area(:left, :right)
+          check_box({width: 40, height: 10, margin: [10, 10, 10, 20], position_hint: :center},
+                    [40, 100],
+                    [[[20, 10], [100, 10], [100, 90], [20, 90]]])
+        end
+
+        it "centers a box as good as possible when margins aren't equal" do
+          remove_area(:left, :right)
+          check_box({width: 20, height: 10, margin: [10, 10, 10, 40], position_hint: :center},
+                    [65, 100],
+                    [[[20, 10], [100, 10], [100, 90], [20, 90]]])
+        end
       end
     end
 
     describe "floating boxes" do
       it "draws the box on the left side" do
-        box = HexaPDF::Layout::Box.create(width: 50, height: 50, position: :float) {}
-        @canvas.expect(:translate, nil, [10, 60])
-        assert(@frame.draw(@canvas, box))
-        assert_equal([[[10, 10], [110, 10], [110, 110], [60, 110], [60, 60], [10, 60]]],
-                     @frame.shape.polygons.map(&:to_a))
-        @canvas.verify
+        check_box({width: 50, height: 50, position: :float},
+                  [10, 60],
+                  [[[10, 10], [110, 10], [110, 110], [60, 110], [60, 60], [10, 60]]])
       end
 
       it "draws the box on the right side" do
-        box = HexaPDF::Layout::Box.create(width: 50, height: 50,
-                                          position: :float, position_hint: :right) {}
-        @canvas.expect(:translate, nil, [60, 60])
-        assert(@frame.draw(@canvas, box))
-        assert_equal([[[10, 10], [110, 10], [110, 60], [60, 60], [60, 110], [10, 110]]],
-                     @frame.shape.polygons.map(&:to_a))
-        @canvas.verify
+        check_box({width: 50, height: 50, position: :float, position_hint: :right},
+                  [60, 60],
+                  [[[10, 10], [110, 10], [110, 60], [60, 60], [60, 110], [10, 110]]])
+      end
+
+      describe "with margin" do
+        [:left, :right].each do |hint|
+          it "ignores all margins if the box fills the whole frame, with position hint #{hint}" do
+            check_box({margin: 10, position: :float, position_hint: hint},
+                      [10, 10], [])
+            assert_equal(100, @box.width)
+            assert_equal(100, @box.height)
+          end
+        end
+
+        it "ignores the left, but not the right margin if aligned left to the frame border" do
+          check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :left},
+                    [10, 60],
+                    [[[10, 10], [110, 10], [110, 110], [70, 110], [70, 50], [10, 50]]])
+        end
+
+        it "uses the left and the right margin if aligned left and not to the frame border" do
+          remove_area(:left)
+          check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :left},
+                    [30, 60],
+                    [[[20, 10], [110, 10], [110, 110], [90, 110], [90, 50], [20, 50]]])
+        end
+
+        it "ignores the right, but not the left margin if aligned right to the frame border" do
+          check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :right},
+                    [60, 60],
+                    [[[10, 10], [110, 10], [110, 50], [50, 50], [50, 110], [10, 110]]])
+        end
+
+        it "uses the left and the right margin if aligned right and not to the frame border" do
+          remove_area(:right)
+          check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :right},
+                    [40, 60],
+                    [[[10, 10], [100, 10], [100, 50], [30, 50], [30, 110], [10, 110]]])
+        end
       end
     end
 

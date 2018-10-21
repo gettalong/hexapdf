@@ -49,34 +49,32 @@ describe HexaPDF::Layout::Box do
   describe "fit" do
     before do
       @frame = Object.new
-      @frame.define_singleton_method(:available_width) { 100 }
-      @frame.define_singleton_method(:available_height) { 100 }
     end
 
     it "fits a fixed sized box" do
       box = create_box(width: 50, height: 50)
-      assert(box.fit(@frame))
+      assert(box.fit(100, 100, @frame))
       assert_equal(50, box.width)
       assert_equal(50, box.height)
     end
 
     it "uses the maximum available width" do
       box = create_box(height: 50)
-      assert(box.fit(@frame))
+      assert(box.fit(100, 100, @frame))
       assert_equal(100, box.width)
       assert_equal(50, box.height)
     end
 
     it "uses the maximum available height" do
       box = create_box(width: 50)
-      assert(box.fit(@frame))
+      assert(box.fit(100, 100, @frame))
       assert_equal(50, box.width)
       assert_equal(100, box.height)
     end
 
     it "returns false if the box doesn't fit" do
       box = create_box(width: 101)
-      refute(box.fit(@frame))
+      refute(box.fit(100, 100, @frame))
     end
   end
 
