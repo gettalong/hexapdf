@@ -381,6 +381,12 @@ describe HexaPDF::Layout::TextLayouter do
       @layouter = HexaPDF::Layout::TextLayouter.new(@style)
     end
 
+    it "does nothing if there are no items" do
+      result = @layouter.fit([], 100, 100)
+      assert_equal(:success, result.status)
+      assert_equal(0, result.height)
+    end
+
     it "handles text indentation" do
       items = boxes([20, 20], [20, 20], [20, 20]) +
         [HexaPDF::Layout::TextLayouter::Penalty::MandatoryParagraphBreak] +

@@ -586,7 +586,7 @@ module HexaPDF
         def initialize(status, lines, remaining_items)
           @status = status
           @lines = lines
-          @height = @lines.sum(&:y_offset) - @lines.last.y_min
+          @height = @lines.sum(&:y_offset) - (@lines.last&.y_min || 0)
           @remaining_items = remaining_items
         end
 
