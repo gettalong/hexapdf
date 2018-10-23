@@ -124,6 +124,11 @@ module HexaPDF
       #
       # The coordinate system is translated so that the origin is at the bottom left corner of the
       # **content box** during the drawing operations.
+      #
+      # The block specified when creating the box is invoked with the canvas and the box as
+      # arguments. Subclasses can specify an on-demand drawing method by setting the +@draw_block+
+      # instance variable to +nil+ or a valid block. This is useful to avoid unnecessary set-up
+      # operations when the block does nothing.
       def draw(canvas, x, y)
         if style.background_color? && style.background_color
           canvas.save_graphics_state do
