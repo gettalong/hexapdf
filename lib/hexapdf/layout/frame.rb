@@ -174,6 +174,10 @@ module HexaPDF
           # just extend the rectangle outside the frame.
           rectangle = create_rectangle(x - (margin&.left || 0), y - (margin&.bottom || 0),
                                        x + width + (margin&.right || 0), @y)
+        when :flow
+          x = 0
+          y = @y - height
+          rectangle = create_rectangle(left, y, left + self.width, @y)
         else
           x = case box.style.position_hint
               when :right

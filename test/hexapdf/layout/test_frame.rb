@@ -226,6 +226,14 @@ describe HexaPDF::Layout::Frame do
       end
     end
 
+    describe "flowing boxes" do
+      it "flows inside the frame's outline" do
+        check_box({width: 10, height: 20, position: :flow},
+                  [0, 90],
+                  [[[10, 10], [110, 10], [110, 90], [10, 90]]])
+      end
+    end
+
     it "doesn't draw the box if it doesn't fit into the available space" do
       box = HexaPDF::Layout::Box.create(width: 150, height: 50)
       refute(@frame.draw(@canvas, box))
