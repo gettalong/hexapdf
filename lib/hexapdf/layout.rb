@@ -48,6 +48,7 @@ module HexaPDF
     autoload(:Box, 'hexapdf/layout/box')
     autoload(:Frame, 'hexapdf/layout/frame')
     autoload(:WidthFromPolygon, 'hexapdf/layout/width_from_polygon')
+    autoload(:TextBox, 'hexapdf/layout/text_box')
 
   end
 

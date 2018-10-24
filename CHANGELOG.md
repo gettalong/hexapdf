@@ -4,6 +4,8 @@
 
 * [HexaPDF::Layout::Frame] for box positioning and easier text layouting
   inside an arbitrary polygon
+* [HexaPDF::Layout::TextBox] for displaying text in a rectangular and for
+  flowing text inside a frame
 * [HexaPDF::Layout::WidthFromPolygon] for getting a width specification from
   a polygon for use with the text layouting engine
 * [HexaPDF::Type::Image#width] and [HexaPDF::Type::Image#height] convenience
