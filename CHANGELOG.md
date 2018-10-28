@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* CLI command `hexapdf split` to split a PDF file into individual pages
+
+
 ## 0.8.0 - 2018-10-26
 
 ### Added

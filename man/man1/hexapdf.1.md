@@ -21,6 +21,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 * Merging multiple PDF files into one (see the `merge` command)
 * Modifying an existing PDF file (see the `modify` command)
 * Optimizing the file size of a PDF file (see the `optimize` command)
+* Splitting a PDF file into individual pages (see the `split` command)
 * Batch execution of a command on multiple PDF files (see the `batch` command)
 
 The application contains a built-in `help` command that can be used to provide a quick reminder of a
@@ -455,6 +456,25 @@ The **Optimization Options** can be used with this command. Note that the defaul
 provide good compression out of the box.
 
 
+### split
+
+Synopsis: `split` \[`OPTIONS`] *INPUT* \[*OUTPUT_SPEC*]
+
+This command splits the input file into multiple output files, each containing one page.
+
+If no *OUTPUT_SPEC* is given, files of the form *INPUT_0001.pdf*, *INPUT_0002.pdf*, ... and so on
+are created (only the name *INPUT* without the file extension is used). Otherwise *OUTPUT_SPEC*
+determines the file names of the created files, with a printf-style format string like '%04d' being
+replaced by the page number. For example, if the files should be named *page_01.pdf*, *page_02.pdf*
+and so on, use *page_%02d.pdf* for the *OUTPUT_SPEC*.
+
+`-p` *PASSWORD*, `--password` *PASSWORD*
+
+: The password to decrypt the *INPUT*. Use **-** for *PASSWORD* for reading it from standard input.
+
+Additionally, the **Optimization Options** and **Encryption Options** can be used.
+
+
 ### version
 
 This command shows the version of the hexapdf application. It is an alternative to using the global
@@ -555,6 +575,14 @@ input file.
 `hexapdf optimize input.pdf output.pdf`
 
 Optimization: Compress the `input.pdf` to get a smaller file size.
+
+
+### split
+
+`hexapdf split input.pdf out_%02d.pdf`
+
+Split the `input.pdf` into individual pages, naming the output files `out_01.pdf`, `out_02.pdf`, and
+so on.
 
 
 ### files
