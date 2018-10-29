@@ -3,6 +3,8 @@
 ### Added
 
 * CLI command `hexapdf split` to split a PDF file into individual pages
+* [HexaPDF::Revisions#parser] for accessing the parser object that is created
+  when a document is read from an IO stream
 
 ### Changed
 

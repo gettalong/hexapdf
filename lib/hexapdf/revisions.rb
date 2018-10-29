@@ -88,12 +88,15 @@ module HexaPDF
         end
 
         document.version = parser.file_header_version
-        new(document, initial_revisions: revisions)
+        new(document, initial_revisions: revisions, parser: parser)
       end
 
     end
 
     include Enumerable
+
+    # The Parser instance used for reading the initial revisions.
+    attr_reader :parser
 
     # Creates a new revisions object for the given PDF document.
     #
@@ -102,8 +105,15 @@ module HexaPDF
     # initial_revisions::
     #     An array of revisions that should initially be used. If this option is not specified, a
     #     single empty revision is added.
-    def initialize(document, initial_revisions: nil)
+    #
+    # parser::
+    #     The parser with which the initial revisions were read. If this option is not specified
+    #     even though the document was read from an IO stream, some parts may not work, like
+    #     incremental writing.
+    def initialize(document, initial_revisions: nil, parser: nil)
       @document = document
+      @parser = parser
+
       @revisions = []
       if initial_revisions
         @revisions += initial_revisions
