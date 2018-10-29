@@ -45,6 +45,9 @@ module HexaPDF
   # See: PDF1.7 s7
   class Parser
 
+    # The IO stream which is parsed.
+    attr_reader :io
+
     # Creates a new parser for the given IO object.
     #
     # PDF references are resolved using the associated Document object.
