@@ -4,6 +4,10 @@
 
 * CLI command `hexapdf split` to split a PDF file into individual pages
 
+### Changed
+
+* [HexaPDF::Revision#each] to allow iteration over loaded objects only
+
 
 ## 0.8.0 - 2018-10-26
 

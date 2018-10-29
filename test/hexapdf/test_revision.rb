@@ -125,6 +125,11 @@ describe HexaPDF::Revision do
       obj3 = @rev.object(3)
       assert_equal([@obj, obj2, obj3], @rev.each.to_a)
     end
+
+    it "iterates only over loaded objects" do
+      obj = @rev.object(2)
+      assert_equal([obj], @rev.each(only_loaded: true).to_a)
+    end
   end
 
   it "works without a cross-reference section" do

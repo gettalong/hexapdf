@@ -164,17 +164,18 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   revision.each {|obj| block }   -> revision
-    #   revision.each                  -> Enumerator
+    #   revision.each(only_loaded: false) {|obj| block }   -> revision
+    #   revision.each(only_loaded: false)                  -> Enumerator
     #
-    # Calls the given block once for every object of the revision.
+    # Calls the given block for every object of the revision, or, if +only_loaded+ is +true+, for
+    # every already loaded object.
     #
-    # Objects that are loadable via an associated cross-reference section but are currently not,
-    # are loaded automatically.
-    def each
-      return to_enum(__method__) unless block_given?
+    # Objects that are loadable via an associated cross-reference section but are currently not
+    # loaded, are loaded automatically if +only_loaded+ is +false+.
+    def each(only_loaded: false)
+      return to_enum(__method__, only_loaded: only_loaded) unless block_given?
 
-      if defined?(@all_objects_loaded)
+      if defined?(@all_objects_loaded) || only_loaded
         @objects.each {|_oid, _gen, data| yield(data) }
       else
         seen = {}
