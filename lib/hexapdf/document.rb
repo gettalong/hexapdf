@@ -367,12 +367,13 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   doc.each(current: true) {|obj| block }        -> doc
-    #   doc.each(current: true) {|obj, rev| block }   -> doc
-    #   doc.each(current: true)                       -> Enumerator
+    #   doc.each(only_current: true, only_loaded: false) {|obj| block }        -> doc
+    #   doc.each(only_current: true, only_loaded: false) {|obj, rev| block }   -> doc
+    #   doc.each(only_current: true, only_loaded: false)                       -> Enumerator
     #
-    # Calls the given block once for every object in the PDF document. The block may either accept
-    # only the object or the object and the revision it is in.
+    # Calls the given block once for every object, or, if +only_loaded+ is +true+, for every loaded
+    # object in the PDF document. The block may either accept only the object or the object and the
+    # revision it is in.
     #
     # By default, only the current version of each object is returned which implies that each
     # object number is yielded exactly once. If the +current+ option is +false+, all stored
@@ -387,14 +388,16 @@ module HexaPDF
     # * Additionally, there may also be objects with the same object number but different
     #   generation numbers in different revisions, e.g. one object with oid/gen [3,0] and one with
     #   oid/gen [3,1].
-    def each(current: true, &block)
-      return to_enum(__method__, current: current) unless block_given?
+    def each(only_current: true, only_loaded: false, &block)
+      unless block_given?
+        return to_enum(__method__, only_current: only_current, only_loaded: only_loaded)
+      end
 
       yield_rev = (block.arity == 2)
       oids = {}
       @revisions.reverse_each do |rev|
-        rev.each do |obj|
-          next if current && oids.include?(obj.oid)
+        rev.each(only_loaded: only_loaded) do |obj|
+          next if only_current && oids.include?(obj.oid)
           (yield_rev ? yield(obj, rev) : yield(obj))
           oids[obj.oid] = true
         end
@@ -568,7 +571,7 @@ module HexaPDF
       block = (block_given? ? lambda {|msg, correctable| yield(cur_obj, msg, correctable) } : nil)
 
       result = trailer.validate(auto_correct: auto_correct, &block)
-      each(current: false) do |obj|
+      each(only_current: false) do |obj|
         cur_obj = obj
         result &&= obj.validate(auto_correct: auto_correct, &block)
       end

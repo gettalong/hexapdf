@@ -55,7 +55,7 @@ module HexaPDF
   #
   #   doc = HexaPDF::Document.new
   #   doc.config['task.map'][:validate] = lambda do |doc|
-  #     doc.each(current: false) {|obj| obj.validate || raise "Invalid object #{obj}"}
+  #     doc.each(only_current: false) {|obj| obj.validate || raise "Invalid object #{obj}"}
   #   end
   module Task
 

@@ -32,11 +32,11 @@ describe HexaPDF::Task::Optimize do
   end
 
   def assert_no_objstms
-    assert(@doc.each(current: false).all? {|obj| obj.type != :ObjStm })
+    assert(@doc.each(only_current: false).all? {|obj| obj.type != :ObjStm })
   end
 
   def assert_no_xrefstms
-    assert(@doc.each(current: false).all? {|obj| obj.type != :XRef })
+    assert(@doc.each(only_current: false).all? {|obj| obj.type != :XRef })
   end
 
   def assert_default_deleted
@@ -47,7 +47,7 @@ describe HexaPDF::Task::Optimize do
     it "compacts the document" do
       @doc.task(:optimize, compact: true)
       assert_equal(1, @doc.revisions.size)
-      assert_equal(2, @doc.each(current: false).to_a.size)
+      assert_equal(2, @doc.each(only_current: false).to_a.size)
       refute_equal(@obj2, @doc.object(@obj2))
       refute_equal(@obj3, @doc.object(@obj3))
       assert_default_deleted

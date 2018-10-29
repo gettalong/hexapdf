@@ -5,10 +5,13 @@
 * CLI command `hexapdf split` to split a PDF file into individual pages
 * [HexaPDF::Revisions#parser] for accessing the parser object that is created
   when a document is read from an IO stream
+* [HexaPDF::Document#each] argument `only_loaded` for iteration over loaded
+  objects only
 
 ### Changed
 
 * [HexaPDF::Revision#each] to allow iteration over loaded objects only
+* [HexaPDF::Document#each] method argument from `current` to `only_current`
 
 
 ## 0.8.0 - 2018-10-26

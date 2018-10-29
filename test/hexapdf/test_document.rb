@@ -386,17 +386,22 @@ describe HexaPDF::Document do
 
   describe "each" do
     it "iterates over the current objects" do
-      assert_equal([10, 200, nil], @io_doc.each(current: true).sort.map(&:value))
+      assert_equal([10, 200, nil], @io_doc.each(only_current: true).sort.map(&:value))
     end
 
     it "iterates over all objects" do
-      assert_equal([10, 200, 20, 30, nil], @io_doc.each(current: false).sort.map(&:value))
+      assert_equal([10, 200, 20, 30, nil], @io_doc.each(only_current: false).sort.map(&:value))
+    end
+
+    it "iterates over all loaded objects" do
+      assert_equal(200, @io_doc.object(2).value)
+      assert_equal([200], @io_doc.each(only_loaded: true).sort.map(&:value))
     end
 
     it "yields the revision as second argument if the block accepts exactly two arguments" do
       objs = [[10, 20, 30], [200, nil]]
       data = @io_doc.revisions.map.with_index {|rev, i| objs[i].map {|o| [o, rev] } }.reverse.flatten
-      @io_doc.each(current: false) do |obj, rev|
+      @io_doc.each(only_current: false) do |obj, rev|
         assert(data.shift == obj.value)
         assert_equal(data.shift, rev)
       end

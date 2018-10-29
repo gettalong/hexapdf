@@ -85,7 +85,7 @@ module HexaPDF
       # Note that only real images are yielded which means, for example, that images used as soft
       # mask are not.
       def each(&block)
-        images = @document.each(current: false).select do |obj|
+        images = @document.each(only_current: false).select do |obj|
           next unless obj.kind_of?(HexaPDF::Dictionary)
           obj[:Subtype] == :Image && !obj[:ImageMask]
         end

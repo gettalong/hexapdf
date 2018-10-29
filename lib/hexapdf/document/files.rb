@@ -101,7 +101,7 @@ module HexaPDF
         return to_enum(__method__, search: search) unless block_given?
 
         if search
-          @document.each(current: false) do |obj|
+          @document.each(only_current: false) do |obj|
             yield(obj) if obj.type == :Filespec
           end
         else

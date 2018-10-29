@@ -69,7 +69,7 @@ module HexaPDF
         else
           dereference(@doc.trailer)
           @result = []
-          @doc.each(current: false) do |obj|
+          @doc.each(only_current: false) do |obj|
             if !@seen.key?(obj.data) && obj.type != :ObjStm && obj.type != :XRef
               @result << obj
             elsif obj.kind_of?(HexaPDF::Stream) && (val = obj.value[:Length]) &&

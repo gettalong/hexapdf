@@ -324,7 +324,7 @@ module HexaPDF
       def remove_unused_pages(doc)
         retained = doc.pages.each_with_object({}) {|page, h| h[page.data] = true }
         retained[doc.pages.root.data] = true
-        doc.each(current: false) do |obj|
+        doc.each(only_current: false) do |obj|
           next unless obj.kind_of?(HexaPDF::Dictionary)
           if (obj.type == :Pages || obj.type == :Page) && !retained.key?(obj.data)
             doc.delete(obj)

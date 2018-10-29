@@ -78,7 +78,7 @@ module HexaPDF
         elsif xref_streams != :preserve
           process_xref_streams(doc, xref_streams)
         else
-          doc.each(current: false, &method(:delete_fields_with_defaults))
+          doc.each(only_current: false, &method(:delete_fields_with_defaults))
         end
 
         compress_pages(doc) if compress_pages
@@ -169,7 +169,7 @@ module HexaPDF
       def self.process_xref_streams(doc, method)
         case method
         when :delete
-          doc.each(current: false) do |obj, rev|
+          doc.each(only_current: false) do |obj, rev|
             if obj.type == :XRef
               rev.delete(obj)
             else
