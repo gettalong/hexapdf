@@ -194,6 +194,12 @@ describe HexaPDF::Parser do
   end
 
   describe "startxref_offset" do
+    it "caches the offset value" do
+      assert_equal(308, @parser.startxref_offset)
+      @parser.instance_eval { @io }.string.sub!(/308\n/, "309\n")
+      assert_equal(308, @parser.startxref_offset)
+    end
+
     it "returns the correct offset" do
       assert_equal(308, @parser.startxref_offset)
     end

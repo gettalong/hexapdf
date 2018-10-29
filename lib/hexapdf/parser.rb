@@ -270,6 +270,8 @@ module HexaPDF
     #
     # See: PDF1.7 s7.5.5, ADB1.7 sH.3-3.4.4
     def startxref_offset
+      return @startxref_offset if defined?(@startxref_offset)
+
       @io.seek(0, IO::SEEK_END)
       step_size = 1024
       pos = @io.pos
@@ -301,7 +303,7 @@ module HexaPDF
                     force: eof_index < 2 || lines[eof_index - 2].strip != "startxref")
       end
 
-      lines[eof_index - 1].to_i
+      @startxref_offset = lines[eof_index - 1].to_i
     end
 
     # Returns the PDF version number that is stored in the file header.
