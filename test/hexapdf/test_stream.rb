@@ -58,6 +58,19 @@ describe HexaPDF::StreamData do
       end
     end
   end
+
+  describe "==" do
+    it "compares with other stream data objects" do
+      s = HexaPDF::StreamData.new(:source, decode_parms: [:a, nil, :b])
+      assert_equal(s, HexaPDF::StreamData.new(:source, decode_parms: [:a, nil, :b]))
+      refute_equal(s, HexaPDF::StreamData.new(:source, decode_parms: [:a, :b]))
+      refute_equal(s, HexaPDF::StreamData.new(:source, decode_parms: [:a, nil, :b], offset: 5))
+    end
+
+    it "returns false if compared with an other object of a different class" do
+      refute_equal(:source, HexaPDF::StreamData.new(:source))
+    end
+  end
 end
 
 describe HexaPDF::Stream do

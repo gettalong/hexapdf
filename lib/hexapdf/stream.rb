@@ -96,6 +96,24 @@ module HexaPDF
       end
     end
 
+    # Returns whether this stream data object is equal to the other stream data object.
+    def ==(other)
+      other.kind_of?(StreamData) &&
+        source == other.source && offset == other.offset && length == other.length &&
+        filter == other.filter && decode_parms == other.decode_parms
+    end
+
+    protected
+
+    # The source.
+    attr_reader :source
+
+    # The optional offset into the bytes provided by source.
+    attr_reader :offset
+
+    # The optional number of bytes to use starting from offset.
+    attr_reader :length
+
   end
 
   # Implements Stream objects of the PDF object system.
