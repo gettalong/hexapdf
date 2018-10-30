@@ -7,7 +7,7 @@ require 'hexapdf/type/annotation'
 describe HexaPDF::Type::Annotation do
   before do
     @doc = HexaPDF::Document.new
-    @annot = @doc.add(Type: :Annotation, F: 0b100011)
+    @annot = @doc.add(Type: :Annot, F: 0b100011)
   end
 
   describe "flags" do

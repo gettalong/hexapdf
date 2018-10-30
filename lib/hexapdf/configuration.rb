@@ -443,7 +443,7 @@ module HexaPDF
                         XXViewerPreferences: 'HexaPDF::Type::ViewerPreferences',
                         Action: 'HexaPDF::Type::Action',
                         XXLaunchActionWinParameters: 'HexaPDF::Type::Actions::Launch::WinParameters',
-                        Annotation: 'HexaPDF::Type::Annotation',
+                        Annot: 'HexaPDF::Type::Annotation',
                       },
                       'object.subtype_map' => {
                         nil => {
@@ -479,7 +479,7 @@ module HexaPDF
                           Launch: 'HexaPDF::Type::Actions::Launch',
                           URI: 'HexaPDF::Type::Actions::URI',
                         },
-                        Annotation: {
+                        Annot: {
                           Text: 'HexaPDF::Type::Annotations::Text',
                           Link: 'HexaPDF::Type::Annotations::Link',
                         },

@@ -13,6 +13,10 @@
 * [HexaPDF::Revision#each] to allow iteration over loaded objects only
 * [HexaPDF::Document#each] method argument from `current` to `only_current`
 
+### Fixed
+
+* Configuration so that annotation objects are correctly mapped to classes
+
 
 ## 0.8.0 - 2018-10-26
 
