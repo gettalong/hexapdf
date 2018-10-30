@@ -453,6 +453,21 @@ describe HexaPDF::Document do
       @doc.trailer[:ID] = :Symbol
       refute(@doc.validate {|obj| assert_same(@doc.trailer, obj) })
     end
+
+    it "validates only loaded objects" do
+      io = StringIO.new
+      doc = HexaPDF::Document.new
+      doc.pages.add.delete(:Resources)
+      page = doc.pages.add
+      page[:Annots] = [doc.add(Type: :Annot, Subtype: :Link, Rect: [0, 0, 1, 1], H: :Z)]
+      doc.write(io, validate: false)
+      doc = HexaPDF::Document.new(io: io)
+      doc.pages[0] # force loading of the first page
+
+      refute(doc.validate(auto_correct: false, only_loaded: true)) # bc of Resources
+      assert(doc.validate(only_loaded: true))
+      refute(doc.validate(auto_correct: false)) # bc of annot key H
+    end
   end
 
   describe "write" do

@@ -7,6 +7,8 @@
   when a document is read from an IO stream
 * [HexaPDF::Document#each] argument `only_loaded` for iteration over loaded
   objects only
+* [HexaPDF::Document#validate] argument `only_loaded` for validating only loaded
+  objects
 
 ### Changed
 

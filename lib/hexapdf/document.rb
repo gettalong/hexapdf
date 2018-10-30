@@ -556,22 +556,18 @@ module HexaPDF
       @security_handler
     end
 
-    # :call-seq:
-    #   doc.validate(auto_correct: true)                                       -> true or false
-    #   doc.validate(auto_correct: true) {|object, msg, correctable| block }   -> true or false
-    #
-    # Validates all objects of the document, with optional auto-correction, and returns +true+ if
-    # everything is fine.
+    # Validates all objects, or, if +only_loaded+ is +true+, only loaded objects, with optional
+    # auto-correction, and returns +true+ if everything is fine.
     #
     # If a block is given, it is called on validation problems.
     #
     # See HexaPDF::Object#validate for more information.
-    def validate(auto_correct: true)
+    def validate(auto_correct: true, only_loaded: false) #:yield: object, msg, correctable
       cur_obj = trailer
       block = (block_given? ? lambda {|msg, correctable| yield(cur_obj, msg, correctable) } : nil)
 
       result = trailer.validate(auto_correct: auto_correct, &block)
-      each(only_current: false) do |obj|
+      each(only_current: false, only_loaded: only_loaded) do |obj|
         cur_obj = obj
         result &&= obj.validate(auto_correct: auto_correct, &block)
       end
