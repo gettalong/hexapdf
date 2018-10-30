@@ -2,6 +2,7 @@
 
 require 'test_helper'
 require 'hexapdf/reference'
+require 'hexapdf/object'
 
 describe HexaPDF::Reference do
   it "correctly assigns oid and gen on initialization" do
@@ -25,10 +26,11 @@ describe HexaPDF::Reference do
     assert_nil(HexaPDF::Reference.new(1, 0) <=> 5)
   end
 
-  it "is comparable to itself" do
+  it "is comparable to objects that have an oid and gen" do
     assert_equal(HexaPDF::Reference.new(5, 7), HexaPDF::Reference.new(5, 7))
     refute_equal(HexaPDF::Reference.new(5, 7), HexaPDF::Reference.new(5, 8))
     refute_equal(HexaPDF::Reference.new(5, 7), HexaPDF::Reference.new(4, 7))
+    assert_equal(HexaPDF::Reference.new(5, 7), HexaPDF::Object.new(:data, oid: 5, gen: 7))
   end
 
   it "behaves correctly as hash key" do

@@ -73,16 +73,14 @@ module HexaPDF
       (oid == other.oid ? gen <=> other.gen : oid <=> other.oid)
     end
 
-    # Returns +true+ if the other object is a Reference and has the same object and generation
-    # numbers.
-    def ==(other)
-      other.kind_of?(Reference) && oid == other.oid && gen == other.gen
-    end
-
     # Returns +true+ if the other object references the same PDF object as this reference object.
+    #
+    # This is necessary so that Object and Reference objects can be used as interchangable hash
+    # keys and can be compared.
     def eql?(other)
       other.respond_to?(:oid) && oid == other.oid && other.respond_to?(:gen) && gen == other.gen
     end
+    alias == eql?
 
     # Computes the hash value based on the object and generation numbers.
     def hash

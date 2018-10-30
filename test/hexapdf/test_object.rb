@@ -135,7 +135,7 @@ describe HexaPDF::Object do
     assert_match(/\[5, 0\].*value=5/, obj.inspect)
   end
 
-  it "can be compared to another object" do
+  it "can be compared to another object or reference" do
     obj = HexaPDF::Object.new(5, oid: 5)
 
     assert_equal(obj, HexaPDF::Object.new(obj))
@@ -143,6 +143,8 @@ describe HexaPDF::Object do
     refute_equal(obj, HexaPDF::Object.new(6, oid: 5))
     refute_equal(obj, HexaPDF::Object.new(5, oid: 1))
     refute_equal(obj, HexaPDF::Object.new(5, oid: 5, gen: 1))
+
+    assert_equal(obj, HexaPDF::Reference.new(5, 0))
   end
 
   it "works correctly as hash key, is interchangable in this regard with Reference objects" do
