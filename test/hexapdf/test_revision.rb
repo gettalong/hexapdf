@@ -141,4 +141,12 @@ describe HexaPDF::Revision do
     rev.delete(@ref, mark_as_free: false)
     refute(rev.object?(@ref))
   end
+
+  it "can iterate over all modified objects" do
+    obj = @rev.object(2)
+    assert_equal([], @rev.each_modified_object.to_a)
+    obj.value = :Other
+    @rev.add(@obj)
+    assert_equal([obj, @obj], @rev.each_modified_object.to_a)
+  end
 end

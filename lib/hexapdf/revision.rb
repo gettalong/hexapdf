@@ -190,6 +190,31 @@ module HexaPDF
       self
     end
 
+    # :call-seq:
+    #   revision.each_modified_object {|obj| block }   -> revision
+    #   revision.each_modified_object                  -> Enumerator
+    #
+    # Calls the given block once for each object that has been modified since it was loaded.
+    #
+    # Note that this also means that for revisions without an associated cross-reference section all
+    # loaded objects will be yielded.
+    def each_modified_object
+      return to_enum(__method__) unless block_given?
+
+      @objects.each do |oid, gen, obj|
+        if @xref_section.entry?(oid, gen)
+          stored_obj = @loader.call(@xref_section[oid, gen])
+          if obj.data.value != stored_obj.data.value || obj.data.stream != stored_obj.data.stream
+            yield(obj)
+          end
+        else
+          yield(obj)
+        end
+      end
+
+      self
+    end
+
     private
 
     # Loads a single object from the associated cross-reference section.

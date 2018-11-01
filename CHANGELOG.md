@@ -9,6 +9,8 @@
   objects only
 * [HexaPDF::Document#validate] argument `only_loaded` for validating only loaded
   objects
+* [HexaPDF::Revision#each_modified_object] for iterating over all modified
+  objects of a revision
 
 ### Changed
 
