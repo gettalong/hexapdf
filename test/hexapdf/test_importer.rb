@@ -6,8 +6,14 @@ require 'hexapdf/document'
 
 describe HexaPDF::Importer::NullableWeakRef do
   it "returns nil instead of an error when the referred-to object is GCed" do
-    obj = HexaPDF::Importer::NullableWeakRef.new(Object.new)
-    GC.start
+    refs = []
+    obj = nil
+    100.times do
+      refs << HexaPDF::Importer::NullableWeakRef.new(Object.new)
+      ObjectSpace.garbage_collect
+      ObjectSpace.garbage_collect
+      break if (obj = refs.find {|ref| !ref.weakref_alive? })
+    end
     assert_equal("", obj.to_s)
   end
 end
