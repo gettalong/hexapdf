@@ -103,6 +103,17 @@ describe HexaPDF::Writer do
     assert_document_conversion(@compressed_input_io)
   end
 
+  it "writes a document in incremental mode" do
+    doc = HexaPDF::Document.new(io: @std_input_io)
+    doc.pages.add
+    output_io = StringIO.new
+    HexaPDF::Writer.write(doc, output_io, incremental: true)
+    assert_equal(output_io.string[0, @std_input_io.string.length], @std_input_io.string)
+    doc = HexaPDF::Document.new(io: output_io)
+    assert_equal(4, doc.revisions.size)
+    assert_equal(2, doc.revisions.current.each.to_a.size)
+  end
+
   it "raises an error if no xref stream is in a revision but object streams are" do
     document = HexaPDF::Document.new
     document.add(Type: :ObjStm)

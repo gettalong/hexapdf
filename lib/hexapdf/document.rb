@@ -575,8 +575,8 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   doc.write(filename, validate: true, update_fields: true, optimize: false)
-    #   doc.write(io, validate: true, update_fields: true, optimize: false)
+    #   doc.write(filename, incremental: false, validate: true, update_fields: true, optimize: false)
+    #   doc.write(io, incremental: false, validate: true, update_fields: true, optimize: false)
     #
     # Writes the document to the given file (in case +io+ is a String) or IO stream.
     #
@@ -584,6 +584,13 @@ module HexaPDF
     # document is not valid. However, this step can be skipped if needed.
     #
     # Options:
+    #
+    # incremental::
+    #   Use the incremental writing mode which just adds a new revision to an existing document.
+    #   This is needed, for example, when modifying a signed PDF and the original signature should
+    #   stay valid.
+    #
+    #   See: PDF1.7 s7.5.6
     #
     # validate::
     #   Validates the document and raises an error if an uncorrectable problem is found.
@@ -595,7 +602,7 @@ module HexaPDF
     # optimize::
     #   Optimize the file size by using object and cross-reference streams. This will raise the PDF
     #   version to at least 1.5.
-    def write(file_or_io, validate: true, update_fields: true, optimize: false)
+    def write(file_or_io, incremental: false, validate: true, update_fields: true, optimize: false)
       dispatch_message(:complete_objects)
 
       if update_fields
@@ -618,9 +625,9 @@ module HexaPDF
       dispatch_message(:before_write)
 
       if file_or_io.kind_of?(String)
-        File.open(file_or_io, 'w+') {|file| Writer.write(self, file) }
+        File.open(file_or_io, 'w+') {|file| Writer.write(self, file, incremental: incremental) }
       else
-        Writer.write(self, file_or_io)
+        Writer.write(self, file_or_io, incremental: incremental)
       end
     end
 

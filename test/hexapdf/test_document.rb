@@ -490,6 +490,12 @@ describe HexaPDF::Document do
       refute(io.string.empty?)
     end
 
+    it "writes the document incrementally" do
+      io = StringIO.new
+      @io_doc.write(io, incremental: true)
+      assert_equal(@io.string, io.string[0, @io.string.length])
+    end
+
     it "fails if the document is not valid" do
       @doc.trailer[:Size] = :Symbol
       assert_raises(HexaPDF::Error) { @doc.write(StringIO.new(''.b)) }

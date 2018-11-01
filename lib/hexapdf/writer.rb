@@ -41,9 +41,14 @@ module HexaPDF
   # Writes the contents of a PDF document to an IO stream.
   class Writer
 
-    # Writes the document to the IO object.
-    def self.write(document, io)
-      new(document, io).write
+    # Writes the document to the IO object. If +incremental+ is +true+ and the document was created
+    # from an existing PDF file, the changes are appended to a full copy of the source document.
+    def self.write(document, io, incremental: false)
+      if incremental && document.revisions.parser
+        new(document, io).write_incremental
+      else
+        new(document, io).write
+      end
     end
 
     # Creates a new writer object for the given HexaPDF document that gets written to the IO
@@ -56,13 +61,12 @@ module HexaPDF
       @io.seek(0, IO::SEEK_SET) # TODO: incremental update!
 
       @serializer = Serializer.new
+      @serializer.encrypter = @document.encrypted? ? @document.security_handler : nil
       @rev_size = 0
     end
 
     # Writes the document to the IO object.
     def write
-      @serializer.encrypter = @document.encrypted? ? @document.security_handler : nil
-
       write_file_header
 
       pos = nil
@@ -70,6 +74,22 @@ module HexaPDF
       @document.revisions.each do |rev|
         pos = write_revision(rev, pos)
       end
+    end
+
+    # Writes the complete source document and one revision containing all changes to the IO.
+    #
+    # For this method to work the document must have been created from an existing file.
+    def write_incremental
+      @document.revisions.parser.io.seek(0, IO::SEEK_SET)
+      IO.copy_stream(@document.revisions.parser.io, @io)
+
+      @rev_size = @document.revisions.current.next_free_oid
+
+      revision = Revision.new(@document.revisions.current.trailer)
+      @document.revisions.each do |rev|
+        rev.each_modified_object {|obj| revision.send(:add_without_check, obj) }
+      end
+      write_revision(revision, @document.revisions.parser.startxref_offset)
     end
 
     private
