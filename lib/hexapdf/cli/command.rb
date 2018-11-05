@@ -230,7 +230,7 @@ module HexaPDF
                  xref_streams: @out_options.xref_streams,
                  compress_pages: @out_options.compress_pages)
         if @out_options.streams != :preserve || @out_options.optimize_fonts
-          doc.each(current: false) do |obj|
+          doc.each(only_current: false) do |obj|
             optimize_stream(obj)
             optimize_font(obj)
           end
