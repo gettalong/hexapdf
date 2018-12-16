@@ -4,7 +4,7 @@ sets = $stdin.readlines[3..-2].join.split(/^\|-+\|$/)
 nested = lambda {|h,k| h[k] = Hash.new(&nested)}
 data = Hash.new(&nested)
 sets.each do |set|
-  set_data = set.strip.split("\n").map {|line| line.tr(',', '').gsub(/ms|KiB/, '').split(/ *\| */)}
+  set_data = set.strip.split("\n").map {|line| line.tr(',.', '').gsub(/ms|KiB/, '').split(/ *\| */)}
   set_data.each do |entry|
     name = entry[1]
     btype = entry[2]
