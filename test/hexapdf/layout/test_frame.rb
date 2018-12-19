@@ -310,4 +310,13 @@ describe HexaPDF::Layout::Frame do
     end
   end
 
+  describe "remove_area" do
+    it "recalculates the contour line only if necessary" do
+      contour = Geom2D::Polygon([10, 10], [10, 90], [90, 90], [90, 10])
+      frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100, contour_line: contour)
+      frame.remove_area(Geom2D::Polygon([0, 0], [20, 0], [20, 100], [0, 100]))
+      assert_equal([[[20, 10], [90, 10], [90, 90], [20, 90]]],
+                   frame.contour_line.polygons.map(&:to_a))
+    end
+  end
 end

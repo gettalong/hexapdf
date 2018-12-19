@@ -78,9 +78,6 @@ module HexaPDF
       # The shape of the frame, a Geom2D::PolygonSet consisting of rectilinear polygons.
       attr_reader :shape
 
-      # The contour line of the frame, a Geom2D::PolygonSet consisting of arbitrary polygons.
-      attr_reader :contour_line
-
       # The x-coordinate where the next box will be placed.
       #
       # Note: Since the algorithm for #draw takes the margin of a box into account, the actual
@@ -111,10 +108,7 @@ module HexaPDF
         @bottom = bottom
         @width = width
         @height = height
-        @contour_line = contour_line || Geom2D::PolygonSet.new(
-          [create_rectangle(left, bottom, left + width, bottom + height)]
-        )
-
+        @contour_line = contour_line
         @shape = Geom2D::PolygonSet.new(
           [create_rectangle(left, bottom, left + width, bottom + height)]
         )
@@ -236,10 +230,17 @@ module HexaPDF
       # line.
       def remove_area(polygon)
         @shape = Geom2D::Algorithms::PolygonOperation.run(@shape, polygon, :difference)
-        @contour_line = Geom2D::Algorithms::PolygonOperation.run(@contour_line, polygon,
-                                                                 :difference)
+        if @contour_line
+          @contour_line = Geom2D::Algorithms::PolygonOperation.run(@contour_line, polygon,
+                                                                   :difference)
+        end
         @region_selection = :max_width
         find_next_region
+      end
+
+      # The contour line of the frame, a Geom2D::PolygonSet consisting of arbitrary polygons.
+      def contour_line
+        @contour_line || @shape
       end
 
       # Returns a width specification for the frame's contour line that can be used, for example,
@@ -255,7 +256,7 @@ module HexaPDF
       # Depending on the complexity of the frame, the result may be any of the allowed width
       # specifications of TextLayouter#fit.
       def width_specification(offset = 0)
-        WidthFromPolygon.new(@contour_line, offset)
+        WidthFromPolygon.new(contour_line, offset)
       end
 
       private
