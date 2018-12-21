@@ -592,23 +592,23 @@ module HexaPDF
 
         # Draws the layed out lines onto the canvas with the top-left corner being at [x, y].
         def draw(canvas, x, y)
-          last_item = nil
+          last_text_fragment = nil
           canvas.save_graphics_state do
             # Best effort for leading in case we have an evenly spaced paragraph
             canvas.leading(@lines[1].y_offset) if @lines.size > 1
-            @lines.each_with_index do |line, index|
-              y -= @lines[index].y_offset
+            @lines.each do |line|
+              y -= line.y_offset
               line_x = x + line.x_offset
               line.each do |item, item_x, item_y|
                 if item.kind_of?(TextFragment)
                   item.draw(canvas, line_x + item_x, y + item_y,
-                            ignore_text_properties: last_item&.style == item.style)
-                  last_item = item
+                            ignore_text_properties: last_text_fragment&.style == item.style)
+                  last_text_fragment = item
                 elsif !item.empty?
                   canvas.restore_graphics_state
                   item.draw(canvas, line_x + item_x, y + item_y)
                   canvas.save_graphics_state
-                  last_item = nil
+                  last_text_fragment = nil
                 end
               end
             end
@@ -681,21 +681,21 @@ module HexaPDF
         indent = style.text_indent
         line_fragments = []
         line_height = 0
-        last_line = nil
+        previous_line = nil
         y_offset = 0
         width_spec = nil
         width_spec_index = 0
         width_block =
           if width.respond_to?(:call)
             last_actual_height = nil
-            last_line_height = nil
+            previous_line_height = nil
             proc do |h|
               line_height = [line_height, h || 0].max
-              if last_actual_height != actual_height || last_line_height != line_height
+              if last_actual_height != actual_height || previous_line_height != line_height
                 spec = width.call(actual_height, line_height)
                 spec = [0, spec] unless spec.kind_of?(Array)
                 last_actual_height = actual_height
-                last_line_height = line_height
+                previous_line_height = line_height
               else
                 spec = width_spec
               end
@@ -761,11 +761,11 @@ module HexaPDF
 
             combined_line = create_combined_line(line_fragments)
             new_height = actual_height + combined_line.height +
-              (last_line ? style.line_spacing.gap(last_line, combined_line) : 0)
+              (previous_line ? style.line_spacing.gap(previous_line, combined_line) : 0)
 
             if new_height <= height
               # valid line found, use it
-              apply_offsets(line_fragments, width_spec, indent, last_line, combined_line, y_offset)
+              apply_offsets(line_fragments, width_spec, indent, previous_line, combined_line, y_offset)
               lines.concat(line_fragments)
               line_fragments.clear
               width_spec_index = 0
@@ -774,7 +774,7 @@ module HexaPDF
                        else
                          0
                        end
-              last_line = combined_line
+              previous_line = combined_line
               actual_height = new_height
               line_height = 0
               y_offset = nil
@@ -828,7 +828,11 @@ module HexaPDF
       end
 
       # Applies the necessary x- and y-offsets to the line fragments.
-      def apply_offsets(line_frags, width_spec, indent, last_line, combined_line, y_offset)
+      #
+      # Note that the offset for the first fragment of the first line is the top of the line since
+      # the #initial_baseline_offset method applies the correct offset to it once layouting is
+      # completely done.
+      def apply_offsets(line_frags, width_spec, indent, previous_line, combined_line, y_offset)
         cumulated_width = 0
         line_frags.each_with_index do |line, index|
           line.x_offset = cumulated_width + indent
@@ -838,12 +842,12 @@ module HexaPDF
           if index == 0
             line.y_offset = if y_offset
                               y_offset + combined_line.y_max -
-                                (last_line ? last_line.y_min : line.y_max)
+                                (previous_line ? previous_line.y_min : line.y_max)
                             else
-                              style.line_spacing.baseline_distance(last_line, combined_line)
+                              style.line_spacing.baseline_distance(previous_line, combined_line)
                             end
+            indent = 0
           end
-          indent = 0
         end
       end
 
