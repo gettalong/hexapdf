@@ -65,7 +65,7 @@ namespace :dev do
     s.executables = ['hexapdf']
     s.default_executable = 'hexapdf'
     s.add_dependency('cmdparse', '~> 3.0', '>= 3.0.3')
-    s.add_dependency('geom2d', '~> 0.1')
+    s.add_dependency('geom2d', '~> 0.2')
     s.add_development_dependency('kramdown', '~> 1.0', '>= 1.13.0')
     s.add_development_dependency('rubocop', '~> 0.58', '>= 0.58.2')
     s.required_ruby_version = '>= 2.4'
