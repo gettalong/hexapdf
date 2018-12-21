@@ -70,6 +70,22 @@ module HexaPDF
         success
       end
 
+      # Splits the text box into two boxes if necessary and possible.
+      def split(available_width, available_height, frame)
+        fit(available_width, available_height, frame) unless @result
+        if @result.remaining_items.empty?
+          [self]
+        elsif @result.lines.empty?
+          [nil, self]
+        else
+          box = clone
+          box.instance_variable_set(:@result, nil)
+          box.instance_variable_set(:@items, @result.remaining_items)
+          @draw_block = method(:draw_text)
+          [self, box]
+        end
+      end
+
       private
 
       # Draws the text into the box.

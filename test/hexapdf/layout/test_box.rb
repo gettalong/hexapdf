@@ -78,6 +78,11 @@ describe HexaPDF::Layout::Box do
     end
   end
 
+  it "can't be split into two parts" do
+    box = create_box(width: 100, height: 100)
+    assert_equal([nil, box], box.split(50, 50, nil))
+  end
+
   describe "draw" do
     it "draws the box onto the canvas" do
       box = create_box(width: 150, height: 130) do |canvas, _|

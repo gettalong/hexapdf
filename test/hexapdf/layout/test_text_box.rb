@@ -42,6 +42,35 @@ describe HexaPDF::Layout::TextBox do
     end
   end
 
+  describe "split" do
+    before do
+      @inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {}
+    end
+
+    it "works for an empty text box" do
+      box = create_box([])
+      assert_equal([box], box.split(100, 100, @frame))
+    end
+
+    it "doesn't need to split the box if it completely fits" do
+      box = create_box([@inline_box] * 5)
+      assert_equal([box], box.split(50, 100, @frame))
+    end
+
+    it "works if no item of the text box fits" do
+      box = create_box([@inline_box])
+      assert_equal([nil, box], box.split(5, 20, @frame))
+    end
+
+    it "splits the box if necessary" do
+      box = create_box([@inline_box] * 10)
+      boxes = box.split(50, 10, @frame)
+      assert_equal(2, boxes.length)
+      assert_equal(box, boxes[0])
+      assert_equal(5, boxes[1].instance_variable_get(:@items).length)
+    end
+  end
+
   describe "draw" do
     it "draws the layed out inline items onto the canvas" do
       inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10,

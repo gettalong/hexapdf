@@ -114,10 +114,29 @@ module HexaPDF
       #
       # The default implementation uses the whole available space for width and height if they were
       # initially set to 0. Otherwise the specified dimensions are used.
-      def fit(available_width, available_height, frame)
+      def fit(available_width, available_height, _frame)
         @width = (@initial_width > 0 ? @initial_width : available_width)
         @height = (@initial_height > 0 ? @initial_height : available_height)
         @width <= available_width && @height <= available_height
+      end
+
+      # Tries to split the box into two, the first of which needs to fit into the available space,
+      # and returns the parts as array.
+      #
+      # In many cases the first box in the list will be this box, meaning that even when #fit fails,
+      # a part of the box may still fit. Note that #fit may not be called if the first box is this
+      # box since it is assumed that it is already fitted. If not even a part of this box fits into
+      # the available space, +nil+ should be returned as the first array element.
+      #
+      # Possible return values:
+      #
+      # [self]:: The box fully fits into the available space.
+      # [nil, self]:: The box can't be split or no part of the box fits into the available space.
+      # [self, new_box]:: A part of the box fits and a new box is returned for the rest.
+      #
+      # This default implementation provides no splitting functionality.
+      def split(_available_width, _available_height, _frame)
+        [nil, self]
       end
 
       # Draws the content of the box onto the canvas at the position (x, y).

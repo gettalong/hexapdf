@@ -13,6 +13,8 @@
   objects
 * [HexaPDF::Revision#each_modified_object] for iterating over all modified
   objects of a revision
+* [HexaPDF::Layout::Box#split] and [HexaPDF::Layout::TextBox#split] for
+  splitting a box into two parts
 
 ### Changed
 
