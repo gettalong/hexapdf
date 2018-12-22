@@ -261,9 +261,6 @@ module HexaPDF
       each_set_key_or_required_field do |name, field|
         obj = key?(name) ? self[name] : nil
 
-        # Validate nested objects
-        validate_nested(obj, &block)
-
         # The checks below need a valid field definition
         next if field.nil?
 
