@@ -44,7 +44,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://www.reportlab.com/opensource/>\\
   Language: Python\\
-  Version: 3.4.0
+  Version: 3.5.6
 
 **TCPDF**
 

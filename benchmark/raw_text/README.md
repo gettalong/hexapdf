@@ -40,7 +40,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://www.reportlab.com/opensource/>\\
   Language: Python\\
-  Version: 3.4.0
+  Version: 3.5.6
 
   ReportLab has a module that implements some features in C to speed up the execution. Both versions
   are used in the benchmark.
