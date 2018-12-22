@@ -17,6 +17,10 @@ number of pages increases. With a width of 50 even words need sometimes to be br
 Each benchmark script can be invoked standalone in the following way: `script-executable TXT_FILE
 WIDTH OUTPUT_FILE [TTF_FILE]`.
 
+The performance of the libraries hugely depends on how the input text is provided: Some are very
+fast when processing the whole input file at once, others only when processing the input line by
+line. The fastest method was always chosen.
+
 The list of the benchmarked libraries:
 
 **HexaPDF**
@@ -24,6 +28,9 @@ The list of the benchmarked libraries:
 : Homepage: <http://hexapdf.gettalong.org>\\
   Language: Ruby\\
   Version: Latest version
+
+  HexaPDF works faster if the whole input is given at once but still has acceptable runtimes for
+  line by line input.
 
   Two different ways of general layouting are benchmarked:
 
@@ -40,14 +47,23 @@ The list of the benchmarked libraries:
   Language: Ruby\\
   Version: 2.2.2
 
+  Prawn is much faster and uses much less memory if the input is provided line by line. However, it
+  still works if the whole input is provided at once.
+
 **ReportLab**
 
 : Homepage: <https://www.reportlab.com/opensource/>\\
   Language: Python\\
   Version: 3.5.6
 
+  ReportLab also needs its input line by line. Otherwise it is much, much slower (at least 60x, then
+  the test run was aborted).
+
 **TCPDF**
 
 : Homepage: <https://tcpdf.org/>\\
   Language: PHP\\
   Version: 6.2.13
+
+  As with Prawn and ReportLab, TCPDF needs its input line by line. Otherwise it is much, much slower
+  when line wrapping needs to be done (the test run was aborted because it took too long).
