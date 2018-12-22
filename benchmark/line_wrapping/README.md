@@ -25,6 +25,15 @@ The list of the benchmarked libraries:
   Language: Ruby\\
   Version: Latest version
 
+  Two different ways of general layouting are benchmarked:
+
+  L
+  : This version uses the low-level layouting facility [HexaPDF::Layout::TextLayouter].
+
+  F
+  : This version uses the higher-level facilities [HexaPDF::Layout::Frame] and
+    [HexaPDF::Layout::TextBox].
+
 **Prawn**
 
 : Homepage: <http://hexapdf.gettalong.org>\\
