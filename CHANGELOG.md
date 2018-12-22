@@ -22,6 +22,8 @@
 * [HexaPDF::Document#each] method argument from `current` to `only_current`
 * [HexaPDF::Object#==] and [HexaPDF::Reference#==] so that Object and Reference
   objects can be compared
+* Refactored [HexaPDF::Layout::Frame] to allow separate fitting, splitting and
+  drawing of boxes
 
 ### Fixed
 

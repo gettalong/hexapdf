@@ -40,7 +40,7 @@ describe HexaPDF::Layout::Frame do
     assert_kind_of(HexaPDF::Layout::WidthFromPolygon, ws)
   end
 
-  describe "draw" do
+  describe "fit and draw" do
     before do
       @frame = HexaPDF::Layout::Frame.new(10, 10, 100, 100)
       @canvas = Minitest::Mock.new
@@ -237,6 +237,20 @@ describe HexaPDF::Layout::Frame do
     it "doesn't draw the box if it doesn't fit into the available space" do
       box = HexaPDF::Layout::Box.create(width: 150, height: 50)
       refute(@frame.draw(@canvas, box))
+    end
+
+    it "draws the box even if the box's height is zero" do
+      box = HexaPDF::Layout::Box.create
+      box.define_singleton_method(:height) { 0 }
+      assert(@frame.draw(@canvas, box))
+    end
+  end
+
+  describe "split" do
+    it "splits the box if necessary" do
+      box = HexaPDF::Layout::Box.create(width: 10, height: 10)
+      assert_equal([nil, box], @frame.split(box))
+      assert_nil(@frame.instance_variable_get(:@fit_data).box)
     end
   end
 

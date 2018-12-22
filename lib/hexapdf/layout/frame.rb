@@ -42,11 +42,31 @@ module HexaPDF
     #
     # == Usage
     #
-    # After a Frame object is initialized, the #draw method can be used to draw a box onto frame. If
-    # drawing is successful, the next box can be drawn. Otherwise, #find_next_region should be
-    # called to determine the next region for placing the box. If the call returns +true+, a region
-    # was found and #draw can be tried again. Once #find_next_region returns +false+ the frame has
-    # no more space for placing boxes.
+    # After a Frame object is initialized, it is ready for drawing boxes on it.
+    #
+    # The explicit way of drawing a box follows these steps:
+    #
+    # * Call #fit with the box to see if the box can fit into the currently selected region of
+    #   available space. If fitting is successful, the box can be drawn using #draw.
+    #
+    # * If the box didn't fit, call #find_next_region to determine the next region for placing the
+    #   box. If a new region was found, start over with #fit. Otherwise the frame has no more space
+    #   for placing boxes.
+    #
+    # * Alternatively to calling #find_next_region it is also possible to call #split. This method
+    #   tries to split the box into two so that the first part fits into the current region. If
+    #   splitting is successful, the first box can be drawn (Make sure that the second box is
+    #   handled correctly). Otherwise, start over with #find_next_region.
+    #
+    # For applications where splitting is not necessary, an easier way is to just use #draw and
+    # #find_next_region together, as #draw calls #fit if the box was not fit into the current
+    # region.
+    #
+    # == Used Box Properties
+    #
+    # The style properties "position", "position_hint" and "margin" are taken into account when
+    # fitting, splitting or drawing a box. Note that the margin is ignored if a box's side coincides
+    # with the frame's original boundary.
     #
     # == Frame Shape and Contour Line
     #
@@ -62,6 +82,42 @@ module HexaPDF
     class Frame
 
       include Geom2D::Utils
+
+      # Internal class for storing data of a fitted box.
+      class FitData
+
+        # The box that was fitted into the frame.
+        attr_accessor :box
+
+        # The available width for this particular box.
+        attr_accessor :available_width
+
+        # The available height for this particular box.
+        attr_accessor :available_height
+
+        # The left margin to use instead of +box.style.margin.left+.
+        attr_accessor :margin_left
+
+        # The right margin to use instead of +box.style.margin.right+.
+        attr_accessor :margin_right
+
+        # The top margin to use instead of +box.style.margin.top+.
+        attr_accessor :margin_top
+
+        # Initialize the object by calling #reset.
+        def initialize
+          reset
+        end
+
+        # Resets the object.
+        def reset(box = nil, available_width = 0, available_height = 0)
+          @box = box
+          @available_width = available_width
+          @available_height = available_height
+          @margin_left = @margin_right = @margin_top = 0
+        end
+
+      end
 
       # The x-coordinate of the bottom-left corner.
       attr_reader :left
@@ -80,7 +136,7 @@ module HexaPDF
 
       # The x-coordinate where the next box will be placed.
       #
-      # Note: Since the algorithm for #draw takes the margin of a box into account, the actual
+      # Note: Since the algorithm for drawing takes the margin of a box into account, the actual
       # x-coordinate (and y-coordinate, available width and available height) might be different.
       attr_reader :x
 
@@ -100,9 +156,6 @@ module HexaPDF
       attr_reader :available_height
 
       # Creates a new Frame object for the given rectangular area.
-      #
-      # If the contour line of the frame is not specified, then the rectangular area is used as
-      # contour line.
       def initialize(left, bottom, width, height, contour_line: nil)
         @left = left
         @bottom = bottom
@@ -117,36 +170,65 @@ module HexaPDF
         @available_width = width
         @available_height = height
         @region_selection = :max_height
+        @fit_data = FitData.new
       end
 
-      # Draws the given box onto the canvas at the frame's current position. Returns +true+ if
-      # drawing was possible, +false+ otherwise.
+      # Fits the given box into the current region of available space.
+      def fit(box)
+        aw = available_width
+        ah = available_height
+        @fit_data.reset(box, aw, ah)
+
+        if box.style.position == :absolute
+          true
+        else
+          if box.style.margin?
+            margin = box.style.margin
+            ah -= margin.bottom unless float_equal(@y - ah, @bottom)
+            ah -= @fit_data.margin_top = margin.top unless float_equal(@y, @bottom + @height)
+            aw -= @fit_data.margin_right = margin.right unless float_equal(@x + aw, @left + @width)
+            aw -= @fit_data.margin_left = margin.left unless float_equal(@x, @left)
+            @fit_data.available_width = aw
+            @fit_data.available_height = ah
+          end
+
+          box.fit(aw, ah, self)
+        end
+      end
+
+      # Tries to split the (fitted) box into two parts, where the first part needs to fit into the
+      # available space, and returns both parts.
       #
-      # When positioning the box, the style properties "position", "position_hint" and "margin" are
-      # taken into account. Note that the margin is ignored if a box's side coincides with the
-      # frame's original boundary.
+      # If the given box is not the last fitted box, #fit is called before splitting the box.
+      #
+      # See Box#split for further details.
+      def split(box)
+        fit(box) unless box == @fit_data.box
+        boxes = box.split(@fit_data.available_width, @fit_data.available_height, self)
+        @fit_data.reset unless boxes[0] == @fit_data.box
+        boxes
+      end
+
+      # Draws the given (fitted) box onto the canvas at the frame's current position. Returns +true+
+      # if drawing was possible, +false+ otherwise.
+      #
+      # If the given box is not the last fitted box, #fit is called before drawing the box.
       #
       # After a box is successfully drawn, the frame's shape and contour line are adjusted to remove
       # the occupied area.
       def draw(canvas, box)
-        aw = available_width
-        ah = available_height
-        used_margin_left = used_margin_right = used_margin_top = 0
-
-        if box.style.position != :absolute
-          if box.style.margin?
-            margin = box.style.margin
-            ah -= margin.bottom unless float_equal(@y - ah, @bottom)
-            ah -= used_margin_top = margin.top unless float_equal(@y, @bottom + @height)
-            aw -= used_margin_right = margin.right unless float_equal(@x + aw, @left + @width)
-            aw -= used_margin_left = margin.left unless float_equal(@x, @left)
-          end
-
-          return false unless box.fit(aw, ah, self)
+        unless box == @fit_data.box
+          fit(box) || return
         end
 
         width = box.width
         height = box.height
+        margin = box.style.margin if box.style.margin?
+
+        if height == 0
+          @fit_data.reset
+          return true
+        end
 
         case box.style.position
         when :absolute
@@ -154,18 +236,17 @@ module HexaPDF
           x += left
           y += bottom
           rectangle = if box.style.margin?
-                        margin = box.style.margin
                         create_rectangle(x - margin.left, y - margin.bottom,
                                          x + width + margin.right, y + height + margin.top)
                       else
                         create_rectangle(x, y, x + width, y + height)
                       end
         when :float
-          x = @x + used_margin_left
-          x += aw - width if box.style.position_hint == :right
-          y = @y - height - used_margin_top
-          # We can use the real margins from the box because they either have the desired effect or
-          # just extend the rectangle outside the frame.
+          x = @x + @fit_data.margin_left
+          x += @fit_data.available_width - width if box.style.position_hint == :right
+          y = @y - height - @fit_data.margin_top
+          # We use the real margins from the box because they either have the desired effect or just
+          # extend the rectangle outside the frame.
           rectangle = create_rectangle(x - (margin&.left || 0), y - (margin&.bottom || 0),
                                        x + width + (margin&.right || 0), @y)
         when :flow
@@ -175,24 +256,25 @@ module HexaPDF
         else
           x = case box.style.position_hint
               when :right
-                @x + used_margin_left + aw - width
+                @x + @fit_data.margin_left + @fit_data.available_width - width
               when :center
-                max_margin = [used_margin_left, used_margin_right].max
+                max_margin = [@fit_data.margin_left, @fit_data.margin_right].max
                 # If we have enough space left for equal margins, we center perfectly
                 if available_width - width >= 2 * max_margin
                   @x + (available_width - width) / 2.0
                 else
-                  @x + used_margin_left + (aw - width) / 2.0
+                  @x + @fit_data.margin_left + (@fit_data.available_width - width) / 2.0
                 end
               else
-                @x + used_margin_left
+                @x + @fit_data.margin_left
               end
-          y = @y - height - used_margin_top
+          y = @y - height - @fit_data.margin_top
           rectangle = create_rectangle(left, y - (margin&.bottom || 0), left + self.width, @y)
         end
 
         box.draw(canvas, x, y)
         remove_area(rectangle)
+        @fit_data.reset
 
         true
       end
@@ -223,6 +305,7 @@ module HexaPDF
           trim_shape
         end
 
+        @fit_data.reset
         available_width != 0
       end
 
