@@ -24,6 +24,8 @@
   objects can be compared
 * Refactored [HexaPDF::Layout::Frame] to allow separate fitting, splitting and
   drawing of boxes
+* [HexaPDF::Layout::Style::LineSpacing.new] to allow setting of line spacing
+  via a single hash argument
 
 ### Fixed
 

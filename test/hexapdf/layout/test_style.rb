@@ -18,7 +18,7 @@ describe HexaPDF::Layout::Style::LineSpacing do
   end
 
   def line_spacing(type, value = nil)
-    HexaPDF::Layout::Style::LineSpacing.new(type, value: value)
+    HexaPDF::Layout::Style::LineSpacing.new(type: type, value: value)
   end
 
   it "allows single line spacing" do

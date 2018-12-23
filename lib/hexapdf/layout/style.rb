@@ -78,7 +78,7 @@ module HexaPDF
 
         # Creates a new LineSpacing object for the given type which can be any valid line spacing
         # type or a LineSpacing object.
-        def initialize(type, value: 1)
+        def initialize(type:, value: 1)
           case type
           when :single
             @type = :proportional
@@ -842,8 +842,9 @@ module HexaPDF
         [:align, :left],
         [:valign, :top],
         [:text_indent, 0],
-        [:line_spacing, "LineSpacing.new(:single)",
-         "LineSpacing.new(value, value: extra_arg)", ", extra_arg = nil"],
+        [:line_spacing, "LineSpacing.new(type: :single)",
+         "LineSpacing.new(value.kind_of?(Symbol) ? {type: value, value: extra_arg} : value)",
+         ", extra_arg = nil"],
         [:background_color, nil],
         [:padding, "Quad.new(0)", "Quad.new(value)"],
         [:margin, "Quad.new(0)", "Quad.new(value)"],
