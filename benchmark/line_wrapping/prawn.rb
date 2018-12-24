@@ -10,9 +10,9 @@ Prawn::Document.generate(ARGV[2], page_size: [width, height], compress: true, ma
   doc.font(ARGV[3] ? ARGV[3] : 'Times-Roman')
   doc.font_size(10)
 
-  # It would be possible to just use doc.text(File.read(file)), however the performance
-  # would be worse
+  # It would be possible to just use doc.text(File.read(file), kerning: false), however the
+  # performance would be worse.
   File.readlines(file).each do |text|
-    doc.text(text)
+    doc.text(text, kerning: false)
   end
 end
