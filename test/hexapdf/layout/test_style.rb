@@ -147,6 +147,17 @@ describe HexaPDF::Layout::Style::Border do
     assert_kind_of(HexaPDF::Layout::Style::Quad, border.style)
   end
 
+  it "can be duplicated" do
+    border = create_border
+    copy = border.dup
+    border.width.top = 10
+    border.color.top = :red
+    border.style.top = :dotted
+    assert_equal(0, copy.width.top)
+    assert_equal(0, copy.color.top)
+    assert_equal(:solid, copy.style.top)
+  end
+
   it "can be asked whether a border is defined" do
     assert(create_border.none?)
     refute(create_border(width: 5).none?)
@@ -436,6 +447,12 @@ describe HexaPDF::Layout::Style::Layers do
     assert_equal(data, layers.enum_for(:each, {}).to_a)
   end
 
+  it "can be duplicated" do
+    copy = @layers.dup
+    @layers.add(lambda {})
+    assert(copy.none?)
+  end
+
   describe "add and each" do
     it "can use a given block" do
       block = proc { true }
@@ -575,6 +592,45 @@ describe HexaPDF::Layout::Style do
   it "can assign values on initialization" do
     style = HexaPDF::Layout::Style.new(font_size: 10)
     assert_equal(10, style.font_size)
+  end
+
+  describe "initialize_copy" do
+    it "can be duplicated" do
+      @style.font_features[:kerning] = true
+      @style.padding.top = 10
+      @style.margin.top = 10
+      @style.border.width.top = 10
+      @style.overlays.add(lambda {})
+      @style.underlays.add(lambda {})
+
+      copy = @style.dup
+      @style.font_features[:kerning] = false
+      @style.padding.top = 5
+      @style.margin.top = 5
+      @style.border.width.top = 5
+      @style.overlays.add(lambda {})
+      @style.underlays.add(lambda {})
+
+      assert_equal({kerning: true}, copy.font_features)
+      assert_equal(10, copy.padding.top)
+      assert_equal(10, copy.margin.top)
+      assert_equal(10, copy.border.width.top)
+      assert_equal(1, copy.underlays.instance_variable_get(:@layers).size)
+      assert_equal(1, copy.overlays.instance_variable_get(:@layers).size)
+    end
+
+    it "resets the cache" do
+      @style.horizontal_scaling(200)
+      assert_equal(2.0, @style.scaled_horizontal_scaling)
+      assert_equal(-1.06, @style.scaled_item_width(53))
+
+      style = @style.dup
+      style.horizontal_scaling(100)
+      assert_equal(2.0, @style.scaled_horizontal_scaling)
+      assert_equal(-1.06, @style.scaled_item_width(53))
+      assert_equal(1.0, style.scaled_horizontal_scaling)
+      assert_equal(-0.53, style.scaled_item_width(53))
+    end
   end
 
   it "has several simple and dynamically generated properties with default values" do

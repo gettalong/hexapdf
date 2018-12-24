@@ -28,6 +28,7 @@
   drawing of boxes
 * [HexaPDF::Layout::Style::LineSpacing.new] to allow setting of line spacing
   via a single hash argument
+* Made [HexaPDF::Layout::Style] copyable
 
 ### Fixed
 

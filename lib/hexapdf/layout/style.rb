@@ -207,6 +207,14 @@ module HexaPDF
           @style = Quad.new(style)
         end
 
+        # Duplicates a Border object's properties.
+        def initialize_copy(other)
+          super
+          @width = @width.dup
+          @color = @color.dup
+          @style = @style.dup
+        end
+
         # Returns +true+ if there is no border.
         def none?
           width.simple? && width.top == 0
@@ -372,6 +380,12 @@ module HexaPDF
           @layers = layers
         end
 
+        # Duplicates the array holding the layers.
+        def initialize_copy(other)
+          super
+          @layers = @layers.dup
+        end
+
         # :call-seq:
         #   layers.add {|canvas, box| block}
         #   layers.add(name, **options)
@@ -508,6 +522,20 @@ module HexaPDF
       def initialize(**properties)
         update(properties)
         @scaled_item_widths = {}
+      end
+
+      # Duplicates the complex properties that can be modified, as well as the cache.
+      def initialize_copy(other)
+        super
+        @scaled_item_widths = {}
+        clear_cache
+
+        @font_features = @font_features.dup if defined?(@font_features)
+        @padding = @padding.dup if defined?(@padding)
+        @margin = @margin.dup if defined?(@margin)
+        @border = @border.dup if defined?(@border)
+        @overlays = @overlays.dup if defined?(@overlays)
+        @underlays = @underlays.dup if defined?(@underlays)
       end
 
       # :call-seq:
