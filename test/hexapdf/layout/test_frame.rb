@@ -239,6 +239,12 @@ describe HexaPDF::Layout::Frame do
       refute(@frame.draw(@canvas, box))
     end
 
+    it "can't fit the box if there is no available space" do
+      @frame.remove_area(Geom2D::Polygon([0, 0], [110, 0], [110, 110], [0, 110]))
+      box = HexaPDF::Layout::Box.create
+      refute(@frame.fit(box))
+    end
+
     it "draws the box even if the box's height is zero" do
       box = HexaPDF::Layout::Box.create
       box.define_singleton_method(:height) { 0 }

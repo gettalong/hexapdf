@@ -15,6 +15,8 @@
   objects of a revision
 * [HexaPDF::Layout::Box#split] and [HexaPDF::Layout::TextBox#split] for
   splitting a box into two parts
+* [HexaPDF::Layout::Frame#full?] for testing whether the frame has any space
+  left
 
 ### Changed
 

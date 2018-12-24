@@ -179,7 +179,9 @@ module HexaPDF
         ah = available_height
         @fit_data.reset(box, aw, ah)
 
-        if box.style.position == :absolute
+        if full?
+          false
+        elsif box.style.position == :absolute
           true
         else
           if box.style.margin?
@@ -319,6 +321,11 @@ module HexaPDF
         end
         @region_selection = :max_width
         find_next_region
+      end
+
+      # Returns +true+ if the frame has no more space left.
+      def full?
+        available_width == 0
       end
 
       # The contour line of the frame, a Geom2D::PolygonSet consisting of arbitrary polygons.
