@@ -17,6 +17,8 @@
   splitting a box into two parts
 * [HexaPDF::Layout::Frame#full?] for testing whether the frame has any space
   left
+* [HexaPDF::Layout::Style] property `last_line_gap` for controlling the spacing
+  after the last line of text
 
 ### Changed
 

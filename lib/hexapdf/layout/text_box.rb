@@ -56,6 +56,10 @@ module HexaPDF
       # Depending on the 'position' style property, the text is either fit into the rectangular area
       # given by +available_width+ and +available_height+, or fit to the outline of the frame
       # starting from the top.
+      #
+      # The spacing after the last line can be controlled via the style property +last_line_gap+.
+      #
+      # Also see TextLayouter#style for other style properties taken into account.
       def fit(available_width, available_height, frame)
         @result = if style.position == :flow
                     @tl.fit(@items, frame.width_specification, frame.contour_line.bbox.height)
@@ -63,6 +67,9 @@ module HexaPDF
                     @tl.fit(@items, available_width, available_height)
                   end
         @height = @result.height
+        if style.last_line_gap && @result.lines.last
+          @height += style.line_spacing.gap(@result.lines.last, @result.lines.last)
+        end
         @width = @result.lines.max_by(&:width)&.width || 0
 
         success = (@result.status == :success)
@@ -91,7 +98,7 @@ module HexaPDF
       # Draws the text into the box.
       def draw_text(canvas, _self)
         return unless @result && !@result.lines.empty?
-        @result.draw(canvas, 0, @result.height)
+        @result.draw(canvas, 0, @height)
       end
 
     end

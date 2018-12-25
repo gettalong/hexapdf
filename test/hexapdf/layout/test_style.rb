@@ -663,6 +663,7 @@ describe HexaPDF::Layout::Style do
     assert_equal([:proportional, 1], [@style.line_spacing.type, @style.line_spacing.value])
     refute(@style.subscript)
     refute(@style.superscript)
+    refute(@style.last_line_gap)
     assert_kind_of(HexaPDF::Layout::Style::Layers, @style.underlays)
     assert_kind_of(HexaPDF::Layout::Style::Layers, @style.overlays)
   end

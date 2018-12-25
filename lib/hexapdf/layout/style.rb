@@ -768,6 +768,13 @@ module HexaPDF
       # See LineSpacing for supported types of line spacing.
 
       ##
+      # :method: last_line_gap
+      # :call-seq:
+      #   last_line_gap(enable = false)
+      #
+      # Add an appropriately sized gap after the last line of text if enabled, defaults to false.
+
+      ##
       # :method: background_color
       # :call-seq:
       #   background_color(color = nil)
@@ -888,6 +895,7 @@ module HexaPDF
         [:line_spacing, "LineSpacing.new(type: :single)",
          "LineSpacing.new(value.kind_of?(Symbol) ? {type: value, value: extra_arg} : value)",
          ", extra_arg = nil"],
+        [:last_line_gap, false],
         [:background_color, nil],
         [:padding, "Quad.new(0)", "Quad.new(value)"],
         [:margin, "Quad.new(0)", "Quad.new(value)"],

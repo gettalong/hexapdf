@@ -40,6 +40,13 @@ describe HexaPDF::Layout::TextBox do
       assert_equal(100, box.width)
       assert_equal(20, box.height)
     end
+
+    it "takes the style option last_line_gap into account" do
+      box = create_box([@inline_box] * 5, style: {last_line_gap: true, line_spacing: :double})
+      assert(box.fit(100, 100, @frame))
+      assert_equal(50, box.width)
+      assert_equal(20, box.height)
+    end
   end
 
   describe "split" do
