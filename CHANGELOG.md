@@ -35,7 +35,8 @@
 ### Fixed
 
 * Configuration so that annotation objects are correctly mapped to classes
-
+* Fix problem with [HexaPDF::Filter::Predictor] due to behaviour change of Ruby
+  2.6.0 in `String#setbyte`
 
 ## 0.8.0 - 2018-10-26
 

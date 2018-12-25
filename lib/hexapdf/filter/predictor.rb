@@ -163,16 +163,16 @@ module HexaPDF
             case data.getbyte(pos)
             when PREDICTOR_PNG_SUB
               bytes_per_pixel.upto(bytes_per_row - 2) do |i|
-                line.setbyte(i, line.getbyte(i) + line.getbyte(i - bytes_per_pixel))
+                line.setbyte(i, (line.getbyte(i) + line.getbyte(i - bytes_per_pixel)) % 256)
               end
             when PREDICTOR_PNG_UP
               0.upto(bytes_per_row - 2) do |i|
-                line.setbyte(i, line.getbyte(i) + last_line.getbyte(i))
+                line.setbyte(i, (line.getbyte(i) + last_line.getbyte(i)) % 256)
               end
             when PREDICTOR_PNG_AVERAGE
               0.upto(bytes_per_row - 2) do |i|
                 a = i < bytes_per_pixel ? 0 : line.getbyte(i - bytes_per_pixel)
-                line.setbyte(i, line.getbyte(i) + ((a + last_line.getbyte(i)) >> 1))
+                line.setbyte(i, (line.getbyte(i) + ((a + last_line.getbyte(i)) >> 1)) % 256)
               end
             when PREDICTOR_PNG_PAETH
               0.upto(bytes_per_row - 2) do |i|
@@ -187,7 +187,7 @@ module HexaPDF
 
                 point = ((pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c))
 
-                line.setbyte(i, line.getbyte(i) + point)
+                line.setbyte(i, (line.getbyte(i) + point) % 256)
               end
             end
 
@@ -202,16 +202,16 @@ module HexaPDF
             case predictor
             when PREDICTOR_PNG_SUB
               bytes_per_row.downto(bytes_per_pixel + 1) do |i|
-                line.setbyte(i, line.getbyte(i) - line.getbyte(i - bytes_per_pixel))
+                line.setbyte(i, (line.getbyte(i) - line.getbyte(i - bytes_per_pixel)) % 256)
               end
             when PREDICTOR_PNG_UP
               bytes_per_row.downto(1) do |i|
-                line.setbyte(i, line.getbyte(i) - last_line.getbyte(i))
+                line.setbyte(i, (line.getbyte(i) - last_line.getbyte(i)) % 256)
               end
             when PREDICTOR_PNG_AVERAGE
               bytes_per_row.downto(1) do |i|
                 a = i <= bytes_per_pixel ? 0 : line.getbyte(i - bytes_per_pixel)
-                line.setbyte(i, line.getbyte(i) - ((a + last_line.getbyte(i)) >> 1))
+                line.setbyte(i, (line.getbyte(i) - ((a + last_line.getbyte(i)) >> 1)) % 256)
               end
             when PREDICTOR_PNG_PAETH
               bytes_per_row.downto(1) do |i|
@@ -226,7 +226,7 @@ module HexaPDF
 
                 point = ((pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c))
 
-                line.setbyte(i, line.getbyte(i) - point)
+                line.setbyte(i, (line.getbyte(i) - point) % 256)
               end
             end
 
