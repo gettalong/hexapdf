@@ -753,6 +753,21 @@ module HexaPDF
       # The indentation to be used for the first line of a sequence of text lines, defaults to 0.
 
       ##
+      # :method: line_spacing
+      # :call-seq:
+      #   line_spacing(type = nil, value = nil)
+      #   line_spacing(type:, value: 1)
+      #
+      # The type of line spacing to be used for text lines, defaults to type :single.
+      #
+      # This method can set the line spacing in two ways:
+      #
+      # * Using two positional arguments +type+ and +value+.
+      # * Or a hash with the keys +type+ and +value+.
+      #
+      # See LineSpacing for supported types of line spacing.
+
+      ##
       # :method: background_color
       # :call-seq:
       #   background_color(color = nil)
