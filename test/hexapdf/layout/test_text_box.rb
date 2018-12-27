@@ -24,10 +24,10 @@ describe HexaPDF::Layout::TextBox do
 
   describe "fit" do
     it "fits into a rectangular area" do
-      box = create_box([@inline_box] * 5)
+      box = create_box([@inline_box] * 5, style: {padding: 10})
       assert(box.fit(100, 100, @frame))
-      assert_equal(50, box.width)
-      assert_equal(10, box.height)
+      assert_equal(70, box.width)
+      assert_equal(30, box.height)
     end
 
     it "fits into the frame's outline" do
@@ -75,7 +75,7 @@ describe HexaPDF::Layout::TextBox do
     it "draws the layed out inline items onto the canvas" do
       inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10,
                                                      border: {width: 1})
-      box = create_box([inline_box], width: 100, height: 10)
+      box = create_box([inline_box], width: 100, height: 10, style: {padding: [10, 5]})
       box.fit(100, 100, nil)
 
       @canvas = HexaPDF::Document.new.pages.add.canvas
@@ -83,10 +83,10 @@ describe HexaPDF::Layout::TextBox do
       assert_operators(@canvas.contents, [[:save_graphics_state],
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
-                                          [:append_rectangle, [0, 0, 10, 10]],
+                                          [:append_rectangle, [5, 10, 10, 10]],
                                           [:clip_path_non_zero],
                                           [:end_path],
-                                          [:append_rectangle, [0.5, 0.5, 9, 9]],
+                                          [:append_rectangle, [5.5, 10.5, 9, 9]],
                                           [:stroke_path],
                                           [:restore_graphics_state],
                                           [:save_graphics_state],

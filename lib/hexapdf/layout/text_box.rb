@@ -61,16 +61,19 @@ module HexaPDF
       #
       # Also see TextLayouter#style for other style properties taken into account.
       def fit(available_width, available_height, frame)
+        @width = @height = 0
         @result = if style.position == :flow
                     @tl.fit(@items, frame.width_specification, frame.contour_line.bbox.height)
                   else
-                    @tl.fit(@items, available_width, available_height)
+                    @width = reserved_width
+                    @height = reserved_height
+                    @tl.fit(@items, available_width - @width, available_height - @height)
                   end
-        @height = @result.height
+        @width += @result.lines.max_by(&:width)&.width || 0
+        @height += @result.height
         if style.last_line_gap && @result.lines.last
           @height += style.line_spacing.gap(@result.lines.last, @result.lines.last)
         end
-        @width = @result.lines.max_by(&:width)&.width || 0
 
         @result.status == :success
       end
@@ -100,7 +103,7 @@ module HexaPDF
       # Draws the text into the box.
       def draw_content(canvas, x, y)
         return unless @result && !@result.lines.empty?
-        @result.draw(canvas, x, y + @height)
+        @result.draw(canvas, x, y + content_height)
       end
 
     end

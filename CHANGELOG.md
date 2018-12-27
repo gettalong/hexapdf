@@ -38,6 +38,7 @@
 * Configuration so that annotation objects are correctly mapped to classes
 * Fix problem with [HexaPDF::Filter::Predictor] due to behaviour change of Ruby
   2.6.0 in `String#setbyte`
+* Fitting of [HexaPDF::Layout::TextBox] when the box has padding and/or borders
 
 ## 0.8.0 - 2018-10-26
 
