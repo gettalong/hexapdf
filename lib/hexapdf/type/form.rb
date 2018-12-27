@@ -72,6 +72,16 @@ module HexaPDF
         self[:BBox]
       end
 
+      # Returns the width of the bounding box (see #box).
+      def width
+        box.width
+      end
+
+      # Returns the height of the bounding box (see #box).
+      def height
+        box.height
+      end
+
       # Returns the contents of the form XObject.
       #
       # Note: This is the same as #stream but here for interface compatibility with Page.

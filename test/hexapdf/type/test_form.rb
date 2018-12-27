@@ -12,9 +12,20 @@ describe HexaPDF::Type::Form do
   end
 
   describe "box" do
+    before do
+      @form[:BBox] = [10, 10, 110, 60]
+    end
+
     it "returns the /BBox entry" do
-      @form[:BBox] = :media
-      assert_equal(:media, @form.box)
+      assert_equal([10, 10, 110, 60], @form.box.value)
+    end
+
+    it "returns the box's width" do
+      assert_equal(100, @form.width)
+    end
+
+    it "returns the box's height" do
+      assert_equal(50, @form.height)
     end
   end
 

@@ -1258,12 +1258,9 @@ module HexaPDF
           obj = context.document.images.add(obj)
         end
 
-        if obj[:Subtype] == :Image
-          width, height = calculate_dimensions(obj[:Width], obj[:Height],
-                                               rwidth: width, rheight: height)
-        else
-          width, height = calculate_dimensions(obj.box.width, obj.box.height,
-                                               rwidth: width, rheight: height)
+        width, height = calculate_dimensions(obj.width, obj.height,
+                                             rwidth: width, rheight: height)
+        if obj[:Subtype] != :Image
           width /= obj.box.width.to_f
           height /= obj.box.height.to_f
           at[0] -= obj.box.left
