@@ -95,7 +95,6 @@ module HexaPDF
         @height = @initial_height = height
         @style = (style.kind_of?(Style) ? style : Style.new(style))
         @draw_block = block
-        @outline = nil
       end
 
       # The width of the content box, i.e. without padding and/or borders.
