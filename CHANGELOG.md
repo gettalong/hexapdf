@@ -19,6 +19,7 @@
   left
 * [HexaPDF::Layout::Style] property `last_line_gap` for controlling the spacing
   after the last line of text
+* [HexaPDF::Layout::Box#draw_content] for use by subclasses
 
 ### Changed
 

@@ -157,12 +157,11 @@ module HexaPDF
         style.underlays.draw(canvas, x, y, self) if style.underlays?
         style.border.draw(canvas, x, y, width, height) if style.border?
 
-        if @draw_block
-          canvas.translate(x + style.padding.left + style.border.width.left,
-                           y + style.padding.bottom + style.border.width.bottom) do
-            @draw_block.call(canvas, self)
-          end
-        end
+        cx = x
+        cy = y
+        (cx += style.padding.left; cy += style.padding.bottom) if style.padding?
+        (cx += style.border.width.left; cy += style.border.width.bottom) if style.border?
+        draw_content(canvas, cx, cy)
 
         style.overlays.draw(canvas, x, y, self) if style.overlays?
       end
@@ -192,6 +191,14 @@ module HexaPDF
         result += style.padding.top + style.padding.bottom if style.padding?
         result += style.border.width.top + style.border.width.bottom if style.border?
         result
+      end
+
+      # Draws the content of the box at position [x, y] which is the bottom-left corner of the
+      # content box.
+      def draw_content(canvas, x, y)
+        if @draw_block
+          canvas.translate(x, y) { @draw_block.call(canvas, self) }
+        end
       end
 
     end

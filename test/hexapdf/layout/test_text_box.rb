@@ -8,6 +8,7 @@ require 'hexapdf/layout/text_box'
 describe HexaPDF::Layout::TextBox do
   before do
     @frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100)
+    @inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {}
   end
 
   def create_box(items, **kwargs)
@@ -22,10 +23,6 @@ describe HexaPDF::Layout::TextBox do
   end
 
   describe "fit" do
-    before do
-      @inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {}
-    end
-
     it "fits into a rectangular area" do
       box = create_box([@inline_box] * 5)
       assert(box.fit(100, 100, @frame))
@@ -50,10 +47,6 @@ describe HexaPDF::Layout::TextBox do
   end
 
   describe "split" do
-    before do
-      @inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {}
-    end
-
     it "works for an empty text box" do
       box = create_box([])
       assert_equal([box], box.split(100, 100, @frame))
@@ -88,8 +81,6 @@ describe HexaPDF::Layout::TextBox do
       @canvas = HexaPDF::Document.new.pages.add.canvas
       box.draw(@canvas, 0, 0)
       assert_operators(@canvas.contents, [[:save_graphics_state],
-                                          [:concatenate_matrix, [1, 0, 0, 1, 0, 0]],
-                                          [:save_graphics_state],
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
                                           [:append_rectangle, [0, 0, 10, 10]],
@@ -99,7 +90,6 @@ describe HexaPDF::Layout::TextBox do
                                           [:stroke_path],
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
-                                          [:restore_graphics_state],
                                           [:restore_graphics_state]])
     end
 
@@ -109,5 +99,16 @@ describe HexaPDF::Layout::TextBox do
       box.draw(@canvas, 5, 5)
       assert_operators(@canvas.contents, [])
     end
+  end
+
+  it "is empty if there is a result without any text lines" do
+    box = create_box([])
+    assert(box.empty?)
+    box.fit(100, 100, @frame)
+    assert(box.empty?)
+
+    box = create_box([@inline_box])
+    box.fit(100, 100, @frame)
+    refute(box.empty?)
   end
 end

@@ -72,9 +72,7 @@ module HexaPDF
         end
         @width = @result.lines.max_by(&:width)&.width || 0
 
-        success = (@result.status == :success)
-        @draw_block = success ? method(:draw_text) : nil
-        success
+        @result.status == :success
       end
 
       # Splits the text box into two boxes if necessary and possible.
@@ -88,17 +86,21 @@ module HexaPDF
           box = clone
           box.instance_variable_set(:@result, nil)
           box.instance_variable_set(:@items, @result.remaining_items)
-          @draw_block = method(:draw_text)
           [self, box]
         end
+      end
+
+      # :nodoc:
+      def empty?
+        super && (!@result || @result.lines.empty?)
       end
 
       private
 
       # Draws the text into the box.
-      def draw_text(canvas, _self)
+      def draw_content(canvas, x, y)
         return unless @result && !@result.lines.empty?
-        @result.draw(canvas, 0, @height)
+        @result.draw(canvas, x, y + @height)
       end
 
     end
