@@ -99,14 +99,14 @@ module HexaPDF
 
       # The width of the content box, i.e. without padding and/or borders.
       def content_width
-        [0, width - (@style.padding.left + @style.padding.right +
-                     @style.border.width.left + @style.border.width.right)].max
+        width = @width - reserved_width
+        width < 0 ? 0 : width
       end
 
       # The height of the content box, i.e. without padding and/or borders.
       def content_height
-        [0, height - (@style.padding.top + @style.padding.bottom +
-                      @style.border.width.top + @style.border.width.bottom)].max
+        height = @height - reserved_height
+        height < 0 ? 0 : height
       end
 
       # Fits the box into the Frame and returns +true+ if fitting was successful.
@@ -174,6 +174,24 @@ module HexaPDF
           (style.underlays? && !style.underlays.none?) ||
           (style.border? && !style.border.none?) ||
           (style.overlays? && !style.overlays.none?))
+      end
+
+      private
+
+      # Returns the width that is reserved by the padding and border style properties.
+      def reserved_width
+        result = 0
+        result += style.padding.left + style.padding.right if style.padding?
+        result += style.border.width.left + style.border.width.right if style.border?
+        result
+      end
+
+      # Returns the height that is reserved by the padding and border style properties.
+      def reserved_height
+        result = 0
+        result += style.padding.top + style.padding.bottom if style.padding?
+        result += style.border.width.top + style.border.width.bottom if style.border?
+        result
       end
 
     end

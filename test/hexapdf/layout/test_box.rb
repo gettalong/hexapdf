@@ -24,7 +24,8 @@ describe HexaPDF::Layout::Box do
 
     it "takes content width and height" do
       box = HexaPDF::Layout::Box.create(width: 100, height: 200, content_box: true,
-                                        padding: 10, border: {width: 10})
+                                        padding: [10, 8, 6, 4],
+                                        border: {width: [10, 8, 6, 4]})
       assert_equal(100, box.content_width)
       assert_equal(200, box.content_height)
     end
