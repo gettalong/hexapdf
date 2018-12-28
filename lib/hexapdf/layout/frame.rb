@@ -49,6 +49,10 @@ module HexaPDF
     # * Call #fit with the box to see if the box can fit into the currently selected region of
     #   available space. If fitting is successful, the box can be drawn using #draw.
     #
+    #   The method #fit is also called for absolutely positioned boxes but since these boxes are not
+    #   subject to the normal constraints, the available space used is the width and height inside
+    #   the frame to the right and top of the bottom-left corner of the box.
+    #
     # * If the box didn't fit, call #find_next_region to determine the next region for placing the
     #   box. If a new region was found, start over with #fit. Otherwise the frame has no more space
     #   for placing boxes.
@@ -182,6 +186,8 @@ module HexaPDF
         if full?
           false
         elsif box.style.position == :absolute
+          x, y = box.style.position_hint
+          box.fit(width - x, height - y, self)
           true
         else
           if box.style.margin?

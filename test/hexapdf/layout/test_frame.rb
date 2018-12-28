@@ -80,6 +80,14 @@ describe HexaPDF::Layout::Frame do
         )
       end
 
+      it "determines the available space for #fit by using the space to the right and above" do
+        check_box(
+          {position: :absolute, position_hint: [10, 10]},
+          [20, 20],
+          [[[10, 10], [110, 10], [110, 20], [20, 20], [20, 110], [10, 110]]]
+        )
+      end
+
       it "always removes the whole margin box from the frame" do
         check_box(
           {width: 50, height: 50, position: :absolute, position_hint: [10, 10],
