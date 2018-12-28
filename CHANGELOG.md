@@ -22,6 +22,7 @@
 * [HexaPDF::Layout::Box#draw_content] for use by subclasses
 * [HexaPDF::Type::Form#width] and [HexaPDF::Type::Form#height] for compatibility
   with [HexaPDF::Type::Image]
+* [HexaPDF::Layout::ImageBox] for displaying an image inside a frame
 
 ### Changed
 
