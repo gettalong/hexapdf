@@ -35,7 +35,7 @@ bench_header
 for ttf in "${TTFS[@]}"; do
   for key in "${KEYS[@]}"; do
     bench_cmd "hexapdf L | ${key} ${ttf: -3}" ruby $BMDIR/hexapdf_low_level.rb $IN_FILE $key ${OUT_FILE} $ttf
-    bench_cmd "hexapdf F | ${key} ${ttf: -3}" ruby $BMDIR/hexapdf_frame.rb $IN_FILE $key ${OUT_FILE} $ttf
+    bench_cmd "hexapdf C | ${key} ${ttf: -3}" ruby $BMDIR/hexapdf_composer.rb $IN_FILE $key ${OUT_FILE} $ttf
     bench_cmd "prawn     | ${key} ${ttf: -3}" ruby $BMDIR/prawn.rb $IN_FILE $key ${OUT_FILE} $ttf
     bench_cmd "reportlab | ${key} ${ttf: -3}" python $BMDIR/rlcli.py $IN_FILE $key ${OUT_FILE} $ttf
     bench_cmd "tcpdf     | ${key} ${ttf: -3}" php $BMDIR/tcpdf.php $IN_FILE $key ${OUT_FILE} $ttf

@@ -37,9 +37,8 @@ The list of the benchmarked libraries:
   L
   : This version uses the low-level layouting facility [HexaPDF::Layout::TextLayouter].
 
-  F
-  : This version uses the higher-level facilities [HexaPDF::Layout::Frame] and
-    [HexaPDF::Layout::TextBox].
+  C
+  : This version uses the high-level [HexaPDF::Composer] to construct the document.
 
 **Prawn**
 
