@@ -57,6 +57,8 @@ require 'hexapdf/layout'
 # * HexaPDF::Content::Canvas provides the canvas API for drawing/writing on a page or form XObject
 module HexaPDF
 
+  autoload(:Composer, 'hexapdf/composer')
+
   # Represents one PDF document.
   #
   # A PDF document consists of (indirect) objects, so the main job of this class is to provide

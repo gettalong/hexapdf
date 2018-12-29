@@ -2,6 +2,7 @@
 
 ### Added
 
+* [HexaPDF::Composer] for composing PDF documents in a high-level way
 * Incremental writing support (i.e. appending a single revision with all the
   changes to an existing document) to [HexaPDF::Writer] and [HexaPDF::Document]
 * CLI command `hexapdf split` to split a PDF file into individual pages
