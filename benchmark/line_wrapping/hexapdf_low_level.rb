@@ -22,4 +22,4 @@ while !items.empty?
   items = result.remaining_items
 end
 
-doc.write(ARGV[2])
+doc.write(ARGV[2], optimize: true)
