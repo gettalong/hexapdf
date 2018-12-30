@@ -43,6 +43,7 @@
 * Fix problem with [HexaPDF::Filter::Predictor] due to behaviour change of Ruby
   2.6.0 in `String#setbyte`
 * Fitting of [HexaPDF::Layout::TextBox] when the box has padding and/or borders
+* Fitting of [HexaPDF::Layout::TextBox] when width and/or height has been set
 * Fitting of absolutely positioned boxes in [HexaPDF::Layout::Frame]
 * Fix bug in variable width line wrapping due to not considering line spacing
   correctly ([HexaPDF::Layout::Line::HeightCalculator#simulate_height] return

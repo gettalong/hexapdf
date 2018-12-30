@@ -30,6 +30,14 @@ describe HexaPDF::Layout::TextBox do
       assert_equal(30, box.height)
     end
 
+    it "respects the set width and height" do
+      box = create_box([@inline_box] * 5, width: 40, height: 50, style: {padding: 10})
+      assert(box.fit(100, 100, @frame))
+      assert_equal(40, box.width)
+      assert_equal(50, box.height)
+      assert_equal([20, 20, 10], box.instance_variable_get(:@result).lines.map(&:width))
+    end
+
     it "fits into the frame's outline" do
       inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {}
       box = create_box([inline_box] * 20, style: {position: :flow})
@@ -75,7 +83,7 @@ describe HexaPDF::Layout::TextBox do
     it "draws the layed out inline items onto the canvas" do
       inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10,
                                                      border: {width: 1})
-      box = create_box([inline_box], width: 100, height: 10, style: {padding: [10, 5]})
+      box = create_box([inline_box], width: 100, height: 30, style: {padding: [10, 5]})
       box.fit(100, 100, nil)
 
       @canvas = HexaPDF::Document.new.pages.add.canvas

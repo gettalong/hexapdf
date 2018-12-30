@@ -67,7 +67,9 @@ module HexaPDF
                   else
                     @width = reserved_width
                     @height = reserved_height
-                    @tl.fit(@items, available_width - @width, available_height - @height)
+                    width = (@initial_width > 0 ? @initial_width : available_width) - @width
+                    height = (@initial_height > 0 ? @initial_height : available_height) - @height
+                    @tl.fit(@items, width, height)
                   end
         @width += @result.lines.max_by(&:width)&.width || 0
         @height += @result.height
