@@ -153,7 +153,7 @@ module HexaPDF
           max_bottom_height = @max_bottom_height
           max_text_bottom_height = @max_text_bottom_height
           y_min, y_max, = add(item).result
-          y_max - y_min
+          [y_min, y_max, y_max - y_min]
         ensure
           @text_y_min = text_y_min
           @text_y_max = text_y_max

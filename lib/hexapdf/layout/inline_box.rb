@@ -98,6 +98,16 @@ module HexaPDF
         width
       end
 
+      # The minimum y-coordinate which is always 0.
+      def y_min
+        0
+      end
+
+      # The maximum y-coordinate which is equivalent to the height of the inline box.
+      def y_max
+        height
+      end
+
     end
 
   end

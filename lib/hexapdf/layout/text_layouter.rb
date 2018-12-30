@@ -276,6 +276,21 @@ module HexaPDF
         end
       end
 
+      # :nodoc:
+      #
+      # A dummy line class for use with variable width wrapping, and Style#line_spacing methods in
+      # case a line actually consists of multiple line fragments.
+      DummyLine = Struct.new(:y_min, :y_max) do
+        def update(y_min, y_max)
+          self.y_min = y_min
+          self.y_max = y_max
+        end
+
+        def height
+          y_max - y_min
+        end
+      end
+
       # Implementation of a simple line wrapping algorithm.
       #
       # The algorithm arranges the given items so that the maximum number is put onto each line,
@@ -297,10 +312,11 @@ module HexaPDF
         #   is the indentation of the first line). This is the general case.
         #
         # * However, if lines should have varying widths (e.g. for flowing text around shapes), the
-        #   +width_block+ argument should be an object responding to #call(line_height) where
-        #   +line_height+ is the height of the currently layed out line. The caller is responsible
-        #   for tracking the height of the already layed out lines. This method involves more work
-        #   and is therefore slower.
+        #   +width_block+ argument should be an object responding to #call(line_like) where
+        #   +line_like+ is a Line-like object responding to #y_min, #y_max and #height holding the
+        #   values for the currently layed out line. The caller is responsible for tracking the
+        #   height of the already layed out lines. This method involves more work and is therefore
+        #   slower.
         #
         # Regardless of whether varying line widths are used or not, each time a line is finished,
         # it is yielded to the caller. The second argument +item+ is the item that caused the line
@@ -332,7 +348,6 @@ module HexaPDF
         def initialize(items, width_block)
           @items = items
           @width_block = width_block
-          @available_width = @width_block.call(0)
           @line_items = []
           @width = 0
           @glue_items = []
@@ -342,7 +357,9 @@ module HexaPDF
           @break_prohibited_state = false
 
           @height_calc = Line::HeightCalculator.new
-          @line_height = 0
+          @line = DummyLine.new(0, 0)
+
+          @available_width = @width_block.call(@line)
         end
 
         # Peforms line wrapping with a fixed width per line, with line height playing no role.
@@ -408,14 +425,14 @@ module HexaPDF
           while (item = @items[index])
             case item.type
             when :box
-              new_height = @height_calc.simulate_height(item.item)
-              if new_height > @line_height
-                @line_height = new_height
-                @available_width = @width_block.call(@line_height)
+              y_min, y_max, new_height = @height_calc.simulate_height(item.item)
+              if new_height > @line.height
+                @line.update(y_min, y_max)
+                @available_width = @width_block.call(@line)
                 if !@available_width || @width > @available_width
                   index = (@available_width ? @beginning_of_line_index : @stored_index)
                   item = @items[index]
-                  reset_after_line_break_variable_width(index, @line_height)
+                  reset_after_line_break_variable_width(index)
                   redo
                 end
               end
@@ -427,18 +444,18 @@ module HexaPDF
                   item = @items[index]
                 end
                 break unless (action = yield(create_line, item))
-                reset_after_line_break_variable_width(index, 0, action)
+                reset_after_line_break_variable_width(index, true, action)
                 redo
               end
             when :glue
               unless add_glue_item(item.item, index)
                 break unless (action = yield(create_line, item))
-                reset_after_line_break_variable_width(index + 1, 0, action)
+                reset_after_line_break_variable_width(index + 1, true, action)
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
                 break unless (action = yield(create_unjustified_line, item))
-                reset_after_line_break_variable_width(index + 1, 0, action)
+                reset_after_line_break_variable_width(index + 1, true, action)
               elsif item.penalty >= Penalty::INFINITY
                 @break_prohibited_state = true
                 add_box_item(item.item) if item.width > 0
@@ -447,8 +464,8 @@ module HexaPDF
                   next_index = index + 1
                   next_item = @items[next_index]
                   next_item = @items[next_index += 1] while next_item&.type == :penalty
-                  new_height = @height_calc.simulate_height(next_item.item)
-                  if next_item && @width + next_item.width > @width_block.call(new_height)
+                  y_min, y_max, new_height = @height_calc.simulate_height(next_item.item)
+                  if next_item && @width + next_item.width > @width_block.call(DummyLine.new(y_min, y_max))
                     @line_items.concat(@glue_items).push(item.item)
                     @width += item.width
                     # No need to clean up, since in the next iteration a line break occurs
@@ -531,7 +548,7 @@ module HexaPDF
         # Resets the line state variables to their initial values. The +index+ specifies the items
         # index of the first item on the new line. The +line_height+ specifies the line height to
         # use for getting the available width.
-        def reset_after_line_break(index, line_height = 0)
+        def reset_after_line_break(index)
           @beginning_of_line_index = index
           @line_items.clear
           @width = 0
@@ -539,7 +556,7 @@ module HexaPDF
           @last_breakpoint_index = index
           @last_breakpoint_line_items_index = 0
           @break_prohibited_state = false
-          @available_width = @width_block.call(line_height)
+          @available_width = @width_block.call(@line)
         end
 
         # Specialized reset method for variable width wrapping.
@@ -548,11 +565,11 @@ module HexaPDF
         #
         # * If the +action+ argument is +:store_start_of_line+, the stored item index is reset to
         #   the index of the first item of the line.
-        def reset_after_line_break_variable_width(index, line_height, action = :none)
+        def reset_after_line_break_variable_width(index, reset_line = false, action = :none)
           @stored_index = @beginning_of_line_index if action == :store_start_of_line
-          @line_height = line_height
+          @line.update(0, 0) if reset_line
           @height_calc.reset
-          reset_after_line_break(index, line_height)
+          reset_after_line_break(index)
         end
 
       end
@@ -689,10 +706,15 @@ module HexaPDF
           if width.respond_to?(:call)
             last_actual_height = nil
             previous_line_height = nil
-            proc do |h|
-              line_height = [line_height, h || 0].max
+            proc do |cur_line|
+              line_height = [line_height, cur_line.height || 0].max
               if last_actual_height != actual_height || previous_line_height != line_height
-                spec = width.call(actual_height, line_height)
+                gap = if previous_line
+                        style.line_spacing.gap(previous_line, cur_line)
+                      else
+                        0
+                      end
+                spec = width.call(actual_height + gap, cur_line.height)
                 spec = [0, spec] unless spec.kind_of?(Array)
                 last_actual_height = actual_height
                 previous_line_height = line_height
@@ -732,7 +754,7 @@ module HexaPDF
             # item didn't fit into first part, find next available part
             if line.items.empty? && line_fragments.empty?
               old_height = actual_height
-              while item.width > width_block.call(item.height) && actual_height <= height
+              while item.width > width_block.call(item.item) && actual_height <= height
                 width_spec_index += 1
                 if width_spec_index >= width_spec.size / 2
                   actual_height += item.height / 3
@@ -804,16 +826,6 @@ module HexaPDF
       end
 
       private
-
-      # :nodoc:
-      #
-      # A dummy line class for use with Style#line_spacing methods in case a line actually consists
-      # of multiple line fragments.
-      DummyLine = Struct.new(:y_min, :y_max) do
-        def height
-          y_max - y_min
-        end
-      end
 
       # Creates a line combining all items from the given line fragments for height calculations.
       def create_combined_line(line_frags)

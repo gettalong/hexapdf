@@ -44,6 +44,9 @@
   2.6.0 in `String#setbyte`
 * Fitting of [HexaPDF::Layout::TextBox] when the box has padding and/or borders
 * Fitting of absolutely positioned boxes in [HexaPDF::Layout::Frame]
+* Fix bug in variable width line wrapping due to not considering line spacing
+  correctly ([HexaPDF::Layout::Line::HeightCalculator#simulate_height] return
+  value needed to be changed for this fix)
 
 ## 0.8.0 - 2018-10-26
 

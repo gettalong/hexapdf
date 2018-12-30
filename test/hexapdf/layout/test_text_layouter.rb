@@ -308,8 +308,8 @@ describe HexaPDF::Layout::TextLayouter::SimpleLineWrapping do
 
     it "handles changing widths" do
       height = 0
-      width_block = lambda do |line_height|
-        case height + line_height
+      width_block = lambda do |line|
+        case height + line.height
         when 0..10 then 60
         when 11..20 then 40
         when 21..30 then 20
@@ -331,8 +331,8 @@ describe HexaPDF::Layout::TextLayouter::SimpleLineWrapping do
 
     it "handles changing widths when breaking on a penalty" do
       height = 0
-      width_block = lambda do |line_height|
-        case height + line_height
+      width_block = lambda do |line|
+        case height + line.height
         when 0..10 then 80
         else 50
         end
@@ -417,6 +417,16 @@ describe HexaPDF::Layout::TextLayouter do
       assert(result.remaining_items.empty?)
       assert_equal(:success, result.status)
       assert_equal(20 * (5 + 4), result.height)
+    end
+
+    it "takes line spacing into account with variable width" do
+      @style.line_spacing = :double
+      width_block = lambda {|l, h| l + h <= 90 ? 40 : 20 }
+      result = @layouter.fit(boxes(*([[20, 20]] * 6)), width_block, 170)
+      assert(result.remaining_items.empty?)
+      assert_equal(:success, result.status)
+      assert_line_wrapping([[], result.lines], [40, 40, 20, 20])
+      assert_equal(140, result.height)
     end
 
     it "handles empty lines" do

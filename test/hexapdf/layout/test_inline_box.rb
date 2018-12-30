@@ -60,4 +60,12 @@ describe HexaPDF::Layout::InlineBox do
   it "returns width for x_max" do
     assert_equal(@box.width, @box.x_max)
   end
+
+  it "returns 0 for y_min" do
+    assert_equal(0, @box.y_min)
+  end
+
+  it "returns height for y_max" do
+    assert_equal(@box.height, @box.y_max)
+  end
 end

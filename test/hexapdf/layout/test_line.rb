@@ -12,7 +12,7 @@ describe HexaPDF::Layout::Line::HeightCalculator do
     @calc << HexaPDF::Layout::InlineBox.create(width: 10, height: 20, valign: :baseline) {}
     assert_equal([0, 20, 0, 0], @calc.result)
     new_item = HexaPDF::Layout::InlineBox.create(width: 10, height: 30, valign: :top) {}
-    assert_equal(30, @calc.simulate_height(new_item))
+    assert_equal([-10, 20, 30], @calc.simulate_height(new_item))
     assert_equal([0, 20, 0, 0], @calc.result)
   end
 end
