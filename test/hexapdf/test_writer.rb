@@ -40,7 +40,7 @@ describe HexaPDF::Writer do
       219
       %%EOF
       3 0 obj
-      <</Producer(HexaPDF version 0.8.0)>>
+      <</Producer(HexaPDF version 0.9.0)>>
       endobj
       xref
       3 1
@@ -72,7 +72,7 @@ describe HexaPDF::Writer do
       141
       %%EOF
       6 0 obj
-      <</Producer(HexaPDF version 0.8.0)>>
+      <</Producer(HexaPDF version 0.9.0)>>
       endobj
       2 0 obj
       <</Length 10>>stream
