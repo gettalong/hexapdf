@@ -276,8 +276,6 @@ module HexaPDF
         end
       end
 
-      # :nodoc:
-      #
       # A dummy line class for use with variable width wrapping, and Style#line_spacing methods in
       # case a line actually consists of multiple line fragments.
       DummyLine = Struct.new(:y_min, :y_max) do

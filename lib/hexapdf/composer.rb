@@ -114,7 +114,7 @@ module HexaPDF
     #     Can be any valid predefined page size (see Type::Page::PAPER_SIZE) or an array [llx, lly,
     #     urx, ury] specifying a custom page size.
     #
-    # page_orientation:
+    # page_orientation::
     #     Specifies the orientation of the page, either +:portrait+ or +:landscape+. Only used if
     #     +page_size+ is one of the predefined page sizes.
     #

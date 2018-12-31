@@ -20,7 +20,7 @@
   left
 * [HexaPDF::Layout::Style] property `last_line_gap` for controlling the spacing
   after the last line of text
-* [HexaPDF::Layout::Box#draw_content] for use by subclasses
+* HexaPDF::Layout::Box#draw_content for use by subclasses
 * [HexaPDF::Type::Form#width] and [HexaPDF::Type::Form#height] for compatibility
   with [HexaPDF::Type::Image]
 * [HexaPDF::Layout::ImageBox] for displaying an image inside a frame
@@ -33,7 +33,7 @@
   objects can be compared
 * Refactored [HexaPDF::Layout::Frame] to allow separate fitting, splitting and
   drawing of boxes
-* [HexaPDF::Layout::Style::LineSpacing.new] to allow setting of line spacing
+* [HexaPDF::Layout::Style::LineSpacing::new] to allow setting of line spacing
   via a single hash argument
 * Made [HexaPDF::Layout::Style] copyable
 
