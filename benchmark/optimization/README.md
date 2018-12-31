@@ -96,24 +96,21 @@ The list of the benchmarked applications:
 
 **pdftk**
 
-: Homepage: <https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/>\\
-  Version: 2.02\\
+: Homepage: <https://gitlab.com/marcvinyals/pdftk>\\
+  Version: 3.0\\
   Abilities: C
 
   `pdftk` is probably one of the best known applications because, like `hexapdf` it allows for many
-  different operations on PDFs. It is based on the Java iText library which has been compiled to
-  native code using GCJ.
+  different operations on PDFs. It is based on the Java iText library. Prior version have been
+  compiled to native code using GCJ but GCJ was deprecated and this fork of pdftk now uses Java.
 
   The application doesn't have options for optimizing a PDF file but it can be assumed that it
   removes unused and deleted objects when invoked like `pdftk INPUT output OUTPUT`.
 
-  *Note* that GCJ was deprecated and newer versions of Ubuntu don't include the pdftk package
-  anymore!
-
 **qpdf**
 
 : Homepage: <http://qpdf.sourceforge.net/>\\
-  Version: 8.0.2\\
+  Version: 8.2.1\\
   Abilities: C, CS
 
   QPDF is a command line application for transforming PDF files written in C++.
