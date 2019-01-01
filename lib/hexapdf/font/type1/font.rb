@@ -4,7 +4,7 @@
 # This file is part of HexaPDF.
 #
 # HexaPDF - A Versatile PDF Creation and Manipulation Library For Ruby
-# Copyright (C) 2014-2018 Thomas Leitner
+# Copyright (C) 2014-2019 Thomas Leitner
 #
 # HexaPDF is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License version 3 as
@@ -29,6 +29,9 @@
 # In accordance with Section 7(b) of the GNU Affero General Public
 # License, a covered work must retain the producer line in every PDF that
 # is created or manipulated using HexaPDF.
+#
+# If the GNU Affero General Public License doesn't fit your need,
+# commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
 require 'forwardable'
