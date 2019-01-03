@@ -48,7 +48,7 @@ module HexaPDF
         long_desc(<<~EOF)
           If no OUTPUT_SPEC is specified, the pages are named <PDF>_0001.pdf, <PDF>_0002.pdf, ...
           and so on. To specify a custom name, provide the OUTPUT_SPEC argument. It can contain a
-          prinft-style format definition like '%04d' to specify the place where the page number
+          printf-style format definition like '%04d' to specify the place where the page number
           should be inserted.
 
           The optimization and encryption options are applied to each created output file.
