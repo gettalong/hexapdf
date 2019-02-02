@@ -340,16 +340,17 @@ module HexaPDF
     def draw_box(box)
       drawn_on_page = true
       while true
-        if @frame.fit(box)
-          @frame.draw(@canvas, box)
+        result = @frame.fit(box)
+        if result.success?
+          @frame.draw(@canvas, result)
           break
         elsif @frame.full?
           new_page
           drawn_on_page = false
         else
-          draw_box, box = @frame.split(box)
+          draw_box, box = @frame.split(result)
           if draw_box
-            @frame.draw(@canvas, draw_box)
+            @frame.draw(@canvas, result)
             drawn_on_page = true
           elsif !@frame.find_next_region
             unless drawn_on_page

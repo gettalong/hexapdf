@@ -90,38 +90,49 @@ module HexaPDF
 
       include Geom2D::Utils
 
-      # Internal class for storing data of a fitted box.
-      class FitData
+      # Stores the result of fitting a box in a Frame.
+      class FitResult
 
         # The box that was fitted into the frame.
         attr_accessor :box
 
-        # The available width for this particular box.
+        # The horizontal position where the box will be drawn.
+        attr_accessor :x
+
+        # The vertical position where the box will be drawn.
+        attr_accessor :y
+
+        # The available width in the frame for this particular box.
         attr_accessor :available_width
 
-        # The available height for this particular box.
+        # The available height in the frame for this particular box.
         attr_accessor :available_height
 
-        # The left margin to use instead of +box.style.margin.left+.
-        attr_accessor :margin_left
+        # The rectangle (a Geom2D::Polygon object) that will be removed from the frame when drawing
+        # the box.
+        attr_accessor :mask
 
-        # The right margin to use instead of +box.style.margin.right+.
-        attr_accessor :margin_right
-
-        # The top margin to use instead of +box.style.margin.top+.
-        attr_accessor :margin_top
-
-        # Initialize the object by calling #reset.
-        def initialize
-          reset
+        # Initialize the result object for the given box.
+        def initialize(box)
+          @box = box
+          @available_width = 0
+          @available_height = 0
+          @success = false
         end
 
-        # Resets the object.
-        def reset(box = nil, available_width = 0, available_height = 0)
-          @box = box
-          @available_width = available_width
-          @available_height = available_height
-          @margin_left = @margin_right = @margin_top = 0
+        # Marks the fitting status as success.
+        def success!
+          @success = true
+        end
+
+        # Returns +true+ if fitting was successful.
+        def success?
+          @success
+        end
+
+        # Draws the #box onto the canvas at (#x, #y).
+        def draw(canvas)
+          box.draw(canvas, x, y)
         end
 
       end
@@ -177,116 +188,106 @@ module HexaPDF
         @available_width = width
         @available_height = height
         @region_selection = :max_height
-        @fit_data = FitData.new
       end
 
-      # Fits the given box into the current region of available space.
+      # Fits the given box into the current region of available space and returns a FitResult
+      # object.
+      #
+      # Use the FitResult#success? method to determine whether fitting was successful.
       def fit(box)
-        aw = available_width
-        ah = available_height
-        @fit_data.reset(box, aw, ah)
+        fit_result = FitResult.new(box)
+        return fit_result if full?
 
-        if full?
-          false
-        elsif box.style.position == :absolute
+        if box.style.position == :absolute
           x, y = box.style.position_hint
-          box.fit(width - x, height - y, self)
-          true
-        else
-          if box.style.margin?
-            margin = box.style.margin
-            ah -= margin.bottom unless float_equal(@y - ah, @bottom)
-            ah -= @fit_data.margin_top = margin.top unless float_equal(@y, @bottom + @height)
-            aw -= @fit_data.margin_right = margin.right unless float_equal(@x + aw, @left + @width)
-            aw -= @fit_data.margin_left = margin.left unless float_equal(@x, @left)
-            @fit_data.available_width = aw
-            @fit_data.available_height = ah
-          end
 
+          aw = width - x
+          ah = height - y
           box.fit(aw, ah, self)
-        end
-      end
+          fit_result.success!
 
-      # Tries to split the (fitted) box into two parts, where the first part needs to fit into the
-      # available space, and returns both parts.
-      #
-      # If the given box is not the last fitted box, #fit is called before splitting the box.
-      #
-      # See Box#split for further details.
-      def split(box)
-        fit(box) unless box == @fit_data.box
-        boxes = box.split(@fit_data.available_width, @fit_data.available_height, self)
-        @fit_data.reset unless boxes[0] == @fit_data.box
-        boxes
-      end
-
-      # Draws the given (fitted) box onto the canvas at the frame's current position. Returns +true+
-      # if drawing was possible, +false+ otherwise.
-      #
-      # If the given box is not the last fitted box, #fit is called before drawing the box.
-      #
-      # After a box is successfully drawn, the frame's shape and contour line are adjusted to remove
-      # the occupied area.
-      def draw(canvas, box)
-        unless box == @fit_data.box
-          fit(box) || return
-        end
-
-        width = box.width
-        height = box.height
-        margin = box.style.margin if box.style.margin?
-
-        if height == 0
-          @fit_data.reset
-          return true
-        end
-
-        case box.style.position
-        when :absolute
-          x, y = box.style.position_hint
           x += left
           y += bottom
           rectangle = if box.style.margin?
+                        margin = box.style.margin
                         create_rectangle(x - margin.left, y - margin.bottom,
-                                         x + width + margin.right, y + height + margin.top)
+                                         x + box.width + margin.right, y + box.height + margin.top)
                       else
-                        create_rectangle(x, y, x + width, y + height)
+                        create_rectangle(x, y, x + box.width, y + box.height)
                       end
-        when :flow
-          x = 0
-          y = @y - height
-          rectangle = create_rectangle(left, y, left + self.width, @y)
         else
-          x = case box.style.position_hint
-              when :right
-                @x + @fit_data.margin_left + @fit_data.available_width - width
-              when :center
-                max_margin = [@fit_data.margin_left, @fit_data.margin_right].max
-                # If we have enough space left for equal margins, we center perfectly
-                if available_width - width >= 2 * max_margin
-                  @x + (available_width - width) / 2.0
-                else
-                  @x + @fit_data.margin_left + (@fit_data.available_width - width) / 2.0
+          aw = available_width
+          ah = available_height
+
+          margin_top = margin_right = margin_left = 0
+          if box.style.margin?
+            margin = box.style.margin
+            aw -= margin_right = margin.right unless float_equal(@x + aw, @left + @width)
+            aw -= margin_left = margin.left unless float_equal(@x, @left)
+            ah -= margin.bottom unless float_equal(@y - ah, @bottom)
+            ah -= margin_top = margin.top unless float_equal(@y, @bottom + @height)
+          end
+
+          fit_result.success! if box.fit(aw, ah, self)
+
+          width = box.width
+          height = box.height
+
+          case box.style.position
+          when :flow
+            x = 0
+            y = @y - height
+            rectangle = create_rectangle(left, y, left + self.width, @y)
+          else
+            x = case box.style.position_hint
+                when nil, :left
+                  @x + margin_left
+                when :right
+                  @x + margin_left + aw - width
+                when :center
+                  max_margin = [margin_left, margin_right].max
+                  # If we have enough space left for equal margins, we center perfectly
+                  if available_width - width >= 2 * max_margin
+                    @x + (available_width - width) / 2.0
+                  else
+                    @x + margin_left + (aw - width) / 2.0
+                  end
                 end
-              else
-                @x + @fit_data.margin_left
-              end
-          y = @y - height - @fit_data.margin_top
-          rectangle = if box.style.position == :float
-                        # We use the real margins from the box because they either have the desired
-                        # effect or just extend the rectangle outside the frame.
-                        create_rectangle(x - (margin&.left || 0), y - (margin&.bottom || 0),
-                                         x + width + (margin&.right || 0), @y)
-                      else
-                        create_rectangle(left, y - (margin&.bottom || 0), left + self.width, @y)
-                      end
+            y = @y - height - margin_top
+            rectangle = if box.style.position == :float
+                          # We use the real margins from the box because they either have the desired
+                          # effect or just extend the rectangle outside the frame.
+                          create_rectangle(x - (margin&.left || 0), y - (margin&.bottom || 0),
+                                           x + width + (margin&.right || 0), @y)
+                        else
+                          create_rectangle(left, y - (margin&.bottom || 0), left + self.width, @y)
+                        end
+          end
         end
 
-        box.draw(canvas, x, y)
-        remove_area(rectangle)
-        @fit_data.reset
+        fit_result.available_width = aw
+        fit_result.available_height = ah
+        fit_result.x = x
+        fit_result.y = y
+        fit_result.mask = rectangle
+        fit_result
+      end
 
-        true
+      # Tries to split the box of the given FitResult into two parts and returns both parts.
+      #
+      # See Box#split for further details.
+      def split(fit_result)
+        fit_result.box.split(fit_result.available_width, fit_result.available_height, self)
+      end
+
+      # Draws the box of the given FitResult onto the canvas at the fitted position.
+      #
+      # After a box is successfully drawn, the frame's shape and contour line are adjusted to remove
+      # the occupied area.
+      def draw(canvas, fit_result)
+        return if fit_result.box.height == 0 || fit_result.box.width == 0
+        fit_result.draw(canvas)
+        remove_area(fit_result.mask)
       end
 
       # Finds the next region for placing boxes. Returns +false+ if no useful region was found.
@@ -315,7 +316,6 @@ module HexaPDF
           trim_shape
         end
 
-        @fit_data.reset
         available_width != 0
       end
 

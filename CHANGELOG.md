@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* **Breaking change**: Refactored [HexaPDF::Layout::Frame] and associated data
+  structures so that the complete result of fitting a box is returned
+
+
 ## 0.23.0 - 2022-05-26
 
 ### Added

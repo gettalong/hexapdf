@@ -52,7 +52,9 @@ describe HexaPDF::Layout::Frame do
     def check_box(box_opts, pos, points)
       @box = HexaPDF::Layout::Box.create(**box_opts) {}
       @canvas.expect(:translate, nil, pos)
-      assert(@frame.draw(@canvas, @box))
+      fit_result = @frame.fit(@box)
+      refute_nil(fit_result)
+      @frame.draw(@canvas, fit_result)
       assert_equal(points, @frame.shape.polygons.map(&:to_a))
       @canvas.verify
     end
@@ -256,29 +258,34 @@ describe HexaPDF::Layout::Frame do
       end
     end
 
-    it "doesn't draw the box if it doesn't fit into the available space" do
-      box = HexaPDF::Layout::Box.create(width: 150, height: 50)
-      refute(@frame.draw(@canvas, box))
-    end
-
     it "can't fit the box if there is no available space" do
       @frame.remove_area(Geom2D::Polygon([0, 0], [110, 0], [110, 110], [0, 110]))
       box = HexaPDF::Layout::Box.create
-      refute(@frame.fit(box))
+      refute(@frame.fit(box).success?)
     end
 
-    it "draws the box even if the box's height is zero" do
-      box = HexaPDF::Layout::Box.create
-      box.define_singleton_method(:height) { 0 }
-      assert(@frame.draw(@canvas, box))
+    it "handles (but doesn't draw) the box if the its height or width is zero" do
+      result = Minitest::Mock.new
+      box = Minitest::Mock.new
+
+      result.expect(:box, box)
+      box.expect(:height, 0)
+      @frame.draw(@canvas, result)
+
+      result.expect(:box, box)
+      box.expect(:height, 5)
+      result.expect(:box, box)
+      box.expect(:width, 0)
+      @frame.draw(@canvas, result)
+
+      result.verify
     end
   end
 
   describe "split" do
     it "splits the box if necessary" do
       box = HexaPDF::Layout::Box.create(width: 10, height: 10)
-      assert_equal([nil, box], @frame.split(box))
-      assert_nil(@frame.instance_variable_get(:@fit_data).box)
+      assert_equal([nil, box], @frame.split(@frame.fit(box)))
     end
   end
 

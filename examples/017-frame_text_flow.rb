@@ -51,7 +51,11 @@ until frame_filled
   box = boxes[i]
   drawn = false
   until drawn || frame_filled
-    drawn = frame.draw(canvas, box)
+    result = frame.fit(box)
+    if result.success?
+      frame.draw(canvas, result)
+      drawn = true
+    end
     frame_filled = !frame.find_next_region unless drawn
   end
   i = (i + 1) % boxes.length

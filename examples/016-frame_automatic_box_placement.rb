@@ -43,7 +43,11 @@ draw_box = lambda do |**args|
 
   drawn = false
   until drawn
-    drawn = frame.draw(canvas, b)
+    result = frame.fit(b)
+    if result.success?
+      frame.draw(canvas, result)
+      drawn = true
+    end
     frame.find_next_region unless drawn
   end
 
