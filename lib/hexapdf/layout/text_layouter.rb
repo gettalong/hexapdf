@@ -100,6 +100,10 @@ module HexaPDF
           :box
         end
 
+        def inspect #:nodoc:
+          "Box[#{@item.inspect}]"
+        end
+
       end
 
       # Used for layouting. Describes a glue item, i.e. an item describing white space that could
@@ -130,6 +134,10 @@ module HexaPDF
         # Returns :glue.
         def type
           :glue
+        end
+
+        def inspect #:nodoc:
+          "Glue[#{@item.inspect}]"
         end
 
       end
@@ -171,6 +179,10 @@ module HexaPDF
         # Returns :penalty.
         def type
           :penalty
+        end
+
+        def inspect #:nodoc:
+          "Penalty[#{penalty} #{width} #{@item.inspect}]"
         end
 
         # Singleton object describing a Penalty for a prohibited break.

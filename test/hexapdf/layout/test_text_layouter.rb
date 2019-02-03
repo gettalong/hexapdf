@@ -57,6 +57,24 @@ module TestTextLayouterHelpers
   end
 end
 
+describe HexaPDF::Layout::TextLayouter::Box do
+  it "can describe itself" do
+    assert_equal('Box["test"]', HexaPDF::Layout::TextLayouter::Box.new("test").inspect)
+  end
+end
+
+describe HexaPDF::Layout::TextLayouter::Glue do
+  it "can describe itself" do
+    assert_equal('Glue["test"]', HexaPDF::Layout::TextLayouter::Glue.new("test", 5, 5).inspect)
+  end
+end
+
+describe HexaPDF::Layout::TextLayouter::Penalty do
+  it "can describe itself" do
+    assert_equal('Penalty[100 10 nil]', HexaPDF::Layout::TextLayouter::Penalty.new(100, 10).inspect)
+  end
+end
+
 describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
   include TestTextLayouterHelpers
 
