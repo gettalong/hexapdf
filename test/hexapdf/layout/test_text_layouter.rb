@@ -556,36 +556,43 @@ describe HexaPDF::Layout::TextLayouter do
       end
     end
 
-    describe "breaks a text fragment into parts if it is wider than the available width" do
+    describe "breaking into parts of a too wide text fragment" do
       before do
-        @str = " This is averylongstring"
+        @str = " Thisisaverylongstring"
         @frag = HexaPDF::Layout::TextFragment.create(@str, font: @font)
       end
 
-      it "works with fixed width" do
+      it "arranges the parts if single parts fit into the available space" do
         result = @layouter.fit([@frag], 20, 100)
         assert(result.remaining_items.empty?)
         assert_equal(:success, result.status)
-        assert_equal(@str.delete(" ").length, result.lines.sum {|l| l.items.sum {|i| i.items.count } })
-        assert_equal(54, result.height)
+        assert_equal(@str.strip.length, result.lines.sum {|l| l.items.sum {|i| i.items.count } })
+        assert_equal(45, result.height)
+      end
 
+      it "works even if a single part doesn't fit" do
         result = @layouter.fit([@frag], 1, 100)
-        assert_equal(8, result.remaining_items.count)
+        assert_equal(@str.strip.length, result.remaining_items.count)
         assert_equal(:box_too_wide, result.status)
       end
 
-      it "works with variable width" do
-        width_block = lambda do |height, line_height|
-          # 'averylongstring' would fit when only considering height but not height + line_height
-          if height + line_height < 15
-            63
-          else
-            10
-          end
-        end
-        result = @layouter.fit([@frag], width_block, 30)
-        assert_equal(:height, result.status)
-        assert_equal([26.95, 9.44, 7.77], result.lines.map {|l| l.width.round(3) })
+      it "works if the parts of the broken fragment are used in another .fit call" do
+        text = "This is a long string to test"
+        frag = HexaPDF::Layout::TextFragment.create(text, font: @font)
+        result = @layouter.fit([frag], lambda {|h, _| h > 17 ? 0 : 25 }, 20)
+        refute(result.remaining_items.empty?)
+        assert_equal(:box_too_wide, result.status)
+        assert_equal(["This", "is a"],
+                     result.lines.map {|l| l.items.map {|tf| tf.items.map(&:str).join }.join })
+
+        # Simulating a split text box where the second part is tried to fit into same remaining
+        # space
+        result = @layouter.fit(result.remaining_items, 25, 1)
+
+        # Now fit into next available space
+        result = @layouter.fit(result.remaining_items, 25, 100)
+        assert_equal(["long", "string", "to test"],
+                     result.lines.map {|l| l.items.map {|tf| tf.items.map(&:str).join }.join })
       end
     end
 

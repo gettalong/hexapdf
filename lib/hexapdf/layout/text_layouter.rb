@@ -815,7 +815,7 @@ module HexaPDF
           if too_wide_box && (too_wide_box.item.kind_of?(TextFragment) &&
                               too_wide_box.item.items.size > 1)
             rest[0..rest.index(too_wide_box)] = too_wide_box.item.items.map do |item|
-              Box.new(TextFragment.new([item], too_wide_box.item.style))
+              Box.new(TextFragment.new([item].freeze, too_wide_box.item.style))
             end
             too_wide_box = nil
           else
