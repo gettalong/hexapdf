@@ -759,6 +759,9 @@ module HexaPDF
 
             # item didn't fit into first part, find next available part
             if line.items.empty? && line_fragments.empty?
+              # item didn't fit because no more height is available
+              next nil if actual_height + item.height > height
+
               old_height = actual_height
               while item.width > width_block.call(item.item) && actual_height <= height
                 width_spec_index += 1

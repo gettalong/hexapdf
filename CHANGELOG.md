@@ -9,6 +9,8 @@
 
 * [HexaPDF::Layout::TextLayouter] to freeze the new items when a text fragment
   needs to be split
+* [HexaPDF::Layout::TextLayouter] to avoid the possible splitting of a text
+  fragment if there would not be enough height left anyway
 
 
 ## 0.23.0 - 2022-05-26

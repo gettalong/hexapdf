@@ -581,7 +581,7 @@ describe HexaPDF::Layout::TextLayouter do
         frag = HexaPDF::Layout::TextFragment.create(text, font: @font)
         result = @layouter.fit([frag], lambda {|h, _| h > 17 ? 0 : 25 }, 20)
         refute(result.remaining_items.empty?)
-        assert_equal(:box_too_wide, result.status)
+        assert_equal(:height, result.status)
         assert_equal(["This", "is a"],
                      result.lines.map {|l| l.items.map {|tf| tf.items.map(&:str).join }.join })
 
