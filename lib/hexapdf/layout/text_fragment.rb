@@ -273,7 +273,7 @@ module HexaPDF
 
       # :nodoc:
       def inspect
-        "#<#{self.class.name} #{items.inspect}>"
+        "#<#{self.class.name} #{items.map(&:str).join.inspect} #{items.inspect}>"
       end
 
       private
