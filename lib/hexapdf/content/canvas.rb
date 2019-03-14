@@ -1253,7 +1253,7 @@ module HexaPDF
       #   end
       #
       #   image = document.object(5)    # Object with oid=5 is an image XObject in this example
-      #   canvas.xobject(image, at: [100, 200], width: 200, heigth: 300)
+      #   canvas.xobject(image, at: [100, 200], width: 200, height: 300)
       #
       # See: PDF1.7 s8.8, s.8.10.1
       def xobject(obj, at:, width: nil, height: nil)
