@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Serializer] to avoid infinite loops for self-referencing streams
+
+
 ## 0.9.0 - 2018-12-31
 
 ### Added

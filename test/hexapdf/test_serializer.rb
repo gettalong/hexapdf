@@ -140,6 +140,12 @@ describe HexaPDF::Serializer do
       assert_serialized("<</Name 2 0 R>>", HexaPDF::Object.new(Name: @stream))
     end
 
+    it "handles self-referencing streams" do
+      @stream.value[:Self] = @stream
+      assert_serialized("<</Key(value)/Length 0/Self 2 0 R>>stream\n\nendstream",
+                        @stream)
+    end
+
     it "serializes stream more efficiently when an IO is provided" do
       @stream.stream = HexaPDF::StreamData.new(proc { "some" }, length: 6)
       io = StringIO.new(''.b)

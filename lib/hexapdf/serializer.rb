@@ -297,9 +297,11 @@ module HexaPDF
     def serialize_hexapdf_stream(obj)
       if !obj.indirect?
         raise HexaPDF::Error, "Can't serialize PDF stream without object identifier"
-      elsif obj != @object
+      elsif obj != @object || @in_object
         return serialize_hexapdf_reference(obj)
       end
+
+      @in_object = true
 
       fiber = if @encrypter
                 encrypter.encrypt_stream(obj)
@@ -326,6 +328,8 @@ module HexaPDF
         str << data
         str << "\nendstream"
       end
+    ensure
+      @in_object = false
     end
 
     # Invokes the correct serialization method for the object.
