@@ -130,7 +130,7 @@ module HexaPDF
         # Numbers from 0 up to size - 1 are yielded, indicating the current entry that should be
         # processed and for which an appropriate section line should be returned from the block.
         def create_sections(type, size)
-          return '' if size == 0
+          return +'' if size == 0
 
           result = +""
           index = 0

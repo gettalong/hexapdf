@@ -3,6 +3,7 @@
 ### Fixed
 
 * [HexaPDF::Serializer] to avoid infinite loops for self-referencing streams
+* Bug due to frozen string in [HexaPDF::Font::CMap::Writer]
 
 
 ## 0.9.0 - 2018-12-31

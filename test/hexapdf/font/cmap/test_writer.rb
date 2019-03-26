@@ -42,11 +42,19 @@ describe HexaPDF::Font::CMap::Writer do
   describe "create_to_unicode_cmap" do
     it "creates a correct CMap file" do
       assert_equal(@cmap_data, HexaPDF::Font::CMap.create_to_unicode_cmap(@mapping))
+    end
 
-      # Test last item is a range
+    it "works if the last item is a range" do
       @mapping.pop
       @cmap_data.sub!(/2 beginbfchar/, '1 beginbfchar')
       @cmap_data.sub!(/<3A51><d840dc3e>\n/, '')
+      assert_equal(@cmap_data, HexaPDF::Font::CMap.create_to_unicode_cmap(@mapping))
+    end
+
+    it "works with only ranges" do
+      @mapping.delete_at(-1)
+      @mapping.delete_at(0x5f)
+      @cmap_data.sub!(/\n2 beginbfchar.*endbfchar/m, '')
       assert_equal(@cmap_data, HexaPDF::Font::CMap.create_to_unicode_cmap(@mapping))
     end
 
