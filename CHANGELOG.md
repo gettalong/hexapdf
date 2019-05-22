@@ -3,6 +3,7 @@
 ### Changed
 
 * [HexaPDF::Encryption::AES] to handle invalid padding
+* [HexaPDF::Filter::FlateDecode] to correctly handle invalid empty streams
 
 ## 0.9.1 - 2019-03-26
 

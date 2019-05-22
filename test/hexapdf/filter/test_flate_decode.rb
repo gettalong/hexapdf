@@ -17,13 +17,22 @@ describe HexaPDF::Filter::FlateDecode do
   end
 
   describe "decoder" do
+    it "works for empty input" do
+      assert_equal('', collector(@obj.decoder(Fiber.new { "" })))
+      assert_equal('', collector(@obj.decoder(Fiber.new {})))
+    end
+
     it "applies the Predictor after decoding" do
       assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded_predictor), @predictor_opts)))
     end
 
     it "fails on invalid input" do
-      assert_raises(HexaPDF::FilterError) { collector(@obj.decoder(feeder("some test"))) }
-      assert_raises(HexaPDF::FilterError) { collector(@obj.decoder(Fiber.new {})) }
+      assert_raises(HexaPDF::FilterError) do
+        collector(@obj.decoder(feeder(@encoded[0..-2], @encoded.length - 3)))
+      end
+      assert_raises(HexaPDF::FilterError) do
+        collector(@obj.decoder(feeder("some data")))
+      end
     end
   end
 

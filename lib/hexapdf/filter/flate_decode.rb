@@ -49,10 +49,14 @@ module HexaPDF
     module FlateDecode
 
       # See HexaPDF::Filter
+      #
+      # The decoder also handles the case of an empty string not deflated to a correct flate stream
+      # but just output as an empty string.
       def self.decoder(source, options = nil)
         fib = Fiber.new do
           inflater = Zlib::Inflate.new
           while source.alive? && (data = source.resume)
+            next if data.empty?
             begin
               data = inflater.inflate(data)
             rescue StandardError => e
@@ -61,7 +65,7 @@ module HexaPDF
             Fiber.yield(data)
           end
           begin
-            data = (data = inflater.finish).empty? ? nil : data
+            data = inflater.total_in == 0 || (data = inflater.finish).empty? ? nil : data
             inflater.close
             data
           rescue StandardError => e
