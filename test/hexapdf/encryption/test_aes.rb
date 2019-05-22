@@ -48,12 +48,6 @@ describe HexaPDF::Encryption::AES do
       end
     end
 
-    it "fails on decryption if the padding is invalid" do
-      assert_raises(HexaPDF::EncryptionError) do
-        @algorithm_class.decrypt('some' * 4, 'iv' * 8 + 'somedata' * 4)
-      end
-    end
-
     it "fails on decryption if not enough bytes are provided" do
       assert_raises(HexaPDF::EncryptionError) do
         @algorithm_class.decrypt('some' * 4, 'no iv')
@@ -102,10 +96,18 @@ describe HexaPDF::Encryption::AES do
       assert_equal('a' * 40, result)
     end
 
-    it "fails on decryption if the padding is invalid" do
-      assert_raises(HexaPDF::EncryptionError) do
-        TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, Fiber.new { 'a' * 32 }))
-      end
+    it "decryption works if the padding is invalid" do
+      f = Fiber.new { 'a' * 32 }
+      result = TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, f))
+      assert_equal('a' * 16, result)
+
+      f = Fiber.new { 'a' * 31 + "\x00" }
+      result = TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, f))
+      assert_equal('a' * 15 + "\x00", result)
+
+      f = Fiber.new { 'a' * 29 + "\x00\x01\x03" }
+      result = TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, f))
+      assert_equal('a' * 13 + "\x00\x01\x03", result)
     end
 
     it "fails on decryption if not enough bytes are provided" do

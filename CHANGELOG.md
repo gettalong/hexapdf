@@ -1,3 +1,9 @@
+## 0.9.2 - 2019-05-22
+
+### Changed
+
+* [HexaPDF::Encryption::AES] to handle invalid padding
+
 ## 0.9.1 - 2019-03-26
 
 ### Fixed

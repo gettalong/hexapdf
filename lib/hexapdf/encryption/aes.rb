@@ -170,13 +170,18 @@ module HexaPDF
         # Removes the padding from the data according to the PKCS#5 padding scheme and returns the
         # result.
         #
+        # In case the padding is not correct as per the specification, it is assumed that there is
+        # no padding and the input is returned as is.
+        #
         # See: PDF1.7 s7.6.2
         def unpad(data)
           padding_length = data.getbyte(-1)
-          if padding_length > BLOCK_SIZE || padding_length == 0
-            raise HexaPDF::EncryptionError, "Invalid AES padding length #{padding_length}"
+          if padding_length > BLOCK_SIZE || padding_length == 0 ||
+              data[-padding_length, padding_length].each_byte.any? {|byte| byte != padding_length }
+            data
+          else
+            data[0...-padding_length]
           end
-          data[0...-padding_length]
         end
 
       end
