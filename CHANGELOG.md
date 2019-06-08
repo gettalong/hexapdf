@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Fix problem with [HexaPDF::Encryption::StandardSecurityHandler] due to
+  behaviour change of Ruby 2.6.0 in `String#setbyte`
+
 ## 0.9.2 - 2019-05-22
 
 ### Changed

@@ -607,7 +607,7 @@ module HexaPDF
         new_key = key.dup
         i = 0
         while i < new_key.length
-          new_key.setbyte(i, new_key.getbyte(i) ^ value)
+          new_key.setbyte(i, (new_key.getbyte(i) ^ value) % 256)
           i += 1
         end
         new_key
