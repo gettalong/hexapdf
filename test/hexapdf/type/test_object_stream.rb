@@ -96,6 +96,14 @@ describe HexaPDF::Type::ObjectStream do
       assert_equal(0, @obj.value[:First])
       assert_equal("", @obj.stream)
     end
+
+    it "doesn't allow the Catalog entry to be compressed when encryption is used" do
+      @obj.add_object(HexaPDF::Dictionary.new({Type: :Catalog}, oid: 8))
+      @obj.write_objects(@revision)
+      assert_equal(0, @obj.value[:N])
+      assert_equal(0, @obj.value[:First])
+      assert_equal("", @obj.stream)
+    end
   end
 
   it "fails validation if gen != 0" do

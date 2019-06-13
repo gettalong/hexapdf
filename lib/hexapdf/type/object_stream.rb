@@ -174,7 +174,11 @@ module HexaPDF
         encrypt_dict = document.trailer[:Encrypt]
         while index < objects.size / 2
           obj = revision.object(objects[index])
-          if obj.nil? || obj.null? || obj.gen != 0 || obj.kind_of?(Stream) || obj == encrypt_dict
+
+          # Due to a bug in Adobe Acrobat, the Catalog may not be in an object stream if the
+          # document is encrypted
+          if obj.nil? || obj.null? || obj.gen != 0 || obj.kind_of?(Stream) || obj == encrypt_dict ||
+              (encrypt_dict && obj.type == :Catalog)
             delete_object(objects[index])
             next
           end

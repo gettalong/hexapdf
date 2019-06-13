@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Changed
+
+* Behaviour of how object streams are generated to work around a bug (?) in
+  Adobe Acrobat
+
 ### Fixed
 
 * Fix problem with [HexaPDF::Encryption::StandardSecurityHandler] due to
