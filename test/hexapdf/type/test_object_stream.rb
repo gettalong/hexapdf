@@ -57,21 +57,45 @@ describe HexaPDF::Type::ObjectStream do
     assert_nil(@obj.object_index(5))
   end
 
-  it "allows writing the objects to the stream" do
-    @obj.stream = 'something'
-    @obj.add_object(HexaPDF::Object.new(5, oid: 1))
-    @obj.add_object(HexaPDF::Object.new(:will_be_deleted, oid: 3, gen: 1))
-    @obj.add_object(HexaPDF::Object.new([1, 2], oid: 5))
-    @obj.add_object(HexaPDF::Object.new(nil, oid: 7))
-    @obj.add_object(@doc.trailer[:Encrypt])
+  describe "write objects to stream" do
+    before do
+      @revision = Object.new
+      def @revision.object(obj); obj; end
+    end
 
-    revision = Object.new
-    def revision.object(obj); obj; end
-    @obj.write_objects(revision)
+    it "processes allowed objects" do
+      @obj.add_object(HexaPDF::Object.new(5, oid: 1))
+      @obj.add_object(HexaPDF::Object.new([1, 2], oid: 5))
 
-    assert_equal(2, @obj.value[:N])
-    assert_equal(8, @obj.value[:First])
-    assert_equal("1 0 5 2 5 [1 2] ", @obj.stream)
+      @obj.write_objects(@revision)
+      assert_equal(2, @obj.value[:N])
+      assert_equal(8, @obj.value[:First])
+      assert_equal("1 0 5 2 5 [1 2] ", @obj.stream)
+    end
+
+    it "doesn't allow null objects" do
+      @obj.add_object(HexaPDF::Object.new(nil, oid: 7))
+      @obj.write_objects(@revision)
+      assert_equal(0, @obj.value[:N])
+      assert_equal(0, @obj.value[:First])
+      assert_equal("", @obj.stream)
+    end
+
+    it "doesn't allow objects with gen not 0" do
+      @obj.add_object(HexaPDF::Object.new(:will_be_deleted, oid: 3, gen: 1))
+      @obj.write_objects(@revision)
+      assert_equal(0, @obj.value[:N])
+      assert_equal(0, @obj.value[:First])
+      assert_equal("", @obj.stream)
+    end
+
+    it "doesn't allow the encryption dictionary to be compressed" do
+      @obj.add_object(@doc.trailer[:Encrypt])
+      @obj.write_objects(@revision)
+      assert_equal(0, @obj.value[:N])
+      assert_equal(0, @obj.value[:First])
+      assert_equal("", @obj.stream)
+    end
   end
 
   it "fails validation if gen != 0" do
