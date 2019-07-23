@@ -118,7 +118,7 @@ module HexaPDF
       # Returns the array with valid types for this field.
       def type
         return @type if @type_mapped
-        @type.concat(@converters.map(&:additional_types).compact.flatten)
+        @type.concat(@converters.flat_map(&:additional_types).compact)
         @type.map! do |type|
           if type.kind_of?(Symbol)
             HexaPDF::GlobalConfiguration.constantize('object.type_map', type)
