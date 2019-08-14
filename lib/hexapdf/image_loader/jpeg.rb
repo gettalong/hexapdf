@@ -41,7 +41,7 @@ module HexaPDF
 
     # This module is used for loading images in the JPEG format from files or IO streams.
     #
-    # See: PDF1.7 s7.4.8, ITU T.81 Annex B
+    # See: PDF1.7 s7.4.8, ITU T.81 Annex B, ITU T.872
     module JPEG
 
       # The magic marker that tells us if the file/IO contains an image in JPEG format.
@@ -56,13 +56,13 @@ module HexaPDF
         0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF
       ].freeze
 
-      # Adobe uses the marker 0xEE (APPE) for its purposes. We need to use it for determinig
-      # whether to invert the colors for CMYK/YCCK images or not (Adobe does this...).
-      #
-      # The marker also let's us distinguish between YCCK and CMYK images. However, we don't
-      # actually need this information (and we don't need to set the /ColorTransform value)
-      # because if the image has this information it is automically used.
-      ADOBE_MARKER = 0xEE
+      # Adobe uses the marker 0xEE (APPE or APP14) for its purposes. We need to use it for
+      # determinig whether we have a CMYK or YCCK image.
+      APP14_MARKER = 0xEE
+
+      # Value of the 12th byte in an APP14 marker specifying that the image uses CMYK color
+      # encoding, with all four colors complemented.
+      APP14_TRANSFORM_CMYK = 0
 
       # End-of-image marker
       EOI_MARKER = 0xD9
@@ -121,9 +121,11 @@ module HexaPDF
           # but those shouldn't appear here)
           length = io.read(2).unpack1('n')
 
-          if code1 == ADOBE_MARKER # Adobe apps invert the colors when using CMYK color space
-            invert_colors = true
-            io.seek(length - 2, IO::SEEK_CUR)
+          # According to T.872 6.1 and 6.5.3, if this marker is present, we need to use it for
+          # correctly determining whether complemented CMYK or YCCK is used
+          if code1 == APP14_MARKER
+            io.seek(length - 3, IO::SEEK_CUR)
+            invert_colors = true if io.getbyte == APP14_TRANSFORM_CMYK
             next
           elsif !SOF_MARKERS.include?(code1)
             io.seek(length - 2, IO::SEEK_CUR)

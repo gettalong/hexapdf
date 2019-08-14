@@ -66,6 +66,16 @@ describe HexaPDF::ImageLoader::JPEG do
       assert_equal(File.binread(jpeg), image.stream)
     end
 
+    it "works for a YCCK jpeg" do
+      jpeg = @images.grep(/ycck\.jpg/).first
+      image = @loader.load(@doc, jpeg)
+      assert_equal(5, image[:Width])
+      assert_equal(5, image[:Height])
+      assert_equal(:DeviceCMYK, image[:ColorSpace])
+      refute(image.key?(:Decode))
+      assert_equal(File.binread(jpeg), image.stream)
+    end
+
     it "fails if the JPEG is corrupt" do
       exp = assert_raises(HexaPDF::Error) do
         @loader.load(@doc, StringIO.new("some non JPEG data"))

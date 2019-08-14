@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Import of JPEG images with YCCK color encoding
+
+
 ## 0.9.3 - 2019-06-13
 
 ### Changed
