@@ -3,6 +3,8 @@
 ### Fixed
 
 * Import of JPEG images with YCCK color encoding
+* Mistyped name of field type for field `/Popup` of
+  [HexaPDF::Type::Annotations::MarkupAnnotation]
 
 
 ## 0.9.3 - 2019-06-13
