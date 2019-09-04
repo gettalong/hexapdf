@@ -131,18 +131,24 @@ describe HexaPDF::Type::Image do
       @file.unlink
     end
 
-    `pngcheck 2>&1`
-    if $?.exitstatus != 0
-      warn("Skipping PNG output validity check because pngcheck executable is missing")
-      PNG_CHECK_AVAILABLE = false
-    else
-      PNG_CHECK_AVAILABLE = true
-    end
+    `which pngcheck 2>&1`
+    PNG_CHECK_AVAILABLE = $?.exitstatus == 0
 
-    def assert_valid_png(filename)
-      return unless PNG_CHECK_AVAILABLE
-      result = `pngcheck -q #{filename}`
-      assert(result.empty?, "pngcheck error: #{result}")
+    `which pngtopnm 2>&1`
+    PNG_COMPARE_AVAILABLE = $?.exitstatus == 0
+
+    def assert_valid_png(filename, original = nil)
+      if PNG_CHECK_AVAILABLE
+        result = `pngcheck -q #{filename}`
+        assert(result.empty?, "pngcheck error: #{result}")
+      else
+        skip("Skipping PNG output validity check because pngcheck executable is missing")
+      end
+      if PNG_COMPARE_AVAILABLE
+        assert_equal(`pngtopnm #{original}`, `pngtopnm #{filename}`) if original
+      else
+        skip("Skipping PNG output comparison check because pngtopnm executable is missing")
+      end
     end
 
     it "can write to an IO" do
@@ -179,8 +185,11 @@ describe HexaPDF::Type::Image do
       it "writes #{File.basename(png_file)} correctly as PNG file" do
         image = @doc.images.add(png_file)
         image.write(@file.path)
+        assert_valid_png(@file.path, png_file)
 
-        assert_valid_png(@file.path)
+        image.delete(:DecodeParms) # force re-encoding of stream
+        image.write(@file.path)
+        assert_valid_png(@file.path, png_file)
 
         new_image = @doc.images.add(@file.path)
 

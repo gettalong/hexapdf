@@ -3,6 +3,7 @@
 ### Fixed
 
 * Import of JPEG images with YCCK color encoding
+* Export of images without `/FlateDecode` filter or `/DecodeParms` to PNG files
 * Mistyped name of field type for field `/Popup` of
   [HexaPDF::Type::Annotations::MarkupAnnotation]
 
