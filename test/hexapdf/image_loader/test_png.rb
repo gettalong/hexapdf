@@ -206,8 +206,9 @@ describe HexaPDF::ImageLoader::PNG do
     end
 
     it "works for a true color 8-bit png with alpha" do
-      png = @images.grep(/truecolour-alpha-8bit\.png/).first
-      image = @loader.load(@doc, png)
+      png_data = File.binread(@images.grep(/truecolour-alpha-8bit\.png/).first)
+      png_data[33, 0] = [0, "tRNS", 0].pack('NA4N') # add invalid tRNS chunk
+      image = @loader.load(@doc, StringIO.new(png_data))
       data = [[12, 92, 146, 80, 136, 175, 167, 193, 213, 97, 175, 101, 38, 113, 50],
               [12, 92, 146, 81, 137, 176, 168, 194, 214, 97, 175, 101, 38, 113, 49],
               [12, 92, 146, 81, 137, 176, 169, 195, 214, 96, 175, 101, 37, 113, 49],
