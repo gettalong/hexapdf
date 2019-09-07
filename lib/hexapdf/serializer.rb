@@ -186,7 +186,7 @@ module HexaPDF
       NAME_CACHE[obj] ||=
         begin
           str = obj.to_s.force_encoding(Encoding::BINARY)
-          str.gsub!(NAME_REGEXP) {|m| NAME_SUBSTS[m] }
+          str.gsub!(NAME_REGEXP, NAME_SUBSTS)
           "/#{str}"
         end
     end
@@ -217,7 +217,7 @@ module HexaPDF
       str = +"<<"
       obj.each do |k, v|
         next if v.nil? || (v.respond_to?(:null?) && v.null?)
-        str << __serialize(k)
+        str << serialize_symbol(k)
         tmp = __serialize(v)
         str << " " unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
             BYTE_IS_DELIMITER[str.getbyte(-1)]
@@ -311,7 +311,7 @@ module HexaPDF
 
       if @io && fiber.respond_to?(:length) && fiber.length >= 0
         obj.value[:Length] = fiber.length
-        @io << __serialize(obj.value)
+        @io << serialize_hash(obj.value)
         @io << "stream\n"
         while fiber.alive? && (data = fiber.resume)
           @io << data.freeze
@@ -323,7 +323,7 @@ module HexaPDF
         data = Filter.string_from_source(fiber)
         obj.value[:Length] = data.size
 
-        str = __serialize(obj.value)
+        str = serialize_hash(obj.value)
         str << "stream\n"
         str << data
         str << "\nendstream"
