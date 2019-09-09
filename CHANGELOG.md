@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Changed
+
+* Enhanced the `hexapdf inspect` command with an interactive mode and structure
+  output
+
 ### Fixed
 
 * Import of JPEG images with YCCK color encoding

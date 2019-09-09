@@ -334,23 +334,13 @@ Synopsis: `inspect` \[`OPTIONS`] *FILE*
 This command is useful when one needs to inspect the internal object structure or a stream of a PDF
 file.
 
-If no option is given, the PDF trailer is shown. Otherwise the various, mutually exclusive display
-options define what is shown. If multiple such options are specified only the last one is respected.
-Note that PDF objects are always shown in the native PDF syntax.
+If no option is given, the interactive mode is started (see below). Otherwise the various, mutually
+exclusive display options define what is shown. If multiple such options are specified only the last
+one is respected. Note that PDF objects are always shown in the native PDF syntax.
 
-`--catalog`
-
-: Show the PDF catalog dictionary.
-
-`-c`, `--page-count`
-
-: Print the number of pages.
-
-`--pages` \[*PAGES*]
-
-: Show the pages with their object and generation numbers and their associated content streams. If a
-  range is specified, only those pages are listed. See the **PAGES SPECIFICATION** below for details
-  on the allowed format of *PAGES*.
+The interactive mode allows you to execute inspection commands without re-parsing the PDF file. Use
+the 'help' command to list the available commands (generally, everything that is possible with
+command line options is also available in interactive mode).
 
 `-o` *OID*\[,*GEN*], `--object` *OID*\[,*GEN*]
 
@@ -365,6 +355,31 @@ Note that PDF objects are always shown in the native PDF syntax.
 `--raw`
 
 : Modifies `--stream` to show the raw stream data instead of the filtered one.
+
+`-c`, `--page-count`
+
+: Print the number of pages.
+
+`--catalog`
+
+: Show the PDF catalog dictionary.
+
+`--trailer`
+
+: Show the PDF catalog dictionary.
+
+`--pages` \[*PAGES*]
+
+: Show the pages with their object and generation numbers and their associated content streams. If a
+  range is specified, only those pages are listed. See the **PAGES SPECIFICATION** below for details
+  on the allowed format of *PAGES*.
+
+`--structure`
+
+: Show the structure of the PDF file, i.e. all objects recursively starting from the trailer. Note
+  that the keys of dictionary objects are listed alphabetically (instead of the order defined in the
+  PDF file) and that object references are substituted with custom references. Both are done to make
+  diffing the output more useful, i.e. to find changes done by a PDF application.
 
 `-p` *PASSWORD*, `--password` *PASSWORD*
 
@@ -613,12 +628,13 @@ creator, creation date and encryption related information.
 
 ### inspect
 
-`hexapdf inspect input.pdf`  
-`hexapdf inspect input.pdf -o 3`  
+`hexapdf inspect input.pdf -o 3`
 
-Inspect a PDF: These commands can be used to inspect the internal object structure of a PDF file.
-The first command shows the PDF trailer object. The second one shows the object with the object
-number 3.
+Show the object with the object number 3 of the given PDF file.
+
+`hexapdf inspect input.pdf`
+
+Start the interactive inspection mode.
 
 
 ### batch
