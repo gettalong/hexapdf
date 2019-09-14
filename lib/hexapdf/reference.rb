@@ -90,6 +90,11 @@ module HexaPDF
       oid.hash ^ gen.hash
     end
 
+    # Returns the object identifier as "oid,gen".
+    def to_s
+      "#{oid} #{gen} R"
+    end
+
     def inspect #:nodoc:
       "#<#{self.class.name} [#{oid}, #{gen}]>"
     end

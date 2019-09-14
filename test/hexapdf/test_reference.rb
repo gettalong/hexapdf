@@ -40,6 +40,10 @@ describe HexaPDF::Reference do
     refute(h.key?(HexaPDF::Reference.new(5, 8)))
   end
 
+  it "shows the PDF serialization as string representation " do
+    assert_equal("5 7 R", HexaPDF::Reference.new(5, 7).to_s)
+  end
+
   it "shows oid and gen on inspection" do
     assert_match(/\[5, 7\]/, HexaPDF::Reference.new(5, 7).inspect)
   end

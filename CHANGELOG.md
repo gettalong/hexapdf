@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Reference#to_s] to return the serialized form of the PDF reference
+
 ### Changed
 
 * Enhanced the `hexapdf inspect` command with an interactive mode and structure
