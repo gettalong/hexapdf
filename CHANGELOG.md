@@ -4,6 +4,8 @@
 
 * Enhanced the `hexapdf inspect` command with an interactive mode and structure
   output
+* Output of validation problem messages for `hexapdf` command to include more
+  information
 
 ### Fixed
 

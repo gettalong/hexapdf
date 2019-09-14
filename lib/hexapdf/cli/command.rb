@@ -120,7 +120,7 @@ module HexaPDF
         if out_file
           doc.validate(auto_correct: true) do |object, msg, correctable|
             if command_parser.strict && !correctable
-              raise "Validation error: #{msg}"
+              raise "Validation error for object (#{object.oid},#{object.gen}): #{msg}"
             elsif command_parser.verbosity_info?
               $stderr.puts "#{correctable ? 'Corrected' : 'Ignored'} validation problem " \
                 "for object (#{object.oid},#{object.gen}): #{msg}"
