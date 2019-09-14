@@ -6,8 +6,8 @@
 
 ### Changed
 
-* Enhanced the `hexapdf inspect` command with an interactive mode and structure
-  output
+* Enhanced the `hexapdf inspect` command with an interactive mode, structure
+  output and object search
 * Output of validation problem messages for `hexapdf` command to include more
   information
 

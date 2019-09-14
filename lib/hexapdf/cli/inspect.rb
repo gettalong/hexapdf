@@ -138,6 +138,23 @@ module HexaPDF
           when 'p', 'pages'
             @param = args.first || '1-e'
             do_pages rescue puts "Error: Invalid page range argument"
+          when 'search'
+            if args.empty?
+              puts "Error: Missing argument regexp"
+              next
+            end
+            re = Regexp.new(args.first, Regexp::IGNORECASE)
+            @doc.each do |object|
+              if (object.value.kind_of?(Hash) &&
+                  object.value.any? {|k, v| k.to_s.match?(re) || v.to_s.match?(re) }) ||
+                  (object.value.kind_of?(Array) &&
+                   object.value.any? {|i| i.to_s.match?(re) }) ||
+                  object.value.to_s.match?(re)
+                puts "#{object.oid} #{object.gen} obj"
+                serialize(object.value, recursive: false)
+                puts "endobj"
+              end
+            end
           when 'q', 'quit'
             break
           when 'h', 'help'
@@ -148,6 +165,7 @@ module HexaPDF
               c[atalog]                      - Print the catalog dictionary
               t[railer]                      - Print the trailer dictionary
               p[ages] [RANGE]                - Print information about pages
+              search REGEXP                  - Print objects matching the pattern
               h[elp]                         - Show this help
               q[uit]                         - Quit
             HELP
