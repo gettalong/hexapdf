@@ -16,7 +16,7 @@ describe HexaPDF::Document::Images do
         @loader.define_singleton_method(:handles?) {|*| true }
         @loader.define_singleton_method(:load) do |doc, s|
           s = HexaPDF::StreamData.new(s) if s.kind_of?(IO)
-          doc.add({Subtype: :Image}, stream: s)
+          doc.add({Type: :XObject, Subtype: :Image}, stream: s)
         end
         @doc.config['image_loader'].unshift(@loader)
       end
@@ -60,10 +60,12 @@ describe HexaPDF::Document::Images do
     it "iterates over all non-mask images" do
       @doc.add(5)
       images = []
-      images << @doc.add(Subtype: :Image)
-      images << @doc.add(Subtype: :Image, Mask: [5, 6])
-      images << @doc.add(Subtype: :Image, Mask: @doc.add(Subtype: :Image))
-      images << @doc.add(Subtype: :Image, SMask: @doc.add(Subtype: :Image))
+      images << @doc.add(Type: :XObject, Subtype: :Image)
+      images << @doc.add(Type: :XObject, Subtype: :Image, Mask: [5, 6])
+      images << @doc.add(Type: :XObject, Subtype: :Image,
+                         Mask: @doc.add(Type: :XObject, Subtype: :Image))
+      images << @doc.add(Type: :XObject, Subtype: :Image,
+                         SMask: @doc.add(Type: :XObject, Subtype: :Image))
       assert_equal(images.sort, @doc.images.to_a.sort)
     end
   end

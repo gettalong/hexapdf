@@ -12,19 +12,19 @@ describe HexaPDF::Type::Image do
   end
 
   it "returns the width of the image" do
-    @image = @doc.wrap(Subtype: :Image, Width: 10)
+    @image = @doc.wrap(Type: :XObject, Subtype: :Image, Width: 10)
     assert_equal(10, @image.width)
   end
 
   it "returns the height of the image" do
-    @image = @doc.wrap(Subtype: :Image, Height: 10)
+    @image = @doc.wrap(Type: :XObject, Subtype: :Image, Height: 10)
     assert_equal(10, @image.height)
   end
 
   describe "info" do
     before do
-      @image = @doc.wrap(Subtype: :Image, Width: 10, Height: 5, ColorSpace: :DeviceRGB,
-                         BitsPerComponent: 4)
+      @image = @doc.wrap(Type: :XObject, Subtype: :Image, Width: 10, Height: 5,
+                         ColorSpace: :DeviceRGB, BitsPerComponent: 4)
     end
 
     it "uses the Width, Height and BitsPerComponent values" do
@@ -217,7 +217,7 @@ describe HexaPDF::Type::Image do
     end
 
     it "works for greyscale indexed images" do
-      image = @doc.add(Subtype: :Image, Width: 2, Height: 2, BitsPerComponent: 2,
+      image = @doc.add(Type: :XObject, Subtype: :Image, Width: 2, Height: 2, BitsPerComponent: 2,
                        ColorSpace: [:Indexed, :DeviceGray, 3, "\x00\x40\x80\xFF".b])
       image.stream = HexaPDF::StreamData.new(filter: :ASCIIHexDecode) { "10 B0".b }
       image.write(@file.path)
@@ -236,13 +236,13 @@ describe HexaPDF::Type::Image do
     end
 
     it "fails if an unsupported colorspace is used" do
-      image = @doc.add(Subtype: :Image, Width: 1, Height: 1, BitsPerComponent: 8,
+      image = @doc.add(Type: :XObject, Subtype: :Image, Width: 1, Height: 1, BitsPerComponent: 8,
                        ColorSpace: :ICCBased)
       assert_raises(HexaPDF::Error) { image.write(@file) }
     end
 
     it "fails if an indexed image with an unsupported colorspace is used" do
-      image = @doc.add(Subtype: :Image, Width: 1, Height: 1, BitsPerComponent: 8,
+      image = @doc.add(Type: :XObject, Subtype: :Image, Width: 1, Height: 1, BitsPerComponent: 8,
                        ColorSpace: [:Indexed, :ICCBased, 0, "0"])
       assert_raises(HexaPDF::Error) { image.write(@file) }
     end

@@ -8,7 +8,7 @@ require 'hexapdf/type/form'
 describe HexaPDF::Type::Form do
   before do
     @doc = HexaPDF::Document.new
-    @form = @doc.wrap({}, subtype: :Form)
+    @form = @doc.wrap({}, type: :XObject, subtype: :Form)
   end
 
   describe "box" do
