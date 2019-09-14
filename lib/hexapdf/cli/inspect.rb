@@ -117,7 +117,7 @@ module HexaPDF
           input = $stdin.gets
           (puts; break) unless input
 
-          command, *args = input.split(" ")
+          command, *args = input.scan(/(["'])(.+?)\1|(\S+)/).map {|a| a[1] || a[2] }
           case command
           when /^\d+(,\d+)?$/, 'o', 'object'
             arg = (command.start_with?('o') ? args.first : command)
