@@ -257,7 +257,7 @@ module HexaPDF
 
         key = object_key(obj.oid, obj.gen, string_algorithm)
         each_string_in_object(obj.value) do |str|
-          next if str.empty?
+          next if str.empty? || (obj.type == :Sig && obj[:Contents].equal?(str))
           str.replace(string_algorithm.decrypt(key, str))
         end
 
@@ -275,7 +275,8 @@ module HexaPDF
       #
       # See: PDF1.7 s7.6.2
       def encrypt_string(str, obj)
-        return str if str.empty? || obj == document.trailer[:Encrypt] || obj.type == :XRef
+        return str if str.empty? || obj == document.trailer[:Encrypt] || obj.type == :XRef ||
+          (obj.type == :Sig && obj[:Contents].equal?(str))
 
         key = object_key(obj.oid, obj.gen, string_algorithm)
         string_algorithm.encrypt(key, str)

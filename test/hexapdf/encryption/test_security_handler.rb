@@ -298,6 +298,12 @@ describe HexaPDF::Encryption::SecurityHandler do
       assert_equal(@encrypted, @handler.decrypt(@obj)[:Key])
     end
 
+    it "doesn't decrypt the /Contents of a signature dictionary" do
+      @obj[:Type] = :Sig
+      @obj[:Contents] = "test"
+      assert_equal("test", @handler.decrypt(@obj)[:Contents])
+    end
+
     it "fails if V < 5 and the object number changes" do
       @obj.oid = 55
       @handler.decrypt(@obj)
@@ -331,6 +337,13 @@ describe HexaPDF::Encryption::SecurityHandler do
     it "doesn't encrypt XRef streams" do
       @stream[:Type] = :XRef
       assert_equal('string', @handler.encrypt_stream(@stream).resume)
+    end
+
+    it "doesn't encrypt the /Contents key of signature dictionaries" do
+      @obj[:Type] = :Sig
+      @obj[:Contents] = "test"
+      refute_equal('test', @handler.encrypt_string("test", @obj))
+      assert_equal('test', @handler.encrypt_string(@obj[:Contents], @obj))
     end
   end
 

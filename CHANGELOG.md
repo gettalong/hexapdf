@@ -17,6 +17,7 @@
 * Export of images without `/FlateDecode` filter or `/DecodeParms` to PNG files
 * Mistyped name of field type for field `/Popup` of
   [HexaPDF::Type::Annotations::MarkupAnnotation]
+* Loading and saving of encrypted and signed PDFs
 
 
 ## 0.9.3 - 2019-06-13
