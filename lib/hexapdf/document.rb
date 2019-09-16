@@ -277,16 +277,21 @@ module HexaPDF
     # needed.
     #
     # The class of the returned object is always a subclass of HexaPDF::Object (or of
-    # HexaPDF::Stream if a +stream+ is given). Which subclass is used, depends on the values
-    # of the +type+ and +subtype+ options as well as on the 'object.type_map' and
-    # 'object.subtype_map' global configuration options:
+    # HexaPDF::Stream if a +stream+ is given). Which subclass is used, depends on the values of the
+    # +type+ and +subtype+ options as well as on the 'object.type_map' and 'object.subtype_map'
+    # global configuration options:
     #
-    # * First +type+ is used to try to determine the class. If it is already a Class object, it is
-    #   used, otherwise the type is looked up in 'object.type_map'.
+    # * First +type+ is used to try to determine the class. If it is not provided and if +obj+ is a
+    #   hash with a :Type field, the value of this field is used instead. If the resulting object is
+    #   already a Class object, it is used, otherwise the type is looked up in 'object.type_map'.
     #
     # * If +subtype+ is provided or can be determined because +obj+ is a hash with a :Subtype or :S
     #   field, the type and subtype together are used to look up a special subtype class in
     #   'object.subtype_map'.
+    #
+    #   Additionally, if there is no +type+ but a +subtype+, all required fields of the subtype
+    #   class need to have values; otherwise the subtype class is not used. This is done to better
+    #   prevent invalid mappings when only partial knowledge (:Type key is missing) is available.
     #
     # * If there is no valid class after the above steps, HexaPDF::Stream is used if a stream is
     #   given, HexaPDF::Dictionary if the given objecct is a hash or else HexaPDF::Object is used.
@@ -330,7 +335,11 @@ module HexaPDF
         subtype ||= deref(data.value[:Subtype]) || deref(data.value[:S])
       end
       if subtype
-        klass = GlobalConfiguration.constantize('object.subtype_map', type, subtype) { klass }
+        sub_klass = GlobalConfiguration.constantize('object.subtype_map', type, subtype) { klass }
+        if type ||
+            sub_klass&.each_field&.none? {|name, field| field.required? && !data.value.key?(name) }
+          klass = sub_klass
+        end
       end
 
       klass ||= if data.stream

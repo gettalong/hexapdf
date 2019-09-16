@@ -267,6 +267,7 @@ describe HexaPDF::Document do
       @myclass = Class.new(HexaPDF::Dictionary)
       @myclass.define_type(:MyClass)
       @myclass2 = Class.new(HexaPDF::Dictionary)
+      @myclass2.define_field(:Test, type: String, required: true)
       HexaPDF::GlobalConfiguration['object.type_map'][:MyClass] = @myclass
       HexaPDF::GlobalConfiguration['object.subtype_map'][nil][:Global] = @myclass2
       HexaPDF::GlobalConfiguration['object.subtype_map'][:MyClass] = {TheSecond: @myclass2}
@@ -328,14 +329,16 @@ describe HexaPDF::Document do
     it "uses the type/subtype information in the hash that should be wrapped" do
       assert_kind_of(@myclass, @doc.wrap(Type: :MyClass))
       refute_kind_of(@myclass2, @doc.wrap(Subtype: :TheSecond))
-      assert_kind_of(@myclass2, @doc.wrap(Subtype: :Global))
+      refute_kind_of(@myclass2, @doc.wrap(Subtype: :Global))
+      assert_kind_of(@myclass2, @doc.wrap(Subtype: :Global, Test: "true"))
       assert_kind_of(@myclass2, @doc.wrap(Type: :MyClass, S: :TheSecond))
       assert_kind_of(@myclass, @doc.wrap(Type: :MyClass, Subtype: :TheThird))
     end
 
     it "respects the given type/subtype arguments" do
       assert_kind_of(@myclass, @doc.wrap({Type: :Other}, type: :MyClass))
-      assert_kind_of(@myclass2, @doc.wrap({Subtype: :Other}, subtype: :Global))
+      refute_kind_of(@myclass2, @doc.wrap({Subtype: :Other}, subtype: :Global))
+      assert_kind_of(@myclass2, @doc.wrap({Subtype: :Other, Test: "true"}, subtype: :Global))
       assert_kind_of(@myclass2, @doc.wrap({Type: :Other, Subtype: :Other},
                                           type: :MyClass, subtype: :TheSecond))
       assert_kind_of(@myclass2, @doc.wrap({Subtype: :TheSecond}, type: @myclass))

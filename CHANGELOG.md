@@ -13,6 +13,8 @@
 
 ### Fixed
 
+* [HexaPDF::Document#wrap] to better handle subtype mappings in case of unknown
+  type information
 * Import of JPEG images with YCCK color encoding
 * Export of images without `/FlateDecode` filter or `/DecodeParms` to PNG files
 * Mistyped name of field type for field `/Popup` of
