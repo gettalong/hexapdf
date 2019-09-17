@@ -45,6 +45,41 @@ module HexaPDF
     # See: HexaPDF::Type::Image
     class Images < Command
 
+      # Extracts the PPI (pixel per inch) information for each image of a content stream.
+      class ImageLocationProcessor < HexaPDF::Content::Processor
+
+        # The mapping of XObject name to [x_ppi, y_ppi].
+        attr_reader :result
+
+        # Initialize the processor with the names of the images for which the PPI should be
+        # determined.
+        def initialize(names, user_unit)
+          super()
+          @names = names
+          @user_unit = user_unit
+          @result = {}
+        end
+
+        # Determine the PPI in x- and y-directions of the specified images.
+        def paint_xobject(name)
+          super
+          return unless @names.delete(name)
+          xobject = resources.xobject(name)
+          return unless xobject[:Subtype] == :Image
+
+          w, h = xobject.width, xobject.height
+          llx, lly = graphics_state.ctm.evaluate(0, 0).map {|i| i * @user_unit }
+          lrx, lry = graphics_state.ctm.evaluate(1, 0).map {|i| i * @user_unit }
+          ulx, uly = graphics_state.ctm.evaluate(0, 1).map {|i| i * @user_unit }
+
+          x_ppi = 72.0 * w / Math.sqrt((lrx - llx)**2 + (lry - lly)**2)
+          y_ppi = 72.0 * h / Math.sqrt((ulx - llx)**2 + (uly - lly)**2)
+          @result[name] = [x_ppi.round, y_ppi.round]
+          raise StopIteration if @names.empty?
+        end
+
+      end
+
       def initialize #:nodoc:
         super('images', takes_commands: false)
         short_desc("List or extract images from a PDF file")
@@ -94,16 +129,17 @@ module HexaPDF
 
       # Outputs a table with the images of the PDF document.
       def list_images(doc)
-        printf("%5s %5s %9s %6s %6s %5s %4s %3s %5s %8s\n",
-               "index", "page", "oid", "width", "height", "color", "comp", "bpc", "type",
-               "writable")
-        puts("-" * 65)
-        each_image(doc) do |image, index, pindex|
+        printf("%5s %5s %9s %6s %6s %5s %4s %3s %5s %5s %6s %5s %8s\n",
+               "index", "page", "oid", "width", "height", "color", "comp", "bpc",
+               "x-ppi", "y-ppi", "size", "type", "writable")
+        puts("-" * 77)
+        each_image(doc) do |image, index, pindex, (x_ppi, y_ppi)|
           info = image.info
-          printf("%5i %5s %9s %6i %6i %5s %4i %3i %5s %8s\n",
+          size = human_readable_file_size(image[:Length] + image[:SMask]&.[](:Length).to_i)
+          printf("%5i %5s %9s %6i %6i %5s %4i %3i %5s %5s %6s %5s %8s\n",
                  index, pindex || '-', "#{image.oid},#{image.gen}", info.width, info.height,
-                 info.color_space, info.components, info.bits_per_component, info.type,
-                 info.writable)
+                 info.color_space, info.components, info.bits_per_component, x_ppi, y_ppi,
+                 size, info.type, info.writable)
         end
       end
 
@@ -131,11 +167,21 @@ module HexaPDF
         seen = {}
 
         doc.pages.each_with_index do |page, pindex|
-          page.resources[:XObject]&.each do |_name, xobject|
+          image_names = []
+          xobjects = page.resources[:XObject]
+
+          xobjects&.each&.map do |name, xobject|
+            image_names << name if xobject[:Subtype] == :Image && !xobject[:ImageMask]
+          end
+
+          processor = ImageLocationProcessor.new(image_names, page[:UserUnit] || 1)
+          page.process_contents(processor)
+          processor.result.each do |name, ppi|
+            xobject = xobjects[name]
             if seen[xobject]
-              yield(xobject, seen[xobject], pindex + 1)
-            elsif xobject[:Subtype] == :Image && !xobject[:ImageMask]
-              yield(xobject, index, pindex + 1)
+              yield(xobject, seen[xobject], pindex + 1, ppi)
+            else
+              yield(xobject, index, pindex + 1, ppi)
               seen[xobject] = index
               index += 1
             end
@@ -145,9 +191,18 @@ module HexaPDF
         if @search
           doc.images.each do |image|
             next if seen[image]
-            yield(image, index, nil)
+            yield(image, index, nil, nil)
             index += 1
           end
+        end
+      end
+
+      # Returns the human readable file size.
+      def human_readable_file_size(size)
+        case size
+        when 0..9999 then "#{size}B"
+        when 10_000..999_999 then "#{(size / 1024.to_f).round(1)}K"
+        else "#{(size.to_f / 1024 / 1024).round(1)}M"
         end
       end
 

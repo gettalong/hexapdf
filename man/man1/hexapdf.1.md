@@ -258,10 +258,12 @@ help for the innermost command is shown.
 Synopsis: `images` \[`OPTIONS`] *PDF*
 
 This command extracts images from the *PDF*. If the `--extract` option is not specified, the images
-are listed with their indices and additional information, sorted by page number. The `--extract`
-option can then be used to extract one or more images, saving them to files called `PREFIX-N.EXT`
-where the prefix can be set via `--prefix`, *N* is the image index and *EXT* is either png, jpg or
-jpx.
+are listed with their indices and additional information, sorted by page number. Note that if an
+image is used multiple times on a page, only the first occurence of it will be included.
+
+The `--extract` option can then be used to extract one or more images, saving them to files called
+`PREFIX-N.EXT` where the prefix can be set via `--prefix`, *N* is the image index and *EXT* is
+either png, jpg or jpx.
 
 `-e` \[*A,B,C,...*], `--extract` \[*A,B,C,...*]
 
@@ -306,6 +308,15 @@ The following information is shown for each image when listing images:
 >
 > **bpc**
 > : The number of bits per color component.
+>
+> **x-ppi**
+> : The pixels per inch (PPI) of the x-direction of the image, as found on the page.
+>
+> **y-ppi**
+> : The pixels per inch (PPI) of the y-direction of the image, as found on the page.
+>
+> **size**
+> : The file size of the image as stored in the PDF.
 >
 > **type**
 > : The image type. Either jpg (JPEG), jp2 (JPEG2000), ccitt (CCITT Group 3 or 4 Fax), jbig2 (JBIG2)
