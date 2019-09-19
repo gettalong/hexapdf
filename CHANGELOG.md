@@ -12,6 +12,8 @@
   output and object search
 * Output of validation problem messages for `hexapdf` command to include more
   information
+* The Validation feature to automatically correct String-for-Symbol and
+  Symbol-for-String problems
 
 ### Fixed
 

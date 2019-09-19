@@ -230,6 +230,15 @@ describe HexaPDF::Dictionary do
 
       @obj.value[:Inherited] = Class.new(Array).new([5])
       assert(@obj.validate(auto_correct: false))
+
+      @test_class.define_field(:StringField, type: String)
+      @test_class.define_field(:NameField, type: Symbol)
+      @obj.value[:StringField] = :symbol
+      refute(@obj.validate(auto_correct: false))
+      assert(@obj.validate(auto_correct: true))
+      @obj.value[:NameField] = "string"
+      assert(@obj.validate(auto_correct: true))
+      assert(@obj.validate(auto_correct: true))
     end
 
     it "checks whether a field needs to be indirect w/wo auto_correct" do

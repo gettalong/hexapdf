@@ -289,7 +289,16 @@ module HexaPDF
 
         # Check the type of the field
         unless field.valid_object?(obj)
-          yield("Type of field #{name} is invalid: #{obj.class}", false)
+          msg = "Type of field #{name} is invalid: #{obj.class}"
+          if field.type.include?(String) && obj.kind_of?(Symbol)
+            yield(msg, true)
+            self[name] = obj.to_s
+          elsif field.type.include?(Symbol) && obj.kind_of?(String)
+            yield(msg, true)
+            self[name] = obj.intern
+          else
+            yield(msg, false)
+          end
         end
 
         # Check if field value needs to be (in)direct
