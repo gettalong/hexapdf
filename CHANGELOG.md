@@ -24,6 +24,8 @@
 * Mistyped name of field type for field `/Popup` of
   [HexaPDF::Type::Annotations::MarkupAnnotation]
 * Loading and saving of encrypted and signed PDFs
+* CLI commands that optimize font data structures won't crash when encountering
+  invalid font objects
 
 
 ## 0.9.3 - 2019-06-13

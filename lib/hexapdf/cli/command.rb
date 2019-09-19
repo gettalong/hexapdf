@@ -263,6 +263,10 @@ module HexaPDF
         data = HexaPDF::Font::TrueType::Optimizer.build_for_pdf(font)
         obj.font_file.stream = data
         obj.font_file[:Length1] = data.size
+      rescue StandardError => e
+        if command_parser.verbosity_info?
+          $stderr.puts "Error optimizing font object (#{obj.oid},#{obj.gen}): #{e.message}"
+        end
       end
 
       # Applies the encryption related options to the given HexaPDF::Document instance.
