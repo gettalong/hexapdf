@@ -191,8 +191,9 @@ module HexaPDF
       # Wraps the given data value in the PDF specific type class if it can be converted. Otherwise
       # returns +nil+.
       def self.convert(data, type, document)
-        return if data.kind_of?(type.first) || !(data.kind_of?(Hash) ||
-          data.kind_of?(HexaPDF::Dictionary))
+        return if data.kind_of?(type.first) ||
+          !(data.kind_of?(Hash) || data.kind_of?(HexaPDF::Dictionary)) ||
+          (type.first <= HexaPDF::Stream && (data.kind_of?(Hash) || data.data.stream.nil?))
         document.wrap(data, type: type.first)
       end
 

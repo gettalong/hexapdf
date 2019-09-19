@@ -3,6 +3,7 @@
 require 'test_helper'
 require 'hexapdf/dictionary_fields'
 require 'hexapdf/dictionary'
+require 'hexapdf/stream'
 require 'hexapdf/type'
 
 describe HexaPDF::DictionaryFields do
@@ -72,6 +73,20 @@ describe HexaPDF::DictionaryFields do
       @doc.expect(:wrap, :data, [HexaPDF::Dictionary, Hash])
       @field.convert(HexaPDF::Dictionary.new(Test: :value), @doc)
       @doc.verify
+    end
+
+    it "allows conversion from an HexaPDF::Dictionary to a Stream if stream data is set" do
+      @field = self.class::Field.new(HexaPDF::Stream)
+      @doc.expect(:wrap, :data, [HexaPDF::Dictionary, Hash])
+      data = HexaPDF::PDFData.new({}, 0, 0, "")
+      @field.convert(HexaPDF::Dictionary.new(data), @doc)
+      @doc.verify
+    end
+
+    it "doesn't allow conversion to a Stream subclass from Hash or Dictionary" do
+      @field = self.class::Field.new(HexaPDF::Stream)
+      refute(@field.convert({}, @doc))
+      refute(@field.convert(HexaPDF::Dictionary.new(Test: :value), @doc))
     end
 
     it "doesn't allow conversion from nil" do
