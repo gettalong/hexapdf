@@ -131,6 +131,15 @@ module HexaPDF
               @param = args.first
               do_stream
             end
+          when 'x', 'xref'
+            if (obj = pdf_object_from_string_reference(args.first) rescue puts($!.message))
+              @doc.revisions.reverse_each do |rev|
+                if (xref = rev.xref(obj))
+                  puts xref
+                  break
+                end
+              end
+            end
           when 'c', 'catalog'
             do_catalog
           when 't', 'trailer'
@@ -162,6 +171,7 @@ module HexaPDF
               OID[,GEN] | o[bject] OID[,GEN] - Print object
               r[ecursive] OID[,GEN]          - Print object recursively
               s[tream] OID[,GEN]             - Print filtered stream
+              x[ref] OID[,GEN]               - Print the cross-reference entry
               c[atalog]                      - Print the catalog dictionary
               t[railer]                      - Print the trailer dictionary
               p[ages] [RANGE]                - Print information about pages
