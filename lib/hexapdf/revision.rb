@@ -90,6 +90,20 @@ module HexaPDF
     end
 
     # :call-seq:
+    #   revision.xref(ref)    -> xref_entry or nil
+    #   revision.xref(oid)    -> xref_entry or nil
+    #
+    # Returns an XRefSection::Entry structure for the given reference or object number if it is
+    # available, or +nil+ otherwise.
+    def xref(ref)
+      if ref.respond_to?(:oid)
+        @xref_section[ref.oid, ref.gen]
+      else
+        @xref_section[ref, nil]
+      end
+    end
+
+    # :call-seq:
     #   revision.object(ref)    -> obj or nil
     #   revision.object(oid)    -> obj or nil
     #

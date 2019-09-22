@@ -63,6 +63,18 @@ describe HexaPDF::Revision do
     end
   end
 
+  describe "xref" do
+    it "returns the xref structure" do
+      assert_equal(@xref_section[2, 0], @rev.xref(HexaPDF::Reference.new(2, 0)))
+      assert_equal(@xref_section[2, 0], @rev.xref(2))
+    end
+
+    it "returns nil if no xref entry is found" do
+      assert_nil(@rev.xref(@ref))
+      assert_nil(@rev.xref(1))
+    end
+  end
+
   describe "object" do
     it "returns nil if no object is found" do
       assert_nil(@rev.object(@ref))
