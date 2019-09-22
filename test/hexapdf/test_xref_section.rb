@@ -3,6 +3,17 @@
 require 'test_helper'
 require 'hexapdf/xref_section'
 
+describe HexaPDF::XRefSection::Entry do
+  it "can describe itself" do
+    free = HexaPDF::XRefSection::Entry.new(:free, 1, 2)
+    normal = HexaPDF::XRefSection::Entry.new(:in_use, 1, 2, 10)
+    compressed = HexaPDF::XRefSection::Entry.new(:compressed, 1, 0, 2, 10)
+    assert_match(/1,2 type=free/, free.to_s)
+    assert_match(/1,2 type=normal/, normal.to_s)
+    assert_match(/1,0 type=compressed/, compressed.to_s)
+  end
+end
+
 describe HexaPDF::XRefSection do
   before do
     @xref_section = HexaPDF::XRefSection.new

@@ -82,6 +82,14 @@ module HexaPDF
       def compressed?
         type == :compressed
       end
+
+      def to_s
+        case type
+        when :free then "xref #{oid},#{gen} type=free"
+        when :in_use then "xref #{oid},#{gen} type=normal pos=#{pos}"
+        when :compressed then "xref #{oid},#{gen} type=compressed objstm=#{objstm},0 index=#{pos}"
+        end
+      end
     end
 
     # Creates an in-use cross-reference entry. See Entry for details on the arguments.

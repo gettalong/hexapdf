@@ -3,6 +3,8 @@
 ### Added
 
 * [HexaPDF::Reference#to_s] to return the serialized form of the PDF reference
+* [HexaPDF::XRefSection::Entry#to_s] to return a description of the
+  cross-reference entry
 
 ### Changed
 
