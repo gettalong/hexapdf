@@ -340,62 +340,116 @@ version used, encryption information and so on.
 
 ### inspect
 
-Synopsis: `inspect` \[`OPTIONS`] *FILE*
+Synopsis: `inspect` \[`OPTIONS`] *FILE* *\[\[CMD \[ARGS]]...]*
 
 This command is useful when one needs to inspect the internal object structure or a stream of a PDF
 file.
 
-If no option is given, the interactive mode is started (see below). Otherwise the various, mutually
-exclusive display options define what is shown. If multiple such options are specified only the last
-one is respected. Note that PDF objects are always shown in the native PDF syntax.
+If no arguments are given, the interactive mode is started. This interactive mode allows you to
+execute inspection commands without re-parsing the PDF file, leading to better performance for big
+PDF files.
 
-The interactive mode allows you to execute inspection commands without re-parsing the PDF file. Use
-the 'help' command to list the available commands (generally, everything that is possible with
-command line options is also available in interactive mode).
-
-`-o` *OID*\[,*GEN*], `--object` *OID*\[,*GEN*]
-
-: Show the object with the given object and generation numbers. The generation number defaults to 0
-  if not given.
-
-`-s` *OID*\[,*GEN*], `--stream` *OID*\[,*GEN*]
-
-: Show the filtered stream data (add `--raw` to get the raw stream data) of the object with the
-  given object and generation numbers. The generation number defaults to 0 if not given.
-
-`--raw`
-
-: Modifies `--stream` to show the raw stream data instead of the filtered one.
-
-`-c`, `--page-count`
-
-: Print the number of pages.
-
-`--catalog`
-
-: Show the PDF catalog dictionary.
-
-`--trailer`
-
-: Show the PDF catalog dictionary.
-
-`--pages` \[*PAGES*]
-
-: Show the pages with their object and generation numbers and their associated content streams. If a
-  range is specified, only those pages are listed. See the **PAGES SPECIFICATION** below for details
-  on the allowed format of *PAGES*.
-
-`--structure`
-
-: Show the structure of the PDF file, i.e. all objects recursively starting from the trailer. Note
-  that the keys of dictionary objects are listed alphabetically (instead of the order defined in the
-  PDF file) and that object references are substituted with custom references. Both are done to make
-  diffing the output more useful, i.e. to find changes done by a PDF application.
+Otherwise the arguments are interpreted as interactive mode commands and executed. It is possible to
+specify more than one command in this way by separating them with semicolons, or whitespace in case
+the number of command arguments is fixed.
 
 `-p` *PASSWORD*, `--password` *PASSWORD*
 
 : The password to decrypt the PDF *FILE*. Use **-** for *PASSWORD* for reading it from standard
   input.
+
+If an interactive mode command or argument is `OID[,GEN]`, object and generation numbers are
+expected. The generation number defaults to 0 if not given. PDF objects are always shown in the
+native PDF syntax.
+
+The available commands are:
+
+`OID[,GEN] | o[bject] OID[,GEN]`
+
+: Print the given indirect object.
+
+`r[ecursive] OID[,GEN]`
+
+: Print the given indirect object recursively. This means that all references found in the object
+  are resolved and the resulting objects themselves recursively printed.
+
+  To make it easier to compare such structures between PDF files, the entries of dictionaries are
+  printed in sorted order and the original references are replaced by custom ones. Once an indirect
+  object is first encountered, it is preceeded by either `{obj INDEX}` or `{obj page PAGEINDEX}`
+  where `INDEX` is an increasing number and `PAGEINDEX` is the index of the page. Later references
+  are replaced by `{ref INDEX}` and `{ref page PAGEINDEX}` respectively.
+
+  Here is a simplified example output:
+
+  ~~~
+  <<
+    /Info {obj 1} <<
+      /Producer (HexaPDF version 0.9.3)
+    >>
+    /Root {obj 2} <<
+      /Pages {obj 3} <<
+        /Count 1
+        /Kids [{obj page 1} <<
+          /MediaBox [0 0 595 842 ]
+          /Parent {ref 3}
+          /Type /Page
+        >> ]
+        /Type /Pages
+      >>
+      /Type /Catalog
+    >>
+    /Size 4
+  >>
+  ~~~
+
+  On line 2 the indirect object for the key `/Info` is shown, preceeded by the custom reference. On
+  line 8 is an example for a page object with the special reference key. And on line 10 there is a
+  back reference to the object with index 3 which is started on line 6.
+
+`s[tream] OID[,GEN]`
+
+: Print the filtered stream, i.e. the stream with all filters applied. This is useful, for example,
+  to view the contents of content streams.
+
+`raw[-stream] OID[,GEN]`
+
+: Print the raw stream, i.e. the stream as it appears in the file. This is useful, for example, to
+  extract streams into files.
+
+`x[ref] OID[,GEN]`
+
+: Print the cross-reference entry for the given indirect object.
+
+`c[atalog]`
+
+: Print the catalog dictionary.
+
+`t[railer]`
+
+: Print the trailer dictionary.
+
+`p[ages] [RANGE]`
+
+: Print the pages with their object and generation numbers and their associated content streams. If
+  a range is specified, only those pages are listed. See the **PAGES SPECIFICATION** below for
+  details on the allowed format of *PAGES*.
+
+`pc | page-count`
+
+: Print the number of pages.
+
+`search REGEXP`
+
+: Print all objects matching the pattern. Each object is preceeded by `obj OID GEN` and followed by
+  `endobj` to make it easier to further explore the data.
+
+`h[elp]`
+
+: Print the available commands with a short description.
+
+`q[uit]Quit`
+
+: Quit the interactive mode.
 
 
 ### merge

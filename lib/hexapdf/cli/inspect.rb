@@ -50,89 +50,75 @@ module HexaPDF
           needs to inspect the internal object structure or a stream of a PDF file. A PDF object is
           always shown in the PDF syntax.
 
-          If no option is given, the interactive mode is started. Otherwise the various, mutually
-          exclusive display options define the shown content. If multiple such options are specified
-          only the last is respected.
+          If no arguments are given, the interactive mode is started. Otherwise the arguments are
+          interpreted as interactive mode commands and executed. It is possible to specify more than
+          one command in this way by separating them with semicolons, or whitespace in case the
+          number of command arguments is fixed.
+
         EOF
 
-        options.on("-o", "--object OID[,GEN]", "Show the object with the given object and " \
-                   "generation numbers. The generation number defaults to 0 if not given.") do |str|
-          @exec = :object
-          @param = str
-        end
-        options.on("-s", "--stream OID[,GEN]", "Show the filtered stream data (add --raw to get " \
-                   "the raw stream data) of the object with the given object and generation " \
-                   "numbers. The generation number defaults to 0 if not given.") do |str|
-          @exec = :stream
-          @param = str
-        end
-        options.on("--raw", "Modifies --stream to show the raw stream data instead of the " \
-                   "filtered one.") do
-          @raw = true
-        end
-        options.on("-c", "--page-count", "Print the number of pages.") do
-          @exec = :page_count
-        end
-        options.on("--catalog", "Show the PDF catalog dictionary.") do
-          @exec = :catalog
-        end
-        options.on("--trailer", "Show the PDF trailer dictionary.") do
-          @exec = :trailer
-        end
-        options.on("--pages [PAGES]", "Show the pages with their object and generation numbers " \
-                   "and their associated content streams. If the optional argument PAGES is " \
-                   "specified, only the specified pages are listed.") do |range|
-          @exec = :pages
-          @param = range || '1-e'
-        end
-        options.on("--structure", "Show the structure of the PDF file.") do
-          @exec = :structure
-        end
-
-        options.separator("")
         options.on("--password PASSWORD", "-p", String,
                    "The password for decryption. Use - for reading from standard input.") do |pwd|
           @password = (pwd == '-' ? read_password : pwd)
         end
 
         @password = nil
-        @exec = :interactive
-        @param = nil
-        @raw = nil
         @serializer = HexaPDF::Serializer.new
       end
 
-      def execute(file) #:nodoc:
+      def execute(file, *commands) #:nodoc:
         with_document(file, password: @password) do |doc|
           @doc = doc
-          send("do_#{@exec}")
+          if commands.empty?
+            while true
+              print "cmd> "
+              input = $stdin.gets
+              (puts; break) unless input
+              commands = input.scan(/(["'])(.+?)\1|(\S+)/).map {|a| a[1] || a[2] }
+              break if execute_commands(commands)
+            end
+          else
+            execute_commands(commands)
+          end
         end
       end
 
       private
 
-      def do_interactive #:nodoc:
-        while true
-          print "cmd> "
-          input = $stdin.gets
-          (puts; break) unless input
-
-          command, *args = input.scan(/(["'])(.+?)\1|(\S+)/).map {|a| a[1] || a[2] }
+      def execute_commands(data) #:nodoc:
+        data.map! {|item| item == ";" ? nil : item }
+        until data.empty?
+          command = data.shift || next
           case command
           when /^\d+(,\d+)?$/, 'o', 'object'
-            arg = (command.start_with?('o') ? args.first : command)
+            arg = (command.start_with?('o') ? data.shift : command)
             obj = pdf_object_from_string_reference(arg) rescue puts($!.message)
-            serialize(obj.value, recursive: false) if obj
-          when 'r', 'recursive'
-            obj = pdf_object_from_string_reference(args.first) rescue puts($!.message)
-            serialize(obj.value, recursive: true) if obj
-          when 's', 'stream'
-            if (pdf_object_from_string_reference(args.first) rescue puts($!.message))
-              @param = args.first
-              do_stream
+            if obj.data.stream && command_parser.verbosity_info?
+              $stderr.puts("Note: Object also has stream data")
             end
+            serialize(obj.value, recursive: false) if obj
+
+          when 'r', 'recursive'
+            obj = if (obj = data.shift)
+                    pdf_object_from_string_reference(obj) rescue puts($!.message)
+                  else
+                    @doc.trailer
+                  end
+            serialize(obj.value, recursive: true) if obj
+
+          when 's', 'stream', 'raw', 'raw-stream'
+            if (obj = pdf_object_from_string_reference(data.shift) rescue puts($!.message)) &&
+                obj.kind_of?(HexaPDF::Stream)
+              source = (command.start_with?('raw') ? obj.stream_source : obj.stream_decoder)
+              while source.alive? && (stream_data = source.resume)
+                $stdout.write(stream_data)
+              end
+            elsif command_parser.verbosity_info?
+              $stderr.puts("Note: Object has no stream data")
+            end
+
           when 'x', 'xref'
-            if (obj = pdf_object_from_string_reference(args.first) rescue puts($!.message))
+            if (obj = pdf_object_from_string_reference(data.shift) rescue puts($!.message))
               @doc.revisions.reverse_each do |rev|
                 if (xref = rev.xref(obj))
                   puts xref
@@ -140,99 +126,60 @@ module HexaPDF
                 end
               end
             end
+
           when 'c', 'catalog'
-            do_catalog
+            serialize(@doc.catalog.value, recursive: false)
+
           when 't', 'trailer'
-            do_trailer
+            serialize(@doc.trailer.value, recursive: false)
+
           when 'p', 'pages'
-            @param = args.first || '1-e'
-            do_pages rescue puts "Error: Invalid page range argument"
-          when 'search'
-            if args.empty?
-              puts "Error: Missing argument regexp"
+            begin
+              pages = parse_pages_specification(data.shift || '1-e', @doc.pages.count)
+            rescue StandardError
+              $stderr.puts("Error: Invalid page range argument")
               next
             end
-            re = Regexp.new(args.first, Regexp::IGNORECASE)
+            page_list = @doc.pages.to_a
+            pages.each do |index, _|
+              page = page_list[index]
+              str = +"page #{index + 1} (#{page.oid},#{page.gen}): "
+              str << Array(page[:Contents]).map {|c| "#{c.oid},#{c.gen}" }.join(" ")
+              puts str
+            end
+
+          when 'pc', 'page-count'
+            puts @doc.pages.count
+
+          when 'search'
+            regexp = data.shift
+            unless regexp
+              $stderr.puts("Error: Missing argument regexp")
+              next
+            end
+            re = Regexp.new(regexp, Regexp::IGNORECASE)
             @doc.each do |object|
-              if (object.value.kind_of?(Hash) &&
-                  object.value.any? {|k, v| k.to_s.match?(re) || v.to_s.match?(re) }) ||
-                  (object.value.kind_of?(Array) &&
-                   object.value.any? {|i| i.to_s.match?(re) }) ||
-                  object.value.to_s.match?(re)
+              if @serializer.serialize(object.value).match?(re)
                 puts "#{object.oid} #{object.gen} obj"
                 serialize(object.value, recursive: false)
                 puts "endobj"
               end
             end
+
           when 'q', 'quit'
-            break
+            return true
+
           when 'h', 'help'
-            puts <<~HELP
-              OID[,GEN] | o[bject] OID[,GEN] - Print object
-              r[ecursive] OID[,GEN]          - Print object recursively
-              s[tream] OID[,GEN]             - Print filtered stream
-              x[ref] OID[,GEN]               - Print the cross-reference entry
-              c[atalog]                      - Print the catalog dictionary
-              t[railer]                      - Print the trailer dictionary
-              p[ages] [RANGE]                - Print information about pages
-              search REGEXP                  - Print objects matching the pattern
-              h[elp]                         - Show this help
-              q[uit]                         - Quit
-            HELP
+            puts COMMAND_DESCRIPTIONS.map {|cmd, desc| cmd.ljust(35) << desc }.join("\n")
+
           else
             if command
-              puts "Error: Unknown command '#{command}' - enter 'help' for a list of commands"
+              $stderr.puts("Error: Unknown command '#{command}' - enter 'h' for a list of commands")
             end
           end
         end
-      end
 
-      def do_structure #:nodoc:
-        serialize(@doc.trailer.value)
-      end
-
-      def do_catalog #:nodoc:
-        serialize(@doc.catalog.value, recursive: false)
-      end
-
-      def do_trailer #:nodoc:
-        serialize(@doc.trailer.value, recursive: false)
-      end
-
-      def do_page_count #:nodoc:
-        puts @doc.pages.count
-      end
-
-      def do_pages #:nodoc:
-        pages = parse_pages_specification(@param, @doc.pages.count)
-        page_list = @doc.pages.to_a
-        pages.each do |index, _|
-          page = page_list[index]
-          str = +"page #{index + 1} (#{page.oid},#{page.gen}): "
-          str << Array(page[:Contents]).map {|c| "#{c.oid},#{c.gen}" }.join(" ")
-          puts str
-        end
-      end
-
-      def do_object #:nodoc:
-        object = @doc.object(pdf_reference_from_string(@param))
-        return unless object
-        if object.data.stream && command_parser.verbosity_info?
-          $stderr.puts("Note: Object also has stream data")
-        end
-        serialize(object.value, recursive: false)
-      end
-
-      def do_stream #:nodoc:
-        object = @doc.object(pdf_reference_from_string(@param))
-        if object.kind_of?(HexaPDF::Stream)
-          source = (@raw ? object.stream_source : object.stream_decoder)
-          while source.alive? && (data = source.resume)
-            $stdout.write(data)
-          end
-        elsif command_parser.verbosity_info?
-          $stderr.puts("Note: Object has no stream data")
-        end
+        false
       end
 
       # Resolves the PDF object from the given string reference and returns it.
@@ -295,6 +242,43 @@ module HexaPDF
           print @serializer.serialize(val)
         end
         puts if indent == 0
+      end
+
+      COMMAND_DESCRIPTIONS = [ #:nodoc:
+        ["OID[,GEN] | o[bject] OID[,GEN]", "Print object"],
+        ["r[ecursive] OID[,GEN]", "Print object recursively"],
+        ["s[tream] OID[,GEN]", "Print filtered stream"],
+        ["raw[-stream] OID[,GEN]", "Print raw stream"],
+        ["x[ref] OID[,GEN]", "Print the cross-reference entry"],
+        ["c[atalog]", "Print the catalog dictionary"],
+        ["t[railer]", "Print the trailer dictionary"],
+        ["p[ages] [RANGE]",  "Print information about pages"],
+        ["pc | page-count", "Print the number of pages"],
+        ["search REGEXP", "Print objects matching the pattern"],
+        ["h[elp]", "Show the help"],
+        ["q[uit]", "Quit"],
+      ]
+
+      def help_long_desc #:nodoc:
+        output = super
+        summary_width = command_parser.main_options.summary_width
+        data = <<~HELP
+          If a command or an argument is OID[,GEN], object and generation numbers are expected. The
+          generation number defaults to 0 if not given. The available commands are:
+        HELP
+        content = format(data, indent: 0,
+                         width: command_parser.help_line_width - command_parser.help_indent)
+        content << "\n\n"
+        COMMAND_DESCRIPTIONS.each do |cmd, desc|
+          content << format(cmd.ljust(summary_width + 1) << desc,
+                            width: command_parser.help_line_width - command_parser.help_indent,
+                            indent: summary_width + 1, indent_first_line: false) << "\n"
+        end
+        output << cond_format_help_section("Interactive Mode Commands", content, preformatted: true)
+      end
+
+      def usage_arguments #:nodoc:
+        "FILE [[CMD [ARGS]]...]"
       end
 
     end

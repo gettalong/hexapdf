@@ -11,8 +11,8 @@
 
 * Enhanced the `hexapdf images` command to also show information on PPI (pixels
   per inch) and size
-* Enhanced the `hexapdf inspect` command with an interactive mode, structure
-  output, cross-reference entry output and object search
+* Completely revamped the `hexapdf inspect` command with an interactive mode,
+  structure output, cross-reference entry output and object search
 * Output of validation problem messages for `hexapdf` command to include more
   information
 * The Validation feature to automatically correct String-for-Symbol and
