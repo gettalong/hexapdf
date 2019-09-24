@@ -247,7 +247,7 @@ module HexaPDF
       # Applies the chosen stream mode to the given object.
       def optimize_stream(obj)
         return if @out_options.streams == :preserve || !obj.respond_to?(:set_filter) ||
-            Array(obj[:Filter]).any? {|f| IGNORED_FILTERS[f] }
+          Array(obj[:Filter]).any? {|f| IGNORED_FILTERS[f] }
 
         obj.set_filter(@out_options.streams == :compress ? :FlateDecode : nil)
       end
@@ -255,9 +255,9 @@ module HexaPDF
       # Optimize the object if it is a font object.
       def optimize_font(obj)
         return unless @out_options.optimize_fonts && obj.kind_of?(HexaPDF::Type::Font) &&
-            (obj[:Subtype] == :TrueType ||
-             (obj[:Subtype] == :Type0 && obj.descendant_font[:Subtype] == :CIDFontType2)) &&
-            obj.embedded?
+          (obj[:Subtype] == :TrueType ||
+           (obj[:Subtype] == :Type0 && obj.descendant_font[:Subtype] == :CIDFontType2)) &&
+          obj.embedded?
 
         font = HexaPDF::Font::TrueType::Font.new(StringIO.new(obj.font_file.stream))
         data = HexaPDF::Font::TrueType::Optimizer.build_for_pdf(font)

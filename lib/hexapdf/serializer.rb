@@ -203,7 +203,7 @@ module HexaPDF
       while index < obj.size
         tmp = __serialize(obj[index])
         str << " " unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
-            BYTE_IS_DELIMITER[str.getbyte(-1)]
+          BYTE_IS_DELIMITER[str.getbyte(-1)]
         str << tmp
         index += 1
       end
@@ -220,7 +220,7 @@ module HexaPDF
         str << serialize_symbol(k)
         tmp = __serialize(v)
         str << " " unless BYTE_IS_DELIMITER[tmp.getbyte(0)] ||
-            BYTE_IS_DELIMITER[str.getbyte(-1)]
+          BYTE_IS_DELIMITER[str.getbyte(-1)]
         str << tmp
       end
       str << ">>"

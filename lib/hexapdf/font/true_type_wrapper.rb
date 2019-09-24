@@ -237,9 +237,9 @@ module HexaPDF
         end
 
         fd.flag(:fixed_pitch) if @wrapped_font[:post].is_fixed_pitch? ||
-            @wrapped_font[:hhea].num_of_long_hor_metrics == 1
+          @wrapped_font[:hhea].num_of_long_hor_metrics == 1
         fd.flag(:italic) if @wrapped_font[:'OS/2'].selection_include?(:italic) ||
-            @wrapped_font[:'OS/2'].selection_include?(:oblique)
+          @wrapped_font[:'OS/2'].selection_include?(:oblique)
         fd.flag(:symbolic)
 
         cid_font = @document.add(Type: :Font, Subtype: :CIDFontType2,

@@ -97,12 +97,13 @@ Style/FormatString:
   EnforcedStyle: sprintf
   Exclude:
     - lib/hexapdf/cli/command.rb # uses a different format method
+    - lib/hexapdf/cli/inspect.rb # uses a different format method
 
 Style/Semicolon:
   AllowAsExpressionSeparator: true
 
 Style/YodaCondition:
-  EnforcedStyle: equality_operators_only
+  EnforcedStyle: forbid_for_equality_operators_only
 
 Style/EmptyElse:
   EnforcedStyle: empty
@@ -203,6 +204,9 @@ Layout/EmptyLinesAroundModuleBody:
 Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: empty_lines
 
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
 Layout/MultilineOperationIndentation:
   EnforcedStyle: indented
 
@@ -248,6 +252,9 @@ Lint/HandleExceptions:
   Exclude:
     - test/test_helper.rb
 
+Lint/UselessAccessModifier:
+  Exclude:
+    - lib/hexapdf/dictionary_fields.rb # not useless
 
 # These cops should be run manually from time to time
 # Style/MutableConstant

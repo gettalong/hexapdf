@@ -128,7 +128,7 @@ module HexaPDF
           when :CharacterSet then @metrics.character_set = parse_string
           when :EncodingScheme then @metrics.encoding_scheme = parse_string
           when :Weight then @metrics.weight = parse_string
-          when :FontBBox then
+          when :FontBBox
             @metrics.bounding_box = [parse_number, parse_number, parse_number, parse_number]
           when :CapHeight then @metrics.cap_height = parse_number
           when :XHeight then @metrics.x_height = parse_number
