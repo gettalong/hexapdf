@@ -53,11 +53,6 @@ module HexaPDF
   # See: PDF1.7 s7.3.7
   class Dictionary < HexaPDF::Object
 
-    # :nodoc:
-    # Forward declaration of Stream to circumvent circular require problem
-    class ::HexaPDF::Stream < Dictionary
-    end
-
     include DictionaryFields
 
     # Defines an entry for the field +name+ and returns the initalized
@@ -316,6 +311,11 @@ module HexaPDF
       end
     end
 
+  end
+
+  # :nodoc:
+  # Forward declaration of Stream to circumvent circular require problem
+  class Stream < Dictionary
   end
 
 end
