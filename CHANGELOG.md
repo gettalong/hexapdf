@@ -4,7 +4,7 @@
 
 * [HexaPDF::Reference#to_s] to return the serialized form of the PDF reference
 * [HexaPDF::Revision#xref] for getting cross-reference entries
-* [HexaPDF::XRefSection::Entry#to_s] to return a description of the
+* HexaPDF::XRefSection::Entry#to_s to return a description of the
   cross-reference entry
 
 ### Changed
