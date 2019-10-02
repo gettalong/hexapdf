@@ -40,7 +40,7 @@ describe HexaPDF::Writer do
       219
       %%EOF
       3 0 obj
-      <</Producer(HexaPDF version 0.9.3)>>
+      <</Producer(HexaPDF version 0.10.0)>>
       endobj
       xref
       3 1
@@ -48,7 +48,7 @@ describe HexaPDF::Writer do
       trailer
       <</Prev 219/Size 4/Root<</Type/Catalog>>/Info 3 0 R>>
       startxref
-      348
+      349
       %%EOF
     EOF
 
@@ -72,7 +72,7 @@ describe HexaPDF::Writer do
       141
       %%EOF
       6 0 obj
-      <</Producer(HexaPDF version 0.9.3)>>
+      <</Producer(HexaPDF version 0.10.0)>>
       endobj
       2 0 obj
       <</Length 10>>stream
@@ -81,11 +81,11 @@ describe HexaPDF::Writer do
       endobj
       4 0 obj
       <</Size 7/Prev 141/Root<</Type/Catalog>>/Info 6 0 R/Type/XRef/W[1 2 2]/Index[2 1 4 1 6 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 22>>stream
-      x\xDAcbdlc``b`\xB0\x04\x93\x93\x19\x18\x00\f\x0F\x01[
+      x\xDAcbdlg``b`\xB0\x04\x93\x93\x18\x18\x00\f\e\x01[
       endstream
       endobj
       startxref
-      447
+      448
       %%EOF
     EOF
   end
