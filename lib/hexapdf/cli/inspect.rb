@@ -70,9 +70,17 @@ module HexaPDF
         with_document(file, password: @password) do |doc|
           @doc = doc
           if commands.empty?
+            begin
+              require 'reline'
+              Reline.completion_proc = RELINE_COMPLETION_PROC
+              Reline.completion_append_character = " "
+            rescue LoadError
+              if command_parser.verbosity_info?
+                $stderr.puts("Library reline not available, history and line editing not available")
+              end
+            end
             while true
-              print "cmd> "
-              input = $stdin.gets
+              input = read_input
               (puts; break) unless input
               commands = input.scan(/(["'])(.+?)\1|(\S+)/).map {|a| a[1] || a[2] }
               break if execute_commands(commands)
@@ -84,6 +92,28 @@ module HexaPDF
       end
 
       private
+
+      # :nodoc:
+      COMMAND_LIST = %w[object recursive stream raw-stream xref catalog trailer pages
+                        page-count search quit help]
+      # :nodoc:
+      RELINE_COMPLETION_PROC = proc do |s|
+        if s.empty?
+          COMMAND_DESCRIPTIONS.map {|cmd, desc| cmd.ljust(35) << desc }
+        else
+          COMMAND_LIST.grep(/^#{Regexp.escape(s)}/)
+        end
+      end
+
+      # Returns one line of input, using Reline if available.
+      def read_input
+        if Object.const_defined?("Reline")
+          Reline.readline("cmd> ", true)
+        else
+          print "cmd> "
+          $stdin.gets
+        end
+      end
 
       def execute_commands(data) #:nodoc:
         data.map! {|item| item == ";" ? nil : item }

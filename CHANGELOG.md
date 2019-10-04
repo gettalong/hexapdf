@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+* Use Reline for interactive mode of `hexapdf inspect` if available
+
+
 ## 0.10.0 - 2019-10-02
 
 ### Added
