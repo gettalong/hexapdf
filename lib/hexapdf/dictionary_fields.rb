@@ -108,7 +108,7 @@ module HexaPDF
       #
       # Depending on the +type+ entry an appropriate field converter object is chosen from the
       # available converters.
-      def initialize(type, required = false, default = nil, indirect = nil, version = nil)
+      def initialize(type, required: false, default: nil, indirect: nil, version: nil)
         @type = [type].flatten
         @type_mapped = false
         @required, @default, @indirect, @version = required, default, indirect, version

@@ -11,7 +11,8 @@ describe HexaPDF::DictionaryFields do
 
   describe "Field" do
     before do
-      @field = self.class::Field.new([:Integer, self.class::PDFByteString], true, 500, false, '1.2')
+      @field = self.class::Field.new([:Integer, self.class::PDFByteString], required: true,
+                                     default: 500, indirect: false, version: '1.2')
       HexaPDF::GlobalConfiguration['object.type_map'][:Integer] = Integer
     end
 

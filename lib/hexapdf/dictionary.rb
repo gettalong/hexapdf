@@ -97,7 +97,8 @@ module HexaPDF
     def self.define_field(name, type:, required: false, default: nil, indirect: nil,
                           version: '1.2')
       @fields ||= {}
-      @fields[name] = Field.new(type, required, default, indirect, version)
+      @fields[name] = Field.new(type, required: required, default: default, indirect: indirect,
+                                version: version)
     end
 
     # Returns the field entry for the given field name.
