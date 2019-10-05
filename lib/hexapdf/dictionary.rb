@@ -93,12 +93,14 @@ module HexaPDF
     #            to be an indirect object (+true+), a direct object (+false+) or if it doesn't
     #            matter (unspecified or +nil+).
     #
+    # allowed_values:: An array of allowed values for this field.
+    #
     # version:: Specifies the minimum version of the PDF specification needed for this value.
     def self.define_field(name, type:, required: false, default: nil, indirect: nil,
-                          version: '1.2')
+                          allowed_values: nil, version: '1.2')
       @fields ||= {}
       @fields[name] = Field.new(type, required: required, default: default, indirect: indirect,
-                                version: version)
+                                allowed_values: allowed_values, version: version)
     end
 
     # Returns the field entry for the given field name.
@@ -295,6 +297,11 @@ module HexaPDF
           else
             yield(msg, false)
           end
+        end
+
+        # Check the value of the field against the allowed values.
+        if field.allowed_values && !field.allowed_values.include?(obj)
+          yield("Field #{name} does not contain an allowed value")
         end
 
         # Check if field value needs to be (in)direct

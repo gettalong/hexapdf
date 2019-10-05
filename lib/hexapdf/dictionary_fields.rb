@@ -101,6 +101,10 @@ module HexaPDF
       # needs to be a direct object or +nil+ if it can be either.
       attr_reader :indirect
 
+      # Returns an array with the allowed values for this field, or +nil+ if the values are not
+      # constrained.
+      attr_reader :allowed_values
+
       # Returns the PDF version that is required for this field.
       attr_reader :version
 
@@ -108,10 +112,12 @@ module HexaPDF
       #
       # Depending on the +type+ entry an appropriate field converter object is chosen from the
       # available converters.
-      def initialize(type, required: false, default: nil, indirect: nil, version: nil)
+      def initialize(type, required: false, default: nil, indirect: nil, allowed_values: nil,
+                     version: nil)
         @type = [type].flatten
         @type_mapped = false
         @required, @default, @indirect, @version = required, default, indirect, version
+        @allowed_values = allowed_values && [allowed_values].flatten
         @converters = @type.map {|t| self.class.converter_for(t) }.compact
       end
 

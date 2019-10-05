@@ -12,7 +12,8 @@ describe HexaPDF::DictionaryFields do
   describe "Field" do
     before do
       @field = self.class::Field.new([:Integer, self.class::PDFByteString], required: true,
-                                     default: 500, indirect: false, version: '1.2')
+                                     default: 500, indirect: false, allowed_values: [500, 1],
+                                     version: '1.2')
       HexaPDF::GlobalConfiguration['object.type_map'][:Integer] = Integer
     end
 
@@ -26,6 +27,7 @@ describe HexaPDF::DictionaryFields do
       assert_equal(500, @field.default)
       assert_equal(false, @field.indirect)
       assert_equal('1.2', @field.version)
+      assert_equal([500, 1], @field.allowed_values)
     end
 
     it "maps string types to constants" do

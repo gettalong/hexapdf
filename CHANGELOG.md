@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::DictionaryFields::Field#allowed_values] to allow constraining a
+  field to certain allowed values
+
 ### Changed
 
 * Use Reline for interactive mode of `hexapdf inspect` if available

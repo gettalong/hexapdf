@@ -194,6 +194,7 @@ describe HexaPDF::Dictionary do
   describe "validate_fields" do
     before do
       @test_class.define_field(:Inherited, type: [Array, Symbol], required: true, indirect: false)
+      @test_class.define_field(:AllowedValues, type: Integer, allowed_values: [1, 5])
       @obj = @test_class.new({Array: [], Inherited: :symbol}, document: self)
     end
 
@@ -239,6 +240,13 @@ describe HexaPDF::Dictionary do
       @obj.value[:NameField] = "string"
       assert(@obj.validate(auto_correct: true))
       assert(@obj.validate(auto_correct: true))
+    end
+
+    it "checks whether the value is an allowed one" do
+      @obj.value[:AllowedValues] = 7
+      refute(@obj.validate(auto_correct: false))
+      @obj.value[:AllowedValues] = 1
+      assert(@obj.validate(auto_correct: false))
     end
 
     it "checks whether a field needs to be indirect w/wo auto_correct" do
