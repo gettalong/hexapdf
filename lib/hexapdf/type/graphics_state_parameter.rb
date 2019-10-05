@@ -35,6 +35,7 @@
 #++
 
 require 'hexapdf/dictionary'
+require 'hexapdf/content/graphics_state'
 
 module HexaPDF
   module Type
@@ -56,7 +57,11 @@ module HexaPDF
       define_field :LJ,            type: Integer, version: "1.3"
       define_field :ML,            type: Numeric, version: "1.3"
       define_field :D,             type: Array, version: "1.3"
-      define_field :RI,            type: Symbol, version: "1.3"
+      define_field :RI,            type: Symbol, version: "1.3",
+        allowed_values: [HexaPDF::Content::RenderingIntent::ABSOLUTE_COLORIMETRIC,
+                         HexaPDF::Content::RenderingIntent::RELATIVE_COLORIMETRIC,
+                         HexaPDF::Content::RenderingIntent::SATURATION,
+                         HexaPDF::Content::RenderingIntent::PERCEPTUAL]
       define_field :OP,            type: Boolean
       define_field :op,            type: Boolean, version: "1.3"
       define_field :OPM,           type: Integer, version: "1.3"

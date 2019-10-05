@@ -53,7 +53,8 @@ module HexaPDF
         define_field :CreationDate, type: PDFDate, version: '1.5'
         define_field :IRT,          type: Dictionary, version: '1.5'
         define_field :Subj,         type: String, version: '1.5'
-        define_field :RT,           type: Symbol, default: :R, version: '1.6'
+        define_field :RT,           type: Symbol, default: :R, allowed_values: [:R, :Group],
+                                    version: '1.6'
         define_field :IT,           type: Symbol, version: '1.6'
         define_field :ExData,       type: Dictionary, version: '1.7'
 

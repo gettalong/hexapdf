@@ -60,8 +60,11 @@ module HexaPDF
       define_field :Names,             type: :XXNames, version: '1.2'
       define_field :Dests,             type: Dictionary, version: '1.1'
       define_field :ViewerPreferences, type: :XXViewerPreferences, version: '1.2'
-      define_field :PageLayout,        type: Symbol,     default: :SinglePage
-      define_field :PageMode,          type: Symbol,     default: :UseNone
+      define_field :PageLayout,        type: Symbol,     default: :SinglePage,
+        allowed_values: [:SinglePage, :OneColumn, :TwoColumnLeft, :TwoColumnRight,
+                         :TwoPageLeft, :TwoPageRight]
+      define_field :PageMode,          type: Symbol,     default: :UseNone,
+        allowed_values: [:UseNone, :UseOutlines, :UseThumbs, :FullScreen, :UseOC, :UseAttachments]
       define_field :Outlines,          type: Dictionary, indirect: true
       define_field :Threads,           type: Array,      version: '1.1'
       define_field :OpenAction,        type: [Dictionary, Array], version: '1.1'

@@ -49,9 +49,9 @@ module HexaPDF
 
       define_field :Type,          type: Symbol,     default: type
       define_field :Subtype,       type: Symbol,     required: true, default: :Form
-      define_field :FormType,      type: Integer,    default: 1
+      define_field :FormType,      type: Integer,    default: 1, allowed_values: 1
       define_field :BBox,          type: Rectangle,  required: true
-      define_field :Matrix,        type: Array
+      define_field :Matrix,        type: Array,      default: [1, 0, 0, 1, 0, 0]
       define_field :Resources,     type: :XXResources, version: '1.2'
       define_field :Group,         type: Dictionary, version: '1.4'
       define_field :Ref,           type: Dictionary, version: '1.4'

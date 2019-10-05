@@ -9,6 +9,8 @@
 
 * Use Reline for interactive mode of `hexapdf inspect` if available
 * [HexaPDF::DictionaryFields::Field::new] to use keyword arguments
+* Update the field information for implemented PDF types to include the allowed
+  values where possible
 
 
 ## 0.10.0 - 2019-10-02

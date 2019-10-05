@@ -14,17 +14,13 @@ describe HexaPDF::Type::Annotations::Text do
   describe "validation" do
     it "checks for correct /StateModel values" do
       @annot[:StateModel] = 'Invalid'
-      refute(@annot.validate {|msg| assert_match(/contains invalid value/, msg) })
+      refute(@annot.validate {|msg| assert_match(/does not contain an allowed value/, msg) })
     end
 
-    it "automatically sets /StateModel based on the /State entry if possible" do
+    it "automatically sets /StateModel based on the /State entry" do
       @annot[:State] = 'Marked'
       assert(@annot.validate)
       assert_equal('Marked', @annot[:StateModel])
-
-      @annot.delete(:StateModel)
-      @annot[:State] = 'Unknown'
-      refute(@annot.validate {|msg| assert_match(/StateModel required/, msg) })
     end
 
     it "checks whether /State and /StateModel match" do

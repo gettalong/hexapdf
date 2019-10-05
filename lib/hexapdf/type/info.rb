@@ -57,7 +57,8 @@ module HexaPDF
       define_field :Producer,     type: String
       define_field :CreationDate, type: PDFDate
       define_field :ModDate,      type: PDFDate
-      define_field :Trapped,      type: Symbol, version: '1.3'
+      define_field :Trapped,      type: Symbol, version: '1.3',
+        allowed_values: [:True, :False, :Unknown]
 
       # Info dictionaries must always be indirect.
       def must_be_indirect?

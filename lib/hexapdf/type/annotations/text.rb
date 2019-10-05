@@ -49,8 +49,9 @@ module HexaPDF
         define_field :Subtype,    type: Symbol, required: true, default: :Text
         define_field :Open,       type: Boolean, default: false
         define_field :Name,       type: Symbol, default: :Note
-        define_field :State,      type: String, version: '1.5'
-        define_field :StateModel, type: String, version: '1.5'
+        define_field :State,      type: String, version: '1.5',
+          allowed_values: %w[Marked Unmarked Accepted Rejected Cancelled Completed None]
+        define_field :StateModel, type: String, allowed_values: ['Review', 'Marked'], version: '1.5'
 
         private
 
@@ -63,10 +64,6 @@ module HexaPDF
 
         def perform_validation #:nodoc:
           super
-
-          if key?(:StateModel) && self[:StateModel] != "Review" && self[:StateModel] != "Marked"
-            yield("/StateModel contains invalid value #{self[:StateModel]}")
-          end
 
           if key?(:State) && !key?(:StateModel)
             state_model = STATE_TO_STATE_MODEL[self[:State]]

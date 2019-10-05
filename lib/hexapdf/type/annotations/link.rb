@@ -49,22 +49,11 @@ module HexaPDF
         define_field :Subtype,    type: Symbol, required: true, default: :Link
         define_field :A,          type: Dictionary, version: '1.1'
         define_field :Dest,       type: [Symbol, PDFByteString, Array]
-        define_field :H,          type: Symbol, default: :I, version: '1.2'
+        define_field :H,          type: Symbol, default: :I, allowed_values: [:N, :I, :O, :P],
+                                  version: '1.2'
         define_field :PA,         type: Dictionary, version: '1.3'
         define_field :QuadPoints, type: Array, version: '1.6'
         define_field :BS,         type: Dictionary, version: '1.6'
-
-        private
-
-        HIGHLIGHTING_MODES = [:N, :I, :O, :P].freeze # :nodoc:
-
-        def perform_validation #:nodoc:
-          super
-
-          if key?(:H) && !HIGHLIGHTING_MODES.include?(self[:H])
-            yield("/H contains invalid value #{self[:H]}")
-          end
-        end
 
       end
 

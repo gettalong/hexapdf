@@ -52,7 +52,7 @@ module HexaPDF
 
           define_field :F, type: PDFByteString, required: true
           define_field :D, type: PDFByteString
-          define_field :O, type: String
+          define_field :O, type: String, default: 'open', allowed_values: ['open', 'print']
           define_field :P, type: PDFByteString
 
         end

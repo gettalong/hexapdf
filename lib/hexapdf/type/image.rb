@@ -38,6 +38,7 @@ require 'zlib'
 require 'hexapdf/error'
 require 'hexapdf/stream'
 require 'hexapdf/image_loader'
+require 'hexapdf/content/graphics_state'
 
 module HexaPDF
   module Type
@@ -59,14 +60,18 @@ module HexaPDF
       define_field :Height,           type: Integer,         required: true
       define_field :ColorSpace,       type: [Symbol, Array]
       define_field :BitsPerComponent, type: Integer
-      define_field :Intent,           type: Symbol,          version: '1.1'
+      define_field :Intent,           type: Symbol,          version: '1.1',
+        allowed_values: [HexaPDF::Content::RenderingIntent::ABSOLUTE_COLORIMETRIC,
+                         HexaPDF::Content::RenderingIntent::RELATIVE_COLORIMETRIC,
+                         HexaPDF::Content::RenderingIntent::SATURATION,
+                         HexaPDF::Content::RenderingIntent::PERCEPTUAL]
       define_field :ImageMask,        type: Boolean,         default: false
       define_field :Mask,             type: [Stream, Array], version: '1.3'
       define_field :Decode,           type: Array
       define_field :Interpolate,      type: Boolean,         default: false
       define_field :Alternates,       type: Array,           version: '1.3'
       define_field :SMask,            type: Stream,          version: '1.4'
-      define_field :SMaskInData,      type: Integer,         version: '1.5'
+      define_field :SMaskInData,      type: Integer,         version: '1.5', allowed_values: [0, 1, 2]
       define_field :StructParent,     type: Integer,         version: '1.3'
       define_field :ID,               type: PDFByteString,   version: '1.3'
       define_field :OPI,              type: Dictionary,      version: '1.2'

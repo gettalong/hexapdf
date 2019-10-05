@@ -54,8 +54,11 @@ module HexaPDF
       define_field :Type,         type: Symbol, required: true, default: type
       define_field :FontName,     type: Symbol, required: true
       define_field :FontFamily,   type: PDFByteString, version: '1.5'
-      define_field :FontStretch,  type: Symbol, version: '1.5'
-      define_field :FontWeight,   type: Numeric, version: '1.5'
+      define_field :FontStretch,  type: Symbol, version: '1.5',
+        allowed_values: [:UltraCondensed, :ExtraCondensed, :Condensed, :SemiCondensed,
+                         :Normal, :SemiExpanded, :Expanded, :ExtraExpanded, :UltraExpanded]
+      define_field :FontWeight,   type: Numeric, version: '1.5',
+        allowed_values: [100, 200, 300, 400, 500, 600, 700, 800, 900]
       define_field :Flags,        type: Integer, required: true
       define_field :FontBBox,     type: Rectangle
       define_field :ItalicAngle,  type: Numeric, required: true
