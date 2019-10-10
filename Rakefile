@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'rake/testtask'
 require 'rake/clean'
 require 'rubygems/package_task'
@@ -35,7 +36,7 @@ namespace :dev do
   CLOBBER << "VERSION"
   file 'VERSION' do
     puts "Generating VERSION file"
-    File.open('VERSION', 'w+') {|file| file.write(HexaPDF::VERSION + "\n")}
+    File.open('VERSION', 'w+') {|file| file.write(HexaPDF::VERSION + "\n") }
   end
 
   CLOBBER << 'CONTRIBUTERS'
@@ -89,10 +90,43 @@ namespace :dev do
   task release: [:clobber, :package, :publish_files]
 
   CLOBBER << 'hexapdf.gemspec'
+  desc "Generate a hexapdf.gemspec file"
   task :gemspec do
     puts "Generating Gemspec"
     contents = spec.to_ruby
-    File.open("hexapdf.gemspec", 'w+') {|f| f.puts(contents)}
+    File.open("hexapdf.gemspec", 'w+') {|f| f.puts(contents) }
+  end
+
+  desc "Set-up everything for development"
+  task :setup do
+    puts "Installing required runtime and development gems:"
+    resolver = Gem::Resolver.for_current_gems(spec.dependencies)
+    resolver.ignore_dependencies = true
+    resolver.soft_missing = true
+    resolver.resolve
+    spec.dependencies.each do |dependency|
+      if resolver.missing.find {|dep_request| dep_request.dependency == dependency }
+        print "✗ #{dependency.name} - installing it..."
+        Gem.install(dependency.name, dependency.requirement, prerelease: true)
+        puts " done"
+      else
+        puts "✓ #{dependency.name}"
+      end
+    end
+
+    puts
+    puts "The following binaries are needed for the tests:"
+    {
+      'pngtopnm' => 'sudo apt install netpbm',
+      'pngcheck' => 'sudo apt install pngcheck',
+    }.each do |name, install_command|
+      `which #{name} 2>&1`
+      if $?.exitstatus == 0
+        puts "✓ #{name}"
+      else
+        puts "✗ #{name} (#{install_command})"
+      end
+    end
   end
 
   CODING_LINE = "# -*- encoding: utf-8; frozen_string_literal: true -*-\n"
