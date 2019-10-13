@@ -32,4 +32,8 @@ describe HexaPDF::FontLoader::FromConfiguration do
   it "returns nil for unknown fonts" do
     assert_nil(@klass.call(@doc, "Unknown"))
   end
+
+  it "returns a hash with all configured fonts" do
+    assert_equal({'font' => [:none]}, @klass.available_fonts(@doc))
+  end
 end

@@ -4,6 +4,8 @@
 
 * [HexaPDF::DictionaryFields::Field#allowed_values] to allow constraining a
   field to certain allowed values
+* [HexaPDF::Document::Fonts#configured_fonts] to return all font variants that
+  are configured and available for adding to a document
 
 ### Changed
 
@@ -11,6 +13,8 @@
 * [HexaPDF::DictionaryFields::Field::new] to use keyword arguments
 * Update the field information for implemented PDF types to include the allowed
   values where possible
+* Interface of font loader objects to allow another method `available_fonts` for
+  returning all available fonts
 
 ### Fixed
 

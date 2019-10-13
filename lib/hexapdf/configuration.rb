@@ -199,7 +199,7 @@ module HexaPDF
   #      {"font_name": {variant: file_name, variant2: file_name2, ...}, ...}
   #
   #    Once a font is registered in this way, the font name together with a variant name can be used
-  #    with the HexaPDF::Document::Fonts#load method to load the font.
+  #    with the HexaPDF::Document::Fonts#add method to load the font.
   #
   #    For best compatibility, the following variant names should be used:
   #

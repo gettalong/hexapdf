@@ -69,6 +69,11 @@ module HexaPDF
         FromFile.call(document, file, subset: subset)
       end
 
+      # Returns a hash of the form 'font_name => [variants, ...]' of the configured fonts.
+      def self.available_fonts(document)
+        document.config['font.map'].transform_values(&:keys)
+      end
+
     end
 
   end

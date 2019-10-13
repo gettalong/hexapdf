@@ -37,12 +37,24 @@ describe HexaPDF::Document::Fonts do
     end
 
     it "fails if the requested font is not found"  do
-      assert_raises(HexaPDF::Error) { @doc.fonts.add("Unknown") }
+      @doc.config['font_loader'] << 'HexaPDF::FontLoader::Standard14'
+      error = assert_raises(HexaPDF::Error) { @doc.fonts.add("Unknown") }
+      assert_match(/Times \(none/, error.message)
     end
 
     it "raises an error if a font loader cannot be correctly retrieved" do
       @doc.config['font_loader'][0] = 'UnknownFontLoader'
       assert_raises(HexaPDF::Error) { @doc.fonts.add(:Other) }
     end
+  end
+
+  it "returns the configured fonts" do
+    @doc.config['font_loader'] << 'HexaPDF::FontLoader::Standard14'
+    @doc.config['font_loader'] << 'HexaPDF::FontLoader::FromConfiguration'
+    @doc.config['font.map'] = {'Times' => {heavy: 'none', none: 'none'}, 'Other' => {none: 'none'}}
+    fonts = @doc.fonts.configured_fonts
+    assert_equal([:none], fonts['Symbol'])
+    assert_equal([:none, :bold, :italic, :bold_italic, :heavy], fonts['Times'])
+    assert_equal([:none], fonts['Other'])
   end
 end

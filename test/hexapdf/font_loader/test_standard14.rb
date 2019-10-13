@@ -20,4 +20,14 @@ describe HexaPDF::FontLoader::Standard14 do
   it "returns nil for unknown fonts" do
     assert_nil(@obj.call(@doc, "Unknown"))
   end
+
+  it "returns a hash with all standard PDF fonts" do
+    assert_equal({
+                   'Times' => [:none, :bold, :italic, :bold_italic],
+                   'Helvetica' => [:none, :bold, :italic, :bold_italic],
+                   'Courier' => [:none, :bold, :italic, :bold_italic],
+                   'Symbol' => [:none], 'ZapfDingbats' => [:none]
+                 },
+                 @obj.available_fonts(@doc))
+  end
 end

@@ -60,6 +60,8 @@ module HexaPDF
   # variant:: The font variant that should be used (e.g. +:none+, +:bold+, +:italic+,
   #           +:bold_italic+).
   #
+  # Optionally, a font loader can provide a method +available_fonts(document)+ that returns a hash
+  # where the keys are the font names and the values are the variants of all the provided fonts.
   #
   # == Font Wrappers
   #

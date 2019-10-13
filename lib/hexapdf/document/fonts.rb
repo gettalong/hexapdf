@@ -70,9 +70,29 @@ module HexaPDF
         if font
           @loaded_fonts_cache[[name, options]] = font
         else
+          font_list = configured_fonts.sort.map do |font_name, variants|
+            "#{font_name} (#{variants.join(', ')})"
+          end.join(', ')
           raise HexaPDF::Error, "The requested font '#{name}' in variant '#{options[:variant]}' " \
-            "couldn't be found"
+            "couldn't be found. Configured fonts: #{font_list}"
         end
+      end
+
+      # Returns a hash of the form 'font_name => [variants, ...]' with all the fonts that are
+      # configured. These fonts can be added to the document by using the #add method.
+      def configured_fonts
+        result = {}
+        each_font_loader do |loader|
+          next unless loader.respond_to?(:available_fonts)
+          loader.available_fonts(@document).each do |name, variants|
+            if result.key?(name)
+              result[name].concat(variants).uniq!
+            else
+              result[name] = variants
+            end
+          end
+        end
+        result
       end
 
       private

@@ -95,6 +95,11 @@ module HexaPDF
         HexaPDF::Font::Type1Wrapper.new(document, font, custom_encoding: custom_encoding)
       end
 
+      # Returns a hash of the form 'font_name => [variants, ...]' of the standard 14 PDF fonts.
+      def self.available_fonts(_document)
+        MAPPING.transform_values(&:keys)
+      end
+
     end
 
   end
