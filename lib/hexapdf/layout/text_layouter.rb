@@ -173,12 +173,6 @@ module HexaPDF
           :penalty
         end
 
-        # Singleton object describing a Penalty for a mandatory paragraph break.
-        MandatoryParagraphBreak = new(PARAGRAPH_BREAK)
-
-        # Singleton object describing a Penalty for a mandatory line break.
-        MandatoryLineBreak = new(LINE_BREAK)
-
         # Singleton object describing a Penalty for a prohibited break.
         ProhibitedBreak = new(Penalty::INFINITY)
 
@@ -218,6 +212,7 @@ module HexaPDF
         def self.call(items)
           result = []
           glues = {}
+          penalties = {}
           items.each do |item|
             if item.kind_of?(InlineBox)
               result << Box.new(item)
@@ -246,13 +241,20 @@ module HexaPDF
                       Glue.new(TextFragment.new([glyph].freeze, item.style))
                     result << glues[item.style]
                   when "\n", "\v", "\f", "\u{85}", "\u{2029}"
-                    result << Penalty::MandatoryParagraphBreak
+                    penalties[item.style] ||=
+                      Penalty.new(Penalty::PARAGRAPH_BREAK, 0,
+                                  item: TextFragment.new([].freeze, item.style))
+                    result << penalties[item.style]
                   when "\u{2028}"
-                    result << Penalty::MandatoryLineBreak
+                    result << Penalty.new(Penalty::LINE_BREAK, 0,
+                                          item: TextFragment.new([].freeze, item.style))
                   when "\r"
                     if !item.items[i + 1] || item.items[i + 1].kind_of?(Numeric) ||
                         item.items[i + 1].str != "\n"
-                      result << Penalty::MandatoryParagraphBreak
+                      penalties[item.style] ||=
+                        Penalty.new(Penalty::PARAGRAPH_BREAK, 0,
+                                    item: TextFragment.new([].freeze, item.style))
+                      result << penalties[item.style]
                     end
                   when '-'
                     result << Penalty::Standard
@@ -386,6 +388,7 @@ module HexaPDF
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
+                add_box_item(item.item) if item.item
                 break unless yield(create_unjustified_line, item)
                 reset_after_line_break(index + 1)
               elsif item.penalty >= Penalty::INFINITY
@@ -455,6 +458,7 @@ module HexaPDF
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
+                add_box_item(item.item) if item.item
                 break unless (action = yield(create_unjustified_line, item))
                 reset_after_line_break_variable_width(index + 1, true, action)
               elsif item.penalty >= Penalty::INFINITY

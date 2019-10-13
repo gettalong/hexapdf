@@ -12,6 +12,10 @@
 * Update the field information for implemented PDF types to include the allowed
   values where possible
 
+### Fixed
+
+* Line spacing of empty lines for [HexaPDF::Layout::TextLayouter]
+
 
 ## 0.10.0 - 2019-10-02
 

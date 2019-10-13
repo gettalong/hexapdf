@@ -117,10 +117,15 @@ describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
     assert_equal(20, result.size)
     [1, 3, 5, 7, 9, 11, 13, 17, 19].each do |index|
       assert_penalty(result[index],
-                     HexaPDF::Layout::TextLayouter::Penalty::MandatoryParagraphBreak.penalty)
+                     HexaPDF::Layout::TextLayouter::Penalty::PARAGRAPH_BREAK)
+      assert_equal([], result[index].item.items)
+      assert(result[index].item.items.frozen?)
+      assert_same(frag.style, result[index].item.style)
     end
-    assert_penalty(result[15],
-                   HexaPDF::Layout::TextLayouter::Penalty::MandatoryLineBreak.penalty)
+    assert_penalty(result[15], HexaPDF::Layout::TextLayouter::Penalty::LINE_BREAK)
+    assert_equal([], result[15].item.items)
+    assert(result[15].item.items.frozen?)
+    assert_same(frag.style, result[15].item.style)
   end
 
   it "insert a standard penalty after a hyphen" do
@@ -389,9 +394,9 @@ describe HexaPDF::Layout::TextLayouter do
 
     it "handles text indentation" do
       items = boxes([20, 20], [20, 20], [20, 20]) +
-        [HexaPDF::Layout::TextLayouter::Penalty::MandatoryParagraphBreak] +
+        [penalty(HexaPDF::Layout::TextLayouter::Penalty::PARAGRAPH_BREAK)] +
         boxes([40, 20]) + [glue(20)] +
-        boxes(*([[20, 20]] * 4)) + [HexaPDF::Layout::TextLayouter::Penalty::MandatoryLineBreak] +
+        boxes(*([[20, 20]] * 4)) + [penalty(HexaPDF::Layout::TextLayouter::Penalty::LINE_BREAK)] +
         boxes(*([[20, 20]] * 4))
       @style.text_indent = 20
 
@@ -429,7 +434,7 @@ describe HexaPDF::Layout::TextLayouter do
       assert_equal(140, result.height)
     end
 
-    it "handles empty lines" do
+    it "handles empty lines if the break penalties don't have an item" do
       items = boxes([20, 20]) + [penalty(-5000)] + boxes([30, 20]) + [penalty(-5000)] * 2 +
         boxes([20, 20]) + [penalty(-5000)] * 2
       result = @layouter.fit(items, 30, 100)
