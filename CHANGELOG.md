@@ -15,6 +15,7 @@
   values where possible
 * Interface of font loader objects to allow another method `available_fonts` for
   returning all available fonts
+* [HexaPDF::Layout::Style] to check for valid values where possible
 
 ### Fixed
 

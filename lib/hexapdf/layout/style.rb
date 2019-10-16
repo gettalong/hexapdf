@@ -624,7 +624,8 @@ module HexaPDF
       #   text_rendering_mode(mode = nil)
       #
       # The text rendering mode, i.e. whether text should be filled, stroked, clipped, invisible or
-      # a combination thereof, defaults to :fill.
+      # a combination thereof, defaults to :fill. The returned values is always a normalized text
+      # rendering mode value.
       #
       # See: HexaPDF::Content::Canvas#text_rendering_mode
 
@@ -698,7 +699,8 @@ module HexaPDF
       # :call-seq:
       #   stroke_cap_style(style = nil)
       #
-      # The line cap style used for stroking operations (e.g. text outlines), defaults to :butt.
+      # The line cap style used for stroking operations (e.g. text outlines), defaults to :butt. The
+      # returned values is always a normalized line cap style value.
       #
       # See: HexaPDF::Content::Canvas#line_cap_style
 
@@ -708,6 +710,7 @@ module HexaPDF
       #   stroke_join_style(style = nil)
       #
       # The line join style used for stroking operations (e.g. text outlines), defaults to :miter.
+      # The returned values is always a normalized line joine style value.
       #
       # See: HexaPDF::Content::Canvas#line_join_style
 
@@ -839,6 +842,8 @@ module HexaPDF
       #          the left/right can still be used. The position hint specifies where the box should
       #          float.
       #
+      # :flow:: Flows the content of the box inside the frame around objects.
+      #
       # :absolute:: Position the box at an absolute position relative to the frame. The coordinates
       #             are given via the position hint.
 
@@ -877,41 +882,58 @@ module HexaPDF
         [:horizontal_scaling, 100],
         [:text_rise, 0],
         [:font_features, {}],
-        [:text_rendering_mode, :fill],
-        [:subscript, false, "value; superscript(false) if superscript"],
-        [:superscript, false, "value; subscript(false) if subscript"],
-        [:underline, false],
-        [:strikeout, false],
+        [:text_rendering_mode, "Content::TextRenderingMode::FILL",
+         setter: "Content::TextRenderingMode.normalize(value)"],
+        [:subscript, false,
+         setter: "value; superscript(false) if superscript",
+         valid_values: [true, false]],
+        [:superscript, false,
+         setter: "value; subscript(false) if subscript",
+         valid_values: [true, false]],
+        [:underline, false, valid_values: [true, false]],
+        [:strikeout, false, valid_values: [true, false]],
         [:fill_color, "default_color"],
         [:fill_alpha, 1],
         [:stroke_color, "default_color"],
         [:stroke_alpha, 1],
         [:stroke_width, 1],
-        [:stroke_cap_style, :butt],
-        [:stroke_join_style, :miter],
+        [:stroke_cap_style, "Content::LineCapStyle::BUTT_CAP",
+         setter: "Content::LineCapStyle.normalize(value)"],
+        [:stroke_join_style, "Content::LineJoinStyle::MITER_JOIN",
+         setter: "Content::LineJoinStyle.normalize(value)"],
         [:stroke_miter_limit, 10.0],
         [:stroke_dash_pattern, "Content::LineDashPattern.new",
-         "Content::LineDashPattern.normalize(value, phase)", ", phase = 0"],
-        [:align, :left],
-        [:valign, :top],
+         setter: "Content::LineDashPattern.normalize(value, phase)", extra_args: ", phase = 0"],
+        [:align, :left, valid_values: [:left, :center, :right, :justify]],
+        [:valign, :top, valid_values: [:top, :center, :bottom]],
         [:text_indent, 0],
         [:line_spacing, "LineSpacing.new(type: :single)",
-         "LineSpacing.new(value.kind_of?(Symbol) ? {type: value, value: extra_arg} : value)",
-         ", extra_arg = nil"],
-        [:last_line_gap, false],
+         setter: "LineSpacing.new(value.kind_of?(Symbol) ? {type: value, value: extra_arg} : value)",
+         extra_args: ", extra_arg = nil"],
+        [:last_line_gap, false, valid_values: [true, false]],
         [:background_color, nil],
-        [:padding, "Quad.new(0)", "Quad.new(value)"],
-        [:margin, "Quad.new(0)", "Quad.new(value)"],
-        [:border, "Border.new", "Border.new(value)"],
-        [:overlays, "Layers.new", "Layers.new(value)"],
-        [:underlays, "Layers.new", "Layers.new(value)"],
-        [:position, :default],
+        [:padding, "Quad.new(0)", setter: "Quad.new(value)"],
+        [:margin, "Quad.new(0)", setter: "Quad.new(value)"],
+        [:border, "Border.new", setter: "Border.new(value)"],
+        [:overlays, "Layers.new", setter: "Layers.new(value)"],
+        [:underlays, "Layers.new", setter: "Layers.new(value)"],
+        [:position, :default, valid_values: [:default, :float, :flow, :absolute]],
         [:position_hint, nil],
-      ].each do |name, default, setter = "value", extra_args = ""|
+      ].each do |name, default, setter: "value", extra_args: "", valid_values: nil|
         default = default.inspect unless default.kind_of?(String)
+        valid_values_const = "#{name}_valid_values".upcase
+        const_set(valid_values_const, valid_values)
         module_eval(<<-EOF, __FILE__, __LINE__ + 1)
           def #{name}(value = UNSET#{extra_args})
-            value == UNSET ? (@#{name} ||= #{default}) : (@#{name} = #{setter}; self)
+            if value == UNSET
+              @#{name} ||= #{default}
+            elsif #{valid_values_const} && !#{valid_values_const}.include?(value)
+              raise ArgumentError, "\#{value.inspect} is not a valid #{name} value " \\
+                "(\#{#{valid_values_const}.map(&:inspect).join(', ')})"
+            else
+              @#{name} = #{setter}
+              self
+            end
           end
           def #{name}?
             defined?(@#{name})
