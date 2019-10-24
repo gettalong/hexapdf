@@ -20,6 +20,7 @@
 ### Fixed
 
 * Line spacing of empty lines for [HexaPDF::Layout::TextLayouter]
+* Handling of `/DecodeParms` when exporting to PNG images
 
 
 ## 0.10.0 - 2019-10-02

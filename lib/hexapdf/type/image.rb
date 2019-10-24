@@ -255,7 +255,8 @@ module HexaPDF
         end
 
         filter, = *self[:Filter]
-        if filter == :FlateDecode && self[:DecodeParms] && self[:DecodeParms][:Predictor].to_i >= 10
+        decode_parms, = *self[:DecodeParms]
+        if filter == :FlateDecode && decode_parms && decode_parms[:Predictor].to_i >= 10
           data = stream_source
         else
           colors = (color_type == ImageLoader::PNG::INDEXED ? 1 : info.components)

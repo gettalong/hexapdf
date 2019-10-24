@@ -184,6 +184,10 @@ describe HexaPDF::Type::Image do
     Dir.glob(File.join(TEST_DATA_DIR, 'images', '*.png')).each do |png_file|
       it "writes #{File.basename(png_file)} correctly as PNG file" do
         image = @doc.images.add(png_file)
+        if png_file =~ /greyscale-1bit.png/ # force use of arrays for one image
+          image[:DecodeParms] = [image[:DecodeParms]]
+          image[:Filter] = [image[:Filter]]
+        end
         image.write(@file.path)
         assert_valid_png(@file.path, png_file)
 
