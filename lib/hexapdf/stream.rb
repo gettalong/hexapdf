@@ -132,6 +132,8 @@ module HexaPDF
   # The basic Object class cannot hold stream data, only this subclass contains the necessary
   # methods to conveniently work with the stream data!
   #
+  # Note that support for external streams (/F, /FFilter, /FDecodeParms) is not yet implemented!
+  #
   # See: PDF1.7 s7.3.8, Dictionary
   class Stream < Dictionary
 
