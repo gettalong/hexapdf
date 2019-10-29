@@ -1088,7 +1088,7 @@ module HexaPDF
         unless obj.respond_to?(:configure)
           obj = context.document.config.constantize('graphic_object.map', obj)
         end
-        obj = obj.configure(options) unless options.empty? && obj.respond_to?(:draw)
+        obj = obj.configure(**options) unless options.empty? && obj.respond_to?(:draw)
         obj
       end
 
@@ -1607,7 +1607,7 @@ module HexaPDF
       # See: PDF1.7 s9.2.2
       def font(name = nil, size: nil, **options)
         if name
-          @font = (name.respond_to?(:dict) ? name : context.document.fonts.add(name, options))
+          @font = (name.respond_to?(:dict) ? name : context.document.fonts.add(name, **options))
           if size
             font_size(size)
           else

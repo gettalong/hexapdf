@@ -65,7 +65,7 @@ module HexaPDF
       # the +options+ (in which case a new Style object is created). Regardless of the way, the
       # resulting style object needs at least the font set.
       def self.create(text, style = nil, **options)
-        style = (style.nil? ? Style.new(options) : style)
+        style = (style.nil? ? Style.new(**options) : style)
         fragment = new(style.font.decode_utf8(text), style)
         TextShaper.new.shape_text(fragment)
       end
@@ -106,7 +106,7 @@ module HexaPDF
       # The argument +style+ can either be a Style object or a hash of style options.
       def initialize(items, style)
         @items = items
-        @style = (style.kind_of?(Style) ? style : Style.new(style))
+        @style = (style.kind_of?(Style) ? style : Style.new(**style))
       end
 
       # The precision used to determine whether two floats represent the same value.

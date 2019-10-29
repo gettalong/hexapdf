@@ -57,7 +57,7 @@ module HexaPDF
       # If +content_box+ is +true+, the width and height are taken to mean the content width and
       # height and the style's padding and border are removed from them appropriately.
       def self.create(width: 0, height: 0, content_box: false, **style, &block)
-        style = Style.new(style)
+        style = Style.new(**style)
         if content_box
           width += style.padding.left + style.padding.right +
             style.border.width.left + style.border.width.right
@@ -96,7 +96,7 @@ module HexaPDF
       def initialize(width: 0, height: 0, style: Style.new, &block)
         @width = @initial_width = width
         @height = @initial_height = height
-        @style = (style.kind_of?(Style) ? style : Style.new(style))
+        @style = (style.kind_of?(Style) ? style : Style.new(**style))
         @draw_block = block
       end
 

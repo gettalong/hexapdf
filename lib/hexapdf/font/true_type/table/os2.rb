@@ -65,8 +65,8 @@ module HexaPDF
 
           # Characteristics and properties of this font.
           attr_accessor :type
-          bit_field(:type, restricted_license_embedding: 1, preview_and_print_embedding: 2,
-                    editable_embedding: 3, no_subsetting: 8, bitmap_embedding_only: 9)
+          bit_field(:type, {restricted_license_embedding: 1, preview_and_print_embedding: 2,
+                            editable_embedding: 3, no_subsetting: 8, bitmap_embedding_only: 9})
 
           # Recommended horizontal size in pixels for subscripts
           attr_accessor :subscript_x_size
@@ -112,8 +112,8 @@ module HexaPDF
 
           # Information concerning the nature of the font patterns.
           attr_accessor :selection
-          bit_field(:selection, italic: 0, underscore: 1, negative: 2, outlined: 3, strikeout: 4,
-                                bold: 5, regular: 6, use_typo_metrics: 7, wws: 8, oblique: 9)
+          bit_field(:selection, {italic: 0, underscore: 1, negative: 2, outlined: 3, strikeout: 4,
+                                 bold: 5, regular: 6, use_typo_metrics: 7, wws: 8, oblique: 9})
 
           # The minimum Unicode index in this font.
           attr_accessor :first_char_index

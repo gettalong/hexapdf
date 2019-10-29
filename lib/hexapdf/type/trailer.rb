@@ -70,7 +70,7 @@ module HexaPDF
 
       # Returns the document's Catalog (see Type::Catalog), creating it if needed.
       def catalog
-        self[:Root] ||= document.add(Type: :Catalog)
+        self[:Root] ||= document.add({Type: :Catalog})
       end
 
       # Returns the document's information dictionary (see Type::Info), creating it if needed.
@@ -112,7 +112,7 @@ module HexaPDF
 
         unless value[:Root]
           yield("A PDF document must have a Catalog dictionary", true)
-          value[:Root] = document.add(Type: :Catalog)
+          value[:Root] = document.add({Type: :Catalog})
           value[:Root].validate {|message, correctable| yield(message, correctable) }
         end
 

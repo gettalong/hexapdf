@@ -7,8 +7,8 @@ require 'hexapdf/type/cid_font'
 describe HexaPDF::Type::CIDFont do
   before do
     @doc = HexaPDF::Document.new
-    @font = @doc.wrap(Type: :Font, Subtype: :CIDFontType2, W: [1, 2, 3], DW: 100,
-                      CIDSystemInfo: {Registry: 'Adobe', Ordering: 'Japan1', Supplement: 1})
+    @font = @doc.wrap({Type: :Font, Subtype: :CIDFontType2, W: [1, 2, 3], DW: 100,
+                       CIDSystemInfo: {Registry: 'Adobe', Ordering: 'Japan1', Supplement: 1}})
   end
 
   describe "width" do

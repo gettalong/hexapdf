@@ -209,15 +209,15 @@ module HexaPDF
       #
       # See: #complete_font_dict
       def build_font_dict
-        fd = @document.add(Type: :FontDescriptor,
-                           FontName: @wrapped_font.font_name.intern,
-                           FontWeight: @wrapped_font.weight,
-                           Flags: 0,
-                           FontBBox: @wrapped_font.bounding_box.map {|m| m * scaling_factor },
-                           ItalicAngle: @wrapped_font.italic_angle || 0,
-                           Ascent: @wrapped_font.ascender * scaling_factor,
-                           Descent: @wrapped_font.descender * scaling_factor,
-                           StemV: @wrapped_font.dominant_vertical_stem_width)
+        fd = @document.add({Type: :FontDescriptor,
+                            FontName: @wrapped_font.font_name.intern,
+                            FontWeight: @wrapped_font.weight,
+                            Flags: 0,
+                            FontBBox: @wrapped_font.bounding_box.map {|m| m * scaling_factor },
+                            ItalicAngle: @wrapped_font.italic_angle || 0,
+                            Ascent: @wrapped_font.ascender * scaling_factor,
+                            Descent: @wrapped_font.descender * scaling_factor,
+                            StemV: @wrapped_font.dominant_vertical_stem_width})
         if @wrapped_font[:'OS/2'].version >= 2
           fd[:CapHeight] = @wrapped_font.cap_height * scaling_factor
           fd[:XHeight] = @wrapped_font.x_height * scaling_factor
@@ -242,13 +242,13 @@ module HexaPDF
           @wrapped_font[:'OS/2'].selection_include?(:oblique)
         fd.flag(:symbolic)
 
-        cid_font = @document.add(Type: :Font, Subtype: :CIDFontType2,
-                                 BaseFont: fd[:FontName], FontDescriptor: fd,
-                                 CIDSystemInfo: {Registry: "Adobe", Ordering: "Identity",
-                                                 Supplement: 0},
-                                 CIDToGIDMap: :Identity)
-        @document.add(Type: :Font, Subtype: :Type0, BaseFont: cid_font[:BaseFont],
-                      Encoding: :"Identity-H", DescendantFonts: [cid_font])
+        cid_font = @document.add({Type: :Font, Subtype: :CIDFontType2,
+                                  BaseFont: fd[:FontName], FontDescriptor: fd,
+                                  CIDSystemInfo: {Registry: "Adobe", Ordering: "Identity",
+                                                  Supplement: 0},
+                                  CIDToGIDMap: :Identity})
+        @document.add({Type: :Font, Subtype: :Type0, BaseFont: cid_font[:BaseFont],
+                       Encoding: :"Identity-H", DescendantFonts: [cid_font]})
       end
 
       # Makes sure that the Type0 font object as well as the CIDFont object contain all the needed

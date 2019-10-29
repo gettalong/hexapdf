@@ -50,7 +50,7 @@ describe HexaPDF::Layout::Frame do
     # checked whether the box coordinates are pos and whether the frame has the shape given by
     # points.
     def check_box(box_opts, pos, points)
-      @box = HexaPDF::Layout::Box.create(box_opts) {}
+      @box = HexaPDF::Layout::Box.create(**box_opts) {}
       @canvas.expect(:translate, nil, pos)
       assert(@frame.draw(@canvas, @box))
       assert_equal(points, @frame.shape.polygons.map(&:to_a))

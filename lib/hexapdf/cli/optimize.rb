@@ -81,7 +81,7 @@ module HexaPDF
 
       # Optimizes the page tree by flattening it and deleting unsed objects.
       def optimize_page_tree(doc)
-        page_tree = doc.add(Type: :Pages)
+        page_tree = doc.add({Type: :Pages})
         retained = {page_tree.data => true}
         doc.pages.each do |page|
           page.value.update(page.copy_inherited_values)

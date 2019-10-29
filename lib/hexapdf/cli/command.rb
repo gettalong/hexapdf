@@ -57,7 +57,7 @@ module HexaPDF
 
       include Extensions
 
-      def initialize(*args, &block) #:nodoc:
+      def initialize(*args, **kwargs, &block) #:nodoc:
         super
         @out_options = OpenStruct.new
         @out_options.compact = true
@@ -82,7 +82,7 @@ module HexaPDF
       # If +out_file+ is given, the document is written to it after yielding.
       def with_document(file, password: nil, out_file: nil) #:yield: document
         if file == out_file
-          doc = HexaPDF::Document.open(file, pdf_options(password))
+          doc = HexaPDF::Document.open(file, **pdf_options(password))
         else
           file_io = File.open(file, 'rb')
           doc = HexaPDF::Document.new(io: file_io, **pdf_options(password))

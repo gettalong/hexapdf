@@ -95,7 +95,7 @@ module HexaPDF
           when :Supplement
             cmap.supplement = value if value.kind_of?(Integer)
           when :CMapName
-            cmap.name = value.to_s.force_encoding(::Encoding::UTF_8) if value.kind_of?(Symbol)
+            cmap.name = value.to_s.dup.force_encoding(::Encoding::UTF_8) if value.kind_of?(Symbol)
           when :WMode
             cmap.wmode = value
           end

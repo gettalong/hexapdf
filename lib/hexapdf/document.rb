@@ -135,7 +135,7 @@ module HexaPDF
 
       @revisions = Revisions.from_io(self, io)
       @security_handler = if encrypted? && @config['document.auto_decrypt']
-                            Encryption::SecurityHandler.set_up_decryption(self, decryption_opts)
+                            Encryption::SecurityHandler.set_up_decryption(self, **decryption_opts)
                           else
                             nil
                           end
@@ -199,7 +199,7 @@ module HexaPDF
     # If the +revision+ option is +:current+, the current revision is used. Otherwise +revision+
     # should be a revision index.
     def add(obj, revision: :current, **wrap_opts)
-      obj = wrap(obj, wrap_opts) unless obj.kind_of?(HexaPDF::Object)
+      obj = wrap(obj, **wrap_opts) unless obj.kind_of?(HexaPDF::Object)
 
       revision = (revision == :current ? @revisions.current : @revisions.revision(revision))
       if revision.nil?

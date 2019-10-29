@@ -137,7 +137,7 @@ describe HexaPDF::Serializer do
     it "serializes streams" do
       @stream.stream = "somedata"
       assert_serialized("<</Key(value)/Length 8>>stream\nsomedata\nendstream", @stream)
-      assert_serialized("<</Name 2 0 R>>", HexaPDF::Object.new(Name: @stream))
+      assert_serialized("<</Name 2 0 R>>", HexaPDF::Object.new({Name: @stream}))
     end
 
     it "handles self-referencing streams" do

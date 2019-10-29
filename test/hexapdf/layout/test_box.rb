@@ -6,8 +6,8 @@ require 'hexapdf/document'
 require 'hexapdf/layout/box'
 
 describe HexaPDF::Layout::Box do
-  def create_box(*args, &block)
-    HexaPDF::Layout::Box.new(*args, &block)
+  def create_box(**args, &block)
+    HexaPDF::Layout::Box.new(**args, &block)
   end
 
   describe "::create" do

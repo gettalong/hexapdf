@@ -83,7 +83,7 @@ module HexaPDF
           raise ArgumentError, "The name argument is mandatory when given an IO object"
         end
 
-        spec = @document.add(Type: :Filespec)
+        spec = @document.add({Type: :Filespec})
         spec.path = name
         spec[:Desc] = description if description
         spec.embed(file_or_io, name: name, register: true) if embed || !file_or_io.kind_of?(String)

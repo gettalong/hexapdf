@@ -7,7 +7,7 @@ require 'hexapdf/type/catalog'
 describe HexaPDF::Type::Catalog do
   before do
     @doc = HexaPDF::Document.new
-    @catalog = @doc.add(Type: :Catalog)
+    @catalog = @doc.add({Type: :Catalog})
   end
 
   it "must always be indirect" do

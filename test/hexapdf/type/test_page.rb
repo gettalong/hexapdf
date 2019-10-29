@@ -33,16 +33,16 @@ describe HexaPDF::Type::Page do
   end
 
   it "must always be indirect" do
-    page = @doc.add(Type: :Page)
+    page = @doc.add({Type: :Page})
     page.must_be_indirect = false
     assert(page.must_be_indirect?)
   end
 
   describe "[]" do
     before do
-      @root = @doc.add(Type: :Pages)
-      @kid = @doc.add(Type: :Pages, Parent: @root)
-      @page = @doc.add(Type: :Page, Parent: @kid)
+      @root = @doc.add({Type: :Pages})
+      @kid = @doc.add({Type: :Pages, Parent: @root})
+      @page = @doc.add({Type: :Page, Parent: @kid})
     end
 
     it "works normal for non-inheritable fields" do
@@ -73,8 +73,8 @@ describe HexaPDF::Type::Page do
 
   describe "validation" do
     it "fails if a required inheritable field is not set" do
-      root = @doc.add(Type: :Pages)
-      page = @doc.add(Type: :Page, Parent: root)
+      root = @doc.add({Type: :Pages})
+      page = @doc.add({Type: :Page, Parent: root})
       message = ''
       refute(page.validate {|m, _| message = m })
       assert_match(/inheritable.*MediaBox/i, message)
@@ -274,7 +274,7 @@ describe HexaPDF::Type::Page do
 
   describe "resources" do
     it "creates the resource dictionary if it is not found" do
-      page = @doc.add(Type: :Page, Parent: @doc.pages.root)
+      page = @doc.add({Type: :Page, Parent: @doc.pages.root})
       resources = page.resources
       assert_equal(:XXResources, resources.type)
       assert_equal({}, resources.value)
@@ -282,7 +282,7 @@ describe HexaPDF::Type::Page do
 
     it "returns the already used resource dictionary" do
       @doc.pages.root[:Resources] = {Font: {F1: nil}}
-      page = @doc.pages.add(@doc.add(Type: :Page))
+      page = @doc.pages.add(@doc.add({Type: :Page}))
       resources = page.resources
       assert_equal(:XXResources, resources.type)
       assert_equal(@doc.pages.root[:Resources], resources)
@@ -300,14 +300,14 @@ describe HexaPDF::Type::Page do
 
   describe "index" do
     it "returns the index of the page in the page tree" do
-      kid1 = @doc.add(Type: :Pages, Parent: @doc.pages.root, Count: 4)
+      kid1 = @doc.add({Type: :Pages, Parent: @doc.pages.root, Count: 4})
       @doc.pages.root[:Kids] << kid1
 
-      kid11 = @doc.add(Type: :Pages, Parent: kid1)
+      kid11 = @doc.add({Type: :Pages, Parent: kid1})
       page1 = kid11.add_page
       kid1[:Kids] << kid11
       page2 = kid1.add_page
-      kid12 = @doc.add(Type: :Pages, Parent: kid1)
+      kid12 = @doc.add({Type: :Pages, Parent: kid1})
       page3 = kid12.add_page
       page4 = kid12.add_page
       kid1[:Kids] << kid12

@@ -39,8 +39,8 @@ end
 describe HexaPDF::Type::FontType1 do
   before do
     @doc = HexaPDF::Document.new
-    @font = @doc.add(Type: :Font, Subtype: :Type1, Encoding: :WinAnsiEncoding,
-                     BaseFont: :"Times-Roman")
+    @font = @doc.add({Type: :Font, Subtype: :Type1, Encoding: :WinAnsiEncoding,
+                      BaseFont: :"Times-Roman"})
 
     font_file = @doc.add({}, stream: <<-EOF)
       /Encoding 256 array
@@ -49,12 +49,12 @@ describe HexaPDF::Type::FontType1 do
       dup 34 /B put
       readonly def
     EOF
-    font_descriptor = @doc.add(Type: :FontDescriptor, FontName: :Embedded, Flags: 0b100,
-                               FontBBox: [0, 1, 2, 3], ItalicAngle: 0, Ascent: 900,
-                               Descent: -100, CapHeight: 800, StemV: 20, FontFile: font_file)
-    @embedded_font = @doc.add(Type: :Font, Subtype: :Type1, Encoding: :WinAnsiEncoding,
-                              BaseFont: :Embedded, FontDescriptor: font_descriptor,
-                              FirstChar: 32, LastChar: 34, Widths: [600, 0, 700])
+    font_descriptor = @doc.add({Type: :FontDescriptor, FontName: :Embedded, Flags: 0b100,
+                                FontBBox: [0, 1, 2, 3], ItalicAngle: 0, Ascent: 900,
+                                Descent: -100, CapHeight: 800, StemV: 20, FontFile: font_file})
+    @embedded_font = @doc.add({Type: :Font, Subtype: :Type1, Encoding: :WinAnsiEncoding,
+                               BaseFont: :Embedded, FontDescriptor: font_descriptor,
+                               FirstChar: 32, LastChar: 34, Widths: [600, 0, 700]})
   end
 
   describe "encoding" do

@@ -93,7 +93,7 @@ module HexaPDF
     #     ...
     #   end
     def self.create(output, **options, &block)
-      new(options, &block).write(output)
+      new(**options, &block).write(output)
     end
 
     # The PDF document that is created.
@@ -295,7 +295,7 @@ module HexaPDF
     # options to make it work in all cases.
     def update_style(style, options = {})
       style ||= base_style
-      style = style.dup.update(options) unless options.empty?
+      style = style.dup.update(**options) unless options.empty?
       style.font(base_style.font) unless style.font?
       style.font(@document.fonts.add(style.font)) unless style.font.respond_to?(:dict)
       style

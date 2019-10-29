@@ -14,8 +14,8 @@ describe HexaPDF::Task::Dereference do
     len = @doc.add(5)
     str = @doc.add(@doc.wrap({Length: len}, stream: ''))
     @doc.trailer[:Test] = str
-    pages = @doc.wrap(Type: :Pages)
-    pages.add_page(@doc.wrap(Type: :Page))
+    pages = @doc.wrap({Type: :Pages})
+    pages.add_page(@doc.wrap({Type: :Page}))
     @doc.trailer[:Test2] = pages
     @doc.trailer[:InvalidRef] = HexaPDF::Reference.new(5000, 2)
 

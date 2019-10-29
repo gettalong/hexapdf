@@ -260,7 +260,7 @@ describe HexaPDF::Dictionary do
       assert(@obj.validate(auto_correct: true))
       assert_equal(1, @obj.value[:TestClass].oid)
 
-      @obj.value[:TestClass] = HexaPDF::Object.new(Inherited: :symbol)
+      @obj.value[:TestClass] = HexaPDF::Object.new({Inherited: :symbol})
       assert(@obj.validate(auto_correct: true))
       assert_equal(1, @obj.value[:TestClass].oid)
     end
@@ -327,7 +327,7 @@ describe HexaPDF::Dictionary do
   describe "empty?" do
     it "returns true if the dictionary contains no entries" do
       assert(HexaPDF::Dictionary.new({}).empty?)
-      refute(HexaPDF::Dictionary.new(x: 5).empty?)
+      refute(HexaPDF::Dictionary.new({x: 5}).empty?)
     end
   end
 end

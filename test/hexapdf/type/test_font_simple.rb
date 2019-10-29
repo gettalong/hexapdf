@@ -13,9 +13,9 @@ describe HexaPDF::Type::FontSimple do
       <22> <0042>
       endbfchar
     EOF
-    font_descriptor = @doc.add(Type: :FontDescriptor, FontName: :Embedded, Flags: 0b100,
-                               FontBBox: [0, 1, 2, 3], ItalicAngle: 0, Ascent: 900,
-                               Descent: -100, CapHeight: 800, StemV: 20)
+    font_descriptor = @doc.add({Type: :FontDescriptor, FontName: :Embedded, Flags: 0b100,
+                                FontBBox: [0, 1, 2, 3], ItalicAngle: 0, Ascent: 900,
+                                Descent: -100, CapHeight: 800, StemV: 20})
     @font = @doc.add({Type: :Font, Encoding: :WinAnsiEncoding,
                       BaseFont: :Embedded, FontDescriptor: font_descriptor, ToUnicode: cmap,
                       FirstChar: 32, LastChar: 34, Widths: [600, 0, 700]},

@@ -76,8 +76,8 @@ module HexaPDF
 
           # Apple Mac style information.
           attr_accessor :mac_style
-          bit_field(:mac_style, bold: 0, italic: 1, underline: 2, outline: 3, shadow: 4,
-                    condensed: 5, extended: 6)
+          bit_field(:mac_style, {bold: 0, italic: 1, underline: 2, outline: 3, shadow: 4,
+                                 condensed: 5, extended: 6})
 
           # The smallest readable size in pixels per em for this font.
           attr_accessor :smallest_readable_size

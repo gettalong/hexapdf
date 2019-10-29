@@ -295,7 +295,7 @@ module HexaPDF
           Columns: dict[:Width],
         }
         stream_opts = (from_indexed ? {} : {filter: :FlateDecode, decode_parms: decode_parms})
-        stream = HexaPDF::StreamData.new(lambda { mask_data }, stream_opts)
+        stream = HexaPDF::StreamData.new(lambda { mask_data }, **stream_opts)
 
         smask_dict = {
           Type: :XObject,

@@ -136,8 +136,8 @@ describe HexaPDF::Layout::Style::Quad do
 end
 
 describe HexaPDF::Layout::Style::Border do
-  def create_border(*args)
-    HexaPDF::Layout::Style::Border.new(*args)
+  def create_border(**args)
+    HexaPDF::Layout::Style::Border.new(**args)
   end
 
   it "has accessors for with, color and style that return Quads" do
@@ -531,13 +531,13 @@ describe HexaPDF::Layout::Style::LinkLayer do
     end
 
     def call_link(hash)
-      link = HexaPDF::Layout::Style::LinkLayer.new(hash)
+      link = HexaPDF::Layout::Style::LinkLayer.new(**hash)
       link.call(@canvas, @box)
       @canvas.context[:Annots]&.first
     end
 
     it "does nothing if the context is not a page object" do
-      @canvas = HexaPDF::Document.new.add(Type: :XObject, Subtype: :Form).canvas
+      @canvas = HexaPDF::Document.new.add({Type: :XObject, Subtype: :Form}).canvas
       assert_nil(call_link(dest: true))
     end
 

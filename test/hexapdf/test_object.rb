@@ -167,7 +167,7 @@ describe HexaPDF::Object do
 
   describe "deep_copy" do
     it "creates an independent object" do
-      obj = HexaPDF::Object.new(a: "mystring", b: HexaPDF::Reference.new(1, 0), c: 5)
+      obj = HexaPDF::Object.new({a: "mystring", b: HexaPDF::Reference.new(1, 0), c: 5})
       copy = obj.deep_copy
       refute_equal(copy, obj)
       assert_equal(copy.value, obj.value)

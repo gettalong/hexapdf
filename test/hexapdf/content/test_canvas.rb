@@ -777,9 +777,9 @@ describe HexaPDF::Content::Canvas do
 
   describe "xobject" do
     before do
-      @image = @doc.add(Type: :XObject, Subtype: :Image, Width: 10, Height: 5)
+      @image = @doc.add({Type: :XObject, Subtype: :Image, Width: 10, Height: 5})
       @image.source_path = File.join(TEST_DATA_DIR, 'images', 'gray.jpg')
-      @form = @doc.add(Type: :XObject, Subtype: :Form, BBox: [100, 50, 200, 100])
+      @form = @doc.add({Type: :XObject, Subtype: :Form, BBox: [100, 50, 200, 100]})
     end
 
     it "can use any xobject specified via a filename" do

@@ -282,7 +282,7 @@ describe HexaPDF::Document do
     it "uses a suitable default type if no special type is specified" do
       assert_instance_of(HexaPDF::Object, @doc.wrap(5))
       assert_instance_of(HexaPDF::Stream, @doc.wrap({a: 5}, stream: ''))
-      assert_instance_of(HexaPDF::Dictionary, @doc.wrap(a: 5))
+      assert_instance_of(HexaPDF::Dictionary, @doc.wrap({a: 5}))
     end
 
     it "returns an object of type HexaPDF::Object" do
@@ -327,12 +327,12 @@ describe HexaPDF::Document do
     end
 
     it "uses the type/subtype information in the hash that should be wrapped" do
-      assert_kind_of(@myclass, @doc.wrap(Type: :MyClass))
-      refute_kind_of(@myclass2, @doc.wrap(Subtype: :TheSecond))
-      refute_kind_of(@myclass2, @doc.wrap(Subtype: :Global))
-      assert_kind_of(@myclass2, @doc.wrap(Subtype: :Global, Test: "true"))
-      assert_kind_of(@myclass2, @doc.wrap(Type: :MyClass, S: :TheSecond))
-      assert_kind_of(@myclass, @doc.wrap(Type: :MyClass, Subtype: :TheThird))
+      assert_kind_of(@myclass, @doc.wrap({Type: :MyClass}))
+      refute_kind_of(@myclass2, @doc.wrap({Subtype: :TheSecond}))
+      refute_kind_of(@myclass2, @doc.wrap({Subtype: :Global}))
+      assert_kind_of(@myclass2, @doc.wrap({Subtype: :Global, Test: "true"}))
+      assert_kind_of(@myclass2, @doc.wrap({Type: :MyClass, S: :TheSecond}))
+      assert_kind_of(@myclass, @doc.wrap({Type: :MyClass, Subtype: :TheThird}))
     end
 
     it "respects the given type/subtype arguments" do
@@ -367,14 +367,14 @@ describe HexaPDF::Document do
 
     it "recursively unwraps hashes" do
       assert_equal({a: 5, b: 10, c: [200], d: [200]},
-                   @io_doc.unwrap(a: 5, b: HexaPDF::Reference.new(1, 0),
-                                    c: [HexaPDF::Reference.new(2, 0)],
-                                    d: [HexaPDF::Reference.new(2, 0)]))
+                   @io_doc.unwrap({a: 5, b: HexaPDF::Reference.new(1, 0),
+                                   c: [HexaPDF::Reference.new(2, 0)],
+                                   d: [HexaPDF::Reference.new(2, 0)]}))
     end
 
     it "recursively unwraps PDF objects" do
-      assert_equal({a: 10}, @io_doc.unwrap(@io_doc.wrap(a: HexaPDF::Reference.new(1, 0))))
-      value = {a: HexaPDF::Object.new(b: HexaPDF::Object.new(10))}
+      assert_equal({a: 10}, @io_doc.unwrap(@io_doc.wrap({a: HexaPDF::Reference.new(1, 0)})))
+      value = {a: HexaPDF::Object.new({b: HexaPDF::Object.new(10)})}
       assert_equal({a: {b: 10}}, @doc.unwrap(value))
     end
 
@@ -383,7 +383,7 @@ describe HexaPDF::Document do
       obj2 = @doc.add({})
       obj1.value[2] = obj2
       obj2.value[1] = obj1
-      assert_raises(HexaPDF::Error) { @doc.unwrap(a: obj1) }
+      assert_raises(HexaPDF::Error) { @doc.unwrap({a: obj1}) }
     end
   end
 
@@ -444,7 +444,7 @@ describe HexaPDF::Document do
     end
 
     it "validates indirect objects" do
-      obj = @doc.add(Type: :Catalog)
+      obj = @doc.add({Type: :Catalog})
       refute(@doc.validate(auto_correct: false))
 
       called = false
@@ -462,7 +462,7 @@ describe HexaPDF::Document do
       doc = HexaPDF::Document.new
       doc.pages.add.delete(:Resources)
       page = doc.pages.add
-      page[:Annots] = [doc.add(Type: :Annot, Subtype: :Link, Rect: [0, 0, 1, 1], H: :Z)]
+      page[:Annots] = [doc.add({Type: :Annot, Subtype: :Link, Rect: [0, 0, 1, 1], H: :Z})]
       doc.write(io, validate: false)
       doc = HexaPDF::Document.new(io: io)
       doc.pages[0] # force loading of the first page

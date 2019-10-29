@@ -13,7 +13,7 @@ describe HexaPDF::Layout::ImageBox do
   end
 
   def create_box(**kwargs)
-    HexaPDF::Layout::ImageBox.new(@image, kwargs)
+    HexaPDF::Layout::ImageBox.new(@image, **kwargs)
   end
 
   describe "initialize" do

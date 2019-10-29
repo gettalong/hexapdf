@@ -26,7 +26,7 @@ describe HexaPDF::Type::Resources do
     end
 
     it "returns the universal color space for unknown color spaces, with resolved references" do
-      data = @doc.add(Some: :data)
+      data = @doc.add({Some: :data})
       @res[:ColorSpace] = {CSName: [:SomeUnknownColorSpace,
                                     HexaPDF::Reference.new(data.oid, data.gen)]}
       color_space = @res.color_space(:CSName)
@@ -59,7 +59,7 @@ describe HexaPDF::Type::Resources do
     end
 
     it "doesn't add the same color space twice" do
-      object = @doc.add(some: :data)
+      object = @doc.add({some: :data})
       @res[:ColorSpace] = {space: [:DeviceN, HexaPDF::Reference.new(object.oid, object.gen)]}
       space = HexaPDF::Content::ColorSpace::Universal.new([:DeviceN, object])
       name = @res.add_color_space(space)
@@ -90,14 +90,14 @@ describe HexaPDF::Type::Resources do
 
   describe "private object_setter" do
     it "adds the object to the specified subdictionary" do
-      obj = @doc.add(some: :xobject)
+      obj = @doc.add({some: :xobject})
       name = @res.add_xobject(obj)
       assert(@res[:XObject].key?(name))
       assert_equal(obj, @res[:XObject][name])
     end
 
     it "doesn't add the same object twice" do
-      obj = @doc.add(some: :xobject)
+      obj = @doc.add({some: :xobject})
       name = @res.add_xobject(obj)
       name2 = @res.add_xobject(obj)
       assert_equal(name, name2)

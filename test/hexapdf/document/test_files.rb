@@ -50,9 +50,9 @@ describe HexaPDF::Document::Files do
 
   describe "each" do
     it "iterates only over named embedded files and file annotations if search=false" do
-      @doc.add(Type: :Filespec)
+      @doc.add({Type: :Filespec})
       spec1 = @doc.files.add(__FILE__)
-      spec2 = @doc.add(Type: :Filespec)
+      spec2 = @doc.add({Type: :Filespec})
       @doc.pages.add # page without annot
       @doc.pages.add[:Annots] = [
         {Subtype: :FileAttachment, FS: HexaPDF::Reference.new(spec1.oid, spec1.gen)},
@@ -64,8 +64,8 @@ describe HexaPDF::Document::Files do
 
     it "iterates over all file specifications of the document if search=true" do
       specs = []
-      specs << @doc.add(Type: :Filespec)
-      specs << @doc.add(Type: :Filespec)
+      specs << @doc.add({Type: :Filespec})
+      specs << @doc.add({Type: :Filespec})
       assert_equal(specs, @doc.files.each(search: true).to_a)
     end
   end

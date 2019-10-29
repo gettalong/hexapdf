@@ -13,8 +13,8 @@ describe HexaPDF::Type::Font do
       <22> <0042>
       endbfchar
     EOF
-    fd = @doc.add(Type: :FontDescriptor, FontBBox: [0, 1, 2, 3])
-    @font = @doc.add(Type: :Font, BaseFont: :TestFont, FontDescriptor: fd, ToUnicode: cmap)
+    fd = @doc.add({Type: :FontDescriptor, FontBBox: [0, 1, 2, 3]})
+    @font = @doc.add({Type: :Font, BaseFont: :TestFont, FontDescriptor: fd, ToUnicode: cmap})
   end
 
   it "must always be an indirect" do

@@ -222,7 +222,7 @@ module HexaPDF
         if box.kind_of?(Symbol)
           box = Page.media_box(box, orientation: config['page.default_media_orientation'])
         end
-        document.add(Type: :Page, MediaBox: box)
+        document.add({Type: :Page, MediaBox: box})
       end
 
       # Ensures that the /Count and /Parent fields of the whole page tree are set up correctly and

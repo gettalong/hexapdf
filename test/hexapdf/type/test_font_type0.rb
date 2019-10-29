@@ -7,15 +7,15 @@ require 'hexapdf/type/font_type0'
 describe HexaPDF::Type::FontType0 do
   before do
     @doc = HexaPDF::Document.new
-    fd = @doc.add(Type: :FontDescriptor, FontBBox: [0, 1, 2, 3])
-    @cid_font = @doc.wrap(Type: :Font, Subtype: :CIDFontType2, W: [633, [100]], FontDescriptor: fd,
-                          CIDSystemInfo: {Registry: 'Adobe', Ordering: 'Japan1', Supplement: 1})
-    @font = @doc.wrap(Type: :Font, Subtype: :Type0, Encoding: :H, DescendantFonts: [@cid_font])
+    fd = @doc.add({Type: :FontDescriptor, FontBBox: [0, 1, 2, 3]})
+    @cid_font = @doc.wrap({Type: :Font, Subtype: :CIDFontType2, W: [633, [100]], FontDescriptor: fd,
+                           CIDSystemInfo: {Registry: 'Adobe', Ordering: 'Japan1', Supplement: 1}})
+    @font = @doc.wrap({Type: :Font, Subtype: :Type0, Encoding: :H, DescendantFonts: [@cid_font]})
   end
 
   it "returns the correct writing mode" do
     assert_equal(:horizontal, @font.writing_mode)
-    font = @doc.wrap(Type: :Font, Subtype: :Type0, Encoding: :V)
+    font = @doc.wrap({Type: :Font, Subtype: :Type0, Encoding: :V})
     assert_equal(:vertical, font.writing_mode)
   end
 

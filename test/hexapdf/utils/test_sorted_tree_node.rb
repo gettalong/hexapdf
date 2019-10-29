@@ -13,9 +13,9 @@ describe HexaPDF::Utils::SortedTreeNode do
 
   def add_multilevel_entries
     @kid11 = @doc.add({Limits: ['c', 'f'], Names: ['c', 1, 'f', 1]}, type: HexaPDF::NameTreeNode)
-    @kid12 = @doc.add(Limits: ['i', 'm'], Names: ['i', 1, 'm', 1])
+    @kid12 = @doc.add({Limits: ['i', 'm'], Names: ['i', 1, 'm', 1]})
     ref = HexaPDF::Reference.new(@kid11.oid, @kid11.gen)
-    @kid1 = @doc.add(Limits: ['c', 'm'], Kids: [ref, @kid12])
+    @kid1 = @doc.add({Limits: ['c', 'm'], Kids: [ref, @kid12]})
     @kid21 = @doc.add({Limits: ['o', 'q'], Names: ['o', 1, 'q', 1]}, type: HexaPDF::NameTreeNode)
     @kid221 = @doc.add({Limits: ['s', 'u'], Names: ['s', 1, 'u', 1]}, type: HexaPDF::NameTreeNode)
     @kid22 = @doc.add({Limits: ['s', 'u'], Kids: [@kid221]}, type: HexaPDF::NameTreeNode)

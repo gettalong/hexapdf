@@ -54,7 +54,7 @@ module HexaPDF
         #
         # See #configure for the allowed keyword arguments.
         def self.configure(**kwargs)
-          new.configure(kwargs)
+          new.configure(**kwargs)
         end
 
         # The maximal number of curves used for approximating a complete ellipse.
@@ -162,7 +162,7 @@ module HexaPDF
         def draw(canvas, move_to_start: true)
           @max_curves = canvas.context.document.config['graphic_object.arc.max_curves']
           canvas.move_to(*start_point) if move_to_start
-          curves.each {|curve| canvas.curve_to(*curve) }
+          curves.each {|x, y, hash| canvas.curve_to(x, y, **hash) }
         end
 
         # Returns an array of arrays that contain the points for the Bezier curves which are used

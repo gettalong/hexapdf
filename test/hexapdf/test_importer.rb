@@ -22,10 +22,10 @@ describe HexaPDF::Importer do
   before do
     @source = HexaPDF::Document.new
     obj = @source.add("test")
-    @hash = @source.wrap(key: "value")
-    @obj = @source.add(hash: @hash, array: ["one", "two"],
-                       ref: HexaPDF::Reference.new(obj.oid, obj.gen),
-                       others: [:symbol, 5, 5.5, nil, true, false])
+    @hash = @source.wrap({key: "value"})
+    @obj = @source.add({hash: @hash, array: ["one", "two"],
+                        ref: HexaPDF::Reference.new(obj.oid, obj.gen),
+                        others: [:symbol, 5, 5.5, nil, true, false]})
     @source.pages.add
     @source.pages.root[:Rotate] = 90
     @dest = HexaPDF::Document.new

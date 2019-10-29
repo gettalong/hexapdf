@@ -523,7 +523,7 @@ module HexaPDF
       # Example:
       #   Style.new(font_size: 15, align: :center, valign: center)
       def initialize(**properties)
-        update(properties)
+        update(**properties)
         @scaled_item_widths = {}
       end
 
@@ -908,19 +908,23 @@ module HexaPDF
         [:valign, :top, valid_values: [:top, :center, :bottom]],
         [:text_indent, 0],
         [:line_spacing, "LineSpacing.new(type: :single)",
-         setter: "LineSpacing.new(value.kind_of?(Symbol) ? {type: value, value: extra_arg} : value)",
+         setter: "LineSpacing.new(**(value.kind_of?(Symbol) ? {type: value, value: extra_arg} : value))",
          extra_args: ", extra_arg = nil"],
         [:last_line_gap, false, valid_values: [true, false]],
         [:background_color, nil],
         [:padding, "Quad.new(0)", setter: "Quad.new(value)"],
         [:margin, "Quad.new(0)", setter: "Quad.new(value)"],
-        [:border, "Border.new", setter: "Border.new(value)"],
+        [:border, "Border.new", setter: "Border.new(**value)"],
         [:overlays, "Layers.new", setter: "Layers.new(value)"],
         [:underlays, "Layers.new", setter: "Layers.new(value)"],
         [:position, :default, valid_values: [:default, :float, :flow, :absolute]],
         [:position_hint, nil],
-      ].each do |name, default, setter: "value", extra_args: "", valid_values: nil|
+      ].each do |name, default, options = {}|
         default = default.inspect unless default.kind_of?(String)
+        setter = options.delete(:setter) || "value"
+        extra_args = options.delete(:extra_args) || ""
+        valid_values = options.delete(:valid_values)
+        raise ArgumentError, "Invalid keywords: #{options.keys.join(', ')}" unless options.empty?
         valid_values_const = "#{name}_valid_values".upcase
         const_set(valid_values_const, valid_values)
         module_eval(<<-EOF, __FILE__, __LINE__ + 1)

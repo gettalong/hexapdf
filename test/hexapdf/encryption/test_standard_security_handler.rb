@@ -217,29 +217,29 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
   describe "prepare_decryption" do
     it "fails if the /Filter value is incorrect" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
-        @handler.set_up_decryption(Filter: :NonStandard, V: 2)
+        @handler.set_up_decryption({Filter: :NonStandard, V: 2})
       end
       assert_match(/Invalid \/Filter/i, exp.message)
     end
 
     it "fails if the /R value is incorrect" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
-        @handler.set_up_decryption(Filter: :Standard, V: 2, R: 5)
+        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 5})
       end
       assert_match(/Invalid \/R/i, exp.message)
     end
 
     it "fails if the ID in the document's trailer is missing although it is needed" do
       exp = assert_raises(HexaPDF::EncryptionError) do
-        @handler.set_up_decryption(Filter: :Standard, V: 2, R: 2)
+        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 2})
       end
       assert_match(/Document ID/i, exp.message)
     end
 
     it "fails if the supplied password is invalid" do
       exp = assert_raises(HexaPDF::EncryptionError) do
-        @handler.set_up_decryption(Filter: :Standard, V: 2, R: 6, U: 'a' * 48, O: 'a' * 48,
-                                     UE: 'a' * 32, OE: 'a' * 32)
+        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 6, U: 'a' * 48, O: 'a' * 48,
+                                    UE: 'a' * 32, OE: 'a' * 32})
       end
       assert_match(/Invalid password/i, exp.message)
     end

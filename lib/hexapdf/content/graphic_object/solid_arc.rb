@@ -62,7 +62,7 @@ module HexaPDF
         #
         # See #configure for the allowed keyword arguments.
         def self.configure(**kwargs)
-          new.configure(kwargs)
+          new.configure(**kwargs)
         end
 
         # x-coordinate of center point

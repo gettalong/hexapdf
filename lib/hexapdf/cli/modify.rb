@@ -93,7 +93,7 @@ module HexaPDF
       # Arranges the pages of the document as specified with the --pages option.
       def arrange_pages(doc)
         all_pages = doc.pages.to_a
-        new_page_tree = doc.add(Type: :Pages)
+        new_page_tree = doc.add({Type: :Pages})
         parse_pages_specification(@pages, all_pages.length).each do |index, rotation|
           page = all_pages[index]
           page.value.update(page.copy_inherited_values)

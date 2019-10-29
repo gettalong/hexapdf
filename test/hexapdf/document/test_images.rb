@@ -60,12 +60,12 @@ describe HexaPDF::Document::Images do
     it "iterates over all non-mask images" do
       @doc.add(5)
       images = []
-      images << @doc.add(Type: :XObject, Subtype: :Image)
-      images << @doc.add(Type: :XObject, Subtype: :Image, Mask: [5, 6])
-      images << @doc.add(Type: :XObject, Subtype: :Image,
-                         Mask: @doc.add(Type: :XObject, Subtype: :Image))
-      images << @doc.add(Type: :XObject, Subtype: :Image,
-                         SMask: @doc.add(Type: :XObject, Subtype: :Image))
+      images << @doc.add({Type: :XObject, Subtype: :Image})
+      images << @doc.add({Type: :XObject, Subtype: :Image, Mask: [5, 6]})
+      images << @doc.add({Type: :XObject, Subtype: :Image,
+                          Mask: @doc.add({Type: :XObject, Subtype: :Image})})
+      images << @doc.add({Type: :XObject, Subtype: :Image,
+                          SMask: @doc.add({Type: :XObject, Subtype: :Image})})
       assert_equal(images.sort, @doc.images.to_a.sort)
     end
   end

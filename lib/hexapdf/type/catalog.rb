@@ -94,7 +94,7 @@ module HexaPDF
       #
       # See: PageTreeNode
       def pages
-        self[:Pages] ||= document.add(Type: :Pages)
+        self[:Pages] ||= document.add({Type: :Pages})
       end
 
       private
@@ -104,7 +104,7 @@ module HexaPDF
         super
         unless key?(:Pages)
           yield("A PDF document needs a page tree", true)
-          value[:Pages] = document.add(Type: :Pages)
+          value[:Pages] = document.add({Type: :Pages})
           value[:Pages].validate {|msg, correctable| yield(msg, correctable) }
         end
       end

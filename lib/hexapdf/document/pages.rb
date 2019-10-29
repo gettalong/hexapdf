@@ -75,10 +75,10 @@ module HexaPDF
       # used to change the orientation to :landscape if needed.
       def add(page = nil, orientation: :portrait)
         if page.kind_of?(Array)
-          page = @document.add(Type: :Page, MediaBox: page)
+          page = @document.add({Type: :Page, MediaBox: page})
         elsif page.kind_of?(Symbol)
           box = Type::Page.media_box(page, orientation: orientation)
-          page = @document.add(Type: :Page, MediaBox: box)
+          page = @document.add({Type: :Page, MediaBox: box})
         end
         @document.catalog.pages.add_page(page)
       end

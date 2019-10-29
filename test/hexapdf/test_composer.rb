@@ -181,7 +181,7 @@ describe HexaPDF::Composer do
 
   describe "draw_box" do
     def create_box(**kwargs)
-      HexaPDF::Layout::Box.new(kwargs) {}
+      HexaPDF::Layout::Box.new(**kwargs) {}
     end
 
     it "draws the box if it completely fits" do

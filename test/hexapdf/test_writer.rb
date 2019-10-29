@@ -116,7 +116,7 @@ describe HexaPDF::Writer do
 
   it "raises an error if no xref stream is in a revision but object streams are" do
     document = HexaPDF::Document.new
-    document.add(Type: :ObjStm)
+    document.add({Type: :ObjStm})
     assert_raises(HexaPDF::Error) { HexaPDF::Writer.new(document, StringIO.new).write }
   end
 

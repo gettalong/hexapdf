@@ -7,7 +7,7 @@ require 'hexapdf/type/page_tree_node'
 describe HexaPDF::Type::PageTreeNode do
   before do
     @doc = HexaPDF::Document.new
-    @root = @doc.add(Type: :Pages)
+    @root = @doc.add({Type: :Pages})
   end
 
   # Defines the following page tree:
@@ -26,12 +26,12 @@ describe HexaPDF::Type::PageTreeNode do
   #       @pages[6]
   #       @pages[7]
   def define_multilevel_page_tree
-    @pages = Array.new(8) { @doc.add(Type: :Page) }
-    @kid1 = @doc.add(Type: :Pages, Parent: @root, Count: 5)
-    @kid11 = @doc.add(Type: :Pages, Parent: @kid1)
+    @pages = Array.new(8) { @doc.add({Type: :Page}) }
+    @kid1 = @doc.add({Type: :Pages, Parent: @root, Count: 5})
+    @kid11 = @doc.add({Type: :Pages, Parent: @kid1})
     @kid11.add_page(@pages[0])
     @kid11.add_page(@pages[1])
-    @kid12 = @doc.add(Type: :Pages, Parent: @kid1)
+    @kid12 = @doc.add({Type: :Pages, Parent: @kid1})
     @kid12.add_page(@pages[2])
     @kid12.add_page(@pages[3])
     @kid12.add_page(@pages[4])
@@ -41,7 +41,7 @@ describe HexaPDF::Type::PageTreeNode do
     @pages[5][:Parent] = @root
     @root[:Kids] << @pages[5]
 
-    @kid2 = @doc.add(Type: :Pages, Parent: @root)
+    @kid2 = @doc.add({Type: :Pages, Parent: @root})
     @kid2.add_page(@pages[6])
     @kid2.add_page(@pages[7])
     @root[:Kids] << @kid2
@@ -49,7 +49,7 @@ describe HexaPDF::Type::PageTreeNode do
   end
 
   it "must always be indirect" do
-    pages = @doc.add(Type: :Pages)
+    pages = @doc.add({Type: :Pages})
     pages.must_be_indirect = false
     assert(pages.must_be_indirect?)
   end
@@ -101,7 +101,7 @@ describe HexaPDF::Type::PageTreeNode do
     end
 
     it "inserts the provided page at the given index" do
-      page = @doc.wrap(Type: :Page)
+      page = @doc.wrap({Type: :Page})
       assert_equal(page, @root.insert_page(3, page))
       assert_equal([page], @root[:Kids])
       assert_equal(@root, page[:Parent])
@@ -189,8 +189,8 @@ describe HexaPDF::Type::PageTreeNode do
     end
 
     it "does nothing if the page is not part of the page tree" do
-      pages = @doc.add(Type: :Pages, Count: 1)
-      page = @doc.add(Type: :Page, Parent: pages)
+      pages = @doc.add({Type: :Pages, Count: 1})
+      page = @doc.add({Type: :Page, Parent: pages})
       pages[:Kids] << page
 
       assert_nil(@root.delete_page(page))

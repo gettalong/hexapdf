@@ -7,7 +7,8 @@ require 'hexapdf/type/font_descriptor'
 describe HexaPDF::Type::FontDescriptor do
   before do
     @doc = HexaPDF::Document.new
-    @font_desc = @doc.add(Type: :FontDescriptor, FontName: :Test, Flags: 0b1001001, ItalicAngle: 10)
+    @font_desc = @doc.add({Type: :FontDescriptor, FontName: :Test, Flags: 0b1001001,
+                           ItalicAngle: 10})
   end
 
   describe "flags" do

@@ -650,7 +650,7 @@ module HexaPDF
       # The +style+ argument can either be a Style object or a hash of style options. See #style for
       # the properties that are used by the layouter.
       def initialize(style = Style.new)
-        @style = (style.kind_of?(Style) ? style : Style.new(style))
+        @style = (style.kind_of?(Style) ? style : Style.new(**style))
       end
 
       # :call-seq:

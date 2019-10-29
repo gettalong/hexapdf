@@ -34,7 +34,7 @@ describe HexaPDF::Document::Pages do
 
     it "adds the given page to the end" do
       page = @doc.pages.add
-      new_page = @doc.add(Type: :Page)
+      new_page = @doc.add({Type: :Page})
       assert_same(new_page, @doc.pages.add(new_page))
       assert_equal([page, new_page], @doc.pages.root[:Kids])
     end
@@ -46,8 +46,8 @@ describe HexaPDF::Document::Pages do
 
   describe "<<" do
     it "works like add but always needs a page returns self" do
-      page1 = @doc.add(Type: :Page)
-      page2 = @doc.add(Type: :Page)
+      page1 = @doc.add({Type: :Page})
+      page2 = @doc.add({Type: :Page})
       @doc.pages << page1 << page2
       assert_equal([page1, page2], @doc.pages.root[:Kids])
     end
@@ -66,7 +66,7 @@ describe HexaPDF::Document::Pages do
     end
 
     it "insert a given page at a given index" do
-      new_page = @doc.add(Type: :Page)
+      new_page = @doc.add({Type: :Page})
       assert_same(new_page, @doc.pages.insert(2, new_page))
       assert_equal(new_page, @doc.pages.root[:Kids][2])
     end

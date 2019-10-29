@@ -185,7 +185,7 @@ module HexaPDF
     def serialize_symbol(obj)
       NAME_CACHE[obj] ||=
         begin
-          str = obj.to_s.force_encoding(Encoding::BINARY)
+          str = obj.to_s.dup.force_encoding(Encoding::BINARY)
           str.gsub!(NAME_REGEXP, NAME_SUBSTS)
           "/#{str}"
         end
