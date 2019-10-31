@@ -275,7 +275,7 @@ module HexaPDF
           dict[:StmF] = dict[:StrF] = :StdCF
         end
 
-        if dict[:R] <= 4 && !document.trailer[:ID].kind_of?(Array)
+        if dict[:R] <= 4 && !document.trailer[:ID].kind_of?(PDFArray)
           document.trailer.set_random_id
         end
 
@@ -310,7 +310,7 @@ module HexaPDF
         elsif ![2, 3, 4, 6].include?(dict[:R])
           raise(HexaPDF::UnsupportedEncryptionError,
                 "Invalid /R value for standard security handler")
-        elsif dict[:R] <= 4 && !document.trailer[:ID].kind_of?(Array)
+        elsif dict[:R] <= 4 && !document.trailer[:ID].kind_of?(PDFArray)
           raise(HexaPDF::EncryptionError,
                 "Document ID for needed for decryption")
         end

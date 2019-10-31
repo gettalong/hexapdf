@@ -85,7 +85,7 @@ module HexaPDF
       define_field :DOS,  type: PDFByteString
       define_field :Mac,  type: PDFByteString
       define_field :Unix, type: PDFByteString
-      define_field :ID,   type: Array
+      define_field :ID,   type: PDFArray
       define_field :V,    type: Boolean, version: '1.2'
       define_field :EF,   type: :XXFilespecEFDictionary, version: '1.7'
       define_field :RF,   type: Dictionary, version: '1.3'

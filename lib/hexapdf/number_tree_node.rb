@@ -49,9 +49,9 @@ module HexaPDF
 
     include Utils::SortedTreeNode
 
-    define_field :Kids,   type: Array
-    define_field :Nums,   type: Array
-    define_field :Limits, type: Array
+    define_field :Kids,   type: PDFArray
+    define_field :Nums,   type: PDFArray
+    define_field :Limits, type: PDFArray
 
     private
 

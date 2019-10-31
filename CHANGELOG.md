@@ -2,6 +2,8 @@
 
 ### Added
 
+* [HexaPDF::PDFArray] to wrap arrays and allow automatic resolution of
+  references like with [HexaPDF::Dictionary] - MAY BREAK THINGS!
 * [HexaPDF::DictionaryFields::Field#allowed_values] to allow constraining a
   field to certain allowed values
 * [HexaPDF::Document::Fonts#configured_fonts] to return all font variants that

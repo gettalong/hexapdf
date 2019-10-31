@@ -283,6 +283,7 @@ describe HexaPDF::Document do
       assert_instance_of(HexaPDF::Object, @doc.wrap(5))
       assert_instance_of(HexaPDF::Stream, @doc.wrap({a: 5}, stream: ''))
       assert_instance_of(HexaPDF::Dictionary, @doc.wrap({a: 5}))
+      assert_instance_of(HexaPDF::PDFArray, @doc.wrap([1, 2]))
     end
 
     it "returns an object of type HexaPDF::Object" do

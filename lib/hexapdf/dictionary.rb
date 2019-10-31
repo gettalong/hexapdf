@@ -70,7 +70,7 @@ module HexaPDF
     #        String::     String (for text strings), PDFByteString (for binary strings)
     #        Date::       PDFDate
     #        Name::       Symbol
-    #        Array::      Array
+    #        Array::      PDFArray or Array
     #        Dictionary:: Dictionary (or any subclass) or Hash
     #        Stream::     Stream (or any subclass)
     #        Null::       NilClass

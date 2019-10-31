@@ -171,13 +171,13 @@ describe HexaPDF::Type::Resources do
   describe "validation" do
     it "assigns the default value if ProcSet is not set" do
       @res.validate
-      assert_equal([:PDF, :Text, :ImageB, :ImageC, :ImageI], @res[:ProcSet])
+      assert_equal([:PDF, :Text, :ImageB, :ImageC, :ImageI], @res[:ProcSet].value)
     end
 
     it "removes invalid procedure set names from ProcSet" do
       @res[:ProcSet] = [:PDF, :Unknown]
       @res.validate
-      assert_equal([:PDF], @res[:ProcSet])
+      assert_equal([:PDF], @res[:ProcSet].value)
     end
   end
 end

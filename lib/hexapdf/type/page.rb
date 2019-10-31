@@ -133,14 +133,14 @@ module HexaPDF
       define_field :TrimBox,              type: Rectangle, version: '1.3'
       define_field :ArtBox,               type: Rectangle, version: '1.3'
       define_field :BoxColorInfo,         type: Dictionary, version: '1.4'
-      define_field :Contents,             type: [Stream, Array]
+      define_field :Contents,             type: [Stream, PDFArray]
       define_field :Rotate,               type: Integer, default: 0
       define_field :Group,                type: Dictionary, version: '1.4'
       define_field :Thumb,                type: Stream
-      define_field :B,                    type: Array, version: '1.1'
+      define_field :B,                    type: PDFArray, version: '1.1'
       define_field :Dur,                  type: Numeric, version: '1.1'
       define_field :Trans,                type: Dictionary, version: '1.1'
-      define_field :Annots,               type: Array
+      define_field :Annots,               type: PDFArray
       define_field :AA,                   type: Dictionary, version: '1.2'
       define_field :Metadata,             type: Stream, version: '1.4'
       define_field :PieceInfo,            type: Dictionary, version: '1.3'
@@ -152,7 +152,7 @@ module HexaPDF
       define_field :TemplateInstantiated, type: Symbol, version: '1.5'
       define_field :PresSteps,            type: Dictionary, version: '1.5'
       define_field :UserUnit,             type: Numeric, version: '1.6'
-      define_field :VP,                   type: Array, version: '1.6'
+      define_field :VP,                   type: PDFArray, version: '1.6'
 
       # Returns +true+ since page objects must always be indirect.
       def must_be_indirect?

@@ -34,7 +34,7 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
-require 'hexapdf/object'
+require 'hexapdf/pdf_array'
 
 module HexaPDF
 
@@ -52,36 +52,36 @@ module HexaPDF
   # is the top right x-coordinate and +top+ is the top right y-coordinate.
   #
   # See: PDF1.7 s7.9.5
-  class Rectangle < HexaPDF::Object
+  class Rectangle < HexaPDF::PDFArray
 
     # Returns the x-coordinate of the bottom-left corner.
     def left
-      value[0]
+      self[0]
     end
 
     # Returns the x-coordinate of the top-right corner.
     def right
-      value[2]
+      self[2]
     end
 
     # Returns the y-coordinate of the bottom-left corner.
     def bottom
-      value[1]
+      self[1]
     end
 
     # Returns the y-coordinate of the top-right corner.
     def top
-      value[3]
+      self[3]
     end
 
     # Returns the width of the rectangle.
     def width
-      value[2] - value[0]
+      self[2] - self[0]
     end
 
     # Returns the height of the rectangle.
     def height
-      value[3] - value[1]
+      self[3] - self[1]
     end
 
     # Compares this rectangle to +other+ like in Object#== but also allows comparison to simple
@@ -96,16 +96,16 @@ module HexaPDF
     # top right corner.
     def after_data_change
       super
-      unless value.kind_of?(Array) && value.size == 4 && value.all? {|i| i.kind_of?(Numeric) }
+      unless value.size == 4 && all?(Numeric)
         raise ArgumentError, "A PDF rectangle structure must contain an array of four numbers"
       end
-      value[0], value[2] = value[2], value[0] if value[0] > value[2]
-      value[1], value[3] = value[3], value[1] if value[1] > value[3]
+      self[0], self[2] = self[2], self[0] if self[0] > self[2]
+      self[1], self[3] = self[3], self[1] if self[1] > self[3]
     end
 
     def perform_validation #:nodoc:
       super
-      unless value.kind_of?(Array) && value.size == 4 && value.all? {|i| i.kind_of?(Numeric) }
+      unless value.size == 4 && all?(Numeric)
         yield("A PDF rectangle structure must contain an array of four numbers", false)
       end
     end

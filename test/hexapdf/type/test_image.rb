@@ -201,7 +201,7 @@ describe HexaPDF::Type::Image do
         assert_equal(image[:Height], new_image[:Height], "file: #{png_file}")
         assert_equal(image[:BitsPerComponent], new_image[:BitsPerComponent], "file: #{png_file}")
         if image[:Mask]
-          assert_equal(image[:Mask], new_image[:Mask], "file: #{png_file}")
+          assert_equal(image[:Mask].value, new_image[:Mask].value, "file: #{png_file}")
         else
           assert_nil(new_image[:Mask], "file: #{png_file}")
         end
@@ -229,7 +229,7 @@ describe HexaPDF::Type::Image do
 
       new_image = @doc.images.add(@file.path)
       assert_equal([:Indexed, :DeviceRGB, 3, "\x00\x00\x00\x40\x40\x40\x80\x80\x80\xFF\xFF\xFF".b],
-                   new_image[:ColorSpace])
+                   new_image[:ColorSpace].value)
       assert_equal(image.stream, new_image.stream)
     end
 

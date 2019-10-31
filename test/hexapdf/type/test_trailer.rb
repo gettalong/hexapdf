@@ -11,7 +11,10 @@ describe HexaPDF::Type::Trailer do
     @doc.instance_variable_set(:@version, '1.2')
     def (@doc).version=(v); @version = v; end
     def (@doc).deref(obj); obj; end
-    def (@doc).wrap(obj, *); HexaPDF::Dictionary.new(obj, oid: (obj.oid rescue 0)); end
+    def (@doc).wrap(obj, *)
+      (obj.kind_of?(Array) ? HexaPDF::PDFArray : HexaPDF::Dictionary).
+        new(obj, oid: (obj.oid rescue 0))
+    end
     root = HexaPDF::Dictionary.new({}, oid: 3)
     @obj = HexaPDF::Type::Trailer.new({Size: 10, Root: root}, document: @doc)
   end
@@ -37,7 +40,7 @@ describe HexaPDF::Type::Trailer do
   describe "ID field" do
     it "sets a random ID" do
       @obj.set_random_id
-      assert_kind_of(Array, @obj[:ID])
+      assert_kind_of(HexaPDF::PDFArray, @obj[:ID])
       assert_equal(2, @obj[:ID].length)
       assert_same(@obj[:ID][0], @obj[:ID][1])
       assert_kind_of(String, @obj[:ID][0])

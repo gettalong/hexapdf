@@ -58,7 +58,7 @@ module HexaPDF
       define_field :Subtype,          type: Symbol,          required: true, default: :Image
       define_field :Width,            type: Integer,         required: true
       define_field :Height,           type: Integer,         required: true
-      define_field :ColorSpace,       type: [Symbol, Array]
+      define_field :ColorSpace,       type: [Symbol, PDFArray]
       define_field :BitsPerComponent, type: Integer
       define_field :Intent,           type: Symbol,          version: '1.1',
         allowed_values: [HexaPDF::Content::RenderingIntent::ABSOLUTE_COLORIMETRIC,
@@ -66,10 +66,10 @@ module HexaPDF
                          HexaPDF::Content::RenderingIntent::SATURATION,
                          HexaPDF::Content::RenderingIntent::PERCEPTUAL]
       define_field :ImageMask,        type: Boolean,         default: false
-      define_field :Mask,             type: [Stream, Array], version: '1.3'
-      define_field :Decode,           type: Array
+      define_field :Mask,             type: [Stream, PDFArray], version: '1.3'
+      define_field :Decode,           type: PDFArray
       define_field :Interpolate,      type: Boolean,         default: false
-      define_field :Alternates,       type: Array,           version: '1.3'
+      define_field :Alternates,       type: PDFArray,        version: '1.3'
       define_field :SMask,            type: Stream,          version: '1.4'
       define_field :SMaskInData,      type: Integer,         version: '1.5', allowed_values: [0, 1, 2]
       define_field :StructParent,     type: Integer,         version: '1.3'
@@ -249,7 +249,7 @@ module HexaPDF
           io << png_chunk('PLTE', palette)
         end
 
-        if self[:Mask].kind_of?(Array) && self[:Mask].each_slice(2).all? {|a, b| a == b } &&
+        if self[:Mask].kind_of?(PDFArray) && self[:Mask].each_slice(2).all? {|a, b| a == b } &&
             (color_type == ImageLoader::PNG::TRUECOLOR || color_type == ImageLoader::PNG::GREYSCALE)
           io << png_chunk('tRNS', self[:Mask].each_slice(2).map {|a, _| a }.pack('n*'))
         end

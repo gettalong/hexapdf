@@ -66,8 +66,8 @@ module HexaPDF
       define_field :PageMode,          type: Symbol,     default: :UseNone,
         allowed_values: [:UseNone, :UseOutlines, :UseThumbs, :FullScreen, :UseOC, :UseAttachments]
       define_field :Outlines,          type: Dictionary, indirect: true
-      define_field :Threads,           type: Array,      version: '1.1'
-      define_field :OpenAction,        type: [Dictionary, Array], version: '1.1'
+      define_field :Threads,           type: PDFArray,   version: '1.1'
+      define_field :OpenAction,        type: [Dictionary, PDFArray], version: '1.1'
       define_field :AA,                type: Dictionary, version: '1.4'
       define_field :URI,               type: Dictionary, version: '1.1'
       define_field :AcroForm,          type: Dictionary, version: '1.2'
@@ -76,12 +76,12 @@ module HexaPDF
       define_field :MarkInfo,          type: Dictionary, version: '1.4'
       define_field :Lang,              type: String,     version: '1.4'
       define_field :SpiderInfo,        type: Dictionary, version: '1.3'
-      define_field :OutputIntents,     type: Array,      version: '1.4'
+      define_field :OutputIntents,     type: PDFArray,   version: '1.4'
       define_field :PieceInfo,         type: Dictionary, version: '1.4'
       define_field :OCProperties,      type: Dictionary, version: '1.5'
       define_field :Perms,             type: Dictionary, version: '1.5'
       define_field :Legal,             type: Dictionary, version: '1.5'
-      define_field :Requirements,      type: Array,      version: '1.7'
+      define_field :Requirements,      type: PDFArray,   version: '1.7'
       define_field :Collection,        type: Dictionary, version: '1.7'
       define_field :NeedsRendering,    type: Boolean,    version: '1.7'
 

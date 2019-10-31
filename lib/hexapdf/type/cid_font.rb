@@ -51,9 +51,9 @@ module HexaPDF
       define_field :CIDSystemInfo,   type: Dictionary, required: true
       define_field :FontDescriptor,  type: :FontDescriptor, indirect: true, required: true
       define_field :DW,              type: Integer, default: DEFAULT_WIDTH
-      define_field :W,               type: Array
-      define_field :DW2,             type: Array, default: [880, -1100]
-      define_field :W2,              type: Array
+      define_field :W,               type: PDFArray
+      define_field :DW2,             type: PDFArray, default: [880, -1100]
+      define_field :W2,              type: PDFArray
 
       # Returns the unscaled width of the given CID in glyph units, or 0 if the width for the CID is
       # missing.

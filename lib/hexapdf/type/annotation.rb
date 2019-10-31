@@ -60,8 +60,8 @@ module HexaPDF
       define_field :F,            type: Integer, default: 0, version: '1.1'
       define_field :AP,           type: Dictionary, version: '1.2'
       define_field :AS,           type: Symbol, version: '1.2'
-      define_field :Border,       type: Array, default: [0, 0, 1]
-      define_field :C,            type: Array, version: '1.1'
+      define_field :Border,       type: PDFArray, default: [0, 0, 1]
+      define_field :C,            type: PDFArray, version: '1.1'
       define_field :StructParent, type: Integer, version: '1.3'
       define_field :OC,           type: Dictionary, version: '1.5'
 

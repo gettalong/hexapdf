@@ -65,7 +65,7 @@ module HexaPDF
       define_field :Root,    type: :Catalog, indirect: true
       define_field :Encrypt, type: Dictionary
       define_field :Info,    type: :XXInfo, indirect: true
-      define_field :ID,      type: Array
+      define_field :ID,      type: PDFArray
       define_field :XRefStm, type: Integer, version: '1.5'
 
       # Returns the document's Catalog (see Type::Catalog), creating it if needed.
@@ -88,7 +88,7 @@ module HexaPDF
       # Updates the second part of the /ID field (the first part should always be the same for a
       # PDF file, the second part should change with each write).
       def update_id
-        if !value[:ID].kind_of?(Array)
+        if !self[:ID].kind_of?(PDFArray)
           set_random_id
         else
           value[:ID][1] = Digest::MD5.digest(rand.to_s)

@@ -66,7 +66,7 @@ module HexaPDF
 
       define_field :Type,   type: Symbol, required: true, default: type
       define_field :Parent, type: Dictionary, indirect: true
-      define_field :Kids,   type: Array, required: true, default: []
+      define_field :Kids,   type: PDFArray, required: true, default: []
       define_field :Count,  type: Integer, required: true, default: 0
 
       # Inheritable page fields
@@ -96,7 +96,6 @@ module HexaPDF
         return nil if index < 0 || index >= self[:Count]
 
         self[:Kids].each do |kid|
-          kid = document.deref(kid)
           if kid.type == :Page
             if index == 0
               return kid
@@ -132,7 +131,6 @@ module HexaPDF
           page[:Resources] ||= {}
         else
           self[:Kids].each_with_index do |kid, kid_index|
-            kid = document.deref(kid)
             if index == 0
               self[:Kids].insert(kid_index, page)
               page[:Parent] = self
@@ -177,7 +175,7 @@ module HexaPDF
         return nil unless page && page[:Parent]
 
         parent = page[:Parent]
-        index = parent[:Kids].index {|kid| document.deref(kid).data == page.data }
+        index = parent[:Kids].index {|kid| kid.data == page.data }
 
         if index
           ancestors = [parent]
@@ -203,7 +201,6 @@ module HexaPDF
         return to_enum(__method__) unless block_given?
 
         self[:Kids].each do |kid|
-          kid = document.deref(kid)
           if kid.type == :Page
             yield(kid)
           else
@@ -235,7 +232,6 @@ module HexaPDF
         validate_node = lambda do |node|
           count = 0
           node[:Kids].reject! do |kid|
-            kid = document.deref(kid)
             if !kid.kind_of?(HexaPDF::Object) || kid.null? ||
                 (kid.type != :Page && kid.type != :Pages)
               yield("Invalid object in page tree node", true)

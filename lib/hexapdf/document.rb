@@ -40,6 +40,7 @@ require 'hexapdf/content'
 require 'hexapdf/configuration'
 require 'hexapdf/reference'
 require 'hexapdf/object'
+require 'hexapdf/pdf_array'
 require 'hexapdf/stream'
 require 'hexapdf/revisions'
 require 'hexapdf/type'
@@ -294,7 +295,8 @@ module HexaPDF
     #   prevent invalid mappings when only partial knowledge (:Type key is missing) is available.
     #
     # * If there is no valid class after the above steps, HexaPDF::Stream is used if a stream is
-    #   given, HexaPDF::Dictionary if the given objecct is a hash or else HexaPDF::Object is used.
+    #   given, HexaPDF::Dictionary if the given object is a hash, HexaPDF::PDFArray if it is an
+    #   array or else HexaPDF::Object is used.
     #
     # Options:
     #
@@ -346,6 +348,8 @@ module HexaPDF
                   HexaPDF::Stream
                 elsif data.value.kind_of?(Hash)
                   HexaPDF::Dictionary
+                elsif data.value.kind_of?(Array)
+                  HexaPDF::PDFArray
                 else
                   HexaPDF::Object
                 end

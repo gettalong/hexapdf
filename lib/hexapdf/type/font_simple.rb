@@ -49,7 +49,7 @@ module HexaPDF
 
       define_field :FirstChar, type: Integer
       define_field :LastChar, type: Integer
-      define_field :Widths, type: Array
+      define_field :Widths, type: PDFArray
       define_field :FontDescriptor, type: :FontDescriptor, indirect: true
       define_field :Encoding, type: [Dictionary, Symbol]
 

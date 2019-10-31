@@ -74,10 +74,10 @@ module HexaPDF
                            version: '1.5'
       # Size is not required because it will be auto-filled before the object is written
       define_field :Size,  type: Integer, indirect: false
-      define_field :Index, type: Array, indirect: false
+      define_field :Index, type: PDFArray, indirect: false
       define_field :Prev,  type: Integer, indirect: false
       # W is not required because it will be auto-filled on #update_with_xref_section_and_trailer
-      define_field :W,     type: Array, indirect: false
+      define_field :W,     type: PDFArray, indirect: false
 
       # Returns an XRefSection that represents the content of this cross-reference stream.
       #

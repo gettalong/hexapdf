@@ -545,28 +545,28 @@ describe HexaPDF::Layout::Style::LinkLayer do
       annot = call_link(dest: true)
       assert_equal(:Link, annot[:Subtype])
       assert_equal([10, 10, 25, 20], annot[:Rect].value)
-      assert_equal([10, 10, 25, 10, 25, 20, 10, 20], annot[:QuadPoints])
+      assert_equal([10, 10, 25, 10, 25, 20, 10, 20], annot[:QuadPoints].value)
     end
 
     it "removes the border by default" do
       annot = call_link(dest: true)
-      assert_equal([0, 0, 0], annot[:Border])
+      assert_equal([0, 0, 0], annot[:Border].value)
     end
 
     it "uses a default border if no specific border style is specified" do
       annot = call_link(dest: true, border: true)
-      assert_equal([0, 0, 1], annot[:Border])
+      assert_equal([0, 0, 1], annot[:Border].value)
     end
 
     it "uses the specified border and border color" do
       annot = call_link(dest: true, border: [10, 10, 2], border_color: [255])
-      assert_equal([10, 10, 2], annot[:Border])
-      assert_equal([1.0], annot[:C])
+      assert_equal([10, 10, 2], annot[:Border].value)
+      assert_equal([1.0], annot[:C].value)
     end
 
     it "works for simple destinations" do
       annot = call_link(dest: [@canvas.context, :FitH])
-      assert_equal([@canvas.context, :FitH], annot[:Dest])
+      assert_equal([@canvas.context, :FitH], annot[:Dest].value)
       assert_nil(annot[:A])
     end
 

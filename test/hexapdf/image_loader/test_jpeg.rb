@@ -62,7 +62,7 @@ describe HexaPDF::ImageLoader::JPEG do
       assert_equal(5, image[:Width])
       assert_equal(5, image[:Height])
       assert_equal(:DeviceCMYK, image[:ColorSpace])
-      assert_equal([1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0], image[:Decode])
+      assert_equal([1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0], image[:Decode].value)
       assert_equal(File.binread(jpeg), image.stream)
     end
 

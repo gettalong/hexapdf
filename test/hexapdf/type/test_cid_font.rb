@@ -39,7 +39,7 @@ describe HexaPDF::Type::CIDFont do
     it "allows setting the widths" do
       @font.set_widths([[1, 1], [2, 2], [4, 4], [5, 5], [7, 7.1]], default_width: 5.1)
       assert_equal(5, @font[:DW])
-      assert_equal([1, [1, 2], 4, [4, 5], 7, [7]], @font[:W])
+      assert_equal([1, [1, 2], 4, [4, 5], 7, [7]], @font[:W].value)
     end
 
     it "handles an empty widths array correctly" do

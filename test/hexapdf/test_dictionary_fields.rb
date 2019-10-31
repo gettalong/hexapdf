@@ -97,6 +97,27 @@ describe HexaPDF::DictionaryFields do
     end
   end
 
+  describe "ArrayConverter" do
+    before do
+      @field = self.class::Field.new(HexaPDF::PDFArray)
+      @doc = Minitest::Mock.new
+    end
+
+    it "additionally adds Array as allowed type" do
+      assert(@field.type.include?(Array))
+    end
+
+    it "allows conversion from an array" do
+      @doc.expect(:wrap, :data, [[1, 2], {type: HexaPDF::PDFArray}])
+      @field.convert([1, 2], @doc)
+      @doc.verify
+    end
+
+    it "doesn't allow conversion from nil" do
+      refute(@field.convert(nil, @doc))
+    end
+  end
+
   describe "StringConverter" do
     before do
       @field = self.class::Field.new(String)

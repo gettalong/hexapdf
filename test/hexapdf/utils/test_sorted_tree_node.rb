@@ -32,20 +32,20 @@ describe HexaPDF::Utils::SortedTreeNode do
       @root.add_entry('c', 1)
       @root.add_entry('a', 2)
       @root.add_entry('e', 3)
-      assert_equal(['a', 2, 'c', 1, 'e', 3], @root[:Names])
+      assert_equal(['a', 2, 'c', 1, 'e', 3], @root[:Names].value)
       refute(@root[:Limits])
     end
 
     it "replaces an existing entry if overwrite is true" do
       assert(@root.add_entry('a', 2))
       assert(@root.add_entry('a', 5))
-      assert_equal(['a', 5], @root[:Names])
+      assert_equal(['a', 5], @root[:Names].value)
     end
 
     it "doesn't replace an existing entry if overwrite is false" do
       assert(@root.add_entry('a', 2))
       refute(@root.add_entry('a', 5, overwrite: false))
-      assert_equal(['a', 2], @root[:Names])
+      assert_equal(['a', 2], @root[:Names].value)
     end
 
     it "works with one level of intermediate nodes" do
@@ -57,10 +57,10 @@ describe HexaPDF::Utils::SortedTreeNode do
       @root.add_entry('p', 1)
       @root.add_entry('r', 1)
       @root.add_entry('u', 1)
-      assert_equal(['c', 'm'], kid1[:Limits])
-      assert_equal(['c', 1, 'd', 1, 'm', 1], kid1[:Names])
-      assert_equal(['p', 'u'], kid2[:Limits])
-      assert_equal(['p', 1, 'r', 1, 't', 1, 'u', 1], kid2[:Names])
+      assert_equal(['c', 'm'], kid1[:Limits].value)
+      assert_equal(['c', 1, 'd', 1, 'm', 1], kid1[:Names].value)
+      assert_equal(['p', 'u'], kid2[:Limits].value)
+      assert_equal(['p', 1, 'r', 1, 't', 1, 'u', 1], kid2[:Names].value)
     end
 
     it "works with multiple levels of intermediate nodes" do
@@ -74,16 +74,16 @@ describe HexaPDF::Utils::SortedTreeNode do
       @root.add_entry('r', 1)
       @root.add_entry('v', 1)
       assert_equal(['a', 'm'], @kid1[:Limits])
-      assert_equal(['a', 'f'], @kid11[:Limits])
-      assert_equal(['a', 1, 'c', 1, 'e', 1, 'f', 1], @kid11[:Names])
+      assert_equal(['a', 'f'], @kid11[:Limits].value)
+      assert_equal(['a', 1, 'c', 1, 'e', 1, 'f', 1], @kid11[:Names].value)
       assert_equal(['g', 'm'], @kid12[:Limits])
       assert_equal(['g', 1, 'i', 1, 'j', 1, 'm', 1], @kid12[:Names])
-      assert_equal(['n', 'v'], @kid2[:Limits])
-      assert_equal(['n', 'q'], @kid21[:Limits])
-      assert_equal(['n', 1, 'o', 1, 'p', 1, 'q', 1], @kid21[:Names])
-      assert_equal(['r', 'v'], @kid22[:Limits])
-      assert_equal(['r', 'v'], @kid221[:Limits])
-      assert_equal(['r', 1, 's', 1, 'u', 1, 'v', 1], @kid221[:Names])
+      assert_equal(['n', 'v'], @kid2[:Limits].value)
+      assert_equal(['n', 'q'], @kid21[:Limits].value)
+      assert_equal(['n', 1, 'o', 1, 'p', 1, 'q', 1], @kid21[:Names].value)
+      assert_equal(['r', 'v'], @kid22[:Limits].value)
+      assert_equal(['r', 'v'], @kid221[:Limits].value)
+      assert_equal(['r', 1, 's', 1, 'u', 1, 'v', 1], @kid221[:Names].value)
     end
 
     it "splits nodes if needed" do
@@ -92,18 +92,18 @@ describe HexaPDF::Utils::SortedTreeNode do
       refute(@root.value.key?(:Limits))
       refute(@root.value.key?(:Names))
       assert_equal(6, @root[:Kids].size)
-      assert_equal(['a', 1, 'b', 1], @root[:Kids][0][:Names])
-      assert_equal(['a', 'b'], @root[:Kids][0][:Limits])
-      assert_equal(['c', 1, 'd', 1], @root[:Kids][1][:Names])
-      assert_equal(['c', 'd'], @root[:Kids][1][:Limits])
-      assert_equal(['e', 1, 'f', 1], @root[:Kids][2][:Names])
-      assert_equal(['e', 'f'], @root[:Kids][2][:Limits])
-      assert_equal(['g', 1, 'h', 1, 'i', 1], @root[:Kids][3][:Names])
-      assert_equal(['g', 'i'], @root[:Kids][3][:Limits])
-      assert_equal(['j', 1, 'k', 1], @root[:Kids][4][:Names])
-      assert_equal(['j', 'k'], @root[:Kids][4][:Limits])
-      assert_equal(['l', 1, 'm', 1], @root[:Kids][5][:Names])
-      assert_equal(['l', 'm'], @root[:Kids][5][:Limits])
+      assert_equal(['a', 1, 'b', 1], @root[:Kids][0][:Names].value)
+      assert_equal(['a', 'b'], @root[:Kids][0][:Limits].value)
+      assert_equal(['c', 1, 'd', 1], @root[:Kids][1][:Names].value)
+      assert_equal(['c', 'd'], @root[:Kids][1][:Limits].value)
+      assert_equal(['e', 1, 'f', 1], @root[:Kids][2][:Names].value)
+      assert_equal(['e', 'f'], @root[:Kids][2][:Limits].value)
+      assert_equal(['g', 1, 'h', 1, 'i', 1], @root[:Kids][3][:Names].value)
+      assert_equal(['g', 'i'], @root[:Kids][3][:Limits].value)
+      assert_equal(['j', 1, 'k', 1], @root[:Kids][4][:Names].value)
+      assert_equal(['j', 'k'], @root[:Kids][4][:Limits].value)
+      assert_equal(['l', 1, 'm', 1], @root[:Kids][5][:Names].value)
+      assert_equal(['l', 'm'], @root[:Kids][5][:Limits].value)
     end
 
     it "fails if not called on the root node" do
@@ -127,7 +127,7 @@ describe HexaPDF::Utils::SortedTreeNode do
       add_multilevel_entries
       obj = @doc.add(1)
       @kid11[:Names][1] = HexaPDF::Reference.new(obj.oid, obj.gen)
-      assert_equal(obj, @root.find_entry('c'))
+      assert_equal(1, @root.find_entry('c'))
     end
 
     it "returns nil for non-existing entries" do
@@ -144,9 +144,9 @@ describe HexaPDF::Utils::SortedTreeNode do
     it "works with only the root node" do
       %w[a b c d e f g].each {|name| @root.add_entry(name, 1) }
       %w[g b a unknown e d c].each {|name| @root.delete_entry(name) }
-      refute(@root.value.key?(:Kids))
-      refute(@root.value.key?(:Limits))
-      assert_equal(['f', 1], @root[:Names])
+      refute(@root.key?(:Kids))
+      refute(@root.key?(:Limits))
+      assert_equal(['f', 1], @root[:Names].value)
       assert_equal(1, @root.delete_entry('f'))
     end
 
@@ -179,7 +179,7 @@ describe HexaPDF::Utils::SortedTreeNode do
       add_multilevel_entries
       obj = @doc.add(1)
       @kid11[:Names][1] = HexaPDF::Reference.new(obj.oid, obj.gen)
-      assert_equal(['c', obj, 'f', 1], @kid11.each_entry.to_a.flatten)
+      assert_equal(['c', 1, 'f', 1], @kid11.each_entry.to_a.flatten)
     end
 
     it "works on an uninitalized tree" do
@@ -233,6 +233,6 @@ describe HexaPDF::Utils::SortedTreeNode do
     root = HexaPDF::NumberTreeNode.new({}, document: @doc)
     root.add_entry(2, 1)
     root.add_entry(1, 2)
-    assert_equal([1, 2, 2, 1], root[:Nums])
+    assert_equal([1, 2, 2, 1], root[:Nums].value)
   end
 end

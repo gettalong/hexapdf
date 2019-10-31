@@ -48,11 +48,11 @@ module HexaPDF
 
         define_field :Subtype,    type: Symbol, required: true, default: :Link
         define_field :A,          type: Dictionary, version: '1.1'
-        define_field :Dest,       type: [Symbol, PDFByteString, Array]
+        define_field :Dest,       type: [Symbol, PDFByteString, PDFArray]
         define_field :H,          type: Symbol, default: :I, allowed_values: [:N, :I, :O, :P],
                                   version: '1.2'
         define_field :PA,         type: Dictionary, version: '1.3'
-        define_field :QuadPoints, type: Array, version: '1.6'
+        define_field :QuadPoints, type: PDFArray, version: '1.6'
         define_field :BS,         type: Dictionary, version: '1.6'
 
       end

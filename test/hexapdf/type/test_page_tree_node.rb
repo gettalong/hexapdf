@@ -84,7 +84,7 @@ describe HexaPDF::Type::PageTreeNode do
       @doc.config['page.default_media_box'] = :A4
       @doc.config['page.default_media_orientation'] = :landscape
       page = @root.insert_page(3)
-      assert_equal([page], @root[:Kids])
+      assert_equal([page], @root[:Kids].value)
       assert_equal(1, @root.page_count)
       assert_equal(:Page, page[:Type])
       assert_equal(@root, page[:Parent])
@@ -103,7 +103,7 @@ describe HexaPDF::Type::PageTreeNode do
     it "inserts the provided page at the given index" do
       page = @doc.wrap({Type: :Page})
       assert_equal(page, @root.insert_page(3, page))
-      assert_equal([page], @root[:Kids])
+      assert_equal([page], @root[:Kids].value)
       assert_equal(@root, page[:Parent])
       refute(@root.value.key?(:Parent))
     end
@@ -112,37 +112,37 @@ describe HexaPDF::Type::PageTreeNode do
       page3 = @root.insert_page(5)
       page1 = @root.insert_page(0)
       page2 = @root.insert_page(1)
-      assert_equal([page1, page2, page3], @root[:Kids])
+      assert_equal([page1, page2, page3], @root[:Kids].value)
       assert_equal(3, @root.page_count)
     end
 
     it "inserts multiple pages correctly in a multilevel page tree" do
       define_multilevel_page_tree
       page = @root.insert_page(2)
-      assert_equal([@pages[0], @pages[1], page], @kid11[:Kids])
+      assert_equal([@pages[0], @pages[1], page], @kid11[:Kids].value)
       assert_equal(3, @kid11.page_count)
       assert_equal(6, @kid1.page_count)
       assert_equal(9, @root.page_count)
 
       page = @root.insert_page(4)
-      assert_equal([@pages[2], page, @pages[3], @pages[4]], @kid12[:Kids])
+      assert_equal([@pages[2], page, @pages[3], @pages[4]], @kid12[:Kids].value)
       assert_equal(4, @kid12.page_count)
       assert_equal(7, @kid1.page_count)
       assert_equal(10, @root.page_count)
 
       page = @root.insert_page(8)
-      assert_equal([@kid1, @pages[5], page, @kid2], @root[:Kids])
+      assert_equal([@kid1, @pages[5], page, @kid2], @root[:Kids].value)
       assert_equal(11, @root.page_count)
 
       page = @root.insert_page(100)
-      assert_equal([@kid1, @pages[5], @root[:Kids][2], @kid2, page], @root[:Kids])
+      assert_equal([@kid1, @pages[5], @root[:Kids][2], @kid2, page], @root[:Kids].value)
       assert_equal(12, @root.page_count)
     end
 
     it "allows negative indices to be specified" do
       define_multilevel_page_tree
       page = @root.insert_page(-1)
-      assert_equal(page, @root[:Kids].last)
+      assert_equal(page, @root[:Kids][-1])
 
       page = @root.insert_page(-4)
       assert_equal(page, @root[:Kids][2])
@@ -183,7 +183,7 @@ describe HexaPDF::Type::PageTreeNode do
     end
 
     it "does nothing if the page is not in its parent's /Kids array" do
-      @kid12[:Kids].shift
+      @kid12[:Kids].delete_at(0)
       assert_nil(@root.delete_page(@pages[2]))
       assert_equal(8, @root.page_count)
     end
@@ -253,7 +253,7 @@ describe HexaPDF::Type::PageTreeNode do
       end
       assert(@root.validate)
       assert_equal(2, @kid12[:Count])
-      assert_equal([@pages[2], @pages[4]], @kid12[:Kids])
+      assert_equal([@pages[2], @pages[4]], @kid12[:Kids].value)
     end
 
     it "needs at least one page node" do

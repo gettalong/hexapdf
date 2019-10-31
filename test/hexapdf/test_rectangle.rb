@@ -6,8 +6,9 @@ require 'hexapdf/document'
 
 describe HexaPDF::Rectangle do
   describe "after_data_change" do
-    it "fails if the value is not a array" do
-      assert_raises(ArgumentError) { HexaPDF::Rectangle.new(:Name) }
+    it "fails if the rectangle doesn't contain four numbers" do
+      assert_raises(ArgumentError) { HexaPDF::Rectangle.new([1, 2, 3]) }
+      assert_raises(ArgumentError) { HexaPDF::Rectangle.new([1, 2, 3, :a]) }
     end
 
     it "normalizes the array values" do
@@ -52,9 +53,6 @@ describe HexaPDF::Rectangle do
       refute(rect.validate)
 
       rect.value.unshift(:A)
-      refute(rect.validate)
-
-      rect.data.value = :A
       refute(rect.validate)
     end
   end

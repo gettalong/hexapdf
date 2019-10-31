@@ -46,7 +46,7 @@ module HexaPDF
       class GoTo < Action
 
         define_field :S, type: Symbol, required: true, default: :GoTo
-        define_field :D, type: [Symbol, PDFByteString, Array], required: true
+        define_field :D, type: [Symbol, PDFByteString, PDFArray], required: true
 
       end
 

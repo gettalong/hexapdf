@@ -51,7 +51,7 @@ module HexaPDF
 
       define_field :Type, type: Symbol, default: type
       define_field :S,    type: Symbol, required: true
-      define_field :Next, type: [Dictionary, Array], version: '1.2'
+      define_field :Next, type: [Dictionary, PDFArray], version: '1.2'
 
     end
 

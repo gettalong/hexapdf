@@ -67,7 +67,7 @@ module HexaPDF
       define_field :Duplex,                type: Symbol,  version: '1.7',
         allowed_values: [:Simplex, :DuplexFlipShortEdge, :DuplexFlipLongEdge]
       define_field :PickTrayByPDFSize,     type: Boolean, version: '1.7'
-      define_field :PrintPageRange,        type: Array,   version: '1.7'
+      define_field :PrintPageRange,        type: PDFArray, version: '1.7'
       define_field :NumCopies,             type: Integer, version: '1.7'
 
     end

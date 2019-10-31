@@ -55,7 +55,7 @@ module HexaPDF
       define_field :Shading, type: Dictionary, version: '1.3'
       define_field :XObject, type: Dictionary
       define_field :Font, type: Dictionary
-      define_field :ProcSet, type: Array
+      define_field :ProcSet, type: PDFArray
       define_field :Properties, type: Dictionary, version: '1.2'
 
       # Returns the color space stored under the given name.

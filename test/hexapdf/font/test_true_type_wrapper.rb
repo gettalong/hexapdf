@@ -114,7 +114,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
                    cidfont[:CIDSystemInfo].value)
       assert_equal(:Identity, cidfont[:CIDToGIDMap])
       assert_equal(@font_wrapper.glyph(3).width, cidfont[:DW])
-      assert_equal([2, [glyph.width]], cidfont[:W])
+      assert_equal([2, [glyph.width]], cidfont[:W].value)
       assert(cidfont.validate)
 
       # Checking font descriptor
@@ -155,7 +155,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
 
       assert_equal(HexaPDF::Font::CMap.create_to_unicode_cmap([[3, ' '.ord], [glyph.id, 'H'.ord]]),
                    dict[:ToUnicode].stream)
-      assert_equal([glyph.id, [glyph.width]], dict[:DescendantFonts][0][:W])
+      assert_equal([glyph.id, [glyph.width]], dict[:DescendantFonts][0][:W].value)
     end
   end
 

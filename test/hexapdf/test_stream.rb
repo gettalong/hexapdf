@@ -81,6 +81,7 @@ describe HexaPDF::Stream do
     @document.config = HexaPDF::Configuration.with_defaults
     @document.instance_variable_set(:@version, '1.2')
     def (@document).unwrap(obj); obj; end
+    def (@document).wrap(obj, *); obj; end
     def (@document).deref(obj); obj; end
 
     @stm = HexaPDF::Stream.new({}, oid: 1, document: @document)

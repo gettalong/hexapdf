@@ -17,7 +17,7 @@ describe HexaPDF::Document::Pages do
   describe "add" do
     it "adds a new empty page when no page is given" do
       page = @doc.pages.add
-      assert_equal([page], @doc.pages.root[:Kids])
+      assert_equal([page], @doc.pages.root[:Kids].value)
     end
 
     it "adds a new empty page with the given dimensions" do
@@ -36,7 +36,7 @@ describe HexaPDF::Document::Pages do
       page = @doc.pages.add
       new_page = @doc.add({Type: :Page})
       assert_same(new_page, @doc.pages.add(new_page))
-      assert_equal([page, new_page], @doc.pages.root[:Kids])
+      assert_equal([page, new_page], @doc.pages.root[:Kids].value)
     end
 
     it "fails if an unknown page format is given" do
@@ -49,7 +49,7 @@ describe HexaPDF::Document::Pages do
       page1 = @doc.add({Type: :Page})
       page2 = @doc.add({Type: :Page})
       @doc.pages << page1 << page2
-      assert_equal([page1, page2], @doc.pages.root[:Kids])
+      assert_equal([page1, page2], @doc.pages.root[:Kids].value)
     end
   end
 
@@ -88,7 +88,7 @@ describe HexaPDF::Document::Pages do
       page2 = @doc.pages.add
       page3 = @doc.pages.add
       assert_same(page2, @doc.pages.delete_at(1))
-      assert_equal([page1, page3], @doc.pages.root[:Kids])
+      assert_equal([page1, page3], @doc.pages.root[:Kids].value)
     end
   end
 

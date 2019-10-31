@@ -7,6 +7,7 @@ describe HexaPDF::Type::XRefStream do
   before do
     @doc = Object.new
     def (@doc).deref(obj); obj; end
+    def (@doc).wrap(obj, **); obj; end
     @obj = HexaPDF::Type::XRefStream.new({}, oid: 1, document: @doc)
   end
 

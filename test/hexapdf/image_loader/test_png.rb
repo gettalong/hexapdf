@@ -29,7 +29,7 @@ describe HexaPDF::ImageLoader::PNG do
     assert_equal(width, image[:Width])
     assert_equal(height, image[:Height])
     assert_equal(bpc, image[:BitsPerComponent])
-    assert_equal(color_space, image[:ColorSpace]) if color_space
+    assert_equal(color_space, @doc.unwrap(image[:ColorSpace])) if color_space
     data = stream.map {|row| [row.map {|i| i.to_s(2).rjust(bpc, '0') }.join("")].pack('B*') }.join("")
     assert_equal(data, image.stream)
   end
@@ -111,7 +111,7 @@ describe HexaPDF::ImageLoader::PNG do
               [253, 202, 151, 100, 50],
               [253, 202, 151, 100, 49]]
       assert_image(image, 5, 5, 8, :DeviceGray, data)
-      assert_equal([203, 203], image[:Mask])
+      assert_equal([203, 203], image[:Mask].value)
     end
 
     it "works for a greyscale png with a gamma value of 1" do
@@ -123,7 +123,7 @@ describe HexaPDF::ImageLoader::PNG do
     it "works for a greyscale png with a gamma value of 1/1.5" do
       png = @images.grep(/greyscale-with-gamma1\.5\.png/).first
       image = @loader.load(@doc, png)
-      assert_equal([:CalGray, {WhitePoint: [1.0, 1.0, 1.0], Gamma: 1 / 1.5}], image[:ColorSpace])
+      assert_equal([:CalGray, {WhitePoint: [1.0, 1.0, 1.0], Gamma: 1 / 1.5}], image[:ColorSpace].value)
     end
 
     it "works for an indexed 1-bit png" do

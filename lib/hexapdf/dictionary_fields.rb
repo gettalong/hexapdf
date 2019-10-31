@@ -37,6 +37,7 @@
 require 'time'
 require 'date'
 require 'hexapdf/object'
+require 'hexapdf/pdf_array'
 require 'hexapdf/rectangle'
 require 'hexapdf/configuration'
 require 'hexapdf/utils/pdf_doc_encoding'
@@ -205,6 +206,27 @@ module HexaPDF
 
     end
 
+    # Converter module for fields of type PDFArray.
+    module ArrayConverter
+
+      # This converter is usable if the +type+ is PDFArray.
+      def self.usable_for?(type)
+        type == PDFArray
+      end
+
+      # PDFArray fields can also contain simple arrays.
+      def self.additional_types
+        Array
+      end
+
+      # Wraps a given array in the PDFArray class. Otherwise returns +nil+.
+      def self.convert(data, _type, document)
+        return unless data.kind_of?(Array)
+        document.wrap(data, type: PDFArray)
+      end
+
+    end
+
     # Converter module for string fields to automatically convert a string into UTF-8 encoding.
     module StringConverter
 
@@ -335,8 +357,9 @@ module HexaPDF
 
     end
 
-    Field.converters.replace([FileSpecificationConverter, DictionaryConverter, StringConverter,
-                              PDFByteStringConverter, DateConverter, RectangleConverter])
+    Field.converters.replace([FileSpecificationConverter, DictionaryConverter, ArrayConverter,
+                              StringConverter, PDFByteStringConverter, DateConverter,
+                              RectangleConverter])
 
   end
 

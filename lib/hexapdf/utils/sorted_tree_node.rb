@@ -201,7 +201,7 @@ module HexaPDF
               index += 2
             end
           elsif node.key?(:Kids)
-            stack.concat(node[:Kids].reverse)
+            stack.concat(node[:Kids].reverse_each.to_a)
           end
         end
 
