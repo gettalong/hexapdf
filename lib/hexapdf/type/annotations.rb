@@ -47,6 +47,7 @@ module HexaPDF
       autoload(:MarkupAnnotation, 'hexapdf/type/annotations/markup_annotation')
       autoload(:Text, 'hexapdf/type/annotations/text')
       autoload(:Link, 'hexapdf/type/annotations/link')
+      autoload(:Widget, 'hexapdf/type/annotations/widget')
 
     end
 

@@ -447,6 +447,8 @@ module HexaPDF
                         Action: 'HexaPDF::Type::Action',
                         XXLaunchActionWinParameters: 'HexaPDF::Type::Actions::Launch::WinParameters',
                         Annot: 'HexaPDF::Type::Annotation',
+                        XXAppearanceCharacteristics: 'HexaPDF::Type::Annotations::Widget::AppearanceCharacteristics',
+                        XXIconFit: 'HexaPDF::Type::IconFit',
                       },
                       'object.subtype_map' => {
                         nil => {
@@ -463,6 +465,7 @@ module HexaPDF
                           URI: 'HexaPDF::Type::Actions::URI',
                           Text: 'HexaPDF::Type::Annotations::Text',
                           Link: 'HexaPDF::Type::Annotations::Link',
+                          Widget: 'HexaPDF::Type::Annotations::Widget',
                         },
                         XObject: {
                           Image: 'HexaPDF::Type::Image',
@@ -485,6 +488,7 @@ module HexaPDF
                         Annot: {
                           Text: 'HexaPDF::Type::Annotations::Text',
                           Link: 'HexaPDF::Type::Annotations::Link',
+                          Widget: 'HexaPDF::Type::Annotations::Widget',
                         },
                       })
 

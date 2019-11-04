@@ -8,6 +8,7 @@
   field to certain allowed values
 * [HexaPDF::Document::Fonts#configured_fonts] to return all font variants that
   are configured and available for adding to a document
+* [HexaPDF::Type::Annotations::Widget] and associated classes
 
 ### Changed
 

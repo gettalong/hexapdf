@@ -34,44 +34,25 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
-require 'hexapdf/type/actions'
-require 'hexapdf/type/annotations'
+require 'hexapdf/type/annotation'
 
 module HexaPDF
-
-  # == Overview
-  #
-  # The Type module contains implementations of the types defined in the PDF specification.
-  #
-  # Each type class is derived from either the Dictionary class or the Stream class, depending on
-  # whether the type has an associated stream.
   module Type
 
-    autoload(:XRefStream, 'hexapdf/type/xref_stream')
-    autoload(:ObjectStream, 'hexapdf/type/object_stream')
-    autoload(:Trailer, 'hexapdf/type/trailer')
-    autoload(:Info, 'hexapdf/type/info')
-    autoload(:Catalog, 'hexapdf/type/catalog')
-    autoload(:ViewerPreferences, 'hexapdf/type/viewer_preferences')
-    autoload(:PageTreeNode, 'hexapdf/type/page_tree_node')
-    autoload(:Page, 'hexapdf/type/page')
-    autoload(:Names, 'hexapdf/type/names')
-    autoload(:FileSpecification, 'hexapdf/type/file_specification')
-    autoload(:EmbeddedFile, 'hexapdf/type/embedded_file')
-    autoload(:Resources, 'hexapdf/type/resources')
-    autoload(:GraphicsStateParameter, 'hexapdf/type/graphics_state_parameter')
-    autoload(:Image, 'hexapdf/type/image')
-    autoload(:Form, 'hexapdf/type/form')
-    autoload(:Font, 'hexapdf/type/font')
-    autoload(:FontDescriptor, 'hexapdf/type/font_descriptor')
-    autoload(:FontSimple, 'hexapdf/type/font_simple')
-    autoload(:FontType1, 'hexapdf/type/font_type1')
-    autoload(:FontTrueType, 'hexapdf/type/font_true_type')
-    autoload(:FontType0, 'hexapdf/type/font_type0')
-    autoload(:CIDFont, 'hexapdf/type/cid_font')
-    autoload(:FontType3, 'hexapdf/type/font_type3')
-    autoload(:IconFit, 'hexapdf/type/icon_fit')
+    # An IconFit dictionary specifies how an icon should be displayed inside an annotation
+    # rectangle.
+    #
+    # See: PDF1.7 s12.7.7.3.2
+    class IconFit < Annotation
+
+      define_type :XXIconFit
+
+      define_field :SW, type: Symbol,   default: :A, allowed_values: [:A, :B, :S, :N]
+      define_field :S,  type: Symbol,   default: :P, allowed_values: [:A, :P]
+      define_field :A,  type: PDFArray, default: [0.5, 0.5]
+      define_field :FB, type: Boolean,  default: false, version: '1.5'
+
+    end
 
   end
-
 end
