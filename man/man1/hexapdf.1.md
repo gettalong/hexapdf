@@ -18,6 +18,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 * Merging multiple PDF files into one (see the `merge` command)
 * Splitting a PDF file into individual pages (see the `split` command)
 * Optimizing the file size of a PDF file (see the `optimize` command)
+* Watermarking/Stamping a PDF onto another one (see the `watermark` command)
 * Extracting embedded files (see the `files` command)
 * Extracting images (see the `images` command)
 * Showing general information of a PDF file (see the `info` command)
@@ -555,6 +556,44 @@ and so on, use *page_%02d.pdf* for the *OUTPUT_SPEC*.
 Additionally, the **Optimization Options** and **Encryption Options** can be used.
 
 
+### watermark
+
+Synopsis: `watermark` \[`OPTIONS`] *INPUT* *OUTPUT*
+
+This command uses one ore more pages from a PDF file and applies them as background or stamp
+(depending on the `--type` option) on another PDF file. If multiple pages are selected from the
+watermark PDF, the `--repeat` option can be used to specify how they should be applied.
+
+`-w` *WATERMARK*, `--watermark-file` *WATERMARK*
+
+: The PDF file that should be used for watermarking.
+
+`-i` *PAGES*, `--pages` *PAGES*
+
+: The pages from the *WATERMARK* PDF that should be used. The first *WATERMARK* page is applied to
+  the first *INPUT* page, the second *WATERMARK* page to the second *INPUT* page and so on. If there
+  are fewer *WATERMARK* pages than *INPUT* pages, the `--repeat` option comes into play.
+
+  See the **PAGES SPECIFICATION** below for details on the allowed format of *PAGES*. Default: *1*.
+
+`-r` *REPEAT_MODE*, `--repeat` *REPEAT_MODE*
+
+: Specifies how the *WATERMARK* pages should be repeated: **last** (the default) will only repeat
+  the last *WATERMARK* page whereas **all** will cyclically repeat all *WATERMARK* pages.
+
+`-t` *WATERMARK_TYPE*, `--type` *WATERMARK_TYPE*
+
+: Specifies how the *WATERMARK* pages are applied to the *INPUT* pages: **background** (the default)
+  applies them below the page contents and **stamp** applies them above the page contents.
+
+`-p` *PASSWORD*, `--password` *PASSWORD*
+
+: The password to decrypt the *INPUT*. Use **-** for *PASSWORD* for reading it from standard input.
+
+
+Additionally, the **Optimization Options** and **Encryption Options** can be used.
+
+
 ### version
 
 This command shows the version of the hexapdf application. It is an alternative to using the global
@@ -663,6 +702,17 @@ Optimization: Compress the `input.pdf` to get a smaller file size.
 
 Split the `input.pdf` into individual pages, naming the output files `out_01.pdf`, `out_02.pdf`, and
 so on.
+
+
+### watermark
+
+`hexapdf watermark -w watermark.pdf -t stamp input.pdf output.pdf`
+
+Applies the first page of the `watermark.pdf` as stamp on `input.pdf`.
+
+`hexapdf watermark -w watermark.pdf -i 2-5 -r all input.pdf output.pdf`
+
+Cyclically applies the pages 2 to 5 of the `watermark.pdf` as background on `input.pdf`.
 
 
 ### files

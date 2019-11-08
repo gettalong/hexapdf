@@ -44,6 +44,7 @@ require 'hexapdf/cli/optimize'
 require 'hexapdf/cli/images'
 require 'hexapdf/cli/batch'
 require 'hexapdf/cli/split'
+require 'hexapdf/cli/watermark'
 require 'hexapdf/version'
 require 'hexapdf/document'
 
@@ -95,6 +96,7 @@ module HexaPDF
         add_command(HexaPDF::CLI::Merge.new)
         add_command(HexaPDF::CLI::Batch.new)
         add_command(HexaPDF::CLI::Split.new)
+        add_command(HexaPDF::CLI::Watermark.new)
         add_command(CmdParse::HelpCommand.new)
         version_command = CmdParse::VersionCommand.new(add_switches: false)
         add_command(version_command)
