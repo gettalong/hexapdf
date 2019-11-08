@@ -14,15 +14,15 @@ which also allows PDF creation, among other things.
 Using the hexapdf application the following tasks can be performed with PDF files:
 
 {:.compact}
+* Modifying an existing PDF file (see the `modify` command)
+* Merging multiple PDF files into one (see the `merge` command)
+* Splitting a PDF file into individual pages (see the `split` command)
+* Optimizing the file size of a PDF file (see the `optimize` command)
 * Extracting embedded files (see the `files` command)
 * Extracting images (see the `images` command)
 * Showing general information of a PDF file (see the `info` command)
-* Inspecting the internal structure of a PDF file (see the `inspect` command)
-* Merging multiple PDF files into one (see the `merge` command)
-* Modifying an existing PDF file (see the `modify` command)
-* Optimizing the file size of a PDF file (see the `optimize` command)
-* Splitting a PDF file into individual pages (see the `split` command)
 * Batch execution of a command on multiple PDF files (see the `batch` command)
+* Inspecting the internal structure of a PDF file (see the `inspect` command)
 
 The application contains a built-in `help` command that can be used to provide a quick reminder of a
 command's purpose and its options.
