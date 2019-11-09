@@ -143,6 +143,8 @@ module HexaPDF
       #
       # See: #out_options, #apply_optimization_options
       def define_optimization_options
+        options.separator("")
+        options.separator("Optimization options:")
         options.on("--[no-]compact", "Delete unnecessary PDF objects (default: " \
                    "#{@out_options.compact})") do |c|
           @out_options.compact = c
@@ -176,6 +178,8 @@ module HexaPDF
       #
       # See: #out_options, #apply_encryption_options
       def define_encryption_options
+        options.separator("")
+        options.separator("Encryption options:")
         options.on("--decrypt", "Remove any encryption") do
           @out_options.encryption = :remove
         end
