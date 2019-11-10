@@ -21,6 +21,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 * Watermarking/Stamping a PDF onto another one (see the `watermark` command)
 * Extracting embedded files (see the `files` command)
 * Extracting images (see the `images` command)
+* Converting images to PDF (see the `image2pdf` command)
 * Showing general information of a PDF file (see the `info` command)
 * Batch execution of a command on multiple PDF files (see the `batch` command)
 * Inspecting the internal structure of a PDF file (see the `inspect` command)
@@ -325,6 +326,51 @@ The following information is shown for each image when listing images:
 >
 > **writable**
 > : Either true or false depending on whether hexapdf supports the image format.
+
+
+### image2pdf
+
+Synopsis: `iamge2pdf` \[`OPTIONS`] *OUTPUT* \[*IMAGES*...]
+
+This command converts one or more images into a single PDF file, one image per page. The various
+options allow setting a page size, scaling the images and defining margins. Images are always
+centered on the pages.
+
+Supported image formats are JPEG, PNG and PDF. Images in PNG format may take longer to process due
+to the way they are stored inside a PDF.
+
+`-p` *PAGE_SIZE*, `--page-size` *PAGE_SIZE*
+
+: The PDF page size. The default value of *auto* chooses the page size based on the image
+  dimensions. Either *auto* which chooses a size based on the image size or a valid page size like
+  *A4*, *A4-landscape* or *595x842*. The *-landscape* suffix can be added to any predefined page
+  size.
+
+  Common page sizes are *A4*, *A5*, *A3*, *Letter* and *Legal*.
+
+
+`--[no-]auto-rotate`
+
+: If enabled (the default) pages are automatically rotated so that the pages and images always have
+  the same orientation. I.e. landscape-oriented images go on landscape page, portrait-oriented
+  images on portrait pages.
+
+  Note that pages won't be rotated if scaling is used and the image would fit into the requested
+  page size.
+
+`-s` *SCALE*, `--scale` *SCALE*
+
+: Defines how the images should be scaled. The default value of *fit* scales the images so that they
+  optimally fit the pages. Otherwise *SCALE* is interpreted as the minimum number of pixels per inch
+  (PPI) that the images should have.
+
+`-m` *MARGINS*, `--margins` *MARGINS*
+
+: Defines the margins around the images. The argument *MARGINS* can either be a single number
+  specifying the margin on all four sides, or four numbers separated by commas (like `10,20,30,40`)
+  specifying the top, right, bottom and left margins. Default: *0*.
+
+Additionally, the **Optimization Options** and **Encryption Options** can be used.
 
 
 ### info
@@ -731,6 +777,14 @@ extracts the embedded file with the index 1.
 
 Image info and extraction: The first command lists the images of the `input.pdf`, the second one
 then extracts the images into the subdirectory `images` with the prefix `image`.
+
+
+### image2pdf
+
+`hexapdf image2pdf output.pdf image1.jpg image2.pdf image3.png`
+
+Create a PDF file `output.pdf` containing three pages with one image per page and the image fitted
+to the page.
 
 
 ### info

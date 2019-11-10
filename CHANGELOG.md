@@ -6,6 +6,7 @@
   references like with [HexaPDF::Dictionary] - MAY BREAK THINGS!
 * CLI command `hexapdf watermark` to apply a watermark PDF as background or
   stamp onto another PDF file
+* CLI command `hexapdf image2pdf` to convert images into a PDF file
 * [HexaPDF::DictionaryFields::Field#allowed_values] to allow constraining a
   field to certain allowed values
 * [HexaPDF::Document::Fonts#configured_fonts] to return all font variants that
