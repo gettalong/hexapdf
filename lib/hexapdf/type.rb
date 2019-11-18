@@ -71,6 +71,7 @@ module HexaPDF
     autoload(:CIDFont, 'hexapdf/type/cid_font')
     autoload(:FontType3, 'hexapdf/type/font_type3')
     autoload(:IconFit, 'hexapdf/type/icon_fit')
+    autoload(:AcroForm, 'hexapdf/type/acro_form')
 
   end
 

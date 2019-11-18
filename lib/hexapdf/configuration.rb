@@ -449,6 +449,8 @@ module HexaPDF
                         Annot: 'HexaPDF::Type::Annotation',
                         XXAppearanceCharacteristics: 'HexaPDF::Type::Annotations::Widget::AppearanceCharacteristics',
                         XXIconFit: 'HexaPDF::Type::IconFit',
+                        XXAcroForm: 'HexaPDF::Type::AcroForm::Form',
+                        XXAcroFormField: 'HexaPDF::Type::AcroForm::Field',
                       },
                       'object.subtype_map' => {
                         nil => {

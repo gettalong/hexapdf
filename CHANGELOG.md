@@ -12,6 +12,8 @@
 * [HexaPDF::Document::Fonts#configured_fonts] to return all font variants that
   are configured and available for adding to a document
 * [HexaPDF::Type::Annotations::Widget] and associated classes
+* [HexaPDF::Type::AcroForm::Form] and [HexaPDF::Type::AcroForm::Field] for basic
+  AcroForm support
 
 ### Changed
 
