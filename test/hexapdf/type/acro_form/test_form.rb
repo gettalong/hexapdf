@@ -39,6 +39,7 @@ describe HexaPDF::Type::AcroForm::Form do
   it "finds the root fields" do
     @doc.pages.add[:Annots] = [{FT: :Tx1}, {FT: :Tx2, Parent: {FT: :Tx3}}]
     @doc.pages.add[:Annots] = [{Subtype: :Widget}]
+    @doc.pages.add
 
     result = [{FT: :Tx1}, {FT: :Tx3}]
     assert_equal(result, @acroform.find_root_fields.map(&:value))

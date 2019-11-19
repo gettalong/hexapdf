@@ -1,3 +1,11 @@
+## 0.11.1 - 2019-11-19
+
+### Fixed
+
+* [HexaPDF::Type::AcroForm::Form#find_root_fields] to work for documents where
+  not all pages have form fields
+
+
 ## 0.11.0 - 2019-11-19
 
 ### Added
