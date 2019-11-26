@@ -40,19 +40,25 @@ module HexaPDF
   module Type
     module AcroForm
 
-      # Field dictionaries are used to define the properties of form fields of AcroForm objects.
+      # AcroForm field dictionaries are used to define the properties of form fields of AcroForm
+      # objects.
       #
       # Fields can be organized in a hierarchy using the /Kids and /Parent keys, for namespacing
       # purposes and to set default values. Those fields that have other fields as children are
       # called non-terminal fields, otherwise they are called terminal fields.
       #
+      # == Specific Field Type Implementations
+      #
+      # Subclasses are used to implement specific AcroForm field types.
+      #
+      # If a AcroForm field type adds additional inheritable dictionary fields, it has to set the
+      # constant +INHERITABLE_FIELDS+ to all inheritable dictionary fields, including those from the
+      # superclass.
+      #
       # See: PDF1.7 s12.7.3.1
       class Field < Dictionary
 
         define_type :XXAcroFormField
-
-        # List of inheritable fields.
-        INHERITABLE_FIELDS = [:FT, :Ff, :V, :DV]
 
         define_field :FT,     type: Symbol, allowed_values: [:Btn, :Tx, :Ch, :Sig]
         define_field :Parent, type: :XXAcroFormField
@@ -64,6 +70,10 @@ module HexaPDF
         define_field :V,      type: [Symbol, String, Stream, PDFArray, Dictionary]
         define_field :DV,     type: [Symbol, String, Stream, PDFArray, Dictionary]
         define_field :AA,     type: Dictionary, version: '1.2'
+
+        # The inheritable dictionary fields common to all AcroForm field types.
+        INHERITABLE_FIELDS = [:FT, :Ff, :V, :DV].freeze
+
 
         # Form fields must always be indirect objects.
         def must_be_indirect?
@@ -77,9 +87,11 @@ module HexaPDF
         #
         # See: Dictionary#[]
         def [](name)
-          if value[name].nil? && INHERITABLE_FIELDS.include?(name)
+          if value[name].nil? && self.class::INHERITABLE_FIELDS.include?(name)
             field = self
-            field = field[:Parent] while field.value[name].nil? && field[:Parent]
+            while field.value[name].nil? && (parent = field[:Parent])
+              field = parent
+            end
             field == self || field.value[name].nil? ? super : field[name]
           else
             super
