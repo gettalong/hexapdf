@@ -16,6 +16,10 @@ describe HexaPDF::Utils::BitField do
     @obj = TestBitField.new
   end
 
+  it "allows inspection of the defined bits" do
+    assert_equal({bit0: 0, bit1: 1, bit5: 5}, TestBitField::DATA_BIT_MAPPING)
+  end
+
   it "returns all bit names using the lister method" do
     @obj.data = 0b100011
     assert_equal([:bit0, :bit1, :bit5], @obj.list)

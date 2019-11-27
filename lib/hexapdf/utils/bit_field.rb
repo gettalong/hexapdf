@@ -48,7 +48,8 @@ module HexaPDF
       # bit index, an error is raised.
       #
       # The calling class needs to respond to \#name and \#name= because these methods are used to
-      # get and set the raw integer value.
+      # get and set the raw integer value; or provide custom method names using the +value_getter+
+      # and +value_setter+ arguments.
       #
       # After invoking the method the calling class has three new instance methods:
       #
@@ -58,30 +59,33 @@ module HexaPDF
       #
       # The method names can be overridden using the arguments +lister+, +getter+ and +setter+.
       def bit_field(name, mapping, lister: "#{name}_values", getter: "#{name}_include?",
-                    setter: "set_#{name}")
-        bit_names = mapping.keys
+                    setter: "set_#{name}", value_getter: name, value_setter: "self.#{name}")
         mapping.default_proc = proc do |h, k|
           if h.value?(k)
-            h[k] = k
+            k
           else
             raise ArgumentError, "Invalid bit field name or index '#{k}' for #{self.name}##{name}"
           end
         end
-        value_getter = name
-        value_setter = "#{name}="
 
-        define_method(lister) do
-          bit_names.map {|n| send(getter, n) ? n : nil }.compact
-        end
-        define_method(getter) do |bit|
-          (send(value_getter) || 0)[mapping[bit]] == 1
-        end
-        define_method(setter) do |*bits, clear_existing: false|
-          send(value_setter, 0) if clear_existing || send(value_getter).nil?
-          result = send(value_getter)
-          bits.each {|bit| result |= 1 << mapping[bit] }
-          send(value_setter, result)
-        end
+        module_eval(<<-EOF, __FILE__, __LINE__ + 1)
+          #{name.upcase}_BIT_MAPPING = mapping.freeze
+
+          def #{lister}
+            self.class::#{name.upcase}_BIT_MAPPING.keys.map {|n| #{getter}(n) ? n : nil }.compact
+          end
+
+          def #{getter}(bit)
+            (#{value_getter} || 0)[self.class::#{name.upcase}_BIT_MAPPING[bit]] == 1
+          end
+
+          def #{setter}(*bits, clear_existing: false)
+            #{value_setter} = 0 if clear_existing || #{value_getter}.nil?
+            result = #{value_getter}
+            bits.each {|bit| result |= 1 << self.class::#{name.upcase}_BIT_MAPPING[bit] }
+            #{value_setter} =  result
+          end
+        EOF
       end
 
     end
