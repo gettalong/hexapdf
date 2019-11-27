@@ -35,6 +35,7 @@
 #++
 
 require 'hexapdf/dictionary'
+require 'hexapdf/utils/bit_field'
 
 module HexaPDF
   module Type
@@ -58,6 +59,8 @@ module HexaPDF
       # See: PDF1.7 s12.7.3.1
       class Field < Dictionary
 
+        extend Utils::BitField
+
         define_type :XXAcroFormField
 
         define_field :FT,     type: Symbol, allowed_values: [:Btn, :Tx, :Ch, :Sig]
@@ -74,6 +77,32 @@ module HexaPDF
         # The inheritable dictionary fields common to all AcroForm field types.
         INHERITABLE_FIELDS = [:FT, :Ff, :V, :DV].freeze
 
+        ##
+        # :method: flags
+        #
+        # Returns an array of flag names representing the set bit flags.
+        #
+
+        ##
+        # :method: flagged?
+        # :call-seq:
+        #   flagged?(flag)
+        #
+        # Returns +true+ if the given flag is set. The argument can either be the flag name or the
+        # bit index.
+        #
+
+        ##
+        # :method: flag
+        # :call-seq:
+        #   flag(*flags, clear_existing: false)
+        #
+        # Sets the given flags, given as flag names or bit indices. If +clear_existing+ is +true+,
+        # all prior flags will be cleared.
+        #
+        bit_field(:flags, {ReadOnly: 0, Required: 1, NoExport: 2},
+                  lister: "flags", getter: "flagged?", setter: "flag",
+                  value_getter: "self[:Ff]", value_setter: "self[:Ff]")
 
         # Form fields must always be indirect objects.
         def must_be_indirect?

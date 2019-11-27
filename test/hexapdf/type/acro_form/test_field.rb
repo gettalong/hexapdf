@@ -24,6 +24,14 @@ describe HexaPDF::Type::AcroForm::Field do
     assert_equal(:Ch, @field[:FT])
   end
 
+  it "has convenience methods for accessing the field flags" do
+    assert_equal([], @field.flags)
+    refute(@field.flagged?(:Required))
+    @field.flag(:Required, 2)
+    assert(@field.flagged?(2))
+    assert_equal(6, @field[:Ff])
+  end
+
   it "returns the field type" do
     assert_nil(@field.field_type)
 

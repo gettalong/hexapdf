@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+* Convenience methods for accessing field flags for
+  [HexaPDF::Type::AcroForm::Field]
+
+
 ## 0.11.9 - 2020-06-15
 
 ### Changed
