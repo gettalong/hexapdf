@@ -1,3 +1,10 @@
+## 0.11.3 - 2019-11-27
+
+### Fixed
+
+* Restore compatibility with Ruby 2.4
+
+
 ## 0.11.2 - 2019-11-22
 
 ### Fixed
