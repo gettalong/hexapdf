@@ -46,6 +46,41 @@ module HexaPDF
     # See: PDF1.7 s12.5
     class Annotation < Dictionary
 
+      # The appearance dictionary references appearance streams for various use cases.
+      #
+      # Each appearance can either be an XObject or a dictionary mapping names to XObjects. The
+      # latter is used when the appearance depends on the state of the annotation, e.g. a checkbox
+      # widget that can be checked or unchecked.
+      #
+      # See: PDF1.7 s12.5.5
+      class AppearanceDictionary < Dictionary
+
+        define_type :XXAppearanceDictionary
+
+        define_field :N, type: [Dictionary, Stream], required: true
+        define_field :R, type: [Dictionary, Stream]
+        define_field :D, type: [Dictionary, Stream]
+
+        # The annotations normal appearance.
+        def normal_appearance
+          self[:N]
+        end
+
+        # The rollover appearance which should be used when the cursor is moved into the active area
+        # of the annotation without pressing a button.
+        def rollover_appearance
+          self[:R] || self[:N]
+        end
+
+        # The down appearance which should be used when the mouse button is pressed or held down
+        # inside the active area of the annotation.
+        def down_appearance
+          self[:D] || self[:N]
+        end
+
+      end
+
+
       extend Utils::BitField
 
       define_type :Annot
@@ -58,7 +93,7 @@ module HexaPDF
       define_field :NM,           type: String, version: '1.4'
       define_field :M,            type: PDFDate, version: '1.1'
       define_field :F,            type: Integer, default: 0, version: '1.1'
-      define_field :AP,           type: Dictionary, version: '1.2'
+      define_field :AP,           type: :XXAppearanceDictionary, version: '1.2'
       define_field :AS,           type: Symbol, version: '1.2'
       define_field :Border,       type: PDFArray, default: [0, 0, 1]
       define_field :C,            type: PDFArray, version: '1.1'

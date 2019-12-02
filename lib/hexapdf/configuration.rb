@@ -451,6 +451,7 @@ module HexaPDF
                         XXIconFit: 'HexaPDF::Type::IconFit',
                         XXAcroForm: 'HexaPDF::Type::AcroForm::Form',
                         XXAcroFormField: 'HexaPDF::Type::AcroForm::Field',
+                        XXAppearanceDictionary: 'HexaPDF::Type::Annotation::AppearanceDictionary',
                       },
                       'object.subtype_map' => {
                         nil => {
