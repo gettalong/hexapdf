@@ -34,20 +34,40 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'hexapdf/type/acro_form/variable_text_field'
+
 module HexaPDF
   module Type
-
-    # Namespace module for all AcroForm related dictionary types.
-    #
-    # See: PDF1.7 s12.7
     module AcroForm
 
-      autoload(:Form, 'hexapdf/type/acro_form/form')
-      autoload(:Field, 'hexapdf/type/acro_form/field')
-      autoload(:VariableTextField, 'hexapdf/type/acro_form/variable_text_field')
-      autoload(:TextField, 'hexapdf/type/acro_form/text_field')
+      # AcroForm text fields provide a box or space to fill-in data entered from keyboard.
+      #
+      # The text may be restricted to a single line or can span multiple lines. There are other
+      # flags for things like password input.
+      #
+      # See: PDF1.7 s12.7.4.3
+      class TextField < VariableTextField
+
+        define_field :MaxLen, type: Integer
+
+        # All inheritable dictionary fields for text fields.
+        INHERITABLE_FIELDS = (superclass::INHERITABLE_FIELDS + [:MaxLen]).freeze
+
+        # Updated list of field flags.
+        FLAGS_BIT_MAPPING = superclass::FLAGS_BIT_MAPPING.merge(
+          {
+            Multiline: 13,
+            Password: 14,
+            FileSelect: 21,
+            DoNotSpellCheck: 23,
+            DoNotScroll: 24,
+            Comb: 25,
+            RichText: 26,
+          }
+        ).freeze
+
+      end
 
     end
-
   end
 end

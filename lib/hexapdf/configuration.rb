@@ -492,6 +492,9 @@ module HexaPDF
                           Link: 'HexaPDF::Type::Annotations::Link',
                           Widget: 'HexaPDF::Type::Annotations::Widget',
                         },
+                        XXAcroFormField: {
+                          Tx: 'HexaPDF::Type::AcroForm::TextField',
+                        },
                       })
 
 end
