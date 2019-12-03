@@ -496,6 +496,16 @@ module HexaPDF
       @fonts ||= Fonts.new(self)
     end
 
+    # Returns the main AcroForm object for dealing with interactive forms.
+    #
+    # If +create+ is +false+, +nil+ is returned if no AcroForm object exists. Otherwise a new
+    # AcroForm object will be created and returned.
+    #
+    # See: HexaPDF::Type::Catalog#acro_form
+    def acro_form(create: false)
+      catalog.acro_form(create: create)
+    end
+
     # Executes the given task and returns its result.
     #
     # Tasks provide an extensible way for performing operations on a PDF document without

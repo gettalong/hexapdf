@@ -97,6 +97,16 @@ module HexaPDF
         self[:Pages] ||= document.add({Type: :Pages})
       end
 
+      # Returns the main AcroForm object.
+      #
+      # If +create+ is +false+, +nil+ is returned if no AcroForm object exists. Otherwise a new
+      # AcroForm object will be created and returned.
+      #
+      # See: AcroForm::Form
+      def acro_form(create: false)
+        self[:AcroForm] || (create && self[:AcroForm] ||= document.add({}, type: :XXAcroForm)) || nil
+      end
+
       private
 
       # Ensures that there is a valid page tree.

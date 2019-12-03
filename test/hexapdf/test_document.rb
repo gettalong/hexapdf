@@ -584,6 +584,18 @@ describe HexaPDF::Document do
     end
   end
 
+  describe "acro_form" do
+    it "returns the main AcroForm object" do
+      assert_nil(@doc.acro_form)
+      @doc.catalog[:AcroForm] = 5
+      assert_equal(5, @doc.acro_form)
+    end
+
+    it "create the AcroForm object if instructed" do
+      assert_equal(:XXAcroForm, @doc.acro_form(create: true).type)
+    end
+  end
+
   describe "listener interface" do
     it "allows registering and dispatching messages" do
       args = []

@@ -7,6 +7,8 @@
 * [HexaPDF::Type::AcroForm::TextField] and
   [HexaPDF::Type::AcroForm::VariableTextField] for basic text field support
 * [HexaPDF::Type::Annotation::AppearanceDictionary]
+* [HexaPDF::Document#acro_form] and [HexaPDF::Type::Catalog#acro_form]
+  convenience methods
 
 
 ## 0.11.9 - 2020-06-15
