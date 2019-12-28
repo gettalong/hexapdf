@@ -361,12 +361,12 @@ module HexaPDF
             image_data << data.getbyte(0)
             mask_data << data.getbyte(0)
             while i < bytes_per_row
-              image_data << data.byteslice(i, bytes_per_colors)
+              bytes_per_colors.times {|j| image_data << data.getbyte(i + j) }
               i += bytes_per_colors
-              mask_data << data.byteslice(i, bytes_per_alpha)
+              bytes_per_alpha.times {|j| mask_data << data.getbyte(i + j) }
               i += bytes_per_alpha
             end
-            data[0, bytes_per_row] = ''
+            data = data[bytes_per_row..-1]
           end
         end
 

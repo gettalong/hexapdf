@@ -1,3 +1,11 @@
+## 0.11.4 - 2019-12-28
+
+### Fixed
+
+* Memory consumption problem of PNG image loader when using images with alpha
+  channel
+
+
 ## 0.11.3 - 2019-11-27
 
 ### Fixed
