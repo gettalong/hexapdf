@@ -3,6 +3,7 @@
 ### Changed
 
 * [HexaPDF::Font::TrueType::Table::CmapSubtable] to lazily parse the subtable
+* [HexaPDF::Font::TrueType::Table::Hmtx] to lazily parse the width data
 
 
 ## 0.11.4 - 2019-12-28

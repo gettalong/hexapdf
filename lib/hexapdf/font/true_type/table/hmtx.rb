@@ -51,7 +51,7 @@ module HexaPDF
           # the :left_side_bearing.
           Metric = Struct.new(:advance_width, :left_side_bearing)
 
-          # An array of Metric objects, one for each glyph in the font.
+          # A hash of glyph ID to Metric objects mapping.
           attr_accessor :horizontal_metrics
 
           # Returns the Metric object for the give glyph ID.
@@ -63,10 +63,20 @@ module HexaPDF
 
           def parse_table #:nodoc:
             nr_entries = font[:hhea].num_of_long_hor_metrics
-            @horizontal_metrics = Array.new(nr_entries) { Metric.new(*read_formatted(4, 'ns>')) }
-            last_advance_width = @horizontal_metrics[-1].advance_width
-            read_formatted(directory_entry.length - 4 * nr_entries, 's>*').map do |lsb|
-              @horizontal_metrics << Metric.new(last_advance_width, lsb)
+            max_id = nr_entries + (directory_entry.length - 4 * nr_entries) / 2
+            @horizontal_metrics = Hash.new do |hash, glyph_id|
+              return nil if glyph_id >= max_id
+              if glyph_id >= nr_entries
+                with_io_pos(directory_entry.offset + 4 * nr_entries + (glyph_id - nr_entries) * 2) do
+                  hash[glyph_id] = Metric.new(@horizontal_metrics[nr_entries - 1].advance_width,
+                                              *read_formatted(2, 's>'))
+                end
+              else
+                with_io_pos(directory_entry.offset + 4 * glyph_id) do
+                  hash[glyph_id] = Metric.new(*read_formatted(4, 'ns>'))
+                end
+              end
+              hash[glyph_id]
             end
           end
 
