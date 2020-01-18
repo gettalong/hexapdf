@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::Font::TrueType::Table::CmapSubtable] to lazily parse the subtable
+
+
 ## 0.11.4 - 2019-12-28
 
 ### Fixed

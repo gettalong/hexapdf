@@ -43,14 +43,14 @@ describe HexaPDF::Font::TrueType::Table::CmapSubtable do
 
     it "works for format 0" do
       t = table([0, 262, 0].pack('n3') + [255].pack('C*') + (0..254).to_a.pack('C*'))
+      assert_equal(0, t.gid_to_code(255))
+      assert_equal(234, t.gid_to_code(233))
+
       assert_equal(255, t[0])
       assert_equal(233, t[234])
       assert_nil(t[256])
 
-      assert_equal(0, t.gid_to_code(255))
-      assert_equal(234, t.gid_to_code(233))
-
-      assert_raises(HexaPDF::Error) { table([0, 20, 0].pack('n3') + "a" * 20) }
+      assert_raises(HexaPDF::Error) { table([0, 20, 0].pack('n3') + "a" * 20)[0] }
     end
 
     it "works for format 2" do

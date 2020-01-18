@@ -73,9 +73,14 @@ module HexaPDF
           attr_accessor :language
 
           # The complete code map.
+          #
+          # Is only fully initialized for existing fonts when a mapping is first accessed via #[].
           attr_accessor :code_map
 
           # The complete gid map.
+          #
+          # Is only fully initialized for existing fonts when a mapping is first accessed via
+          # #gid_to_code.
           attr_accessor :gid_map
 
           # Creates a new subtable.
@@ -127,7 +132,22 @@ module HexaPDF
             elsif [0, 2, 4, 6].include?(@format)
               length, @language = io.read(4).unpack('n2')
             end
-            supported = true
+
+            return false unless [0, 2, 4, 6, 10, 12].include?(@format)
+            offset = io.pos
+            @code_map = lambda do |code|
+              parse_mapping(io, offset, length)
+              @code_map[code]
+            end
+            @gid_map = lambda do |gid|
+              parse_mapping(io, offset, length)
+              @gid_map[gid]
+            end
+            true
+          end
+
+          def parse_mapping(io, offset, length)
+            io.pos = offset
             @code_map, @gid_map = case @format
                                   when 0 then Format0.parse(io, length)
                                   when 2 then Format2.parse(io, length)
@@ -135,12 +155,9 @@ module HexaPDF
                                   when 6 then Format6.parse(io, length)
                                   when 10 then Format10.parse(io, length)
                                   when 12 then Format12.parse(io, length)
-                                  else
-                                    supported = false
-                                    [{}, {}]
                                   end
-            supported
           end
+          private :parse_mapping
 
           def inspect #:nodoc:
             "#<#{self.class.name} (#{platform_id}, #{encoding_id}, #{language}, " \
