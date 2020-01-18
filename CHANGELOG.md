@@ -4,6 +4,8 @@
 
 * [HexaPDF::Font::TrueType::Table::CmapSubtable] to lazily parse the subtable
 * [HexaPDF::Font::TrueType::Table::Hmtx] to lazily parse the width data
+* CLI command `hexapdf image2pdf` to use the last argument as output file
+  instead of the first (same order as `merge`)
 
 
 ## 0.11.4 - 2019-12-28

@@ -330,7 +330,7 @@ The following information is shown for each image when listing images:
 
 ### image2pdf
 
-Synopsis: `iamge2pdf` \[`OPTIONS`] *OUTPUT* \[*IMAGES*...]
+Synopsis: `image2pdf` \[`OPTIONS`] \[*IMAGES*...] *OUTPUT*
 
 This command converts one or more images into a single PDF file, one image per page. The various
 options allow setting a page size, scaling the images and defining margins. Images are always
@@ -781,7 +781,7 @@ then extracts the images into the subdirectory `images` with the prefix `image`.
 
 ### image2pdf
 
-`hexapdf image2pdf output.pdf image1.jpg image2.pdf image3.png`
+`hexapdf image2pdf image1.jpg image2.pdf image3.png output.pdf`
 
 Create a PDF file `output.pdf` containing three pages with one image per page and the image fitted
 to the page.

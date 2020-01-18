@@ -99,7 +99,7 @@ module HexaPDF
         @margins = [0, 0, 0, 0]
       end
 
-      def execute(out_file, *images) #:nodoc:
+      def execute(*images, out_file) #:nodoc:
         maybe_raise_on_existing_file(out_file)
 
         out = HexaPDF::Document.new
