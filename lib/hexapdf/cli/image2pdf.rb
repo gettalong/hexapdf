@@ -106,8 +106,8 @@ module HexaPDF
 
         images.each do |image_file|
           image = out.images.add(image_file)
-          iw = image.info.width.to_f
-          ih = image.info.height.to_f
+          iw = image.width.to_f
+          ih = image.height.to_f
           if @scale != :fit
             iw *= 72 / @scale
             ih *= 72 / @scale

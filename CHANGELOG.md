@@ -7,6 +7,10 @@
 * CLI command `hexapdf image2pdf` to use the last argument as output file
   instead of the first (same order as `merge`)
 
+### Fixed
+
+* CLI command `hexapdf image2pdf` so that treating a PDF as image works
+
 
 ## 0.11.4 - 2019-12-28
 
