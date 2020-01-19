@@ -751,6 +751,7 @@ module HexaPDF
 
         while true
           too_wide_box = nil
+          line_height = 0
 
           rest = style.text_line_wrapping_algorithm.call(rest, width_block) do |line, item|
             # make sure empty lines broken by mandatory paragraph breaks are not empty

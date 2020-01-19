@@ -9,6 +9,8 @@
 
 ### Fixed
 
+* Wrong line length calculation for variable width layouting when a text box is
+  too wide and needs to be broken into parts
 * CLI command `hexapdf image2pdf` so that treating a PDF as image works
 
 

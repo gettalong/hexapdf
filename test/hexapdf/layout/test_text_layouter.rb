@@ -556,18 +556,37 @@ describe HexaPDF::Layout::TextLayouter do
       end
     end
 
-    it "breaks a text fragment into parts if it is wider than the available width" do
-      str = " Thisisaverylongstring"
-      frag = HexaPDF::Layout::TextFragment.create(str, font: @font)
-      result = @layouter.fit([frag], 20, 100)
-      assert(result.remaining_items.empty?)
-      assert_equal(:success, result.status)
-      assert_equal(str.strip.length, result.lines.sum {|l| l.items.sum {|i| i.items.count } })
-      assert_equal(45, result.height)
+    describe "breaks a text fragment into parts if it is wider than the available width" do
+      before do
+        @str = " This is averylongstring"
+        @frag = HexaPDF::Layout::TextFragment.create(@str, font: @font)
+      end
 
-      result = @layouter.fit([frag], 1, 100)
-      assert_equal(str.strip.length, result.remaining_items.count)
-      assert_equal(:box_too_wide, result.status)
+      it "works with fixed width" do
+        result = @layouter.fit([@frag], 20, 100)
+        assert(result.remaining_items.empty?)
+        assert_equal(:success, result.status)
+        assert_equal(@str.delete(" ").length, result.lines.sum {|l| l.items.sum {|i| i.items.count } })
+        assert_equal(54, result.height)
+
+        result = @layouter.fit([@frag], 1, 100)
+        assert_equal(8, result.remaining_items.count)
+        assert_equal(:box_too_wide, result.status)
+      end
+
+      it "works with variable width" do
+        width_block = lambda do |height, line_height|
+          # 'averylongstring' would fit when only considering height but not height + line_height
+          if height + line_height < 15
+            63
+          else
+            10
+          end
+        end
+        result = @layouter.fit([@frag], width_block, 30)
+        assert_equal(:height, result.status)
+        assert_equal([26.95, 9.44, 7.77], result.lines.map {|l| l.width.round(3) })
+      end
     end
 
     describe "horizontal alignment" do
