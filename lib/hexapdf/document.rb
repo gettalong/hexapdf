@@ -52,6 +52,11 @@ require 'hexapdf/image_loader'
 require 'hexapdf/font_loader'
 require 'hexapdf/layout'
 
+begin
+  require 'hexapdf/cext'
+rescue LoadError
+end
+
 # == HexaPDF API Documentation
 #
 # Here are some pointers to more in depth information:

@@ -6,6 +6,7 @@
 * [HexaPDF::Font::TrueType::Table::Hmtx] to lazily parse the width data
 * CLI command `hexapdf image2pdf` to use the last argument as output file
   instead of the first (same order as `merge`)
+* Automatically require the HexaPDF C extension if it is installed
 
 ### Fixed
 
