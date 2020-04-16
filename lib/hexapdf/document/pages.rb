@@ -107,6 +107,8 @@ module HexaPDF
       # Deletes the given page object from the document's page tree (but *not* from the document).
       #
       # Returns the page object, or +nil+ if the page object was not in the page tree.
+      #
+      # Also see: HexaPDF::Type::PageTreeNode#delete_page
       def delete(page)
         @document.catalog.pages.delete_page(page)
       end
@@ -118,6 +120,8 @@ module HexaPDF
       # document).
       #
       # Returns the page object, or +nil+ if the index was invalid.
+      #
+      # Also see: HexaPDF::Type::PageTreeNode#delete_page
       def delete_at(index)
         @document.catalog.pages.delete_page(index)
       end
