@@ -109,9 +109,7 @@ module HexaPDF
     def duplicate(object)
       case object
       when Hash
-        object.each_with_object({}) do |(k, v), obj|
-          obj[k] = duplicate(v)
-        end
+        object.transform_values {|v| duplicate(v) }
       when Array
         object.map {|v| duplicate(v) }
       when HexaPDF::Reference

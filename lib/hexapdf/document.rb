@@ -55,6 +55,7 @@ require 'hexapdf/layout'
 begin
   require 'hexapdf/cext'
 rescue LoadError
+  # ignore error because the C-extension only makes things faster
 end
 
 # == HexaPDF API Documentation
@@ -377,7 +378,7 @@ module HexaPDF
       case object
       when Hash
         seen[object] = true
-        object.each_with_object({}) {|(key, val), memo| memo[key] = unwrap(val, seen.dup) }
+        object.transform_values {|value| unwrap(value, seen.dup) }
       when Array
         seen[object] = true
         object.map {|inner_o| unwrap(inner_o, seen.dup) }

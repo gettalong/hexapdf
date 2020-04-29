@@ -9,12 +9,16 @@ describe HexaPDF::Type::Trailer do
   before do
     @doc = Object.new
     @doc.instance_variable_set(:@version, '1.2')
+
     def (@doc).version=(v); @version = v; end
+
     def (@doc).deref(obj); obj; end
+
     def (@doc).wrap(obj, *)
       (obj.kind_of?(Array) ? HexaPDF::PDFArray : HexaPDF::Dictionary).
         new(obj, oid: (obj.oid rescue 0))
     end
+
     root = HexaPDF::Dictionary.new({}, oid: 3)
     @obj = HexaPDF::Type::Trailer.new({Size: 10, Root: root}, document: @doc)
   end

@@ -36,7 +36,7 @@ describe HexaPDF::Document::Fonts do
       assert_same(font, @doc.fonts.add(:TestFont, variant: :none))
     end
 
-    it "fails if the requested font is not found"  do
+    it "fails if the requested font is not found" do
       @doc.config['font_loader'] << 'HexaPDF::FontLoader::Standard14'
       error = assert_raises(HexaPDF::Error) { @doc.fonts.add("Unknown") }
       assert_match(/Times \(none/, error.message)

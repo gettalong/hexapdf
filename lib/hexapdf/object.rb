@@ -132,7 +132,7 @@ module HexaPDF
     def self.deep_copy(object)
       case object
       when Hash
-        object.each_with_object({}) {|(key, val), memo| memo[key] = deep_copy(val) }
+        object.transform_values {|value| deep_copy(value) }
       when Array
         object.map {|o| deep_copy(o) }
       when HexaPDF::Object

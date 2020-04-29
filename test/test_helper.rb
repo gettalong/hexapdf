@@ -53,4 +53,4 @@ module TestHelper
   end
 end
 
-Minitest::Spec.send(:include, TestHelper)
+Minitest::Spec.include(TestHelper)

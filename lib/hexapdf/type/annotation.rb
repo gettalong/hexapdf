@@ -80,7 +80,6 @@ module HexaPDF
 
       end
 
-
       extend Utils::BitField
 
       define_type :Annot

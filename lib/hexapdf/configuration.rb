@@ -447,7 +447,8 @@ module HexaPDF
                         Action: 'HexaPDF::Type::Action',
                         XXLaunchActionWinParameters: 'HexaPDF::Type::Actions::Launch::WinParameters',
                         Annot: 'HexaPDF::Type::Annotation',
-                        XXAppearanceCharacteristics: 'HexaPDF::Type::Annotations::Widget::AppearanceCharacteristics',
+                        XXAppearanceCharacteristics: \
+                          'HexaPDF::Type::Annotations::Widget::AppearanceCharacteristics',
                         XXIconFit: 'HexaPDF::Type::IconFit',
                         XXAcroForm: 'HexaPDF::Type::AcroForm::Form',
                         XXAcroFormField: 'HexaPDF::Type::AcroForm::Field',

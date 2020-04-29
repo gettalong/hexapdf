@@ -8,7 +8,7 @@ AllCops:
   TargetRubyVersion: 2.4
 
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 110 # Preferred length is 100
   Exclude:
     - lib/hexapdf/content/canvas.rb
@@ -178,8 +178,23 @@ Style/WhileUntilModifier:
 Style/FormatStringToken:
   Enabled: false # I don't care about this
 
+Style/ExponentialNotation:
+  Enabled: true
 
-Layout/AlignHash:
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+  Exclude:
+    - lib/hexapdf/utils/object_hash.rb # hash may be changed during iteration
+    - lib/hexapdf/font/true_type/subsetter.rb # hash is changed during iteration
+
+Style/HashTransformValues:
+  Enabled: true
+
+
+Layout/HashAlignment:
   EnforcedLastArgumentHashStyle: ignore_implicit
 
 Layout/SpaceInsideBlockBraces:
@@ -219,8 +234,11 @@ Layout/DotPosition:
 Layout/EmptyLineAfterMagicComment:
   Enabled: false # we have the magic comment and then the license
 
-Layout/IndentAssignment:
+Layout/AssignmentIndentation:
   Enabled: false # false alarms
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
 
 
 Naming/PredicateName:
@@ -242,19 +260,27 @@ Naming/MemoizedInstanceVariableName:
 Naming/HeredocDelimiterNaming:
   Enabled: false # we like our delimiters short and obvious
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Enabled: false # for points the names x,y are perfectly reasonable
 
 Lint/LiteralAsCondition:
   Enabled: false # we use while true
 
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Exclude:
     - test/test_helper.rb
 
 Lint/UselessAccessModifier:
   Exclude:
     - lib/hexapdf/dictionary_fields.rb # not useless
+
+Lint/StructNewOverride:
+  Enabled: true
+  Exclude:
+    - lib/hexapdf/font/true_type/table/directory.rb
+
+Lint/RaiseException:
+  Enabled: true
 
 # These cops should be run manually from time to time
 # Style/MutableConstant
