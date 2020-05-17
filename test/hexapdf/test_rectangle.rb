@@ -36,6 +36,20 @@ describe HexaPDF::Rectangle do
     assert_equal(4, rect.height)
   end
 
+  it "allows setting all fields of the rectangle" do
+    rect = HexaPDF::Rectangle.new([2, 1, 0, 5])
+    rect.left = 5
+    rect.right = 1
+    rect.bottom = 2
+    rect.top = 3
+    assert_equal([5, 2, 1, 3], rect.value)
+
+    rect.width = 10
+    assert_equal(15, rect.right)
+    rect.height = 10
+    assert_equal(12, rect.top)
+  end
+
   it "allows comparison to arrays" do
     rect = HexaPDF::Rectangle.new([0, 1, 2, 5])
     assert(rect == [0, 1, 2, 5])

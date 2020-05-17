@@ -59,9 +59,19 @@ module HexaPDF
       self[0]
     end
 
+    # Sets the x-coordinate of the bottom-left corner to the given value.
+    def left=(x)
+      value[0] = x
+    end
+
     # Returns the x-coordinate of the top-right corner.
     def right
       self[2]
+    end
+
+    # Sets the x-coordinate of the top-right corner to the given value.
+    def right=(x)
+      value[2] = x
     end
 
     # Returns the y-coordinate of the bottom-left corner.
@@ -69,9 +79,19 @@ module HexaPDF
       self[1]
     end
 
+    # Sets the y-coordinate of the bottom-left corner to the given value.
+    def bottom=(y)
+      value[1] = y
+    end
+
     # Returns the y-coordinate of the top-right corner.
     def top
       self[3]
+    end
+
+    # Sets the y-coordinate of the top-right corner to the given value.
+    def top=(y)
+      value[3] = y
     end
 
     # Returns the width of the rectangle.
@@ -79,9 +99,19 @@ module HexaPDF
       self[2] - self[0]
     end
 
+    # Sets the width of the rectangle to the given value.
+    def width=(val)
+      self[2] = self[0] + val
+    end
+
     # Returns the height of the rectangle.
     def height
       self[3] - self[1]
+    end
+
+    # Sets the height of the rectangle to the given value.
+    def height=(val)
+      self[3] = self[1] + val
     end
 
     # Compares this rectangle to +other+ like in Object#== but also allows comparison to simple

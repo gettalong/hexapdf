@@ -9,6 +9,8 @@
 * [HexaPDF::Type::Annotation::AppearanceDictionary]
 * [HexaPDF::Document#acro_form] and [HexaPDF::Type::Catalog#acro_form]
   convenience methods
+* [HexaPDF::Rectangle] methods for setting the left, top, right, bottom, width
+  and height
 
 
 ## 0.11.9 - 2020-06-15
