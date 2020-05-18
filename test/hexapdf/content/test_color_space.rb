@@ -43,6 +43,11 @@ module CommonColorSpaceTests
     assert_equal(@components, @color_space.color(*@components).components)
   end
 
+  it "normalizes the colors when using the #color method" do
+    return unless defined?(@colors)
+    assert_equal(@components, @color_space.color(*@colors).components)
+  end
+
 end
 
 describe HexaPDF::Content::ColorSpace::Universal do
@@ -72,7 +77,8 @@ describe HexaPDF::Content::ColorSpace::DeviceRGB do
     @color_space_family = :DeviceRGB
     @color = @color_space.default_color
     @other_color = @color_space.color(128, 0, 0)
-    @components = [0.5, 0.2, 0.3]
+    @colors = [128, 0, 255]
+    @components = @colors.map {|c| c.to_f / 255 }
   end
 end
 
@@ -84,7 +90,8 @@ describe HexaPDF::Content::ColorSpace::DeviceCMYK do
     @color_space_family = :DeviceCMYK
     @color = @color_space.default_color
     @other_color = @color_space.color(128, 0, 0, 128)
-    @components = [0.1, 0.2, 0.3, 0.4]
+    @colors = [0, 20, 40, 80]
+    @components = [0.0, 0.2, 0.4, 0.8]
   end
 end
 
@@ -96,6 +103,7 @@ describe HexaPDF::Content::ColorSpace::DeviceGray do
     @color_space_family = :DeviceGray
     @color = @color_space.default_color
     @other_color = @color_space.color(128)
-    @components = [0.1]
+    @colors = [128]
+    @components = [128.0 / 255]
   end
 end

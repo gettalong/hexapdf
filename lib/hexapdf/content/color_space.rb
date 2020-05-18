@@ -106,6 +106,7 @@ module HexaPDF
           value.clamp(0, 1)
         end
         private :normalize_value
+        module_function :normalize_value
 
         # Compares this color to another one by looking at their associated color spaces and their
         # components.
@@ -189,9 +190,15 @@ module HexaPDF
           Color.new(0.0, 0.0, 0.0)
         end
 
-        # Returns the color object for the given red, green and blue components.
+        # Returns the color object for the red, green and blue components.
+        #
+        # Color values can either be integers in the range from 0 to 255 or floating point numbers
+        # between 0.0 and 1.0. The integer color values are automatically normalized to the
+        # DeviceRGB color value range of 0.0 to 1.0.
         def color(r, g, b)
-          Color.new(r, g, b)
+          Color.new(ColorUtils.normalize_value(r, 255),
+                    ColorUtils.normalize_value(g, 255),
+                    ColorUtils.normalize_value(b, 255))
         end
 
         # Returns +:DeviceRGB+.
@@ -201,10 +208,6 @@ module HexaPDF
 
         # A color in the DeviceRGB color space.
         #
-        # Color values can either be integers in the range from 0 to 255 or floating point numbers
-        # between 0.0 and 1.0. The integer color values are automatically normalized to the
-        # DeviceRGB color value range of 0.0 to 1.0.
-        #
         # See: PDF1.7 s8.6.4.3
         class Color
 
@@ -212,12 +215,11 @@ module HexaPDF
 
           # Initializes the color with the +r+ (red), +g+ (green) and +b+ (blue) components.
           #
-          # Each argument has to be either an integer between 0 and 255 or a float between 0.0 and
-          # 1.0.
+          # Each argument has to be a float between 0.0 and 1.0.
           def initialize(r, g, b)
-            @r = normalize_value(r, 255)
-            @g = normalize_value(g, 255)
-            @b = normalize_value(b, 255)
+            @r = r
+            @g = g
+            @b = b
           end
 
           # Returns the DeviceRGB color space module.
@@ -251,8 +253,13 @@ module HexaPDF
         end
 
         # Returns the color object for the given cyan, magenta, yellow and black components.
+        #
+        # Color values can either be integers in the range from 0 to 100 or floating point numbers
+        # between 0.0 and 1.0. The integer color values are automatically normalized to the
+        # DeviceCMYK color value range of 0.0 to 1.0.
         def color(c, m, y, k)
-          Color.new(c, m, y, k)
+          Color.new(ColorUtils.normalize_value(c, 100), ColorUtils.normalize_value(m, 100),
+                    ColorUtils.normalize_value(y, 100), ColorUtils.normalize_value(k, 100))
         end
 
         # Returns +:DeviceCMYK+.
@@ -262,10 +269,6 @@ module HexaPDF
 
         # A color in the DeviceCMYK color space.
         #
-        # Color values can either be integers in the range from 0 to 100 or floating point numbers
-        # between 0.0 and 1.0. The integer color values are automatically normalized to the
-        # DeviceCMYK color value range of 0.0 to 1.0.
-        #
         # See: PDF1.7 s8.6.4.4
         class Color
 
@@ -274,13 +277,12 @@ module HexaPDF
           # Initializes the color with the +c+ (cyan), +m+ (magenta), +y+ (yellow) and +k+ (black)
           # components.
           #
-          # Each argument has to be either an integer between 0 and 100 or a float between 0.0 and
-          # 1.0.
+          # Each argument has to be a float between 0.0 and 1.0.
           def initialize(c, m, y, k)
-            @c = normalize_value(c, 100)
-            @m = normalize_value(m, 100)
-            @y = normalize_value(y, 100)
-            @k = normalize_value(k, 100)
+            @c = c
+            @m = m
+            @y = y
+            @k = k
           end
 
           # Returns the DeviceCMYK color space module.
@@ -314,8 +316,12 @@ module HexaPDF
         end
 
         # Returns the color object for the given gray component.
+        #
+        # Color values can either be integers in the range from 0 to 255 or floating point numbers
+        # between 0.0 and 1.0. The integer color values are automatically normalized to the
+        # DeviceGray color value range of 0.0 to 1.0.
         def color(gray)
-          Color.new(gray)
+          Color.new(ColorUtils.normalize_value(gray, 255))
         end
 
         # Returns +:DeviceGray+.
@@ -325,10 +331,6 @@ module HexaPDF
 
         # A color in the DeviceGray color space.
         #
-        # Color values can either be integers in the range from 0 to 255 or floating point numbers
-        # between 0.0 and 1.0. The integer color values are automatically normalized to the
-        # DeviceGray color value range of 0.0 to 1.0.
-        #
         # See: PDF1.7 s8.6.4.2
         class Color
 
@@ -336,10 +338,9 @@ module HexaPDF
 
           # Initializes the color with the +gray+ component.
           #
-          # The argument +gray+ has to be either an integer between 0 and 255 or a float between
-          # 0.0 and 1.0.
+          # The argument +gray+ has to be a float between 0.0 and 1.0.
           def initialize(gray)
-            @gray = normalize_value(gray, 255)
+            @gray = gray
           end
 
           # Returns the DeviceGray color space module.
