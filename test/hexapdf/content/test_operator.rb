@@ -254,89 +254,89 @@ end
 
 describe_operator :SetStrokingColor, :SC do
   it "sets the stroking color" do
-    invoke(128)
-    assert_equal(@processor.resources.color_space(:DeviceGray).color(128),
+    invoke(0.2)
+    assert_equal(@processor.resources.color_space(:DeviceGray).color(51),
                  @processor.graphics_state.stroke_color)
   end
 
   it "serializes correctly" do
-    assert_serialized(128, 129, 130)
+    assert_serialized(0.2, 0.5, 0.8)
   end
 end
 
 describe_operator :SetNonStrokingColor, :sc do
   it "sets the non stroking color" do
-    invoke(128)
-    assert_equal(@processor.resources.color_space(:DeviceGray).color(128),
+    invoke(0.2)
+    assert_equal(@processor.resources.color_space(:DeviceGray).color(51),
                  @processor.graphics_state.fill_color)
   end
 
   it "serializes correctly" do
-    assert_serialized(128, 129, 130)
+    assert_serialized(0.2, 0.5, 0.8)
   end
 end
 
 describe_operator :SetDeviceGrayStrokingColor, :G do
   it "sets the DeviceGray stroking color" do
-    invoke(128)
-    assert_equal(@processor.resources.color_space(:DeviceGray).color(128),
+    invoke(0.2)
+    assert_equal(@processor.resources.color_space(:DeviceGray).color(51),
                  @processor.graphics_state.stroke_color)
   end
 end
 
 describe_operator :SetDeviceGrayNonStrokingColor, :g do
   it "sets the DeviceGray non stroking color" do
-    invoke(128)
-    assert_equal(@processor.resources.color_space(:DeviceGray).color(128),
+    invoke(0.2)
+    assert_equal(@processor.resources.color_space(:DeviceGray).color(51),
                  @processor.graphics_state.fill_color)
   end
 end
 
 describe_operator :SetDeviceRGBStrokingColor, :RG do
   it "sets the DeviceRGB stroking color" do
-    invoke(128, 0, 128)
-    assert_equal(@processor.resources.color_space(:DeviceRGB).color(128, 0, 128),
+    invoke(0.2, 0, 0.2)
+    assert_equal(@processor.resources.color_space(:DeviceRGB).color(51, 0, 51),
                  @processor.graphics_state.stroke_color)
   end
 
   it "serializes correctly" do
-    assert_serialized(128, 129, 130)
+    assert_serialized(0.2, 0.3, 0.4)
   end
 end
 
 describe_operator :SetDeviceRGBNonStrokingColor, :rg do
   it "sets the DeviceRGB non stroking color" do
-    invoke(128, 0, 128)
-    assert_equal(@processor.resources.color_space(:DeviceRGB).color(128, 0, 128),
+    invoke(0.2, 0, 0.2)
+    assert_equal(@processor.resources.color_space(:DeviceRGB).color(51, 0, 51),
                  @processor.graphics_state.fill_color)
   end
 
   it "serializes correctly" do
-    assert_serialized(128, 129, 130)
+    assert_serialized(0.2, 0.3, 0.4)
   end
 end
 
 describe_operator :SetDeviceCMYKStrokingColor, :K do
   it "sets the DeviceCMYK stroking color" do
-    invoke(128, 0, 128, 128)
-    assert_equal(@processor.resources.color_space(:DeviceCMYK).color(128, 0, 128, 128),
+    invoke(0.51, 0, 0.51, 0.51)
+    assert_equal(@processor.resources.color_space(:DeviceCMYK).color(51, 0, 51, 51),
                  @processor.graphics_state.stroke_color)
   end
 
   it "serializes correctly" do
-    assert_serialized(128, 129, 130, 131)
+    assert_serialized(0.2, 0.3, 0.4, 0.5)
   end
 end
 
 describe_operator :SetDeviceCMYKNonStrokingColor, :k do
   it "sets the DeviceCMYK non stroking color" do
-    invoke(128, 0, 128, 128)
-    assert_equal(@processor.resources.color_space(:DeviceCMYK).color(128, 0, 128, 128),
+    invoke(0.51, 0, 0.51, 0.51)
+    assert_equal(@processor.resources.color_space(:DeviceCMYK).color(51, 0, 51, 51),
                  @processor.graphics_state.fill_color)
   end
 
   it "serializes correctly" do
-    assert_serialized(128, 129, 130, 131)
+    assert_serialized(0.2, 0.3, 0.4, 0.5)
   end
 end
 

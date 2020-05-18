@@ -18,6 +18,10 @@
 * All [HexaPDF::Content::ColorSpace] implementations to only normalize values
   when using the ::color method
 
+### Fixed
+
+* Wrong normalization of color values when invoking a color operator
+
 
 ## 0.11.9 - 2020-06-15
 

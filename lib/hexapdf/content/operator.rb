@@ -397,7 +397,7 @@ module HexaPDF
 
         def invoke(processor, *operands) #:nodoc:
           processor.graphics_state.stroke_color =
-            processor.graphics_state.stroke_color.color_space.color(*operands)
+            processor.graphics_state.stroke_color.color_space.prenormalized_color(*operands)
         end
 
       end
@@ -409,7 +409,7 @@ module HexaPDF
 
         def invoke(processor, *operands) #:nodoc:
           processor.graphics_state.fill_color =
-            processor.graphics_state.fill_color.color_space.color(*operands)
+            processor.graphics_state.fill_color.color_space.prenormalized_color(*operands)
         end
 
       end
@@ -425,7 +425,7 @@ module HexaPDF
 
         def invoke(processor, gray) #:nodoc:
           processor.graphics_state.stroke_color =
-            processor.resources.color_space(:DeviceGray).color(gray)
+            processor.resources.color_space(:DeviceGray).prenormalized_color(gray)
         end
 
       end
@@ -442,7 +442,7 @@ module HexaPDF
 
         def invoke(processor, gray) #:nodoc:
           processor.graphics_state.fill_color =
-            processor.resources.color_space(:DeviceGray).color(gray)
+            processor.resources.color_space(:DeviceGray).prenormalized_color(gray)
         end
 
       end
@@ -459,7 +459,7 @@ module HexaPDF
 
         def invoke(processor, r, g, b) #:nodoc:
           processor.graphics_state.stroke_color =
-            processor.resources.color_space(:DeviceRGB).color(r, g, b)
+            processor.resources.color_space(:DeviceRGB).prenormalized_color(r, g, b)
         end
 
         def serialize(serializer, r, g, b) #:nodoc:
@@ -481,7 +481,7 @@ module HexaPDF
 
         def invoke(processor, r, g, b) #:nodoc:
           processor.graphics_state.fill_color =
-            processor.resources.color_space(:DeviceRGB).color(r, g, b)
+            processor.resources.color_space(:DeviceRGB).prenormalized_color(r, g, b)
         end
 
         def serialize(serializer, r, g, b) #:nodoc:
@@ -503,7 +503,7 @@ module HexaPDF
 
         def invoke(processor, c, m, y, k) #:nodoc:
           processor.graphics_state.stroke_color =
-            processor.resources.color_space(:DeviceCMYK).color(c, m, y, k)
+            processor.resources.color_space(:DeviceCMYK).prenormalized_color(c, m, y, k)
         end
 
         def serialize(serializer, c, m, y, k) #:nodoc:
@@ -525,7 +525,7 @@ module HexaPDF
 
         def invoke(processor, c, m, y, k) #:nodoc:
           processor.graphics_state.fill_color =
-            processor.resources.color_space(:DeviceCMYK).color(c, m, y, k)
+            processor.resources.color_space(:DeviceCMYK).prenormalized_color(c, m, y, k)
         end
 
         def serialize(serializer, c, m, y, k) #:nodoc:
