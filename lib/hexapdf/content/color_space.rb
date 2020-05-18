@@ -138,6 +138,7 @@ module HexaPDF
         def color(*args)
           Color.new(self, *args)
         end
+        alias prenormalized_color color
 
         # Returns the PDF color space family this color space belongs to.
         def family
@@ -201,6 +202,14 @@ module HexaPDF
                     ColorUtils.normalize_value(b, 255))
         end
 
+        # Returns the color object for the red, green and blue components without applying value
+        # normalization.
+        #
+        # See: #color
+        def prenormalized_color(r, g, b)
+          Color.new(r, g, b)
+        end
+
         # Returns +:DeviceRGB+.
         def family
           :DeviceRGB
@@ -260,6 +269,14 @@ module HexaPDF
         def color(c, m, y, k)
           Color.new(ColorUtils.normalize_value(c, 100), ColorUtils.normalize_value(m, 100),
                     ColorUtils.normalize_value(y, 100), ColorUtils.normalize_value(k, 100))
+        end
+
+        # Returns the color object for the cyan, magenta, yellow and black components without
+        # applying value normalization.
+        #
+        # See: #color
+        def prenormalized_color(c, m, y, k)
+          Color.new(c, m, y, k)
         end
 
         # Returns +:DeviceCMYK+.
@@ -322,6 +339,13 @@ module HexaPDF
         # DeviceGray color value range of 0.0 to 1.0.
         def color(gray)
           Color.new(ColorUtils.normalize_value(gray, 255))
+        end
+
+        # Returns the color object for the gray component without applying value normalization.
+        #
+        # See: #color
+        def prenormalized_color(gray)
+          Color.new(gray)
         end
 
         # Returns +:DeviceGray+.

@@ -11,6 +11,7 @@
   convenience methods
 * [HexaPDF::Rectangle] methods for setting the left, top, right, bottom, width
   and height
+* Method #prenormalized_color to all color space implementations
 
 ### Changed
 

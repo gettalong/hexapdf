@@ -48,6 +48,11 @@ module CommonColorSpaceTests
     assert_equal(@components, @color_space.color(*@colors).components)
   end
 
+  it "doesn't normalize the colors when using the #prenormalized_color method" do
+    return unless defined?(@colors)
+    assert_equal(@colors, @color_space.prenormalized_color(*@colors).components)
+  end
+
 end
 
 describe HexaPDF::Content::ColorSpace::Universal do
