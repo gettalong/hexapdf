@@ -103,7 +103,7 @@ module HexaPDF
         # * If the color value is less than 0.0, it is set to 0.0.
         def normalize_value(value, upper)
           value = value.to_f / upper if value.kind_of?(Integer)
-          (value < 0 ? 0.0 : (value > 1 ? 1.0 : value))
+          value.clamp(0, 1)
         end
         private :normalize_value
 
