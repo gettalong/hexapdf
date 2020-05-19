@@ -21,6 +21,7 @@
 ### Fixed
 
 * Wrong normalization of color values when invoking a color operator
+* Invalid type of `/DR` field of [HexaPDF::Type::AcroForm::Form]
 
 
 ## 0.11.9 - 2020-06-15
