@@ -81,5 +81,19 @@ describe HexaPDF::Content::Parser do
       end
       assert_match(/EI not found/, exp.message)
     end
+
+    it "can use a block instead of the processor object" do
+      called = 0
+      @parser.parse("/F1 5 Tf") do |obj, params|
+        called += 1
+        assert_equal(:Tf, obj)
+        assert_equal([:F1, 5], params)
+      end
+      assert_equal(1, called)
+    end
+
+    it "fails if neither a processor object or a block is provided" do
+      assert_raises(ArgumentError) { @parser.parse("test") }
+    end
   end
 end

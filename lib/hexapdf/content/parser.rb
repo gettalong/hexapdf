@@ -162,12 +162,22 @@ module HexaPDF
     class Parser
 
       # Creates a new Parser object and calls #parse.
-      def self.parse(contents, processor)
-        new.parse(contents, processor)
+      def self.parse(contents, processor = nil, &block)
+        new.parse(contents, processor, &block)
       end
 
-      # Parses the contents and calls the processor object for each parsed operator.
-      def parse(contents, processor)
+      # Parses the contents and calls the processor object or the given block for each parsed
+      # operator.
+      #
+      # If a full-blown Processor is not needed (e.g. because the graphics state doesn't need to be
+      # maintained), one can use the block form to handle the parsed objects and their parameters.
+      def parse(contents, processor = nil, &block) #:yields: object, params
+        raise ArgumentError, "Argument processor or block is needed" if processor.nil? && block.nil?
+        if processor.nil?
+          block.singleton_class.alias_method(:process, :call)
+          processor = block
+        end
+
         tokenizer = Tokenizer.new(contents, raise_on_eos: true)
         params = []
         loop do

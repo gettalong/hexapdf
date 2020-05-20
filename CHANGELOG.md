@@ -17,6 +17,8 @@
 
 * All [HexaPDF::Content::ColorSpace] implementations to only normalize values
   when using the ::color method
+* [HexaPDF::Content::Parser#parse] to also accept a block in place of a
+  processor object
 
 ### Fixed
 
