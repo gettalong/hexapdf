@@ -31,11 +31,11 @@ describe HexaPDF::Layout::TextBox do
     end
 
     it "respects the set width and height" do
-      box = create_box([@inline_box] * 5, width: 40, height: 50, style: {padding: 10})
+      box = create_box([@inline_box], width: 40, height: 50, style: {padding: 10})
       assert(box.fit(100, 100, @frame))
       assert_equal(40, box.width)
       assert_equal(50, box.height)
-      assert_equal([20, 20, 10], box.instance_variable_get(:@result).lines.map(&:width))
+      assert_equal([10], box.instance_variable_get(:@result).lines.map(&:width))
     end
 
     it "fits into the frame's outline" do
@@ -51,6 +51,16 @@ describe HexaPDF::Layout::TextBox do
       assert(box.fit(100, 100, @frame))
       assert_equal(50, box.width)
       assert_equal(20, box.height)
+    end
+
+    it "can't fit the text box if the set width is bigger than the available width" do
+      box = create_box([@inline_box], width: 101)
+      refute(box.fit(100, 100, @frame))
+    end
+
+    it "can't fit the text box if the set height is bigger than the available height" do
+      box = create_box([@inline_box], height: 101)
+      refute(box.fit(100, 100, @frame))
     end
   end
 
@@ -68,6 +78,14 @@ describe HexaPDF::Layout::TextBox do
     it "works if no item of the text box fits" do
       box = create_box([@inline_box])
       assert_equal([nil, box], box.split(5, 20, @frame))
+    end
+
+    it "works if the whole text box doesn't fits" do
+      box = create_box([@inline_box], width: 102)
+      assert_equal([nil, box], box.split(100, 100, @frame))
+
+      box = create_box([@inline_box], height: 102)
+      assert_equal([nil, box], box.split(100, 100, @frame))
     end
 
     it "splits the box if necessary" do

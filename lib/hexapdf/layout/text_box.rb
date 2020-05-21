@@ -64,6 +64,9 @@ module HexaPDF
       #
       # Also see TextLayouter#style for other style properties taken into account.
       def fit(available_width, available_height, frame)
+        return false if (@initial_width > 0 && @initial_width > available_width) ||
+          (@initial_height > 0 && @initial_height > available_height)
+
         @width = @height = 0
         @result = if style.position == :flow
                     @tl.fit(@items, frame.width_specification, frame.contour_line.bbox.height)
@@ -74,8 +77,8 @@ module HexaPDF
                     height = (@initial_height > 0 ? @initial_height : available_height) - @height
                     @tl.fit(@items, width, height)
                   end
-        @width += @result.lines.max_by(&:width)&.width || 0
-        @height += @result.height
+        @width += (@initial_width > 0 ? width : @result.lines.max_by(&:width)&.width || 0)
+        @height += (@initial_height > 0 ? height : @result.height)
         if style.last_line_gap && @result.lines.last
           @height += style.line_spacing.gap(@result.lines.last, @result.lines.last)
         end
@@ -86,7 +89,9 @@ module HexaPDF
       # Splits the text box into two boxes if necessary and possible.
       def split(available_width, available_height, frame)
         fit(available_width, available_height, frame) unless @result
-        if @result.remaining_items.empty?
+        if @width > available_width || @height > available_height
+          [nil, self]
+        elsif @result.remaining_items.empty?
           [self]
         elsif @result.lines.empty?
           [nil, self]

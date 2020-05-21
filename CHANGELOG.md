@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Layout::TextBox] to respect the set width and height when fitting
+  and splitting the box
+
+
 ## 0.11.5 - 2020-01-27
 
 ### Changed
