@@ -45,7 +45,16 @@ module HexaPDF
       # Represents the PDF's interactive form dictionary. It is linked from the catalog dictionary
       # via the /AcroForm entry.
       #
-      # See: PDF1.7 s12.7.2
+      # An interactive form consists of fields which can be structured hierarchically and shown on
+      # pages by using Widget annotations. This means one field can have zero, one or more visual
+      # representations on one or more pages. The fields at the bottom of the hierarchy which have
+      # no parent are called "root fields" and are stored in /Fields.
+      #
+      # Each field in a form has a certain type which determines how it should be displayed and what
+      # a user can do with it. The most common type is "text field" which allows the user to enter
+      # one or more lines of text.
+      #
+      # See: PDF1.7 s12.7.2, Field, HexaPDF::Type::Annotations::Widget
       class Form < Dictionary
 
         extend Utils::BitField
@@ -62,6 +71,11 @@ module HexaPDF
 
         bit_field(:raw_signature_flags, {signatures_exist: 0, append_only: 1},
                   lister: "signature_flags", getter: "signature_flag?", setter: "signature_flag")
+
+        # Returns the PDFArray containing the root fields.
+        def root_fields
+          self[:Fields] ||= document.wrap([])
+        end
 
         # Returns an array with all root fields that were found in the PDF document.
         def find_root_fields
@@ -101,8 +115,35 @@ module HexaPDF
             field[:Kids].each(&process_field) unless field.terminal_field?
           end
 
-          self[:Fields]&.each(&process_field)
+          root_fields.each(&process_field)
           self
+        end
+
+        # Returns the field with the given +name+ or +nil+ if no such field exists.
+        def field_by_name(name)
+          fields = root_fields
+          field = nil
+          name.split('.').each do |part|
+            field = fields&.find {|f| f[:T] == part }
+            break unless field
+            field = document.wrap(field, type: :XXAcroFormField)
+            fields = field[:Kids] unless field.terminal_field?
+          end
+          field
+        end
+
+        # Returns the dictionary containing the default resources for form field appearance streams.
+        def default_resources
+          self[:DR] ||= document.wrap({}, type: :XXResources)
+        end
+
+        # Sets the global default appearance string to a sane default value if it doesn't already
+        # have a value.
+        def set_default_appearance_string
+          unless self[:DA]
+            name = default_resources.add_font(document.fonts.add("Helvetica").dict)
+            self[:DA] = "0 g /#{name} 0 Tf"
+          end
         end
 
         private
@@ -115,6 +156,23 @@ module HexaPDF
         # Helper method for bit field setter access.
         def raw_signature_flags=(value)
           self[:SigFlags] = value
+        end
+
+        def perform_validation # :nodoc:
+          if (da = self[:DA])
+            unless self[:DR]
+              yield("When the field /DA is present, the field /DR must also be present")
+            end
+            font_name = nil
+            HexaPDF::Content::Parser.parse(da) do |obj, params|
+              font_name = params[0] if obj == :Tf
+            end
+            if font_name && !(self[:DR][:Font] && self[:DR][:Font][font_name])
+              yield("The font specified in /DA is not in the /DR resource dictionary")
+            end
+          else
+            set_default_appearance_string
+          end
         end
 
       end
