@@ -26,8 +26,8 @@ describe HexaPDF::Type::AcroForm::Field do
 
   it "has convenience methods for accessing the field flags" do
     assert_equal([], @field.flags)
-    refute(@field.flagged?(:Required))
-    @field.flag(:Required, 2)
+    refute(@field.flagged?(:required))
+    @field.flag(:required, 2)
     assert(@field.flagged?(2))
     assert_equal(6, @field[:Ff])
   end

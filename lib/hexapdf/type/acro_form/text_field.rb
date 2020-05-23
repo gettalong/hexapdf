@@ -56,13 +56,13 @@ module HexaPDF
         # Updated list of field flags.
         FLAGS_BIT_MAPPING = superclass::FLAGS_BIT_MAPPING.merge(
           {
-            Multiline: 13,
-            Password: 14,
-            FileSelect: 21,
-            DoNotSpellCheck: 23,
-            DoNotScroll: 24,
-            Comb: 25,
-            RichText: 26,
+            multiline: 13,
+            password: 14,
+            file_select: 21,
+            do_not_spell_check: 23,
+            do_not_scroll: 24,
+            comb: 25,
+            rich_text: 26,
           }
         ).freeze
 

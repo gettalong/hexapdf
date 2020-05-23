@@ -100,7 +100,7 @@ module HexaPDF
         # Sets the given flags, given as flag names or bit indices. If +clear_existing+ is +true+,
         # all prior flags will be cleared.
         #
-        bit_field(:flags, {ReadOnly: 0, Required: 1, NoExport: 2},
+        bit_field(:flags, {read_only: 0, required: 1, no_export: 2},
                   lister: "flags", getter: "flagged?", setter: "flag",
                   value_getter: "self[:Ff]", value_setter: "self[:Ff]")
 
