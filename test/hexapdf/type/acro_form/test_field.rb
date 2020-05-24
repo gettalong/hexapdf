@@ -39,6 +39,12 @@ describe HexaPDF::Type::AcroForm::Field do
     assert_equal(:Tx, @field.field_type)
   end
 
+  it "returns the field name" do
+    assert_nil(@field.field_name)
+    @field[:T] = 'test'
+    assert_equal('test', @field.field_name)
+  end
+
   it "returns the full name of the field" do
     assert_nil(@field.full_name)
 

@@ -133,6 +133,11 @@ module HexaPDF
           self[:FT]
         end
 
+        # Returns the name of the field or +nil+ if no name is set.
+        def field_name
+          self[:T]
+        end
+
         # Returns the full name of the field or +nil+ if no name is set.
         #
         # The full name of a field is constructed using the full name of the parent field, a period
