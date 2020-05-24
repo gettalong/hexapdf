@@ -36,6 +36,8 @@
 
 require 'hexapdf/dictionary'
 require 'hexapdf/stream'
+require 'hexapdf/error'
+require 'hexapdf/content/parser'
 
 module HexaPDF
   module Type
@@ -56,6 +58,24 @@ module HexaPDF
 
         # All inheritable dictionary fields for text fields.
         INHERITABLE_FIELDS = (superclass::INHERITABLE_FIELDS + [:DA, :Q]).freeze
+
+        # Parses the default appearance string and returns an array containing [font_name,
+        # font_size].
+        #
+        # The default appearance string is taken from the field or, if not set, the default
+        # appearance string of the form.
+        def parse_default_appearance_string
+          da = self[:DA] || (document.acro_form && document.acro_form[:DA])
+          unless da
+            raise HexaPDF::Error, "No default appearance string set"
+          end
+
+          font_params = nil
+          HexaPDF::Content::Parser.parse(da) do |obj, params|
+            font_params = params.dup if obj == :Tf
+          end
+          font_params
+        end
 
       end
 
