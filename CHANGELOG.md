@@ -21,6 +21,8 @@
   when using the ::color method
 * [HexaPDF::Content::Parser#parse] to also accept a block in place of a
   processor object
+* HexaPDF::Type::AcroForm::Field#full_name to
+  [HexaPDF::Type::AcroForm::Field#full_field_name]
 
 ### Fixed
 

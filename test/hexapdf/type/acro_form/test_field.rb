@@ -46,16 +46,16 @@ describe HexaPDF::Type::AcroForm::Field do
   end
 
   it "returns the full name of the field" do
-    assert_nil(@field.full_name)
+    assert_nil(@field.full_field_name)
 
     @field[:T] = "Test"
-    assert_equal("Test", @field.full_name)
+    assert_equal("Test", @field.full_field_name)
 
     @field[:Parent] = {}
-    assert_equal("Test", @field.full_name)
+    assert_equal("Test", @field.full_field_name)
 
     @field[:Parent] = {T: 'Parent'}
-    assert_equal("Parent.Test", @field.full_name)
+    assert_equal("Parent.Test", @field.full_field_name)
   end
 
   it "returns whether the field is a terminal field" do

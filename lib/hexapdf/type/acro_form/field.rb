@@ -141,12 +141,12 @@ module HexaPDF
         # Returns the full name of the field or +nil+ if no name is set.
         #
         # The full name of a field is constructed using the full name of the parent field, a period
-        # and the partial name of the field.
-        def full_name
+        # and the field name of the field.
+        def full_field_name
           if key?(:Parent)
-            [self[:Parent].full_name, self[:T]].compact.join('.')
+            [self[:Parent].full_field_name, field_name].compact.join('.')
           else
-            self[:T]
+            field_name
           end
         end
 
