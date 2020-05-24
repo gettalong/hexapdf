@@ -171,6 +171,9 @@ module HexaPDF
       #
       # If a full-blown Processor is not needed (e.g. because the graphics state doesn't need to be
       # maintained), one can use the block form to handle the parsed objects and their parameters.
+      #
+      # Note: The parameters array is reused for each processed operator, so duplicate it if
+      # necessary.
       def parse(contents, processor = nil, &block) #:yields: object, params
         raise ArgumentError, "Argument processor or block is needed" if processor.nil? && block.nil?
         if processor.nil?
