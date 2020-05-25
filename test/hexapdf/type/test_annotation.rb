@@ -33,6 +33,11 @@ describe HexaPDF::Type::Annotation do
     @annot = @doc.add({Type: :Annot, F: 0b100011})
   end
 
+  it "must always be indirect" do
+    @annot.must_be_indirect = false
+    assert(@annot.must_be_indirect?)
+  end
+
   describe "flags" do
     it "returns all flags" do
       assert_equal([:invisible, :hidden, :no_view], @annot.flags)

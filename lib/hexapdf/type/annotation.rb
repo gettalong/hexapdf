@@ -104,6 +104,11 @@ module HexaPDF
                              locked_contents: 9},
                 lister: "flags", getter: "flagged?", setter: "flag")
 
+      # Returns +true+ because annotation objects must always be indirect objects.
+      def must_be_indirect?
+        true
+      end
+
       private
 
       # Helper method for bit field getter access.

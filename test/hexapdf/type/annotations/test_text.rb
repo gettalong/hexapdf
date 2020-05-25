@@ -8,7 +8,7 @@ describe HexaPDF::Type::Annotations::Text do
   before do
     @doc = HexaPDF::Document.new
     @doc.version = '1.5'
-    @annot = HexaPDF::Type::Annotations::Text.new({Rect: [0, 0, 1, 1]}, document: @doc)
+    @annot = HexaPDF::Type::Annotations::Text.new({Rect: [0, 0, 1, 1]}, document: @doc, oid: 1)
   end
 
   describe "validation" do
