@@ -153,7 +153,7 @@ module HexaPDF
         # Returns +true+ if this is a terminal field.
         def terminal_field?
           kids = self[:Kids]
-          kids.nil? || kids.empty? || kids.any? {|kid| kid[:Subtype] == :Widget }
+          kids.nil? || kids.empty? || kids.all? {|kid| kid[:Subtype] == :Widget }
         end
 
         private
