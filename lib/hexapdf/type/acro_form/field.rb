@@ -35,7 +35,9 @@
 #++
 
 require 'hexapdf/dictionary'
+require 'hexapdf/error'
 require 'hexapdf/utils/bit_field'
+require 'hexapdf/type/annotations'
 
 module HexaPDF
   module Type
@@ -156,7 +158,77 @@ module HexaPDF
           kids.nil? || kids.empty? || kids.all? {|kid| kid[:Subtype] == :Widget }
         end
 
+        # :call-seq:
+        #   field.each_widget {|widget| block}    -> field
+        #   field.each_widget                     -> Enumerator
+        #
+        # Yields each widget, i.e. visual representation, of this field.
+        #
+        # See: HexaPDF::Type::Annotations::Widget
+        def each_widget # :yields: widget
+          return to_enum(__method__) unless block_given?
+          if self[:Subtype]
+            yield(document.wrap(self))
+          elsif terminal_field?
+            self[:Kids].each {|kid| yield(document.wrap(kid)) }
+          end
+          self
+        end
+
+        # Creates a new widget annotation for this form field on the given +page+, adding the
+        # +values+ to the created widget annotation oject.
+        #
+        # Widgets can only be added to terminal fields!
+        #
+        # If the field already has an embedded widget, i.e. field and widget are the same PDF
+        # object, its widget data is extracted to a new PDF object and stored in the /Kids field,
+        # together with the new widget annotation. Note that this means that a possible reference to
+        # the formerly embedded widget (=this field) is not valid anymore!
+        #
+        # See: HexaPDF::Type::Annotations::Widget
+        def create_widget(page, **values)
+          unless terminal_field?
+            raise HexaPDF::Error, "Widgets can only be added to terminal fields"
+          end
+
+          widget_data = {Type: :Annot, Subtype: :Widget, Rect: [0, 0, 0, 0], **values}
+
+          if key?(:Subtype) || (key?(:Kids) && !self[:Kids].empty?)
+            kids = self[:Kids] ||= []
+            kids << extract_widget if key?(:Subtype)
+            widget = document.add(widget_data)
+            widget[:Parent] = self
+            self[:Kids] << widget
+          else
+            value.update(widget_data)
+            widget = document.wrap(self)
+          end
+
+          (page[:Annots] ||= []) << widget
+
+          widget
+        end
+
         private
+
+        # An array of all widget annotation field names.
+        WIDGET_FIELDS = HexaPDF::Type::Annotations::Widget.each_field.map(&:first) - [:Parent]
+
+        # Returns a new dictionary object with all the widget annotation data that is stored
+        # directly in the field and adjust the references accordingly. If the field doesn't have any
+        # widget data, +nil+ is returned.
+        def extract_widget
+          return unless key?(:Subtype)
+          data = WIDGET_FIELDS.each_with_object({}) {|key, hash| hash[key] = delete(key) }
+          widget = document.add(data, type: :Annot)
+          document.pages.each do |page|
+            if page.key?(:Annots) && (index = page[:Annots].index {|annot| annot.data == self.data })
+              page[:Annots][index] = widget
+              break # Each annotation dictionary may only appear on one page, see PDF1.7 12.5.2
+            end
+          end
+          widget
+        end
 
         def perform_validation #:nodoc:
           super
