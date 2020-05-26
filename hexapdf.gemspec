@@ -1,17 +1,16 @@
-require 'rake'
 require_relative 'lib/hexapdf/version'
 
-PKG_FILES = FileList.new([
-                           'bin/*',
-                           'lib/**/*.rb',
-                           'data/**/*',
-                         ])
+PKG_FILES = Dir.glob([
+                       'bin/*',
+                       'lib/**/*.rb',
+                       'data/**/*',
+                     ])
 description = 'HexaPDF local development version only'
 
 if ENV['REAL_GEM']
-  PKG_FILES.include('Rakefile', 'LICENSE', 'agpl-3.0.txt', 'README.md', 'CHANGELOG.md',
-                    'VERSION', 'CONTRIBUTERS', 'man/man1/hexapdf.1',
-                    'examples/*', 'test/**/*')
+  PKG_FILES.concat(Dir.glob(['Rakefile', 'LICENSE', 'agpl-3.0.txt', 'README.md', 'CHANGELOG.md',
+                             'VERSION', 'CONTRIBUTERS', 'man/man1/hexapdf.1',
+                             'examples/*', 'test/**/*']))
   description = <<~DESC
     HexaPDF is a pure Ruby library with an accompanying application for working with PDF
     files.
@@ -33,7 +32,7 @@ Gem::Specification.new do |s|
   s.description = description
   s.license = 'AGPL-3.0'
 
-  s.files = PKG_FILES.to_a
+  s.files = PKG_FILES
 
   s.require_path = 'lib'
   s.executables = ['hexapdf']
