@@ -72,8 +72,8 @@ module HexaPDF
         define_field :TU,     type: String, version: '1.3'
         define_field :TM,     type: String, version: '1.3'
         define_field :Ff,     type: Integer, default: 0
-        define_field :V,      type: [Symbol, String, Stream, PDFArray, Dictionary]
-        define_field :DV,     type: [Symbol, String, Stream, PDFArray, Dictionary]
+        define_field :V,      type: [Dictionary, Symbol, String, Stream, PDFArray]
+        define_field :DV,     type: [Dictionary, Symbol, String, Stream, PDFArray]
         define_field :AA,     type: Dictionary, version: '1.2'
 
         # The inheritable dictionary fields common to all AcroForm field types.

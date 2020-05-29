@@ -28,6 +28,8 @@
 
 * Wrong normalization of color values when invoking a color operator
 * Invalid type of `/DR` field of [HexaPDF::Type::AcroForm::Form]
+* Invalid ordering of types for the `/V` and `/DV` fields of
+  [HexaPDF::Type::AcroForm::Field]
 
 
 ## 0.11.9 - 2020-06-15
