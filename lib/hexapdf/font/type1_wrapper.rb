@@ -104,19 +104,21 @@ module HexaPDF
       # Returns the wrapped Type1 font object.
       attr_reader :wrapped_font
 
-      # The PDF font dictionary representing the wrapped font.
-      attr_reader :dict
+      # Returns the PDF object associated with the wrapper.
+      attr_reader :pdf_object
 
-      # Creates a new object wrapping the Type1 font for the PDF document.
+      # Creates a new Type1Wrapper object wrapping the Type1 font.
+      #
+      # The optional argument +pdf_object+ can be used to set the PDF font object that this wrapper
+      # should be associated with. If no object is set, a suitable one is automatically created.
       #
       # The optional argument +custom_encoding+ can be set to +true+ so that a custom encoding
       # instead of the WinAnsiEncoding is used.
-      def initialize(document, font, custom_encoding: false)
-        @document = document
+      def initialize(document, font, pdf_object: nil, custom_encoding: false)
         @wrapped_font = font
+        @pdf_object = pdf_object || create_pdf_object(document)
+        @missing_glyph_callable = document.config['font.on_missing_glyph']
 
-        @dict = build_font_dict
-        @document.register_listener(:complete_objects, &method(:complete_font_dict))
         if @wrapped_font.metrics.character_set == 'Special' || custom_encoding
           @encoding = Encoding::Base.new
           @encoding.code_to_name[32] = :space
@@ -150,7 +152,7 @@ module HexaPDF
             if @wrapped_font.metrics.character_metrics.key?(name)
               Glyph.new(@wrapped_font, name, str)
             else
-              @document.config['font.on_missing_glyph'].call(str, font_type, @wrapped_font)
+              @missing_glyph_callable.call(str, font_type, @wrapped_font)
             end
           end
       end
@@ -189,49 +191,46 @@ module HexaPDF
 
       private
 
-      # Builds a generic Type1 font dictionary for the wrapped font.
-      #
-      # Generic in the sense that no information regarding the encoding or widths is included.
-      def build_font_dict
-        unless defined?(@fd)
-          @fd = @document.wrap({Type: :FontDescriptor,
-                                FontName: @wrapped_font.font_name.intern,
-                                FontWeight: @wrapped_font.weight_class,
-                                FontBBox: @wrapped_font.bounding_box,
-                                ItalicAngle: @wrapped_font.italic_angle || 0,
-                                Ascent: @wrapped_font.ascender || 0,
-                                Descent: @wrapped_font.descender || 0,
-                                CapHeight: @wrapped_font.cap_height,
-                                XHeight: @wrapped_font.x_height,
-                                StemH: @wrapped_font.dominant_horizontal_stem_width,
-                                StemV: @wrapped_font.dominant_vertical_stem_width || 0})
-          @fd.flag(:fixed_pitch) if @wrapped_font.metrics.is_fixed_pitch
-          @fd.flag(@wrapped_font.metrics.character_set == 'Special' ? :symbolic : :nonsymbolic)
-          @fd.must_be_indirect = true
-        end
-
-        @document.wrap({Type: :Font, Subtype: :Type1,
-                        BaseFont: @wrapped_font.font_name.intern, Encoding: :WinAnsiEncoding,
-                        FontDescriptor: @fd})
-      end
-
       # Array of valid encoding names in PDF
       VALID_ENCODING_NAMES = [:WinAnsiEncoding, :MacRomanEncoding, :MacExpertEncoding].freeze
 
-      # Completes the font dictionary by filling in the values that depend on the used encoding.
-      def complete_font_dict
-        min, max = @encoding.code_to_name.keys.minmax
-        @dict[:FirstChar] = min
-        @dict[:LastChar] = max
-        @dict[:Widths] = (min..max).map {|code| glyph(@encoding.name(code)).width }
+      # Creates a PDF object representing the wrapped font for the given PDF document.
+      def create_pdf_object(document)
+        fd = document.wrap({Type: :FontDescriptor,
+                            FontName: @wrapped_font.font_name.intern,
+                            FontWeight: @wrapped_font.weight_class,
+                            FontBBox: @wrapped_font.bounding_box,
+                            ItalicAngle: @wrapped_font.italic_angle || 0,
+                            Ascent: @wrapped_font.ascender || 0,
+                            Descent: @wrapped_font.descender || 0,
+                            CapHeight: @wrapped_font.cap_height,
+                            XHeight: @wrapped_font.x_height,
+                            StemH: @wrapped_font.dominant_horizontal_stem_width,
+                            StemV: @wrapped_font.dominant_vertical_stem_width || 0})
+        fd.flag(:fixed_pitch) if @wrapped_font.metrics.is_fixed_pitch
+        fd.flag(@wrapped_font.metrics.character_set == 'Special' ? :symbolic : :nonsymbolic)
+        fd.must_be_indirect = true
 
-        if VALID_ENCODING_NAMES.include?(@encoding.encoding_name)
-          @dict[:Encoding] = @encoding.encoding_name
-        else
-          differences = [min]
-          (min..max).each {|code| differences << @encoding.name(code) }
-          @dict[:Encoding] = {Differences: differences}
+        dict = document.wrap({Type: :Font, Subtype: :Type1,
+                              BaseFont: @wrapped_font.font_name.intern, Encoding: :WinAnsiEncoding,
+                              FontDescriptor: fd})
+
+        document.register_listener(:complete_objects) do
+          min, max = @encoding.code_to_name.keys.minmax
+          dict[:FirstChar] = min
+          dict[:LastChar] = max
+          dict[:Widths] = (min..max).map {|code| glyph(@encoding.name(code)).width }
+
+          if VALID_ENCODING_NAMES.include?(@encoding.encoding_name)
+            dict[:Encoding] = @encoding.encoding_name
+          else
+            differences = [min]
+            (min..max).each {|code| differences << @encoding.name(code) }
+            dict[:Encoding] = {Differences: differences}
+          end
         end
+
+        dict
       end
 
     end

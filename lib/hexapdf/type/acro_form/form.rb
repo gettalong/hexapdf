@@ -141,7 +141,7 @@ module HexaPDF
         # have a value.
         def set_default_appearance_string
           unless self[:DA]
-            name = default_resources.add_font(document.fonts.add("Helvetica").dict)
+            name = default_resources.add_font(document.fonts.add('Helvetica').pdf_object)
             self[:DA] = "0 g /#{name} 0 Tf"
           end
         end

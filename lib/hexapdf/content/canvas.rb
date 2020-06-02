@@ -1607,13 +1607,13 @@ module HexaPDF
       # See: PDF1.7 s9.2.2
       def font(name = nil, size: nil, **options)
         if name
-          @font = (name.respond_to?(:dict) ? name : context.document.fonts.add(name, **options))
+          @font = (name.respond_to?(:pdf_object) ? name : context.document.fonts.add(name, **options))
           if size
             font_size(size)
           else
             size = font_size
             raise HexaPDF::Error, "No valid font size set" if size <= 0
-            invoke_font_operator(@font.dict, size)
+            invoke_font_operator(@font.pdf_object, size)
           end
           self
         else
@@ -1644,7 +1644,7 @@ module HexaPDF
           unless @font
             raise HexaPDF::Error, "A font needs to be set before the font size can be set"
           end
-          invoke_font_operator(@font.dict, size)
+          invoke_font_operator(@font.pdf_object, size)
           self
         else
           graphics_state.font_size

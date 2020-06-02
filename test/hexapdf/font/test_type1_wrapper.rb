@@ -58,7 +58,7 @@ describe HexaPDF::Font::Type1Wrapper do
         code = @times_wrapper.encode(@times_wrapper.glyph(:a))
         @doc.dispatch_message(:complete_objects)
         assert_equal("a", code)
-        assert_equal(:WinAnsiEncoding, @times_wrapper.dict[:Encoding])
+        assert_equal(:WinAnsiEncoding, @times_wrapper.pdf_object[:Encoding])
       end
 
       it "fails if an InvalidGlyph is encoded" do
@@ -75,7 +75,7 @@ describe HexaPDF::Font::Type1Wrapper do
         code = @symbol_wrapper.encode(@symbol_wrapper.glyph(:plus))
         @doc.dispatch_message(:complete_objects)
         assert_equal("\x21", code)
-        assert_equal({Differences: [32, :space, :plus]}, @symbol_wrapper.dict[:Encoding].value)
+        assert_equal({Differences: [32, :space, :plus]}, @symbol_wrapper.pdf_object[:Encoding].value)
       end
     end
   end

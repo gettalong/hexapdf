@@ -17,6 +17,8 @@
 
 ### Changed
 
+* Refactored [HexaPDF::Font::Type1Wrapper] and [HexaPDF::Font::TrueTypeWrapper]
+  and renamed `#dict` to `#pdf_object`
 * All [HexaPDF::Content::ColorSpace] implementations to only normalize values
   when using the ::color method
 * [HexaPDF::Content::Parser#parse] to also accept a block in place of a

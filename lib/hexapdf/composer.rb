@@ -297,7 +297,7 @@ module HexaPDF
       style ||= base_style
       style = style.dup.update(**options) unless options.empty?
       style.font(base_style.font) unless style.font?
-      style.font(@document.fonts.add(style.font)) unless style.font.respond_to?(:dict)
+      style.font(@document.fonts.add(style.font)) unless style.font.respond_to?(:pdf_object)
       style
     end
 

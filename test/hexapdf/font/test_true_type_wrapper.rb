@@ -94,7 +94,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
       @font_wrapper.encode(glyph)
       @doc.dispatch_message(:complete_objects)
 
-      dict = @font_wrapper.dict
+      dict = @font_wrapper.pdf_object
 
       # Checking Type 0 font dictionary
       assert_equal(:Font, dict[:Type])
@@ -129,7 +129,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
         @font[:'OS/2'].typo_ascender = 1000
         font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font)
         font_wrapper.encode(glyph)
-        fd = font_wrapper.dict[:DescendantFonts][0][:FontDescriptor]
+        fd = font_wrapper.pdf_object[:DescendantFonts][0][:FontDescriptor]
         assert_equal(800, fd[:CapHeight])
         assert_equal(500, fd[:XHeight])
       end
@@ -139,7 +139,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
       @font[:'OS/2'].cap_height = 1000 * @font[:head].units_per_em / 1000
       font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font)
       font_wrapper.encode(glyph)
-      fd = font_wrapper.dict[:DescendantFonts][0][:FontDescriptor]
+      fd = font_wrapper.pdf_object[:DescendantFonts][0][:FontDescriptor]
       assert_equal(1000, fd[:CapHeight])
       assert_equal(500, fd[:XHeight])
     end
@@ -151,7 +151,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
       @font_wrapper.encode(glyph)
       @doc.dispatch_message(:complete_objects)
 
-      dict = @font_wrapper.dict
+      dict = @font_wrapper.pdf_object
 
       assert_equal(HexaPDF::Font::CMap.create_to_unicode_cmap([[3, ' '.ord], [glyph.id, 'H'.ord]]),
                    dict[:ToUnicode].stream)
@@ -164,7 +164,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
       @font_wrapper.encode(@font_wrapper.glyph(10))
       @doc.dispatch_message(:complete_objects)
 
-      font_data = @font_wrapper.dict[:DescendantFonts][0][:FontDescriptor][:FontFile2].stream
+      font_data = @font_wrapper.pdf_object[:DescendantFonts][0][:FontDescriptor][:FontFile2].stream
       font = HexaPDF::Font::TrueType::Font.new(StringIO.new(font_data))
       assert_equal(@font[:glyf][0].raw_data, font[:glyf][0].raw_data)
       assert_equal(@font[:glyf][10].raw_data, font[:glyf][1].raw_data)
@@ -175,9 +175,9 @@ describe HexaPDF::Font::TrueTypeWrapper do
       @doc.dispatch_message(:complete_objects)
 
       assert_equal(File.size(@font_file),
-                   @font_wrapper.dict[:DescendantFonts][0][:FontDescriptor][:FontFile2][:Length1])
+                   @font_wrapper.pdf_object[:DescendantFonts][0][:FontDescriptor][:FontFile2][:Length1])
       assert_equal(File.binread(@font_file),
-                   @font_wrapper.dict[:DescendantFonts][0][:FontDescriptor][:FontFile2].stream)
+                   @font_wrapper.pdf_object[:DescendantFonts][0][:FontDescriptor][:FontFile2].stream)
     end
   end
 end

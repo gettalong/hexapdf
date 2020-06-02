@@ -115,15 +115,19 @@ module HexaPDF
       # Returns the wrapped TrueType font object.
       attr_reader :wrapped_font
 
-      # Returns the PDF font dictionary representing the wrapped font.
-      attr_reader :dict
+      # Returns the PDF object associated with the wrapper.
+      attr_reader :pdf_object
 
       # Creates a new object wrapping the TrueType font for the PDF document.
       #
+      # The optional argument +pdf_object+ can be used to set the PDF font object that this wrapper
+      # should be associated with. If no object is set, a suitable one is automatically created.
+      #
       # If +subset+ is true, the font is subset.
-      def initialize(document, font, subset: true)
-        @document = document
+      def initialize(document, font, pdf_object: nil, subset: true)
         @wrapped_font = font
+        @missing_glyph_callable = document.config['font.on_missing_glyph']
+
         @subsetter = (subset ? HexaPDF::Font::TrueType::Subsetter.new(font) : nil)
 
         @cmap = font[:cmap].preferred_table
@@ -131,8 +135,7 @@ module HexaPDF
           raise HexaPDF::Error, "No mapping table for Unicode characters found for TTF " \
             "font #{font.full_name}"
         end
-        @dict = build_font_dict
-        @document.register_listener(:complete_objects, &method(:complete_font_dict))
+        @pdf_object = pdf_object || create_pdf_object(document)
 
         @id_to_glyph = {}
         @codepoint_to_glyph = {}
@@ -166,7 +169,7 @@ module HexaPDF
             if id >= 0 && id < @wrapped_font[:maxp].num_glyphs
               Glyph.new(@wrapped_font, id, str || (+'' << (@cmap.gid_to_code(id) || 0xFFFD)))
             else
-              @document.config['font.on_missing_glyph'].call("\u{FFFD}", font_type, @wrapped_font)
+              @missing_glyph_callable.call("\u{FFFD}", font_type, @wrapped_font)
             end
           end
       end
@@ -179,7 +182,7 @@ module HexaPDF
               if (gid = @cmap[c])
                 glyph(gid, +'' << c)
               else
-                @document.config['font.on_missing_glyph'].call(+'' << c, font_type, @wrapped_font)
+                @missing_glyph_callable.call(+'' << c, font_type, @wrapped_font)
               end
             end
         end
@@ -202,22 +205,21 @@ module HexaPDF
 
       private
 
-      # Builds a Type0 font object representing the TrueType font.
+      # Creates a Type0 font object representing the TrueType font.
       #
-      # The returned font object contains only information available at build time, so no
-      # information about glyph specific attributes like width.
-      #
-      # See: #complete_font_dict
-      def build_font_dict
-        fd = @document.add({Type: :FontDescriptor,
-                            FontName: @wrapped_font.font_name.intern,
-                            FontWeight: @wrapped_font.weight,
-                            Flags: 0,
-                            FontBBox: @wrapped_font.bounding_box.map {|m| m * scaling_factor },
-                            ItalicAngle: @wrapped_font.italic_angle || 0,
-                            Ascent: @wrapped_font.ascender * scaling_factor,
-                            Descent: @wrapped_font.descender * scaling_factor,
-                            StemV: @wrapped_font.dominant_vertical_stem_width})
+      # The returned font object contains only information available at creation time, so no
+      # information about glyph specific attributes like width. The missing information is added
+      # before the PDF document gets written.
+      def create_pdf_object(document)
+        fd = document.add({Type: :FontDescriptor,
+                           FontName: @wrapped_font.font_name.intern,
+                           FontWeight: @wrapped_font.weight,
+                           Flags: 0,
+                           FontBBox: @wrapped_font.bounding_box.map {|m| m * scaling_factor },
+                           ItalicAngle: @wrapped_font.italic_angle || 0,
+                           Ascent: @wrapped_font.ascender * scaling_factor,
+                           Descent: @wrapped_font.descender * scaling_factor,
+                           StemV: @wrapped_font.dominant_vertical_stem_width})
         if @wrapped_font[:'OS/2'].version >= 2
           fd[:CapHeight] = @wrapped_font.cap_height * scaling_factor
           fd[:XHeight] = @wrapped_font.x_height * scaling_factor
@@ -242,28 +244,28 @@ module HexaPDF
           @wrapped_font[:'OS/2'].selection_include?(:oblique)
         fd.flag(:symbolic)
 
-        cid_font = @document.add({Type: :Font, Subtype: :CIDFontType2,
-                                  BaseFont: fd[:FontName], FontDescriptor: fd,
-                                  CIDSystemInfo: {Registry: "Adobe", Ordering: "Identity",
-                                                  Supplement: 0},
-                                  CIDToGIDMap: :Identity})
-        @document.add({Type: :Font, Subtype: :Type0, BaseFont: cid_font[:BaseFont],
-                       Encoding: :"Identity-H", DescendantFonts: [cid_font]})
-      end
+        cid_font = document.add({Type: :Font, Subtype: :CIDFontType2,
+                                 BaseFont: fd[:FontName], FontDescriptor: fd,
+                                 CIDSystemInfo: {Registry: "Adobe", Ordering: "Identity",
+                                                 Supplement: 0},
+                                 CIDToGIDMap: :Identity})
+        dict = document.add({Type: :Font, Subtype: :Type0, BaseFont: cid_font[:BaseFont],
+                             Encoding: :"Identity-H", DescendantFonts: [cid_font]})
 
-      # Makes sure that the Type0 font object as well as the CIDFont object contain all the needed
-      # information.
-      def complete_font_dict
-        update_font_name
-        embed_font
-        complete_width_information
-        create_to_unicode_cmap
+        document.register_listener(:complete_objects) do
+          update_font_name(dict)
+          embed_font(dict, document)
+          complete_width_information(dict)
+          create_to_unicode_cmap(dict, document)
+        end
+
+        dict
       end
 
       UPPERCASE_LETTERS = ('A'..'Z').to_a.freeze #:nodoc:
 
       # Updates the font name with a unique tag if the font is subset.
-      def update_font_name
+      def update_font_name(dict)
         return unless @subsetter
 
         tag = +''
@@ -275,13 +277,13 @@ module HexaPDF
         end
 
         name = (tag << "+" << @wrapped_font.font_name).intern
-        @dict[:BaseFont] = name
-        @dict[:DescendantFonts].first[:BaseFont] = name
-        @dict[:DescendantFonts].first[:FontDescriptor][:FontName] = name
+        dict[:BaseFont] = name
+        dict[:DescendantFonts].first[:BaseFont] = name
+        dict[:DescendantFonts].first[:FontDescriptor][:FontName] = name
       end
 
       # Embeds the font.
-      def embed_font
+      def embed_font(dict, document)
         if @subsetter
           data = @subsetter.build_font
           length = data.size
@@ -290,22 +292,22 @@ module HexaPDF
           length = @wrapped_font.io.size
           stream = HexaPDF::StreamData.new(@wrapped_font.io, length: length)
         end
-        font = @document.add({Length1: length, Filter: :FlateDecode}, stream: stream)
-        @dict[:DescendantFonts].first[:FontDescriptor][:FontFile2] = font
+        font = document.add({Length1: length, Filter: :FlateDecode}, stream: stream)
+        dict[:DescendantFonts].first[:FontDescriptor][:FontFile2] = font
       end
 
       # Adds the /DW and /W fields to the CIDFont dictionary.
-      def complete_width_information
+      def complete_width_information(dict)
         default_width = glyph(3, " ").width.to_i
         widths = @encoded_glyphs.reject {|_, v| v[1].width == default_width }.map do |id, v|
           [(@subsetter ? @subsetter.subset_glyph_id(id) : id), v[1].width]
         end.sort!
-        @dict[:DescendantFonts].first.set_widths(widths, default_width: default_width)
+        dict[:DescendantFonts].first.set_widths(widths, default_width: default_width)
       end
 
       # Creates the /ToUnicode CMap and updates the font dictionary so that text extraction works
       # correctly.
-      def create_to_unicode_cmap
+      def create_to_unicode_cmap(dict, document)
         stream = HexaPDF::StreamData.new do
           mapping = @encoded_glyphs.keys.map! do |id|
             # Using 0xFFFD as mentioned in Adobe #5411, last line before section 1.5
@@ -313,9 +315,9 @@ module HexaPDF
           end.sort_by!(&:first)
           HexaPDF::Font::CMap.create_to_unicode_cmap(mapping)
         end
-        stream_obj = @document.add({}, stream: stream)
+        stream_obj = document.add({}, stream: stream)
         stream_obj.set_filter(:FlateDecode)
-        @dict[:ToUnicode] = stream_obj
+        dict[:ToUnicode] = stream_obj
       end
 
     end
