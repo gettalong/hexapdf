@@ -214,6 +214,7 @@ module HexaPDF
         dict = document.wrap({Type: :Font, Subtype: :Type1,
                               BaseFont: @wrapped_font.font_name.intern, Encoding: :WinAnsiEncoding,
                               FontDescriptor: fd})
+        dict.font_wrapper = self
 
         document.register_listener(:complete_objects) do
           min, max = @encoding.code_to_name.keys.minmax

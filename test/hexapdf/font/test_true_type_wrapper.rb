@@ -96,6 +96,9 @@ describe HexaPDF::Font::TrueTypeWrapper do
 
       dict = @font_wrapper.pdf_object
 
+      # Checking the circular reference
+      assert_same(@font_wrapper, dict.font_wrapper)
+
       # Checking Type 0 font dictionary
       assert_equal(:Font, dict[:Type])
       assert_equal(:Type0, dict[:Subtype])

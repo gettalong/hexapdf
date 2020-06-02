@@ -251,6 +251,7 @@ module HexaPDF
                                  CIDToGIDMap: :Identity})
         dict = document.add({Type: :Font, Subtype: :Type0, BaseFont: cid_font[:BaseFont],
                              Encoding: :"Identity-H", DescendantFonts: [cid_font]})
+        dict.font_wrapper = self
 
         document.register_listener(:complete_objects) do
           update_font_name(dict)

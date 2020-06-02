@@ -79,4 +79,10 @@ describe HexaPDF::Font::Type1Wrapper do
       end
     end
   end
+
+  describe "creates the necessary PDF dictionaries" do
+    it "sets the circular reference" do
+      assert_same(@times_wrapper, @times_wrapper.pdf_object.font_wrapper)
+    end
+  end
 end

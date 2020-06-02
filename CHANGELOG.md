@@ -14,6 +14,8 @@
 * [HexaPDF::Rectangle] methods for setting the left, top, right, bottom, width
   and height
 * Method #prenormalized_color to all color space implementations
+* [HexaPDF::Type::Font#font_wrapper] for accessing an associated font wrapper
+  instance
 
 ### Changed
 

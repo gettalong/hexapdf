@@ -50,6 +50,23 @@ module HexaPDF
       define_field :Type, type: Symbol, required: true, default: type
       define_field :ToUnicode, type: Stream, version: '1.2'
 
+      # Retrieves the font wrapper that is needed when this font is used for text output. Returns
+      # +nil+ if this font can't be used for text output.
+      #
+      # Note: For internal use only!
+      #
+      # See: HexaPDF::Font
+      def font_wrapper
+        @font_wrapper
+      end
+
+      # Sets the font wrapper.
+      #
+      # See: #font_wrapper
+      def font_wrapper=(font)
+        @font_wrapper = font
+      end
+
       # Font objects must always be indirect.
       def must_be_indirect?
         true

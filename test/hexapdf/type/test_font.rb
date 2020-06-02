@@ -17,6 +17,11 @@ describe HexaPDF::Type::Font do
     @font = @doc.add({Type: :Font, BaseFont: :TestFont, FontDescriptor: fd, ToUnicode: cmap})
   end
 
+  it "allows setting and returning a font wrapper object" do
+    @font.font_wrapper = :fake_wrapper
+    assert_equal(:fake_wrapper, @font.font_wrapper)
+  end
+
   it "must always be an indirect" do
     assert(@font.must_be_indirect?)
   end
