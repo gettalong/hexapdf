@@ -80,7 +80,7 @@ module HexaPDF
         define_field :MK,      type: :XXAppearanceCharacteristics
         define_field :A,       type: Dictionary, version: '1.1'
         define_field :AA,      type: Dictionary, version: '1.2'
-        define_field :BS,      type: Dictionary, version: '1.2'
+        define_field :BS,      type: :Border, version: '1.2'
         define_field :Parent,  type: Dictionary
 
       end

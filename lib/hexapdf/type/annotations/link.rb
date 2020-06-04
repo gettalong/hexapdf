@@ -53,7 +53,7 @@ module HexaPDF
                                   version: '1.2'
         define_field :PA,         type: Dictionary, version: '1.3'
         define_field :QuadPoints, type: PDFArray, version: '1.6'
-        define_field :BS,         type: Dictionary, version: '1.6'
+        define_field :BS,         type: :Border, version: '1.6'
 
       end
 

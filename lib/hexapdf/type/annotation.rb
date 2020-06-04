@@ -80,6 +80,20 @@ module HexaPDF
 
       end
 
+      # Border style dictionary used by various annotation types.
+      #
+      # See: PDF1.7 s12.5.4
+      class Border < Dictionary
+
+        define_type :Border
+
+        define_field :Type, type: Symbol, default: type
+        define_field :W,    type: [Integer, Float], default: 1
+        define_field :S,    type: Symbol, default: :S, allowed_values: [:S, :D, :B, :I, :U]
+        define_field :D,    type: PDFArray, default: [3]
+
+      end
+
       extend Utils::BitField
 
       define_type :Annot

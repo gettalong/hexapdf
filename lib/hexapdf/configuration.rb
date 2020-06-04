@@ -453,6 +453,7 @@ module HexaPDF
                         XXAcroForm: 'HexaPDF::Type::AcroForm::Form',
                         XXAcroFormField: 'HexaPDF::Type::AcroForm::Field',
                         XXAppearanceDictionary: 'HexaPDF::Type::Annotation::AppearanceDictionary',
+                        Border: 'HexaPDF::Type::Annotation::Border',
                       },
                       'object.subtype_map' => {
                         nil => {

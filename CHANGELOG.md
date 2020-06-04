@@ -16,6 +16,7 @@
 * Method #prenormalized_color to all color space implementations
 * [HexaPDF::Type::Font#font_wrapper] for accessing an associated font wrapper
   instance
+* [HexaPDF::Type::Annotation::Border] class
 
 ### Changed
 
