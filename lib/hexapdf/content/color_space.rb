@@ -118,6 +118,13 @@ module HexaPDF
         GlobalConfiguration.constantize('color_space.map', for_components(spec)).new.color(*spec)
       end
 
+      # Returns a device color object for the given components array without applying value
+      # normalization.
+      def self.prenormalized_device_color(components)
+        GlobalConfiguration.constantize('color_space.map', for_components(components)).new.
+          prenormalized_color(*components)
+      end
+
       # Returns the name of the device color space that should be used for creating a color object
       # from the components array.
       def self.for_components(components)

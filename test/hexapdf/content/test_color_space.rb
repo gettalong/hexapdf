@@ -83,6 +83,10 @@ describe HexaPDF::Content::ColorSpace do
     end
   end
 
+  it "returns a device color object for prenormalized color values" do
+    assert_equal([5, 6, 7], @class.prenormalized_device_color([5, 6, 7]).components)
+  end
+
   describe "self.for_components" do
     it "returns the correct device color space name" do
       assert_equal(:DeviceGray, @class.for_components([1]))

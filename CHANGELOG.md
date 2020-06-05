@@ -21,6 +21,8 @@
   `#border_style`
 * [HexaPDF::Content::ColorSpace::device_color_from_specification] for easily
   getting a device color object
+* [HexaPDF::Content::ColorSpace::prenormalized_device_color] for getting a device
+  color object without normalizing values
 
 ### Changed
 
