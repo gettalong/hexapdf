@@ -17,6 +17,8 @@
 * [HexaPDF::Type::Font#font_wrapper] for accessing an associated font wrapper
   instance
 * [HexaPDF::Type::Annotation::Border] class
+* [HexaPDF::Type::Annotations::Widget] methods `#background_color` and
+  `#border_style`
 
 ### Changed
 
