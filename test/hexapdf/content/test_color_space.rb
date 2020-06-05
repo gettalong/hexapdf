@@ -60,6 +60,29 @@ describe HexaPDF::Content::ColorSpace do
     @class = HexaPDF::Content::ColorSpace
   end
 
+  describe "self.device_color_from_specification" do
+    it "works for gray values" do
+      assert_equal([0.2], @class.device_color_from_specification(51).components)
+    end
+
+    it "works for RGB values" do
+      assert_equal([0.2, 1, 0], @class.device_color_from_specification(51, 255, 0).components)
+    end
+
+    it "works for RGB values given as string" do
+      assert_equal([0.2, 1, 0], @class.device_color_from_specification("33FF00").components)
+    end
+
+    it "works for CMYK values" do
+      assert_equal([0.51, 0.9, 1, 0.5],
+                   @class.device_color_from_specification(51, 90, 100, 50).components)
+    end
+
+    it "works when an array is given" do
+      assert_equal([0.2], @class.device_color_from_specification([51]).components)
+    end
+  end
+
   describe "self.for_components" do
     it "returns the correct device color space name" do
       assert_equal(:DeviceGray, @class.for_components([1]))

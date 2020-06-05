@@ -19,6 +19,8 @@
 * [HexaPDF::Type::Annotation::Border] class
 * [HexaPDF::Type::Annotations::Widget] methods `#background_color` and
   `#border_style`
+* [HexaPDF::Content::ColorSpace::device_color_from_specification] for easily
+  getting a device color object
 
 ### Changed
 

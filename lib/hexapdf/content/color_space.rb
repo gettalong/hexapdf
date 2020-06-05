@@ -35,6 +35,7 @@
 #++
 
 require 'hexapdf/error'
+require 'hexapdf/configuration'
 
 module HexaPDF
   module Content
@@ -90,6 +91,32 @@ module HexaPDF
     #
     # See: PDF1.7 s8.6
     module ColorSpace
+
+      # :call-seq:
+      #   ColorSpace.device_color_from_specification(gray)           => color
+      #   ColorSpace.device_color_from_specification(r, g, b)        => color
+      #   ColorSpace.device_color_from_specification(c, m, y, k)     => color
+      #   ColorSpace.device_color_from_specification(string)         => color
+      #   ColorSpace.device_color_from_specification(array)          => color
+      #
+      # Creates a device color object from the given color specification.
+      #
+      # There are several ways to define the color that should be used:
+      #
+      # * A single numeric argument specifies a gray color (see DeviceGray::Color).
+      # * Three numeric arguments specify an RGB color (see DeviceRGB::Color).
+      # * A string in the format "RRGGBB" where "RR" is the hexadecimal number for the red, "GG"
+      #   for the green and "BB" for the blue color value also specifies an RGB color.
+      # * Four numeric arguments specify a CMYK color (see DeviceCMYK::Color).
+      # * An array is treated as if its items were specified separately as arguments.
+      #
+      # Note that it makes a difference whether integer or float values are used because the given
+      # values are first normalized - see DeviceGray#color, DeviceRGB#color and DeviceCMYK#color.
+      def self.device_color_from_specification(*spec)
+        spec.flatten!
+        spec = spec[0].scan(/../).map!(&:hex) if spec.length == 1 && spec[0].kind_of?(String)
+        GlobalConfiguration.constantize('color_space.map', for_components(spec)).new.color(*spec)
+      end
 
       # Returns the name of the device color space that should be used for creating a color object
       # from the components array.
