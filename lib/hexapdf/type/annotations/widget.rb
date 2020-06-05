@@ -35,6 +35,7 @@
 #++
 
 require 'hexapdf/type/annotation'
+require 'hexapdf/content/color_space'
 
 module HexaPDF
   module Type
@@ -85,26 +86,29 @@ module HexaPDF
 
         # :call-seq:
         #   widget.background_color                => background_color
-        #   widget.background_color(color)         => widget
+        #   widget.background_color(*color)        => widget
         #
-        # Returns the current background color when no argument is given. Otherwise sets the
-        # background color using the +color+ argument and returns self.
+        # Returns the current background color as device color object, or +nil+ if no background
+        # color is set, when no argument is given. Otherwise sets the background color using the
+        # +color+ argument and returns self.
         #
-        # The background color is an array with one (grayscale), three (RGB) or four (CMYK) numbers,
-        # Returns +nil+ if no background color is set.
-        def background_color(color = nil)
-          if color
-            (self[:MK] ||= {})[:BG] = color
-            self
+        # See HexaPDF::Content::ColorSpace.device_color_from_specification for information on the
+        # allowed arguments.
+        def background_color(*color)
+          if color.empty?
+            components = self[:MK]&.[](:BG)
+            components.nil? ? nil : Content::ColorSpace.prenormalized_device_color(components)
           else
-            self[:MK]&.[](:BG)
+            color = Content::ColorSpace.device_color_from_specification(color)
+            (self[:MK] ||= {})[:BG] = color.components
+            self
           end
         end
 
         # Describes the border of an annotation.
         #
-        # The +color+ property is either +nil+ if the border is transparent or else an array with
-        # one (grayscale), three (RGB) or four (CMYK) numbers.
+        # The +color+ property is either +nil+ if the border is transparent or else a device color
+        # object - see HexaPDF::Content::ColorSpace.
         #
         # The +style+ property can be one of the following:
         #
@@ -117,8 +121,8 @@ module HexaPDF
                                  :vertical_corner_radius)
 
         # :call-seq:
-        #   widget.border_style                                        => border_style
-        #   widget.border_style(color: [0], width: 1, style: :solid)   => widget
+        #   widget.border_style                                      => border_style
+        #   widget.border_style(color: 0, width: 1, style: :solid)   => widget
         #
         # Returns a BorderStyle instance representing the border style of the widget when no
         # argument is given. Otherwise sets the border style of the widget and returns self.
@@ -127,8 +131,9 @@ module HexaPDF
         # border with a solid, black, 1pt wide line. This also means that multiple invocations will
         # reset *all* prior values.
         #
-        # +color+:: The color of the border. An array with one (grayscale), three (RGB) or four
-        #           (CMYK) numbers.
+        # +color+:: The color of the border. See
+        #           HexaPDF::Content::ColorSpace.device_color_from_specification for information on
+        #           the allowed arguments.
         #
         # +width+:: The width of the border. If set to 0, no border is shown.
         #
@@ -142,7 +147,7 @@ module HexaPDF
         #                           HexaPDF::Content::LineDashPattern)
         def border_style(color: nil, width: nil, style: nil)
           if color || width || style
-            color ||= [0]
+            color = Content::ColorSpace.device_color_from_specification(color || 0).components
             width ||= 1
             style ||= :solid
 
@@ -163,7 +168,7 @@ module HexaPDF
           else
             result = BorderStyle.new(1, nil, :solid, 0, 0)
             if (ac = self[:MK]) && !ac[:BC].empty?
-              result.color = ac[:BC].value
+              result.color = Content::ColorSpace.prenormalized_device_color(ac[:BC].value)
             end
             return result unless result.color
 
