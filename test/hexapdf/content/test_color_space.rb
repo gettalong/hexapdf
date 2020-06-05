@@ -55,6 +55,24 @@ module CommonColorSpaceTests
 
 end
 
+describe HexaPDF::Content::ColorSpace do
+  before do
+    @class = HexaPDF::Content::ColorSpace
+  end
+
+  describe "self.for_components" do
+    it "returns the correct device color space name" do
+      assert_equal(:DeviceGray, @class.for_components([1]))
+      assert_equal(:DeviceRGB, @class.for_components([1, 2, 3]))
+      assert_equal(:DeviceCMYK, @class.for_components([1, 2, 3, 4]))
+    end
+
+    it "fails if an array with an invalid length is passed" do
+      assert_raises(ArgumentError) { @class.for_components([]) }
+    end
+  end
+end
+
 describe HexaPDF::Content::ColorSpace::Universal do
   include CommonColorSpaceTests
 

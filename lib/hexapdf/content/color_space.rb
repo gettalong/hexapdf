@@ -91,6 +91,19 @@ module HexaPDF
     # See: PDF1.7 s8.6
     module ColorSpace
 
+      # Returns the name of the device color space that should be used for creating a color object
+      # from the components array.
+      def self.for_components(components)
+        case components.length
+        when 1 then :DeviceGray
+        when 3 then :DeviceRGB
+        when 4 then :DeviceCMYK
+        else
+          raise ArgumentError, "Invalid number of color components, 1|3|4 expected, " \
+            "#{components.length} given"
+        end
+      end
+
       # This module includes utility functions that are useful for all color classes.
       module ColorUtils
 

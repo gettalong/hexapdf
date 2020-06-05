@@ -1855,7 +1855,7 @@ module HexaPDF
         elsif spec.length == 1 && spec[0].respond_to?(:color_space)
           spec[0]
         else
-          resources.color_space(color_space_for_components(spec)).color(*spec)
+          resources.color_space(ColorSpace.for_components(spec)).color(*spec)
         end
       end
 
@@ -1990,19 +1990,6 @@ module HexaPDF
           raise ArgumentError, "Block only allowed with arguments"
         else
           graphics_state.send(name)
-        end
-      end
-
-      # Returns the name of the device color space that should be used for creating a color object
-      # from the components array.
-      def color_space_for_components(components)
-        case components.length
-        when 1 then :DeviceGray
-        when 3 then :DeviceRGB
-        when 4 then :DeviceCMYK
-        else
-          raise ArgumentError, "Invalid number of color components, 1|3|4 expected, " \
-            "#{components.length} given"
         end
       end
 

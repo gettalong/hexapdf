@@ -30,6 +30,8 @@
   processor object
 * HexaPDF::Type::AcroForm::Field#full_name to
   [HexaPDF::Type::AcroForm::Field#full_field_name]
+* Moved `HexaPDF::Content::Canvas#color_space_for_components` to class method on
+  [HexaPDF::Content::ColorSpace]
 
 ### Fixed
 
