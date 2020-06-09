@@ -1,3 +1,10 @@
+## 0.11.7 - 2020-06-10
+
+### Fixed
+
+* Deletion of object streams in [HexaPDF::Task::Optimize] to avoid accessing
+  then invalid object streams
+
 ## 0.11.6 - 2020-05-27
 
 ### Fixed

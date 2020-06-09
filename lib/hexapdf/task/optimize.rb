@@ -127,13 +127,15 @@ module HexaPDF
         when :delete
           doc.revisions.each_with_index do |rev, rev_index|
             xref_stream = false
+            objects_to_delete = []
             rev.each do |obj|
               if obj.type == :ObjStm || (obj.type == :XRef && xref_streams == :delete)
-                rev.delete(obj)
+                objects_to_delete << obj
               else
                 delete_fields_with_defaults(obj)
               end
             end
+            objects_to_delete.each {|obj| rev.delete(obj) }
             if xref_streams == :generate && !xref_stream
               doc.add({Type: :XRef}, revision: rev_index)
             end
@@ -143,11 +145,12 @@ module HexaPDF
             xref_stream = false
             count = 0
             objstms = [doc.wrap({Type: :ObjStm})]
+            old_objstms = []
             rev.each do |obj|
               if obj.type == :XRef
                 xref_stream = true
               elsif obj.type == :ObjStm
-                rev.delete(obj)
+                old_objstms << obj
               end
               delete_fields_with_defaults(obj)
 
@@ -160,6 +163,7 @@ module HexaPDF
                 count = 0
               end
             end
+            old_objstms.each {|objstm| rev.delete(objstm) }
             objstms.each {|objstm| doc.add(objstm, revision: rev_index) }
             doc.add({Type: :XRef}, revision: rev_index) unless xref_stream
           end

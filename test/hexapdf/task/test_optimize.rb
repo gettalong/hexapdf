@@ -7,19 +7,25 @@ require 'hexapdf/task/optimize'
 describe HexaPDF::Task::Optimize do
   class TestType < HexaPDF::Dictionary
 
+    define_type :Test
     define_field :Optional, type: Symbol, default: :Optional
 
   end
 
   before do
+    HexaPDF::GlobalConfiguration['object.type_map'][:Test] = TestType
     @doc = HexaPDF::Document.new
-    @obj1 = @doc.add(@doc.wrap({Optional: :Optional}, type: TestType))
+    @obj1 = @doc.add({Type: :Test, Optional: :Optional})
     @doc.trailer[:Test] = @doc.wrap(@obj1)
     @doc.revisions.add
     @obj2 = @doc.add({Type: :UsedEntry})
     @obj3 = @doc.add({Unused: @obj2})
     @obj4 = @doc.add({Test: :Test})
     @obj1[:Test] = @doc.wrap(@obj4, type: TestType)
+  end
+
+  after do
+    HexaPDF::GlobalConfiguration['object.type_map'].delete(:Test)
   end
 
   def assert_objstms_generated
@@ -40,7 +46,7 @@ describe HexaPDF::Task::Optimize do
   end
 
   def assert_default_deleted
-    refute(@obj1.value.key?(:Optional))
+    refute(@doc.object(1).key?(:Optional))
   end
 
   describe "compact" do
@@ -84,21 +90,29 @@ describe HexaPDF::Task::Optimize do
   end
 
   describe "object_streams" do
-    it "generates object streams" do
+    def reload_document_with_objstm_from_io
+      io = StringIO.new
       objstm = @doc.add({Type: :ObjStm})
-      xref = @doc.add({Type: :XRef})
+      @doc.add({Type: :XRef})
+      objstm.add_object(@doc.add({Type: :Test}))
+      @doc.write(io)
+      io.rewind
+      @doc = HexaPDF::Document.new(io: io)
+    end
+
+    it "generates object streams" do
       210.times { @doc.add(5) }
+      objstm = @doc.add({Type: :ObjStm})
+      reload_document_with_objstm_from_io
       @doc.task(:optimize, object_streams: :generate)
       assert_objstms_generated
       assert_default_deleted
       assert_nil(@doc.object(objstm).value)
-      assert(3, @doc.revisions.current.find_all {|obj| obj.type == :ObjStm }.size)
-      assert([xref], @doc.revisions.current.find_all {|obj| obj.type == :XRef })
+      assert_equal(2, @doc.revisions.current.find_all {|obj| obj.type == :ObjStm }.size)
     end
 
     it "deletes object and xref streams" do
-      @doc.add({Type: :ObjStm})
-      @doc.add({Type: :XRef})
+      reload_document_with_objstm_from_io
       @doc.task(:optimize, object_streams: :delete, xref_streams: :delete)
       assert_no_objstms
       assert_no_xrefstms
