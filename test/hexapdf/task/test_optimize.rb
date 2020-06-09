@@ -121,9 +121,11 @@ describe HexaPDF::Task::Optimize do
 
     it "deletes object and generates xref streams" do
       @doc.add({Type: :ObjStm})
+      xref = @doc.add({Type: :XRef})
       @doc.task(:optimize, object_streams: :delete, xref_streams: :generate)
       assert_no_objstms
       assert_xrefstms_generated
+      assert_equal([xref], @doc.revisions.current.find_all {|obj| obj.type == :XRef })
       assert_default_deleted
     end
   end

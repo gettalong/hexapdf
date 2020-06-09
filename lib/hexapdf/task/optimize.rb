@@ -129,8 +129,11 @@ module HexaPDF
             xref_stream = false
             objects_to_delete = []
             rev.each do |obj|
-              if obj.type == :ObjStm || (obj.type == :XRef && xref_streams == :delete)
+              if obj.type == :ObjStm
                 objects_to_delete << obj
+              elsif obj.type == :XRef
+                xref_stream = true
+                objects_to_delete << obj if xref_streams == :delete
               else
                 delete_fields_with_defaults(obj)
               end

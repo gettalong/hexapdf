@@ -4,6 +4,8 @@
 
 * Deletion of object streams in [HexaPDF::Task::Optimize] to avoid accessing
   then invalid object streams
+* [HexaPDF::Task::Optimize] to work correctly when deleting object streams and
+  generating xref streams
 
 ## 0.11.6 - 2020-05-27
 
