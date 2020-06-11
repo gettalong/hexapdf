@@ -1,3 +1,11 @@
+## 0.11.8 - 2020-06-11
+
+### Fixed
+
+* Serialization of special `/` (zero-length name) object in dictionaries and
+  arrays
+
+
 ## 0.11.7 - 2020-06-10
 
 ### Fixed
@@ -6,6 +14,7 @@
   then invalid object streams
 * [HexaPDF::Task::Optimize] to work correctly when deleting object streams and
   generating xref streams
+
 
 ## 0.11.6 - 2020-05-27
 

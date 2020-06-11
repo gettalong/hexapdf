@@ -75,18 +75,18 @@ describe HexaPDF::Serializer do
     assert_serialized('/lime#20Green', 'lime Green'.intern)
     assert_serialized('/paired#28#29parentheses', 'paired()parentheses'.intern)
     assert_serialized('/The_Key_of_F#23_Minor', 'The_Key_of_F#_Minor'.intern)
-    assert_serialized('/', ''.intern)
+    assert_serialized('/ ', ''.intern)
     assert_serialized('/H#c3#b6#c3#9fgang', "Hößgang".intern)
     assert_serialized('/H#e8lp', "H\xE8lp".force_encoding('BINARY').intern)
   end
 
   it "serializes arrays" do
-    assert_serialized("[-12 2.4321/Name true(345)true]", [-12, 2.4321, :Name, true, '345', true])
+    assert_serialized("[-12/  2.4321/Name true(345)true]", [-12, :"", 2.4321, :Name, true, '345', true])
     assert_serialized("[]", [])
   end
 
   it "serializes hashes" do
-    assert_serialized("<</hallo 5/other true/name[5]>>", hallo: 5, other: true, name: [5])
+    assert_serialized("<</hallo 5/  true/other true/name[5]>>", hallo: 5, "": true, other: true, name: [5])
     assert_serialized("<<>>", {})
   end
 

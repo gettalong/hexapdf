@@ -187,7 +187,7 @@ module HexaPDF
         begin
           str = obj.to_s.dup.force_encoding(Encoding::BINARY)
           str.gsub!(NAME_REGEXP, NAME_SUBSTS)
-          "/#{str}"
+          str.empty? ? "/ " : "/#{str}"
         end
     end
 
