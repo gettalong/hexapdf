@@ -11,6 +11,26 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
     @field = @doc.add({}, type: HexaPDF::Type::AcroForm::VariableTextField)
   end
 
+  describe "text_alignment" do
+    it "returns the alignment value for displaying text" do
+      assert_equal(:left, @field.text_alignment)
+      @field[:Q] = 1
+      assert_equal(:center, @field.text_alignment)
+      @field[:Q] = 2
+      assert_equal(:right, @field.text_alignment)
+    end
+
+    it "sets the alignment value for displaying text to a given value" do
+      @field.text_alignment(:center)
+      assert_equal(1, @field[:Q])
+      @field.text_alignment(:right)
+      assert_equal(2, @field[:Q])
+      @field.text_alignment(:left)
+      assert_equal(0, @field[:Q])
+      assert_raises(ArgumentError) { @field.text_alignment(:unknown) }
+    end
+  end
+
   describe "parse_default_appearance_string" do
     it "parses the default appearance string of the field" do
       @field[:DA] = "1 g /F1 20 Tf 5 w /F2 10 Tf"

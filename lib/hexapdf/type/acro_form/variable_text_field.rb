@@ -59,6 +59,36 @@ module HexaPDF
         # All inheritable dictionary fields for text fields.
         INHERITABLE_FIELDS = (superclass::INHERITABLE_FIELDS + [:DA, :Q]).freeze
 
+        UNSET_ARG = ::Object.new # :nodoc:
+
+        # :call-seq:
+        #   field.text_alignment                -> alignment
+        #   field.text_alignment(alignment)     -> field
+        #
+        # Sets or returns the text alignment that should be used when displaying text.
+        #
+        # With no argument, the current text alignment is returned. When a value is provided, the
+        # text alignment is set accordingly.
+        #
+        # The alignment value is one of :left, :center or :right.
+        def text_alignment(alignment = UNSET_ARG)
+          if alignment == UNSET_ARG
+            case self[:Q]
+            when 0 then :left
+            when 1 then :center
+            when 2 then :right
+            end
+          else
+            self[:Q] = case alignment
+                       when :left then 0
+                       when :center then 1
+                       when :right then 2
+                       else
+                         raise ArgumentError, "Invalid variable text field alignment #{alignment}"
+                       end
+          end
+        end
+
         # Parses the default appearance string and returns an array containing [font_name,
         # font_size].
         #
