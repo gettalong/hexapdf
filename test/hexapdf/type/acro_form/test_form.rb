@@ -105,15 +105,26 @@ describe HexaPDF::Type::AcroForm::Form do
     assert_kind_of(HexaPDF::Type::Resources, @acro_form.default_resources)
   end
 
-  it "allows setting a default 'default appearance string' if none is set" do
-    @acro_form[:DA] = 'test'
-    @acro_form.set_default_appearance_string
-    assert_equal('test', @acro_form[:DA])
+  describe "set_default_appearance_string" do
+    it "doesn't override an existing value" do
+      @acro_form[:DA] = 'test'
+      @acro_form.set_default_appearance_string
+      assert_equal('test', @acro_form[:DA])
+    end
 
-    @acro_form.delete(:DA)
-    @acro_form.set_default_appearance_string
-    assert_equal("0 g /F1 0 Tf", @acro_form[:DA])
-    assert(@acro_form.default_resources.font(:F1))
+    it "uses sane default values if no arguments are provided" do
+      @acro_form.set_default_appearance_string
+      assert_equal("0 g /F1 0 Tf", @acro_form[:DA])
+      font = @acro_form.default_resources.font(:F1)
+      assert(font)
+      assert_equal(:Helvetica, font[:BaseFont])
+    end
+
+    it "allows specifying the used font and font size" do
+      @acro_form.set_default_appearance_string(font: 'Times', font_size: 10)
+      assert_equal("0 g /F1 10 Tf", @acro_form[:DA])
+      assert_equal(:'Times-Roman', @acro_form.default_resources.font(:F1)[:BaseFont])
+    end
   end
 
   describe "perform_validation" do
