@@ -34,6 +34,7 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'hexapdf/error'
 require 'hexapdf/type/acro_form/variable_text_field'
 
 module HexaPDF
@@ -65,6 +66,55 @@ module HexaPDF
             rich_text: 26,
           }
         ).freeze
+
+        # Returns the field value, i.e. the text contents of the field, or +nil+ if no value is set.
+        #
+        # Note that modifying the returned value *might not* modify the text contents in case it is
+        # stored as stream! So always use #field_value= to set the field value.
+        def field_value
+          return unless value[:V]
+          self[:V].kind_of?(String) ? self[:V] : self[:V].stream
+        end
+
+        # Sets the field value, i.e. the text contents of the field, to the given string.
+        def field_value=(str)
+          if flagged?(:password)
+            raise HexaPDF::Error, "Storing a field value for a password field is not allowed"
+          end
+          self[:V] = str
+        end
+
+        # Returns the default field value.
+        #
+        # See: #field_value
+        def default_field_value
+          self[:DV].kind_of?(String) ? self[:DV] : self[:DV].stream
+        end
+
+        # Sets the default field value.
+        #
+        # See: #field_value=
+        def default_field_value=(str)
+          self[:DV] = str
+        end
+
+        private
+
+        def perform_validation #:nodoc:
+          if field_type != :Tx
+            yield("Field /FT of AcroForm text field has to be :Tx", true)
+            self[:FT] = :Tx
+          end
+
+          super
+
+          if self[:V] && !(self[:V].kind_of?(String) || self[:V].kind_of?(HexaPDF::Stream))
+            yield("Text field doesn't contain text but #{self[:V].class} object")
+          end
+          if (max_len = self[:MaxLen]) && field_value.length > max_len
+            yield("Text contents of field '#{full_field_name}' is too long")
+          end
+        end
 
       end
 
