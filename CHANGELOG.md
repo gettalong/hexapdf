@@ -1,3 +1,10 @@
+## 0.11.9 - 2020-06-15
+
+### Changed
+
+* Encryption dictionaries to always be indirect objects
+
+
 ## 0.11.8 - 2020-06-11
 
 ### Fixed

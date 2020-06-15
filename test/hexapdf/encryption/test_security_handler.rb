@@ -13,6 +13,10 @@ describe HexaPDF::Encryption::EncryptionDictionary do
     @dict[:V] = 1
   end
 
+  it "must be an indirect object" do
+    assert(@dict.must_be_indirect?)
+  end
+
   it "validates the /V value" do
     @dict[:V] = 1
     assert(@dict.validate)

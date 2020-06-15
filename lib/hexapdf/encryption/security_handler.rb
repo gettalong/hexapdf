@@ -59,6 +59,12 @@ module HexaPDF
       define_field :StrF,      type: Symbol, default: :Identity, version: '1.5'
       define_field :EFF,       type: Symbol, version: '1.6'
 
+      # Returns +true+ because some PDF readers stumble when encountering a non-indirect encryption
+      # dictionary.
+      def must_be_indirect?
+        true
+      end
+
       private
 
       # Ensures that the encryption dictionary's content is valid.
