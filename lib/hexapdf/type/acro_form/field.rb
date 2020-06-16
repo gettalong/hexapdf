@@ -212,14 +212,16 @@ module HexaPDF
         private
 
         # An array of all widget annotation field names.
-        WIDGET_FIELDS = HexaPDF::Type::Annotations::Widget.each_field.map(&:first) - [:Parent]
+        WIDGET_FIELDS = HexaPDF::Type::Annotations::Widget.each_field.map(&:first).uniq - [:Parent]
 
         # Returns a new dictionary object with all the widget annotation data that is stored
         # directly in the field and adjust the references accordingly. If the field doesn't have any
         # widget data, +nil+ is returned.
         def extract_widget
           return unless key?(:Subtype)
-          data = WIDGET_FIELDS.each_with_object({}) {|key, hash| hash[key] = delete(key) }
+          data = WIDGET_FIELDS.each_with_object({}) do |key, hash|
+            hash[key] = delete(key) if key?(key)
+          end
           widget = document.add(data, type: :Annot)
           document.pages.each do |page|
             if page.key?(:Annots) && (index = page[:Annots].index {|annot| annot.data == self.data })

@@ -125,7 +125,7 @@ describe HexaPDF::Type::AcroForm::Field do
       refute_same(widget1, kids[0])
       assert_same(widget2, kids[1])
       assert_nil(@field[:Rect])
-      assert_equal([1, 2, 3, 4], kids[0][:Rect].value)
+      assert_equal({Rect: [1, 2, 3, 4], Type: :Annot, Subtype: :Widget}, kids[0].value)
       assert_equal([2, 1, 4, 3], kids[1][:Rect].value)
 
       refute_equal([widget1], @page[:Annots].value)
