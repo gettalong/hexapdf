@@ -31,6 +31,28 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
     end
   end
 
+  describe "set_default_appearance_string" do
+    it "doesn't override an existing value" do
+      @field[:DA] = 'test'
+      @field.set_default_appearance_string
+      assert_equal('test', @field[:DA])
+    end
+
+    it "uses sane default values if no arguments are provided" do
+      @field.set_default_appearance_string
+      assert_equal("0 g /F1 0 Tf", @field[:DA])
+      font = @doc.acro_form.default_resources.font(:F1)
+      assert(font)
+      assert_equal(:Helvetica, font[:BaseFont])
+    end
+
+    it "allows specifying the used font and font size" do
+      @field.set_default_appearance_string(font: 'Times', font_size: 10)
+      assert_equal("0 g /F2 10 Tf", @field[:DA])
+      assert_equal(:'Times-Roman', @doc.acro_form.default_resources.font(:F2)[:BaseFont])
+    end
+  end
+
   describe "parse_default_appearance_string" do
     it "parses the default appearance string of the field" do
       @field[:DA] = "1 g /F1 20 Tf 5 w /F2 10 Tf"
