@@ -167,8 +167,8 @@ module HexaPDF
             self
           else
             result = BorderStyle.new(1, nil, :solid, 0, 0)
-            if (ac = self[:MK]) && !ac[:BC].empty?
-              result.color = Content::ColorSpace.prenormalized_device_color(ac[:BC].value)
+            if (ac = self[:MK]) && (bc = ac[:BC]) && !bc.empty?
+              result.color = Content::ColorSpace.prenormalized_device_color(bc.value)
             end
             return result unless result.color
 

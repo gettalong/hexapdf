@@ -54,6 +54,11 @@ describe HexaPDF::Type::Annotations::Widget do
         assert_equal([1, nil, :solid, 0, 0], @widget.border_style.to_a)
       end
 
+      it "no /Border, /BS but with /MK empty" do
+        @widget[:MK].delete(:BC)
+        assert_equal([1, nil, :solid, 0, 0], @widget.border_style.to_a)
+      end
+
       it "uses the color from /MK" do
         assert_equal([1, @color, :solid, 0, 0], @widget.border_style.to_a)
       end
