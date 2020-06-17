@@ -96,9 +96,7 @@ module HexaPDF
         # appearance string of the form.
         def parse_default_appearance_string
           da = self[:DA] || (document.acro_form && document.acro_form[:DA])
-          unless da
-            raise HexaPDF::Error, "No default appearance string set"
-          end
+          raise HexaPDF::Error, "No default appearance string set" unless da
 
           font_params = nil
           HexaPDF::Content::Parser.parse(da) do |obj, params|
