@@ -29,10 +29,10 @@ module TestHelper
   end
 
   # Asserts that the content string contains the operators.
-  def assert_operators(content, operators, only_names: false)
+  def assert_operators(content, operators, only_names: false, range: 0..-1)
     processor = TestHelper::OperatorRecorder.new
     HexaPDF::Content::Parser.new.parse(content, processor)
-    result = processor.recorded_ops
+    result = processor.recorded_ops[range]
     result.map!(&:first) if only_names
     assert_equal(operators, result)
   end

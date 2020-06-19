@@ -144,6 +144,12 @@ module HexaPDF
   #
   # The following options are provided:
   #
+  # acro_form.text_field.default_width::
+  #    A number specifying the default width of AcroForm text fields which should be auto-sized.
+  #
+  # acro_form.text_field.default_font_size::
+  #    A number specifying the default font size of AcroForm text fields which should be auto-sized.
+  #
   # document.auto_decrypt::
   #    A boolean determining whether the document should be decrypted automatically when parsed.
   #
@@ -307,7 +313,9 @@ module HexaPDF
   # task.map::
   #    A mapping from task names to callable task objects. See HexaPDF::Task for more information.
   DefaultDocumentConfiguration =
-    Configuration.new('document.auto_decrypt' => true,
+    Configuration.new('acro_form.text_field.default_width' => 100,
+                      'acro_form.text_field.default_font_size' => 10,
+                      'document.auto_decrypt' => true,
                       'encryption.aes' => 'HexaPDF::Encryption::FastAES',
                       'encryption.arc4' => 'HexaPDF::Encryption::FastARC4',
                       'encryption.filter_map' => {
