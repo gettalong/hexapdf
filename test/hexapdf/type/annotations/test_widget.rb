@@ -61,6 +61,8 @@ describe HexaPDF::Type::Annotations::Widget do
 
       it "uses the color from /MK" do
         assert_equal([1, @color, :solid, 0, 0], @widget.border_style.to_a)
+        @widget[:MK][:BC] = []
+        assert_equal([1, nil, :solid, 0, 0], @widget.border_style.to_a)
       end
 
       it "uses the data from /Border" do
@@ -89,6 +91,9 @@ describe HexaPDF::Type::Annotations::Widget do
       it "sets the color" do
         @widget.border_style(color: [1.0, 51, 1.0])
         assert_equal([1, 0.2, 1], @widget[:MK][:BC].value)
+
+        @widget.border_style(color: :transparent)
+        assert_equal([], @widget[:MK][:BC].value)
       end
 
       it "sets the width" do

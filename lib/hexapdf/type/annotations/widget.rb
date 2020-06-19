@@ -135,6 +135,10 @@ module HexaPDF
         #           HexaPDF::Content::ColorSpace.device_color_from_specification for information on
         #           the allowed arguments.
         #
+        #           If the special value +:transparent+ is used when setting the color, a
+        #           transparent is used. A transparent border will return a +nil+ value when getting
+        #           the border color.
+        #
         # +width+:: The width of the border. If set to 0, no border is shown.
         #
         # +style+:: Defines how the border is drawn. can be one of the following:
@@ -147,7 +151,11 @@ module HexaPDF
         #                           HexaPDF::Content::LineDashPattern)
         def border_style(color: nil, width: nil, style: nil)
           if color || width || style
-            color = Content::ColorSpace.device_color_from_specification(color || 0).components
+            color = if color == :transparent
+                      []
+                    else
+                      Content::ColorSpace.device_color_from_specification(color || 0).components
+                    end
             width ||= 1
             style ||= :solid
 
@@ -170,7 +178,6 @@ module HexaPDF
             if (ac = self[:MK]) && (bc = ac[:BC]) && !bc.empty?
               result.color = Content::ColorSpace.prenormalized_device_color(bc.value)
             end
-            return result unless result.color
 
             if (bs = self[:BS])
               result.width = bs[:W] if bs.key?(:W)
