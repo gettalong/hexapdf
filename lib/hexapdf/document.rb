@@ -499,10 +499,7 @@ module HexaPDF
 
     # Returns the main AcroForm object for dealing with interactive forms.
     #
-    # If +create+ is +false+, +nil+ is returned if no AcroForm object exists. Otherwise a new
-    # AcroForm object will be created and returned.
-    #
-    # See: HexaPDF::Type::Catalog#acro_form
+    # See HexaPDF::Type::Catalog#acro_form for details on the arguments.
     def acro_form(create: false)
       catalog.acro_form(create: create)
     end

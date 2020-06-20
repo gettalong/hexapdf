@@ -21,6 +21,24 @@ describe HexaPDF::Type::Catalog do
     assert_equal(:Pages, pages.type)
   end
 
+  describe "acro_form" do
+    it "returns an existing form object" do
+      @catalog[:AcroForm] = :test
+      assert_equal(:test, @catalog.acro_form)
+    end
+
+    it "returns an existing form object even if create: true" do
+      @catalog[:AcroForm] = :test
+      assert_equal(:test, @catalog.acro_form(create: true))
+    end
+
+    it "creates a new AcroForm object with defaults if create: true" do
+      form = @catalog.acro_form(create: true)
+      assert_kind_of(HexaPDF::Type::AcroForm::Form, form)
+      assert(form[:DA])
+    end
+  end
+
   describe "validation" do
     it "creates the page tree if necessary" do
       refute(@catalog.validate(auto_correct: false))

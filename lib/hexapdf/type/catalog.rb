@@ -99,12 +99,22 @@ module HexaPDF
 
       # Returns the main AcroForm object.
       #
-      # If +create+ is +false+, +nil+ is returned if no AcroForm object exists. Otherwise a new
-      # AcroForm object will be created and returned.
+      # * If an AcroForm object exists, the +create+ argument is not used.
+      #
+      # * If no AcroForm object exists and +create+ is +true+, a new AcroForm object with default
+      #   settings will be created and returned.
+      #
+      # * If no AcroForm object exists and +create+ is +false+, +nil+ is returned.
       #
       # See: AcroForm::Form
       def acro_form(create: false)
-        self[:AcroForm] || (create && self[:AcroForm] ||= document.add({}, type: :XXAcroForm)) || nil
+        if (form = self[:AcroForm])
+          form
+        elsif create
+          form = self[:AcroForm] = document.add({}, type: :XXAcroForm)
+          form.set_default_appearance_string
+          form
+        end
       end
 
       private
