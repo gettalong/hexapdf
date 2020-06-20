@@ -175,10 +175,11 @@ module HexaPDF
           self
         end
 
-        # Creates a new widget annotation for this form field on the given +page+, adding the
-        # +values+ to the created widget annotation oject.
+        # Creates a new widget annotation for this form field (must be a terminal field!) on the
+        # given +page+, adding the +values+ to the created widget annotation oject.
         #
-        # Widgets can only be added to terminal fields!
+        # The +values+ argument should at least include :Rect for setting the visible area of the
+        # widget.
         #
         # If the field already has an embedded widget, i.e. field and widget are the same PDF
         # object, its widget data is extracted to a new PDF object and stored in the /Kids field,
