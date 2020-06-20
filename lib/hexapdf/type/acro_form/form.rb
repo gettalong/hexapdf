@@ -132,6 +132,27 @@ module HexaPDF
           field
         end
 
+        # Creates a new text field with the given name and adds it to the form.
+        #
+        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
+        # fields must already exist. Otherwise a top-level field is created.
+        def create_text_field(name)
+          parent_name, _, name = name.rpartition('.')
+          parent_field = parent_name.empty? ? nil : field_by_name(parent_name)
+          if !parent_name.empty? && !parent_field
+            raise HexaPDF::Error, "Parent field '#{parent_name}' not found"
+          end
+
+          field = document.add({FT: :Tx, T: name, Parent: parent_field},
+                               type: :XXAcroFormField, subtype: :Tx)
+          if parent_field
+            (parent_field[:Kids] ||= []) << field
+          else
+            (self[:Fields] ||= []) << field
+          end
+          field
+        end
+
         # Returns the dictionary containing the default resources for form field appearance streams.
         def default_resources
           self[:DR] ||= document.wrap({}, type: :XXResources)
