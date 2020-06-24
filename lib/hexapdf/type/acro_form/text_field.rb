@@ -42,10 +42,31 @@ module HexaPDF
   module Type
     module AcroForm
 
-      # AcroForm text fields provide a box or space to fill-in data entered from keyboard.
+      # AcroForm text fields provide a box or space to fill-in data entered from keyboard. The text
+      # may be restricted to a single line or can span multiple lines.
       #
-      # The text may be restricted to a single line or can span multiple lines. There are other
-      # flags for things like password input.
+      # == Type Specific Field Flags
+      #
+      # :multiline:: If set, the text field may contain multiple lines.
+      #
+      # :password:: The field is a password field. This changes the behaviour of the PDF reader
+      #             application to not echo the input text and to not store it in the PDF file.
+      #
+      # :file_select:: The text field represents a file selection control where the input text is
+      #                the path to a file.
+      #
+      # :do_not_spell_check:: The text should not be spell-checked.
+      #
+      # :do_not_scroll:: The text field should not scroll (horizontally for single-line fields and
+      #                  vertically for multiline fields) to accomodate more text than fits into the
+      #                  annotation rectangle. This means that no more text can be entered once the
+      #                  field is full.
+      #
+      # :comb:: The field is divided into /MaxLen equally spaced positions (so /MaxLen needs to be
+      #         set). This is useful, for example, when entering things like social security
+      #         numbers which always have the same length.
+      #
+      # :rich_text:: The field is a rich text field.
       #
       # See: PDF1.7 s12.7.4.3
       class TextField < VariableTextField

@@ -50,13 +50,41 @@ module HexaPDF
       # purposes and to set default values. Those fields that have other fields as children are
       # called non-terminal fields, otherwise they are called terminal fields.
       #
-      # == Specific Field Type Implementations
+      # While field objects can be created manually, it is best to use the various +create_+ methods
+      # of the main Form object to create them so that all necessary things are set up correctly.
       #
-      # Subclasses are used to implement specific AcroForm field types.
+      # == Field Types
       #
-      # If a AcroForm field type adds additional inheritable dictionary fields, it has to set the
+      # Subclasses are used to implement the specific AcroForm field types:
+      #
+      # * ButtonField implements the button fields (pushbuttons, check boxes and radio buttons)
+      # * TextField implements single or multiline text fields.
+      # * ChoiceField implements scrollable list boxes or (editable) combo boxes.
+      # * SignatureField implements signature fields.
+      #
+      # == Field Flags
+      #
+      # Various characteristics of a field can be changed by setting a certain flag. Some flags are
+      # defined for all types of field, some are specific to a certain type.
+      #
+      # The following flags apply to all fields:
+      #
+      # :read_only:: The field is read only which means the user can't change the value or interact
+      #              with associated widget annotations.
+      #
+      # :required:: The field is required if the form is exported by a submit-form action.
+      #
+      # :no_export:: The field should *not* be exported by a submit-form action.
+      #
+      # == Field Type Implementation Notes
+      #
+      # If an AcroForm field type adds additional inheritable dictionary fields, it has to set the
       # constant +INHERITABLE_FIELDS+ to all inheritable dictionary fields, including those from the
       # superclass.
+      #
+      # Similarily, if additional flags are provided, the constant +FLAGS_BIT_MAPPING+ has to be set
+      # to combination of the superclass value of the constant and the mapping of flag names to bit
+      # indices.
       #
       # See: PDF1.7 s12.7.3.1
       class Field < Dictionary
