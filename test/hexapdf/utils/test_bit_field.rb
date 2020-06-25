@@ -7,7 +7,8 @@ class TestBitField
 
   extend HexaPDF::Utils::BitField
   attr_accessor :data
-  bit_field(:data, {bit0: 0, bit1: 1, bit5: 5}, lister: "list", getter: "get", setter: "set")
+  bit_field(:data, {bit0: 0, bit1: 1, bit5: 5}, lister: "list", getter: "get", setter: "set",
+            unsetter: 'unset')
 
 end
 
@@ -42,6 +43,13 @@ describe HexaPDF::Utils::BitField do
     assert_equal(0b100011, @obj.data)
     @obj.set(:bit0, 5, clear_existing: true)
     assert_equal(0b100001, @obj.data)
+  end
+
+  it "can unset a given bit via the unsetter method" do
+    @obj.set(:bit0, :bit5)
+    assert_equal(0b100001, @obj.data)
+    @obj.unset(:bit5)
+    assert_equal(0b000001, @obj.data)
   end
 
   it "fails if an unknown bit name or bit index is used with one of the methods" do

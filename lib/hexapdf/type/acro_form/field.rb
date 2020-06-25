@@ -131,7 +131,7 @@ module HexaPDF
         # all prior flags will be cleared.
         #
         bit_field(:flags, {read_only: 0, required: 1, no_export: 2},
-                  lister: "flags", getter: "flagged?", setter: "flag",
+                  lister: "flags", getter: "flagged?", setter: "flag", unsetter: "unflag",
                   value_getter: "self[:Ff]", value_setter: "self[:Ff]")
 
         # Form fields must always be indirect objects.

@@ -116,7 +116,7 @@ module HexaPDF
       bit_field(:raw_flags, {invisible: 0, hidden: 1, print: 2, no_zoom: 3, no_rotate: 4,
                              no_view: 5, read_only: 6, locked: 7, toggle_no_view: 8,
                              locked_contents: 9},
-                lister: "flags", getter: "flagged?", setter: "flag")
+                lister: "flags", getter: "flagged?", setter: "flag", unsetter: "unflag")
 
       # Returns +true+ because annotation objects must always be indirect objects.
       def must_be_indirect?

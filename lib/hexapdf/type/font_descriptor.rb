@@ -84,7 +84,7 @@ module HexaPDF
 
       bit_field(:raw_flags, {fixed_pitch: 0, serif: 1, symbolic: 2, script: 3, nonsymbolic: 5,
                              italic: 6, all_cap: 16, small_cap: 17, force_bold: 18},
-                lister: "flags", getter: "flagged?", setter: "flag")
+                lister: "flags", getter: "flagged?", setter: "flag", unsetter: 'unflag')
 
       private
 

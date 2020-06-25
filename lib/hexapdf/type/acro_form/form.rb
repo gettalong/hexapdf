@@ -70,7 +70,8 @@ module HexaPDF
         define_field :XFA,             type: [Stream, PDFArray], version: '1.5'
 
         bit_field(:raw_signature_flags, {signatures_exist: 0, append_only: 1},
-                  lister: "signature_flags", getter: "signature_flag?", setter: "signature_flag")
+                  lister: "signature_flags", getter: "signature_flag?", setter: "signature_flag",
+                  unsetter: "signature_unflag")
 
         # Returns the PDFArray containing the root fields.
         def root_fields

@@ -51,15 +51,18 @@ module HexaPDF
       # get and set the raw integer value; or provide custom method names using the +value_getter+
       # and +value_setter+ arguments.
       #
-      # After invoking the method the calling class has three new instance methods:
+      # After invoking the method the calling class has four new instance methods:
       #
       # * NAME_values which returns an array of bit names representing the set bits.
       # * NAME_include?(bit) which returns true if the given bit is set.
       # * set_NAME(*bits, clear_existing: false) for setting the given bits.
+      # * unset_NAME(*bits) for clearing the given bits.
       #
-      # The method names can be overridden using the arguments +lister+, +getter+ and +setter+.
+      # The method names can be overridden using the arguments +lister+, +getter+, +setter+ and
+      # +unsetter+.
       def bit_field(name, mapping, lister: "#{name}_values", getter: "#{name}_include?",
-                    setter: "set_#{name}", value_getter: name, value_setter: "self.#{name}")
+                    setter: "set_#{name}", unsetter: "unset_#{name}", value_getter: name,
+                    value_setter: "self.#{name}")
         mapping.default_proc = proc do |h, k|
           if h.value?(k)
             k
@@ -84,6 +87,13 @@ module HexaPDF
             result = #{value_getter}
             bits.each {|bit| result |= 1 << self.class::#{name.upcase}_BIT_MAPPING[bit] }
             #{value_setter} =  result
+          end
+
+          def #{unsetter}(*bits)
+            result = #{value_getter} || 0
+            return if result == 0
+            bits.each {|bit| result &= ~(1 << self.class::#{name.upcase}_BIT_MAPPING[bit]) }
+            #{value_setter} = result
           end
         EOF
       end
