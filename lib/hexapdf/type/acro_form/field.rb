@@ -252,6 +252,7 @@ module HexaPDF
             hash[key] = delete(key) if key?(key)
           end
           widget = document.add(data, type: :Annot)
+          widget[:Parent] = self
           document.pages.each do |page|
             if page.key?(:Annots) && (index = page[:Annots].index {|annot| annot.data == self.data })
               page[:Annots][index] = widget
