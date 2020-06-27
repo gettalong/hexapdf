@@ -54,8 +54,7 @@ module HexaPDF
     # HexaPDF::Revision object's trailer dictionary is always of this type. Only when a
     # cross-reference stream is written is the trailer integrated into the stream's dictionary.
     #
-    # See: PDF1.7 s7.5.5, s14.4
-    #      XRefStream
+    # See: PDF1.7 s7.5.5, s14.4; XRefStream
     class Trailer < Dictionary
 
       define_type :XXTrailer
