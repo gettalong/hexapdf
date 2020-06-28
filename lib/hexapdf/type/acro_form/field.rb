@@ -183,7 +183,8 @@ module HexaPDF
         # Returns +true+ if this is a terminal field.
         def terminal_field?
           kids = self[:Kids]
-          kids.nil? || kids.empty? || kids.all? {|kid| kid[:Subtype] == :Widget }
+          # PDF 2.0 s12.7.4.2 clarifies how to do check for fields since PDF 1.7 isn't clear
+          kids.nil? || kids.empty? || kids.none? {|kid| kid.key?(:T) }
         end
 
         # :call-seq:

@@ -75,7 +75,7 @@ describe HexaPDF::Type::AcroForm::Form do
   describe "field_by_name" do
     before do
       @acro_form[:Fields] = [
-        {T: "root only", Kids: [{Subtype: :Widget, T: "no"}]},
+        {T: "root only", Kids: [{Subtype: :Widget}]},
         {T: "children", Kids: [{T: "child"}, {T: "sub", Kids: [{T: "child"}]}]},
       ]
     end

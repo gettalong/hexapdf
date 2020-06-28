@@ -67,7 +67,7 @@ describe HexaPDF::Type::AcroForm::Field do
     @field[:Kids] = [{Subtype: :Widget}]
     assert(@field.terminal_field?)
 
-    @field[:Kids] = [{FT: :Tx}]
+    @field[:Kids] = [{FT: :Tx, T: 'name'}]
     refute(@field.terminal_field?)
   end
 
@@ -134,7 +134,7 @@ describe HexaPDF::Type::AcroForm::Field do
     end
 
     it "fails if called on a non-terminal field" do
-      @field[:Kids] = [{FT: :Tx}]
+      @field[:Kids] = [{T: 'name'}]
       assert_raises(HexaPDF::Error) { @field.create_widget(@page) }
     end
   end
@@ -150,7 +150,7 @@ describe HexaPDF::Type::AcroForm::Field do
       @field.delete(:FT)
       refute(@field.validate)
 
-      @field[:Kids] = [{}]
+      @field[:Kids] = [{T: 'name'}]
       assert(@field.validate)
     end
 
