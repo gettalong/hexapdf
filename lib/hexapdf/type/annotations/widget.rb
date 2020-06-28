@@ -84,6 +84,20 @@ module HexaPDF
         define_field :BS,      type: :Border, version: '1.2'
         define_field :Parent,  type: Dictionary
 
+        # Returs the AcroForm field object to which this widget annotation belongs.
+        #
+        # Since a widget and a field can share the same dictionary object, the returned object is
+        # often just the widget re-wrapped in the correct field class.
+        def form_field
+          field = if key?(:Parent) &&
+                      (tmp = document.wrap(self[:Parent], type: :XXAcroFormField)).terminal_field?
+                    tmp
+                  else
+                    document.wrap(self, type: :XXAcroFormField)
+                  end
+          document.wrap(field, type: :XXAcroFormField, subtype: field[:FT])
+        end
+
         # :call-seq:
         #   widget.background_color                => background_color
         #   widget.background_color(*color)        => widget

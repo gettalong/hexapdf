@@ -29,6 +29,31 @@ describe HexaPDF::Type::Annotations::Widget do
     @widget = @doc.wrap({Type: :Annot, Subtype: :Widget})
   end
 
+  describe "form_field" do
+    it "works for the field and widget being the same object" do
+      @widget[:FT] = :Tx
+      @widget[:T] = 'field'
+      result = @widget.form_field
+      assert_kind_of(HexaPDF::Type::AcroForm::TextField, result)
+      assert_same(@widget.data, result.data)
+    end
+
+    it "works for a field with a parent field and the widget being the same object" do
+      @widget[:Parent] = {FT: :Tx, T: 'parent', Kids: [@widget]}
+      @widget[:T] = 'field'
+      result = @widget.form_field
+      assert_kind_of(HexaPDF::Type::AcroForm::TextField, result)
+      assert_same(@widget.data, result.data)
+    end
+
+    it "works for the widget being in the /Kids array of the field" do
+      @widget[:Parent] = {FT: :Tx, T: 'parent', Kids: [@widget]}
+      result = @widget.form_field
+      assert_kind_of(HexaPDF::Type::AcroForm::TextField, result)
+      refute_same(@widget.data, result.data)
+    end
+  end
+
   describe "background_color" do
     it "returns the current background color" do
       assert_nil(@widget.background_color)
