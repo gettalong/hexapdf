@@ -45,14 +45,27 @@ module HexaPDF
       # Represents the PDF's interactive form dictionary. It is linked from the catalog dictionary
       # via the /AcroForm entry.
       #
+      # == Overview
+      #
       # An interactive form consists of fields which can be structured hierarchically and shown on
-      # pages by using Widget annotations. This means one field can have zero, one or more visual
-      # representations on one or more pages. The fields at the bottom of the hierarchy which have
-      # no parent are called "root fields" and are stored in /Fields.
+      # pages by using Annotations::Widget annotations. This means one field can have zero, one or
+      # more visual representations on one or more pages. The fields at the bottom of the hierarchy
+      # which have no parent are called "root fields" and are stored in /Fields.
       #
       # Each field in a form has a certain type which determines how it should be displayed and what
       # a user can do with it. The most common type is "text field" which allows the user to enter
-      # one or more lines of text.
+      # one or more lines of text. There are also check boxes, radio buttons, list boxes and combo
+      # boxes.
+      #
+      # == Visual Appearance
+      #
+      # The visual appearance of a field is normally provided by the application creating the PDF.
+      # This is done by generating the so called appearance streams for all widgets of a field.
+      # However, it is also possible to instruct the PDF reader application to generate the
+      # appearances on the fly using the /NeedAppearances key, see #need_appearances!.
+      #
+      # HexaPDF honors the /NeedAppearances key: If it is not set or set to +false+, HexaPDF will
+      # generate appearance streams for all fields that don't have any.
       #
       # See: PDF1.7 s12.7.2, Field, HexaPDF::Type::Annotations::Widget
       class Form < Dictionary
