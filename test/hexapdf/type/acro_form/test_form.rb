@@ -148,6 +148,11 @@ describe HexaPDF::Type::AcroForm::Form do
     end
   end
 
+  it "sets the /NeedAppearances key" do
+    @acro_form.need_appearances!
+    assert(@acro_form[:NeedAppearances])
+  end
+
   describe "perform_validation" do
     it "checks whether the /DR field is available when /DA is set" do
       @acro_form[:DA] = 'test'

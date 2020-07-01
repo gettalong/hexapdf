@@ -171,6 +171,14 @@ module HexaPDF
           end
         end
 
+        # Sets the /NeedAppearances field to +true+.
+        #
+        # This will make PDF reader applications generate appropriate appearance streams based on
+        # the information stored in the fields and associated widgets.
+        def need_appearances!
+          self[:NeedAppearances] = true
+        end
+
         private
 
         # Helper method for bit field getter access.
