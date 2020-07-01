@@ -99,7 +99,7 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   widget.background_color                => background_color
+        #   widget.background_color                => background_color or nil
         #   widget.background_color(*color)        => widget
         #
         # Returns the current background color as device color object, or +nil+ if no background
