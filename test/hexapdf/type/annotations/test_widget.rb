@@ -147,4 +147,39 @@ describe HexaPDF::Type::Annotations::Widget do
       end
     end
   end
+
+  describe "button_style" do
+    before do
+      @chars = %w[4 l 8 u n H S]
+      @values = [:check, :circle, :cross, :diamond, :square, :star, 'S']
+    end
+
+    it "returns the current button style" do
+      @chars.zip(@values) do |char, result|
+        @widget[:MK] = {CA: char}
+        assert_equal(result, @widget.button_style)
+      end
+    end
+
+    it "returns the correct default button style depending on the field" do
+      @widget[:FT] = :Btn
+      @widget.form_field.initialize_as_check_box
+      assert_equal(:check, @widget.button_style)
+      @widget.form_field.initialize_as_radio_button
+      assert_equal(:circle, @widget.button_style)
+      @widget.form_field.initialize_as_push_button
+      assert_nil(@widget.button_style)
+    end
+
+    it "sets the button style" do
+      @values.zip(@chars) do |argument, char|
+        @widget.button_style(argument)
+        assert_equal(char, @widget[:MK][:CA])
+      end
+    end
+
+    it "fails if an invalid argument is provided" do
+      assert_raises(ArgumentError) { @widget.button_style(5) }
+    end
+  end
 end

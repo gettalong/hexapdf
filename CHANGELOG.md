@@ -10,6 +10,7 @@
   check box support
 * Various convenience methods for [HexaPDF::Type::AcroForm::Form]
 * Various convenience methods for [HexaPDF::Type::AcroForm::Field]
+* Various convenience methods for [HexaPDF::Type::Annotations::Widget]
 * [HexaPDF::Type::Annotation::AppearanceDictionary]
 * [HexaPDF::Document#acro_form] and [HexaPDF::Type::Catalog#acro_form]
   convenience methods
@@ -19,10 +20,6 @@
 * [HexaPDF::Type::Font#font_wrapper] for accessing an associated font wrapper
   instance
 * [HexaPDF::Type::Annotation::Border] class
-* [HexaPDF::Type::Annotations::Widget] methods `#background_color` and
-  `#border_style`
-* [HexaPDF::Type::Annotations::Widget#form_field] for getting the associated
-  AcroForm field
 * [HexaPDF::Content::ColorSpace::device_color_from_specification] for easily
   getting a device color object
 * [HexaPDF::Content::ColorSpace::prenormalized_device_color] for getting a device

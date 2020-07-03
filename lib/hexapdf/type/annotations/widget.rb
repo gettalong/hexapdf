@@ -215,6 +215,62 @@ module HexaPDF
           end
         end
 
+        # :call-seq:
+        #   widget.button_style               => symbol or string
+        #   widget.button_style(sym_or_str)   => widget
+        #
+        # Returns the button style used by check boxes and radio buttons when no argument is given.
+        # Otherwise sets the button style using the given argument.
+        #
+        # The button style defines the marker that is shown inside of check boxes or radio buttons.
+        # It can either be one of the symbols +:check+, +:circle+, +:cross+, +:diamond+, +:square+
+        # or +:star+, or a one character string. The latter is interpreted using the ZapfDingbats
+        # font.
+        #
+        # The default marker for check boxes is +:check+ and the one for radio buttons +:circle+, so
+        # the return value when retrieving the button style depends on the associated field (see
+        # #form_field).
+        #
+        # Note: The button style is called "normal caption" in the PDF 1.7 spec and the /CA entry of
+        # the associated appearance characteristics dictionary.
+        #
+        # See: PDF1.7 s12.5.6.19
+        def button_style(sym_or_str = nil)
+          if sym_or_str
+            self[:MK] ||= {}
+            self[:MK][:CA] = case sym_or_str
+                             when :check   then '4'
+                             when :circle  then 'l'
+                             when :cross   then '8'
+                             when :diamond then 'u'
+                             when :square  then 'n'
+                             when :star    then 'H'
+                             when String   then sym_or_str
+                             else
+                               raise ArgumentError, "Unknown value #{sym_or_str} for argument"
+                             end
+          else
+            case self[:MK]&.[](:CA)
+            when '4' then :check
+            when 'l' then :circle
+            when '8' then :cross
+            when 'u' then :diamond
+            when 'n' then :square
+            when 'H' then :star
+            when String then self[:MK][:CA]
+            else
+              field = form_field
+              if field.check_box?
+                :check
+              elsif field.radio_button?
+                :circle
+              else
+                nil
+              end
+            end
+          end
+        end
+
       end
 
     end
