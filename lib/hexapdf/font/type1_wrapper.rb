@@ -158,11 +158,19 @@ module HexaPDF
       end
 
       # Returns an array of glyph objects representing the characters in the UTF-8 encoded string.
+      #
+      # If a Unicode codepoint is not available as glyph object, it is tried to map the codepoint
+      # using the font's internal encoding. This is useful, for example, for the ZapfDingbats font
+      # to use ASCII characters for accessing the glyphs.
       def decode_utf8(str)
         str.codepoints.map! do |c|
           @codepoint_to_glyph[c] ||=
             begin
               name = Encoding::GlyphList.unicode_to_name(+'' << c, **@zapf_dingbats_opt)
+              if @wrapped_font.metrics.character_set == 'Special' &&
+                  (name == :'.notdef' || !@wrapped_font.metrics.character_metrics.key?(name))
+                name = @wrapped_font.encoding.name(c)
+              end
               name = +"u" << c.to_s(16).rjust(6, '0') if name == :'.notdef'
               glyph(name)
             end

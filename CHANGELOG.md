@@ -29,6 +29,7 @@
 
 * Refactored [HexaPDF::Font::Type1Wrapper] and [HexaPDF::Font::TrueTypeWrapper]
   and renamed `#dict` to `#pdf_object`
+* Fall back to the Type1 font's internal encoding when decoding a string
 * All [HexaPDF::Content::ColorSpace] implementations to only normalize values
   when using the ::color method
 * [HexaPDF::Content::Parser#parse] to also accept a block in place of a

@@ -21,6 +21,10 @@ describe HexaPDF::Font::Type1Wrapper do
       assert_equal([:T, :e, :s, :t], @times_wrapper.decode_utf8("Test").map(&:name))
     end
 
+    it "falls back to the internal font encoding if the Unicode codepoint is not mapped" do
+      assert_equal([:Delta, :Delta], @symbol_wrapper.decode_utf8("D∆").map(&:name))
+    end
+
     it "UTF-8 characters for which no glyph name exists, are mapped to InvalidGlyph objects" do
       glyphs = @times_wrapper.decode_utf8("😁")
       assert_equal(1, glyphs.length)
