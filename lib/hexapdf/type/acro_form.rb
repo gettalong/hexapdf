@@ -46,6 +46,7 @@ module HexaPDF
       autoload(:Field, 'hexapdf/type/acro_form/field')
       autoload(:VariableTextField, 'hexapdf/type/acro_form/variable_text_field')
       autoload(:TextField, 'hexapdf/type/acro_form/text_field')
+      autoload(:ButtonField, 'hexapdf/type/acro_form/button_field')
 
     end
 

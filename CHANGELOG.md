@@ -6,6 +6,8 @@
   [HexaPDF::Type::AcroForm::Field]
 * [HexaPDF::Type::AcroForm::TextField] and
   [HexaPDF::Type::AcroForm::VariableTextField] for basic text field support
+* [HexaPDF::Type::AcroForm::ButtonField] for push button, radio button and
+  check box support
 * Various convenience methods for [HexaPDF::Type::AcroForm::Form]
 * Various convenience methods for [HexaPDF::Type::AcroForm::Field]
 * [HexaPDF::Type::Annotation::AppearanceDictionary]
