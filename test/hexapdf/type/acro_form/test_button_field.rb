@@ -173,5 +173,10 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert(@field.validate)
       assert_equal(:Btn, @field.field_type)
     end
+
+    it "sets the field value to :Off it it is not set" do
+      assert(@field.validate)
+      assert_equal(:Off, @field[:V])
+    end
   end
 end

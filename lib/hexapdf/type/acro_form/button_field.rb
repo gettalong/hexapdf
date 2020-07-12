@@ -232,6 +232,11 @@ module HexaPDF
           end
 
           super
+
+          unless key?(:V)
+            yield("Button field has no value set, defaulting to :Off", true)
+            self[:V] = :Off
+          end
         end
 
       end
