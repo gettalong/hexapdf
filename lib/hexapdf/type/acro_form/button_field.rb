@@ -167,6 +167,21 @@ module HexaPDF
           normalized_field_value_set(:DV, value)
         end
 
+        # Creates a widget for the button field.
+        #
+        # If +defaults+ is +true+, then default values will be set on the widget so that it uses a
+        # default appearance.
+        #
+        # See: Field#create_widget, AppearanceGenerator button field methods
+        def create_widget(page, defaults: true, **values)
+          super(page, **values).tap do |widget|
+            next unless defaults
+            widget.border_style(color: 0, width: 1, style: (push_button? ? :beveled : :solid))
+            widget.background_color(push_button? ? 0.5 : 255)
+            widget.button_style(check_box? ? :check : :circle) unless push_button?
+          end
+        end
+
         private
 
         # Returns the normalized field value for the given key which can be :V or :DV.

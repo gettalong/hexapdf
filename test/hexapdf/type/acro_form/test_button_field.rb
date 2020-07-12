@@ -48,6 +48,16 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       @field.field_value = :test
       assert_nil(@field[:V])
     end
+
+    it "applies sensible default values when creating a widget" do
+      widget = @field.create_widget(@doc.pages.add)
+      border_style = widget.border_style
+      assert_equal([0], border_style.color.components)
+      assert_equal(1, border_style.width)
+      assert_equal(:beveled, border_style.style)
+      assert_equal([0.5], widget.background_color.components)
+      assert_nil(widget.button_style)
+    end
   end
 
   describe "check box" do
@@ -74,6 +84,16 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       @field.field_value = false
       assert_equal(:Off, @field[:V])
     end
+
+    it "applies sensible default values when creating a widget" do
+      widget = @field.create_widget(@doc.pages.add)
+      border_style = widget.border_style
+      assert_equal([0], border_style.color.components)
+      assert_equal(1, border_style.width)
+      assert_equal(:solid, border_style.style)
+      assert_equal([1], widget.background_color.components)
+      assert_equal(:check, widget.button_style)
+    end
   end
 
   describe "radio button" do
@@ -99,6 +119,16 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(:button1, @field[:V])
       @field.field_value = nil
       assert_equal(:Off, @field[:V])
+    end
+
+    it "applies sensible default values when creating a widget" do
+      widget = @field.create_widget(@doc.pages.add)
+      border_style = widget.border_style
+      assert_equal([0], border_style.color.components)
+      assert_equal(1, border_style.width)
+      assert_equal(:solid, border_style.style)
+      assert_equal([1], widget.background_color.components)
+      assert_equal(:circle, widget.button_style)
     end
   end
 
