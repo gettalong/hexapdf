@@ -149,22 +149,17 @@ module HexaPDF
         # Creates a new text field with the given name and adds it to the form.
         #
         # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. Otherwise a top-level field is created.
+        # fields must already exist. If it doesn't contain dots, a top-level field is created.
         def create_text_field(name)
-          parent_name, _, name = name.rpartition('.')
-          parent_field = parent_name.empty? ? nil : field_by_name(parent_name)
-          if !parent_name.empty? && !parent_field
-            raise HexaPDF::Error, "Parent field '#{parent_name}' not found"
-          end
+          create_field(name, :Tx)
+        end
 
-          field = document.add({FT: :Tx, T: name, Parent: parent_field},
-                               type: :XXAcroFormField, subtype: :Tx)
-          if parent_field
-            (parent_field[:Kids] ||= []) << field
-          else
-            (self[:Fields] ||= []) << field
-          end
-          field
+        # Creates a new check box with the given name and adds it to the form.
+        #
+        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
+        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        def create_check_box(name)
+          create_field(name, :Btn).tap(&:initialize_as_check_box)
         end
 
         # Returns the dictionary containing the default resources for form field appearance streams.
@@ -202,6 +197,24 @@ module HexaPDF
         # Helper method for bit field setter access.
         def raw_signature_flags=(value)
           self[:SigFlags] = value
+        end
+
+        # Creates a new field with the full name +name+ and the field type +type+.
+        def create_field(name, type)
+          parent_name, _, name = name.rpartition('.')
+          parent_field = parent_name.empty? ? nil : field_by_name(parent_name)
+          if !parent_name.empty? && !parent_field
+            raise HexaPDF::Error, "Parent field '#{parent_name}' not found"
+          end
+
+          field = document.add({FT: type, T: name, Parent: parent_field},
+                               type: :XXAcroFormField, subtype: type)
+          if parent_field
+            (parent_field[:Kids] ||= []) << field
+          else
+            (self[:Fields] ||= []) << field
+          end
+          field
         end
 
         def perform_validation # :nodoc:

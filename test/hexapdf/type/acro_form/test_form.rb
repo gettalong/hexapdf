@@ -101,24 +101,34 @@ describe HexaPDF::Type::AcroForm::Form do
     end
   end
 
-  describe "create_text_field" do
-    it "works for names with a dot" do
-      @acro_form[:Fields] = [{T: "root"}]
-      field = @acro_form.create_text_field("root.field")
-      assert_equal(:Tx, field.field_type)
-      assert_equal('root.field', field.full_field_name)
-      assert_equal([field], @acro_form[:Fields][0][:Kids])
+  describe "create fields" do
+    describe "handles the general case" do
+      it "works for names with a dot" do
+        @acro_form[:Fields] = [{T: "root"}]
+        field = @acro_form.create_text_field("root.field")
+        assert_equal('root.field', field.full_field_name)
+        assert_equal([field], @acro_form[:Fields][0][:Kids])
+      end
+
+      it "works for names without a dot" do
+        field = @acro_form.create_text_field("field")
+        assert_equal('field', field.full_field_name)
+        assert([field], @acro_form[:Fields])
+      end
+
+      it "fails if the parent field is not found" do
+        assert_raises(HexaPDF::Error) { @acro_form.create_text_field("root.field") }
+      end
     end
 
-    it "works for names without a dot" do
+    it "creates a text field" do
       field = @acro_form.create_text_field("field")
       assert_equal(:Tx, field.field_type)
-      assert_equal('field', field.full_field_name)
-      assert([field], @acro_form[:Fields])
     end
 
-    it "fails if the parent field is not found" do
-      assert_raises(HexaPDF::Error) { @acro_form.create_text_field("root.field") }
+    it "creates a checkbox" do
+      field = @acro_form.create_check_box("field")
+      assert(field.check_box?)
     end
   end
 
