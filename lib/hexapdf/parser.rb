@@ -281,7 +281,8 @@ module HexaPDF
       @io.seek(0, IO::SEEK_END)
       step_size = 1024
       pos = @io.pos
-      eof_not_found = startxref_missing = false
+      eof_not_found = pos == 0
+      startxref_missing = false
 
       while pos != 0
         @io.pos = [pos - step_size, 0].max
@@ -333,7 +334,7 @@ module HexaPDF
     # See: PDF1.7 s7.5.2, ADB1.7 sH.3-3.4.1
     def retrieve_pdf_header_offset_and_version
       @io.seek(0)
-      @header_offset = @io.read(1024).index(/%PDF-(\d\.\d)/) || 0
+      @header_offset = (@io.read(1024) || '').index(/%PDF-(\d\.\d)/) || 0
       @header_version = $1
     end
 

@@ -49,6 +49,7 @@
 * Invalid ordering of types for the `/V` and `/DV` fields of
   [HexaPDF::Type::AcroForm::Field]
 * [HexaPDF::Type::AcroForm::Field#terminal_field?] to work according to the spec
+* Handling of empty files by throwing better error messages
 
 
 ## 0.11.9 - 2020-06-15

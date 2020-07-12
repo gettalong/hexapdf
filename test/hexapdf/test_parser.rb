@@ -231,6 +231,10 @@ describe HexaPDF::Parser do
       create_parser("startxref\n5")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
       assert_match(/end-of-file marker not found/, exp.message)
+
+      create_parser("")
+      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
+      assert_match(/end-of-file marker not found/, exp.message)
     end
 
     it "fails if the startxref keyword is missing" do
@@ -247,6 +251,12 @@ describe HexaPDF::Parser do
 
     it "fails if the header is mangled" do
       create_parser("%PDF-1\n")
+      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.file_header_version }
+      assert_match(/file header/, exp.message)
+    end
+
+    it "fails if the header is missing" do
+      create_parser("no header")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.file_header_version }
       assert_match(/file header/, exp.message)
     end
