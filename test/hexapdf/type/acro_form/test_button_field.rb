@@ -152,6 +152,20 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     assert_equal(6, @field[:Opt])
   end
 
+  describe "create_appearance_streams!" do
+    it "works for check boxes" do
+      @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      @field.create_appearance_streams!
+      assert(@field[:AP][:N][:Yes])
+    end
+
+    it "fails for unsupported button types" do
+      @field.flag(:push_button)
+      @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      assert_raises(HexaPDF::Error) { @field.create_appearance_streams! }
+    end
+  end
+
   describe "validation" do
     it "checks the value of the /FT field" do
       @field.delete(:FT)

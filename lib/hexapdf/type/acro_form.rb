@@ -48,6 +48,8 @@ module HexaPDF
       autoload(:TextField, 'hexapdf/type/acro_form/text_field')
       autoload(:ButtonField, 'hexapdf/type/acro_form/button_field')
 
+      autoload(:AppearanceGenerator, 'hexapdf/type/acro_form/appearance_generator')
+
     end
 
   end

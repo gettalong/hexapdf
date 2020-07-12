@@ -144,11 +144,17 @@ module HexaPDF
   #
   # The following options are provided:
   #
+  # acro_form.appearance_generator::
+  #    The class that should be used for generating appearance streams for AcroForm fields. If the
+  #    value is a String, it should contain the name of a constant to such a class.
+  #
+  #    See HexaPDF::Type::AcroForm::AppearanceGenerator
+  #
+  # acro_form.default_font_size::
+  #    A number specifying the default font size of AcroForm text fields which should be auto-sized.
+  #
   # acro_form.text_field.default_width::
   #    A number specifying the default width of AcroForm text fields which should be auto-sized.
-  #
-  # acro_form.text_field.default_font_size::
-  #    A number specifying the default font size of AcroForm text fields which should be auto-sized.
   #
   # document.auto_decrypt::
   #    A boolean determining whether the document should be decrypted automatically when parsed.
@@ -313,8 +319,9 @@ module HexaPDF
   # task.map::
   #    A mapping from task names to callable task objects. See HexaPDF::Task for more information.
   DefaultDocumentConfiguration =
-    Configuration.new('acro_form.text_field.default_width' => 100,
-                      'acro_form.text_field.default_font_size' => 10,
+    Configuration.new('acro_form.appearance_generator' => 'HexaPDF::Type::AcroForm::AppearanceGenerator',
+                      'acro_form.default_font_size' => 10,
+                      'acro_form.text_field.default_width' => 100,
                       'document.auto_decrypt' => true,
                       'encryption.aes' => 'HexaPDF::Encryption::FastAES',
                       'encryption.arc4' => 'HexaPDF::Encryption::FastARC4',

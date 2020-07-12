@@ -35,6 +35,7 @@
 #++
 
 require 'hexapdf/type/acro_form/field'
+require 'hexapdf/type/acro_form/appearance_generator'
 
 module HexaPDF
   module Type
@@ -179,6 +180,20 @@ module HexaPDF
             widget.border_style(color: 0, width: 1, style: (push_button? ? :beveled : :solid))
             widget.background_color(push_button? ? 0.5 : 255)
             widget.button_style(check_box? ? :check : :circle) unless push_button?
+          end
+        end
+
+        # Creates appropriate appearance streams for all widgets.
+        #
+        # The created streams depend on the actual type of the button field. See AppearanceGenerator
+        # for the details.
+        def create_appearance_streams!
+          each_widget do |widget|
+            if check_box?
+              AppearanceGenerator.new(widget).create_check_box_appearance_streams
+            else
+              raise HexaPDF::Error, "Radio buttons and push buttons not yet supported"
+            end
           end
         end
 

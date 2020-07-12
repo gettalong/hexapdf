@@ -132,7 +132,7 @@ module HexaPDF
         #               already existing stream will be discarded.
         #
         # /Rect:: If the height is zero, it is auto-sized based on the font size. If additionally
-        #         the font size is zero, a font size of +acro_form.text_field.default_font_size+ is
+        #         the font size is zero, a font size of +acro_form.default_font_size+ is
         #         used. If the width is zero, the +acro_form.text_field.default_width+ value is
         #         used.
         #
@@ -141,7 +141,7 @@ module HexaPDF
         # Note: Multiline, comb and rich text fields are currently not supported!
         def create_appearance_streams!
           font_name, font_size = parse_default_appearance_string
-          default_font_size = document.config['acro_form.text_field.default_font_size']
+          default_font_size = document.config['acro_form.default_font_size']
           default_width = document.config['acro_form.text_field.default_width']
           default_resources = document.acro_form.default_resources
           font = default_resources.font(font_name).font_wrapper ||
