@@ -74,20 +74,20 @@ describe HexaPDF::Document::Pages do
 
   describe "delete" do
     it "deletes a given page" do
-      page = @doc.pages.add
-      @doc.pages.add
+      page1 = @doc.pages.add
+      page2 = @doc.pages.add
 
-      assert_same(page, @doc.pages.delete(page))
-      assert_nil(@doc.pages.delete(page))
+      @doc.pages.delete(page1)
+      assert_equal([page2], @doc.pages.root[:Kids].value)
     end
   end
 
   describe "delete_at" do
     it "deletes a page at a given index" do
       page1 = @doc.pages.add
-      page2 = @doc.pages.add
+      @doc.pages.add
       page3 = @doc.pages.add
-      assert_same(page2, @doc.pages.delete_at(1))
+      @doc.pages.delete_at(1)
       assert_equal([page1, page3], @doc.pages.root[:Kids].value)
     end
   end

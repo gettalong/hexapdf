@@ -35,6 +35,7 @@
 #++
 
 require 'hexapdf/dictionary'
+require 'hexapdf/error'
 
 module HexaPDF
   module Type
@@ -159,20 +160,16 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   pages.delete_page(page)        -> page or nil
-      #   pages.delete_page(index)       -> page or nil
+      #   pages.delete_page(page)
+      #   pages.delete_page(index)
       #
       # Deletes the given page or the page at the position specified by the zero-based index from
-      # the page tree and returns the deleted page object. If the page was not deleted, +nil+ is
-      # returned.
-      #
-      # Note that the page is *not* deleted from the document itself, only from the page tree! This
-      # also means that the /Parent entry of the page is set to +nil+ if deleted.
+      # the page tree and the document.
       #
       # Negative indices count backwards from the end, i.e. -1 is the last page.
       def delete_page(page)
         page = self.page(page) if page.kind_of?(Integer)
-        return nil unless page && page[:Parent]
+        return unless page && !page.null? && page[:Parent]
 
         parent = page[:Parent]
         index = parent[:Kids].index {|kid| kid.data == page.data }
@@ -184,10 +181,10 @@ module HexaPDF
 
           page[:Parent][:Kids].delete_at(index)
           page.delete(:Parent)
+          document.delete(page)
           ancestors.each {|node| node[:Count] -= 1 }
-          page
         else
-          nil
+          raise HexaPDF::Error, "Given page not found in page tree"
         end
       end
 

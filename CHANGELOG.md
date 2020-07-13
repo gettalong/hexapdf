@@ -29,6 +29,7 @@
 
 ### Changed
 
+* Deletion of pages to delete them from the document as well
 * Refactored [HexaPDF::Font::Type1Wrapper] and [HexaPDF::Font::TrueTypeWrapper]
   and renamed `#dict` to `#pdf_object`
 * Fall back to the Type1 font's internal encoding when decoding a string

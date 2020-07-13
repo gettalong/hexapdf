@@ -101,25 +101,14 @@ module HexaPDF
         @document.catalog.pages.insert_page(index, page)
       end
 
-      # :call-seq:
-      #   pages.delete(page)       -> page or nil
-      #
-      # Deletes the given page object from the document's page tree (but *not* from the document).
-      #
-      # Returns the page object, or +nil+ if the page object was not in the page tree.
+      # Deletes the given page object from the document's page tree and the document.
       #
       # Also see: HexaPDF::Type::PageTreeNode#delete_page
       def delete(page)
         @document.catalog.pages.delete_page(page)
       end
 
-      # :call-seq:
-      #   pages.delete_at(index)       -> page or nil
-      #
-      # Deletes the page object at the given index from the document's page tree (but *not* from the
-      # document).
-      #
-      # Returns the page object, or +nil+ if the index was invalid.
+      # Deletes the page object at the given index from the document's page tree and the document.
       #
       # Also see: HexaPDF::Type::PageTreeNode#delete_page
       def delete_at(index)
