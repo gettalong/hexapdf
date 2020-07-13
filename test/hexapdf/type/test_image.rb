@@ -120,6 +120,12 @@ describe HexaPDF::Type::Image do
       assert_equal(:other, info.color_space)
       assert_equal(-1, info.components)
     end
+
+    it "processes the SMask entry" do
+      @image[:SMask] = :something
+      info = @image.info
+      refute(info.writable)
+    end
   end
 
   describe "write" do
@@ -182,6 +188,7 @@ describe HexaPDF::Type::Image do
     end
 
     Dir.glob(File.join(TEST_DATA_DIR, 'images', '*.png')).each do |png_file|
+      next if png_file =~ /alpha/
       it "writes #{File.basename(png_file)} correctly as PNG file" do
         image = @doc.images.add(png_file)
         if png_file =~ /greyscale-1bit.png/ # force use of arrays for one image

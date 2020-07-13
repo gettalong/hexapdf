@@ -50,6 +50,8 @@
   [HexaPDF::Type::AcroForm::Field]
 * [HexaPDF::Type::AcroForm::Field#terminal_field?] to work according to the spec
 * Handling of empty files by throwing better error messages
+* [HexaPDF::Type::Image#info] to correctly identify images with a soft mask as
+  currently not supported for writing
 
 
 ## 0.11.9 - 2020-06-15

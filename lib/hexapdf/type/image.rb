@@ -169,6 +169,8 @@ module HexaPDF
           result.writable = false if result.type == :png
         end
 
+        result.writable = false if self[:SMask]
+
         result
       end
 
