@@ -172,6 +172,7 @@ module HexaPDF
 
       obj = object(ref_or_oid)
       obj.data.value = nil
+      obj.document = nil
       if mark_as_free
         add_without_check(HexaPDF::Object.new(nil, oid: obj.oid, gen: obj.gen))
       else

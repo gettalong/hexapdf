@@ -52,6 +52,8 @@
 * Handling of empty files by throwing better error messages
 * [HexaPDF::Type::Image#info] to correctly identify images with a soft mask as
   currently not supported for writing
+* [HexaPDF::Revision#delete] to remove the connection between the object and the
+  document
 
 
 ## 0.11.9 - 2020-06-15

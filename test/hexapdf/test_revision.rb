@@ -114,12 +114,14 @@ describe HexaPDF::Revision do
       @rev.delete(@ref, mark_as_free: false)
       refute(@rev.object?(@ref))
       assert(@obj.null?)
+      assert_raises(HexaPDF::Error) { @obj.document }
     end
 
     it "deletes objects specified by object number" do
       @rev.delete(@ref.oid, mark_as_free: false)
       refute(@rev.object?(@ref.oid))
       assert(@obj.null?)
+      assert_raises(HexaPDF::Error) { @obj.document }
     end
 
     it "marks the object as PDF null object when using mark_as_free=true" do
@@ -127,6 +129,7 @@ describe HexaPDF::Revision do
       @rev.delete(@ref)
       assert(@rev.object(@ref).null?)
       assert(@obj.null?)
+      assert_raises(HexaPDF::Error) { @obj.document }
     end
   end
 
