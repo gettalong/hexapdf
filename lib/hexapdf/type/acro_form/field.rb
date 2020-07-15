@@ -89,6 +89,18 @@ module HexaPDF
       # See: PDF1.7 s12.7.3.1
       class Field < Dictionary
 
+        # Provides a #value method for hash that returns self so that a Hash can be used
+        # interchangably with a HexaPDF::Dictionary.
+        module HashRefinement
+          refine Hash do
+            def value
+              self
+            end
+          end
+        end
+
+        using HashRefinement
+
         extend Utils::BitField
 
         define_type :XXAcroFormField

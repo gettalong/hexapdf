@@ -4,6 +4,15 @@ require 'test_helper'
 require 'hexapdf/document'
 require 'hexapdf/type/acro_form/field'
 
+describe HexaPDF::Type::AcroForm::Field::HashRefinement do
+  using HexaPDF::Type::AcroForm::Field::HashRefinement
+
+  it "returns self when calling value" do
+    x = {}
+    assert_same(x, x.value)
+  end
+end
+
 describe HexaPDF::Type::AcroForm::Field do
   before do
     @doc = HexaPDF::Document.new
