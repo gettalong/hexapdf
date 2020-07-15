@@ -36,6 +36,7 @@
 
 require 'hexapdf/dictionary'
 require 'hexapdf/stream'
+require 'hexapdf/type/acro_form/field'
 require 'hexapdf/utils/bit_field'
 
 module HexaPDF
@@ -97,7 +98,7 @@ module HexaPDF
           document.pages.each do |page|
             page[:Annots]&.each do |annot|
               if !annot.key?(:Parent) && annot.key?(:FT)
-                result << document.wrap(annot, type: :XXAcroFormField)
+                result << document.wrap(annot, type: :XXAcroFormField, subtype: annot[:FT])
               elsif annot.key?(:Parent)
                 field = annot[:Parent]
                 field = field[:Parent] while field[:Parent]
@@ -124,7 +125,8 @@ module HexaPDF
           return to_enum(__method__, terminal_only: terminal_only) unless block_given?
 
           process_field = lambda do |field|
-            field = document.wrap(field, type: :XXAcroFormField)
+            field = document.wrap(field, type: :XXAcroFormField,
+                                  subtype: Field.inherited_value(field, :FT))
             yield(field) if field.terminal_field? || !terminal_only
             field[:Kids].each(&process_field) unless field.terminal_field?
           end
@@ -140,7 +142,8 @@ module HexaPDF
           name.split('.').each do |part|
             field = fields&.find {|f| f[:T] == part }
             break unless field
-            field = document.wrap(field, type: :XXAcroFormField)
+            field = document.wrap(field, type: :XXAcroFormField,
+                                  subtype: Field.inherited_value(field, :FT))
             fields = field[:Kids] unless field.terminal_field?
           end
           field

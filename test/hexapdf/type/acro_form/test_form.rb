@@ -41,12 +41,14 @@ describe HexaPDF::Type::AcroForm::Form do
   end
 
   it "finds the root fields" do
-    @doc.pages.add[:Annots] = [{FT: :Tx1}, {FT: :Tx2, Parent: {FT: :Tx3}}]
+    @doc.pages.add[:Annots] = [{FT: :Tx}, {FT: :Tx2, Parent: {FT: :Tx3}}]
     @doc.pages.add[:Annots] = [{Subtype: :Widget}]
     @doc.pages.add
 
-    result = [{FT: :Tx1}, {FT: :Tx3}]
-    assert_equal(result, @acro_form.find_root_fields.map(&:value))
+    result = [{FT: :Tx}, {FT: :Tx3}]
+    root_fields = @acro_form.find_root_fields
+    assert_equal(result, root_fields.map(&:value))
+    assert_kind_of(HexaPDF::Type::AcroForm::TextField, root_fields[0])
     refute(@acro_form.key?(:Fields))
 
     @acro_form.find_root_fields!
@@ -58,8 +60,11 @@ describe HexaPDF::Type::AcroForm::Form do
       @acro_form[:Fields] = [
         {T: :Tx1},
         {T: :Tx2, Kids: [{Subtype: :Widget}]},
-        {T: :Tx3, Kids: [{T: :Tx4}, {T: :Tx5, Kids: [{T: :Tx6}]}]},
+        {T: :Tx3, FT: :Tx, Kids: [{T: :Tx4}, {T: :Tx5, Kids: [{T: :Tx6}]}]},
       ]
+      @acro_form[:Fields][2][:Kids][0][:Parent] = @acro_form[:Fields][2]
+      @acro_form[:Fields][2][:Kids][1][:Parent] = @acro_form[:Fields][2]
+      @acro_form[:Fields][2][:Kids][1][:Kids][0][:Parent] = @acro_form[:Fields][2][:Kids][1]
     end
 
     it "iterates over all terminal fields" do
@@ -70,13 +75,17 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal([:Tx1, :Tx2, :Tx3, :Tx4, :Tx5, :Tx6],
                    @acro_form.each_field(terminal_only: false).map {|h| h[:T] })
     end
+
+    it "converts the fields into their proper types if possible" do
+      assert_kind_of(HexaPDF::Type::AcroForm::TextField, @acro_form.each_field.to_a.last)
+    end
   end
 
   describe "field_by_name" do
     before do
       @acro_form[:Fields] = [
         {T: "root only", Kids: [{Subtype: :Widget}]},
-        {T: "children", Kids: [{T: "child"}, {T: "sub", Kids: [{T: "child"}]}]},
+        {T: "children", Kids: [{T: "child", FT: :Btn}, {T: "sub", Kids: [{T: "child"}]}]},
       ]
     end
 
@@ -98,6 +107,10 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_nil(@acro_form.field_by_name("root only.no"))
       assert_nil(@acro_form.field_by_name("children.no child"))
       assert_nil(@acro_form.field_by_name("children.sub.no child"))
+    end
+
+    it "returns the correct field class" do
+      assert_kind_of(HexaPDF::Type::AcroForm::ButtonField, @acro_form.field_by_name('children.child'))
     end
   end
 

@@ -44,6 +44,8 @@
 * Moved `HexaPDF::Content::Canvas#color_space_for_components` to class method on
   [HexaPDF::Content::ColorSpace]
 * Added bit unsetter method to[HexaPDF::Utils::BitField]
+* [HexaPDF::Type::AcroForm::Form#find_root_fields] and `#each_field` to take the
+  field type into account when wrapping a field dictionary
 
 ### Fixed
 
