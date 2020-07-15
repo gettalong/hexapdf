@@ -113,13 +113,16 @@ module HexaPDF
       # should be associated with. If no object is set, a suitable one is automatically created.
       #
       # The optional argument +custom_encoding+ can be set to +true+ so that a custom encoding
-      # instead of the WinAnsiEncoding is used.
+      # instead of the WinAnsiEncoding is used (only used if +pdf_object+ is not set).
       def initialize(document, font, pdf_object: nil, custom_encoding: false)
         @wrapped_font = font
         @pdf_object = pdf_object || create_pdf_object(document)
         @missing_glyph_callable = document.config['font.on_missing_glyph']
 
-        if @wrapped_font.metrics.character_set == 'Special' || custom_encoding
+        if pdf_object
+          @encoding = pdf_object.encoding
+          @max_code = 255 # Encoding is not modified
+        elsif @wrapped_font.metrics.character_set == 'Special' || custom_encoding
           @encoding = Encoding::Base.new
           @encoding.code_to_name[32] = :space
           @max_code = 32 # 32 = space
