@@ -21,6 +21,8 @@
 * Method #prenormalized_color to all color space implementations
 * [HexaPDF::Type::Font#font_wrapper] for accessing an associated font wrapper
   instance
+* [HexaPDF::Type::FontType1#font_wrapper] for providing a font wrapper for the
+  standard PDF fonts
 * [HexaPDF::Type::Annotation::Border] class
 * [HexaPDF::Content::ColorSpace::device_color_from_specification] for easily
   getting a device color object

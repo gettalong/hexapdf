@@ -37,6 +37,7 @@
 require 'hexapdf/data_dir'
 require 'hexapdf/type/font_simple'
 require 'hexapdf/font/type1'
+require 'hexapdf/font/type1_wrapper'
 
 module HexaPDF
   module Type
@@ -104,6 +105,20 @@ module HexaPDF
 
       define_field :Subtype, type: Symbol, required: true, default: :Type1
       define_field :BaseFont, type: Symbol, required: true
+
+      # Overrides the default to provide a font wrapper in case none is set and the font is one of
+      # the standard fonts.
+      #
+      # See: Font#font_wrapper
+      def font_wrapper
+        if (tmp = super)
+          tmp
+        elsif StandardFonts.standard_font?(self[:BaseFont])
+          self.font_wrapper = HexaPDF::Font::Type1Wrapper.new(document,
+                                                              StandardFonts.font(self[:BaseFont]),
+                                                              pdf_object: self)
+        end
+      end
 
       # Returns the unscaled width of the given code point in glyph units, or 0 if the width for the
       # code point is missing.

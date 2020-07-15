@@ -57,6 +57,14 @@ describe HexaPDF::Type::FontType1 do
                                FirstChar: 32, LastChar: 34, Widths: [600, 0, 700]})
   end
 
+  it "can create a usable font wrapper for the standard fonts" do
+    wrapper = @font.font_wrapper
+    assert(wrapper)
+    assert_same(@font, wrapper.pdf_object)
+    assert_equal(@font[:BaseFont], wrapper.wrapped_font.font_name.intern)
+    assert_same(wrapper, @font.font_wrapper)
+  end
+
   describe "encoding" do
     it "returns the the standard font's encoding" do
       @font.delete(:Encoding)
