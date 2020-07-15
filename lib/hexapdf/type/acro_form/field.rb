@@ -134,6 +134,15 @@ module HexaPDF
                   lister: "flags", getter: "flagged?", setter: "flag", unsetter: "unflag",
                   value_getter: "self[:Ff]", value_setter: "self[:Ff]")
 
+        # Treats +name+ as an inheritable dictionary field and resolves its value for the AcroForm
+        # field +field+.
+        def self.inherited_value(field, name)
+          while field.value[name].nil? && (parent = field[:Parent])
+            field = parent
+          end
+          field.value[name].nil? ? nil : field[name]
+        end
+
         # Form fields must always be indirect objects.
         def must_be_indirect?
           true
@@ -141,17 +150,13 @@ module HexaPDF
 
         # Returns the value for the entry +name+.
         #
-        # If +name+ is an inheritable value and the value has not been set on this field object, its
+        # If +name+ is an inheritable field and the value has not been set on this field object, its
         # value is retrieved from the parent fields.
         #
         # See: Dictionary#[]
         def [](name)
           if value[name].nil? && self.class::INHERITABLE_FIELDS.include?(name)
-            field = self
-            while field.value[name].nil? && (parent = field[:Parent])
-              field = parent
-            end
-            field == self || field.value[name].nil? ? super : field[name]
+            self.class.inherited_value(self, name) || super
           else
             super
           end
