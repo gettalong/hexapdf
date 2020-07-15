@@ -57,7 +57,7 @@ module HexaPDF
       #
       # See: HexaPDF::Font
       def font_wrapper
-        @font_wrapper
+        @font_wrapper ||= nil
       end
 
       # Sets the font wrapper.
