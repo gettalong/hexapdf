@@ -46,6 +46,8 @@
 * Added bit unsetter method to[HexaPDF::Utils::BitField]
 * [HexaPDF::Type::AcroForm::Form#find_root_fields] and `#each_field` to take the
   field type into account when wrapping a field dictionary
+* Pages specification of CLI commands to allow counting from the end using the
+  new `r<N>` notation
 
 ### Fixed
 

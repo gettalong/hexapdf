@@ -651,7 +651,8 @@ This command shows the version of the hexapdf application. It is an alternative 
 Some commands allow the specification of pages using a *PAGES* argument. This argument is expected
 to be a comma separated list of single page numbers or page ranges of the form *START*-*END*. The
 character '**e**' represents the last page and can be used instead of a single number or in a range.
-The pages are used in the order in which the are specified.
+If a number is preceded by an '**r**', the pages are counted from the end (i.e. *r1* would be the
+last page). The pages are used in the order in which the are specified.
 
 If the start number of a page range is higher than the end number, the pages are used in the reverse
 order.
@@ -683,8 +684,11 @@ the `modify` command).
 Examples:
 
 * **1,2,3**: The pages 1, 2 and 3.
-* **11,4-9,1,e**: The pages 11, 4 to 9, 1 and the last page, in exactly this order.
+  * **11,4-9,1,e,r3**: The pages 11, 4 to 9, 1, the last page and the third last page, in exactly
+  this order.
 * **1-e**: All pages of the document.
+* **1-r1**: Same as above.
+* **1-r4**: All pages of the document except the last three.
 * **e-1**: All pages of the document in reverse order.
 * **1-5/2**: The pages 1, 3 and 5.
 * **10-1/3**: The pages 10, 7, 4 and 1.
