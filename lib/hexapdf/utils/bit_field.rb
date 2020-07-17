@@ -43,9 +43,9 @@ module HexaPDF
 
       # Creates a bit field for managing the integer attribute +name+.
       #
-      # The +mapping+ argument specifies the mapping of names to bit indices which allows one to use
-      # either the bit name or its index when getting or setting. When using an unknown bit name or
-      # bit index, an error is raised.
+      # The +mapping+ argument specifies the mapping of names to zero-based bit indices which allows
+      # one to use either the bit name or its index when getting or setting. When using an unknown
+      # bit name or bit index, an error is raised.
       #
       # The calling class needs to respond to \#name and \#name= because these methods are used to
       # get and set the raw integer value; or provide custom method names using the +value_getter+
