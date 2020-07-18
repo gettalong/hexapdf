@@ -187,7 +187,7 @@ module HexaPDF
             next unless defaults
             widget.border_style(color: 0, width: 1, style: (push_button? ? :beveled : :solid))
             widget.background_color(push_button? ? 0.5 : 255)
-            widget.button_marker_style(marker: check_box? ? :check : :circle) unless push_button?
+            widget.marker_style(style: check_box? ? :check : :circle) unless push_button?
           end
         end
 

@@ -91,7 +91,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(1, border_style.width)
       assert_equal(:solid, border_style.style)
       assert_equal([1], widget.background_color.components)
-      assert_equal(:check, widget.button_marker_style.marker)
+      assert_equal(:check, widget.marker_style.style)
     end
   end
 
@@ -127,7 +127,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(1, border_style.width)
       assert_equal(:solid, border_style.style)
       assert_equal([1], widget.background_color.components)
-      assert_equal(:circle, widget.button_marker_style.marker)
+      assert_equal(:circle, widget.marker_style.style)
     end
 
     it "fails if the value argument is not provided for create_widget" do

@@ -115,7 +115,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
     end
   end
 
-  describe "draw_button_marker" do
+  describe "draw_marker" do
     before do
       @field = @doc.add({FT: :Btn}, type: :XXAcroFormField, subtype: :Btn)
       @widget = @field.create_widget(@page, defaults: false, Rect: [0, 0, 10, 20])
@@ -124,13 +124,13 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
     end
 
     def execute
-      @generator.send(:draw_button_marker, @xform.canvas, @widget[:Rect], @widget.border_style.width,
-                      @widget.button_marker_style)
+      @generator.send(:draw_marker, @xform.canvas, @widget[:Rect], @widget.border_style.width,
+                      @widget.marker_style)
     end
 
     it "handles the marker :circle specially for radio button widgets" do
       @field.initialize_as_radio_button
-      @widget.button_marker_style(marker: :circle, color: 0.5)
+      @widget.marker_style(style: :circle, color: 0.5)
       execute
       assert_operators(@xform.stream,
                        [[:set_device_gray_non_stroking_color, [0.5]],
@@ -146,7 +146,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
     end
 
     it "handles the marker :cross specially" do
-      @widget.button_marker_style(marker: :cross, color: 0.5)
+      @widget.marker_style(style: :cross, color: 0.5)
       execute
       assert_operators(@xform.stream,
                        [[:set_device_gray_stroking_color, [0.5]],
@@ -157,7 +157,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
     describe "handles the normal markers by drawing them using the ZapfDingbats font" do
       it "works with font auto-sizing" do
-        @widget.button_marker_style(marker: :check, color: 0.5, size: 0)
+        @widget.marker_style(style: :check, color: 0.5, size: 0)
         execute
         assert_operators(@xform.stream,
                          [[:set_font_and_size, [:F1, 8]],
@@ -169,7 +169,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
 
       it "works with a fixed font size" do
-        @widget.button_marker_style(marker: :check, color: 0.5, size: 5)
+        @widget.marker_style(style: :check, color: 0.5, size: 5)
         execute
         assert_operators(@xform.stream,
                          [[:set_font_and_size, [:F1, 5]],
@@ -289,7 +289,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
 
       it "creates the /Off appearance stream" do
-        @widget.button_marker_style(marker: :cross)
+        @widget.marker_style(style: :cross)
         @generator.create_appearance_streams
         assert_operators(@widget[:AP][:N][:Off].stream,
                          [[:save_graphics_state],
@@ -301,7 +301,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
 
       it "creates the appearance stream according to the set value" do
-        @widget.button_marker_style(marker: :check)
+        @widget.marker_style(style: :check)
         @generator.create_appearance_streams
         assert_operators(@widget[:AP][:N][:radio].stream,
                          [[:save_graphics_state],

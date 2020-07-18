@@ -217,12 +217,12 @@ module HexaPDF
         end
 
         # Describes the marker style of a check box or radio button widget.
-        class ButtonMarkerStyle
+        class MarkerStyle
 
           # The kind of marker that is shown inside the widget. Can either be one of the symbols
           # +:check+, +:circle+, +:cross+, +:diamond+, +:square+ or +:star+, or a one character
           # string. The latter is interpreted using the ZapfDingbats font.
-          attr_reader :marker
+          attr_reader :style
 
           # The size of the marker in PDF points that is shown inside the widget. The special value
           # 0 means that the marker should be auto-sized based on the widget's rectangle.
@@ -233,8 +233,8 @@ module HexaPDF
           attr_reader :color
 
           # Creates a new instance with the given values.
-          def initialize(marker, size, color)
-            @marker = marker
+          def initialize(style, size, color)
+            @style = style
             @size = size
             @color = color
           end
@@ -242,10 +242,10 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   widget.button_marker_style                                       => button_marker_style
-        #   widget.button_marker_style(marker: nil, size: nil, color: nil)   => widget
+        #   widget.marker_style                                     => marker_style
+        #   widget.marker_style(style: nil, size: nil, color: nil)   => widget
         #
-        # Returns a ButtonMarkerStyle instance representing the marker style of the widget when no
+        # Returns a MarkerStyle instance representing the marker style of the widget when no
         # argument is given. Otherwise sets the button marker style of the widget and returns self.
         #
         # This method returns valid information only for check boxes and radio buttons!
@@ -260,24 +260,24 @@ module HexaPDF
         # does it).
         #
         # See: PDF1.7 s12.5.6.19 and s17.7.3.3
-        def button_marker_style(marker: nil, size: nil, color: nil)
+        def marker_style(style: nil, size: nil, color: nil)
           field = form_field
-          if marker || size || color
-            marker ||= (field.check_box? ? :check : :cicrle)
+          if style || size || color
+            style ||= (field.check_box? ? :check : :cicrle)
             size ||= 0
             color = Content::ColorSpace.device_color_from_specification(color || 0)
 
             self[:MK] ||= {}
-            self[:MK][:CA] = case marker
+            self[:MK][:CA] = case style
                              when :check   then '4'
                              when :circle  then 'l'
                              when :cross   then '8'
                              when :diamond then 'u'
                              when :square  then 'n'
                              when :star    then 'H'
-                             when String   then marker
+                             when String   then style
                              else
-                               raise ArgumentError, "Unknown value #{marker} for argument 'marker'"
+                               raise ArgumentError, "Unknown value #{style} for argument 'style'"
                              end
             operator = case color.color_space.family
                        when :DeviceRGB then :rg
@@ -288,21 +288,21 @@ module HexaPDF
               serialize(HexaPDF::Serializer.new, *color.components)
             self[:DA] = "/ZaDb #{size} Tf #{serialized_color}".strip
           else
-            marker = case self[:MK]&.[](:CA)
-                     when '4' then :check
-                     when 'l' then :circle
-                     when '8' then :cross
-                     when 'u' then :diamond
-                     when 'n' then :square
-                     when 'H' then :star
-                     when String then self[:MK][:CA]
-                     else
-                       if field.check_box?
-                         :check
-                       else
-                         :circle
-                       end
-                     end
+            style = case self[:MK]&.[](:CA)
+                    when '4' then :check
+                    when 'l' then :circle
+                    when '8' then :cross
+                    when 'u' then :diamond
+                    when 'n' then :square
+                    when 'H' then :star
+                    when String then self[:MK][:CA]
+                    else
+                      if field.check_box?
+                        :check
+                      else
+                        :circle
+                      end
+                    end
             size = 0
             color = [0]
             if (da = self[:DA] || field[:DA])
@@ -316,7 +316,7 @@ module HexaPDF
             end
             color = HexaPDF::Content::ColorSpace.prenormalized_device_color(color)
 
-            ButtonMarkerStyle.new(marker, size, color)
+            MarkerStyle.new(style, size, color)
           end
         end
 
