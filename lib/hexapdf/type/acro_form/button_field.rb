@@ -75,10 +75,10 @@ module HexaPDF
         # Updated list of field flags.
         FLAGS_BIT_MAPPING = superclass::FLAGS_BIT_MAPPING.merge(
           {
-            no_toggle_to_off: 15,
-            radio: 16,
-            push_button: 17,
-            radios_in_unison: 26,
+            no_toggle_to_off: 14,
+            radio: 15,
+            push_button: 16,
+            radios_in_unison: 25,
           }
         ).freeze
 

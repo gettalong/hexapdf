@@ -26,7 +26,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
   it "can be initialized as radio button" do
     @field.initialize_as_radio_button
     assert_equal(:Off, @field[:V])
-    assert(@field.radio_button?)
+    assert_equal(1 << 15, @field[:Ff])
   end
 
   describe "push button" do
