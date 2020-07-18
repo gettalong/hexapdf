@@ -139,7 +139,7 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal(:Tx, field.field_type)
     end
 
-    it "creates a checkbox" do
+    it "creates a check box" do
       field = @acro_form.create_check_box("field")
       assert(field.check_box?)
     end

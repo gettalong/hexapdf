@@ -49,7 +49,7 @@ module HexaPDF
       # The appearance dictionary references appearance streams for various use cases.
       #
       # Each appearance can either be an XObject or a dictionary mapping names to XObjects. The
-      # latter is used when the appearance depends on the state of the annotation, e.g. a checkbox
+      # latter is used when the appearance depends on the state of the annotation, e.g. a check box
       # widget that can be checked or unchecked.
       #
       # See: PDF1.7 s12.5.5
