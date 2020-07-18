@@ -173,9 +173,17 @@ module HexaPDF
         # If +defaults+ is +true+, then default values will be set on the widget so that it uses a
         # default appearance.
         #
+        # If the widget is created for a radio button field, the +value+ argument needs to be
+        # provided. It can be used with #field_value= to set this specific widget of the radio
+        # button set to on.
+        #
         # See: Field#create_widget, AppearanceGenerator button field methods
-        def create_widget(page, defaults: true, **values)
+        def create_widget(page, defaults: true, value: nil, **values)
           super(page, **values).tap do |widget|
+            if radio_button?
+              raise ArgumentError, "Argument value has to be provided for radio buttons" unless value
+              widget[:AP] = {N: {value => nil, Off: nil}}
+            end
             next unless defaults
             widget.border_style(color: 0, width: 1, style: (push_button? ? :beveled : :solid))
             widget.background_color(push_button? ? 0.5 : 255)

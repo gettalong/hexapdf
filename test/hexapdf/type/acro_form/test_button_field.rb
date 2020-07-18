@@ -121,13 +121,17 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     end
 
     it "applies sensible default values when creating a widget" do
-      widget = @field.create_widget(@doc.pages.add)
+      widget = @field.create_widget(@doc.pages.add, value: 'test')
       border_style = widget.border_style
       assert_equal([0], border_style.color.components)
       assert_equal(1, border_style.width)
       assert_equal(:solid, border_style.style)
       assert_equal([1], widget.background_color.components)
       assert_equal(:circle, widget.button_marker_style.marker)
+    end
+
+    it "fails if the value argument is not provided for create_widget" do
+      assert_raises(ArgumentError) { @field.create_widget(@doc.pages.add) }
     end
   end
 
