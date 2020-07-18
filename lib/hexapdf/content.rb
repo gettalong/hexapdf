@@ -44,6 +44,8 @@ module HexaPDF
     autoload(:Canvas, 'hexapdf/content/canvas')
     autoload(:Parser, 'hexapdf/content/parser')
     autoload(:Processor, 'hexapdf/content/processor')
+    autoload(:ColorSpace, 'hexapdf/content/color_space')
+    autoload(:Operator, 'hexapdf/content/operator')
 
   end
 
