@@ -165,6 +165,14 @@ module HexaPDF
           create_field(name, :Btn).tap(&:initialize_as_check_box)
         end
 
+        # Creates a radio button with the given name and adds it to the form.
+        #
+        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
+        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        def create_radio_button(name)
+          create_field(name, :Btn).tap(&:initialize_as_radio_button)
+        end
+
         # Returns the dictionary containing the default resources for form field appearance streams.
         def default_resources
           self[:DR] ||= document.wrap({}, type: :XXResources)

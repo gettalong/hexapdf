@@ -143,6 +143,11 @@ describe HexaPDF::Type::AcroForm::Form do
       field = @acro_form.create_check_box("field")
       assert(field.check_box?)
     end
+
+    it "creates a radio button" do
+      field = @acro_form.create_radio_button("field")
+      assert(field.radio_button?)
+    end
   end
 
   it "returns the default resources" do
