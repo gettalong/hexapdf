@@ -147,7 +147,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:set_device_gray_non_stroking_color, [0.5]],
                           [:begin_text],
                           [:set_text_matrix, [1, 0, 0, 1, 1.616, 7.236]],
-                          [:show_text, ["!"]],
+                          [:show_text, ["4"]],
                           [:end_text]])
       end
 
@@ -159,7 +159,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:set_device_gray_non_stroking_color, [0.5]],
                           [:begin_text],
                           [:set_text_matrix, [1, 0, 0, 1, 2.885, 8.2725]],
-                          [:show_text, ["!"]],
+                          [:show_text, ["4"]],
                           [:end_text]])
       end
     end
@@ -228,7 +228,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:set_font_and_size, [:F1, 10]],
                           [:begin_text],
                           [:set_text_matrix, [1, 0, 0, 1, 1.77, 2.545]],
-                          [:show_text, ["!"]],
+                          [:show_text, ["4"]],
                           [:end_text],
                           [:restore_graphics_state]])
       end

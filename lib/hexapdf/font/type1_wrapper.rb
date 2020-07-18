@@ -112,8 +112,10 @@ module HexaPDF
       # The optional argument +pdf_object+ can be used to set the PDF font object that this wrapper
       # should be associated with. If no object is set, a suitable one is automatically created.
       #
-      # The optional argument +custom_encoding+ can be set to +true+ so that a custom encoding
-      # instead of the WinAnsiEncoding is used (only used if +pdf_object+ is not set).
+      # If +pdf_object+ is provided, the PDF object's encoding is used. Otherwise, the
+      # WinAnsiEncoding or, for 'Special' fonts, the font's internal encoding is used. The optional
+      # argument +custom_encoding+ can be set to +true+ so that a custom encoding is used (only
+      # respected if +pdf_object+ is not provided).
       def initialize(document, font, pdf_object: nil, custom_encoding: false)
         @wrapped_font = font
         @pdf_object = pdf_object || create_pdf_object(document)
@@ -122,10 +124,13 @@ module HexaPDF
         if pdf_object
           @encoding = pdf_object.encoding
           @max_code = 255 # Encoding is not modified
-        elsif @wrapped_font.metrics.character_set == 'Special' || custom_encoding
+        elsif custom_encoding
           @encoding = Encoding::Base.new
           @encoding.code_to_name[32] = :space
           @max_code = 32 # 32 = space
+        elsif @wrapped_font.metrics.character_set == 'Special'
+          @encoding = @wrapped_font.encoding
+          @max_code = 255 # Encoding is not modified
         else
           @encoding = Encoding.for_name(:WinAnsiEncoding)
           @max_code = 255 # Encoding is not modified
@@ -172,7 +177,7 @@ module HexaPDF
               name = Encoding::GlyphList.unicode_to_name(+'' << c, **@zapf_dingbats_opt)
               if @wrapped_font.metrics.character_set == 'Special' &&
                   (name == :'.notdef' || !@wrapped_font.metrics.character_metrics.key?(name))
-                name = @wrapped_font.encoding.name(c)
+                name = @encoding.name(c)
               end
               name = +"u" << c.to_s(16).rjust(6, '0') if name == :'.notdef'
               glyph(name)
@@ -223,7 +228,7 @@ module HexaPDF
         fd.must_be_indirect = true
 
         dict = document.wrap({Type: :Font, Subtype: :Type1,
-                              BaseFont: @wrapped_font.font_name.intern, Encoding: :WinAnsiEncoding,
+                              BaseFont: @wrapped_font.font_name.intern,
                               FontDescriptor: fd})
         dict.font_wrapper = self
 
@@ -235,7 +240,7 @@ module HexaPDF
 
           if VALID_ENCODING_NAMES.include?(@encoding.encoding_name)
             dict[:Encoding] = @encoding.encoding_name
-          else
+          elsif @encoding != @wrapped_font.encoding
             differences = [min]
             (min..max).each {|code| differences << @encoding.name(code) }
             dict[:Encoding] = {Differences: differences}

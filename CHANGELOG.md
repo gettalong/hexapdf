@@ -48,6 +48,8 @@
   field type into account when wrapping a field dictionary
 * Pages specification of CLI commands to allow counting from the end using the
   new `r<N>` notation
+* [HexaPDF::Font::Type1Wrapper] to use the internal encoding of a font with a
+  'Special' character set instead of a custom encoding
 
 ### Fixed
 

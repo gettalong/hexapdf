@@ -82,13 +82,19 @@ describe HexaPDF::Font::Type1Wrapper do
       end
     end
 
-    describe "uses an empty encoding as initial encoding for symbolic fonts" do
-      it "returns the PDF font dictionary and encoded glyph" do
-        code = @symbol_wrapper.encode(@symbol_wrapper.glyph(:plus))
-        @doc.dispatch_message(:complete_objects)
-        assert_equal("\x21", code)
-        assert_equal({Differences: [32, :space, :plus]}, @symbol_wrapper.pdf_object[:Encoding].value)
-      end
+    it "uses the font's internal encoding for fonts with the Special character set" do
+      code = @symbol_wrapper.encode(@symbol_wrapper.glyph(:plus))
+      @doc.dispatch_message(:complete_objects)
+      assert_equal("+", code)
+      assert_nil(@symbol_wrapper.pdf_object[:Encoding])
+    end
+
+    it "uses an empty encoding as initial encoding if a custom encoding is needed" do
+      wrapper = HexaPDF::Font::Type1Wrapper.new(@doc, FONT_TIMES, custom_encoding: true)
+      code = wrapper.encode(wrapper.glyph(:plus))
+      @doc.dispatch_message(:complete_objects)
+      assert_equal("\x21", code)
+      assert_equal({Differences: [32, :space, :plus]}, wrapper.pdf_object[:Encoding].value)
     end
   end
 
