@@ -162,6 +162,13 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert(@field[:AP][:N][:Yes])
     end
 
+    it "works for radio buttons" do
+      @field.initialize_as_radio_button
+      @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0], value: :test)
+      @field.create_appearance_streams!
+      assert(@field[:AP][:N][:test])
+    end
+
     it "fails for unsupported button types" do
       @field.flag(:push_button)
       @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])

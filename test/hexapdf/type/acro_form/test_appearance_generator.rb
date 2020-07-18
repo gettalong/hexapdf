@@ -128,6 +128,23 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                       @widget.button_marker_style)
     end
 
+    it "handles the marker :circle specially for radio button widgets" do
+      @field.initialize_as_radio_button
+      @widget.button_marker_style(marker: :circle, color: 0.5)
+      execute
+      assert_operators(@xform.stream,
+                       [[:set_device_gray_non_stroking_color, [0.5]],
+                        [:move_to, [7.0, 10.0]],
+                        [:curve_to, [7.0, 10.713644, 6.618034, 11.375229, 6.0, 11.732051]],
+                        [:curve_to, [5.381966, 12.088873, 4.618034, 12.088873, 4.0, 11.732051]],
+                        [:curve_to, [3.381966, 11.375229, 3.0, 10.713644, 3.0, 10.0]],
+                        [:curve_to, [3.0, 9.286356, 3.381966, 8.624771, 4.0, 8.267949]],
+                        [:curve_to, [4.618034, 7.911127, 5.381966, 7.911127, 6.0, 8.267949]],
+                        [:curve_to, [6.618034, 8.624771, 7.0, 9.286356, 7.0, 10.0]],
+                        [:close_subpath],
+                        [:fill_path_non_zero]])
+    end
+
     it "handles the marker :cross specially" do
       @widget.button_marker_style(marker: :cross, color: 0.5)
       execute
@@ -168,12 +185,12 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
   describe "button fields" do
     before do
       @field = @doc.add({FT: :Btn}, type: :XXAcroFormField, subtype: :Btn)
-      @widget = @field.create_widget(@page, Rect: [0, 0, 0, 0])
-      @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
     end
 
     describe "check box" do
       before do
+        @widget = @field.create_widget(@page, Rect: [0, 0, 0, 0])
+        @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
         @field.field_value = :Off
       end
 
@@ -231,6 +248,81 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:show_text, ["4"]],
                           [:end_text],
                           [:restore_graphics_state]])
+      end
+    end
+
+    describe "radio button" do
+      before do
+        @field.initialize_as_radio_button
+        @widget = @field.create_widget(@page, Rect: [0, 0, 0, 0], value: :radio)
+        @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
+      end
+
+      it "updates the widgets' /AS entry to point to the selected appearance stream" do
+        @field.field_value = :radio
+        @generator.create_appearance_streams
+        assert_equal(@field[:V], @widget[:AS])
+        @field.field_value = :other
+        @generator.create_appearance_streams
+        assert_equal(:Off, @widget[:AS])
+      end
+
+      it "set the print flag on the widgets" do
+        @generator.create_appearance_streams
+        assert(@widget.flagged?(:print))
+      end
+
+      it "adjusts the /Rect if width is zero" do
+        @generator.create_appearance_streams
+        assert_equal(12, @widget[:Rect].width)
+      end
+
+      it "adjusts the /Rect if height is zero" do
+        @generator.create_appearance_streams
+        assert_equal(12, @widget[:Rect].height)
+      end
+
+      it "creates the needed objects for the appearance streams" do
+        @generator.create_appearance_streams
+        assert_equal(:XObject, @widget[:AP][:N][:Off].type)
+        assert_equal(:XObject, @widget[:AP][:N][:radio].type)
+      end
+
+      it "creates the /Off appearance stream" do
+        @widget.button_marker_style(marker: :cross)
+        @generator.create_appearance_streams
+        assert_operators(@widget[:AP][:N][:Off].stream,
+                         [[:save_graphics_state],
+                          [:set_device_gray_non_stroking_color, [1.0]],
+                          [:append_rectangle, [0, 0, 12, 12]],
+                          [:fill_path_non_zero],
+                          [:append_rectangle, [0.5, 0.5, 11, 11]],
+                          [:stroke_path], [:restore_graphics_state]])
+      end
+
+      it "creates the appearance stream according to the set value" do
+        @widget.button_marker_style(marker: :check)
+        @generator.create_appearance_streams
+        assert_operators(@widget[:AP][:N][:radio].stream,
+                         [[:save_graphics_state],
+                          [:set_device_gray_non_stroking_color, [1.0]],
+                          [:append_rectangle, [0, 0, 12, 12]],
+                          [:fill_path_non_zero],
+                          [:append_rectangle, [0.5, 0.5, 11, 11]],
+                          [:stroke_path], [:restore_graphics_state],
+
+                          [:save_graphics_state],
+                          [:set_font_and_size, [:F1, 10]],
+                          [:begin_text],
+                          [:set_text_matrix, [1, 0, 0, 1, 1.77, 2.545]],
+                          [:show_text, ["4"]],
+                          [:end_text],
+                          [:restore_graphics_state]])
+      end
+
+      it "fails if the appearance dictionaries are not set up" do
+        @widget[:AP][:N].delete(:radio)
+        assert_raises(HexaPDF::Error) { @generator.create_appearance_streams }
       end
     end
   end

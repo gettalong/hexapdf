@@ -199,8 +199,10 @@ module HexaPDF
           each_widget do |widget|
             if check_box?
               AppearanceGenerator.new(widget).create_check_box_appearance_streams
+            elsif radio_button?
+              AppearanceGenerator.new(widget).create_radio_button_appearance_streams
             else
-              raise HexaPDF::Error, "Radio buttons and push buttons not yet supported"
+              raise HexaPDF::Error, "Push buttons not yet supported"
             end
           end
         end

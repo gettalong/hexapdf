@@ -34,6 +34,8 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'hexapdf/error'
+
 module HexaPDF
   module Type
     module AcroForm
@@ -71,6 +73,8 @@ module HexaPDF
           when :Btn
             if @field.check_box?
               create_check_box_appearance_streams
+            elsif @field.radio_button?
+              create_radio_button_appearance_streams
             else
               raise HexaPDF::Error, "Unsupported button field type"
             end
@@ -128,6 +132,60 @@ module HexaPDF
           apply_background_and_border(border_style, canvas)
           canvas.save_graphics_state do
             draw_button_marker(canvas, rect, border_width, @widget.button_marker_style)
+          end
+        end
+
+        # Creates the appropriate appearance streams for radio buttons.
+        #
+        # For unselected radio buttons an empty circle (if the button marker is :circle) or
+        # rectangle is drawn inside the widget annotation's rectangle. When selected, a symbol from
+        # the ZapfDingbats font is placed inside. How this is exactly done depends on the following
+        # values:
+        #
+        # * The widget's rectangle /Rect must be defined. If the height and/or width of the
+        #   rectangle are zero, they are based on the configuration option
+        #   +acro_form.default_font_size+ and the widget's border width. In such a case the
+        #   rectangle is appropriately updated.
+        #
+        # * The line width, style and color of the circle/rectangle are taken from the widget's
+        #   border style. See HexaPDF::Type::Annotations::Widget#border_style.
+        #
+        # * The background color is determined by the widget's background color. See
+        #   HexaPDF::Type::Annotations::Widget#background_color.
+        #
+        # * The symbol (marker) as well as its size and color are determined by the button marker
+        #   style of the widget. See HexaPDF::Type::Annotations::Widget#button_marker_style for
+        #   details.
+        #
+        # Examples:
+        #
+        #   widget.border_style(color: 0)
+        #   widget.background_color(1)
+        #   widget.button_marker_style(marker: :circle, size: 0, color: 0)
+        #   # => default appearance
+        def create_radio_button_appearance_streams
+          unless @widget[:AP].key?(:N) && @widget[:AP][:N].value.size == 2
+            raise HexaPDF::Error, "Widget of radio button doesn't define unique name for on state"
+          end
+
+          on_name = (@widget[:AP][:N].value.keys - [:Off]).first
+          border_style = @widget.border_style
+          button_marker_style = @widget.button_marker_style
+
+          rect = update_widget(@field[:V] == on_name ? on_name : :Off, border_style.width)
+
+          off_form = @widget[:AP][:N][:Off] = @document.add({Type: :XObject, Subtype: :Form,
+                                                             BBox: [0, 0, rect.width, rect.height]})
+          apply_background_and_border(border_style, off_form.canvas,
+                                      circular: button_marker_style.marker == :circle)
+
+          on_form = @widget[:AP][:N][on_name] = @document.add({Type: :XObject, Subtype: :Form,
+                                                               BBox: [0, 0, rect.width, rect.height]})
+          canvas = on_form.canvas
+          apply_background_and_border(border_style, canvas,
+                                      circular: button_marker_style.marker == :circle)
+          canvas.save_graphics_state do
+            draw_button_marker(canvas, rect, border_style.width, @widget.button_marker_style)
           end
         end
 
@@ -202,7 +260,14 @@ module HexaPDF
         #
         # This method can only used for check boxes and radio buttons!
         def draw_button_marker(canvas, rect, border_width, button_marker_style)
-          if button_marker_style.marker == :cross # Acrobat just places a cross inside
+          if @field.radio_button? && button_marker_style.marker == :circle
+            # Acrobat handles this specially
+            canvas.
+              fill_color(button_marker_style.color).
+              circle(rect.width / 2.0, rect.height / 2.0,
+                     ([rect.width / 2.0, rect.height / 2.0].min - border_width) / 2).
+              fill
+          elsif button_marker_style.marker == :cross # Acrobat just places a cross inside
             canvas.
               stroke_color(button_marker_style.color).
               line(border_width, border_width, rect.width - border_width,
