@@ -111,15 +111,10 @@ module HexaPDF
         #   widget.button_style(:cross)
         #   # => no visible rectangle, gray background, cross mark when checked
         def create_check_box_appearance_streams
-          default_font_size = @document.config['acro_form.default_font_size']
           border_style = @widget.border_style
           border_width = border_style.width
 
-          @widget[:AS] = @field[:V]
-          @widget.flag(:print)
-          rect = @widget[:Rect]
-          rect.width = default_font_size + 2 * border_width if rect.width == 0
-          rect.height = default_font_size + 2 * border_width if rect.height == 0
+          rect = update_widget(@field[:V], border_width)
 
           @widget[:AP] = {N: {}}
           off_form = @widget[:AP][:N][:Off] = @document.add({Type: :XObject, Subtype: :Form,
@@ -159,6 +154,25 @@ module HexaPDF
         end
 
         private
+
+        # Updates the widget and returns its (possibly modified) rectangle.
+        #
+        # The following changes are made:
+        #
+        # * Sets the appearance state to +appearance_state+.
+        # * Sets the :print flag.
+        # * Adjusts the rectangle based on the default font size and the given border width if its
+        #   width and/or height are zero.
+        def update_widget(appearance_state, border_width)
+          @widget[:AS] = appearance_state
+          @widget.flag(:print)
+
+          default_font_size = @document.config['acro_form.default_font_size']
+          rect = @widget[:Rect]
+          rect.width = default_font_size + 2 * border_width if rect.width == 0
+          rect.height = default_font_size + 2 * border_width if rect.height == 0
+          rect
+        end
 
         # Applies the background and border style of the widget annotation to the appearance stream.
         #
