@@ -56,7 +56,6 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(1, border_style.width)
       assert_equal(:beveled, border_style.style)
       assert_equal([0.5], widget.background_color.components)
-      assert_nil(widget.button_style)
     end
   end
 
@@ -92,7 +91,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(1, border_style.width)
       assert_equal(:solid, border_style.style)
       assert_equal([1], widget.background_color.components)
-      assert_equal(:check, widget.button_style)
+      assert_equal(:check, widget.button_marker_style.marker)
     end
   end
 
@@ -128,7 +127,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(1, border_style.width)
       assert_equal(:solid, border_style.style)
       assert_equal([1], widget.background_color.components)
-      assert_equal(:circle, widget.button_style)
+      assert_equal(:circle, widget.button_marker_style.marker)
     end
   end
 

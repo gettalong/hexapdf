@@ -115,6 +115,56 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
     end
   end
 
+  describe "draw_button_marker" do
+    before do
+      @field = @doc.add({FT: :Btn}, type: :XXAcroFormField, subtype: :Btn)
+      @widget = @field.create_widget(@page, defaults: false, Rect: [0, 0, 10, 20])
+      @xform = @doc.add({Type: :XObject, Subtype: :Form, BBox: @widget[:Rect]})
+      @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
+    end
+
+    def execute
+      @generator.send(:draw_button_marker, @xform.canvas, @widget[:Rect], @widget.border_style.width,
+                      @widget.button_marker_style)
+    end
+
+    it "handles the marker :cross specially" do
+      @widget.button_marker_style(marker: :cross, color: 0.5)
+      execute
+      assert_operators(@xform.stream,
+                       [[:set_device_gray_stroking_color, [0.5]],
+                        [:move_to, [1, 1]], [:line_to, [9, 19]],
+                        [:move_to, [1, 19]], [:line_to, [9, 1]],
+                        [:stroke_path]])
+    end
+
+    describe "handles the normal markers by drawing them using the ZapfDingbats font" do
+      it "works with font auto-sizing" do
+        @widget.button_marker_style(marker: :check, color: 0.5, size: 0)
+        execute
+        assert_operators(@xform.stream,
+                         [[:set_font_and_size, [:F1, 8]],
+                          [:set_device_gray_non_stroking_color, [0.5]],
+                          [:begin_text],
+                          [:set_text_matrix, [1, 0, 0, 1, 1.616, 7.236]],
+                          [:show_text, ["!"]],
+                          [:end_text]])
+      end
+
+      it "works with a fixed font size" do
+        @widget.button_marker_style(marker: :check, color: 0.5, size: 5)
+        execute
+        assert_operators(@xform.stream,
+                         [[:set_font_and_size, [:F1, 5]],
+                          [:set_device_gray_non_stroking_color, [0.5]],
+                          [:begin_text],
+                          [:set_text_matrix, [1, 0, 0, 1, 2.885, 8.2725]],
+                          [:show_text, ["!"]],
+                          [:end_text]])
+      end
+    end
+  end
+
   describe "button fields" do
     before do
       @field = @doc.add({FT: :Btn}, type: :XXAcroFormField, subtype: :Btn)
@@ -164,27 +214,23 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:stroke_path], [:restore_graphics_state]])
       end
 
-      describe "creates the /Yes appearance stream" do
-        it "works for the button style :cross" do
-          @widget.button_style(:cross)
-          @generator.create_appearance_streams
-          assert_operators(@widget[:AP][:N][:Yes].stream,
-                           [[:save_graphics_state],
-                            [:set_device_gray_non_stroking_color, [1.0]],
-                            [:append_rectangle, [0, 0, 12, 12]],
-                            [:fill_path_non_zero],
-                            [:append_rectangle, [0.5, 0.5, 11, 11]],
-                            [:stroke_path], [:restore_graphics_state],
+      it "creates the /Yes appearance stream" do
+        @generator.create_appearance_streams
+        assert_operators(@widget[:AP][:N][:Yes].stream,
+                         [[:save_graphics_state],
+                          [:set_device_gray_non_stroking_color, [1.0]],
+                          [:append_rectangle, [0, 0, 12, 12]],
+                          [:fill_path_non_zero],
+                          [:append_rectangle, [0.5, 0.5, 11, 11]],
+                          [:stroke_path], [:restore_graphics_state],
 
-                            [:save_graphics_state],
-                            [:append_rectangle, [1, 1, 10, 10]],
-                            [:clip_path_non_zero], [:end_path],
-                            [:move_to, [1, 1]],
-                            [:line_to, [11, 11]],
-                            [:move_to, [1, 11]],
-                            [:line_to, [11, 1]],
-                            [:stroke_path], [:restore_graphics_state]])
-        end
+                          [:save_graphics_state],
+                          [:set_font_and_size, [:F1, 10]],
+                          [:begin_text],
+                          [:set_text_matrix, [1, 0, 0, 1, 1.77, 2.545]],
+                          [:show_text, ["!"]],
+                          [:end_text],
+                          [:restore_graphics_state]])
       end
     end
   end

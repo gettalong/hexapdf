@@ -148,38 +148,76 @@ describe HexaPDF::Type::Annotations::Widget do
     end
   end
 
-  describe "button_style" do
+  describe "button_marker_style" do
     before do
       @chars = %w[4 l 8 u n H S]
       @values = [:check, :circle, :cross, :diamond, :square, :star, 'S']
+      @widget[:Parent] = {FT: :Btn}
     end
 
-    it "returns the current button style" do
-      @chars.zip(@values) do |char, result|
-        @widget[:MK] = {CA: char}
-        assert_equal(result, @widget.button_style)
+    describe "marker" do
+      it "returns the marker" do
+        @chars.zip(@values) do |char, result|
+          @widget[:MK] = {CA: char}
+          assert_equal(result, @widget.button_marker_style.marker)
+        end
+      end
+
+      it "returns the correct default button style depending on the field" do
+        @widget.form_field.initialize_as_check_box
+        assert_equal(:check, @widget.button_marker_style.marker)
+        @widget.form_field.initialize_as_radio_button
+        assert_equal(:circle, @widget.button_marker_style.marker)
+      end
+
+      it "sets the button style" do
+        @values.zip(@chars) do |argument, char|
+          @widget.button_marker_style(marker: argument)
+          assert_equal(char, @widget[:MK][:CA])
+        end
+      end
+
+      it "fails if an invalid argument is provided" do
+        assert_raises(ArgumentError) { @widget.button_marker_style(marker: 5) }
       end
     end
 
-    it "returns the correct default button style depending on the field" do
-      @widget[:FT] = :Btn
-      @widget.form_field.initialize_as_check_box
-      assert_equal(:check, @widget.button_style)
-      @widget.form_field.initialize_as_radio_button
-      assert_equal(:circle, @widget.button_style)
-      @widget.form_field.initialize_as_push_button
-      assert_nil(@widget.button_style)
-    end
+    describe "size" do
+      it "returns the size" do
+        @widget.form_field[:DA] = "/F 15 Tf"
+        assert_equal(15, @widget.button_marker_style.size)
+        @widget[:DA] = "/F 10 Tf"
+        assert_equal(10, @widget.button_marker_style.size)
+      end
 
-    it "sets the button style" do
-      @values.zip(@chars) do |argument, char|
-        @widget.button_style(argument)
-        assert_equal(char, @widget[:MK][:CA])
+      it "returns the default size if none is set" do
+        assert_equal(0, @widget.button_marker_style.size)
+      end
+
+      it "sets the given size" do
+        @widget.button_marker_style(size: 10)
+        assert_equal('/ZaDb 10 Tf 0.0 g', @widget[:DA])
       end
     end
 
-    it "fails if an invalid argument is provided" do
-      assert_raises(ArgumentError) { @widget.button_style(5) }
+    describe "color" do
+      it "returns the color" do
+        @widget.form_field[:DA] = "0 1 0 rg"
+        assert_equal([0, 1, 0], @widget.button_marker_style.color.components)
+        @widget[:DA] = "0 0 1 rg"
+        assert_equal([0, 0, 1], @widget.button_marker_style.color.components)
+      end
+
+      it "returns the default color if none is set" do
+        assert_equal([0], @widget.button_marker_style.color.components)
+      end
+
+      it "sets the given color" do
+        @widget.button_marker_style(color: [1.0, 51, 1.0])
+        assert_equal([1, 0.2, 1], @widget.button_marker_style.color.components)
+        @widget.button_marker_style(color: [1.0, 20, 1.0, 1.0])
+        assert_equal([1, 0.2, 1, 1], @widget.button_marker_style.color.components)
+      end
     end
   end
 end
