@@ -38,6 +38,12 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
       assert_equal('test', @field[:DA])
     end
 
+    it "creates the AcroForm object if it doesn't exist" do
+      @doc.catalog.delete(:AcroForm)
+      @field.set_default_appearance_string
+      assert(@doc.acro_form)
+    end
+
     it "uses sane default values if no arguments are provided" do
       @field.set_default_appearance_string
       assert_equal("0 g /F1 0 Tf", @field[:DA])

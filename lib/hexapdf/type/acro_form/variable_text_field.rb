@@ -95,7 +95,8 @@ module HexaPDF
         # is calculated using the height/width of the field.
         def set_default_appearance_string(font: 'Helvetica', font_size: 0)
           unless self[:DA]
-            name = document.acro_form.default_resources.add_font(document.fonts.add(font).pdf_object)
+            name = document.acro_form(create: true).default_resources.
+              add_font(document.fonts.add(font).pdf_object)
             self[:DA] = "0 g /#{name} #{font_size} Tf"
           end
         end
