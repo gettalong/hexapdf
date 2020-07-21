@@ -195,7 +195,7 @@ module HexaPDF
         #
         # The created streams depend on the actual type of the button field. See AppearanceGenerator
         # for the details.
-        def create_appearance_streams!
+        def create_appearance_streams
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
             if check_box?

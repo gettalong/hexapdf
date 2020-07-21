@@ -122,7 +122,7 @@ module HexaPDF
         # Creates appropriate appearance streams for all widgets.
         #
         # For information on how this is done see AppearanceGenerator.
-        def create_appearance_streams!
+        def create_appearance_streams
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
             appearance_generator_class.new(widget).create_text_appearance_streams

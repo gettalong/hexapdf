@@ -29,7 +29,7 @@ canvas.text("Check boxes", at: [50, 650])
   widget.marker_style(style: symbol, color: [0.166 * index, 0, 1 - 0.166 * index],
                       size: 7 * index)
   cb.field_value = true
-  cb.create_appearance_streams!
+  cb.create_appearance_streams
 end
 
 canvas.text("Radio buttons", at: [50, 550])
@@ -42,7 +42,7 @@ rb = form.create_radio_button("Radio")
                       size: 7 * index)
 end
 rb.field_value = :button0
-rb.create_appearance_streams!
+rb.create_appearance_streams
 
 canvas.text("Text field", at: [50, 450])
 tx = form.create_text_field("Single Line")
@@ -50,7 +50,7 @@ widget = tx.create_widget(page, Rect: [200, 445, 500, 465])
 tx.text_alignment(:left)
 tx.set_default_appearance_string(font_size: 16)
 tx.field_value = "A sample test string!"
-tx.create_appearance_streams!
+tx.create_appearance_streams
 
 # If the following line is uncommented, an instruction in the PDF file is
 # included that tells PDF viewers to regenerate all form field appearances.
