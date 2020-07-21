@@ -95,6 +95,10 @@ describe HexaPDF::Type::AcroForm::Field do
       assert_kind_of(HexaPDF::Type::Annotations::Widget, *widgets)
       assert_equal(1, widgets.first[:X])
     end
+
+    it "yields nothing if no widgets are defined" do
+      assert_equal([], @field.each_widget.to_a)
+    end
   end
 
   describe "create_widget" do

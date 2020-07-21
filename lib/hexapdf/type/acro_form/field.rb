@@ -216,7 +216,7 @@ module HexaPDF
           if self[:Subtype]
             yield(document.wrap(self))
           elsif terminal_field?
-            self[:Kids].each {|kid| yield(document.wrap(kid)) }
+            self[:Kids]&.each {|kid| yield(document.wrap(kid)) }
           end
           self
         end
