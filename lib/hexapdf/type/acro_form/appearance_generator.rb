@@ -35,6 +35,8 @@
 #++
 
 require 'hexapdf/error'
+require 'hexapdf/layout/style'
+require 'hexapdf/layout/text_fragment'
 
 module HexaPDF
   module Type
@@ -78,6 +80,8 @@ module HexaPDF
             else
               raise HexaPDF::Error, "Unsupported button field type"
             end
+          when :Tx
+            create_text_appearance_streams
           else
             raise HexaPDF::Error, "Unsupported field type #{@field.field_type}"
           end
@@ -187,6 +191,76 @@ module HexaPDF
           end
         end
 
+        # Creates the appropriate appearance streams for text fields.
+        #
+        # The following describes how the appearance stream is built:
+        #
+        # * The font, font size and font color are taken from the associated field's default
+        #   appearance string. See VariableTextField.
+        #
+        # * The widget's rectangle /Rect must be defined. If the height is zero, it is auto-sized
+        #   based on the font size. If additionally the font size is zero, a font size of
+        #   +acro_form.default_font_size+ is used. If the width is zero, the
+        #   +acro_form.text_field.default_width+ value is used. In such cases the rectangle is
+        #   appropriately updated.
+        #
+        # * The line width, style and color of the rectangle are taken from the widget's border
+        #   style. See HexaPDF::Type::Annotations::Widget#border_style.
+        #
+        # * The background color is determined by the widget's background color. See
+        #   HexaPDF::Type::Annotations::Widget#background_color.
+        #
+        # Note: Multiline, comb and rich text fields are currently not supported!
+        def create_text_appearance_streams
+          font_name, font_size = @field.parse_default_appearance_string
+          default_resources = @document.acro_form.default_resources
+          font = default_resources.font(font_name).font_wrapper ||
+            raise(HexaPDF::Error, "Font #{font_name} of the AcroForm's default resources not usable")
+          style = HexaPDF::Layout::Style.new(font: font)
+          border_style = @widget.border_style
+          padding = [1, border_style.width].max
+
+          @widget[:AS] = :N
+          @widget.flag(:print)
+          rect = @widget[:Rect]
+          rect.width = @document.config['acro_form.text_field.default_width'] if rect.width == 0
+          if rect.height == 0
+            style.font_size = \
+              (font_size == 0 ? @document.config['acro_form.default_font_size'] : font_size)
+            rect.height = style.scaled_y_max - style.scaled_y_min + 2 * padding
+          end
+
+          form = (@widget[:AP] ||= {})[:N] = @document.add({Type: :XObject, Subtype: :Form,
+                                                            BBox: [0, 0, rect.width, rect.height]})
+          form[:Resources] = HexaPDF::Object.deep_copy(default_resources)
+
+          canvas = form.canvas
+          apply_background_and_border(border_style, canvas)
+          style.font_size = calculate_font_size(font, font_size, rect, border_style)
+
+          canvas.marked_content_sequence(:Tx) do
+            if (value = @field.field_value)
+              canvas.save_graphics_state do
+                canvas.rectangle(padding, padding, rect.width - 2 * padding,
+                                 rect.height - 2 * padding).clip_path.end_path
+                fragment = HexaPDF::Layout::TextFragment.create(value, style)
+                # Adobe seems to be left/right-aligning based on twice the border width and
+                # vertically centering based on the cap height, if enough space is available
+                x = case @field.text_alignment
+                    when :left then 2 * padding
+                    when :right then [rect.width - 2 * padding - fragment.width, 2 * padding].max
+                    when :center then [(rect.width - fragment.width) / 2.0, 2 * padding].max
+                    end
+                cap_height = font.wrapped_font.cap_height * font.scaling_factor / 1000.0 *
+                  style.font_size
+                y = padding + (rect.height - 2 * padding - cap_height) / 2.0
+                y = padding - style.scaled_font_descender if y < 0
+                fragment.draw(canvas, x, y)
+              end
+            end
+          end
+        end
+
         private
 
         # Updates the widget and returns its (possibly modified) rectangle.
@@ -287,6 +361,19 @@ module HexaPDF
             canvas.font(font, size: font_size)
             canvas.fill_color(marker_style.color)
             canvas.move_text_cursor(offset: [x_offset, y_offset]).show_glyphs_only([mark])
+          end
+        end
+
+        # Calculates the font size for text fields based on the font and font size of the default
+        # appearance string, the annotation rectangle and the border style.
+        def calculate_font_size(font, font_size, rect, border_style)
+          if font_size == 0
+            unit_font_size = (font.wrapped_font.bounding_box[3] - font.wrapped_font.bounding_box[1]) *
+              font.scaling_factor / 1000.0
+            # The constant factor was found empirically by checking what Adobe Reader etc. do
+            (rect.height - 2 * border_style.width) / unit_font_size * 0.83
+          else
+            font_size
           end
         end
 

@@ -326,4 +326,150 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
     end
   end
+
+  describe "text field" do
+    before do
+      @form.set_default_appearance_string
+      @field = @doc.add({FT: :Tx}, type: :XXAcroFormField, subtype: :Tx)
+      @widget = @field.create_widget(@page, Rect: [0, 0, 0, 0])
+      @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
+    end
+
+    it "updates the widgets to use the :N appearance stream" do
+      @generator.create_appearance_streams
+      assert_equal(:N, @widget[:AS])
+    end
+
+    it "set the print flag on the widgets" do
+      @generator.create_appearance_streams
+      assert(@widget.flagged?(:print))
+    end
+
+    describe "it adjusts the :Rect when necessary" do
+      before do
+        @widget.border_style(width: 3)
+      end
+
+      it "uses a default width if the width is zero" do
+        @generator.create_appearance_streams
+        assert_equal(@doc.config['acro_form.text_field.default_width'], @widget[:Rect].width)
+      end
+
+      it "uses the font size of the /DA if non-zero as basis for the height if it is zero" do
+        @field.set_default_appearance_string(font_size: 10)
+        @generator.create_appearance_streams
+        assert_equal(15.25, @widget[:Rect].height)
+      end
+
+      it "uses a default font size as basis for the height if it and the set font size are zero" do
+        assert_equal(0, @field.parse_default_appearance_string[1])
+        @generator.create_appearance_streams
+        assert_equal(15.25, @widget[:Rect].height)
+      end
+    end
+
+    it "adds an appropriate form XObject" do
+      @generator.create_appearance_streams
+      form = @widget[:AP][:N]
+      assert_equal(:XObject, form.type)
+      assert_equal(:Form, form[:Subtype])
+      assert_equal([0, 0, @widget[:Rect].width, @widget[:Rect].height], form[:BBox])
+      assert_equal(@doc.acro_form.default_resources[:Font][:F1], form[:Resources][:Font][:F1])
+    end
+
+    describe "single line text fields" do
+      describe "font size calculation" do
+        before do
+          @widget[:Rect].height = 20
+          @widget[:Rect].width = 100
+          @field.field_value = ''
+        end
+
+        it "uses the non-zero font size" do
+          @field.set_default_appearance_string(font_size: 10)
+          @generator.create_appearance_streams
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_font_and_size, [:F1, 10]],
+                           range: 5)
+        end
+
+        it "calculates the font size based on the rectangle height and border width" do
+          @generator.create_appearance_streams
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_font_and_size, [:F1, 12.923875]],
+                           range: 5)
+          @widget.border_style(width: 2, color: :transparent)
+          @generator.create_appearance_streams
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_font_and_size, [:F1, 11.487889]],
+                           range: 5)
+        end
+      end
+
+      describe "quadding e.g. text alignment" do
+        before do
+          @field.field_value = 'Test'
+          @field.set_default_appearance_string(font_size: 10)
+          @widget[:Rect].height = 20
+        end
+
+        it "works for left aligned text" do
+          @field.text_alignment(:left)
+          @generator.create_appearance_streams
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 2, 6.41]],
+                           range: 7)
+        end
+
+        it "works for right aligned text" do
+          @field.text_alignment(:right)
+          @generator.create_appearance_streams
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 78.55, 6.41]],
+                           range: 7)
+        end
+
+        it "works for center aligned text" do
+          @field.text_alignment(:center)
+          @generator.create_appearance_streams
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 40.275, 6.41]],
+                           range: 7)
+        end
+
+        it "vertically aligns to the font descender if the text is too high" do
+          @widget[:Rect].height = 5
+          @generator.create_appearance_streams
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 2, 3.07]],
+                           range: 7)
+        end
+      end
+
+      it "creates the /N appearance streams according to the set string" do
+        @field.field_value = 'Text'
+        @generator.create_appearance_streams
+        assert_operators(@widget[:AP][:N].stream,
+                         [[:begin_marked_content, [:Tx]],
+                          [:save_graphics_state],
+                          [:append_rectangle, [1, 1, 98, 9.25]],
+                          [:clip_path_non_zero],
+                          [:end_path],
+                          [:set_font_and_size, [:F1, 6.641436]],
+                          [:begin_text],
+                          [:set_text_matrix, [1, 0, 0, 1, 2, 3.240724]],
+                          [:show_text, ["Text"]],
+                          [:end_text],
+                          [:restore_graphics_state],
+                          [:end_marked_content]])
+      end
+
+    end
+
+    it "fails if no usable font is available" do
+      @form.delete(:DA)
+      @field.create_widget(@page, Rect: [0, 0, 0, 0])
+      assert_raises(HexaPDF::Error) { @generator.create_appearance_streams }
+    end
+  end
 end
