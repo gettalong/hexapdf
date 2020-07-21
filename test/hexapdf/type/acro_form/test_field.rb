@@ -67,6 +67,12 @@ describe HexaPDF::Type::AcroForm::Field do
     assert_equal("Parent.Test", @field.full_field_name)
   end
 
+  it "allows setting and retrieving the alternate field name" do
+    @field.alternate_field_name = 'Alternate'
+    assert_equal('Alternate', @field.alternate_field_name)
+    assert_equal('Alternate', @field[:TU])
+  end
+
   it "returns whether the field is a terminal field" do
     assert(@field.terminal_field?)
 

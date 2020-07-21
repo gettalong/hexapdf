@@ -197,6 +197,19 @@ module HexaPDF
           end
         end
 
+        # Returns the alternate field name that should be used for display purposes (e.g. Acrobat
+        # shows this as tool tip).
+        def alternate_field_name
+          self[:TU]
+        end
+
+        # Sets the alternate field name.
+        #
+        # See #alternate_field_name
+        def alternate_field_name=(value)
+          self[:TU] = value
+        end
+
         # Returns +true+ if this is a terminal field.
         def terminal_field?
           kids = self[:Kids]
