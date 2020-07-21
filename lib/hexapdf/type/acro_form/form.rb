@@ -178,16 +178,13 @@ module HexaPDF
           self[:DR] ||= document.wrap({}, type: :XXResources)
         end
 
-        # Sets the global default appearance string using the provided values if it doesn't already
-        # have a value.
+        # Sets the global default appearance string using the provided values.
         #
         # The default argument values are a sane default. If +font_size+ is set to 0, the font size
         # is calculated using the height/width of the field.
         def set_default_appearance_string(font: 'Helvetica', font_size: 0)
-          unless self[:DA]
-            name = default_resources.add_font(document.fonts.add(font).pdf_object)
-            self[:DA] = "0 g /#{name} #{font_size} Tf"
-          end
+          name = default_resources.add_font(document.fonts.add(font).pdf_object)
+          self[:DA] = "0 g /#{name} #{font_size} Tf"
         end
 
         # Sets the /NeedAppearances field to +true+.

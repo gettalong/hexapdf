@@ -155,12 +155,6 @@ describe HexaPDF::Type::AcroForm::Form do
   end
 
   describe "set_default_appearance_string" do
-    it "doesn't override an existing value" do
-      @acro_form[:DA] = 'test'
-      @acro_form.set_default_appearance_string
-      assert_equal('test', @acro_form[:DA])
-    end
-
     it "uses sane default values if no arguments are provided" do
       @acro_form.set_default_appearance_string
       assert_equal("0 g /F1 0 Tf", @acro_form[:DA])

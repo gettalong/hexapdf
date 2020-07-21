@@ -32,12 +32,6 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
   end
 
   describe "set_default_appearance_string" do
-    it "doesn't override an existing value" do
-      @field[:DA] = 'test'
-      @field.set_default_appearance_string
-      assert_equal('test', @field[:DA])
-    end
-
     it "creates the AcroForm object if it doesn't exist" do
       @doc.catalog.delete(:AcroForm)
       @field.set_default_appearance_string

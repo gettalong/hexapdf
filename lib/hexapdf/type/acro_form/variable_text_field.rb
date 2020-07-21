@@ -89,16 +89,14 @@ module HexaPDF
           end
         end
 
-        # Sets the default appearance string using the provided values if it isn't already set.
+        # Sets the default appearance string using the provided values.
         #
         # The default argument values are a sane default. If +font_size+ is set to 0, the font size
         # is calculated using the height/width of the field.
         def set_default_appearance_string(font: 'Helvetica', font_size: 0)
-          unless self[:DA]
-            name = document.acro_form(create: true).default_resources.
-              add_font(document.fonts.add(font).pdf_object)
-            self[:DA] = "0 g /#{name} #{font_size} Tf"
-          end
+          name = document.acro_form(create: true).default_resources.
+            add_font(document.fonts.add(font).pdf_object)
+          self[:DA] = "0 g /#{name} #{font_size} Tf"
         end
 
         # Parses the default appearance string and returns an array containing [font_name,
