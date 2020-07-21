@@ -62,6 +62,11 @@ describe HexaPDF::Type::AcroForm::TextField do
       @field.create_appearance_streams!
       assert(@field[:AP][:N])
     end
+
+    it "uses the configuration option acro_form.appearance_generator" do
+      @doc.config['acro_form.appearance_generator'] = 'NonExistent'
+      assert_raises(Exception) { @field.create_appearance_streams! }
+    end
   end
 
   describe "validation" do

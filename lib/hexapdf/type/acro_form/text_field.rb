@@ -123,8 +123,9 @@ module HexaPDF
         #
         # For information on how this is done see AppearanceGenerator.
         def create_appearance_streams!
+          appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
-            AppearanceGenerator.new(widget).create_text_appearance_streams
+            appearance_generator_class.new(widget).create_text_appearance_streams
           end
         end
 

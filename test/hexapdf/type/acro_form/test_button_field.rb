@@ -174,6 +174,11 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       assert_raises(HexaPDF::Error) { @field.create_appearance_streams! }
     end
+
+    it "uses the configuration option acro_form.appearance_generator" do
+      @doc.config['acro_form.appearance_generator'] = 'NonExistent'
+      assert_raises(Exception) { @field.create_appearance_streams! }
+    end
   end
 
   describe "validation" do
