@@ -150,6 +150,9 @@ module HexaPDF
   #
   #    See HexaPDF::Type::AcroForm::AppearanceGenerator
   #
+  # acro_form.text_field.default_width::
+  #    A number specifying the default width of AcroForm text fields which should be auto-sized.
+  #
   # acro_form.default_font_size::
   #    A number specifying the default font size of AcroForm text fields which should be auto-sized.
   #
