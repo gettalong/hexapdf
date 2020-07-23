@@ -131,7 +131,7 @@ module HexaPDF
             @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
           apply_background_and_border(border_style, off_form.canvas)
 
-          on_form = @widget.appearance.normal_appearance[:Yes] =
+          on_form = @widget.appearance.normal_appearance[@field.check_box_on_name] =
             @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
           canvas = on_form.canvas
           apply_background_and_border(border_style, canvas)

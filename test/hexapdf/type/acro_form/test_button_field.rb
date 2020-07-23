@@ -84,6 +84,15 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(:Off, @field[:V])
     end
 
+    it "can determine the name of the on state" do
+      assert_equal(:Yes, @field.check_box_on_name)
+      widget = @field.create_widget(@doc.pages.add)
+      assert_equal(:Yes, @field.check_box_on_name)
+      widget[:AP][:N].delete(:Yes)
+      widget[:AP][:N][:On] = nil
+      assert_equal(:On, @field.check_box_on_name)
+    end
+
     it "applies sensible default values when creating a widget" do
       widget = @field.create_widget(@doc.pages.add)
       assert_equal({Yes: nil, Off: nil}, widget[:AP][:N].value)

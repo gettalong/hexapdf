@@ -168,6 +168,14 @@ module HexaPDF
           normalized_field_value_set(:DV, value)
         end
 
+        # Returns the name used for setting the check box to the on state.
+        #
+        # Defaults to :Yes if no other name could be determined.
+        def check_box_on_name
+          each_widget.to_a.first&.appearance&.normal_appearance&.value&.each_key&.
+            find {|key| key != :Off } || :Yes
+        end
+
         # Creates a widget for the button field.
         #
         # If +defaults+ is +true+, then default values will be set on the widget so that it uses a
@@ -219,7 +227,7 @@ module HexaPDF
           if push_button?
             nil
           elsif check_box?
-            self[key] == :Yes
+            self[key] == check_box_on_name
           elsif radio_button?
             self[key] == :Off ? nil : self[key]
           end
@@ -232,7 +240,7 @@ module HexaPDF
         def normalized_field_value_set(key, value)
           return if push_button?
           self[key] = if check_box?
-                        value == true ? :Yes : :Off
+                        value == true ? check_box_on_name : :Off
                       else
                         value.nil? ? :Off : value
                       end
