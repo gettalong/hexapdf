@@ -179,6 +179,17 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert(@field[:AP][:N][:test])
     end
 
+    it "won't generate appearance streams if they already exist" do
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      @field.create_appearance_streams
+      yes = widget.appearance.normal_appearance[:Yes]
+      off = widget.appearance.normal_appearance[:Off]
+      widget.appearance.normal_appearance.delete(:Off)
+      @field.create_appearance_streams
+      assert_same(yes, widget.appearance.normal_appearance[:Yes])
+      refute_same(off, widget.appearance.normal_appearance[:Off])
+    end
+
     it "fails for unsupported button types" do
       @field.flag(:push_button)
       @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
