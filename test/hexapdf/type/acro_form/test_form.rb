@@ -175,6 +175,17 @@ describe HexaPDF::Type::AcroForm::Form do
     assert(@acro_form[:NeedAppearances])
   end
 
+  it "creates the appearance streams of all field widgets if necessary" do
+    tf = @acro_form.create_text_field('test')
+    tf.set_default_appearance_string
+    tf.create_widget(@doc.pages.add)
+    cb = @acro_form.create_check_box('test2')
+    cb.create_widget(@doc.pages.add)
+    @acro_form.create_appearance_streams
+    assert(tf.each_widget.all? {|w| w.appearance.normal_appearance.kind_of?(HexaPDF::Stream) })
+    assert(cb.each_widget.all? {|w| w.appearance.normal_appearance[:Yes].kind_of?(HexaPDF::Stream) })
+  end
+
   describe "perform_validation" do
     it "checks whether the /DR field is available when /DA is set" do
       @acro_form[:DA] = 'test'

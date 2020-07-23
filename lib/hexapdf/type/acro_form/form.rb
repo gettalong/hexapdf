@@ -195,6 +195,13 @@ module HexaPDF
           self[:NeedAppearances] = true
         end
 
+        # Creates the appearance streams for all widgets of all terminal fields if they don't exist.
+        def create_appearance_streams
+          each_field do |field|
+            field.create_appearance_streams if field.respond_to?(:create_appearance_streams)
+          end
+        end
+
         private
 
         # Helper method for bit field getter access.
