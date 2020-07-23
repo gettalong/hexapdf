@@ -28,6 +28,8 @@
   getting a device color object
 * [HexaPDF::Content::ColorSpace::prenormalized_device_color] for getting a device
   color object without normalizing values
+* [HexaPDF::Type::Annotation#appearance] for returning the associated appearance
+  dictionary
 
 ### Changed
 

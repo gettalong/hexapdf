@@ -38,6 +38,11 @@ describe HexaPDF::Type::Annotation do
     assert(@annot.must_be_indirect?)
   end
 
+  it "returns the appearance dictionary" do
+    @annot[:AP] = :yes
+    assert_equal(:yes, @annot.appearance)
+  end
+
   describe "flags" do
     it "returns all flags" do
       assert_equal([:invisible, :hidden, :no_view], @annot.flags)

@@ -123,6 +123,12 @@ module HexaPDF
         true
       end
 
+      # Returns the AppearanceDictionary instance associated with the annotation or +nil+ if none is
+      # set.
+      def appearance
+        self[:AP]
+      end
+
       private
 
       # Helper method for bit field getter access.
