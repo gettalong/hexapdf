@@ -249,6 +249,11 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:end_text],
                           [:restore_graphics_state]])
       end
+
+      it "fails if the appearance dictionaries are not set up" do
+        @widget[:AP][:N].delete(:Off)
+        assert_raises(HexaPDF::Error) { @generator.create_appearance_streams }
+      end
     end
 
     describe "radio button" do

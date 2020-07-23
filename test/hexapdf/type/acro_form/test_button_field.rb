@@ -86,6 +86,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
 
     it "applies sensible default values when creating a widget" do
       widget = @field.create_widget(@doc.pages.add)
+      assert_equal({Yes: nil, Off: nil}, widget[:AP][:N].value)
       border_style = widget.border_style
       assert_equal([0], border_style.color.components)
       assert_equal(1, border_style.width)

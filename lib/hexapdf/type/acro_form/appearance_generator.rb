@@ -119,18 +119,20 @@ module HexaPDF
         #   widget.marker_style(style: :cross)
         #   # => no visible rectangle, gray background, cross mark when checked
         def create_check_box_appearance_streams
+          unless @widget.appearance&.normal_appearance&.value&.size == 2
+            raise HexaPDF::Error, "Widget of check box doesn't define name for on state"
+          end
           border_style = @widget.border_style
           border_width = border_style.width
 
           rect = update_widget(@field[:V], border_width)
 
-          @widget[:AP] = {N: {}}
-          off_form = @widget[:AP][:N][:Off] = @document.add({Type: :XObject, Subtype: :Form,
-                                                             BBox: [0, 0, rect.width, rect.height]})
+          off_form = @widget.appearance.normal_appearance[:Off] =
+            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
           apply_background_and_border(border_style, off_form.canvas)
 
-          on_form = @widget[:AP][:N][:Yes] = @document.add({Type: :XObject, Subtype: :Form,
-                                                            BBox: [0, 0, rect.width, rect.height]})
+          on_form = @widget.appearance.normal_appearance[:Yes] =
+            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
           canvas = on_form.canvas
           apply_background_and_border(border_style, canvas)
           canvas.save_graphics_state do

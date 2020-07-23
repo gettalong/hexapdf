@@ -180,7 +180,9 @@ module HexaPDF
         # See: Field#create_widget, AppearanceGenerator button field methods
         def create_widget(page, defaults: true, value: nil, **values)
           super(page, **values).tap do |widget|
-            if radio_button?
+            if check_box?
+              widget[:AP] = {N: {Yes: nil, Off: nil}}
+            elsif radio_button?
               raise ArgumentError, "Argument value has to be provided for radio buttons" unless value
               widget[:AP] = {N: {value => nil, Off: nil}}
             end
