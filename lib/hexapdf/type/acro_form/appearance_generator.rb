@@ -168,23 +168,23 @@ module HexaPDF
         #   widget.marker_style(style: :circle, size: 0, color: 0)
         #   # => default appearance
         def create_radio_button_appearance_streams
-          unless @widget[:AP].key?(:N) && @widget[:AP][:N].value.size == 2
+          unless @widget.appearance&.normal_appearance&.value&.size == 2
             raise HexaPDF::Error, "Widget of radio button doesn't define unique name for on state"
           end
 
-          on_name = (@widget[:AP][:N].value.keys - [:Off]).first
+          on_name = (@widget.appearance.normal_appearance.value.keys - [:Off]).first
           border_style = @widget.border_style
           marker_style = @widget.marker_style
 
           rect = update_widget(@field[:V] == on_name ? on_name : :Off, border_style.width)
 
-          off_form = @widget[:AP][:N][:Off] = @document.add({Type: :XObject, Subtype: :Form,
-                                                             BBox: [0, 0, rect.width, rect.height]})
+          off_form = @widget.appearance.normal_appearance[:Off] =
+            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
           apply_background_and_border(border_style, off_form.canvas,
                                       circular: marker_style.style == :circle)
 
-          on_form = @widget[:AP][:N][on_name] = @document.add({Type: :XObject, Subtype: :Form,
-                                                               BBox: [0, 0, rect.width, rect.height]})
+          on_form = @widget.appearance.normal_appearance[on_name] =
+            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
           canvas = on_form.canvas
           apply_background_and_border(border_style, canvas,
                                       circular: marker_style.style == :circle)
