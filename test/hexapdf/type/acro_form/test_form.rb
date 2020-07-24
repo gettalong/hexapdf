@@ -205,5 +205,23 @@ describe HexaPDF::Type::AcroForm::Form do
       assert(@acro_form.validate)
       assert_equal("0 g /F1 0 Tf", @acro_form[:DA])
     end
+
+    describe "automatically creates the terminal field's appearance streams" do
+      before do
+        @cb = @acro_form.create_check_box('test2')
+        @cb.create_widget(@doc.pages.add)
+      end
+
+      it "does this if the configuration option is true" do
+        assert(@acro_form.validate)
+        assert_kind_of(HexaPDF::Stream, @cb[:AP][:N][:Yes])
+      end
+
+      it "does nothing if the configuration option is false" do
+        @doc.config['acro_form.create_appearance_streams'] = false
+        assert(@acro_form.validate)
+        refute_kind_of(HexaPDF::Stream, @cb[:AP][:N][:Yes])
+      end
+    end
   end
 end

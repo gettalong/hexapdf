@@ -65,8 +65,8 @@ module HexaPDF
       # However, it is also possible to instruct the PDF reader application to generate the
       # appearances on the fly using the /NeedAppearances key, see #need_appearances!.
       #
-      # HexaPDF honors the /NeedAppearances key: If it is not set or set to +false+, HexaPDF will
-      # generate appearance streams for all fields that don't have any.
+      # HexaPDF uses the configuration option +acro_form.create_appearance_streams+ to determine
+      # whether appearances should automatically be generated.
       #
       # See: PDF1.7 s12.7.2, Field, HexaPDF::Type::Annotations::Widget
       class Form < Dictionary
@@ -247,6 +247,8 @@ module HexaPDF
           else
             set_default_appearance_string
           end
+
+          create_appearance_streams if document.config['acro_form.create_appearance_streams']
         end
 
       end

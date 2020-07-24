@@ -30,6 +30,8 @@
   color object without normalizing values
 * [HexaPDF::Type::Annotation#appearance] for returning the associated appearance
   dictionary
+* Configuration option 'acro_form.create_appearance_streams' for automatically
+  creating appearance streams
 
 ### Changed
 
