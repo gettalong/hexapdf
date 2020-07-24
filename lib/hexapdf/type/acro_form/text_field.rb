@@ -122,6 +122,9 @@ module HexaPDF
         # Creates appropriate appearance streams for all widgets.
         #
         # For information on how this is done see AppearanceGenerator.
+        #
+        # Note that an appearance stream for a text field widget is *always* created even if there
+        # is an existing one to make sure the current field value is properly represented.
         def create_appearance_streams
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|

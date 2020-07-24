@@ -61,7 +61,7 @@ module HexaPDF
         define_field :R, type: [Dictionary, Stream]
         define_field :D, type: [Dictionary, Stream]
 
-        # The annotations normal appearance.
+        # The annotation's normal appearance.
         def normal_appearance
           self[:N]
         end

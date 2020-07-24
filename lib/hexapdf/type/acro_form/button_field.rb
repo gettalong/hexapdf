@@ -181,9 +181,9 @@ module HexaPDF
         # If +defaults+ is +true+, then default values will be set on the widget so that it uses a
         # default appearance.
         #
-        # If the widget is created for a radio button field, the +value+ argument needs to be
-        # provided. It can be used with #field_value= to set this specific widget of the radio
-        # button set to on.
+        # If the widget is created for a radio button field, the +value+ argument needs to set to
+        # the value (a symbol) this widget represents. It can be used with #field_value= to set this
+        # specific widget of the radio button set to on.
         #
         # See: Field#create_widget, AppearanceGenerator button field methods
         def create_widget(page, defaults: true, value: nil, **values)
