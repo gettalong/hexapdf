@@ -201,18 +201,18 @@ module HexaPDF
           end
         end
 
-        # Creates appropriate appearance streams for all widgets if they don't already exist.
+        # Creates appropriate appearances for all widgets if they don't already exist.
         #
-        # The created streams depend on the actual type of the button field. See AppearanceGenerator
-        # for the details.
-        def create_appearance_streams
+        # The created appearance streams depend on the actual type of the button field. See
+        # AppearanceGenerator for the details.
+        def create_appearances
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
             next if widget.appearance?
             if check_box?
-              appearance_generator_class.new(widget).create_check_box_appearance_streams
+              appearance_generator_class.new(widget).create_check_box_appearances
             elsif radio_button?
-              appearance_generator_class.new(widget).create_radio_button_appearance_streams
+              appearance_generator_class.new(widget).create_radio_button_appearances
             else
               raise HexaPDF::Error, "Push buttons not yet supported"
             end

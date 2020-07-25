@@ -145,13 +145,13 @@ module HexaPDF
   # The following options are provided:
   #
   # acro_form.appearance_generator::
-  #    The class that should be used for generating appearance streams for AcroForm fields. If the
-  #    value is a String, it should contain the name of a constant to such a class.
+  #    The class that should be used for generating appearances for AcroForm fields. If the value is
+  #    a String, it should contain the name of a constant to such a class.
   #
   #    See HexaPDF::Type::AcroForm::AppearanceGenerator
   #
-  # acro_form.create_appearance_streams::
-  #    A boolean specifying whether an AcroForm field's appearance streams should automatically be
+  # acro_form.create_appearances::
+  #    A boolean specifying whether an AcroForm field's appearances should automatically be
   #    generated if they are missing.
   #
   # acro_form.text_field.default_width::
@@ -327,7 +327,7 @@ module HexaPDF
   #    A mapping from task names to callable task objects. See HexaPDF::Task for more information.
   DefaultDocumentConfiguration =
     Configuration.new('acro_form.appearance_generator' => 'HexaPDF::Type::AcroForm::AppearanceGenerator',
-                      'acro_form.create_appearance_streams' => true,
+                      'acro_form.create_appearances' => true,
                       'acro_form.default_font_size' => 10,
                       'acro_form.text_field.default_width' => 100,
                       'document.auto_decrypt' => true,

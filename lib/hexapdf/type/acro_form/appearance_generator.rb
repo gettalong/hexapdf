@@ -45,15 +45,15 @@ module HexaPDF
       # The AppearanceGenerator class provides methods for generating and updating the appearance
       # streams of form fields.
       #
-      # The only method needed is #create_appearance_streams since this method determines to what
-      # field the widget belongs and therefore which appearance should be generated.
+      # The only method needed is #create_appearances since this method determines to what field the
+      # widget belongs and therefore which appearance should be generated.
       #
       # The visual appearance of a field is constructed using information from the field itself as
       # well as information from the widget. See the documentation for the individual methods which
       # information is used in which way.
       #
-      # By default, any existing appearance streams are overwritten and the +:print+ flag is set on
-      # the widget so that the field appearance will appear on print-outs.
+      # By default, any existing appearances are overwritten and the +:print+ flag is set on the
+      # widget so that the field appearance will appear on print-outs.
       #
       # The visual appearances are chosen to be similar to those used by Adobe Acrobat and others.
       # By subclassing and overriding the necessary methods it is possible to define custom
@@ -69,25 +69,25 @@ module HexaPDF
           @document = widget.document
         end
 
-        # Creates the appropriate appearance streams for the widget.
-        def create_appearance_streams
+        # Creates the appropriate appearances for the widget.
+        def create_appearances
           case @field.field_type
           when :Btn
             if @field.check_box?
-              create_check_box_appearance_streams
+              create_check_box_appearances
             elsif @field.radio_button?
-              create_radio_button_appearance_streams
+              create_radio_button_appearances
             else
               raise HexaPDF::Error, "Unsupported button field type"
             end
           when :Tx
-            create_text_appearance_streams
+            create_text_appearances
           else
             raise HexaPDF::Error, "Unsupported field type #{@field.field_type}"
           end
         end
 
-        # Creates the appropriate appearance streams for check boxes.
+        # Creates the appropriate appearances for check boxes.
         #
         # For unchecked boxes an empty rectangle is drawn. When checked, a symbol from the
         # ZapfDingbats font is placed inside the rectangle. How this is exactly done depends on the
@@ -118,7 +118,7 @@ module HexaPDF
         #   widget.background_color(0.7)
         #   widget.marker_style(style: :cross)
         #   # => no visible rectangle, gray background, cross mark when checked
-        def create_check_box_appearance_streams
+        def create_check_box_appearances
           unless @widget.appearance&.normal_appearance&.value&.size == 2
             raise HexaPDF::Error, "Widget of check box doesn't define name for on state"
           end
@@ -140,7 +140,7 @@ module HexaPDF
           end
         end
 
-        # Creates the appropriate appearance streams for radio buttons.
+        # Creates the appropriate appearances for radio buttons.
         #
         # For unselected radio buttons an empty circle (if the marker is :circle) or rectangle is
         # drawn inside the widget annotation's rectangle. When selected, a symbol from the
@@ -167,7 +167,7 @@ module HexaPDF
         #   widget.background_color(1)
         #   widget.marker_style(style: :circle, size: 0, color: 0)
         #   # => default appearance
-        def create_radio_button_appearance_streams
+        def create_radio_button_appearances
           unless @widget.appearance&.normal_appearance&.value&.size == 2
             raise HexaPDF::Error, "Widget of radio button doesn't define unique name for on state"
           end
@@ -193,9 +193,9 @@ module HexaPDF
           end
         end
 
-        # Creates the appropriate appearance streams for text fields.
+        # Creates the appropriate appearances for text fields.
         #
-        # The following describes how the appearance stream is built:
+        # The following describes how the appearance is built:
         #
         # * The font, font size and font color are taken from the associated field's default
         #   appearance string. See VariableTextField.
@@ -213,7 +213,7 @@ module HexaPDF
         #   HexaPDF::Type::Annotations::Widget#background_color.
         #
         # Note: Multiline, comb and rich text fields are currently not supported!
-        def create_text_appearance_streams
+        def create_text_appearances
           font_name, font_size = @field.parse_default_appearance_string
           default_resources = @document.acro_form.default_resources
           font = default_resources.font(font_name).font_wrapper ||
@@ -284,7 +284,7 @@ module HexaPDF
           rect
         end
 
-        # Applies the background and border style of the widget annotation to the appearance stream.
+        # Applies the background and border style of the widget annotation to the appearances.
         #
         # If +circular+ is +true+, then the border is drawn as inscribed circle instead of as
         # rectangle.

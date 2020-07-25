@@ -54,18 +54,18 @@ describe HexaPDF::Type::AcroForm::TextField do
     assert_equal('hallo', @field.default_field_value)
   end
 
-  describe "create_appearance_streams" do
+  describe "create_appearances" do
     it "creates the needed streams" do
       @doc.acro_form(create: true)
       @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       @field.set_default_appearance_string
-      @field.create_appearance_streams
+      @field.create_appearances
       assert(@field[:AP][:N])
     end
 
     it "uses the configuration option acro_form.appearance_generator" do
       @doc.config['acro_form.appearance_generator'] = 'NonExistent'
-      assert_raises(Exception) { @field.create_appearance_streams }
+      assert_raises(Exception) { @field.create_appearances }
     end
   end
 

@@ -61,9 +61,9 @@ module HexaPDF
       # == Visual Appearance
       #
       # The visual appearance of a field is normally provided by the application creating the PDF.
-      # This is done by generating the so called appearance streams for all widgets of a field.
-      # However, it is also possible to instruct the PDF reader application to generate the
-      # appearances on the fly using the /NeedAppearances key, see #need_appearances!.
+      # This is done by generating the so called appearances for all widgets of a field. However, it
+      # is also possible to instruct the PDF reader application to generate the appearances on the
+      # fly using the /NeedAppearances key, see #need_appearances!.
       #
       # HexaPDF uses the configuration option +acro_form.create_appearance_streams+ to determine
       # whether appearances should automatically be generated.
@@ -195,10 +195,10 @@ module HexaPDF
           self[:NeedAppearances] = true
         end
 
-        # Creates the appearance streams for all widgets of all terminal fields if they don't exist.
-        def create_appearance_streams
+        # Creates the appearances for all widgets of all terminal fields if they don't exist.
+        def create_appearances
           each_field do |field|
-            field.create_appearance_streams if field.respond_to?(:create_appearance_streams)
+            field.create_appearances if field.respond_to?(:create_appearances)
           end
         end
 
@@ -248,7 +248,7 @@ module HexaPDF
             set_default_appearance_string
           end
 
-          create_appearance_streams if document.config['acro_form.create_appearance_streams']
+          create_appearances if document.config['acro_form.create_appearances']
         end
 
       end

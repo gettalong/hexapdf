@@ -165,27 +165,27 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     assert_equal(6, @field[:Opt])
   end
 
-  describe "create_appearance_streams" do
+  describe "create_appearances" do
     it "works for check boxes" do
       @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
-      @field.create_appearance_streams
+      @field.create_appearances
       assert(@field[:AP][:N][:Yes])
     end
 
     it "works for radio buttons" do
       @field.initialize_as_radio_button
       @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0], value: :test)
-      @field.create_appearance_streams
+      @field.create_appearances
       assert(@field[:AP][:N][:test])
     end
 
-    it "won't generate appearance streams if they already exist" do
+    it "won't generate appearances if they already exist" do
       widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
-      @field.create_appearance_streams
+      @field.create_appearances
       yes = widget.appearance.normal_appearance[:Yes]
       off = widget.appearance.normal_appearance[:Off]
       widget.appearance.normal_appearance.delete(:Off)
-      @field.create_appearance_streams
+      @field.create_appearances
       assert_same(yes, widget.appearance.normal_appearance[:Yes])
       refute_same(off, widget.appearance.normal_appearance[:Off])
     end
@@ -193,12 +193,12 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     it "fails for unsupported button types" do
       @field.flag(:push_button)
       @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
-      assert_raises(HexaPDF::Error) { @field.create_appearance_streams }
+      assert_raises(HexaPDF::Error) { @field.create_appearances }
     end
 
     it "uses the configuration option acro_form.appearance_generator" do
       @doc.config['acro_form.appearance_generator'] = 'NonExistent'
-      assert_raises(Exception) { @field.create_appearance_streams }
+      assert_raises(Exception) { @field.create_appearances }
     end
   end
 

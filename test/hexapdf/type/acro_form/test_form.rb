@@ -175,13 +175,13 @@ describe HexaPDF::Type::AcroForm::Form do
     assert(@acro_form[:NeedAppearances])
   end
 
-  it "creates the appearance streams of all field widgets if necessary" do
+  it "creates the appearances of all field widgets if necessary" do
     tf = @acro_form.create_text_field('test')
     tf.set_default_appearance_string
     tf.create_widget(@doc.pages.add)
     cb = @acro_form.create_check_box('test2')
     cb.create_widget(@doc.pages.add)
-    @acro_form.create_appearance_streams
+    @acro_form.create_appearances
     assert(tf.each_widget.all? {|w| w.appearance.normal_appearance.kind_of?(HexaPDF::Stream) })
     assert(cb.each_widget.all? {|w| w.appearance.normal_appearance[:Yes].kind_of?(HexaPDF::Stream) })
   end
@@ -206,7 +206,7 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal("0 g /F1 0 Tf", @acro_form[:DA])
     end
 
-    describe "automatically creates the terminal field's appearance streams" do
+    describe "automatically creates the terminal fields; appearances" do
       before do
         @cb = @acro_form.create_check_box('test2')
         @cb.create_widget(@doc.pages.add)
@@ -218,7 +218,7 @@ describe HexaPDF::Type::AcroForm::Form do
       end
 
       it "does nothing if the configuration option is false" do
-        @doc.config['acro_form.create_appearance_streams'] = false
+        @doc.config['acro_form.create_appearances'] = false
         assert(@acro_form.validate)
         refute_kind_of(HexaPDF::Stream, @cb[:AP][:N][:Yes])
       end
