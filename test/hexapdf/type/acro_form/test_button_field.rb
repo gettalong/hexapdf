@@ -202,6 +202,26 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     end
   end
 
+  describe "update_widgets" do
+    it "does nothing for push buttons" do
+      @field.flag(:push_button)
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      @field.update_widgets
+      assert_nil(widget[:AS])
+    end
+
+    it "sets the /AS entry correctly" do
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      assert_nil(widget[:AS])
+      @field.update_widgets
+      assert_equal(:Off, widget[:AS])
+
+      @field[:V] = :Yes
+      @field.update_widgets
+      assert_equal(:Yes, widget[:AS])
+    end
+  end
+
   describe "validation" do
     it "checks the value of the /FT field" do
       @field.delete(:FT)

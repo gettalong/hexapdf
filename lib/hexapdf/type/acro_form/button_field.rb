@@ -219,6 +219,15 @@ module HexaPDF
           end
         end
 
+        # Updates the widgets so that they reflect the current field value.
+        def update_widgets
+          return if push_button?
+          value = self[:V]
+          each_widget do |widget|
+            widget[:AS] = (widget.appearance&.normal_appearance&.value&.key?(value) ? value : :Off)
+          end
+        end
+
         private
 
         # Returns the normalized field value for the given key which can be :V or :DV.
