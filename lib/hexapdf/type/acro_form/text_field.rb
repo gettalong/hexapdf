@@ -103,6 +103,7 @@ module HexaPDF
             raise HexaPDF::Error, "Storing a field value for a password field is not allowed"
           end
           self[:V] = str
+          update_widgets
         end
 
         # Returns the default field value.
@@ -130,6 +131,11 @@ module HexaPDF
           each_widget do |widget|
             appearance_generator_class.new(widget).create_text_appearances
           end
+        end
+
+        # Updates the widgets so that they reflect the current field value.
+        def update_widgets
+          create_appearances
         end
 
         private

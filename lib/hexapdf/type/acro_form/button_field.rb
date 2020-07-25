@@ -254,6 +254,7 @@ module HexaPDF
                       else
                         value.nil? ? :Off : value
                       end
+          update_widgets
         end
 
         def perform_validation #:nodoc:
