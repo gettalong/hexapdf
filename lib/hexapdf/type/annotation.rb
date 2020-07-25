@@ -129,6 +129,17 @@ module HexaPDF
         self[:AP]
       end
 
+      # Returns +true+ if the widget's normal appearance exists.
+      #
+      # Note that this checks only if the appearance exists but not if the structure of the
+      # appearance dictionary conforms to the expectations of the annotation.
+      def appearance?
+        return false unless (normal_appearance = appearance&.normal_appearance)
+        normal_appearance.kind_of?(HexaPDF::Stream) ||
+          (!normal_appearance.empty? &&
+           normal_appearance.each.all? {|_k, v| v.kind_of?(HexaPDF::Stream) })
+      end
+
       private
 
       # Helper method for bit field getter access.

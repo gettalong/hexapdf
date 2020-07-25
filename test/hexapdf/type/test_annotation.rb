@@ -43,6 +43,18 @@ describe HexaPDF::Type::Annotation do
     assert_equal(:yes, @annot.appearance)
   end
 
+  it "checks whether an appearance exists" do
+    refute(@annot.appearance?)
+    @annot[:AP] = {N: {}}
+    refute(@annot.appearance?)
+    @annot[:AP][:N] = @doc.wrap({}, stream: '')
+    assert(@annot.appearance?)
+    @annot[:AP][:N] = {okay: @doc.wrap({}, stream: '')}
+    assert(@annot.appearance?)
+    @annot[:AP][:N][:Off] = :other
+    refute(@annot.appearance?)
+  end
+
   describe "flags" do
     it "returns all flags" do
       assert_equal([:invisible, :hidden, :no_view], @annot.flags)

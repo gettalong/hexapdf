@@ -208,10 +208,7 @@ module HexaPDF
         def create_appearance_streams
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
-            normal_appearance = widget.appearance&.normal_appearance
-            next if normal_appearance &&
-              (normal_appearance.kind_of?(HexaPDF::Stream) ||
-               normal_appearance.each.all? {|_k, v| v.kind_of?(HexaPDF::Stream) })
+            next if widget.appearance?
             if check_box?
               appearance_generator_class.new(widget).create_check_box_appearance_streams
             elsif radio_button?
