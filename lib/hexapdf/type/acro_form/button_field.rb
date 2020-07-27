@@ -168,6 +168,17 @@ module HexaPDF
           normalized_field_value_set(:DV, value)
         end
 
+        # Returns the concrete button field type, either :push_button, :check_box or :radio_button.
+        def concrete_field_type
+          if push_button?
+            :push_button
+          elsif radio_button?
+            :radio_button
+          else
+            :check_box
+          end
+        end
+
         # Returns the name used for setting the check box to the on state.
         #
         # Defaults to :Yes if no other name could be determined.

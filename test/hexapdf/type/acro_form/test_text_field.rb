@@ -61,6 +61,20 @@ describe HexaPDF::Type::AcroForm::TextField do
     assert_equal('hallo', @field.default_field_value)
   end
 
+  it "returns the correct concrete field type" do
+    assert_equal(:single_line_text_field, @field.concrete_field_type)
+    @field.flag(:multiline, clear_existing: true)
+    assert_equal(:multiline_text_field, @field.concrete_field_type)
+    @field.flag(:password, clear_existing: true)
+    assert_equal(:password_field, @field.concrete_field_type)
+    @field.flag(:file_select, clear_existing: true)
+    assert_equal(:file_select_field, @field.concrete_field_type)
+    @field.flag(:comb, clear_existing: true)
+    assert_equal(:comb_text_field, @field.concrete_field_type)
+    @field.flag(:rich_text, clear_existing: true)
+    assert_equal(:rich_text_field, @field.concrete_field_type)
+  end
+
   describe "create_appearances" do
     it "creates the needed streams" do
       @doc.acro_form(create: true)

@@ -48,6 +48,19 @@ describe HexaPDF::Type::AcroForm::Field do
     assert_equal(:Tx, @field.field_type)
   end
 
+  it "returns the concrete field type" do
+    assert_nil(@field.concrete_field_type)
+
+    @field[:FT] = :Tx
+    assert_equal(:text_field, @field.concrete_field_type)
+    @field[:FT] = :Btn
+    assert_equal(:button_field, @field.concrete_field_type)
+    @field[:FT] = :Ch
+    assert_equal(:choice_field, @field.concrete_field_type)
+    @field[:FT] = :Sig
+    assert_equal(:signature_field, @field.concrete_field_type)
+  end
+
   it "returns the field name" do
     assert_nil(@field.field_name)
     @field[:T] = 'test'

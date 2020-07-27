@@ -120,6 +120,25 @@ module HexaPDF
           self[:DV] = str
         end
 
+        # Returns the concrete text field type, either :single_line_text_field,
+        # :multiline_text_field, :password_field, :file_select_field, :comb_text_field or
+        # :rich_text_field.
+        def concrete_field_type
+          if flagged?(:multiline)
+            :multiline_text_field
+          elsif flagged?(:password)
+            :password_field
+          elsif flagged?(:file_select)
+            :file_select_field
+          elsif flagged?(:comb)
+            :comb_text_field
+          elsif flagged?(:rich_text)
+            :rich_text_field
+          else
+            :single_line_text_field
+          end
+        end
+
         # Creates appropriate appearances for all widgets.
         #
         # For information on how this is done see AppearanceGenerator.

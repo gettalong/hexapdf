@@ -176,8 +176,27 @@ module HexaPDF
 
         # Returns the type of the field, either :Btn (pushbuttons, check boxes, radio buttons), :Tx
         # (text fields), :Ch (scrollable list boxes, combo boxes) or :Sig (signature fields).
+        #
+        # Also see #concrete_field_type
         def field_type
           self[:FT]
+        end
+
+        # Returns the concrete field type (:button_field, :text_field, :choice_field or
+        # :signature_field) or +nil+ is no field type is set.
+        #
+        # In constrast to #field_type this method also considers the field flags and not just the
+        # field type. This means that subclasses can return a more concrete name for the field type.
+        #
+        # Also see #field_type
+        def concrete_field_type
+          case self[:FT]
+          when :Btn then :button_field
+          when :Tx  then :text_field
+          when :Ch  then :choice_field
+          when :Sig then :signature_field
+          else nil
+          end
         end
 
         # Returns the name of the field or +nil+ if no name is set.

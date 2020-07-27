@@ -49,6 +49,10 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_nil(@field[:V])
     end
 
+    it "returns the correct concrete field type" do
+      assert_equal(:push_button, @field.concrete_field_type)
+    end
+
     it "applies sensible default values when creating a widget" do
       widget = @field.create_widget(@doc.pages.add)
       border_style = widget.border_style
@@ -82,6 +86,10 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(:Yes, @field[:V])
       @field.field_value = false
       assert_equal(:Off, @field[:V])
+    end
+
+    it "returns the correct concrete field type" do
+      assert_equal(:check_box, @field.concrete_field_type)
     end
 
     it "updates the widgets after setting the field value" do
@@ -134,6 +142,10 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(:button1, @field[:V])
       @field.field_value = nil
       assert_equal(:Off, @field[:V])
+    end
+
+    it "returns the correct concrete field type" do
+      assert_equal(:radio_button, @field.concrete_field_type)
     end
 
     it "updates the widgets after setting the field value" do
