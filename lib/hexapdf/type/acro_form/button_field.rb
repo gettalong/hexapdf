@@ -176,6 +176,13 @@ module HexaPDF
             find {|key| key != :Off } || :Yes
         end
 
+        # Returns the array of values that can be used for the field value of the radio button.
+        def radio_button_values
+          each_widget.map do |widget|
+            widget.appearance&.normal_appearance&.value&.each_key&.find {|key| key != :Off }
+          end.compact
+        end
+
         # Creates a widget for the button field.
         #
         # If +defaults+ is +true+, then default values will be set on the widget so that it uses a

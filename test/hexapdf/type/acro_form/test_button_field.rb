@@ -142,6 +142,13 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(:Test, widget[:AS])
     end
 
+    it "returns an array of possible values" do
+      @field.create_widget(@doc.pages.add, value: :Test)
+      @field.create_widget(@doc.pages.add, value: :x)
+      @field.create_widget(@doc.pages.add, value: :y)
+      assert_equal([:Test, :x, :y], @field.radio_button_values)
+    end
+
     it "applies sensible default values when creating a widget" do
       widget = @field.create_widget(@doc.pages.add, value: 'test')
       border_style = widget.border_style
