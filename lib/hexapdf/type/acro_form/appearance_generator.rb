@@ -82,6 +82,12 @@ module HexaPDF
             end
           when :Tx
             create_text_appearances
+          when :Ch
+            if @field.combo_box?
+              create_text_appearances
+            else
+              raise HexaPDF::Error, "List box not supported yet"
+            end
           else
             raise HexaPDF::Error, "Unsupported field type #{@field.field_type}"
           end
@@ -262,6 +268,8 @@ module HexaPDF
             end
           end
         end
+
+        alias create_combo_box_appearances create_text_appearances
 
         private
 

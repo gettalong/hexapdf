@@ -521,6 +521,7 @@ module HexaPDF
                         XXAcroFormField: {
                           Tx: 'HexaPDF::Type::AcroForm::TextField',
                           Btn: 'HexaPDF::Type::AcroForm::ButtonField',
+                          Ch: 'HexaPDF::Type::AcroForm::ChoiceField',
                         },
                       })
 

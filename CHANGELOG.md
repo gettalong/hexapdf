@@ -8,6 +8,7 @@
   [HexaPDF::Type::AcroForm::VariableTextField] for basic text field support
 * [HexaPDF::Type::AcroForm::ButtonField] for push button, radio button and
   check box support
+* [HexaPDF::Type::AcroForm::ChoiceField] for combo box and list box support
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] as central class for
   generating appearance streams for form fields
 * Various convenience methods for [HexaPDF::Type::AcroForm::Form]

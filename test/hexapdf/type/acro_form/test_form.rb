@@ -148,6 +148,16 @@ describe HexaPDF::Type::AcroForm::Form do
       field = @acro_form.create_radio_button("field")
       assert(field.radio_button?)
     end
+
+    it "creates a combo box" do
+      field = @acro_form.create_combo_box("field")
+      assert(field.combo_box?)
+    end
+
+    it "creates a list box" do
+      field = @acro_form.create_list_box("field")
+      assert(field.list_box?)
+    end
   end
 
   it "returns the default resources" do

@@ -25,6 +25,14 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       assert_raises(HexaPDF::Error) { @generator.create_appearances }
     end
 
+    it "fails for unsupported choice fields" do
+      @field = @doc.wrap(@field, type: :XXAcroFormField, subtype: :Ch)
+      @field[:FT] = :Ch
+      @field.initialize_as_list_box
+      @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
+      assert_raises(HexaPDF::Error) { @generator.create_appearances }
+    end
+
     it "fails for unsupported field types" do
       @field[:FT] = :Unknown
       assert_raises(HexaPDF::Error) { @generator.create_appearances }
@@ -469,6 +477,18 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:end_marked_content]])
       end
 
+    end
+
+    describe "choice fields" do
+      it "works for combo boxes by using the text appearance method" do
+        @form.set_default_appearance_string
+        field = @doc.add({FT: :Ch}, type: :XXAcroFormField, subtype: :Ch)
+        field.initialize_as_combo_box
+        widget = field.create_widget(@page, Rect: [0, 0, 0, 0])
+        generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(widget)
+        generator.create_appearances
+        assert_kind_of(HexaPDF::Type::Form, widget[:AP][:N])
+      end
     end
 
     it "fails if no usable font is available" do
