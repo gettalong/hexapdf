@@ -88,15 +88,15 @@ module HexaPDF
 
     autoload(:ASCII85Decode, 'hexapdf/filter/ascii85_decode')
     autoload(:ASCIIHexDecode, 'hexapdf/filter/ascii_hex_decode')
-    autoload(:DCTDecode, 'hexapdf/filter/dct_decode')
     autoload(:FlateDecode, 'hexapdf/filter/flate_decode')
-    autoload(:JPXDecode, 'hexapdf/filter/jpx_decode')
     autoload(:LZWDecode, 'hexapdf/filter/lzw_decode')
     autoload(:RunLengthDecode, 'hexapdf/filter/run_length_decode')
 
     autoload(:Predictor, 'hexapdf/filter/predictor')
 
     autoload(:Encryption, 'hexapdf/filter/encryption')
+
+    autoload(:PassThrough, 'hexapdf/filter/pass_through')
 
     # Returns a Fiber that can be used as a source for decoders/encoders and that is based on a
     # String object.

@@ -37,12 +37,11 @@
 module HexaPDF
   module Filter
 
-    # The DCTDecode filter is currently only implemented as a pass-through filter, ie. the source
-    # gets passed on unmodified. This also means that the :ColorTransform parameter is not
-    # evaluated!
+    # The PassThrough filter just passes the source on unmodified. This is enough for basic
+    # read-write capabilities but not if the unfiltered bytes are needed.
     #
-    # See: HexaPDF::Filter, PDF1.7 s7.4.8
-    module DCTDecode
+    # See: HexaPDF::Filter, PDF1.7 s7.4
+    module PassThrough
 
       # See HexaPDF::Filter
       def self.decoder(source, _ = nil)

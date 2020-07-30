@@ -57,6 +57,8 @@
   new `r<N>` notation
 * [HexaPDF::Font::Type1Wrapper] to use the internal encoding of a font with a
   'Special' character set instead of a custom encoding
+* Configuration 'filter.map' to use the pass-through filter on all unsupported
+  filters
 
 ### Fixed
 
