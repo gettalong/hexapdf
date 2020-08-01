@@ -205,7 +205,7 @@ module HexaPDF
         #
         # See: Field#create_widget, AppearanceGenerator button field methods
         def create_widget(page, defaults: true, value: nil, **values)
-          super(page, **values).tap do |widget|
+          super(page, allow_embedded: !radio_button?, **values).tap do |widget|
             if check_box?
               widget[:AP] = {N: {Yes: nil, Off: nil}}
             elsif radio_button?

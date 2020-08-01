@@ -171,6 +171,10 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(:circle, widget.marker_style.style)
     end
 
+    it "always creates standalone widgets" do
+      refute_same(@field.data, @field.create_widget(@doc.pages.add, value: 'test'))
+    end
+
     it "fails if the value argument is not provided for create_widget" do
       assert_raises(ArgumentError) { @field.create_widget(@doc.pages.add) }
     end
@@ -205,9 +209,9 @@ describe HexaPDF::Type::AcroForm::ButtonField do
 
     it "works for radio buttons" do
       @field.initialize_as_radio_button
-      @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0], value: :test)
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0], value: :test)
       @field.create_appearances
-      assert(@field[:AP][:N][:test])
+      assert(widget[:AP][:N][:test])
     end
 
     it "won't generate appearances if they already exist" do
