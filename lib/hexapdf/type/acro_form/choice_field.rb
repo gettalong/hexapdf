@@ -123,7 +123,12 @@ module HexaPDF
 
         # Sets the field value to the given string or array of strings.
         def field_value=(value)
-          self[:V] = value
+          items = option_items
+          self[:V] = if [value].flatten.all? {|v| items.include?(v) }
+                       value
+                     else
+                       @document.config['acro_form.on_invalid_value'].call(self, value)
+                     end
         end
 
         # Returns the default field value.
@@ -137,7 +142,12 @@ module HexaPDF
         #
         # See: #field_value=
         def default_field_value=(value)
-          self[:DV] = value
+          items = option_items
+          self[:DV] = if [value].flatten.all? {|v| items.include?(v) }
+                       value
+                     else
+                       @document.config['acro_form.on_invalid_value'].call(self, value)
+                     end
         end
 
         # Returns the array with the available option items.

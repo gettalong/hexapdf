@@ -138,10 +138,13 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     end
 
     it "sets a correct field value" do
+      @field.create_widget(@doc.pages.add, value: :button1)
+
       @field.field_value = :button1
       assert_equal(:button1, @field[:V])
       @field.field_value = nil
       assert_equal(:Off, @field[:V])
+      assert_raises(HexaPDF::Error) { @field.field_value = :unknown }
     end
 
     it "returns the correct concrete field type" do

@@ -35,13 +35,18 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
   end
 
   it "allows setting the field value" do
-    @field.field_value = "test"
-    assert_equal("test", @field[:V])
+    @field.option_items = ["test", "other"]
+    @field.field_value = ["test", "other"]
+    assert_equal(["test", "other"], @field[:V].value)
+    assert_raises(HexaPDF::Error) { @field.field_value = 'unknown' }
+    assert_raises(HexaPDF::Error) { @field.field_value = ["test", 'unknown'] }
   end
 
   it "sets and returns the default field value" do
+    @field.option_items = ["hällo"]
     @field.default_field_value = 'hällo'
     assert_equal('hällo', @field.default_field_value)
+    assert_raises(HexaPDF::Error) { @field.default_field_value = 'unknown' }
   end
 
   it "sets and returns the array with the option items" do

@@ -275,6 +275,8 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         @field.field_value = :radio
         @generator.create_appearances
         assert_equal(@field[:V], @widget[:AS])
+
+        @field.create_widget(@page, value: :other)
         @field.field_value = :other
         @generator.create_appearances
         assert_equal(:Off, @widget[:AS])

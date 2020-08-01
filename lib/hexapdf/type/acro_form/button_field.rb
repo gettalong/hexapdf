@@ -269,8 +269,12 @@ module HexaPDF
           return if push_button?
           self[key] = if check_box?
                         value == true ? check_box_on_name : :Off
+                      elsif value.nil?
+                        :Off
+                      elsif radio_button_values.include?(value)
+                        value
                       else
-                        value.nil? ? :Off : value
+                        @document.config['acro_form.on_invalid_value'].call(self, value)
                       end
           update_widgets
         end

@@ -160,6 +160,15 @@ module HexaPDF
   # acro_form.default_font_size::
   #    A number specifying the default font size of AcroForm text fields which should be auto-sized.
   #
+  # acro_form.on_invalid_value::
+  #    Callback hook when an invalid value is set for certain types of AcroForm fields.
+  #
+  #    The value needs to be an object that responds to \#call(field, value) where +field+ is the
+  #    AcroForm field on which the value is set and +value+ is the invalid value. The returned value
+  #    is used instead of the invalid value.
+  #
+  #    The default implementation raises an error.
+  #
   # acro_form.text_field.default_width::
   #    A number specifying the default width of AcroForm text fields which should be auto-sized.
   #
@@ -329,6 +338,10 @@ module HexaPDF
     Configuration.new('acro_form.appearance_generator' => 'HexaPDF::Type::AcroForm::AppearanceGenerator',
                       'acro_form.create_appearances' => true,
                       'acro_form.default_font_size' => 10,
+                      'acro_form.on_invalid_value' => proc do |field, value|
+                        raise HexaPDF::Error, "Invalid value #{value.inspect} for " \
+                          "#{field.concrete_field_type} field #{field.full_field_name}"
+                      end,
                       'acro_form.text_field.default_width' => 100,
                       'document.auto_decrypt' => true,
                       'encryption.aes' => 'HexaPDF::Encryption::FastAES',
