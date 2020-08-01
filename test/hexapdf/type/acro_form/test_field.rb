@@ -148,6 +148,10 @@ describe HexaPDF::Type::AcroForm::Field do
       assert_nil(@field[:Kids])
     end
 
+    it "creates a standalone widget if embedding is not allowed" do
+      refute_same(@field.data, @field.create_widget(@page, allow_embedded: false).data)
+    end
+
     it "extracts an embedded widget into a standalone object if necessary" do
       widget1 = @field.create_widget(@page, Rect: [1, 2, 3, 4])
       widget2 = @field.create_widget(@doc.pages.add, Rect: [2, 1, 4, 3])

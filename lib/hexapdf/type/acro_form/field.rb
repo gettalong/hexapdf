@@ -256,6 +256,9 @@ module HexaPDF
         # Creates a new widget annotation for this form field (must be a terminal field!) on the
         # given +page+, adding the +values+ to the created widget annotation oject.
         #
+        # If +allow_embedded+ is +false+, embedding the first widget in the field itself is not
+        # allowed.
+        #
         # The +values+ argument should at least include :Rect for setting the visible area of the
         # widget.
         #
@@ -265,14 +268,14 @@ module HexaPDF
         # the formerly embedded widget (=this field) is not valid anymore!
         #
         # See: HexaPDF::Type::Annotations::Widget
-        def create_widget(page, **values)
+        def create_widget(page, allow_embedded: true, **values)
           unless terminal_field?
             raise HexaPDF::Error, "Widgets can only be added to terminal fields"
           end
 
           widget_data = {Type: :Annot, Subtype: :Widget, Rect: [0, 0, 0, 0], **values}
 
-          if key?(:Subtype) || (key?(:Kids) && !self[:Kids].empty?)
+          if !allow_embedded || key?(:Subtype) || (key?(:Kids) && !self[:Kids].empty?)
             kids = self[:Kids] ||= []
             kids << extract_widget if key?(:Subtype)
             widget = document.add(widget_data)
