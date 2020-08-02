@@ -168,6 +168,22 @@ describe HexaPDF::Type::Resources do
     end
   end
 
+  describe "pattern" do
+    it "invokes the object_getter method" do
+      assert_method_invoked(@res, :object_getter, [:Pattern, :test]) do
+        @res.pattern(:test)
+      end
+    end
+  end
+
+  describe "add_pattern" do
+    it "invokes the object_setter method" do
+      assert_method_invoked(@res, :object_setter, [:Pattern, 'P', :test]) do
+        @res.add_pattern(:test)
+      end
+    end
+  end
+
   describe "validation" do
     it "assigns the default value if ProcSet is not set" do
       @res.validate

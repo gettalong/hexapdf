@@ -168,6 +168,20 @@ module HexaPDF
         object_setter(:Properties, 'P', dict)
       end
 
+      # Returns the pattern dictionary stored under the given name.
+      #
+      # If the dictionary is not found, an error is raised.
+      def pattern(name)
+        object_getter(:Pattern, name)
+      end
+
+      # Adds the pattern dictionary to the resources and returns the name under which it is stored.
+      #
+      # If there already exists a name for the given dictionary, it is just returned.
+      def add_pattern(object)
+        object_setter(:Pattern, 'P', object)
+      end
+
       private
 
       # Helper method for returning an entry of a subdictionary.

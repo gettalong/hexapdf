@@ -35,6 +35,7 @@
   the annotation exists
 * Configuration option 'acro_form.create_appearance_streams' for automatically
   creating appearance streams
+* [HexaPDF::Type::Resources] methods `#pattern` and `add_pattern`
 
 ### Changed
 
