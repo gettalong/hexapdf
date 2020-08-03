@@ -72,14 +72,18 @@ module HexaPDF
     #   Returns the PDF name of the color space family this color space belongs to.
     #
     # #definition::
-    #   Returns the color space definition as array.
+    #   Returns the color space definition as array or symbol.
     #
     # #default_color::
     #   Returns the default color for this color space.
     #
     # #color(*args)::
-    #   Returns the color corresponding to the given arguments. The number and types of the
-    #   arguments differ from one color space to another.
+    #   Returns the color corresponding to the given arguments which may be normalized to conform to
+    #   the PDF spec. The number and types of the arguments differ from one color space to another.
+    #
+    # #prenormalized_color(*args)::
+    #   Returns the color corresponding to the given arguments without applying value normalization.
+    #   The number and types of the arguments differ from one color space to another.
     #
     # The class representing a color in the color space needs to respond to the following methods:
     #
@@ -261,6 +265,7 @@ module HexaPDF
         def family
           :DeviceRGB
         end
+        alias definition family
 
         # A color in the DeviceRGB color space.
         #
@@ -330,6 +335,7 @@ module HexaPDF
         def family
           :DeviceCMYK
         end
+        alias definition family
 
         # A color in the DeviceCMYK color space.
         #
@@ -399,6 +405,7 @@ module HexaPDF
         def family
           :DeviceGray
         end
+        alias definition family
 
         # A color in the DeviceGray color space.
         #

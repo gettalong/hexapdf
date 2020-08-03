@@ -73,6 +73,8 @@
   currently not supported for writing
 * [HexaPDF::Revision#delete] to remove the connection between the object and the
   document
+* Missing `#definition` method of `DeviceRGB`, `DeviceCMYK` and `DeviceGray`
+  color spaces
 
 
 ## 0.11.9 - 2020-06-15

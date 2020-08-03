@@ -27,6 +27,10 @@ module CommonColorSpaceTests
     assert_equal(@color_space_family, @color_space.family)
   end
 
+  it "the color space returns the correct color space definition" do
+    assert_equal(@color_space_definition, @color_space.definition)
+  end
+
   it "the color responds to :components" do
     assert(@color.respond_to?(:components))
   end
@@ -104,8 +108,9 @@ describe HexaPDF::Content::ColorSpace::Universal do
   include CommonColorSpaceTests
 
   before do
-    @color_space = HexaPDF::Content::ColorSpace::Universal.new([:test])
+    @color_space = HexaPDF::Content::ColorSpace::Universal.new([:test, :value])
     @color_space_family = :test
+    @color_space_definition = [:test, :value]
     @color = @color_space.default_color
     @other_color = @color_space.color(128, 5, 6, 7, 8)
     @components = [5, 6, 7, 8]
@@ -113,7 +118,7 @@ describe HexaPDF::Content::ColorSpace::Universal do
 
   it "can be compared to another universal color space" do
     other = HexaPDF::Content::ColorSpace::Universal.new([:other])
-    same = HexaPDF::Content::ColorSpace::Universal.new([:test])
+    same = HexaPDF::Content::ColorSpace::Universal.new([:test, :value])
     assert_equal(same, @color_space)
     refute_equal(other, @color_space)
   end
@@ -124,7 +129,7 @@ describe HexaPDF::Content::ColorSpace::DeviceRGB do
 
   before do
     @color_space = HexaPDF::Content::ColorSpace::DeviceRGB.new
-    @color_space_family = :DeviceRGB
+    @color_space_family = @color_space_definition = :DeviceRGB
     @color = @color_space.default_color
     @other_color = @color_space.color(128, 0, 0)
     @colors = [128, 0, 255]
@@ -137,7 +142,7 @@ describe HexaPDF::Content::ColorSpace::DeviceCMYK do
 
   before do
     @color_space = HexaPDF::Content::ColorSpace::DeviceCMYK.new
-    @color_space_family = :DeviceCMYK
+    @color_space_family = @color_space_definition = :DeviceCMYK
     @color = @color_space.default_color
     @other_color = @color_space.color(128, 0, 0, 128)
     @colors = [0, 20, 40, 80]
@@ -150,7 +155,7 @@ describe HexaPDF::Content::ColorSpace::DeviceGray do
 
   before do
     @color_space = HexaPDF::Content::ColorSpace::DeviceGray.new
-    @color_space_family = :DeviceGray
+    @color_space_family = @color_space_definition =  :DeviceGray
     @color = @color_space.default_color
     @other_color = @color_space.color(128)
     @colors = [128]
