@@ -25,6 +25,10 @@ describe HexaPDF::Type::Resources do
       assert_kind_of(HexaPDF::Content::ColorSpace::Universal, @res.color_space(:CSName))
     end
 
+    it "works for the Pattern color space" do
+      assert_kind_of(HexaPDF::Content::ColorSpace::Universal, @res.color_space(:Pattern))
+    end
+
     it "returns the universal color space for unknown color spaces, with resolved references" do
       data = @doc.add({Some: :data})
       @res[:ColorSpace] = {CSName: [:SomeUnknownColorSpace,

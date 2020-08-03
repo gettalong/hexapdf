@@ -75,6 +75,7 @@
   document
 * Missing `#definition` method of `DeviceRGB`, `DeviceCMYK` and `DeviceGray`
   color spaces
+* Handling of 'Pattern' color spaces when parsing content streams
 
 
 ## 0.11.9 - 2020-06-15

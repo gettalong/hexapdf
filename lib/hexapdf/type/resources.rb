@@ -69,11 +69,10 @@ module HexaPDF
         when :DeviceRGB, :DeviceGray, :DeviceCMYK
           GlobalConfiguration.constantize('color_space.map', name).new
         else
-          space_definition = self[:ColorSpace] && self[:ColorSpace][name]
+          space_definition = (name == :Pattern ? name : self[:ColorSpace]&.[](name))
           if space_definition.nil?
             raise HexaPDF::Error, "Color space '#{name}' not found in the resources"
           elsif space_definition.kind_of?(Array)
-            space_definition.map! {|item| document.deref(item) }
             space_family = space_definition[0]
           else
             space_family = space_definition
