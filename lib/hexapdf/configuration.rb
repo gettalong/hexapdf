@@ -48,8 +48,9 @@ module HexaPDF
   # easily be changed.
   #
   # Some options are defined as global options because they are needed on the class level - see
-  # HexaPDF::GlobalConfiguration. Other options can be configured for individual documents as they
-  # allow to fine-tune some behavior - see HexaPDF::DefaultDocumentConfiguration.
+  # HexaPDF::GlobalConfiguration[index.html#GlobalConfiguration]. Other options can be configured for
+  # individual documents as they allow to fine-tune some behavior - see
+  # HexaPDF::DefaultDocumentConfiguration[index.html#DefaultDocumentConfiguration].
   #
   # A configuration option name is dot-separted to provide a hierarchy of option names. For
   # example, io.chunk_size.

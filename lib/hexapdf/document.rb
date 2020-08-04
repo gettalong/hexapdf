@@ -133,9 +133,10 @@ module HexaPDF
     #
     # decryption_opts:: A hash with options for decrypting the PDF objects loaded from the IO.
     #
-    # config:: A hash with configuration options that is deep-merged into the default
-    #          configuration (see DefaultDocumentConfiguration), meaning that direct sub-hashes
-    #          are merged instead of overwritten.
+    # config:: A hash with configuration options that is deep-merged into the default configuration
+    #          (see
+    #          HexaPDF::DefaultDocumentConfiguration[../index.html#DefaultDocumentConfiguration],
+    #          meaning that direct sub-hashes are merged instead of overwritten.
     def initialize(io: nil, decryption_opts: {}, config: {})
       @config = Configuration.with_defaults(config)
       @version = '1.2'
