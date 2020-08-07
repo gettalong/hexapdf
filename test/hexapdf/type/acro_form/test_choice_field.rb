@@ -34,12 +34,60 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
     end
   end
 
-  it "allows setting the field value" do
-    @field.option_items = ["test", "other"]
-    @field.field_value = ["test", "other"]
-    assert_equal(["test", "other"], @field[:V].value)
-    assert_raises(HexaPDF::Error) { @field.field_value = 'unknown' }
-    assert_raises(HexaPDF::Error) { @field.field_value = ["test", 'unknown'] }
+  describe "field_value=" do
+    before do
+      @field.option_items = ["test", "other"]
+    end
+
+    describe "combo_box" do
+      before do
+        @field.initialize_as_combo_box
+      end
+
+      it "can set the value for an uneditable combo box" do
+        @field.field_value = 'test'
+        assert_equal("test", @field[:V])
+      end
+
+      it "can set the value for an editable combo box" do
+        @field.flag(:edit)
+        @field.field_value = 'another'
+        assert_equal("another", @field[:V])
+      end
+
+      it "fails if mulitple values are provided for a combo box" do
+        assert_raises(HexaPDF::Error) { @field.field_value = ['a', 'b'] }
+      end
+
+      it "fails if an unlisted value is specified for an uneditable combo box" do
+        assert_raises(HexaPDF::Error) { @field.field_value = 'a' }
+      end
+    end
+
+    describe "list_box" do
+      before do
+        @field.initialize_as_list_box
+      end
+
+      it "can set a single value" do
+        @field.field_value = 'test'
+        assert_equal("test", @field[:V])
+      end
+
+      it "can set a multiple values if the list box is a multi-select" do
+        @field.flag(:multi_select)
+        @field.field_value = ['test', 'other']
+        assert_equal(['test', 'other'], @field[:V].value)
+      end
+
+      it "fails if mulitple values are provided but the list box is not a multi-select" do
+        assert_raises(HexaPDF::Error) { @field.field_value = ['a', 'b'] }
+      end
+
+      it "fails if an unlisted value is specified" do
+        assert_raises(HexaPDF::Error) { @field.field_value = 'a' }
+      end
+    end
   end
 
   it "sets and returns the default field value" do

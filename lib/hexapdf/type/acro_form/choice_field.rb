@@ -124,7 +124,11 @@ module HexaPDF
         # Sets the field value to the given string or array of strings.
         def field_value=(value)
           items = option_items
-          self[:V] = if [value].flatten.all? {|v| items.include?(v) }
+          all_included = [value].flatten.all? {|v| items.include?(v) }
+          self[:V] = if (combo_box? && value.kind_of?(String) &&
+                          (flagged?(:edit) || all_included)) ||
+                         (list_box? && all_included &&
+                          (value.kind_of?(String) || flagged?(:multi_select)))
                        value
                      else
                        @document.config['acro_form.on_invalid_value'].call(self, value)
