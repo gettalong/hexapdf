@@ -161,6 +161,15 @@ module HexaPDF
   # acro_form.default_font_size::
   #    A number specifying the default font size of AcroForm text fields which should be auto-sized.
   #
+  # acro_form.fallback_font::
+  #    The font that should be used when a variable text field references a font that cannot be used.
+  #
+  #    Can either be the name of a font, like 'Helvetica', or an array consisting of the font name
+  #    and a hash of font options, like ['Helvetica', variant: :italic]. If set to +nil+, the use of
+  #    the fallback font is disabled.
+  #
+  #    Default is 'Helvetica'.
+  #
   # acro_form.on_invalid_value::
   #    Callback hook when an invalid value is set for certain types of AcroForm fields.
   #
@@ -339,6 +348,7 @@ module HexaPDF
     Configuration.new('acro_form.appearance_generator' => 'HexaPDF::Type::AcroForm::AppearanceGenerator',
                       'acro_form.create_appearances' => true,
                       'acro_form.default_font_size' => 10,
+                      'acro_form.fallback_font' => 'Helvetica',
                       'acro_form.on_invalid_value' => proc do |field, value|
                         raise HexaPDF::Error, "Invalid value #{value.inspect} for " \
                           "#{field.concrete_field_type} field #{field.full_field_name}"

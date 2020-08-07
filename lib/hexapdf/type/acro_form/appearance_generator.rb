@@ -222,8 +222,15 @@ module HexaPDF
         def create_text_appearances
           font_name, font_size = @field.parse_default_appearance_string
           default_resources = @document.acro_form.default_resources
-          font = default_resources.font(font_name).font_wrapper ||
-            raise(HexaPDF::Error, "Font #{font_name} of the AcroForm's default resources not usable")
+          font = default_resources.font(font_name).font_wrapper
+          unless font
+            fallback_font_name, fallback_font_options = @document.config['acro_form.fallback_font']
+            if fallback_font_name
+              font = @document.fonts.add(fallback_font_name, **(fallback_font_options || {}))
+            else
+              raise(HexaPDF::Error, "Font #{font_name} of the AcroForm's default resources not usable")
+            end
+          end
           style = HexaPDF::Layout::Style.new(font: font)
           border_style = @widget.border_style
           padding = [1, border_style.width].max
