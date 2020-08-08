@@ -38,7 +38,7 @@ Gem::Specification.new do |s|
   s.executables = ['hexapdf']
   s.add_dependency('cmdparse', '~> 3.0', '>= 3.0.3')
   s.add_dependency('geom2d', '~> 0.3')
-  s.add_development_dependency('kramdown', '~> 1.0', '>= 1.13.0')
+  s.add_development_dependency('kramdown', '~> 2.3')
   s.add_development_dependency('reline', '~> 0.1')
   s.add_development_dependency('rubocop', '~> 0.82', '>= 0.82.0')
   s.required_ruby_version = '>= 2.4'
