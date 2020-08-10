@@ -98,10 +98,14 @@ module HexaPDF
         end
 
         # Sets the field value, i.e. the text contents of the field, to the given string.
+        #
+        # Note that for single line text fields, all whitespace characters are changed to simple
+        # spaces.
         def field_value=(str)
           if flagged?(:password)
             raise HexaPDF::Error, "Storing a field value for a password field is not allowed"
           end
+          str = str.gsub(/[[:space:]]/, ' ') if concrete_field_type == :single_line_text_field
           self[:V] = str
           update_widgets
         end

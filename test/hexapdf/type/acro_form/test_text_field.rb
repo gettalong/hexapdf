@@ -43,6 +43,11 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert_equal('str', @field.field_value)
     end
 
+    it "converts whitespace characters to simple spaces for single line text fields" do
+      @field.field_value = "str\ning"
+      assert_equal('str ing', @field.field_value)
+    end
+
     it "updates the widgets to reflect the changed value" do
       widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       @field.set_default_appearance_string
@@ -100,7 +105,7 @@ describe HexaPDF::Type::AcroForm::TextField do
 
     it "checks that the field value has a valid type" do
       assert(@field.validate) # no field value
-      @field.field_value = :sym
+      @field[:V] = :sym
       refute(@field.validate)
     end
 
