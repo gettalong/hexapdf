@@ -17,6 +17,8 @@
 * [HexaPDF::Type::Annotation::AppearanceDictionary]
 * [HexaPDF::Document#acro_form] and [HexaPDF::Type::Catalog#acro_form]
   convenience methods
+* CLI command `hexapdf form` for listing fields of interactive forms and filling
+  them out
 * [HexaPDF::Rectangle] methods for setting the left, top, right, bottom, width
   and height
 * Method #prenormalized_color to all color space implementations

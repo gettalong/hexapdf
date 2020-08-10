@@ -80,7 +80,7 @@ module HexaPDF
       # Creates a HexaPDF::Document instance for the PDF file and yields it.
       #
       # If +out_file+ is given, the document is written to it after yielding.
-      def with_document(file, password: nil, out_file: nil) #:yield: document
+      def with_document(file, password: nil, out_file: nil, incremental: false) #:yield: document
         if file == out_file
           doc = HexaPDF::Document.open(file, **pdf_options(password))
         else
@@ -90,7 +90,7 @@ module HexaPDF
 
         yield(doc)
 
-        write_document(doc, out_file)
+        write_document(doc, out_file, incremental: incremental)
       ensure
         file_io&.close
       end
@@ -116,7 +116,7 @@ module HexaPDF
       end
 
       # Writes the document to the given file or does nothing if +out_file+ is +nil+.
-      def write_document(doc, out_file)
+      def write_document(doc, out_file, incremental: false)
         if out_file
           doc.validate(auto_correct: true) do |object, msg, correctable|
             if command_parser.strict && !correctable
@@ -126,7 +126,7 @@ module HexaPDF
                 "for object (#{object.oid},#{object.gen}): #{msg}"
             end
           end
-          doc.write(out_file, validate: false)
+          doc.write(out_file, validate: false, incremental: incremental)
         end
       end
 

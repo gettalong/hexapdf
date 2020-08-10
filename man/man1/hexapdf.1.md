@@ -19,6 +19,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 * Splitting a PDF file into individual pages (see the `split` command)
 * Optimizing the file size of a PDF file (see the `optimize` command)
 * Watermarking/Stamping a PDF onto another one (see the `watermark` command)
+* Filling out an interactive PDF form (see the `form` command)
 * Extracting embedded files (see the `files` command)
 * Extracting images (see the `images` command)
 * Converting images to PDF (see the `image2pdf` command)
@@ -204,7 +205,7 @@ hexapdf uses a command-style interface. This means that it provides different fu
 depending on the used command, and each command can have its own options.
 
 There is no need to write the full command name for hexapdf to understand it, the only requirement
-is that is must be unambiguous. So using `f` for the `files` command is sufficient. The same is
+is that is must be unambiguous. So using `b` for the `batch` command is sufficient. The same is
 true for long option names and option values.
 
 Any command that reads and writes a PDF file may do in-place processing of the file. This is
@@ -244,6 +245,63 @@ indices and names of the embedded files are just listed.
 `-p` *PASSWORD*, `--password` *PASSWORD*
 
 : The password to decrypt the *PDF*. Use **-** for *PASSWORD* for reading it from standard input.
+
+
+### form
+
+Synopsis: `form` \[`OPTIONS`] *INPUT* \[*OUTPUT*]
+
+This command allows working with interactive forms. If the *OUTPUT* file is not specified, all form
+fields are listed in page order. By default the field name followed by a help text in parentheses
+(if available) is shown, followed on the next line by the current value. Using the global
+`--verbose` option will show additional information like field type and location on the page.
+
+If *OUTPUT* is provided, the command prompts for the values of the form fields and stores the
+updated PDF file in *OUTPUT*. The values for the form fields are asked in the same order as when
+listing the fields. If no input for a field is given, the field's value is not changed from its
+current value.
+
+By additionally using the `--template` option, the data for the fields is read from the given
+template file instead of the standard input. See the `--template` option for details.
+
+`-t TEMPLATE_FILE`, `--template TEMPLATE_FILE`
+
+: Use the given template file for filling out the values of the PDF form. This can be used to fill
+  out a form without any further interaction.
+
+  The *TEMPLATE_FILE* has to be a text file following a simple format:
+
+  * Field names have to start at the first column and have to be followed by a colon. If a field
+    name contains a colon, prefix it with a backslash.
+
+  * Everything after the colon until a line with a non-whitespace character in the first column is
+    considered the field's value. Leading and trailing whitespace as well as whitespace at the
+    beginning of lines is stripped from the value.
+
+  Here is an example for a template file:
+
+      page1.field1: A simple value
+      page1.field3: Another value
+        spanning more than on
+        line.
+
+      Another form field:
+        Value for this form field.
+
+`--[no-]viewer-override`
+
+: Specifies whether the PDF viewer should override the generated visual appearance. Note that not
+  all viewers respect this setting. Defaults to using the setting from input PDF.
+
+`--[no-]incremental-save`
+
+: Specifies whether an incremental save should be done instead of a full save. When using
+  incremental save, the *INPUT* is written as is to *OUTPUT* and only the changes are appended.
+  Defaults to true.
+
+`-p` *PASSWORD*, `--password` *PASSWORD*
+
+: The password to decrypt the *INPUT*. Use **-** for *PASSWORD* for reading it from standard input.
 
 
 ### help
@@ -763,6 +821,17 @@ Applies the first page of the `watermark.pdf` as stamp on `input.pdf`.
 `hexapdf watermark -w watermark.pdf -i 2-5 -r all input.pdf output.pdf`
 
 Cyclically applies the pages 2 to 5 of the `watermark.pdf` as background on `input.pdf`.
+
+
+### form
+
+`hexapdf form input_form.pdf -v`
+
+List all form fields of the `input_form.pdf` with additional information.
+
+`hexapdf form input_form.pdf output.pdf`
+
+Interactively fill out the `input_form.pdf` PDF form and save the result in `output.pdf`.
 
 
 ### files
