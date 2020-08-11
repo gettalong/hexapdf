@@ -1,4 +1,4 @@
-# ## Show Character Bounding Boxes
+# # Show Character Bounding Boxes
 #
 # This examples shows how to process the contents of a page. It finds all
 # characters on a page and surrounds them with their bounding box. Additionally,

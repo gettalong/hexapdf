@@ -1,4 +1,4 @@
-# ## Text in Polygon
+# # Text in Polygon
 #
 # While creating width specifications for the [HexaPDF::Layout::TextLayouter]
 # class by hand is possible, the [HexaPDF::Layout::WidthFromPolygon] class

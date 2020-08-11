@@ -1,4 +1,4 @@
-# ## Merging PDF Files
+# # Merging PDF Files
 #
 # Merging of PDF files can be done in various ways of sophistication.
 #

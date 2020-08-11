@@ -1,4 +1,4 @@
-# ## Text Layouter - Shapes
+# # Text Layouter - Shapes
 #
 # The [HexaPDF::Layout::TextLayouter] class can be used to easily lay out text,
 # not limiting the area to a rectangle but any shape. There is only one

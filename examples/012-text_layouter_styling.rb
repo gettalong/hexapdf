@@ -1,4 +1,4 @@
-# ## Text Layouter - Styling
+# # Text Layouter - Styling
 #
 # The text used as part of a [HexaPDF::Layout::TextLayouter] class can be styled
 # using [HexaPDF::Layout::Style]. To do this [HexaPDF::Layout::TextFragment]

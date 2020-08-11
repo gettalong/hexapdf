@@ -1,4 +1,4 @@
-# ## Frame - Automatic Box Placement
+# # Frame - Automatic Box Placement
 #
 # The [HexaPDF::Layout::Frame] class is used for placing rectangular boxes.
 #

@@ -1,4 +1,4 @@
-# ## Optimizing a PDF File
+# # Optimizing a PDF File
 #
 # This example shows how to read a PDF file, optimize it and write it
 # out again.

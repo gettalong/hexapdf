@@ -1,4 +1,4 @@
-# ## Graphics Primitives
+# # Graphics Primitives
 #
 # This example shows many of the operations that the canvas implementation
 # allows.

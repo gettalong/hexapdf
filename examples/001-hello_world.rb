@@ -1,4 +1,4 @@
-# ## Hello World
+# # Hello World
 #
 # This simple example mimics the classic "hello world" examples from
 # programming languages.

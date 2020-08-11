@@ -1,4 +1,4 @@
-# ## Arcs and Solid Arcs
+# # Arcs and Solid Arcs
 #
 # This example shows how to use the graphic objects `:arc` and `:solid_arc` to
 # draw simple pie charts.

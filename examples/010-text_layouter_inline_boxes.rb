@@ -1,4 +1,4 @@
-# ## Text Layouter - Inline Boxes
+# # Text Layouter - Inline Boxes
 #
 # The [HexaPDF::Layout::TextLayouter] class can be used to easily lay out text
 # mixed with inline boxes.

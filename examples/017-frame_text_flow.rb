@@ -1,4 +1,4 @@
-# ## Frame - Text Flow
+# # Frame - Text Flow
 #
 # This example shows how [HexaPDF::Layout::Frame] and [HexaPDF::Layout::TextBox]
 # can be used to flow text around objects.

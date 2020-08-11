@@ -1,4 +1,4 @@
-# ## TrueType Fonts
+# # TrueType Fonts
 #
 # This example displays all glyphs of a TrueType font and shows that using a
 # TrueType font with HexaPDF is very similar to using one of the standard PDF

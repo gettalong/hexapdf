@@ -1,4 +1,4 @@
-# ## Boxes
+# # Boxes
 #
 # The [HexaPDF::Layout::Box] class is used as the basis for all document layout
 # features.

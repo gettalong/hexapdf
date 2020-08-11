@@ -1,4 +1,4 @@
-# ## PDF Forms
+# # PDF Forms
 #
 # PDF files can be used for interactive forms, containing various types of form
 # fields. HexaPDF supports the creation and processing of these forms.

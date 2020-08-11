@@ -1,4 +1,4 @@
-# ## Composer
+# # Composer
 #
 # This example shows how [HexaPDF::Composer] simplifies the creation of PDF
 # documents by providing a high-level interface to the box layouting engine.

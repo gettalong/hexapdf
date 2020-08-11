@@ -1,4 +1,4 @@
-# ## Text Layouter - Line Wrapping
+# # Text Layouter - Line Wrapping
 #
 # The [HexaPDF::Layout::TextLayouter] class can be used to easily lay out text,
 # automatically wrapping it appropriately.

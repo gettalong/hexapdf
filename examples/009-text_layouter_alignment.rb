@@ -1,4 +1,4 @@
-# ## Text Layouter - Alignment
+# # Text Layouter - Alignment
 #
 # The [HexaPDF::Layout::TextLayouter] class can be used to easily lay out text
 # inside a rectangular area, with various horizontal and vertical alignment

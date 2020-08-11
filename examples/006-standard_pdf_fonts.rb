@@ -1,4 +1,4 @@
-# ## Standard PDF Fonts
+# # Standard PDF Fonts
 #
 # This example shows all characters that are available in the standard 14 PDF
 # fonts.
