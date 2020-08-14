@@ -192,7 +192,7 @@ module HexaPDF
             if glyph.name == @wrapped_font.missing_glyph_id
               raise HexaPDF::Error, "Glyph for #{glyph.str.inspect} missing"
             end
-            code = @encoding.code_to_name.key(glyph.name)
+            code = @encoding.code(glyph.name)
             if code
               code.chr.freeze
             elsif @max_code < 255

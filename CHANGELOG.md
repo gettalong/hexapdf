@@ -5,6 +5,11 @@
 * [HexaPDF::Font::Encoding::Base#code] for retrieving the code for a given
   glyph name
 
+### Fixed
+
+* [HexaPDF::Font::Type1Wrapper#encode] to correctly resolve the code for a glyph
+  name
+
 
 ## 0.12.0 - 2020-08-12
 

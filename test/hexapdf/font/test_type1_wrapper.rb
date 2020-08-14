@@ -13,11 +13,12 @@ describe HexaPDF::Font::Type1Wrapper do
   end
 
   it "can be used with an existing PDF object" do
-    font = @doc.add({Type: :Font, Subtype: :Type1, Encoding: :WinAnsiEncoding,
+    font = @doc.add({Type: :Font, Subtype: :Type1, Encoding: {Differences: [65, :B]},
                      BaseFont: :"Times-Roman"})
     wrapper = HexaPDF::Font::Type1Wrapper.new(@doc, FONT_TIMES, pdf_object: font)
-    assert_equal([:T, :e, :s, :t], wrapper.decode_utf8("Test").map(&:name))
-    assert_equal("a", wrapper.encode(wrapper.glyph(:a)))
+    assert_equal([:B, :E, :A, :S, :T], wrapper.decode_utf8("BEAST").map(&:name))
+    assert_equal("A", wrapper.encode(wrapper.glyph(:A)))
+    assert_equal("A", wrapper.encode(wrapper.glyph(:B)))
   end
 
   it "returns 1 for the scaling factor" do
