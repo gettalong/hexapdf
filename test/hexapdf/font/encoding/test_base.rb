@@ -32,4 +32,14 @@ describe HexaPDF::Font::Encoding::Base do
       assert_nil(@base.unicode(66))
     end
   end
+
+  describe "code" do
+    it "returns the code for an existing glyph name" do
+      assert_equal(65, @base.code(:A))
+    end
+
+    it "returns nil if the glyph name is not referenced" do
+      assert_nil(@base.code(:Unknown))
+    end
+  end
 end

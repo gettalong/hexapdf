@@ -18,4 +18,12 @@ describe HexaPDF::Font::Encoding::DifferenceEncoding do
       assert_equal(:B, @enc.name(66))
     end
   end
+
+  describe "code" do
+    it "takes the encoding differences into account" do
+      assert_equal(65, @enc.code(:A))
+      @enc.code_to_name[65] = :Known
+      assert_equal(65, @enc.code(:Known))
+    end
+  end
 end

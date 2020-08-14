@@ -60,6 +60,12 @@ module HexaPDF
           code_to_name[code] || base_encoding.name(code)
         end
 
+        # Returns the code for the given glyph name, either from this object, if a code references
+        # the name, or from the base encoding.
+        def code(name)
+          code_to_name.key(name) || base_encoding.code(name)
+        end
+
       end
 
     end

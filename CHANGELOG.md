@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::Font::Encoding::Base#code] for retrieving the code for a given
+  glyph name
+
+
 ## 0.12.0 - 2020-08-12
 
 ### Added

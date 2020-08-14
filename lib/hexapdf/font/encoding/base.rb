@@ -73,6 +73,14 @@ module HexaPDF
           @unicode_cache[code] ||= GlyphList.name_to_unicode(name(code))
         end
 
+        # Returns the code for the given glyph name (a Symbol) or +nil+ if there is no code for the
+        # given glyph name.
+        #
+        # If multiple codes reference the given glyph name, the first found is always returned.
+        def code(name)
+          @code_to_name.key(name)
+        end
+
       end
 
     end
