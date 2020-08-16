@@ -37,6 +37,6 @@
 module HexaPDF
 
   # The version of HexaPDF.
-  VERSION = '0.12.0'
+  VERSION = '0.12.1'
 
 end
