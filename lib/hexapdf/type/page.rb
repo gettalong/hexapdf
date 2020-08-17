@@ -358,6 +358,11 @@ module HexaPDF
       # The canvas object is cached once it is created so that its graphics state is correctly
       # retained without the need for parsing its contents.
       #
+      # If the media box of the page doesn't have its origin at (0, 0), the canvas origin is
+      # translated into the bottom left corner so that this detail doesn't matter when using the
+      # canvas. This means that the canvas' origin is always at the bottom left corner of the media
+      # box.
+      #
       # type::
       #    Can either be
       #    * :page for getting the canvas for the page itself (only valid for initially empty pages)
@@ -374,16 +379,25 @@ module HexaPDF
           raise HexaPDF::Error, "Cannot get the canvas for a page with contents"
         end
 
+        create_canvas = lambda do
+          Content::Canvas.new(self).tap do |canvas|
+            media_box = box(:media)
+            if media_box.left != 0 || media_box.bottom != 0
+              canvas.translate(media_box.left, media_box.bottom)
+            end
+          end
+        end
+
         contents = self[:Contents]
         if contents.nil?
-          page_canvas = document.cache(@data, :page_canvas, Content::Canvas.new(self))
+          page_canvas = document.cache(@data, :page_canvas, create_canvas.call)
           self[:Contents] = document.add({Filter: :FlateDecode},
                                          stream: page_canvas.stream_data)
         end
 
         if type == :overlay || type == :underlay
-          underlay_canvas = document.cache(@data, :underlay_canvas, Content::Canvas.new(self))
-          overlay_canvas = document.cache(@data, :overlay_canvas, Content::Canvas.new(self))
+          underlay_canvas = document.cache(@data, :underlay_canvas, create_canvas.call)
+          overlay_canvas = document.cache(@data, :overlay_canvas, create_canvas.call)
 
           stream = HexaPDF::StreamData.new do
             Fiber.yield(" q ")
@@ -396,11 +410,12 @@ module HexaPDF
           underlay = document.add({Filter: :FlateDecode}, stream: stream)
 
           stream = HexaPDF::StreamData.new do
-            Fiber.yield(" Q ")
+            Fiber.yield(" Q q ")
             fiber = overlay_canvas.stream_data.fiber
             while fiber.alive? && (data = fiber.resume)
               Fiber.yield(data)
             end
+            " Q "
           end
           overlay = document.add({Filter: :FlateDecode}, stream: stream)
 

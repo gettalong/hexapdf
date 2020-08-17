@@ -1,3 +1,11 @@
+## 0.12.2 - 2020-08-17
+
+### Fixed
+
+- Wrong origin for page canvases when bottom left corner of media box doesn't
+  coincide with origin of coordinate system
+
+
 ## 0.12.1 - 2020-08-16
 
 ### Added

@@ -331,31 +331,36 @@ describe HexaPDF::Type::Page do
       @page.canvas(type: :overlay).line_width = 5
       assert_operators(@page, [[:save_graphics_state], [:restore_graphics_state],
                                [:save_graphics_state], [:set_line_width, [10]],
-                               [:restore_graphics_state], [:set_line_width, [5]]])
+                               [:restore_graphics_state], [:save_graphics_state],
+                               [:set_line_width, [5]], [:restore_graphics_state]])
 
       @page.canvas(type: :underlay).line_width = 2
       assert_operators(@page, [[:save_graphics_state], [:set_line_width, [2]],
                                [:restore_graphics_state], [:save_graphics_state],
                                [:set_line_width, [10]],
-                               [:restore_graphics_state], [:set_line_width, [5]]])
+                               [:restore_graphics_state], [:save_graphics_state],
+                               [:set_line_width, [5]], [:restore_graphics_state]])
     end
 
     it "works correctly if invoked on an empty page, using type :underlay in first invocation" do
       @page.canvas(type: :underlay).line_width = 2
       assert_operators(@page, [[:save_graphics_state], [:set_line_width, [2]],
                                [:restore_graphics_state], [:save_graphics_state],
+                               [:restore_graphics_state], [:save_graphics_state],
                                [:restore_graphics_state]])
 
       @page.canvas.line_width = 10
       assert_operators(@page, [[:save_graphics_state], [:set_line_width, [2]],
                                [:restore_graphics_state], [:save_graphics_state],
-                               [:set_line_width, [10]], [:restore_graphics_state]])
+                               [:set_line_width, [10]], [:restore_graphics_state],
+                               [:save_graphics_state], [:restore_graphics_state]])
 
       @page.canvas(type: :overlay).line_width = 5
       assert_operators(@page, [[:save_graphics_state], [:set_line_width, [2]],
                                [:restore_graphics_state], [:save_graphics_state],
                                [:set_line_width, [10]],
-                               [:restore_graphics_state], [:set_line_width, [5]]])
+                               [:restore_graphics_state], [:save_graphics_state],
+                               [:set_line_width, [5]], [:restore_graphics_state]])
     end
 
     it "works correctly if invoked on a page with existing contents" do
@@ -364,13 +369,39 @@ describe HexaPDF::Type::Page do
       @page.canvas(type: :overlay).line_width = 5
       assert_operators(@page, [[:save_graphics_state], [:restore_graphics_state],
                                [:save_graphics_state], [:set_line_width, [10]],
-                               [:restore_graphics_state], [:set_line_width, [5]]])
+                               [:restore_graphics_state],
+                               [:save_graphics_state], [:set_line_width, [5]],
+                               [:restore_graphics_state]])
 
       @page.canvas(type: :underlay).line_width = 2
       assert_operators(@page, [[:save_graphics_state], [:set_line_width, [2]],
                                [:restore_graphics_state], [:save_graphics_state],
                                [:set_line_width, [10]],
-                               [:restore_graphics_state], [:set_line_width, [5]]])
+                               [:restore_graphics_state],
+                               [:save_graphics_state], [:set_line_width, [5]],
+                               [:restore_graphics_state]])
+    end
+
+    it "works correctly if the page has its origin not at (0,0)" do
+      @page.box(:media, [-10, -5, 100, 300])
+      @page.canvas(type: :underlay).line_width = 2
+      @page.canvas(type: :page).line_width = 2
+      @page.canvas(type: :overlay).line_width = 2
+
+      assert_operators(@page, [[:save_graphics_state],
+                               [:concatenate_matrix, [1, 0, 0, 1, -10, -5]],
+                               [:set_line_width, [2]],
+                               [:restore_graphics_state],
+
+                               [:save_graphics_state],
+                               [:concatenate_matrix, [1, 0, 0, 1, -10, -5]],
+                               [:set_line_width, [2]],
+                               [:restore_graphics_state],
+
+                               [:save_graphics_state],
+                               [:concatenate_matrix, [1, 0, 0, 1, -10, -5]],
+                               [:set_line_width, [2]],
+                               [:restore_graphics_state]])
     end
 
     it "fails if the page canvas is requested for a page with existing contents" do
