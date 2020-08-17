@@ -537,7 +537,7 @@ describe HexaPDF::Layout::Style::LinkLayer do
     end
 
     it "does nothing if the context is not a page object" do
-      @canvas = HexaPDF::Document.new.add({Type: :XObject, Subtype: :Form}).canvas
+      @canvas = HexaPDF::Document.new.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 1, 1]}).canvas
       assert_nil(call_link(dest: true))
     end
 

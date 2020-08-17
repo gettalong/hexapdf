@@ -82,9 +82,27 @@ describe HexaPDF::Type::Form do
   end
 
   describe "canvas" do
+    # Asserts that the form's contents contains the operators.
+    def assert_operators(form, operators)
+      processor = TestHelper::OperatorRecorder.new
+      form.process_contents(processor)
+      assert_equal(operators, processor.recorded_ops)
+    end
+
     it "always returns the same Canvas instance" do
+      @form[:BBox] = [0, 0, 100, 100]
       canvas = @form.canvas
       assert_same(canvas, @form.canvas)
+      assert_operators(@form, [])
+    end
+
+    it "always moves the origin to the bottom left corner of the bounding box" do
+      @form[:BBox] = [-10, -5, 100, 300]
+      @form.canvas.line_width = 5
+      assert_operators(@form, [[:save_graphics_state],
+                               [:concatenate_matrix, [1, 0, 0, 1, -10, -5]],
+                               [:set_line_width, [5]],
+                               [:restore_graphics_state]])
     end
 
     it "fails if the form XObject already has data" do

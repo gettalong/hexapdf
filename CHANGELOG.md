@@ -4,6 +4,8 @@
 
 - Wrong origin for page canvases when bottom left corner of media box doesn't
   coincide with origin of coordinate system
+- Wrong origin for Form XObject canvas when bottom left corner of bounding box
+  doesn't coincide with origin of coordinate system
 
 
 ## 0.12.1 - 2020-08-16

@@ -126,13 +126,22 @@ module HexaPDF
       # The canvas object is cached once it is created so that its graphics state is correctly
       # retained without the need for parsing its contents.
       #
+      # If the bounding box of the form XObject doesn't have its origin at (0, 0), the canvas origin
+      # is translated into the bottom left corner so that this detail doesn't matter when using the
+      # canvas. This means that the canvas' origin is always at the bottom left corner of the
+      # bounding box.
+      #
       # *Note* that a canvas can only be retrieved for initially empty form XObjects!
       def canvas
         document.cache(@data, :canvas) do
           unless stream.empty?
             raise HexaPDF::Error, "Cannot create a canvas for a form XObjects with contents"
           end
+
           canvas = Content::Canvas.new(self)
+          if box.left != 0 || box.bottom != 0
+            canvas.save_graphics_state.translate(box.left, box.bottom)
+          end
           self.stream = canvas.stream_data
           set_filter(:FlateDecode)
           canvas
