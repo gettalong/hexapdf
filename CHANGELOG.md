@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* Error in the AcroForm appearance generator for text fields when the font is
+  not found in the default resources
+
+
 ## 0.12.2 - 2020-08-17
 
 ### Fixed

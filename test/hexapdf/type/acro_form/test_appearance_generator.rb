@@ -495,18 +495,25 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
     describe "font resolution in case the referenced font is not usable" do
       before do
-        def (@form.default_resources.font(:F1)).font_wrapper; nil; end
-        @field.field_value = 'Test'
+        @doc.config['acro_form.fallback_font'] = ['Times', variant: :none]
+        @field[:V] = 'Test'
       end
 
-      it "uses the fallback font if configured" do
-        @doc.config['acro_form.fallback_font'] = ['Times', variant: :none]
+      it "uses the fallback font if the font is not usable" do
+        def (@form.default_resources.font(:F1)).font_wrapper; nil; end
         @generator.create_appearances
         assert_equal(:'Times-Roman', @widget[:AP][:N][:Resources][:Font][:F2][:BaseFont])
       end
 
+      it "uses the fallback font if the font is not found" do
+        @form.default_resources[:Font].delete(:F1)
+        @generator.create_appearances
+        assert_equal(:'Times-Roman', @widget[:AP][:N][:Resources][:Font][:F1][:BaseFont])
+      end
+
       it "fails if fallback fonts are disabled" do
         @doc.config['acro_form.fallback_font'] = nil
+        @form.default_resources[:Font].delete(:F1)
         msg = assert_raises(HexaPDF::Error) { @generator.create_appearances }
         assert_match(/Font.*not usable/, msg.message)
       end

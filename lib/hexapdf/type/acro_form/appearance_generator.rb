@@ -206,6 +206,10 @@ module HexaPDF
         # * The font, font size and font color are taken from the associated field's default
         #   appearance string. See VariableTextField.
         #
+        #   If the font is not usable by HexaPDF (which may be due to a variety of reasons, e.g. no
+        #   associated information in the form's default resources), the font specified by the
+        #   configuration option +acro_form.fallback_font+ will be used.
+        #
         # * The widget's rectangle /Rect must be defined. If the height is zero, it is auto-sized
         #   based on the font size. If additionally the font size is zero, a font size of
         #   +acro_form.default_font_size+ is used. If the width is zero, the
@@ -222,7 +226,7 @@ module HexaPDF
         def create_text_appearances
           font_name, font_size = @field.parse_default_appearance_string
           default_resources = @document.acro_form.default_resources
-          font = default_resources.font(font_name).font_wrapper
+          font = default_resources.font(font_name).font_wrapper rescue nil
           unless font
             fallback_font_name, fallback_font_options = @document.config['acro_form.fallback_font']
             if fallback_font_name
