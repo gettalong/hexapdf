@@ -249,17 +249,18 @@ module HexaPDF
     #
     # See: PDF1.7 s7.3.3
     def parse_number
-      if (val = @ss.scan(/[+-]?\d++(?!\.)/))
+      val = scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
+      if val.match?(/\A[+-]?\d++(?!\.)\z/)
         tmp = val.to_i
         # Handle object references, see PDF1.7 s7.3.10
         prepare_string_scanner(10)
         tmp = Reference.new(tmp, @ss[1].to_i) if @ss.scan(REFERENCE_RE)
         tmp
-      elsif (val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/))
+      elsif val.match?(/\A[+-]?(?:\d+\.\d*|\.\d+)\z/)
         val << '0' if val.getbyte(-1) == 46 # dot '.'
         Float(val)
       else
-        parse_keyword
+        TOKEN_CACHE[val] # val is keyword
       end
     end
 

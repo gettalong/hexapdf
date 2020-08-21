@@ -4,6 +4,7 @@
 
 * Error in the AcroForm appearance generator for text fields when the font is
   not found in the default resources
+* Parsing of long numbers when reading a file from IO
 
 
 ## 0.12.2 - 2020-08-17

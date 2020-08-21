@@ -121,6 +121,11 @@ module CommonTokenizerTests
     assert(token.kind_of?(HexaPDF::Tokenizer::Token))
   end
 
+  it "next_token: should not fail when reading super long numbers" do
+    create_tokenizer("1" + "0" * 10_000)
+    assert_equal(10**10_000, @tokenizer.next_token)
+  end
+
   it "next_object: works for all PDF object types, including array and dictionary" do
     create_tokenizer(<<-EOF.chomp.gsub(/^ {8}/, ''))
         true false null 123 34.5 (string) <4E6F76> /Name
