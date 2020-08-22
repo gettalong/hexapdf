@@ -59,6 +59,7 @@ module HexaPDF
       @tokenizer = Tokenizer.new(io)
       @document = document
       @object_stream_data = {}
+      @reconstructed_revision = nil
       retrieve_pdf_header_offset_and_version
     end
 
@@ -86,6 +87,8 @@ module HexaPDF
       end
 
       @document.wrap(obj, oid: oid, gen: gen, stream: stream)
+    rescue HexaPDF::MalformedPDFError
+      reconstructed_revision.object(xref_entry)
     end
 
     # Parses the indirect object at the specified offset.
@@ -313,6 +316,11 @@ module HexaPDF
       @startxref_offset = lines[eof_index - 1].to_i
     end
 
+    # Returns the reconstructed revision.
+    def reconstructed_revision
+      @reconstructed_revision ||= reconstruct_revision
+    end
+
     # Returns the PDF version number that is stored in the file header.
     #
     # See: PDF1.7 s7.5.2
@@ -336,6 +344,60 @@ module HexaPDF
       @io.seek(0)
       @header_offset = (@io.read(1024) || '').index(/%PDF-(\d\.\d)/) || 0
       @header_version = $1
+    end
+
+    # Tries to reconstruct the PDF document's main cross-reference table by serially parsing the
+    # file and returning a Revision object for loading the found objects.
+    #
+    # If the file contains multiple cross-reference sections, all objects will be put into a single
+    # cross-reference table, later objects overwriting prior ones.
+    def reconstruct_revision
+      raise unless @document.config['parser.try_xref_reconstruction']
+      msg = "#{$!} - trying cross-reference table reconstruction"
+      @document.config['parser.on_correctable_error'].call(@document, msg, @tokenizer.pos)
+
+      xref = XRefSection.new
+      @tokenizer.pos = 0
+      while true
+        pos = @tokenizer.pos
+        @tokenizer.scan_until(/(\n|\r\n?)+|\z/)
+        next_new_line_pos = @tokenizer.pos
+        @tokenizer.pos = pos
+
+        token = @tokenizer.next_token rescue nil
+        if token.kind_of?(Integer)
+          gen = @tokenizer.next_token rescue nil
+          tok = @tokenizer.next_token rescue nil
+          if @tokenizer.pos > next_new_line_pos
+            @tokenizer.pos = next_new_line_pos
+          elsif gen.kind_of?(Integer) && tok.kind_of?(Tokenizer::Token) && tok == 'obj'
+            xref.add_in_use_entry(token, gen, pos)
+            @tokenizer.scan_until(/(?:\n|\r\n?)endobj\b/)
+          end
+        elsif token.kind_of?(Tokenizer::Token) && token == 'trailer'
+          obj = @tokenizer.next_object rescue nil
+          # Use last trailer found in case of multiple revisions but use first trailer in case of
+          # linearized file.
+          trailer = obj if obj.kind_of?(Hash) && (obj.key?(:Prev) || trailer.nil?)
+        elsif token == Tokenizer::NO_MORE_TOKENS
+          break
+        else
+          @tokenizer.pos = next_new_line_pos
+        end
+      end
+
+      trailer&.delete(:Prev) # no need for this and may wreak havoc
+      if !trailer || trailer.empty?
+        raise_malformed("Could not reconstruct malformed PDF because trailer was not found", pos: 0)
+      end
+
+      loader = lambda do |xref_entry|
+        obj, oid, gen, stream = parse_indirect_object(xref_entry.pos)
+        @document.wrap(obj, oid: oid, gen: gen, stream: stream)
+      end
+
+      Revision.new(@document.wrap(trailer, type: :XXTrailer), xref_section: xref,
+                   loader: loader)
     end
 
     # Raises a HexaPDF::MalformedPDFError with the given message and source position.

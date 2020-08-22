@@ -334,6 +334,20 @@ module HexaPDF
   #    The value needs to be an object that responds to \#call(document, message, position) and
   #    returns +true+ if an error should be raised.
   #
+  # parser.try_xref_reconstruction::
+  #    A boolean specifying whether non-recoverable parsing errors should lead to reconstructing the
+  #    main cross-reference table.
+  #
+  #    The reconstructed cross-reference table might make damaged files usable but there is no way
+  #    to ensure that the reconstructed file is equal to the undamaged original file (though
+  #    generally it works out).
+  #
+  #    There is also the possibility that reconstructing doesn't work because the algorithm has to
+  #    assume that the PDF was written in a certain way (which is recommended by the PDF
+  #    specification).
+  #
+  #    Defaults to +true+.
+  #
   # sorted_tree.max_leaf_node_size::
   #    The maximum number of nodes that should be in a leaf node of a node tree.
   #
@@ -412,6 +426,7 @@ module HexaPDF
                       'page.default_media_box' => :A4,
                       'page.default_media_orientation' => :portrait,
                       'parser.on_correctable_error' => proc { false },
+                      'parser.try_xref_reconstruction' => true,
                       'sorted_tree.max_leaf_node_size' => 64,
                       'style.layers_map' => {
                         link: 'HexaPDF::Layout::Style::LinkLayer',

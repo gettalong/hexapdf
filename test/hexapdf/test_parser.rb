@@ -8,6 +8,7 @@ require 'stringio'
 describe HexaPDF::Parser do
   before do
     @document = HexaPDF::Document.new
+    @document.config['parser.try_xref_reconstruction'] = false
     @document.add(@document.wrap(10, oid: 1, gen: 0))
 
     create_parser(<<~EOF)
@@ -417,6 +418,48 @@ describe HexaPDF::Parser do
                     "stream\n\x01\x0A\x00\nendstream endobj")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.load_revision(0) }
       assert_match(/entry for itself/, exp.message)
+    end
+  end
+
+  describe "reconstruct_revision" do
+    before do
+      @document.config['parser.try_xref_reconstruction'] = true
+      @xref = HexaPDF::XRefSection.in_use_entry(1, 0, 100)
+    end
+
+    it "serially parses the contents" do
+      create_parser("1 0 obj\n5\nendobj\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
+      assert_equal(6, @parser.load_object(@xref).value)
+    end
+
+    it "ignores parts where the starting line is split across lines" do
+      create_parser("1 0 obj\n5\nendobj\n1 0\nobj\n6\nendobj\ntrailer\n<</Size 1>>")
+      assert_equal(5, @parser.load_object(@xref).value)
+    end
+
+    it "ignores invalid objects" do
+      create_parser("1 x obj\n5\nendobj\n1 0 xobj\n6\nendobj\n1 0 obj 4\nendobj\ntrailer\n<</Size 1>>")
+      assert_equal(4, @parser.load_object(@xref).value)
+    end
+
+    it "ignores invalid lines" do
+      create_parser("1 0 obj\n5\nendobj\nhello there\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
+      assert_equal(6, @parser.load_object(@xref).value)
+    end
+
+    it "uses the last trailer" do
+      create_parser("trailer <</Size 1>>\ntrailer <</Size 2/Prev 342>>")
+      assert_equal({Size: 2}, @parser.reconstructed_revision.trailer.value)
+    end
+
+    it "uses the first trailer in case of a linearized file" do
+      create_parser("trailer <</Size 1/Prev 342>>\ntrailer <</Size 2>>")
+      assert_equal({Size: 1}, @parser.reconstructed_revision.trailer.value)
+    end
+
+    it "fails if no valid trailer is found" do
+      create_parser("1 0 obj\n5\nendobj")
+      assert_raises(HexaPDF::MalformedPDFError) { @parser.load_object(@xref) }
     end
   end
 end

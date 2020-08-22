@@ -67,30 +67,38 @@ module HexaPDF
         object_loader = lambda {|xref_entry| parser.load_object(xref_entry) }
 
         revisions = []
-        xref_section, trailer = parser.load_revision(parser.startxref_offset)
-        revisions << Revision.new(document.wrap(trailer, type: :XXTrailer),
-                                  xref_section: xref_section, loader: object_loader)
-        seen_xref_offsets = {parser.startxref_offset => true}
+        begin
+          xref_section, trailer = parser.load_revision(parser.startxref_offset)
+          revisions << Revision.new(document.wrap(trailer, type: :XXTrailer),
+                                    xref_section: xref_section, loader: object_loader)
+          seen_xref_offsets = {parser.startxref_offset => true}
 
-        while (prev = revisions[0].trailer.value[:Prev]) &&
-            !seen_xref_offsets.key?(prev)
-          # PDF1.7 s7.5.5 states that :Prev needs to be indirect, Adobe's reference 3.4.4 says it
-          # should be direct. Adobe's POV is followed here. Same with :XRefStm.
-          xref_section, trailer = parser.load_revision(prev)
-          seen_xref_offsets[prev] = true
+          while (prev = revisions[0].trailer.value[:Prev]) &&
+              !seen_xref_offsets.key?(prev)
+            # PDF1.7 s7.5.5 states that :Prev needs to be indirect, Adobe's reference 3.4.4 says it
+            # should be direct. Adobe's POV is followed here. Same with :XRefStm.
+            xref_section, trailer = parser.load_revision(prev)
+            seen_xref_offsets[prev] = true
 
-          stm = revisions[0].trailer.value[:XRefStm]
-          if stm && !seen_xref_offsets.key?(stm)
-            stm_xref_section, = parser.load_revision(stm)
-            xref_section.merge!(stm_xref_section)
-            seen_xref_offsets[stm] = true
+            stm = revisions[0].trailer.value[:XRefStm]
+            if stm && !seen_xref_offsets.key?(stm)
+              stm_xref_section, = parser.load_revision(stm)
+              xref_section.merge!(stm_xref_section)
+              seen_xref_offsets[stm] = true
+            end
+
+            revisions.unshift(Revision.new(document.wrap(trailer, type: :XXTrailer),
+                                           xref_section: xref_section, loader: object_loader))
           end
-
-          revisions.unshift(Revision.new(document.wrap(trailer, type: :XXTrailer),
-                                         xref_section: xref_section, loader: object_loader))
+        rescue HexaPDF::MalformedPDFError
+          reconstructed_revision = parser.reconstructed_revision
+          if revisions.size > 0
+            reconstructed_revision.trailer.data.value = revisions.last.trailer.data.value
+          end
+          revisions << reconstructed_revision
         end
 
-        document.version = parser.file_header_version
+        document.version = parser.file_header_version rescue '1.0'
         new(document, initial_revisions: revisions, parser: parser)
       end
 

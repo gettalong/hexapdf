@@ -158,4 +158,39 @@ describe HexaPDF::Revisions do
     doc = HexaPDF::Document.new(io: io)
     assert_equal(2, doc.revisions.count)
   end
+
+  it "uses the reconstructed revision if errors are found when loading from an IO" do
+    io = StringIO.new(<<~EOF)
+      %PDF-1.7
+      1 0 obj
+      10
+      endobj
+
+      xref
+      0 2
+      0000000000 65535 f 
+      0000000009 00000 n 
+      trailer
+      << /Size 5 >>
+      startxref
+      28
+      %%EOF
+
+      2 0 obj
+      300
+      endobj
+
+      xref
+      2 1
+      0000000301 00000 n 
+        trailer
+      << /Size 3 /Prev 100>>
+      startxref
+      139
+      %%EOF
+    EOF
+    doc = HexaPDF::Document.new(io: io)
+    assert_equal(2, doc.revisions.count)
+    assert_same(doc.revisions[0].trailer.value, doc.revisions[1].trailer.value)
+  end
 end
