@@ -134,8 +134,8 @@ module HexaPDF
         # Check boxes:: For check boxes that are in the on state the value +true+ is returned.
         #               Otherwise +false+ is returned.
         #
-        # Radio buttons:: If no radio button is selected, +nil+ is returned. Otherwise the name of
-        #                 the specific radio button that is selected is returned.
+        # Radio buttons:: If no radio button is selected, +nil+ is returned. Otherwise the value (a
+        #                 Symbol) of the specific radio button that is selected is returned.
         def field_value
           normalized_field_value(:V)
         end
@@ -149,7 +149,8 @@ module HexaPDF
         #               +false+ for unchecking it.
         #
         # Radio buttons:: To turn all radio buttons off, provide +nil+ as value. Otherwise provide
-        #                 the name of a radio button that should be turned on.
+        #                 the value (a Symbol or an object responding to +#to_sym+) of a radio
+        #                 button that should be turned on.
         def field_value=(value)
           normalized_field_value_set(:V, value)
         end
@@ -179,7 +180,7 @@ module HexaPDF
           end
         end
 
-        # Returns the name used for setting the check box to the on state.
+        # Returns the name (a Symbol) used for setting the check box to the on state.
         #
         # Defaults to :Yes if no other name could be determined.
         def check_box_on_name
@@ -187,7 +188,8 @@ module HexaPDF
             find {|key| key != :Off } || :Yes
         end
 
-        # Returns the array of values that can be used for the field value of the radio button.
+        # Returns the array of Symbol values that can be used for the field value of the radio
+        # button.
         def radio_button_values
           each_widget.map do |widget|
             widget.appearance&.normal_appearance&.value&.each_key&.find {|key| key != :Off }
@@ -200,8 +202,8 @@ module HexaPDF
         # default appearance.
         #
         # If the widget is created for a radio button field, the +value+ argument needs to set to
-        # the value (a symbol) this widget represents. It can be used with #field_value= to set this
-        # specific widget of the radio button set to on.
+        # the value (a Symbol or an object responding to +#to_sym+) this widget represents. It can
+        # be used with #field_value= to set this specific widget of the radio button set to on.
         #
         # See: Field#create_widget, AppearanceGenerator button field methods
         def create_widget(page, defaults: true, value: nil, **values)
@@ -209,8 +211,11 @@ module HexaPDF
             if check_box?
               widget[:AP] = {N: {Yes: nil, Off: nil}}
             elsif radio_button?
-              raise ArgumentError, "Argument value has to be provided for radio buttons" unless value
-              widget[:AP] = {N: {value => nil, Off: nil}}
+              unless value.respond_to?(:to_sym)
+                raise ArgumentError, "Argument 'value' has to be provided for radio buttons " \
+                  "and needs to respond to #to_sym"
+              end
+              widget[:AP] = {N: {value.to_sym => nil, Off: nil}}
             end
             next unless defaults
             widget.border_style(color: 0, width: 1, style: (push_button? ? :beveled : :solid))
@@ -271,8 +276,8 @@ module HexaPDF
                         value == true ? check_box_on_name : :Off
                       elsif value.nil?
                         :Off
-                      elsif radio_button_values.include?(value)
-                        value
+                      elsif radio_button_values.include?(value.to_sym)
+                        value.to_sym
                       else
                         @document.config['acro_form.on_invalid_value'].call(self, value)
                       end

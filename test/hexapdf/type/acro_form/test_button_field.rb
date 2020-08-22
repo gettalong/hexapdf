@@ -140,7 +140,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     it "sets a correct field value" do
       @field.create_widget(@doc.pages.add, value: :button1)
 
-      @field.field_value = :button1
+      @field.field_value = "button1"
       assert_equal(:button1, @field[:V])
       @field.field_value = nil
       assert_equal(:Off, @field[:V])
@@ -158,7 +158,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     end
 
     it "returns an array of possible values" do
-      @field.create_widget(@doc.pages.add, value: :Test)
+      @field.create_widget(@doc.pages.add, value: "Test")
       @field.create_widget(@doc.pages.add, value: :x)
       @field.create_widget(@doc.pages.add, value: :y)
       assert_equal([:Test, :x, :y], @field.radio_button_values)
@@ -172,6 +172,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(:solid, border_style.style)
       assert_equal([1], widget.background_color.components)
       assert_equal(:circle, widget.marker_style.style)
+      assert_equal({test: nil, Off: nil}, widget[:AP][:N].value)
     end
 
     it "always creates standalone widgets" do
@@ -180,6 +181,10 @@ describe HexaPDF::Type::AcroForm::ButtonField do
 
     it "fails if the value argument is not provided for create_widget" do
       assert_raises(ArgumentError) { @field.create_widget(@doc.pages.add) }
+    end
+
+    it "fails if the value argument for create_widget doesn't respond to to_sym" do
+      assert_raises(ArgumentError) { @field.create_widget(@doc.pages.add, value: 5) }
     end
   end
 

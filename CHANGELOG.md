@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Changed
+
+* Allow any object responding to `#to_sym` when setting a radio button value
+
 ### Fixed
 
 * Error in the AcroForm appearance generator for text fields when the font is
