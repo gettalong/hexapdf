@@ -177,7 +177,7 @@ module HexaPDF
       def parse(contents, processor = nil, &block) #:yields: object, params
         raise ArgumentError, "Argument processor or block is needed" if processor.nil? && block.nil?
         if processor.nil?
-          block.singleton_class.alias_method(:process, :call)
+          block.singleton_class.send(:alias_method, :process, :call)
           processor = block
         end
 

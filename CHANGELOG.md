@@ -5,6 +5,7 @@
 * Error in the AcroForm appearance generator for text fields when the font is
   not found in the default resources
 * Parsing of long numbers when reading a file from IO
+* Usage of unsupported method for Ruby 2.4 so that all tests pass again
 
 
 ## 0.12.2 - 2020-08-17
