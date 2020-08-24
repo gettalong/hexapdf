@@ -133,6 +133,48 @@ describe HexaPDF::Parser do
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
       assert_match(/stream.*followed by.*endstream/i, exp.message)
     end
+
+    describe "with strict parsing" do
+      before do
+        @document.config['parser.on_correctable_error'] = proc { true }
+      end
+
+      it "fails if an empty indirect object is found" do
+        create_parser("1 0 obj\nendobj")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+        assert_match(/no indirect object value/i, exp.message)
+      end
+
+      it "fails if keyword stream is followed only by CR without LF" do
+        create_parser("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+        assert_match(/not CR alone/, exp.message)
+      end
+
+      it "fails if the stream length value is invalid" do
+        create_parser("1 0 obj<</Length 4>> stream\n12endstream endobj")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+        assert_match(/invalid stream length/i, exp.message)
+      end
+
+      it "fails if the keyword endobj is mangled" do
+        create_parser("1 0 obj\n<< >>\nendobjd\n")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+        assert_match(/keyword endobj/, exp.message)
+      end
+
+      it "fails if the keyword endobj is missing" do
+        create_parser("1 0 obj\n<< >>")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+        assert_match(/keyword endobj/, exp.message)
+      end
+
+      it "fails if there is data between 'endstream' and 'endobj'" do
+        create_parser("1 0 obj\n<< >>\nstream\nendstream\ntest\nendobj\n")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
+        assert_match(/keyword endobj/, exp.message)
+      end
+    end
   end
 
   describe "load_object" do
@@ -243,6 +285,13 @@ describe HexaPDF::Parser do
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
       assert_match(/missing startxref/, exp.message)
     end
+
+    it "fails on strict parsing if the startxref is not in the last part of the file" do
+      @document.config['parser.on_correctable_error'] = proc { true }
+      create_parser("startxref\n5\n%%EOF" + "\nhallo" * 5000)
+      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
+      assert_match(/end-of-file marker not found/, exp.message)
+    end
   end
 
   describe "file_header_version" do
@@ -330,6 +379,30 @@ describe HexaPDF::Parser do
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
       assert_match(/dictionary/, exp.message)
     end
+
+    describe "with strict parsing" do
+      before do
+        @document.config['parser.on_correctable_error'] = proc { true }
+      end
+
+      it "fails if xref type=n with offset=0" do
+        create_parser("xref\n0 2\n0000000000 00000 n \n0000000000 00000 n \ntrailer\n<<>>\n")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
+        assert_match(/invalid.*cross-reference entry/i, exp.message)
+      end
+
+      it " fails xref type=n with gen>65535" do
+        create_parser("xref\n0 2\n0000000000 00000 n \n0000000000 65536 n \ntrailer\n<<>>\n")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
+        assert_match(/invalid.*cross-reference entry/i, exp.message)
+      end
+
+      it "fails if trailing second whitespace is missing" do
+        create_parser("xref\n0 1\n0000000000 00000 n\ntrailer\n<<>>\n")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
+        assert_match(/invalid.*cross-reference subsection entry/i, exp.message)
+      end
+    end
   end
 
   describe "load_revision" do
@@ -349,71 +422,9 @@ describe HexaPDF::Parser do
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.load_revision(10) }
       assert_match(/not a cross-reference stream/, exp.message)
     end
-  end
 
-  describe "with strict parsing enabled" do
-    before do
+    it "fails on strict parsing if the cross-reference stream doesn't contain an entry for itself" do
       @document.config['parser.on_correctable_error'] = proc { true }
-    end
-
-    it "startxref_offset fails if the startxref is not in the last part of the file" do
-      create_parser("startxref\n5\n%%EOF" + "\nhallo" * 5000)
-      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
-      assert_match(/end-of-file marker not found/, exp.message)
-    end
-
-    it "parse_xref_section_and_trailer fails if xref type=n with offset=0" do
-      create_parser("xref\n0 2\n0000000000 00000 n \n0000000000 00000 n \ntrailer\n<<>>\n")
-      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
-      assert_match(/invalid.*cross-reference entry/i, exp.message)
-    end
-
-    it "parse_xref_section_and_trailer fails xref type=n with gen>65535" do
-      create_parser("xref\n0 2\n0000000000 00000 n \n0000000000 65536 n \ntrailer\n<<>>\n")
-      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
-      assert_match(/invalid.*cross-reference entry/i, exp.message)
-    end
-
-    it "parse_xref_section_and_trailer fails if trailing second whitespace is missing" do
-      create_parser("xref\n0 1\n0000000000 00000 n\ntrailer\n<<>>\n")
-      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
-      assert_match(/invalid.*cross-reference subsection entry/i, exp.message)
-    end
-
-    it "parse_indirect_object fails if an empty indirect object is found" do
-      create_parser("1 0 obj\nendobj")
-      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
-      assert_match(/no indirect object value/i, exp.message)
-    end
-
-    it "parse_indirect_object fails if keyword stream is followed only by CR without LF" do
-      create_parser("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
-      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
-      assert_match(/not CR alone/, exp.message)
-    end
-
-    it "parse_indirect_object fails if the stream length value is invalid" do
-      create_parser("1 0 obj<</Length 4>> stream\n12endstream endobj")
-      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
-      assert_match(/invalid stream length/i, exp.message)
-    end
-
-    it "parse_indirect_object fails if the keyword endobj is missing or mangled" do
-      create_parser("1 0 obj\n<< >>\nendobjd\n")
-      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
-      assert_match(/keyword endobj/, exp.message)
-      create_parser("1 0 obj\n<< >>")
-      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
-      assert_match(/keyword endobj/, exp.message)
-    end
-
-    it "parse_indirect_object fails if there is data between 'endstream' and 'endobj'" do
-      create_parser("1 0 obj\n<< >>\nstream\nendstream\ntest\nendobj\n")
-      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
-      assert_match(/keyword endobj/, exp.message)
-    end
-
-    it "load_revision fails if the cross-reference stream doesn't contain an entry for itself" do
       create_parser("2 0 obj\n<</Type/XRef/Length 3/W [1 1 1]/Size 1>>" \
                     "stream\n\x01\x0A\x00\nendstream endobj")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.load_revision(0) }
