@@ -5,6 +5,11 @@
 * Cross-reference table reconstruction for damaged PDFs, controllable via the
   new 'parser.try_xref_reconstruction' option
 
+### Fixed
+
+* Reporting of cross-reference section entry parsing error
+
+
 
 ## 0.12.3 - 2020-08-22
 
