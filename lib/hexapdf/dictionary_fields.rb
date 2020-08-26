@@ -151,16 +151,8 @@ module HexaPDF
       # Returns a duplicated default value, automatically taking unduplicatable classes into
       # account.
       def default
-        duplicatable_default? ? @default.dup : @default
+        @default.dup
       end
-
-      # Returns +true+ if the default value can safely be duplicated with #dup.
-      def duplicatable_default?
-        @duplicatable_default ||= HexaPDF::Object::NOT_DUPLICATABLE_CLASSES.none? do |klass|
-          @default.kind_of?(klass)
-        end
-      end
-      private :duplicatable_default?
 
       # Returns +true+ if the given object is valid for this field.
       def valid_object?(obj)
