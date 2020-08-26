@@ -5,11 +5,15 @@
 * Cross-reference table reconstruction for damaged PDFs, controllable via the
   new 'parser.try_xref_reconstruction' option
 
+### Changed
+
+* Validation of TrueType fonts to ignore missing fields if the font name
+  suggests that the font is one of the standard 14 PDF fonts
+
 ### Fixed
 
 * Reporting of cross-reference section entry parsing error
 * PDF version used by default for dictionary fields
-
 
 
 ## 0.12.3 - 2020-08-22

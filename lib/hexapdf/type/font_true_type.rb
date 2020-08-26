@@ -48,8 +48,12 @@ module HexaPDF
       private
 
       def perform_validation
-        super
-        yield("Required field FontDescriptor is not set", false) if self[:FontDescriptor].nil?
+        std_font = FontType1::StandardFonts.standard_font?(self[:BaseFont])
+        super(ignore_missing_font_fields: std_font)
+
+        if self[:FontDescriptor].nil? && !std_font
+          yield("Required field FontDescriptor is not set", false)
+        end
       end
 
     end

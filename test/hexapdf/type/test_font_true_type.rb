@@ -16,6 +16,12 @@ describe HexaPDF::Type::FontTrueType do
   end
 
   describe "validation" do
+    it "ignores some missing fields if the font name is one of the standard PDF fonts" do
+      @font[:BaseFont] = :'Arial,Bold'
+      [:FirstChar, :LastChar, :Widths, :FontDescriptor].each {|field| @font.delete(field) }
+      assert(@font.validate)
+    end
+
     it "requires that the FontDescriptor key is set" do
       assert(@font.validate)
       @font.delete(:FontDescriptor)
