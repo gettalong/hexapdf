@@ -8,6 +8,7 @@
 ### Fixed
 
 * Reporting of cross-reference section entry parsing error
+* PDF version used by default for dictionary fields
 
 
 
