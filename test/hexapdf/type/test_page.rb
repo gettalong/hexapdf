@@ -277,7 +277,7 @@ describe HexaPDF::Type::Page do
       page = @doc.add({Type: :Page, Parent: @doc.pages.root})
       resources = page.resources
       assert_equal(:XXResources, resources.type)
-      assert_equal({}, resources.value)
+      assert_equal({ProcSet: [:PDF, :Text, :ImageB, :ImageC, :ImageI]}, resources.value)
     end
 
     it "returns the already used resource dictionary" do

@@ -191,7 +191,8 @@ module HexaPDF
 
         # Returns the dictionary containing the default resources for form field appearance streams.
         def default_resources
-          self[:DR] ||= document.wrap({}, type: :XXResources)
+          self[:DR] ||= document.wrap({ProcSet: [:PDF, :Text, :ImageB, :ImageC, :ImageI]},
+                                      type: :XXResources)
         end
 
         # Sets the global default appearance string using the provided values.
