@@ -371,7 +371,7 @@ describe HexaPDF::Parser do
     it "fails if a sub section entry is mangled" do
       create_parser("xref\n0 2\n000a000000 00000 n\n0000000000 65535 n\ntrailer\n<<>>\n")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
-      assert_match(/invalid cross-reference subsection entry/i, exp.message)
+      assert_match(/invalid cross-reference entry/i, exp.message)
     end
 
     it "fails if there is no trailer" do
@@ -406,7 +406,7 @@ describe HexaPDF::Parser do
       it "fails if trailing second whitespace is missing" do
         create_parser("xref\n0 1\n0000000000 00000 n\ntrailer\n<<>>\n")
         exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(0) }
-        assert_match(/invalid.*cross-reference subsection entry/i, exp.message)
+        assert_match(/invalid.*cross-reference entry/i, exp.message)
       end
     end
   end
