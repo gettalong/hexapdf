@@ -273,7 +273,7 @@ module HexaPDF
         # Check that required fields are set
         if field.required? && obj.nil?
           yield("Required field #{name} is not set", field.default?)
-          self[name] = obj = field.default
+          self[name] = obj = field.default if field.default?
         end
 
         # Check if the document version is set high enough

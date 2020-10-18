@@ -594,13 +594,9 @@ module HexaPDF
     # If a block is given, it is called on validation problems.
     #
     # See HexaPDF::Object#validate for more information.
-    def validate(auto_correct: true, only_loaded: false) #:yield: object, msg, correctable
-      cur_obj = trailer
-      block = (block_given? ? lambda {|msg, correctable| yield(cur_obj, msg, correctable) } : nil)
-
+    def validate(auto_correct: true, only_loaded: false, &block) #:yield: msg, correctable, object
       result = trailer.validate(auto_correct: auto_correct, &block)
       each(only_current: false, only_loaded: only_loaded) do |obj|
-        cur_obj = obj
         result &&= obj.validate(auto_correct: auto_correct, &block)
       end
       result
@@ -643,7 +639,7 @@ module HexaPDF
       end
 
       if validate
-        self.validate(auto_correct: true) do |obj, msg, correctable|
+        self.validate(auto_correct: true) do |msg, correctable, obj|
           next if correctable
           raise HexaPDF::Error, "Validation error for (#{obj.oid},#{obj.gen}): #{msg}"
         end

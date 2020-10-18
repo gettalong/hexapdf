@@ -69,6 +69,7 @@ module HexaPDF
         when 6
           if !key?(:OE) || !key?(:UE) || !key?(:Perms)
             yield("Value of /OE, /UE or /Perms is missing for dictionary revision 6", false)
+            return
           end
           if value[:U].length != 48 || value[:O].length != 48 || value[:UE].length != 32 ||
               value[:OE].length != 32 || value[:Perms].length != 16

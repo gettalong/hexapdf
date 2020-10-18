@@ -7,6 +7,9 @@
 
 ### Changed
 
+* **Breaking change**: Overhauled document/object validation interfaces and
+  internals to be more similar and to allow for reporting of multiple validation
+  problems
 * Validation of TrueType fonts to ignore missing fields if the font name
   suggests that the font is one of the standard 14 PDF fonts
 

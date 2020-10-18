@@ -222,7 +222,7 @@ module HexaPDF
       # Ensures that the /Count and /Parent fields of the whole page tree are set up correctly and
       # that there is at least one page node. This is therefore only done for the root node of the
       # page tree!
-      def perform_validation
+      def perform_validation(&block)
         super
         return if key?(:Parent)
 
@@ -255,7 +255,7 @@ module HexaPDF
 
         if self[:Count] == 0
           yield("A PDF document needs at least one page", true)
-          add_page.validate {|msg, correctable| yield(msg, correctable) }
+          add_page.validate(&block)
         end
       end
 

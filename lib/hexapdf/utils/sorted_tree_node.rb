@@ -307,10 +307,10 @@ module HexaPDF
 
         # All kids entries must be indirect objects
         if key?(:Kids)
-          self[:Kids].each do |kid|
-            unless (kid.kind_of?(HexaPDF::Object) && kid.indirect?) ||
-                kid.kind_of?(HexaPDF::Reference)
-              yield("Child entries of sorted tree nodes must be indirect objects", false)
+          self[:Kids].each_with_index do |kid, index|
+            unless kid.kind_of?(HexaPDF::Object) && kid.indirect?
+              yield("Child entries of sorted tree nodes must be indirect objects", true)
+              value[:Kids][index] = document.add(kid)
             end
           end
         end
@@ -321,15 +321,18 @@ module HexaPDF
           container = self[container_name]
           if container.length.odd?
             yield("Sorted tree leaf node contains odd number of entries", false)
+            return
           end
           index = 0
           old = nil
           while index < container.length
-            key = document.unwrap(container[index])
+            key = container[index]
             if !key.kind_of?(key_type)
               yield("A key must be a #{key_type} object, not a #{key.class}", false)
+              return
             elsif old && old > key
               yield("Sorted tree leaf node entries are not correctly sorted", false)
+              return
             end
             old = key
             index += 2

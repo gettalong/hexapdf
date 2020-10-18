@@ -173,6 +173,7 @@ module HexaPDF
 
           if self[:V] && !(self[:V].kind_of?(String) || self[:V].kind_of?(HexaPDF::Stream))
             yield("Text field doesn't contain text but #{self[:V].class} object")
+            return
           end
           if (max_len = self[:MaxLen]) && field_value.length > max_len
             yield("Text contents of field '#{full_field_name}' is too long")

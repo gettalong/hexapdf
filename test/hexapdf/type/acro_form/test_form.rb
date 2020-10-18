@@ -7,7 +7,7 @@ require 'hexapdf/type/acro_form/form'
 describe HexaPDF::Type::AcroForm::Form do
   before do
     @doc = HexaPDF::Document.new
-    @acro_form = @doc.add({}, type: :XXAcroForm)
+    @acro_form = @doc.add({Fields: []}, type: :XXAcroForm)
   end
 
   describe "signature flags" do
@@ -49,7 +49,7 @@ describe HexaPDF::Type::AcroForm::Form do
     root_fields = @acro_form.find_root_fields
     assert_equal(result, root_fields.map(&:value))
     assert_kind_of(HexaPDF::Type::AcroForm::TextField, root_fields[0])
-    refute(@acro_form.key?(:Fields))
+    assert_equal([], @acro_form[:Fields].value)
 
     @acro_form.find_root_fields!
     assert_equal(result, @acro_form[:Fields].value.map(&:value))
@@ -204,9 +204,9 @@ describe HexaPDF::Type::AcroForm::Form do
 
     it "checks whether the font used in /DA is available in /DR" do
       @acro_form[:DA] = '/F2 0 Tf /F1 0 Tf'
-      refute(@acro_form.validate {|msg, c| assert_match(/DR must also be present/, msg) })
+      refute(@acro_form.validate {|msg| assert_match(/DR must also be present/, msg) })
       @acro_form.default_resources[:Font] = {}
-      refute(@acro_form.validate {|msg, c| assert_match(/font.*is not.*resource/, msg) })
+      refute(@acro_form.validate {|msg| assert_match(/font.*is not.*resource/, msg) })
       @acro_form.default_resources[:Font][:F1] = :yes
       assert(@acro_form.validate)
     end

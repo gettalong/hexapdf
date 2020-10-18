@@ -97,7 +97,7 @@ module HexaPDF
       private
 
       # Validates the trailer.
-      def perform_validation
+      def perform_validation(&block)
         super
         unless value[:ID]
           msg = if value[:Encrypt]
@@ -111,8 +111,7 @@ module HexaPDF
 
         unless value[:Root]
           yield("A PDF document must have a Catalog dictionary", true)
-          value[:Root] = document.add({Type: :Catalog})
-          value[:Root].validate {|message, correctable| yield(message, correctable) }
+          catalog.validate(&block)
         end
 
         if value[:Encrypt] && (!document.security_handler ||

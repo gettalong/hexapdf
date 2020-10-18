@@ -198,10 +198,11 @@ describe HexaPDF::Utils::SortedTreeNode do
 
       @root[:Kids][0] = @kid1
       @kid1.oid = 0
-      refute(@root.validate do |message, c|
+      assert(@root.validate do |message, c|
                assert_match(/must be indirect objects/, message)
-               refute(c)
+               assert(c)
              end)
+      assert(@kid1.indirect?)
     end
 
     it "checks that leaf node containers have an even number of entries" do

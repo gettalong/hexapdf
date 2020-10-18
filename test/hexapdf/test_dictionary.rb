@@ -14,7 +14,9 @@ describe HexaPDF::Dictionary do
   end
 
   def add(obj)
-    HexaPDF::Object.new(obj, oid: 1)
+    klass = HexaPDF::Object
+    klass = HexaPDF::Dictionary if obj.kind_of?(HexaPDF::Dictionary) || obj.kind_of?(Hash)
+    klass.new(obj, oid: 1)
   end
 
   def delete(_obj)

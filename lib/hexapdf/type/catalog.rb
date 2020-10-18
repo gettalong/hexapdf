@@ -120,12 +120,12 @@ module HexaPDF
       private
 
       # Ensures that there is a valid page tree.
-      def perform_validation
+      def perform_validation(&block)
         super
         unless key?(:Pages)
           yield("A PDF document needs a page tree", true)
           value[:Pages] = document.add({Type: :Pages})
-          value[:Pages].validate {|msg, correctable| yield(msg, correctable) }
+          value[:Pages].validate(&block)
         end
       end
 

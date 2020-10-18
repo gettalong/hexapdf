@@ -250,14 +250,15 @@ module HexaPDF
         end
 
         def perform_validation # :nodoc:
+          super
+
           if (da = self[:DA])
             unless self[:DR]
               yield("When the field /DA is present, the field /DR must also be present")
+              return
             end
             font_name = nil
-            HexaPDF::Content::Parser.parse(da) do |obj, params|
-              font_name = params[0] if obj == :Tf
-            end
+            HexaPDF::Content::Parser.parse(da) {|obj, params| font_name = params[0] if obj == :Tf }
             if font_name && !(self[:DR][:Font] && self[:DR][:Font][font_name])
               yield("The font specified in /DA is not in the /DR resource dictionary")
             end

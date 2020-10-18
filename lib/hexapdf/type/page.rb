@@ -464,8 +464,7 @@ module HexaPDF
         REQUIRED_INHERITABLE_FIELDS.each do |name|
           next if self[name]
           yield("Inheritable page field #{name} not set", name == :Resources)
-          self[:Resources] = {}
-          self[:Resources].validate(&block)
+          resources.validate(&block) if name == :Ressources
         end
       end
 

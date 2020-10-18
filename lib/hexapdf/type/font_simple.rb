@@ -170,7 +170,9 @@ module HexaPDF
         [:FirstChar, :LastChar, :Widths].each do |field|
           yield("Required field #{field} is not set", false) if self[field].nil?
         end
-        if self[:Widths].length != (self[:LastChar] - self[:FirstChar] + 1)
+
+        if key?(:Widths) && key?(:LastChar) && key?(:FirstChar) &&
+            self[:Widths].length != (self[:LastChar] - self[:FirstChar] + 1)
           yield("Invalid number of entries in field Widths", false)
         end
       end

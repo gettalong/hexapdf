@@ -161,8 +161,9 @@ describe HexaPDF::Type::FontSimple do
   end
 
   describe "validation" do
+    before { assert(@font.validate) }
+
     it "validates the existence of required keys" do
-      assert(@font.validate)
       @font.delete(:FirstChar)
       refute(@font.validate)
     end

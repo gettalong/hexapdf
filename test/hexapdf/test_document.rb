@@ -441,21 +441,21 @@ describe HexaPDF::Document do
 
   describe "validate" do
     before do
-      @doc.trailer.validate # to create a valid document
+      @doc.validate # to create a valid document
     end
 
     it "validates indirect objects" do
-      obj = @doc.add({Type: :Catalog})
+      obj = @doc.add({Type: :Page, MediaBox: [1, 1, 1, 1], Parent: @doc.pages.root})
       refute(@doc.validate(auto_correct: false))
 
       called = false
-      assert(@doc.validate {|o| assert_same(obj, o); called = true })
+      assert(@doc.validate {|_, _, o| assert_same(obj, o); called = true })
       assert(called)
     end
 
     it "validates the trailer object" do
       @doc.trailer[:ID] = :Symbol
-      refute(@doc.validate {|obj| assert_same(@doc.trailer, obj) })
+      refute(@doc.validate {|_, _, obj| assert_same(@doc.trailer, obj) })
     end
 
     it "validates only loaded objects" do

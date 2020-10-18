@@ -53,9 +53,10 @@ module HexaPDF
 
         def perform_validation #:nodoc:
           super
-          unless self[:URI].ascii_only?
+          uri = self[:URI]
+          if uri && !uri.ascii_only?
             yield("URIs have to contain ASCII characters only", true)
-            uri = self[:URI].dup.force_encoding(Encoding::BINARY)
+            uri = uri.dup.force_encoding(Encoding::BINARY)
             uri.encode!(Encoding::US_ASCII, fallback: lambda {|c| "%#{c.ord.to_s(16).upcase}" })
             self[:URI] = uri
           end

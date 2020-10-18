@@ -219,6 +219,7 @@ module HexaPDF
         super
         val = self[:ProcSet]
         if !val
+          yield("No procedure set specified", true)
           self[:ProcSet] = [:PDF, :Text, :ImageB, :ImageC, :ImageI]
         else
           val.reject! do |name|

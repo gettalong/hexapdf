@@ -246,29 +246,31 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   obj.validate(auto_correct: true)                               -> true or false
-    #   obj.validate(auto_correct: true) {|msg, correctable| block }   -> true or false
+    #   obj.validate(auto_correct: true)                                    -> true or false
+    #   obj.validate(auto_correct: true) {|msg, correctable, obj| block }   -> true or false
     #
-    # Validates the object and, optionally, corrects problems when the option +auto_correct+ is set.
-    # The validation routine itself has to be implemented in the #perform_validation method - see
-    # its documentation for more information.
+    # Validates the object, optionally corrects problems when the option +auto_correct+ is set and
+    # returns +true+ if the object is deemed valid and +false+ otherwise.
     #
     # If a block is given, it is called on validation problems with a problem description and
-    # whether the problem is correctable.
+    # whether the problem is automatically correctable. The third argument to the block is usually
+    # this object but may be another object if during auto-correction a new object was created and
+    # validated.
     #
-    # Returns +true+ if the object is deemed valid and +false+ otherwise.
+    # The validation routine itself has to be implemented in the #perform_validation method - see
+    # its documentation for more information.
     #
     # *Note*: Even if the return value is +true+ there may be problems since HexaPDF doesn't
     # currently implement the full PDF spec. However, if the return value is +false+, there is
     # certainly a problem!
     def validate(auto_correct: true)
-      catch do |catch_tag|
-        perform_validation do |msg, correctable|
-          yield(msg, correctable) if block_given?
-          throw(catch_tag, false) unless auto_correct && correctable
-        end
-        true
+      result = true
+      perform_validation do |msg, correctable, object|
+        yield(msg, correctable, object || self) if block_given?
+        result = false unless correctable
+        return false unless auto_correct
       end
+      result
     end
 
     # Makes a deep copy of the source PDF object and resets the object identifier.
@@ -334,17 +336,25 @@ module HexaPDF
     # are also performed!
     #
     # When the validation routine finds that the object is invalid, it has to yield a problem
-    # description and whether the problem can be corrected. After yielding, the problem has to be
-    # corrected which poses no problem because the #validate method makes sure that the yield only
-    # returns if the problem is actually correctable and if it should be corrected.
+    # description and whether the problem can be corrected. An optional third argument may contain
+    # the object that gets validated if it is different from this object (may happen when
+    # auto-correction is used).
     #
-    # Here is a sample validation routine for stream objects:
+    # After yielding, the problem has to be corrected if it is correctable. If it is not correctable
+    # and not correcting would lead to exceptions the method has to return early.
+    #
+    # Here is a sample validation routine for a dictionary object type:
     #
     #   def perform_validation
     #     super
-    #     unless value.kind_of?(Hash)
-    #       yield("A stream object needs a Hash as value")
-    #       self.value = {}
+    #
+    #     if value[:SomeKey].length != 7
+    #       yield("Length of /SomeKey is invalid")
+    #       # No need to return early here because following check doesn't rely on /SomeKey
+    #     end
+    #
+    #     if value[:OtherKey] % 2 == 0
+    #       yield("/OtherKey needs to contain an odd number of elements")
     #     end
     #   end
     def perform_validation(&block)

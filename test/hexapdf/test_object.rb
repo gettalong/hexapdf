@@ -94,30 +94,57 @@ describe HexaPDF::Object do
   end
 
   describe "validate" do
-    it "invokes perform_validation correctly via #validate" do
-      obj = HexaPDF::Object.new(5)
-      invoked = {}
-      obj.define_singleton_method(:perform_validation) do |&block|
-        invoked[:method] = true
-        block.call("error", true)
-      end
-      assert(obj.validate {|*a| invoked[:block] = a })
-      assert_equal([:method, :block], invoked.keys)
-      assert_equal(["error", true], invoked[:block])
-
-      refute(obj.validate(auto_correct: false))
+    before do
+      @obj = HexaPDF::Object.new(5)
     end
 
-    it "stops validating on an uncorrectable problem" do
-      obj = HexaPDF::Object.new(5)
-      invoked = {}
-      obj.define_singleton_method(:perform_validation) do |&block|
-        invoked[:before] = true
-        block.call("error", false)
-        invoked[:after] = true
+    it "invokes perform_validation correctly" do
+      invoked = false
+      @obj.define_singleton_method(:perform_validation) { invoked = true }
+      assert(@obj.validate)
+      assert(invoked)
+    end
+
+    it "yields all arguments yieled by perform_validation" do
+      invoked = []
+      @obj.define_singleton_method(:perform_validation) do |&block|
+        block.call("error", true, :object)
       end
-      refute(obj.validate {|*a| invoked[:block] = a })
-      refute(invoked.key?(:after))
+      assert(@obj.validate {|*a| invoked << a })
+      assert_equal([["error", true, :object]], invoked)
+    end
+
+    it "provides self as third argument if none is yielded by perform_validation" do
+      invoked = []
+      @obj.define_singleton_method(:perform_validation) do |&block|
+        block.call("error", true)
+      end
+      assert(@obj.validate {|*a| invoked << a })
+      assert_equal([["error", true, @obj]], invoked)
+    end
+
+    it "yields all problems when auto_correct is true" do
+      invoked = []
+      @obj.define_singleton_method(:perform_validation) do |&block|
+        invoked << :before
+        block.call("error", false)
+        invoked << :after
+        block.call("error2", true)
+        invoked << :last
+      end
+      refute(@obj.validate)
+      assert_equal([:before, :after, :last], invoked)
+    end
+
+    it "stops at the first uncorrectable problem if auto_correct is false" do
+      invoked = []
+      @obj.define_singleton_method(:perform_validation) do |&block|
+        invoked << :before
+        block.call("error", false)
+        invoked << :after
+      end
+      refute(@obj.validate(auto_correct: false))
+      assert_equal([:before], invoked)
     end
   end
 
