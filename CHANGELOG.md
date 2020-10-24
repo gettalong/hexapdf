@@ -12,6 +12,8 @@
   problems
 * Validation of TrueType fonts to ignore missing fields if the font name
   suggests that the font is one of the standard 14 PDF fonts
+* Option `-p` of CLI command `hexapdf image2pdf` to also allow lowercase page
+  size names
 
 ### Fixed
 

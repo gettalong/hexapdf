@@ -64,7 +64,8 @@ module HexaPDF
                            orientation = :landscape
                            page_size.delete_suffix!('-landscape')
                          end
-                         HexaPDF::Type::Page.media_box(page_size.to_sym, orientation: orientation)
+                         page_size = page_size.capitalize.to_sym
+                         HexaPDF::Type::Page.media_box(page_size, orientation: orientation)
                        end
         end
         options.on("--[no-]auto-rotate", "Automatically rotate pages based on image dimesions. " \
