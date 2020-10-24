@@ -148,10 +148,10 @@ module HexaPDF
         def default_field_value=(value)
           items = option_items
           self[:DV] = if [value].flatten.all? {|v| items.include?(v) }
-                       value
-                     else
-                       @document.config['acro_form.on_invalid_value'].call(self, value)
-                     end
+                        value
+                      else
+                        @document.config['acro_form.on_invalid_value'].call(self, value)
+                      end
         end
 
         # Returns the array with the available option items.

@@ -674,10 +674,9 @@ describe HexaPDF::Layout::TextLayouter do
       pos = [0, 0]
       result.select! {|name, _| name == :set_text_matrix || name == :move_text_next_line }.
         map! do |name, ops|
-        if name == :set_text_matrix
-          pos = ops[-2, 2]
-        elsif name == :move_text_next_line
-          pos[1] -= leading
+        case name
+        when :set_text_matrix then pos = ops[-2, 2]
+        when :move_text_next_line then pos[1] -= leading
         end
         pos.dup
       end

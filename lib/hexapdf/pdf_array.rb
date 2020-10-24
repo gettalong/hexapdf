@@ -83,7 +83,7 @@ module HexaPDF
     # subclasses) and the given data has not (including subclasses), the data is stored inside the
     # HexaPDF::Object.
     def []=(index, data)
-      if value[index].class == HexaPDF::Object && !data.kind_of?(HexaPDF::Object) &&
+      if value[index].instance_of?(HexaPDF::Object) && !data.kind_of?(HexaPDF::Object) &&
           !data.kind_of?(HexaPDF::Reference)
         value[index].value = data
       else
@@ -196,7 +196,7 @@ module HexaPDF
         data = document.deref(data)
         value[index] = data if index
       end
-      if data.class == HexaPDF::Object || (data.kind_of?(HexaPDF::Object) && data.value.nil?)
+      if data.instance_of?(HexaPDF::Object) || (data.kind_of?(HexaPDF::Object) && data.value.nil?)
         data = data.value
       end
       data

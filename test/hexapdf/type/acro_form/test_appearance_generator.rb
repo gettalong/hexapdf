@@ -478,7 +478,6 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:restore_graphics_state],
                           [:end_marked_content]])
       end
-
     end
 
     describe "choice fields" do
@@ -495,7 +494,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
     describe "font resolution in case the referenced font is not usable" do
       before do
-        @doc.config['acro_form.fallback_font'] = ['Times', variant: :none]
+        @doc.config['acro_form.fallback_font'] = ['Times', {variant: :none}]
         @field[:V] = 'Test'
       end
 

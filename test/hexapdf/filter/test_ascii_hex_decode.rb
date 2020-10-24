@@ -24,7 +24,7 @@ describe HexaPDF::Filter::ASCIIHexDecode do
     end
 
     it "ignores data after the EOD marker" do
-      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded + '4e6f7gzz'))))
+      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded << '4e6f7gzz'))))
     end
 
     it "assumes the missing char is '0' if the input length is odd" do

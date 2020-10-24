@@ -198,7 +198,7 @@ module HexaPDF
       # Note: The cache is not cleared!
       def add(item)
         last = @items.last
-        if last.class == item.class && item.kind_of?(TextFragment) && last.style == item.style
+        if last.instance_of?(item.class) && item.kind_of?(TextFragment) && last.style == item.style
           if last.items.frozen?
             @items[-1] = last = last.dup
             last.items = last.items.dup

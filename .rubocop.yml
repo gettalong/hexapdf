@@ -127,9 +127,6 @@ Style/Documentation:
 Style/GuardClause:
   Enabled: false # false alarms
 
-Style/MethodMissingSuper:
-  Enabled: false # why the need to fallback to super?
-
 Style/Next:
   Enabled: false # not really useful
 
@@ -193,6 +190,8 @@ Style/HashEachMethods:
 Style/HashTransformValues:
   Enabled: true
 
+Style/OptionalBooleanParameter:
+  Enabled: false
 
 Layout/HashAlignment:
   EnforcedLastArgumentHashStyle: ignore_implicit
@@ -281,6 +280,13 @@ Lint/StructNewOverride:
 
 Lint/RaiseException:
   Enabled: true
+
+Lint/MissingSuper:
+  Enabled: false # why the need to fallback to super?
+
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - test/**/*.rb
 
 # These cops should be run manually from time to time
 # Style/MutableConstant

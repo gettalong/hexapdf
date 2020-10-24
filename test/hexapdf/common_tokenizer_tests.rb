@@ -122,7 +122,7 @@ module CommonTokenizerTests
   end
 
   it "next_token: should not fail when reading super long numbers" do
-    create_tokenizer("1" + "0" * 10_000)
+    create_tokenizer("1" << "0" * 10_000)
     assert_equal(10**10_000, @tokenizer.next_token)
   end
 
@@ -162,7 +162,7 @@ module CommonTokenizerTests
   end
 
   it "returns the correct position on operations" do
-    create_tokenizer("hallo du" + " " * 50000 + "hallo du")
+    create_tokenizer("hallo du" << " " * 50000 << "hallo du")
     @tokenizer.next_token
     assert_equal(5, @tokenizer.pos)
 

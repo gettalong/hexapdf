@@ -92,7 +92,7 @@ module HexaPDF
           end
         rescue HexaPDF::MalformedPDFError
           reconstructed_revision = parser.reconstructed_revision
-          if revisions.size > 0
+          unless revisions.empty?
             reconstructed_revision.trailer.data.value = revisions.last.trailer.data.value
           end
           revisions << reconstructed_revision

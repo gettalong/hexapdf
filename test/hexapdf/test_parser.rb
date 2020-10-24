@@ -248,7 +248,7 @@ describe HexaPDF::Parser do
     end
 
     it "ignores garbage at the end of the file" do
-      create_parser("startxref\n5\n%%EOF" + "\nhallo" * 150)
+      create_parser("startxref\n5\n%%EOF" << "\nhallo" * 150)
       assert_equal(5, @parser.startxref_offset)
     end
 
@@ -258,9 +258,9 @@ describe HexaPDF::Parser do
     end
 
     it "finds the startxref anywhere in file" do
-      create_parser("startxref\n5\n%%EOF" + "\nhallo" * 5000)
+      create_parser("startxref\n5\n%%EOF" << "\nhallo" * 5000)
       assert_equal(5, @parser.startxref_offset)
-      create_parser("startxref\n5\n%%EOF\n" + "h" * 1017)
+      create_parser("startxref\n5\n%%EOF\n" << "h" * 1017)
       assert_equal(5, @parser.startxref_offset)
     end
 
@@ -288,7 +288,7 @@ describe HexaPDF::Parser do
 
     it "fails on strict parsing if the startxref is not in the last part of the file" do
       @document.config['parser.on_correctable_error'] = proc { true }
-      create_parser("startxref\n5\n%%EOF" + "\nhallo" * 5000)
+      create_parser("startxref\n5\n%%EOF" << "\nhallo" * 5000)
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
       assert_match(/end-of-file marker not found/, exp.message)
     end
@@ -312,7 +312,7 @@ describe HexaPDF::Parser do
     end
 
     it "ignores junk at the beginning of the file and correctly calculates offset" do
-      create_parser("junk" * 200 + "\n%PDF-1.4\n")
+      create_parser("junk" * 200 << "\n%PDF-1.4\n")
       assert_equal('1.4', @parser.file_header_version)
       assert_equal(801, @parser.instance_variable_get(:@header_offset))
     end

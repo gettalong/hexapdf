@@ -49,7 +49,7 @@ module HexaPDF
 
       # Creates a new FastARC4 object using the given encryption key.
       def initialize(key)
-        @cipher = OpenSSL::Cipher::RC4.new
+        @cipher = OpenSSL::Cipher.new('rc4')
         @cipher.key_len = key.length
         @cipher.key = key
       end

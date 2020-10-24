@@ -68,14 +68,14 @@ describe HexaPDF::Content::GraphicObject::Arc do
       arc.max_curves = 4
       curves = arc.curves
       assert_equal(2, curves.size)
-      assert_curve_values([0, 1, p1: [1, 0.548584], p2: [0.548584, 1]], curves[0])
-      assert_curve_values([-1, 0, p1: [-0.548584, 1], p2: [-1, 0.548584]], curves[1])
+      assert_curve_values([0, 1, {p1: [1, 0.548584], p2: [0.548584, 1]}], curves[0])
+      assert_curve_values([-1, 0, {p1: [-0.548584, 1], p2: [-1, 0.548584]}], curves[1])
 
       arc.configure(clockwise: true)
       curves = arc.curves
       assert_equal(2, curves.size)
-      assert_curve_values([0, -1, p1: [1, -0.548584], p2: [0.548584, -1]], curves[0])
-      assert_curve_values([-1, 0, p1: [-0.548584, -1], p2: [-1, -0.548584]], curves[1])
+      assert_curve_values([0, -1, {p1: [1, -0.548584], p2: [0.548584, -1]}], curves[0])
+      assert_curve_values([-1, 0, {p1: [-0.548584, -1], p2: [-1, -0.548584]}], curves[1])
     end
   end
 

@@ -162,9 +162,10 @@ module HexaPDF
                 io.seek(length, IO::SEEK_CUR)
               end
             when 'tRNS' # PNG s11.3.2
-              if @color_type == INDEXED
+              case @color_type
+              when INDEXED
                 trns = io.read(length).unpack('C*')
-              elsif @color_type == TRUECOLOR || @color_type == GREYSCALE
+              when TRUECOLOR, GREYSCALE
                 dict[:Mask] = io.read(length).unpack('n*').map {|val| [val, val] }.flatten
               else
                 io.seek(length, IO::SEEK_CUR)

@@ -278,14 +278,15 @@ module HexaPDF
       #
       # See: #define_encryption_options
       def apply_encryption_options(doc)
-        if @out_options.encryption == :add
+        case @out_options.encryption
+        when :add
           doc.encrypt(algorithm: @out_options.enc_algorithm,
                       key_length: @out_options.enc_key_length,
                       force_v4: @out_options.enc_force_v4,
                       permissions: @out_options.enc_permissions,
                       owner_password: @out_options.enc_owner_pwd,
                       user_password: @out_options.enc_user_pwd)
-        elsif @out_options.encryption == :remove
+        when :remove
           doc.encrypt(name: nil)
         end
       end

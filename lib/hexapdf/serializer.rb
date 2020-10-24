@@ -243,7 +243,7 @@ module HexaPDF
             else
               obj.dup
             end
-      obj.gsub!(/[\(\)\\\r]/n, STRING_ESCAPE_MAP)
+      obj.gsub!(/[()\\\r]/n, STRING_ESCAPE_MAP)
       "(#{obj})"
     end
 

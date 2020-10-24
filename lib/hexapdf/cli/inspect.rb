@@ -240,7 +240,7 @@ module HexaPDF
           puts "<<"
           (recursive ? val.sort : val).each do |k, v|
             next if v.nil? || (v.respond_to?(:null?) && v.null?)
-            print '  ' * (indent + 1) + @serializer.serialize_symbol(k) + " "
+            print '%s%s ' % ['  ' * (indent + 1), @serializer.serialize_symbol(k)]
             serialize(v, recursive: recursive, seen: seen, indent: indent + 1)
             puts
           end

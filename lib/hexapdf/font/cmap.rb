@@ -100,10 +100,7 @@ module HexaPDF
       # The writing mode of the CMap: 0 for horizontal, 1 for vertical writing.
       attr_accessor :wmode
 
-      attr_reader :codespace_ranges     #: nodoc:
-      attr_reader :cid_mapping          # :nodoc:
-      attr_reader :cid_range_mappings   # :nodoc:
-      attr_reader :unicode_mapping      # :nodoc:
+      attr_reader :codespace_ranges, :cid_mapping, :cid_range_mappings, :unicode_mapping # :nodoc:
       protected :codespace_ranges, :cid_mapping, :cid_range_mappings, :unicode_mapping
 
       # Creates a new CMap object.

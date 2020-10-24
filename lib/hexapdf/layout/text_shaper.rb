@@ -68,9 +68,10 @@ module HexaPDF
           text_fragment.clear_cache
         end
         if text_fragment.style.font_features[:kern] && font.wrapped_font.features.include?(:kern)
-          if font.font_type == :TrueType
+          case font.font_type
+          when :TrueType
             process_true_type_kerning(text_fragment)
-          elsif font.font_type == :Type1
+          when :Type1
             process_type1_kerning(text_fragment)
           end
           text_fragment.clear_cache

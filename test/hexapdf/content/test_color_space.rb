@@ -155,7 +155,7 @@ describe HexaPDF::Content::ColorSpace::DeviceGray do
 
   before do
     @color_space = HexaPDF::Content::ColorSpace::DeviceGray.new
-    @color_space_family = @color_space_definition =  :DeviceGray
+    @color_space_family = @color_space_definition = :DeviceGray
     @color = @color_space.default_color
     @other_color = @color_space.color(128)
     @colors = [128]

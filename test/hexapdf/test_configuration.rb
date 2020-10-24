@@ -66,8 +66,8 @@ describe HexaPDF::Configuration do
       assert_equal(HexaPDF, @config.constantize('test', 1))
     end
 
-    def assert_constantize_error # :nodoc:
-      exp = assert_raises(HexaPDF::Error) { yield }
+    def assert_constantize_error(&block) # :nodoc:
+      exp = assert_raises(HexaPDF::Error, &block)
       assert_match(/Error getting constant for configuration option/, exp.message)
     end
 

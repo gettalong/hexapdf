@@ -163,7 +163,7 @@ module HexaPDF
                value[name] = field.default
              end
       value[name] = data = document.deref(data) if data.kind_of?(HexaPDF::Reference)
-      if data.class == HexaPDF::Object || (data.kind_of?(HexaPDF::Object) && data.value.nil?)
+      if data.instance_of?(HexaPDF::Object) || (data.kind_of?(HexaPDF::Object) && data.value.nil?)
         data = data.value
       end
       if (result = field&.convert(data, document))
@@ -182,7 +182,7 @@ module HexaPDF
         raise ArgumentError, "Only Symbol (Name) keys are allowed to be used in PDF dictionaries"
       end
 
-      if value[name].class == HexaPDF::Object && !data.kind_of?(HexaPDF::Object) &&
+      if value[name].instance_of?(HexaPDF::Object) && !data.kind_of?(HexaPDF::Object) &&
           !data.kind_of?(HexaPDF::Reference)
         value[name].value = data
       else

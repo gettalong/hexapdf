@@ -101,13 +101,13 @@ describe HexaPDF::Encryption::AES do
       result = TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, f))
       assert_equal('a' * 16, result)
 
-      f = Fiber.new { 'a' * 31 + "\x00" }
+      f = Fiber.new { 'a' * 31 << "\x00" }
       result = TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, f))
-      assert_equal('a' * 15 + "\x00", result)
+      assert_equal('a' * 15 << "\x00", result)
 
-      f = Fiber.new { 'a' * 29 + "\x00\x01\x03" }
+      f = Fiber.new { 'a' * 29 << "\x00\x01\x03" }
       result = TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, f))
-      assert_equal('a' * 13 + "\x00\x01\x03", result)
+      assert_equal('a' * 13 << "\x00\x01\x03", result)
     end
 
     it "fails on decryption if not enough bytes are provided" do

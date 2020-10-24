@@ -531,7 +531,7 @@ describe HexaPDF::Content::Canvas do
     end
 
     it "invokes the polygon method when radius != 0" do
-      args = [0, 0, 10, 0, 10, 10, 0, 10, radius: 5]
+      args = [0, 0, 10, 0, 10, 10, 0, 10, {radius: 5}]
       assert_method_invoked(@canvas, :polygon, args) do
         @canvas.rectangle(0, 0, 10, 10, radius: 5)
       end
@@ -631,7 +631,7 @@ describe HexaPDF::Content::Canvas do
 
   describe "circle" do
     it "uses arc for the hard work" do
-      assert_method_invoked(@canvas, :arc, [5, 6, a: 7]) do
+      assert_method_invoked(@canvas, :arc, [5, 6, {a: 7}]) do
         @canvas.graphics_object = :path
         @canvas.circle(5, 6, 7)
       end
@@ -651,7 +651,7 @@ describe HexaPDF::Content::Canvas do
 
   describe "ellipse" do
     it "uses arc for the hard work" do
-      assert_method_invoked(@canvas, :ellipse, [5, 6, a: 7, b: 5, inclination: 10]) do
+      assert_method_invoked(@canvas, :ellipse, [5, 6, {a: 7, b: 5, inclination: 10}]) do
         @canvas.ellipse(5, 6, a: 7, b: 5, inclination: 10)
       end
     end

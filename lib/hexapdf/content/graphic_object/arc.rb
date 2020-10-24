@@ -202,8 +202,8 @@ module HexaPDF
             p2x_prime, p2y_prime = derivative_evaluate(eta2)
 
             result << [p2x, p2y,
-                       p1: [p1x + alpha * p1x_prime, p1y + alpha * p1y_prime],
-                       p2: [p2x - alpha * p2x_prime, p2y - alpha * p2y_prime]]
+                       {p1: [p1x + alpha * p1x_prime, p1y + alpha * p1y_prime],
+                        p2: [p2x - alpha * p2x_prime, p2y - alpha * p2y_prime]}]
           end
 
           result

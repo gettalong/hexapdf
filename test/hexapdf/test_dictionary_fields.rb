@@ -222,7 +222,7 @@ describe HexaPDF::DictionaryFields do
 
     it "allows conversion to a Rectangle from an Array" do
       doc = Minitest::Mock.new
-      doc.expect(:wrap, :data, [[0, 1, 2, 3], type: HexaPDF::Rectangle])
+      doc.expect(:wrap, :data, [[0, 1, 2, 3], {type: HexaPDF::Rectangle}])
       @field.convert([0, 1, 2, 3], doc)
       doc.verify
     end
@@ -230,7 +230,7 @@ describe HexaPDF::DictionaryFields do
     it "allows conversion to a Rectangle from a HexaPDF::PDFArray" do
       data = HexaPDF::PDFArray.new([0, 1, 2, 3])
       doc = Minitest::Mock.new
-      doc.expect(:wrap, :data, [data, type: HexaPDF::Rectangle])
+      doc.expect(:wrap, :data, [data, {type: HexaPDF::Rectangle}])
       @field.convert(data, doc)
       doc.verify
     end

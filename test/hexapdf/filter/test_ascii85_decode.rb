@@ -33,7 +33,7 @@ describe HexaPDF::Filter::ASCII85Decode do
     end
 
     it "ignores data after the EOD marker" do
-      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded.dup + "~>abcdefg"))))
+      assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded << "~>abcdefg"))))
     end
 
     it "fails if the input contains invalid characters" do

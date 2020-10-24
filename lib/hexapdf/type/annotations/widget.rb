@@ -307,10 +307,9 @@ module HexaPDF
             color = [0]
             if (da = self[:DA] || field[:DA])
               HexaPDF::Content::Parser.parse(da) do |obj, params|
-                if obj == :rg || obj == :g || obj == :k
-                  color = params.dup
-                elsif obj == :Tf
-                  size = params[1]
+                case obj
+                when :rg, :g, :k then color = params.dup
+                when :Tf then size = params[1]
                 end
               end
             end

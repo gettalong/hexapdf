@@ -80,7 +80,7 @@ module HexaPDF
         options[:config]['document.auto_decrypt'] = @auto_decrypt
         HexaPDF::Document.open(file, **options) do |doc|
           output_line("File name", file)
-          output_line("File size", File.stat(file).size.to_s + " bytes")
+          output_line("File size", File.stat(file).size.to_s << " bytes")
           @auto_decrypt && INFO_KEYS.each do |name|
             next unless doc.trailer.info.key?(name)
             output_line(name.to_s, doc.trailer.info[name].to_s)
@@ -113,7 +113,7 @@ module HexaPDF
       end
 
       def output_line(header, text) #:nodoc:
-        puts((header + ":").ljust(COLUMN_WIDTH) << text)
+        puts(("#{header}:").ljust(COLUMN_WIDTH) << text)
       end
 
     end

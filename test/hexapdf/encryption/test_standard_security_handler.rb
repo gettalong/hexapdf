@@ -53,24 +53,24 @@ describe HexaPDF::Encryption::StandardEncryptionDictionary do
 end
 
 describe HexaPDF::Encryption::StandardSecurityHandler do
-  TEST_FILES = Dir[File.join(TEST_DATA_DIR, 'standard-security-handler', '*.pdf')].sort
-  USER_PASSWORD = 'uhexapdf'
-  OWNER_PASSWORD = 'ohexapdf'
+  test_files = Dir[File.join(TEST_DATA_DIR, 'standard-security-handler', '*.pdf')].sort
+  user_password = 'uhexapdf'
+  owner_password = 'ohexapdf'
 
-  MINIMAL_DOC = HexaPDF::Document.new(io: StringIO.new(MINIMAL_PDF))
+  minimal_doc = HexaPDF::Document.new(io: StringIO.new(MINIMAL_PDF))
 
-  TEST_FILES.each do |file|
+  test_files.each do |file|
     basename = File.basename(file)
     it "can decrypt, encrypt and decrypt the encrypted file #{basename} with the user password" do
       begin
         doc = HexaPDF::Document.new(io: StringIO.new(File.binread(file)),
-                                    decryption_opts: {password: USER_PASSWORD})
-        assert_equal(MINIMAL_DOC.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
+                                    decryption_opts: {password: user_password})
+        assert_equal(minimal_doc.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
 
         out = StringIO.new(''.b)
         HexaPDF::Writer.new(doc, out).write
-        doc = HexaPDF::Document.new(io: out, decryption_opts: {password: USER_PASSWORD})
-        assert_equal(MINIMAL_DOC.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
+        doc = HexaPDF::Document.new(io: out, decryption_opts: {password: user_password})
+        assert_equal(minimal_doc.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
       rescue HexaPDF::EncryptionError => e
         flunk("Error processing #{basename}: #{e}")
       end
@@ -80,8 +80,8 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       it "can decrypt the encrypted file #{basename} with the owner password" do
         begin
           doc = HexaPDF::Document.new(io: StringIO.new(File.binread(file)),
-                                      decryption_opts: {password: OWNER_PASSWORD})
-          assert_equal(MINIMAL_DOC.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
+                                      decryption_opts: {password: owner_password})
+          assert_equal(minimal_doc.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
         rescue HexaPDF::EncryptionError => e
           flunk("Error processing #{basename}: #{e}")
         end

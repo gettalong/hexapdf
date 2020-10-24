@@ -40,7 +40,7 @@ Gem::Specification.new do |s|
   s.add_dependency('geom2d', '~> 0.3')
   s.add_development_dependency('kramdown', '~> 2.3')
   s.add_development_dependency('reline', '~> 0.1')
-  s.add_development_dependency('rubocop', '~> 0.82', '>= 0.82.0')
+  s.add_development_dependency('rubocop', '~> 1.0')
   s.required_ruby_version = '>= 2.4'
 
   s.author = 'Thomas Leitner'

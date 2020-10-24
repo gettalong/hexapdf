@@ -524,7 +524,7 @@ module HexaPDF
       #   Style.new(font_size: 15, align: :center, valign: center)
       def initialize(**properties)
         update(**properties)
-        @scaled_item_widths = {}
+        @scaled_item_widths = {}.compare_by_identity
       end
 
       # Duplicates the complex properties that can be modified, as well as the cache.
@@ -883,41 +883,41 @@ module HexaPDF
         [:text_rise, 0],
         [:font_features, {}],
         [:text_rendering_mode, "Content::TextRenderingMode::FILL",
-         setter: "Content::TextRenderingMode.normalize(value)"],
+         {setter: "Content::TextRenderingMode.normalize(value)"}],
         [:subscript, false,
-         setter: "value; superscript(false) if superscript",
-         valid_values: [true, false]],
+         {setter: "value; superscript(false) if superscript",
+          valid_values: [true, false]}],
         [:superscript, false,
-         setter: "value; subscript(false) if subscript",
-         valid_values: [true, false]],
-        [:underline, false, valid_values: [true, false]],
-        [:strikeout, false, valid_values: [true, false]],
+         {setter: "value; subscript(false) if subscript",
+          valid_values: [true, false]}],
+        [:underline, false, {valid_values: [true, false]}],
+        [:strikeout, false, {valid_values: [true, false]}],
         [:fill_color, "default_color"],
         [:fill_alpha, 1],
         [:stroke_color, "default_color"],
         [:stroke_alpha, 1],
         [:stroke_width, 1],
         [:stroke_cap_style, "Content::LineCapStyle::BUTT_CAP",
-         setter: "Content::LineCapStyle.normalize(value)"],
+         {setter: "Content::LineCapStyle.normalize(value)"}],
         [:stroke_join_style, "Content::LineJoinStyle::MITER_JOIN",
-         setter: "Content::LineJoinStyle.normalize(value)"],
+         {setter: "Content::LineJoinStyle.normalize(value)"}],
         [:stroke_miter_limit, 10.0],
         [:stroke_dash_pattern, "Content::LineDashPattern.new",
-         setter: "Content::LineDashPattern.normalize(value, phase)", extra_args: ", phase = 0"],
-        [:align, :left, valid_values: [:left, :center, :right, :justify]],
-        [:valign, :top, valid_values: [:top, :center, :bottom]],
+         {setter: "Content::LineDashPattern.normalize(value, phase)", extra_args: ", phase = 0"}],
+        [:align, :left, {valid_values: [:left, :center, :right, :justify]}],
+        [:valign, :top, {valid_values: [:top, :center, :bottom]}],
         [:text_indent, 0],
         [:line_spacing, "LineSpacing.new(type: :single)",
-         setter: "LineSpacing.new(**(value.kind_of?(Symbol) ? {type: value, value: extra_arg} : value))",
-         extra_args: ", extra_arg = nil"],
-        [:last_line_gap, false, valid_values: [true, false]],
+         {setter: "LineSpacing.new(**(value.kind_of?(Symbol) ? {type: value, value: extra_arg} : value))",
+          extra_args: ", extra_arg = nil"}],
+        [:last_line_gap, false, {valid_values: [true, false]}],
         [:background_color, nil],
-        [:padding, "Quad.new(0)", setter: "Quad.new(value)"],
-        [:margin, "Quad.new(0)", setter: "Quad.new(value)"],
-        [:border, "Border.new", setter: "Border.new(**value)"],
-        [:overlays, "Layers.new", setter: "Layers.new(value)"],
-        [:underlays, "Layers.new", setter: "Layers.new(value)"],
-        [:position, :default, valid_values: [:default, :float, :flow, :absolute]],
+        [:padding, "Quad.new(0)", {setter: "Quad.new(value)"}],
+        [:margin, "Quad.new(0)", {setter: "Quad.new(value)"}],
+        [:border, "Border.new", {setter: "Border.new(**value)"}],
+        [:overlays, "Layers.new", {setter: "Layers.new(value)"}],
+        [:underlays, "Layers.new", {setter: "Layers.new(value)"}],
+        [:position, :default, {valid_values: [:default, :float, :flow, :absolute]}],
         [:position_hint, nil],
       ].each do |name, default, options = {}|
         default = default.inspect unless default.kind_of?(String)
@@ -1075,7 +1075,7 @@ module HexaPDF
       # The item may be a (singleton) glyph object or an integer/float, i.e. items that can appear
       # inside a TextFragment.
       def scaled_item_width(item)
-        @scaled_item_widths[item.object_id] ||=
+        @scaled_item_widths[item] ||=
           begin
             if item.kind_of?(Numeric)
               -item * scaled_font_size
