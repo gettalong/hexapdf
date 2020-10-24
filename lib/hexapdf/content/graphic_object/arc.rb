@@ -45,7 +45,7 @@ module HexaPDF
       # all either in clockwise or counterclockwise direction and optionally inclined in respect to
       # the x-axis.
       #
-      # See: ELL - https://www.spaceroots.org/documents/ellipse/elliptical-arc.pdf
+      # See: ELL - https://spaceroots.org/documents/ellipse/elliptical-arc.pdf
       class Arc
 
         include HexaPDF::Utils::MathHelpers
