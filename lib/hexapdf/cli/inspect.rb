@@ -123,7 +123,7 @@ module HexaPDF
           when /^\d+(,\d+)?$/, 'o', 'object'
             arg = (command.start_with?('o') ? data.shift : command)
             obj = pdf_object_from_string_reference(arg) rescue puts($!.message)
-            if obj.data.stream && command_parser.verbosity_info?
+            if obj&.data&.stream && command_parser.verbosity_info?
               $stderr.puts("Note: Object also has stream data")
             end
             serialize(obj.value, recursive: false) if obj
