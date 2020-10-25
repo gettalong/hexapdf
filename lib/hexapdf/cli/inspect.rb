@@ -217,9 +217,9 @@ module HexaPDF
         if str.nil?
           raise "Error: Missing argument object identifier OID[,GEN]"
         elsif !str.match?(/^\d+(,\d+)?$/)
-          raise "Error: Invalid argument: Must be of form OID[,GEN]"
+          raise "Error: Invalid argument: Must be of form OID[,GEN], not '#{str}'"
         elsif !(obj = @doc.object(pdf_reference_from_string(str)))
-          raise "Error: No object with the given object identifier found"
+          raise "Error: No object with the given object identifier '#{str}' found"
         else
           obj
         end
