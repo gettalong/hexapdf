@@ -22,6 +22,7 @@
 * Reporting of cross-reference section entry parsing error
 * PDF version used by default for dictionary fields
 * Error in CLI command `hexapdf inspect` when parsing an invalid object number
+* Output of error messages in CLI command `hexapdf inspect` to go to `$stderr`
 
 
 ## 0.12.3 - 2020-08-22

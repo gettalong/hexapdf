@@ -122,7 +122,7 @@ module HexaPDF
           case command
           when /^\d+(,\d+)?$/, 'o', 'object'
             arg = (command.start_with?('o') ? data.shift : command)
-            obj = pdf_object_from_string_reference(arg) rescue puts($!.message)
+            obj = pdf_object_from_string_reference(arg) rescue $stderr.puts($!.message)
             if obj&.data&.stream && command_parser.verbosity_info?
               $stderr.puts("Note: Object also has stream data")
             end
@@ -130,14 +130,14 @@ module HexaPDF
 
           when 'r', 'recursive'
             obj = if (obj = data.shift)
-                    pdf_object_from_string_reference(obj) rescue puts($!.message)
+                    pdf_object_from_string_reference(obj) rescue $stderr.puts($!.message)
                   else
                     @doc.trailer
                   end
             serialize(obj.value, recursive: true) if obj
 
           when 's', 'stream', 'raw', 'raw-stream'
-            if (obj = pdf_object_from_string_reference(data.shift) rescue puts($!.message)) &&
+            if (obj = pdf_object_from_string_reference(data.shift) rescue $stderr.puts($!.message)) &&
                 obj.kind_of?(HexaPDF::Stream)
               source = (command.start_with?('raw') ? obj.stream_source : obj.stream_decoder)
               while source.alive? && (stream_data = source.resume)
@@ -148,7 +148,7 @@ module HexaPDF
             end
 
           when 'x', 'xref'
-            if (obj = pdf_object_from_string_reference(data.shift) rescue puts($!.message))
+            if (obj = pdf_object_from_string_reference(data.shift) rescue $stderr.puts($!.message))
               @doc.revisions.reverse_each do |rev|
                 if (xref = rev.xref(obj))
                   puts xref
