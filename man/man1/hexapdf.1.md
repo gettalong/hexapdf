@@ -537,7 +537,7 @@ The available commands are:
 
 : Print the pages with their object and generation numbers and their associated content streams. If
   a range is specified, only those pages are listed. See the **PAGES SPECIFICATION** below for
-  details on the allowed format of *PAGES*.
+  details on the allowed format of *RANGE*.
 
 `pc | page-count`
 
