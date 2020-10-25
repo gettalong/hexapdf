@@ -539,6 +539,19 @@ The available commands are:
   a range is specified, only those pages are listed. See the **PAGES SPECIFICATION** below for
   details on the allowed format of *RANGE*.
 
+`po PAGE`
+
+: Print the dictionary object for the given page. See the **PAGES SPECIFICATION** below for details
+  on the allowed format of *PAGE*. Note that only the first page is printed, even if a page range is
+  specified.
+
+`ps PAGE`
+
+: Print the whole content stream for the given page. If the content stream consists of mulitple
+  stream objects, all will be printed. See the **PAGES SPECIFICATION** below for details on the
+  allowed format of *PAGE*. Note that only the content stream of the first page is printed, even if
+  a page range is specified.
+
 `pc | page-count`
 
 : Print the number of pages.

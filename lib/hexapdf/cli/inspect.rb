@@ -178,6 +178,26 @@ module HexaPDF
               puts str
             end
 
+          when 'po', 'ps'
+            page_number_str = data.shift
+            unless page_number_str
+              $stderr.puts("Error: Missing PAGE argument to #{command}")
+              next
+            end
+            page_number = parse_pages_specification(page_number_str, @doc.pages.count).first&.first
+            unless page_number
+              $stderr.puts("Error: Invalid page number #{page_number_str}")
+              next
+            end
+            page = @doc.pages[page_number]
+            if command.start_with?('ps')
+              $stdout.write(page.contents)
+            else
+              puts "#{page.oid} #{page.gen} obj"
+              serialize(page.value, recursive: false)
+              puts "endobj"
+            end
+
           when 'pc', 'page-count'
             puts @doc.pages.count
 
@@ -283,6 +303,8 @@ module HexaPDF
         ["c[atalog]", "Print the catalog dictionary"],
         ["t[railer]", "Print the trailer dictionary"],
         ["p[ages] [RANGE]",  "Print information about pages"],
+        ["po PAGE", "Print the page object"],
+        ["ps PAGE", "Print the content stream of the page"],
         ["pc | page-count", "Print the number of pages"],
         ["search REGEXP", "Print objects matching the pattern"],
         ["h[elp]", "Show the help"],

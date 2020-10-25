@@ -4,6 +4,8 @@
 
 * Cross-reference table reconstruction for damaged PDFs, controllable via the
   new 'parser.try_xref_reconstruction' option
+* Two new `hexapdf inspect` commands for showing page objects and page content
+  streams by page number
 
 ### Changed
 
