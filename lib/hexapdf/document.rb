@@ -69,15 +69,35 @@ module HexaPDF
 
   autoload(:Composer, 'hexapdf/composer')
 
+  # == HexaPDF::Document
+  #
   # Represents one PDF document.
   #
   # A PDF document consists of (indirect) objects, so the main job of this class is to provide
   # methods for working with these objects. However, since a PDF document may also be
   # incrementally updated and can therefore contain one or more revisions, there are also methods
-  # to work with these revisions.
+  # for working with these revisions.
   #
   # Note: This class provides everything to work on PDF documents on a low-level basis. This means
-  # that there are no convenience methods for higher PDF functionality whatsoever.
+  # that there are no convenience methods for higher PDF functionality. Those can be found in the
+  # objects linked from here, like #catalog.
+  #
+  # == Known Messages
+  #
+  # The document object provides a basic message dispatch system via #register_listener and
+  # #dispatch_message.
+  #
+  # Following are the messages that are used by HexaPDF itself:
+  #
+  # :complete_objects::
+  #      This message is called before the first step of writing a document. Listeners should
+  #      complete PDF objects that are missing some information.
+  #
+  #      For example, the font system uses this message to complete the font objects with
+  #      information that is only available once all the used glyphs are known.
+  #
+  # :before_write::
+  #      This message is called before a document is actually serialized and written.
   class Document
 
     autoload(:Pages, 'hexapdf/document/pages')
@@ -442,6 +462,9 @@ module HexaPDF
     end
 
     # Dispatches the message +name+ with the given arguments to all registered listeners.
+    #
+    # See the main Document documentation for an overview of messages that are used by HexaPDF
+    # itself.
     def dispatch_message(name, *args)
       @listeners[name]&.each {|obj| obj.call(*args) }
     end
