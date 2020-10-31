@@ -122,7 +122,7 @@ module HexaPDF
 
         # Assemble pages
         target = (@initial_empty ? HexaPDF::Document.new : @files.first.file)
-        page_tree = target.add(Type: :Pages)
+        page_tree = target.add({Type: :Pages})
         import_pages(page_tree)
         target.catalog[:Pages] = page_tree
         remove_unused_pages(target)
