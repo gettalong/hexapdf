@@ -420,11 +420,11 @@ module HexaPDF
     # object in the PDF document. The block may either accept only the object or the object and the
     # revision it is in.
     #
-    # By default, only the current version of each object is returned which implies that each
-    # object number is yielded exactly once. If the +current+ option is +false+, all stored
-    # objects from newest to oldest are returned, not only the current version of each object.
+    # By default, only the current version of each object is returned which implies that each object
+    # number is yielded exactly once. If the +only_current+ option is +false+, all stored objects
+    # from newest to oldest are returned, not only the current version of each object.
     #
-    # The +current+ option can make a difference because the document can contain multiple
+    # The +only_current+ option can make a difference because the document can contain multiple
     # revisions:
     #
     # * Multiple revisions may contain objects with the same object and generation numbers, e.g.
