@@ -6,6 +6,8 @@
   new 'parser.try_xref_reconstruction' option
 * Two new `hexapdf inspect` commands for showing page objects and page content
   streams by page number
+* Flag `--check` to the CLI command `hexapdf info` for checking a file for
+  parse and validation errors
 
 ### Changed
 

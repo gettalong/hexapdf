@@ -438,7 +438,14 @@ Synopsis: `info` \[`OPTIONS`] *FILE*
 This command reads the *FILE* and shows general information about it, like author information, PDF
 version used, encryption information and so on.
 
+`-c`, `--check`
+
+: Checks the PDF *FILE* for parse and validation errors and prints them out. If the process doesn't
+  abort, HexaPDF is still able to handle the file by correcting the errors. This means that the
+  other commands can use the *FILE* as input although it is damaged.
+
 `-p` *PASSWORD*, `--password` *PASSWORD*
+
 : The password to decrypt the PDF *FILE*. Use **-** for *PASSWORD* for reading it from standard
   input.
 

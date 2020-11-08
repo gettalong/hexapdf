@@ -55,13 +55,21 @@ module HexaPDF
         long_desc(<<~EOF)
           This command extracts information from the Info dictionary of a PDF file as well
           as some other useful information like the used PDF version and encryption information.
+
+          If the --check option is specified, the PDF file will also be checked for parse and
+          validation errors. And if the process doesn't abort, HexaPDF is still able to handle the
+          file by correcting the errors.
         EOF
+        options.on("--check", "-c", "Check the PDF file for parse errors and validity") do |check|
+          @check_file = check
+        end
         options.on("--password PASSWORD", "-p", String,
                    "The password for decryption. Use - for reading from standard input.") do |pwd|
           @password = (pwd == '-' ? read_password : pwd)
         end
         @password = nil
         @auto_decrypt = true
+        @check_file = false
       end
 
       def execute(file) #:nodoc:
@@ -79,6 +87,28 @@ module HexaPDF
         options = pdf_options(@password)
         options[:config]['document.auto_decrypt'] = @auto_decrypt
         HexaPDF::Document.open(file, **options) do |doc|
+          if @check_file
+            indirect_object = nil
+            validation_block = lambda do |msg, correctable, object|
+              object = indirect_object unless object.indirect? || object.type == :XXTrailer
+              object_type = if object.type == :XXTrailer
+                              'trailer'
+                            elsif !object.type.to_s.start_with?("XX")
+                              "object type #{object.type} (#{object.oid},#{object.gen})"
+                            else
+                              "object (#{object.oid},#{object.gen})"
+                            end
+              object_type = "sub-object of #{object_type}" if object == indirect_object
+              puts "WARNING: Validation error for #{object_type}: #{msg} " \
+                "#{correctable ? '(correctable)' : ''}"
+            end
+            doc.trailer.validate(auto_correct: true, &validation_block)
+            doc.each(only_current: false, only_loaded: false) do |obj|
+              indirect_object = obj
+              obj.validate(auto_correct: true, &validation_block)
+            end
+          end
+
           output_line("File name", file)
           output_line("File size", File.stat(file).size.to_s << " bytes")
           @auto_decrypt && INFO_KEYS.each do |name|
@@ -109,6 +139,25 @@ module HexaPDF
           retry
         else
           raise
+        end
+      rescue HexaPDF::MalformedPDFError => e
+        $stderr.puts "Error: PDF file #{file} is damaged and cannot be recovered"
+        $stderr.puts "       #{e}"
+      end
+
+      # Use custom options if we are checking the PDF file for errors.
+      def pdf_options(password)
+        if @check_file
+          options = {decryption_opts: {password: password}, config: {}}
+          HexaPDF::GlobalConfiguration['filter.predictor.strict'] = false
+          options[:config]['parser.try_xref_reconstruction'] = true
+          options[:config]['parser.on_correctable_error'] = lambda do |_, msg, pos|
+            puts "WARNING: Parse error at position #{pos}: #{msg}"
+            false
+          end
+          options
+        else
+          super
         end
       end
 
