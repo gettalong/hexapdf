@@ -8,6 +8,8 @@
   streams by page number
 * Flag `--check` to the CLI command `hexapdf info` for checking a file for
   parse and validation errors
+* [HexaPDF::Type::AcroForm::Field#embedded_widget?] for checking if a widget is
+  embedded in the field object
 
 ### Changed
 

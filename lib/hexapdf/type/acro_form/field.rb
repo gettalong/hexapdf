@@ -236,6 +236,11 @@ module HexaPDF
           kids.nil? || kids.empty? || kids.none? {|kid| kid.key?(:T) }
         end
 
+        # Returns +true+ if the field contains an embedded widget.
+        def embedded_widget?
+          key?(:Subtype)
+        end
+
         # :call-seq:
         #   field.each_widget {|widget| block}    -> field
         #   field.each_widget                     -> Enumerator
@@ -245,7 +250,7 @@ module HexaPDF
         # See: HexaPDF::Type::Annotations::Widget
         def each_widget # :yields: widget
           return to_enum(__method__) unless block_given?
-          if self[:Subtype]
+          if embedded_widget?
             yield(document.wrap(self))
           elsif terminal_field?
             self[:Kids]&.each {|kid| yield(document.wrap(kid)) }
@@ -275,9 +280,9 @@ module HexaPDF
 
           widget_data = {Type: :Annot, Subtype: :Widget, Rect: [0, 0, 0, 0], **values}
 
-          if !allow_embedded || key?(:Subtype) || (key?(:Kids) && !self[:Kids].empty?)
+          if !allow_embedded || embedded_widget? || (key?(:Kids) && !self[:Kids].empty?)
             kids = self[:Kids] ||= []
-            kids << extract_widget if key?(:Subtype)
+            kids << extract_widget if embedded_widget?
             widget = document.add(widget_data)
             widget[:Parent] = self
             self[:Kids] << widget
@@ -300,7 +305,7 @@ module HexaPDF
         # directly in the field and adjust the references accordingly. If the field doesn't have any
         # widget data, +nil+ is returned.
         def extract_widget
-          return unless key?(:Subtype)
+          return unless embedded_widget?
           data = WIDGET_FIELDS.each_with_object({}) do |key, hash|
             hash[key] = delete(key) if key?(key)
           end

@@ -99,6 +99,12 @@ describe HexaPDF::Type::AcroForm::Field do
     refute(@field.terminal_field?)
   end
 
+  it "can check whether a widget is embedded in the field" do
+    refute(@field.embedded_widget?)
+    @field[:Subtype] = :Wdiget
+    assert(@field.embedded_widget?)
+  end
+
   describe "each_widget" do
     it "yields a wrapped instance of self if a single widget is embedded" do
       @field[:Subtype] = :Widget
