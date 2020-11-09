@@ -10,6 +10,7 @@
   parse and validation errors
 * [HexaPDF::Type::AcroForm::Field#embedded_widget?] for checking if a widget is
   embedded in the field object
+* [HexaPDF::Type::AcroForm::Field#delete_widget] for deleting a widget
 
 ### Changed
 

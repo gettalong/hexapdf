@@ -296,6 +296,34 @@ module HexaPDF
           widget
         end
 
+        # Deletes the given widget annotation object from this field, the page it appears on and the
+        # document.
+        #
+        # If the given widget is not a widget of this field, nothing is done.
+        def delete_widget(widget)
+          widget = if embedded_widget? && data == widget.data
+                     widget
+                   elsif terminal_field?
+                     (widget_index = self[:Kids]&.index {|kid| kid.data == widget.data }) && widget
+                   end
+
+          return unless widget
+
+          document.pages.each do |page|
+            if page.key?(:Annots) && (index = page[:Annots].index {|annot| annot.data == widget.data })
+              page[:Annots].delete_at(index)
+              break # See comment in #extract_widget
+            end
+          end
+
+          if embedded_widget?
+            WIDGET_FIELDS.each {|key| delete(key) }
+          else
+            self[:Kids].delete_at(widget_index)
+            document.delete(widget)
+          end
+        end
+
         private
 
         # An array of all widget annotation field names.

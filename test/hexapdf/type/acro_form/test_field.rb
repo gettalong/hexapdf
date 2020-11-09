@@ -181,6 +181,39 @@ describe HexaPDF::Type::AcroForm::Field do
     end
   end
 
+  describe "delete_widget" do
+    before do
+      @page = @doc.pages.add
+    end
+
+    it "does nothing if the provided widget doesn't belong to the field" do
+      wrong_widget = @doc.add({Subtype: :Widget})
+
+      @field.create_widget(@page)
+      @field.delete_widget(wrong_widget)
+      assert_equal(:Widget, @field[:Subtype])
+
+      @field.create_widget(@page)
+      @field.delete_widget(wrong_widget)
+      assert_equal(2, @field[:Kids].size)
+    end
+
+    it "deletes the widget if it is embedded" do
+      widget = @field.create_widget(@page)
+      @field.delete_widget(widget)
+      refute(@field.key?(:Subtype))
+      assert(@page[:Annots].empty?)
+    end
+
+    it "deletes the widget if it is not embedded" do
+      @field.create_widget(@page)
+      widget2 = @field.create_widget(@page)
+      @field.delete_widget(widget2)
+      assert_equal(1, @field[:Kids].size)
+      assert_equal(@field[:Kids].value, @page[:Annots].value)
+    end
+  end
+
   describe "perform_validation" do
     before do
       @field[:FT] = :Tx
