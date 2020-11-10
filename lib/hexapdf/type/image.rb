@@ -150,7 +150,7 @@ module HexaPDF
         color_space, = *self[:ColorSpace]
         if color_space == :Indexed
           result.indexed = true
-          color_space, = *document.deref(self[:ColorSpace][1])
+          color_space, = *self[:ColorSpace][1]
         end
         case color_space
         when :DeviceRGB, :CalRGB
@@ -240,7 +240,7 @@ module HexaPDF
         end
 
         if color_type == ImageLoader::PNG::INDEXED
-          palette_data = document.deref(self[:ColorSpace][3])
+          palette_data = self[:ColorSpace][3]
           palette_data = palette_data.stream unless palette_data.kind_of?(String)
           palette = ''.b
           if info.color_space == :rgb

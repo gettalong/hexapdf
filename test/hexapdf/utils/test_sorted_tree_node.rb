@@ -13,9 +13,9 @@ describe HexaPDF::Utils::SortedTreeNode do
 
   def add_multilevel_entries
     @kid11 = @doc.add({Limits: ['c', 'f'], Names: ['c', 1, 'f', 1]}, type: HexaPDF::NameTreeNode)
-    @kid12 = @doc.add({Limits: ['i', 'm'], Names: ['i', 1, 'm', 1]})
+    @kid12 = @doc.add({Limits: ['i', 'm'], Names: ['i', 1, 'm', 1]}, type: HexaPDF::NameTreeNode)
     ref = HexaPDF::Reference.new(@kid11.oid, @kid11.gen)
-    @kid1 = @doc.add({Limits: ['c', 'm'], Kids: [ref, @kid12]})
+    @kid1 = @doc.add({Limits: ['c', 'm'], Kids: [ref, @kid12]}, type: HexaPDF::NameTreeNode)
     @kid21 = @doc.add({Limits: ['o', 'q'], Names: ['o', 1, 'q', 1]}, type: HexaPDF::NameTreeNode)
     @kid221 = @doc.add({Limits: ['s', 'u'], Names: ['s', 1, 'u', 1]}, type: HexaPDF::NameTreeNode)
     @kid22 = @doc.add({Limits: ['s', 'u'], Kids: [@kid221]}, type: HexaPDF::NameTreeNode)
@@ -73,11 +73,11 @@ describe HexaPDF::Utils::SortedTreeNode do
       @root.add_entry('p', 1)
       @root.add_entry('r', 1)
       @root.add_entry('v', 1)
-      assert_equal(['a', 'm'], @kid1[:Limits])
+      assert_equal(['a', 'm'], @kid1[:Limits].value)
       assert_equal(['a', 'f'], @kid11[:Limits].value)
       assert_equal(['a', 1, 'c', 1, 'e', 1, 'f', 1], @kid11[:Names].value)
-      assert_equal(['g', 'm'], @kid12[:Limits])
-      assert_equal(['g', 1, 'i', 1, 'j', 1, 'm', 1], @kid12[:Names])
+      assert_equal(['g', 'm'], @kid12[:Limits].value)
+      assert_equal(['g', 1, 'i', 1, 'j', 1, 'm', 1], @kid12[:Names].value)
       assert_equal(['n', 'v'], @kid2[:Limits].value)
       assert_equal(['n', 'q'], @kid21[:Limits].value)
       assert_equal(['n', 1, 'o', 1, 'p', 1, 'q', 1], @kid21[:Names].value)
@@ -193,10 +193,10 @@ describe HexaPDF::Utils::SortedTreeNode do
     end
 
     it "checks that all kid objects are indirect objects" do
-      @root[:Kids][0] = HexaPDF::Reference.new(@kid1.oid, @kid1.gen)
+      @root[:Kids][0] = ref = HexaPDF::Reference.new(@kid1.oid, @kid1.gen)
       assert(@root.validate)
 
-      @root[:Kids][0] = @kid1
+      @root[:Kids][0] = ref
       @kid1.oid = 0
       assert(@root.validate do |message, c|
                assert_match(/must be indirect objects/, message)

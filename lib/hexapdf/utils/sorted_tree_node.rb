@@ -143,12 +143,12 @@ module HexaPDF
         stack.reverse_each.inject do |nested_node, node|
           if (!nested_node[container_name] || nested_node[container_name].empty?) &&
               (!nested_node[:Kids] || nested_node[:Kids].empty?)
-            node[:Kids].delete_at(node[:Kids].index {|n| document.deref(n) == nested_node })
+            node[:Kids].delete(nested_node)
             document.delete(nested_node)
           end
           if !node[:Kids].empty? && node[:Limits]
-            node[:Limits][0] = document.deref(node[:Kids][0])[:Limits][0]
-            node[:Limits][1] = document.deref(node[:Kids][-1])[:Limits][1]
+            node[:Limits][0] = node[:Kids][0][:Limits][0]
+            node[:Limits][1] = node[:Kids][-1][:Limits][1]
           end
           node
         end
@@ -167,11 +167,11 @@ module HexaPDF
           if node.key?(container_name)
             index = find_in_leaf_node(node[container_name], key)
             if node[container_name][index] == key
-              result = document.deref(node[container_name][index + 1])
+              result = node[container_name][index + 1]
             end
           elsif node.key?(:Kids)
             index = find_in_intermediate_node(node[:Kids], key)
-            node = document.deref(node[:Kids][index])
+            node = node[:Kids][index]
             break unless key >= node[:Limits][0] && key <= node[:Limits][1]
           else
             break
@@ -192,12 +192,12 @@ module HexaPDF
         container_name = leaf_node_container_name
         stack = [self]
         until stack.empty?
-          node = document.deref(stack.pop)
+          node = stack.pop
           if node.key?(container_name)
             data = node[container_name]
             index = 0
             while index < data.length
-              yield(data[index], document.deref(data[index + 1]))
+              yield(data[index], data[index + 1])
               index += 2
             end
           elsif node.key?(:Kids)
@@ -215,7 +215,7 @@ module HexaPDF
       def path_to_key(node, key, stack)
         return unless node.key?(:Kids)
         index = find_in_intermediate_node(node[:Kids], key)
-        stack << document.deref(node[:Kids][index])
+        stack << node[:Kids][index]
         path_to_key(stack.last, key, stack)
       end
 
@@ -226,7 +226,7 @@ module HexaPDF
         right = array.length - 1
         while left < right
           mid = (left + right) / 2
-          limits = document.deref(array[mid])[:Limits]
+          limits = array[mid][:Limits]
           if limits[1] < key
             left = mid + 1
           elsif limits[0] > key
@@ -295,7 +295,7 @@ module HexaPDF
           node[container_name] = leaf_node[container_name].slice!(split_point..-1)
           node[:Limits] = node[container_name].values_at(0, -2)
           leaf_node[:Limits][1] = leaf_node[container_name][-2]
-          index = 1 + parent[:Kids].index {|o| document.deref(o) == leaf_node }
+          index = 1 + parent[:Kids].index {|o| o == leaf_node }
           parent[:Kids].insert(index, node)
         end
       end

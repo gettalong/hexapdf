@@ -220,7 +220,7 @@ module HexaPDF
 
         if document.catalog.key?(:Names) && document.catalog[:Names].key?(:EmbeddedFiles)
           tree = document.catalog[:Names][:EmbeddedFiles]
-          tree.each_entry.find_all {|_, spec| document.deref(spec) == self }.each do |(name, _)|
+          tree.each_entry.find_all {|_, spec| spec == self }.each do |(name, _)|
             tree.delete_entry(name)
           end
         end

@@ -59,7 +59,7 @@ module HexaPDF
       # Returns the CID font of this type 0 font.
       def descendant_font
         document.cache(@data, :descendant_font) do
-          document.wrap(document.deref(self[:DescendantFonts][0]))
+          document.wrap(self[:DescendantFonts][0])
         end
       end
 

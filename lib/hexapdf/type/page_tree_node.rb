@@ -172,7 +172,7 @@ module HexaPDF
         return unless page && !page.null? && page[:Parent]
 
         parent = page[:Parent]
-        index = parent[:Kids].index {|kid| kid.data == page.data }
+        index = parent[:Kids].index(page)
 
         if index
           ancestors = [parent]

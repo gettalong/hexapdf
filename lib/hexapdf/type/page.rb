@@ -304,7 +304,7 @@ module HexaPDF
       def contents
         Array(self[:Contents]).each_with_object("".b) do |content_stream, content|
           content << " " unless content.empty?
-          content << document.deref(content_stream).stream
+          content << content_stream.stream
         end
       end
 
@@ -345,8 +345,7 @@ module HexaPDF
         node = self
         while (parent_node = node[:Parent])
           parent_node[:Kids].each do |kid|
-            kid = document.deref(kid)
-            break if kid.data == node.data
+            break if kid == node
             idx += (kid.type == :Page ? 1 : kid[:Count])
           end
           node = parent_node

@@ -117,7 +117,6 @@ module HexaPDF
 
           @document.pages.each do |page|
             page[:Annots]&.each do |annot|
-              annot = @document.deref(annot)
               next unless annot[:Subtype] == :FileAttachment
               spec = @document.deref(annot[:FS])
               yield(spec) unless seen.key?(spec)

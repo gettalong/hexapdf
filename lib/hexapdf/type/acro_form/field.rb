@@ -301,19 +301,16 @@ module HexaPDF
         #
         # If the given widget is not a widget of this field, nothing is done.
         def delete_widget(widget)
-          widget = if embedded_widget? && data == widget.data
+          widget = if embedded_widget? && self == widget
                      widget
                    elsif terminal_field?
-                     (widget_index = self[:Kids]&.index {|kid| kid.data == widget.data }) && widget
+                     (widget_index = self[:Kids]&.index(widget)) && widget
                    end
 
           return unless widget
 
           document.pages.each do |page|
-            if page.key?(:Annots) && (index = page[:Annots].index {|annot| annot.data == widget.data })
-              page[:Annots].delete_at(index)
-              break # See comment in #extract_widget
-            end
+            break if page[:Annots]&.delete(widget) # See comment in #extract_widget
           end
 
           if embedded_widget?
@@ -340,7 +337,7 @@ module HexaPDF
           widget = document.add(data, type: :Annot)
           widget[:Parent] = self
           document.pages.each do |page|
-            if page.key?(:Annots) && (index = page[:Annots].index {|annot| annot.data == self.data })
+            if page.key?(:Annots) && (index = page[:Annots].index(self))
               page[:Annots][index] = widget
               break # Each annotation dictionary may only appear on one page, see PDF1.7 12.5.2
             end
