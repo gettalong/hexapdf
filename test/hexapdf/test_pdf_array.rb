@@ -107,6 +107,13 @@ describe HexaPDF::PDFArray do
     assert_equal([1, :data, @array[2]], @array[0, 5])
   end
 
+  it "allows deleting an object" do
+    obj = @array.value[1]
+    assert_same(obj, @array.delete(obj))
+    ref = HexaPDF::Object.new(:test, oid: 1)
+    assert_equal(ref, @array.delete(ref))
+  end
+
   describe "slice!" do
     it "allows deleting a single element" do
       @array.slice!(2)

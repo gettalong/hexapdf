@@ -11,6 +11,7 @@
 * [HexaPDF::Type::AcroForm::Field#embedded_widget?] for checking if a widget is
   embedded in the field object
 * [HexaPDF::Type::AcroForm::Field#delete_widget] for deleting a widget
+* [HexaPDF::PDFArray#delete] for deleting an object from a PDF array
 
 ### Changed
 

@@ -113,6 +113,13 @@ module HexaPDF
       value.delete_at(index)
     end
 
+    # Deletes all values from the PDFArray that are equal to the given object.
+    #
+    # Returns the last deleted item, or +nil+ if no matching item is found.
+    def delete(object)
+      value.delete(object)
+    end
+
     # :call-seq:
     #   array.slice!(index)             -> obj or nil
     #   array.slice!(start, length)     -> new_array or nil
