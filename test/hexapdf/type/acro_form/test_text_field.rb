@@ -114,6 +114,8 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert(@field.validate)
       @field[:MaxLen] = 2
       refute(@field.validate)
+      @field[:V] = nil
+      assert(@field.validate)
     end
   end
 end

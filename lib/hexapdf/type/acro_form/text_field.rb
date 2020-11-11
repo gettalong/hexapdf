@@ -175,7 +175,7 @@ module HexaPDF
             yield("Text field doesn't contain text but #{self[:V].class} object")
             return
           end
-          if (max_len = self[:MaxLen]) && field_value.length > max_len
+          if (max_len = self[:MaxLen]) && field_value && field_value.length > max_len
             yield("Text contents of field '#{full_field_name}' is too long")
           end
         end

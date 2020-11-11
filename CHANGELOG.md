@@ -31,6 +31,8 @@
 * PDF version used by default for dictionary fields
 * Error in CLI command `hexapdf inspect` when parsing an invalid object number
 * Output of error messages in CLI command `hexapdf inspect` to go to `$stderr`
+* Bug in [HexaPDF::Type::AcroForm::TextField] validation due to missing nil
+  handling
 
 
 ## 0.12.3 - 2020-08-22
