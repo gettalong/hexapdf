@@ -319,6 +319,13 @@ describe HexaPDF::Type::Page do
     end
   end
 
+  it "returns all ancestor page tree nodes of a page" do
+    root = @doc.add({Type: :Pages})
+    kid = @doc.add({Type: :Pages, Parent: root})
+    page = @doc.add({Type: :Page, Parent: kid})
+    assert_equal([kid, root], page.ancestor_nodes)
+  end
+
   describe "canvas" do
     before do
       @page = @doc.pages.add

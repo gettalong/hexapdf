@@ -353,6 +353,16 @@ module HexaPDF
         idx
       end
 
+      # Returns all parent nodes of the page up to the root of the page tree.
+      #
+      # The direct parent is the first node in the array and the root node the last.
+      def ancestor_nodes
+        parent = self[:Parent]
+        result = [parent]
+        result << parent while (parent = parent[:Parent])
+        result
+      end
+
       # Returns the requested type of canvas for the page.
       #
       # The canvas object is cached once it is created so that its graphics state is correctly

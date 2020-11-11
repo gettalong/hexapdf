@@ -12,6 +12,8 @@
   embedded in the field object
 * [HexaPDF::Type::AcroForm::Field#delete_widget] for deleting a widget
 * [HexaPDF::PDFArray#delete] for deleting an object from a PDF array
+* [HexaPDF::Type::Page#ancestor_nodes] for retrieving all ancestor page tree
+  nodes of a page
 
 ### Changed
 
