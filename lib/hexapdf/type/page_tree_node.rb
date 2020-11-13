@@ -175,8 +175,7 @@ module HexaPDF
         index = parent[:Kids].index(page)
 
         if index
-          ancestors = [parent]
-          ancestors << parent while (parent = parent[:Parent])
+          ancestors = page.ancestor_nodes
           return nil unless ancestors.include?(self)
 
           page[:Parent][:Kids].delete_at(index)
