@@ -14,6 +14,7 @@
 * [HexaPDF::PDFArray#delete] for deleting an object from a PDF array
 * [HexaPDF::Type::Page#ancestor_nodes] for retrieving all ancestor page tree
   nodes of a page
+* [HexaPDF::Type::PageTreeNode#move_page] for moving a page to another index
 
 ### Changed
 

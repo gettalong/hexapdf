@@ -206,6 +206,48 @@ describe HexaPDF::Type::PageTreeNode do
     end
   end
 
+  describe "move_page" do
+    before do
+      define_multilevel_page_tree
+    end
+
+    it "moves the page to the first place" do
+      @root.move_page(@pages[1], 0)
+      assert_equal([@pages[1], @pages[0], *@pages[2..-1]], @root.each_page.to_a)
+      assert(@root.validate)
+    end
+
+    it "moves the page to the correct location with a positive index" do
+      @root.move_page(1, 3)
+      assert_equal([@pages[0], @pages[2], @pages[1], *@pages[3..-1]], @root.each_page.to_a)
+      assert(@root.validate)
+    end
+
+    it "moves the page to the last place" do
+      @root.move_page(1, -1)
+      assert_equal([@pages[0], *@pages[2..-1], @pages[1]], @root.each_page.to_a)
+      assert(@root.validate)
+    end
+
+    it "fails if the index to the moving page is invalid" do
+      assert_raises(HexaPDF::Error) { @root.move_page(10, 0) }
+    end
+
+    it "fails if the moving page was deleted/is null" do
+      @doc.delete(@pages[0])
+      assert_raises(HexaPDF::Error) { @root.move_page(@pages[0], 3) }
+    end
+
+    it "fails if the page was not yet added to a page tree" do
+      page = @doc.add({Type: :Page})
+      assert_raises(HexaPDF::Error) { @root.move_page(page, 3) }
+    end
+
+    it "fails if the page is not part of the page tree" do
+      assert_raises(HexaPDF::Error) { @kid1.move_page(@pages[6], 3) }
+    end
+  end
+
   describe "each_page" do
     before do
       define_multilevel_page_tree

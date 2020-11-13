@@ -188,6 +188,31 @@ module HexaPDF
       end
 
       # :call-seq:
+      #   pages.move_page(page, to_index)
+      #   pages.move_page(index, to_index)
+      #
+      # Moves the given page or the page at the position specified by the zero-based index to the
+      # +to_index+ position.
+      #
+      # If the page that should be moved, doesn't exist or is invalid, an error is raised.
+      #
+      # Negative indices count backwards from the end, i.e. -1 is the last page. When using a
+      # negative index, the page will be moved after that element. So using an index of -1 will
+      # move the page after the last page.
+      def move_page(page, to_index)
+        page = self.page(page) if page.kind_of?(Integer)
+        if page.nil? || page.null? || !page[:Parent] ||
+            !(ancestors = page.ancestor_nodes).include?(self)
+          raise HexaPDF::Error, "The page to be moved doesn't exist in this page tree"
+        end
+
+        parent = page[:Parent]
+        insert_page(to_index, page)
+        ancestors.each {|node| node[:Count] -= 1 }
+        parent[:Kids].delete(page)
+      end
+
+      # :call-seq:
       #   pages.each_page {|page| block }   -> pages
       #   pages.each_page                   -> Enumerator
       #
