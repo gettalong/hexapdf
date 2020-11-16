@@ -157,6 +157,20 @@ module HexaPDF
           create_field(name, :Tx)
         end
 
+        # Creates a new comb text field with the given name and adds it to the form.
+        #
+        # The +maximum_length+ argument defines the maximum number of characters the comb text field
+        # can accommodate.
+        #
+        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
+        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        def create_comb_text_field(name, maximum_length)
+          create_field(name, :Tx).tap do |field|
+            field.initialize_as_comb_text_field
+            field[:MaxLen] = maximum_length
+          end
+        end
+
         # Creates a new check box with the given name and adds it to the form.
         #
         # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent

@@ -139,6 +139,13 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal(:Tx, field.field_type)
     end
 
+    it "creates a comb text field" do
+      field = @acro_form.create_comb_text_field("field", 9)
+      assert_equal(:Tx, field.field_type)
+      assert_equal(9, field[:MaxLen])
+      assert(field.comb_text_field?)
+    end
+
     it "creates a check box" do
       field = @acro_form.create_check_box("field")
       assert(field.check_box?)

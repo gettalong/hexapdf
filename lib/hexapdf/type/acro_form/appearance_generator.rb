@@ -263,13 +263,38 @@ module HexaPDF
                 canvas.rectangle(padding, padding, rect.width - 2 * padding,
                                  rect.height - 2 * padding).clip_path.end_path
                 fragment = HexaPDF::Layout::TextFragment.create(value, style)
-                # Adobe seems to be left/right-aligning based on twice the border width and
-                # vertically centering based on the cap height, if enough space is available
-                x = case @field.text_alignment
-                    when :left then 2 * padding
-                    when :right then [rect.width - 2 * padding - fragment.width, 2 * padding].max
-                    when :center then [(rect.width - fragment.width) / 2.0, 2 * padding].max
-                    end
+
+                if @field.field_type == :Tx && @field.comb_text_field?
+                  unless @field.key?(:MaxLen)
+                    raise HexaPDF::Error, "Missing or invalid dictionary field /MaxLen for comb text field"
+                  end
+                  new_items = []
+                  cell_width = rect.width.to_f / @field[:MaxLen]
+                  scaled_cell_width = cell_width / style.scaled_font_size.to_f
+                  fragment.items.each_cons(2) do |a, b|
+                    new_items << a << -(scaled_cell_width - a.width / 2.0 - b.width / 2.0)
+                  end
+                  new_items << fragment.items.last
+                  fragment.items.replace(new_items)
+                  fragment.clear_cache
+                  # Adobe always seems to add 1 to the first offset...
+                  x_offset = 1 + (cell_width - style.scaled_item_width(fragment.items[0])) / 2.0
+                  x = case @field.text_alignment
+                      when :left then x_offset
+                      when :right then x_offset + cell_width * (@field[:MaxLen] - value.length)
+                      when :center then x_offset + cell_width * ((@field[:MaxLen] - value.length) / 2)
+                      end
+                else
+                  # Adobe seems to be left/right-aligning based on twice the border width
+                  x = case @field.text_alignment
+                      when :left then 2 * padding
+                      when :right then [rect.width - 2 * padding - fragment.width, 2 * padding].max
+                      when :center then [(rect.width - fragment.width) / 2.0, 2 * padding].max
+                      end
+                end
+
+                # Adobe seems to be vertically centering based on the cap height, if enough space is
+                # available
                 cap_height = font.wrapped_font.cap_height * font.scaling_factor / 1000.0 *
                   style.font_size
                 y = padding + (rect.height - 2 * padding - cap_height) / 2.0
@@ -341,6 +366,13 @@ module HexaPDF
                   canvas.circle(rect.width / 2.0, rect.height / 2.0, [width / 2.0, height / 2.0].min)
                 else
                   canvas.rectangle(offset, offset, width, height)
+                  if @field.concrete_field_type == :comb_text_field
+                    cell_width = rect.width.to_f / @field[:MaxLen]
+                    1.upto(@field[:MaxLen] - 1) do |i|
+                      canvas.line(i * cell_width, border_style.width,
+                                  i * cell_width, border_style.width + height)
+                    end
+                  end
                 end
               end
               canvas.stroke

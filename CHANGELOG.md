@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* Support for creating AcroForm comb text fields and their appearances
+
+
 ## 0.13.0 - 2020-11-15
 
 ### Added

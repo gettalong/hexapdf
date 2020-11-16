@@ -42,10 +42,20 @@ rb = form.create_radio_button("Radio")
 end
 rb.field_value = :button0
 
-canvas.text("Text field", at: [50, 450])
+canvas.text("Text fields", at: [50, 450])
+
+canvas.text("Single line", at: [70, 420])
 tx = form.create_text_field("Single Line")
-widget = tx.create_widget(page, Rect: [200, 445, 500, 465])
+widget = tx.create_widget(page, Rect: [200, 415, 500, 435])
 tx.set_default_appearance_string(font_size: 16)
 tx.field_value = "A sample test string!"
+
+canvas.text("Comb", at: [70, 390])
+tx = form.create_comb_text_field("Comb field", 10)
+widget = tx.create_widget(page, Rect: [200, 370, 500, 405])
+widget.border_style(color: [30, 128, 0], width: 1)
+tx.set_default_appearance_string(font_size: 16)
+tx.text_alignment(:center)
+tx.field_value = 'Hello'
 
 doc.write('acro_form.pdf', optimize: true)

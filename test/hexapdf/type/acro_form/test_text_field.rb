@@ -21,6 +21,18 @@ describe HexaPDF::Type::AcroForm::TextField do
     assert_equal(6, @field[:MaxLen])
   end
 
+  it "can be initialized as comb text field" do
+    @field.flag(:multiline)
+    @field.initialize_as_comb_text_field
+    assert(@field.comb_text_field?)
+  end
+
+  it "can check whether the field is a comb text field" do
+    refute(@field.comb_text_field?)
+    @field.flag(:comb)
+    assert(@field.comb_text_field?)
+  end
+
   describe "field_value" do
     it "handles unset values" do
       assert_nil(@field.field_value)

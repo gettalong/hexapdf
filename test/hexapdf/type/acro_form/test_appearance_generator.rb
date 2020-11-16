@@ -121,6 +121,24 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                         [:curve_to, [8.236068, 7.249543, 9.0, 8.572712, 9.0, 10.0]],
                         [:stroke_path], [:restore_graphics_state]])
     end
+
+    it "handles the special case of a comb field" do
+      @field = @doc.add({FT: :Tx, MaxLen: 4}, type: :XXAcroFormField, subtype: :Tx)
+      @field.initialize_as_comb_text_field
+      @widget = @field.create_widget(@page, Rect: [0, 0, 10, 20])
+      @xform = @doc.add({Type: :XObject, Subtype: :Form, BBox: @widget[:Rect]})
+      @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
+      @widget.border_style(width: 2)
+      execute
+      assert_operators(@xform.stream,
+                       [[:save_graphics_state],
+                        [:set_line_width, [2]],
+                        [:append_rectangle, [1, 1, 8, 18]],
+                        [:move_to, [2.5, 2]], [:line_to, [2.5, 20.0]],
+                        [:move_to, [5.0, 2]], [:line_to, [5.0, 20.0]],
+                        [:move_to, [7.5, 2]], [:line_to, [7.5, 20.0]],
+                        [:stroke_path], [:restore_graphics_state]])
+    end
   end
 
   describe "draw_marker" do
@@ -342,7 +360,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
     end
   end
 
-  describe "text field" do
+  describe "text fields" do
     before do
       @form.set_default_appearance_string
       @field = @doc.add({FT: :Tx}, type: :XXAcroFormField, subtype: :Tx)
@@ -480,11 +498,86 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
     end
 
+    describe "comb text fields" do
+      before do
+        @field.set_default_appearance_string(font_size: 10)
+        @field.initialize_as_comb_text_field
+        @field[:MaxLen] = 10
+        @widget[:Rect].height = 20
+        @widget[:Rect].width = 100
+      end
+
+      describe "quadding e.g. text alignment" do
+        before do
+          @field[:V] = 'Test'
+        end
+
+        it "works for left aligned text" do
+          @field.text_alignment(:left)
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 2.945, 6.41]],
+                           range: 7)
+        end
+
+        it "works for right aligned text" do
+          @field.text_alignment(:right)
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 62.945, 6.41]],
+                           range: 7)
+        end
+
+        it "works for center aligned text" do
+          @field.text_alignment(:center)
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 32.945, 6.41]],
+                           range: 7)
+        end
+
+        it "handles centering like Adobe, e.g. shift left, when text cannot be completely centered" do
+          @field.field_value = 'Hello'
+          @field.text_alignment(:center)
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 22.39, 6.41]],
+                           range: 7)
+        end
+      end
+
+      it "creates the /N appearance stream according to the set string" do
+        @field.field_value = 'Text'
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream,
+                         [[:begin_marked_content, [:Tx]],
+                          [:save_graphics_state],
+                          [:append_rectangle, [1, 1, 98, 18]],
+                          [:clip_path_non_zero],
+                          [:end_path],
+                          [:set_font_and_size, [:F1, 10]],
+                          [:begin_text],
+                          [:set_text_matrix, [1, 0, 0, 1, 2.945, 6.41]],
+                          [:show_text_with_positioning, [['T', -416.5, 'e', -472, 'x', -611, 't']]],
+                          [:end_text],
+                          [:restore_graphics_state],
+                          [:end_marked_content]])
+      end
+
+      it "fails if the /MaxLen key is not set" do
+        @field.delete(:MaxLen)
+        @field[:V] = 't'
+        assert_raises(HexaPDF::Error) { @generator.create_appearances }
+      end
+    end
+
     describe "choice fields" do
       it "works for combo boxes by using the text appearance method" do
         @form.set_default_appearance_string
         field = @doc.add({FT: :Ch}, type: :XXAcroFormField, subtype: :Ch)
         field.initialize_as_combo_box
+        field.flag(:edit)
+        field.field_value = 'Test'
         widget = field.create_widget(@page, Rect: [0, 0, 0, 0])
         generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(widget)
         generator.create_appearances

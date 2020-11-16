@@ -44,6 +44,9 @@ module HexaPDF
       # AcroForm text fields provide a box or space to fill-in data entered from keyboard. The text
       # may be restricted to a single line or can span multiple lines.
       #
+      # A special type of single-line text field is the comb text field. This type of field divides
+      # the existing space into /MaxLen equally spaced positions.
+      #
       # == Type Specific Field Flags
       #
       # :multiline:: If set, the text field may contain multiple lines.
@@ -87,6 +90,20 @@ module HexaPDF
             rich_text: 25,
           }
         ).freeze
+
+        # Initializes the text field to be a comb text field.
+        #
+        # This method should only be called directly after creating a new text field because it
+        # doesn't completely reset the object.
+        def initialize_as_comb_text_field
+          flag(:comb)
+          unflag(:file_select, :multiline, :password)
+        end
+
+        # Returns +true+ if this field is a comb text field.
+        def comb_text_field?
+          flagged?(:comb) && !(flagged?(:file_select) || flagged?(:multiline) || flagged?(:password))
+        end
 
         # Returns the field value, i.e. the text contents of the field, or +nil+ if no value is set.
         #
