@@ -27,10 +27,24 @@ describe HexaPDF::Type::AcroForm::TextField do
     assert(@field.comb_text_field?)
   end
 
+  it "can be initialized as password field" do
+    @field.flag(:multiline)
+    @field[:V] = 'test'
+    @field.initialize_as_password_field
+    assert_nil(@field[:V])
+    assert(@field.password_field?)
+  end
+
   it "can check whether the field is a comb text field" do
     refute(@field.comb_text_field?)
     @field.flag(:comb)
     assert(@field.comb_text_field?)
+  end
+
+  it "can check whether the field is a password field" do
+    refute(@field.password_field?)
+    @field.flag(:password)
+    assert(@field.password_field?)
   end
 
   describe "field_value" do

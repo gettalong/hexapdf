@@ -50,9 +50,14 @@ widget = tx.create_widget(page, Rect: [200, 415, 500, 435])
 tx.set_default_appearance_string(font_size: 16)
 tx.field_value = "A sample test string!"
 
-canvas.text("Comb", at: [70, 390])
+canvas.text("Password", at: [70, 390])
+tx = form.create_password_field("Password")
+widget = tx.create_widget(page, Rect: [200, 385, 500, 405])
+tx.set_default_appearance_string(font_size: 16)
+
+canvas.text("Comb", at: [70, 330])
 tx = form.create_comb_text_field("Comb field", 10)
-widget = tx.create_widget(page, Rect: [200, 370, 500, 405])
+widget = tx.create_widget(page, Rect: [200, 310, 500, 345])
 widget.border_style(color: [30, 128, 0], width: 1)
 tx.set_default_appearance_string(font_size: 16)
 tx.text_alignment(:center)

@@ -146,6 +146,12 @@ describe HexaPDF::Type::AcroForm::Form do
       assert(field.comb_text_field?)
     end
 
+    it "creates a password field" do
+      field = @acro_form.create_password_field("field")
+      assert_equal(:Tx, field.field_type)
+      assert(field.password_field?)
+    end
+
     it "creates a check box" do
       field = @acro_form.create_check_box("field")
       assert(field.check_box?)
