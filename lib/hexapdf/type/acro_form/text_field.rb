@@ -110,6 +110,15 @@ module HexaPDF
           unflag(:comb, :multiline, :file_select)
         end
 
+        # Initializes the text field to be a file select field.
+        #
+        # This method should only be called directly after creating a new text field because it
+        # doesn't completely reset the object.
+        def initialize_as_file_select_field
+          flag(:file_select)
+          unflag(:comb, :multiline, :password)
+        end
+
         # Returns +true+ if this field is a comb text field.
         def comb_text_field?
           flagged?(:comb) && !(flagged?(:file_select) || flagged?(:multiline) || flagged?(:password))
@@ -118,6 +127,11 @@ module HexaPDF
         # Returns +true+ if this field is a password field.
         def password_field?
           flagged?(:password) && !(flagged?(:file_select) || flagged?(:multiline) || flagged?(:comb))
+        end
+
+        # Returns +true+ if this field is a file select field.
+        def file_select_field?
+          flagged?(:file_select) && !(flagged?(:password) || flagged?(:multiline) || flagged?(:comb))
         end
 
         # Returns the field value, i.e. the text contents of the field, or +nil+ if no value is set.

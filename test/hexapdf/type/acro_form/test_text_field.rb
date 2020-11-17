@@ -35,6 +35,12 @@ describe HexaPDF::Type::AcroForm::TextField do
     assert(@field.password_field?)
   end
 
+  it "can be initialized as a file select field" do
+    @field.flag(:multiline)
+    @field.initialize_as_file_select_field
+    assert(@field.file_select_field?)
+  end
+
   it "can check whether the field is a comb text field" do
     refute(@field.comb_text_field?)
     @field.flag(:comb)
@@ -45,6 +51,12 @@ describe HexaPDF::Type::AcroForm::TextField do
     refute(@field.password_field?)
     @field.flag(:password)
     assert(@field.password_field?)
+  end
+
+  it "can check whether the field is a file select field" do
+    refute(@field.file_select_field?)
+    @field.flag(:file_select)
+    assert(@field.file_select_field?)
   end
 
   describe "field_value" do

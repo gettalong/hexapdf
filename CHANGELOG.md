@@ -4,6 +4,7 @@
 
 * Support for creating AcroForm comb text fields and their appearances
 * Support for creating AcroForm password fields and their appearances
+* Support for creating AcroForm file select fields and their appearances
 
 
 ## 0.13.0 - 2020-11-15

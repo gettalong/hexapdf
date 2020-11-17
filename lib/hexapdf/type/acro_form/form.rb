@@ -171,6 +171,14 @@ module HexaPDF
           end
         end
 
+        # Creates a new file select field with the given name and adds it to the form.
+        #
+        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
+        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        def create_file_select_field(name)
+          create_field(name, :Tx).tap(&:initialize_as_file_select_field)
+        end
+
         # Creates a new password field with the given name and adds it to the form.
         #
         # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent

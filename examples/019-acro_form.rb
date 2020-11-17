@@ -55,9 +55,15 @@ tx = form.create_password_field("Password")
 widget = tx.create_widget(page, Rect: [200, 385, 500, 405])
 tx.set_default_appearance_string(font_size: 16)
 
-canvas.text("Comb", at: [70, 330])
+canvas.text("File select", at: [70, 360])
+tx = form.create_file_select_field("File Select")
+widget = tx.create_widget(page, Rect: [200, 355, 500, 375])
+tx.set_default_appearance_string(font_size: 16)
+tx.field_value = "path/to/file.pdf"
+
+canvas.text("Comb", at: [70, 240])
 tx = form.create_comb_text_field("Comb field", 10)
-widget = tx.create_widget(page, Rect: [200, 310, 500, 345])
+widget = tx.create_widget(page, Rect: [200, 220, 500, 255])
 widget.border_style(color: [30, 128, 0], width: 1)
 tx.set_default_appearance_string(font_size: 16)
 tx.text_alignment(:center)
