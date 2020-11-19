@@ -157,6 +157,14 @@ module HexaPDF
           create_field(name, :Tx)
         end
 
+        # Creates a new multiline text field with the given name and adds it to the form.
+        #
+        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
+        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        def create_multiline_text_field(name)
+          create_field(name, :Tx).tap(&:initialize_as_multiline_text_field)
+        end
+
         # Creates a new comb text field with the given name and adds it to the form.
         #
         # The +maximum_length+ argument defines the maximum number of characters the comb text field

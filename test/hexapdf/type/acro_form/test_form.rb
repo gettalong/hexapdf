@@ -139,6 +139,12 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal(:Tx, field.field_type)
     end
 
+    it "creates a multiline text field" do
+      field = @acro_form.create_multiline_text_field("field")
+      assert_equal(:Tx, field.field_type)
+      assert(field.multiline_text_field?)
+    end
+
     it "creates a comb text field" do
       field = @acro_form.create_comb_text_field("field", 9)
       assert_equal(:Tx, field.field_type)

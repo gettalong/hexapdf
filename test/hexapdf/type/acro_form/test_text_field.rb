@@ -21,6 +21,12 @@ describe HexaPDF::Type::AcroForm::TextField do
     assert_equal(6, @field[:MaxLen])
   end
 
+  it "can be initialized as a multiline text field" do
+    @field.flag(:comb)
+    @field.initialize_as_multiline_text_field
+    assert(@field.multiline_text_field?)
+  end
+
   it "can be initialized as comb text field" do
     @field.flag(:multiline)
     @field.initialize_as_comb_text_field
@@ -39,6 +45,12 @@ describe HexaPDF::Type::AcroForm::TextField do
     @field.flag(:multiline)
     @field.initialize_as_file_select_field
     assert(@field.file_select_field?)
+  end
+
+  it "can check whether the field is a multiline text field" do
+    refute(@field.multiline_text_field?)
+    @field.flag(:multiline)
+    assert(@field.multiline_text_field?)
   end
 
   it "can check whether the field is a comb text field" do

@@ -91,6 +91,15 @@ module HexaPDF
           }
         ).freeze
 
+        # Initializes the text field to be a multiline text field.
+        #
+        # This method should only be called directly after creating a new text field because it
+        # doesn't completely reset the object.
+        def initialize_as_multiline_text_field
+          flag(:multiline)
+          unflag(:file_select, :comb, :password)
+        end
+
         # Initializes the text field to be a comb text field.
         #
         # This method should only be called directly after creating a new text field because it
@@ -117,6 +126,11 @@ module HexaPDF
         def initialize_as_file_select_field
           flag(:file_select)
           unflag(:comb, :multiline, :password)
+        end
+
+        # Returns +true+ if this field is a multiline text field.
+        def multiline_text_field?
+          flagged?(:multiline) && !(flagged?(:file_select) || flagged?(:comb) || flagged?(:password))
         end
 
         # Returns +true+ if this field is a comb text field.

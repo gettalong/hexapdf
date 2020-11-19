@@ -50,14 +50,22 @@ widget = tx.create_widget(page, Rect: [200, 415, 500, 435])
 tx.set_default_appearance_string(font_size: 16)
 tx.field_value = "A sample test string!"
 
-canvas.text("Password", at: [70, 390])
+canvas.text("Multiline", at: [70, 390])
+tx = form.create_multiline_text_field("Multiline")
+widget = tx.create_widget(page, Rect: [200, 325, 500, 405])
+widget.border_style(color: 0, width: 1)
+tx.text_alignment(:right)
+tx.set_default_appearance_string(font_size: 0)
+tx.field_value = "A sample test string! " * 30 + "\nNew line\n\nAnother line"
+
+canvas.text("Password", at: [70, 300])
 tx = form.create_password_field("Password")
-widget = tx.create_widget(page, Rect: [200, 385, 500, 405])
+widget = tx.create_widget(page, Rect: [200, 295, 500, 315])
 tx.set_default_appearance_string(font_size: 16)
 
-canvas.text("File select", at: [70, 360])
+canvas.text("File select", at: [70, 270])
 tx = form.create_file_select_field("File Select")
-widget = tx.create_widget(page, Rect: [200, 355, 500, 375])
+widget = tx.create_widget(page, Rect: [200, 265, 500, 285])
 tx.set_default_appearance_string(font_size: 16)
 tx.field_value = "path/to/file.pdf"
 

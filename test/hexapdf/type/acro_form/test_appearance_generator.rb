@@ -410,35 +410,45 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       assert_equal(@doc.acro_form.default_resources[:Font][:F1], form[:Resources][:Font][:F1])
     end
 
-    describe "single line text fields" do
-      describe "font size calculation" do
-        before do
-          @widget[:Rect].height = 20
-          @widget[:Rect].width = 100
-          @field.field_value = ''
-        end
-
-        it "uses the non-zero font size" do
-          @field.set_default_appearance_string(font_size: 10)
-          @generator.create_appearances
-          assert_operators(@widget[:AP][:N].stream,
-                           [:set_font_and_size, [:F1, 10]],
-                           range: 5)
-        end
-
-        it "calculates the font size based on the rectangle height and border width" do
-          @generator.create_appearances
-          assert_operators(@widget[:AP][:N].stream,
-                           [:set_font_and_size, [:F1, 12.923875]],
-                           range: 5)
-          @widget.border_style(width: 2, color: :transparent)
-          @generator.create_appearances
-          assert_operators(@widget[:AP][:N].stream,
-                           [:set_font_and_size, [:F1, 11.487889]],
-                           range: 5)
-        end
+    describe "font size calculation" do
+      before do
+        @widget[:Rect].height = 20
+        @widget[:Rect].width = 100
+        @field.field_value = ''
       end
 
+      it "uses the non-zero font size" do
+        @field.set_default_appearance_string(font_size: 10)
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream,
+                         [:set_font_and_size, [:F1, 10]],
+                         range: 5)
+      end
+
+      it "calculates the font size based on the rectangle height and border width" do
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream,
+                         [:set_font_and_size, [:F1, 12.923875]],
+                         range: 5)
+        @widget.border_style(width: 2, color: :transparent)
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream,
+                         [:set_font_and_size, [:F1, 11.487889]],
+                         range: 5)
+      end
+
+      it " in case of mulitline auto-sizing" do
+        @field.initialize_as_multiline_text_field
+        @field[:V] = 'a'
+        @field.set_default_appearance_string(font_size: 0)
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream,
+                         [:set_font_and_size, [:F1, 12]],
+                         range: 6)
+      end
+    end
+
+    describe "single line text fields" do
       describe "quadding e.g. text alignment" do
         before do
           @field.field_value = 'Test'
@@ -495,6 +505,93 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:end_text],
                           [:restore_graphics_state],
                           [:end_marked_content]])
+      end
+    end
+
+    describe "multiline text fields" do
+      before do
+        @field.set_default_appearance_string(font_size: 10)
+        @field.initialize_as_multiline_text_field
+        @widget[:Rect].height = 30
+        @widget[:Rect].width = 100
+      end
+
+      describe "quadding e.g. text alignment" do
+        before do
+          @field[:V] = "Test\nValue"
+        end
+
+        it "works for left aligned text" do
+          @field.text_alignment(:left)
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 2, 16.195]],
+                           range: 9)
+        end
+
+        it "works for right aligned text" do
+          @field.text_alignment(:right)
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 78.55, 16.195]],
+                           range: 9)
+        end
+
+        it "works for center aligned text" do
+          @field.text_alignment(:center)
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 40.275, 16.195]],
+                           range: 9)
+        end
+      end
+
+      it "creates the /N appearance stream according to the set string" do
+        @field.field_value = "Test\nValue"
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream,
+                         [[:begin_marked_content, [:Tx]],
+                          [:save_graphics_state],
+                          [:append_rectangle, [1, 1, 98, 28]],
+                          [:clip_path_non_zero],
+                          [:end_path],
+                          [:save_graphics_state],
+                          [:set_leading, [11.5625]],
+                          [:set_font_and_size, [:F1, 10]],
+                          [:begin_text],
+                          [:set_text_matrix, [1, 0, 0, 1, 2, 16.195]],
+                          [:show_text, ['Test']],
+                          [:move_text_next_line],
+                          [:show_text, ['Value']],
+                          [:end_text],
+                          [:restore_graphics_state],
+                          [:restore_graphics_state],
+                          [:end_marked_content]])
+
+        @field.field_value = "Test\nTest\nTest"
+        @field.set_default_appearance_string(font_size: 0)
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream,
+                         [[:begin_marked_content, [:Tx]],
+                          [:save_graphics_state],
+                          [:append_rectangle, [1, 1, 98, 28]],
+                          [:clip_path_non_zero],
+                          [:end_path],
+                          [:save_graphics_state],
+                          [:set_leading, [9.25]],
+                          [:set_font_and_size, [:F1, 8]],
+                          [:begin_text],
+                          [:set_text_matrix, [1, 0, 0, 1, 2, 18.556]],
+                          [:show_text, ['Test']],
+                          [:move_text_next_line],
+                          [:show_text, ['Test']],
+                          [:move_text_next_line],
+                          [:show_text, ['Test']],
+                          [:end_text],
+                          [:restore_graphics_state],
+                          [:restore_graphics_state],
+                          [:end_marked_content]],
+                        )
       end
     end
 

@@ -37,6 +37,7 @@
 require 'hexapdf/error'
 require 'hexapdf/layout/style'
 require 'hexapdf/layout/text_fragment'
+require 'hexapdf/layout/text_layouter'
 
 module HexaPDF
   module Type
@@ -258,48 +259,15 @@ module HexaPDF
           style.font_size = calculate_font_size(font, font_size, rect, border_style)
 
           canvas.marked_content_sequence(:Tx) do
-            if (value = @field.field_value)
+            if @field.field_value
               canvas.save_graphics_state do
                 canvas.rectangle(padding, padding, rect.width - 2 * padding,
                                  rect.height - 2 * padding).clip_path.end_path
-                fragment = HexaPDF::Layout::TextFragment.create(value, style)
-
-                if @field.field_type == :Tx && @field.comb_text_field?
-                  unless @field.key?(:MaxLen)
-                    raise HexaPDF::Error, "Missing or invalid dictionary field /MaxLen for comb text field"
-                  end
-                  new_items = []
-                  cell_width = rect.width.to_f / @field[:MaxLen]
-                  scaled_cell_width = cell_width / style.scaled_font_size.to_f
-                  fragment.items.each_cons(2) do |a, b|
-                    new_items << a << -(scaled_cell_width - a.width / 2.0 - b.width / 2.0)
-                  end
-                  new_items << fragment.items.last
-                  fragment.items.replace(new_items)
-                  fragment.clear_cache
-                  # Adobe always seems to add 1 to the first offset...
-                  x_offset = 1 + (cell_width - style.scaled_item_width(fragment.items[0])) / 2.0
-                  x = case @field.text_alignment
-                      when :left then x_offset
-                      when :right then x_offset + cell_width * (@field[:MaxLen] - value.length)
-                      when :center then x_offset + cell_width * ((@field[:MaxLen] - value.length) / 2)
-                      end
+                if @field.concrete_field_type == :multiline_text_field
+                  draw_multiline_text(canvas, rect, style, padding)
                 else
-                  # Adobe seems to be left/right-aligning based on twice the border width
-                  x = case @field.text_alignment
-                      when :left then 2 * padding
-                      when :right then [rect.width - 2 * padding - fragment.width, 2 * padding].max
-                      when :center then [(rect.width - fragment.width) / 2.0, 2 * padding].max
-                      end
+                  draw_single_line_text(canvas, rect, style, padding)
                 end
-
-                # Adobe seems to be vertically centering based on the cap height, if enough space is
-                # available
-                cap_height = font.wrapped_font.cap_height * font.scaling_factor / 1000.0 *
-                  style.font_size
-                y = padding + (rect.height - 2 * padding - cap_height) / 2.0
-                y = padding - style.scaled_font_descender if y < 0
-                fragment.draw(canvas, x, y)
               end
             end
           end
@@ -417,14 +385,86 @@ module HexaPDF
           end
         end
 
+        # Draws a single line of text inside the widget's rectangle.
+        def draw_single_line_text(canvas, rect, style, padding)
+          value = @field.field_value
+          fragment = HexaPDF::Layout::TextFragment.create(value, style)
+
+          if @field.concrete_field_type == :comb_text_field
+            unless @field.key?(:MaxLen)
+              raise HexaPDF::Error, "Missing or invalid dictionary field /MaxLen for comb text field"
+            end
+            new_items = []
+            cell_width = rect.width.to_f / @field[:MaxLen]
+            scaled_cell_width = cell_width / style.scaled_font_size.to_f
+            fragment.items.each_cons(2) do |a, b|
+              new_items << a << -(scaled_cell_width - a.width / 2.0 - b.width / 2.0)
+            end
+            new_items << fragment.items.last
+            fragment.items.replace(new_items)
+            fragment.clear_cache
+            # Adobe always seems to add 1 to the first offset...
+            x_offset = 1 + (cell_width - style.scaled_item_width(fragment.items[0])) / 2.0
+            x = case @field.text_alignment
+                when :left then x_offset
+                when :right then x_offset + cell_width * (@field[:MaxLen] - value.length)
+                when :center then x_offset + cell_width * ((@field[:MaxLen] - value.length) / 2)
+                end
+          else
+            # Adobe seems to be left/right-aligning based on twice the border width
+            x = case @field.text_alignment
+                when :left then 2 * padding
+                when :right then [rect.width - 2 * padding - fragment.width, 2 * padding].max
+                when :center then [(rect.width - fragment.width) / 2.0, 2 * padding].max
+                end
+          end
+
+          # Adobe seems to be vertically centering based on the cap height, if enough space is
+          # available
+          cap_height = style.font.wrapped_font.cap_height * style.font.scaling_factor / 1000.0 *
+            style.font_size
+          y = padding + (rect.height - 2 * padding - cap_height) / 2.0
+          y = padding - style.scaled_font_descender if y < 0
+          fragment.draw(canvas, x, y)
+        end
+
+        # Draws multiple lines  of text inside the widget's rectangle.
+        def draw_multiline_text(canvas, rect, style, padding)
+          items = [Layout::TextFragment.create(@field.field_value, style)]
+          layouter = Layout::TextLayouter.new(style)
+          layouter.style.align(@field.text_alignment).line_spacing(:proportional, 1.25)
+
+          result = nil
+          if style.font_size == 0 # need to auto-size text
+            style.font_size = 12 # Adobe seems to use this as starting point
+            style.clear_cache
+            loop do
+              result = layouter.fit(items, rect.width - 4 * padding, rect.height - 4 * padding)
+              break if result.status == :success || style.font_size <= 4 # don't make text too small
+              style.font_size -= 1
+              style.clear_cache
+            end
+          else
+            result = layouter.fit(items, rect.width - 4 * padding, 2**20)
+          end
+
+          unless result.lines.empty?
+            result.draw(canvas, 2 * padding, rect.height - 2 * padding - result.lines[0].height / 2.0)
+          end
+        end
+
         # Calculates the font size for text fields based on the font and font size of the default
         # appearance string, the annotation rectangle and the border style.
         def calculate_font_size(font, font_size, rect, border_style)
           if font_size == 0
-            unit_font_size = (font.wrapped_font.bounding_box[3] - font.wrapped_font.bounding_box[1]) *
-              font.scaling_factor / 1000.0
-            # The constant factor was found empirically by checking what Adobe Reader etc. do
-            (rect.height - 2 * border_style.width) / unit_font_size * 0.83
+            if @field.concrete_field_type == :multiline_text_field
+              0 # Handled by multiline drawing code
+            else
+              unit_font_size = (font.wrapped_font.bounding_box[3] - font.wrapped_font.bounding_box[1]) *
+                font.scaling_factor / 1000.0
+              # The constant factor was found empirically by checking what Adobe Reader etc. do
+              (rect.height - 2 * border_style.width) / unit_font_size * 0.83
+            end
           else
             font_size
           end
