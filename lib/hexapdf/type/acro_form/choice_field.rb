@@ -161,7 +161,7 @@ module HexaPDF
 
         # Sets the array with the available option items to the given value.
         def option_items=(value)
-          self[:Opt] = value
+          self[:Opt] = (flagged?(:sort) ? value.sort : value)
         end
 
         # Returns the concrete choice field type, either :list_box, :combo_box or

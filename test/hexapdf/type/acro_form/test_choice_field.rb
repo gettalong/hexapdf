@@ -99,8 +99,11 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
 
   it "sets and returns the array with the option items" do
     assert_equal([], @field.option_items)
-    @field.option_items = ["H\xe4llo".b, "\xFE\xFF".b << "Töne".encode('UTF-16BE').b]
-    assert_equal(["Hällo", "Töne"], @field.option_items)
+    @field.option_items = ["Zx", "H\xe4llo".b, "\xFE\xFF".b << "Töne".encode('UTF-16BE').b]
+    assert_equal(["Zx", "Hällo", "Töne"], @field.option_items)
+    @field.flag(:sort)
+    @field.option_items = @field.option_items
+    assert_equal(["Hällo", "Töne", "Zx"], @field.option_items)
   end
 
   it "returns the correct concrete field type" do
