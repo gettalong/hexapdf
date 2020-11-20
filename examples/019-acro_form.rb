@@ -77,4 +77,12 @@ tx.set_default_appearance_string(font_size: 16)
 tx.text_alignment(:center)
 tx.field_value = 'Hello'
 
+canvas.text("Combo Box", at: [50, 170])
+cb = form.create_combo_box("Combo Box")
+widget = cb.create_widget(page, Rect: [200, 150, 500, 185])
+widget.border_style(width: 1)
+cb.set_default_appearance_string(font_size: 12)
+cb.option_items = ['Value 1', 'Another value', 'Choose me!']
+cb.field_value = 'Another value'
+
 doc.write('acro_form.pdf', optimize: true)
