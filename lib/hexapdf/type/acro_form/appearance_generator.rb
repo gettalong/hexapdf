@@ -257,6 +257,7 @@ module HexaPDF
           canvas = form.canvas
           apply_background_and_border(border_style, canvas)
           style.font_size = calculate_font_size(font, font_size, rect, border_style)
+          style.clear_cache
 
           canvas.marked_content_sequence(:Tx) do
             if @field.field_value
