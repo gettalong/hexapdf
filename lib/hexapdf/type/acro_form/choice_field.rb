@@ -122,14 +122,20 @@ module HexaPDF
         end
 
         # Sets the field value to the given string or array of strings.
+        #
+        # The dictionary field /I is also modified to correctly represent the selected item(s).
         def field_value=(value)
           items = option_items
-          all_included = [value].flatten.all? {|v| items.include?(v) }
+          array_value = [value].flatten
+          all_included = array_value.all? {|v| items.include?(v) }
           self[:V] = if (combo_box? && value.kind_of?(String) &&
-                          (flagged?(:edit) || all_included)) ||
-                         (list_box? && all_included &&
-                          (value.kind_of?(String) || flagged?(:multi_select)))
+                         (flagged?(:edit) || all_included))
+                       delete(:I)
                        value
+                     elsif list_box? && all_included &&
+                         (value.kind_of?(String) || flagged?(:multi_select))
+                       self[:I] = array_value.map {|val| items.index(val) }.sort!
+                       array_value.length == 1 ? value : array_value
                      else
                        @document.config['acro_form.on_invalid_value'].call(self, value)
                      end

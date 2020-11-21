@@ -10,6 +10,7 @@
 ### Fixed
 
 * Missing usage of `:sort` flag for AcroForm choice fields
+* Setting the `/I` field for AcroForm list boxes with multiple selection
 
 
 ## 0.13.0 - 2020-11-15

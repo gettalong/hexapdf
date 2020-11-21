@@ -36,23 +36,26 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
 
   describe "field_value=" do
     before do
-      @field.option_items = ["test", "other"]
+      @field.option_items = ["test", "something", "other", "neu"]
     end
 
     describe "combo_box" do
       before do
         @field.initialize_as_combo_box
+        @field[:I] = 2
       end
 
       it "can set the value for an uneditable combo box" do
         @field.field_value = 'test'
         assert_equal("test", @field[:V])
+        assert_nil(@field[:I])
       end
 
       it "can set the value for an editable combo box" do
         @field.flag(:edit)
         @field.field_value = 'another'
         assert_equal("another", @field[:V])
+        assert_nil(@field[:I])
       end
 
       it "fails if mulitple values are provided for a combo box" do
@@ -76,8 +79,9 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
 
       it "can set a multiple values if the list box is a multi-select" do
         @field.flag(:multi_select)
-        @field.field_value = ['test', 'other']
-        assert_equal(['test', 'other'], @field[:V].value)
+        @field.field_value = ['other', 'test']
+        assert_equal(['other', 'test'], @field[:V].value)
+        assert_equal([0, 2], @field[:I].value)
       end
 
       it "fails if mulitple values are provided but the list box is not a multi-select" do
