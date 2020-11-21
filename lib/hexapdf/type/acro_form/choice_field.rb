@@ -170,6 +170,20 @@ module HexaPDF
           self[:Opt] = (flagged?(:sort) ? value.sort : value)
         end
 
+        # Returns the index of the first visible option item of a list box.
+        def list_box_top_index
+          self[:TI]
+        end
+
+        # Makes the option item referred to via the given +index+ the first visible option item of a
+        # list box.
+        def list_box_top_index=(index)
+          if index < 0 || index >= self[:Opt].length
+            raise ArgumentError, "Index out of range for the set option items"
+          end
+          self[:TI] = index
+        end
+
         # Returns the concrete choice field type, either :list_box, :combo_box or
         # :editable_combo_box.
         def concrete_field_type

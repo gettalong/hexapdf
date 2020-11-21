@@ -84,6 +84,13 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
         assert_equal([0, 2], @field[:I].value)
       end
 
+      it "can read and set the top index" do
+        assert_raises(ArgumentError) { @field.list_box_top_index = 4 }
+        @field.option_items = [1, 2, 3, 4]
+        @field.list_box_top_index = 2
+        assert_equal(2, @field.list_box_top_index)
+      end
+
       it "fails if mulitple values are provided but the list box is not a multi-select" do
         assert_raises(HexaPDF::Error) { @field.field_value = ['a', 'b'] }
       end

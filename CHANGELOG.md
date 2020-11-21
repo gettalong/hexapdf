@@ -6,6 +6,8 @@
 * Support for creating AcroForm comb text fields and their appearances
 * Support for creating AcroForm password fields and their appearances
 * Support for creating AcroForm file select fields and their appearances
+* [HexaPDF::Type::AcroForm::ChoiceField#list_box_top_index] and its setter
+  method
 
 ### Fixed
 
