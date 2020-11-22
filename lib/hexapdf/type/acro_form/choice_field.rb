@@ -206,7 +206,7 @@ module HexaPDF
             if combo_box?
               appearance_generator_class.new(widget).create_combo_box_appearances
             else
-              raise HexaPDF::Error, "List boxes not yet supported"
+              appearance_generator_class.new(widget).create_list_box_appearances
             end
           end
         end

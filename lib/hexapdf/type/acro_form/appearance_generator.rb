@@ -81,14 +81,8 @@ module HexaPDF
             else
               raise HexaPDF::Error, "Unsupported button field type"
             end
-          when :Tx
+          when :Tx, :Ch
             create_text_appearances
-          when :Ch
-            if @field.combo_box?
-              create_text_appearances
-            else
-              raise HexaPDF::Error, "List box not supported yet"
-            end
           else
             raise HexaPDF::Error, "Unsupported field type #{@field.field_type}"
           end
@@ -260,12 +254,14 @@ module HexaPDF
           style.clear_cache
 
           canvas.marked_content_sequence(:Tx) do
-            if @field.field_value
+            if @field.field_value || @field.concrete_field_type == :list_box
               canvas.save_graphics_state do
                 canvas.rectangle(padding, padding, rect.width - 2 * padding,
                                  rect.height - 2 * padding).clip_path.end_path
                 if @field.concrete_field_type == :multiline_text_field
                   draw_multiline_text(canvas, rect, style, padding)
+                elsif @field.concrete_field_type == :list_box
+                  draw_list_box(canvas, rect, style, padding)
                 else
                   draw_single_line_text(canvas, rect, style, padding)
                 end
@@ -275,6 +271,7 @@ module HexaPDF
         end
 
         alias create_combo_box_appearances create_text_appearances
+        alias create_list_box_appearances create_text_appearances
 
         private
 
@@ -454,12 +451,41 @@ module HexaPDF
           end
         end
 
+        # Draws the visible option items of the list box in the widget's rectangle.
+        def draw_list_box(canvas, rect, style, padding)
+          option_items = @field.option_items
+          top_index = @field.list_box_top_index
+          items = [Layout::TextFragment.create(option_items[top_index..-1].join("\n"), style)]
+
+          indices = @field[:I] || []
+          value_indices = [@field.field_value].flatten.compact.map {|val| option_items.index(val) }
+          indices = value_indices if indices != value_indices
+
+          layouter = Layout::TextLayouter.new(style)
+          layouter.style.align(@field.text_alignment).line_spacing(:proportional, 1.25)
+          result = layouter.fit(items, rect.width - 4 * padding, rect.height)
+
+          unless result.lines.empty?
+            top_gap = style.line_spacing.gap(result.lines[0], result.lines[0])
+            line_height = style.line_spacing.baseline_distance(result.lines[0], result.lines[0])
+            canvas.fill_color(153, 193, 218) # Adobe's color for selection highlighting
+            indices.map! {|i| rect.height - padding - (i - top_index + 1) * line_height }.each do |y|
+              next if y + line_height > rect.height || y + line_height < padding
+              canvas.rectangle(padding, y, rect.width - 2 * padding, line_height)
+            end
+            canvas.fill if canvas.graphics_object == :path
+            result.draw(canvas, 2 * padding, rect.height - padding - top_gap)
+          end
+        end
+
         # Calculates the font size for text fields based on the font and font size of the default
         # appearance string, the annotation rectangle and the border style.
         def calculate_font_size(font, font_size, rect, border_style)
           if font_size == 0
             if @field.concrete_field_type == :multiline_text_field
               0 # Handled by multiline drawing code
+            elsif @field.concrete_field_type == :list_box
+              12 # Seems to be Adobe's default
             else
               unit_font_size = (font.wrapped_font.bounding_box[3] - font.wrapped_font.bounding_box[1]) *
                 font.scaling_factor / 1000.0

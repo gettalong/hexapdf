@@ -85,4 +85,15 @@ cb.set_default_appearance_string(font_size: 12)
 cb.option_items = ['Value 1', 'Another value', 'Choose me!']
 cb.field_value = 'Another value'
 
+canvas.text("List Box", at: [50, 120])
+lb = form.create_list_box("List Box")
+widget = lb.create_widget(page, Rect: [200, 50, 500, 135])
+widget.border_style(width: 1)
+lb.set_default_appearance_string(font_size: 15)
+lb.option_items = 1.upto(7).map {|i| "Value #{i}" }
+lb.list_box_top_index = 1
+lb.flag(:multi_select)
+lb.text_alignment(:center)
+lb.field_value = ['Value 6', 'Value 2']
+
 doc.write('acro_form.pdf', optimize: true)

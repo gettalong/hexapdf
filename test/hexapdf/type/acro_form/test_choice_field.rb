@@ -135,8 +135,11 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
       assert(@field[:AP][:N])
     end
 
-    it "fails for list boxes" do
-      assert_raises(HexaPDF::Error) { @field.create_appearances }
+    it "works for list box fields" do
+      @field.initialize_as_list_box
+      @field.set_default_appearance_string
+      @field.create_appearances
+      assert(@field[:AP][:N])
     end
   end
 

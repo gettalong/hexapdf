@@ -25,14 +25,6 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       assert_raises(HexaPDF::Error) { @generator.create_appearances }
     end
 
-    it "fails for unsupported choice fields" do
-      @field = @doc.wrap(@field, type: :XXAcroFormField, subtype: :Ch)
-      @field[:FT] = :Ch
-      @field.initialize_as_list_box
-      @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
-      assert_raises(HexaPDF::Error) { @generator.create_appearances }
-    end
-
     it "fails for unsupported field types" do
       @field[:FT] = :Unknown
       assert_raises(HexaPDF::Error) { @generator.create_appearances }
@@ -679,6 +671,63 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(widget)
         generator.create_appearances
         assert_kind_of(HexaPDF::Type::Form, widget[:AP][:N])
+      end
+
+      describe "list boxes" do
+        before do
+          @field = @doc.add({FT: :Ch}, type: :XXAcroFormField, subtype: :Ch)
+          @field.initialize_as_list_box
+          @field.flag(:multi_select)
+          @field.option_items = ['a', 'b', 'c']
+          @widget = @field.create_widget(@page, Rect: [0, 0, 90, 36])
+          @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
+        end
+
+        it "uses a fixed font size for list box items if auto-sizing is used" do
+          @field.set_default_appearance_string(font_size: 0)
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_font_and_size, [:F1, 12]],
+                           range: 8)
+        end
+
+        it "uses the set values instead of the ones from /I if in conflict" do
+          @field[:I] = [0, 1]
+          @field[:V] = ['b']
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [[:set_device_rgb_non_stroking_color, [0.6, 0.756863, 0.854902]],
+                            [:append_rectangle, [1, 7.25, 88, 13.875]],
+                            [:fill_path_non_zero]],
+                           range: 5..7)
+        end
+
+        it "creates the /N appearance stream" do
+          @field[:I] = [1, 2]
+          @field[:V] = ['b', 'c']
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [[:begin_marked_content, [:Tx]],
+                            [:save_graphics_state],
+                            [:append_rectangle, [1, 1, 88, 34]],
+                            [:clip_path_non_zero], [:end_path],
+                            [:set_device_rgb_non_stroking_color, [0.6, 0.756863, 0.854902]],
+                            [:append_rectangle, [1, 7.25, 88, 13.875]],
+                            [:append_rectangle, [1, -6.625, 88, 13.875]],
+                            [:fill_path_non_zero],
+                            [:save_graphics_state],
+                            [:set_leading, [13.875]],
+                            [:set_font_and_size, [:F1, 12]],
+                            [:set_device_gray_non_stroking_color, [0.0]],
+                            [:begin_text],
+                            [:set_text_matrix, [1, 0, 0, 1, 2, 23.609]],
+                            [:show_text, ["a"]],
+                            [:move_text_next_line],
+                            [:show_text, ["b"]],
+                            [:end_text],
+                            [:restore_graphics_state], [:restore_graphics_state],
+                            [:end_marked_content]])
+        end
       end
     end
 
