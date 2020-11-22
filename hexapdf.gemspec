@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.version = HexaPDF::VERSION
   s.summary = "HexaPDF - A Versatile PDF Creation and Manipulation Library For Ruby"
   s.description = description
-  s.license = 'AGPL-3.0'
+  s.licenses = ['AGPL-3.0', 'Commercial License']
 
   s.files = PKG_FILES
 
