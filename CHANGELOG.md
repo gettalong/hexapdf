@@ -15,6 +15,8 @@
 
 * Missing usage of `:sort` flag for AcroForm choice fields
 * Setting the `/I` field for AcroForm list boxes with multiple selection
+* [HexaPDF::Layout::TextLayouter::SimpleLineWrapping] to remove glue items
+  (whitespace) before a hard line break
 
 
 ## 0.13.0 - 2020-11-15

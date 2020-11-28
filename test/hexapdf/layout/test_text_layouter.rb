@@ -591,24 +591,32 @@ describe HexaPDF::Layout::TextLayouter do
 
     describe "horizontal alignment" do
       before do
-        @items = boxes(*[[20, 20]] * 4)
+        @items = boxes(*[[20, 20]] * 4) + [glue(10), penalty(-5000, boxes(0).first.item)]
       end
 
       it "aligns the contents to the left" do
         @style.align = :left
         result = @layouter.fit(@items, 100, 100)
         assert_equal(0, result.lines[0].x_offset)
+        assert_equal(80, result.lines[0].width)
+        result = @layouter.fit(@items, proc { 100 }, 100)
+        assert_equal(0, result.lines[0].x_offset)
+        assert_equal(80, result.lines[0].width)
       end
 
       it "aligns the contents to the center" do
         @style.align = :center
         result = @layouter.fit(@items, 100, 100)
         assert_equal(10, result.lines[0].x_offset)
+        result = @layouter.fit(@items, proc { 100 }, 100)
+        assert_equal(10, result.lines[0].x_offset)
       end
 
       it "aligns the contents to the right" do
         @style.align = :right
         result = @layouter.fit(@items, 100, 100)
+        assert_equal(20, result.lines[0].x_offset)
+        result = @layouter.fit(@items, proc { 100 }, 100)
         assert_equal(20, result.lines[0].x_offset)
       end
     end

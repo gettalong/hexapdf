@@ -388,7 +388,7 @@ module HexaPDF
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
-                add_box_item(item.item) if item.item
+                add_box_item(item.item) if item.width > 0
                 break unless yield(create_unjustified_line, item)
                 reset_after_line_break(index + 1)
               elsif item.penalty >= Penalty::INFINITY
@@ -458,7 +458,7 @@ module HexaPDF
               end
             when :penalty
               if item.penalty <= -Penalty::INFINITY
-                add_box_item(item.item) if item.item
+                add_box_item(item.item) if item.width > 0
                 break unless (action = yield(create_unjustified_line, item))
                 reset_after_line_break_variable_width(index + 1, true, action)
               elsif item.penalty >= Penalty::INFINITY
