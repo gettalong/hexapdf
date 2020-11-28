@@ -16,6 +16,8 @@ require 'zlib'
 TEST_DATA_DIR = File.join(__dir__, 'data')
 MINIMAL_PDF = File.read(File.join(TEST_DATA_DIR, 'minimal.pdf')).freeze
 
+Minitest::Test.make_my_diffs_pretty!
+
 module TestHelper
 
   # Asserts that the method +name+ of +object+ gets invoked with the +expected_values+ when
