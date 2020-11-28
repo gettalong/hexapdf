@@ -3,6 +3,7 @@
 require 'test_helper'
 require 'hexapdf/object'
 require 'hexapdf/reference'
+require 'hexapdf/document'
 
 describe HexaPDF::Object do
   describe "class.deep_copy" do
@@ -196,6 +197,31 @@ describe HexaPDF::Object do
       obj = HexaPDF::Object.new(nil, stream: "data")
       copy = obj.deep_copy
       refute_same(copy.data.stream, obj.data.stream)
+    end
+  end
+
+  describe "caching" do
+    before do
+      @obj = HexaPDF::Object.new({}, document: HexaPDF::Document.new)
+    end
+
+    it "can set and return a cached value" do
+      assert_equal(:value, @obj.cache(:data, :value))
+      assert_equal(:value, @obj.cache(:data, :other))
+      assert_equal(:value, @obj.cache(:block) { :value })
+    end
+
+    it "can check for the existence of a cached value" do
+      refute(@obj.cached?(:data))
+      @obj.cache(:data, :value)
+      assert(@obj.cached?(:data))
+    end
+
+    it "can clear all cached values" do
+      @obj.cache(:data, :value)
+      assert(@obj.cached?(:data))
+      @obj.clear_cache
+      refute(@obj.cached?(:data))
     end
   end
 

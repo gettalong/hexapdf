@@ -284,6 +284,26 @@ module HexaPDF
       obj
     end
 
+    # Caches and returns the given value or, if not provided, the one returned by the block under
+    # the given cache key. If there is already a cached value for the key, it is just returned.
+    #
+    # This uses Document#cache internally.
+    def cache(key, value = nil, &block)
+      document.cache(@data, key, value, &block)
+    end
+
+    # Returns +true+ if there is a cached value for the given key.
+    #
+    # This uses Document#cached? internally.
+    def cached?(key)
+      document.cached?(@data, key)
+    end
+
+    # Clears the cache for this object.
+    def clear_cache
+      document.clear_cache(@data)
+    end
+
     # Compares this object to another object.
     #
     # If the other object does not respond to +oid+ or +gen+, +nil+ is returned. Otherwise objects

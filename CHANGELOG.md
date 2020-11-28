@@ -9,6 +9,7 @@
 * Support for creating AcroForm list box appearances
 * [HexaPDF::Type::AcroForm::ChoiceField#list_box_top_index] and its setter
   method
+* Methods for caching data to [HexaPDF::Object]
 
 ### Fixed
 
