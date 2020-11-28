@@ -383,7 +383,7 @@ module HexaPDF
           raise ArgumentError, "Invalid value for 'type', expected: :page, :underlay or :overlay"
         end
         cache_key = "#{type}_canvas".intern
-        return document.cache(@data, cache_key) if document.cached?(@data, cache_key)
+        return cache(cache_key) if cached?(cache_key)
 
         if type == :page && key?(:Contents)
           raise HexaPDF::Error, "Cannot get the canvas for a page with contents"
@@ -400,14 +400,14 @@ module HexaPDF
 
         contents = self[:Contents]
         if contents.nil?
-          page_canvas = document.cache(@data, :page_canvas, create_canvas.call)
+          page_canvas = cache(:page_canvas, create_canvas.call)
           self[:Contents] = document.add({Filter: :FlateDecode},
                                          stream: page_canvas.stream_data)
         end
 
         if type == :overlay || type == :underlay
-          underlay_canvas = document.cache(@data, :underlay_canvas, create_canvas.call)
-          overlay_canvas = document.cache(@data, :overlay_canvas, create_canvas.call)
+          underlay_canvas = cache(:underlay_canvas, create_canvas.call)
+          overlay_canvas = cache(:overlay_canvas, create_canvas.call)
 
           stream = HexaPDF::StreamData.new do
             Fiber.yield(" q ")
@@ -432,7 +432,7 @@ module HexaPDF
           self[:Contents] = [underlay, *self[:Contents], overlay]
         end
 
-        document.cache(@data, cache_key)
+        cache(cache_key)
       end
 
       # Creates a Form XObject from the page's dictionary and contents for the given PDF document.

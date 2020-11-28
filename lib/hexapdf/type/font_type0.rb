@@ -58,7 +58,7 @@ module HexaPDF
 
       # Returns the CID font of this type 0 font.
       def descendant_font
-        document.cache(@data, :descendant_font) do
+        cache(:descendant_font) do
           document.wrap(self[:DescendantFonts][0])
         end
       end
@@ -116,7 +116,7 @@ module HexaPDF
       #
       # Note that the CMap is cached internally when accessed the first time.
       def cmap
-        document.cache(@data, :cmap) do
+        cache(:cmap) do
           val = self[:Encoding]
           if val.kind_of?(Symbol)
             HexaPDF::Font::CMap.for_name(val.to_s)
@@ -135,7 +135,7 @@ module HexaPDF
       #
       # See: PDF1.7 s9.10.2
       def ucs2_cmap
-        document.cache(@data, :ucs2_cmap) do
+        cache(:ucs2_cmap) do
           encoding = self[:Encoding]
           system_info = descendant_font[:CIDSystemInfo]
           registry = system_info[:Registry]

@@ -95,7 +95,7 @@ module HexaPDF
       #
       # See: PDF1.7 s9.7.4.3
       def widths
-        document.cache(@data, :widths) do
+        cache(:widths) do
           result = {}
           index = 0
           array = self[:W] || []

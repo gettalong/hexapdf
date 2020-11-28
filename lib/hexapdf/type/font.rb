@@ -102,7 +102,7 @@ module HexaPDF
 
       # Parses and caches the ToUnicode CMap.
       def to_unicode_cmap
-        document.cache(@data, :to_unicode_cmap) do
+        cache(:to_unicode_cmap) do
           if key?(:ToUnicode)
             HexaPDF::Font::CMap.parse(self[:ToUnicode].stream)
           else

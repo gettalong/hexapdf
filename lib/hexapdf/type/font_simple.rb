@@ -57,7 +57,7 @@ module HexaPDF
       #
       # Note that the encoding is cached internally when accessed the first time.
       def encoding
-        document.cache(@data, :encoding) do
+        cache(:encoding) do
           case (val = self[:Encoding])
           when Symbol
             encoding = HexaPDF::Font::Encoding.for_name(val)
