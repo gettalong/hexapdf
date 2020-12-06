@@ -112,4 +112,9 @@ describe HexaPDF::Utils::ObjectHash do
       assert_equal(3, @hash.max_oid)
     end
   end
+
+  it "can return a list of all object IDs" do
+    @hash[1, 0] = @hash[3, 1] = 7
+    assert_equal([3, 1], @hash.oids)
+  end
 end

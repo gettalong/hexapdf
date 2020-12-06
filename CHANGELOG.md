@@ -11,6 +11,10 @@
   method
 * Methods for caching data to [HexaPDF::Object]
 
+### Changed
+
+* [HexaPDF::Utils::ObjectHash#oids] to be public instead of private
+
 ### Fixed
 
 * Missing usage of `:sort` flag for AcroForm choice fields

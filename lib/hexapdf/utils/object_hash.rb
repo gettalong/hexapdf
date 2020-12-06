@@ -125,7 +125,6 @@ module HexaPDF
       def oids
         @oids.keys
       end
-      private :oids
 
     end
 
