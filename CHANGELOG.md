@@ -14,6 +14,7 @@
 ### Changed
 
 * [HexaPDF::Utils::ObjectHash#oids] to be public instead of private
+* Cross-reference table parsing to handle invalidly numbered main sections
 
 ### Fixed
 

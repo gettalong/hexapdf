@@ -267,6 +267,27 @@ module HexaPDF
         raise_malformed("Trailer is #{trailer.class} instead of dictionary ", pos: @tokenizer.pos)
       end
 
+      unless trailer[:Prev] || xref.max_oid == 0 || xref.entry?(0)
+        first_entry = xref[xref.oids[0]]
+        test_entry = xref[xref.oids[-1]]
+        @tokenizer.pos = test_entry.pos + @header_offset
+        test_oid = @tokenizer.next_token
+        first_oid = first_entry.oid
+
+        force_failure = !first_entry.free? || first_entry.gen != 65535 ||
+          !test_oid.kind_of?(Integer) || xref.oids[-1] - test_oid != first_oid
+        maybe_raise("Main cross-reference section has invalid numbering",
+                    pos: offset + @header_offset, force: force_failure)
+
+        new_xref = XRefSection.new
+        xref.oids.each do |oid|
+          entry = xref[oid]
+          entry.oid -= first_oid
+          new_xref.send(:[]=, entry.oid, entry.gen, entry)
+        end
+        xref = new_xref
+      end
+
       [xref, trailer]
     end
 
