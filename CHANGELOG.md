@@ -17,6 +17,7 @@
 * Setting the `/I` field for AcroForm list boxes with multiple selection
 * [HexaPDF::Layout::TextLayouter::SimpleLineWrapping] to remove glue items
   (whitespace) before a hard line break
+* Infinite loop when reconstructing the cross-reference table
 
 
 ## 0.13.0 - 2020-11-15

@@ -359,8 +359,9 @@ module HexaPDF
       xref = XRefSection.new
       @tokenizer.pos = 0
       while true
+        @tokenizer.skip_whitespace
         pos = @tokenizer.pos
-        @tokenizer.scan_until(/(\n|\r\n?)+|\z/)
+        @tokenizer.scan_until(/(\n|\r\n?)+/)
         next_new_line_pos = @tokenizer.pos
         @tokenizer.pos = pos
 
