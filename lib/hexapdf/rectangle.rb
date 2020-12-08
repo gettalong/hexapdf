@@ -126,7 +126,7 @@ module HexaPDF
     # top right corner.
     def after_data_change
       super
-      unless value.size == 4 && all? {|v| v.kind_of?(Numeric) }
+      unless value.size == 4 && all? {|v| i.kind_of?(HexaPDF::Reference) || v.kind_of?(Numeric) }
         raise ArgumentError, "A PDF rectangle structure must contain an array of four numbers"
       end
       self[0], self[2] = self[2], self[0] if self[0] > self[2]
