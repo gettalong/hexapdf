@@ -161,13 +161,33 @@ module HexaPDF
         end
 
         # Returns the array with the available option items.
+        #
+        # Note that this *only* returns the option items themselves! For getting the export values,
+        # the #export_values method has to be used.
         def option_items
-          key?(:Opt) ? process_value(self[:Opt]) : self[:Opt] ||= []
+          key?(:Opt) ? process_value(self[:Opt].map {|i| i.kind_of?(Array) ? i[1] : i }) : []
+        end
+
+        # Returns the export values of the option items.
+        #
+        # If you need the display strings (as in most cases), use the #option_items method.
+        def export_values
+          key?(:Opt) ? process_value(self[:Opt].map {|i| i.kind_of?(Array) ? i[0] : i }) : []
         end
 
         # Sets the array with the available option items to the given value.
+        #
+        # Each entry in the array may either be a string representing the text to be displayed. Or
+        # an array of two strings where the first describes the export value (to be used when
+        # exporting form field data from the document) and the second is the display value.
+        #
+        # See: #option_items, #export_values
         def option_items=(value)
-          self[:Opt] = (flagged?(:sort) ? value.sort : value)
+          self[:Opt] = if flagged?(:sort)
+                         value.sort_by {|i| process_value(i.kind_of?(Array) ? i[1] : i) }
+                       else
+                         value
+                       end
         end
 
         # Returns the index of the first visible option item of a list box.

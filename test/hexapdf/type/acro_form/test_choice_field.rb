@@ -108,13 +108,29 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
     assert_raises(HexaPDF::Error) { @field.default_field_value = 'unknown' }
   end
 
-  it "sets and returns the array with the option items" do
-    assert_equal([], @field.option_items)
-    @field.option_items = ["Zx", "H\xe4llo".b, "\xFE\xFF".b << "Töne".encode('UTF-16BE').b]
-    assert_equal(["Zx", "Hällo", "Töne"], @field.option_items)
-    @field.flag(:sort)
-    @field.option_items = @field.option_items
-    assert_equal(["Hällo", "Töne", "Zx"], @field.option_items)
+  describe "option items" do
+    before do
+      @items = [["a", "Zx"], "\xFE\xFF".b << "Töne".encode('UTF-16BE').b, "H\xe4llo".b,]
+    end
+
+    it "sets the option items" do
+      @field.option_items = @items
+      assert_equal(@items, @field[:Opt].value)
+
+      @field.flag(:sort)
+      @field.option_items = @items
+      assert_equal(@items.values_at(2, 1, 0), @field[:Opt].value)
+    end
+
+    it "can retrieve the option items" do
+      @field[:Opt] = @items
+      assert_equal(["Zx", "Töne", "Hällo"], @field.option_items)
+    end
+
+    it "can retrieve the export values" do
+      @field[:Opt] = @items
+      assert_equal(["a", "Töne", "Hällo"], @field.export_values)
+    end
   end
 
   it "returns the correct concrete field type" do

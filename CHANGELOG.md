@@ -23,6 +23,8 @@
 * [HexaPDF::Layout::TextLayouter::SimpleLineWrapping] to remove glue items
   (whitespace) before a hard line break
 * Infinite loop when reconstructing the cross-reference table
+* [HexaPDF::Type::AcroForm::ChoiceField] to support export values for option
+  items
 
 
 ## 0.13.0 - 2020-11-15
