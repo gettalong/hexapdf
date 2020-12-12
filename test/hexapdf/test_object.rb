@@ -209,6 +209,7 @@ describe HexaPDF::Object do
       assert_equal(:value, @obj.cache(:data, :value))
       assert_equal(:value, @obj.cache(:data, :other))
       assert_equal(:value, @obj.cache(:block) { :value })
+      assert_equal(:other, @obj.cache(:data, :other, update: true))
     end
 
     it "can check for the existence of a cached value" do

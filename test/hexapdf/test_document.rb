@@ -609,16 +609,24 @@ describe HexaPDF::Document do
 
   describe "caching interface" do
     it "allows setting and retrieving values" do
-      assert_equal(:test, @doc.cache(:a, :b, :test))
-      assert_equal(:test, @doc.cache(:a, :b, :other))
-      assert_equal(:other, @doc.cache(:a, :c) { :other })
+      assert_equal(:test, @doc.cache(:a, :b, :test) { :notused })
+      assert_equal(:test, @doc.cache(:a, :b) { :other })
+      assert_equal(:test, @doc.cache(:a, :b))
+      assert_nil(@doc.cache(:a, :c, nil))
+      assert_nil(@doc.cache(:a, :c) { :other })
+      assert_nil(@doc.cache(:a, :c))
       assert(@doc.cached?(:a, :b))
       assert(@doc.cached?(:a, :c))
     end
 
+    it "allows updating a value" do
+      @doc.cache(:a, :b) { :test }
+      assert_equal(:new, @doc.cache(:a, :b, update: true) { :new })
+    end
+
     it "allows clearing cached values" do
-      @doc.cache(:a, :b, :c)
-      @doc.cache(:b, :c, :d)
+      @doc.cache(:a, :b) { :c }
+      @doc.cache(:b, :c) { :d }
       @doc.clear_cache(:a)
       refute(@doc.cached?(:a, :b))
       assert(@doc.cached?(:b, :c))
@@ -626,7 +634,7 @@ describe HexaPDF::Document do
       refute(@doc.cached?(:a, :c))
     end
 
-    it "fails if no cached value exists and neither a value nor a block is given" do
+    it "fails if no cached value exists and no block is given" do
       assert_raises(LocalJumpError) { @doc.cache(:a, :b) }
     end
   end

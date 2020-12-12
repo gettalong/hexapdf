@@ -15,6 +15,8 @@
 
 * [HexaPDF::Utils::ObjectHash#oids] to be public instead of private
 * Cross-reference table parsing to handle invalidly numbered main sections
+* [HexaPDF::Document#cache] and [HexaPDF::Object#cache] to allow updating
+  values for existing keys
 
 ### Fixed
 

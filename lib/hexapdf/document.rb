@@ -469,15 +469,21 @@ module HexaPDF
       @listeners[name]&.each {|obj| obj.call(*args) }
     end
 
-    # Caches the value or the return value of the given block using the given Object::PDFData and
-    # key arguments as composite hash key. If a cached value already exists, it is just returned.
+    UNSET = ::Object.new # :nordoc:
+
+    # Caches and returns the given +value+ or the value of the given block using the given
+    # +pdf_data+ and +key+ arguments as composite cache key. If a cached value already exists and
+    # +update+ is +false+, the cached value is just returned.
+    #
+    # Set +update+ to +true+ to force an update of the cached value.
     #
     # This facility can be used to cache expensive operations in PDF objects that are easy to
     # compute again.
     #
     # Use #clear_cache to clear the cache if necessary.
-    def cache(pdf_data, key, value = nil)
-      @cache[pdf_data][key] ||= value || yield
+    def cache(pdf_data, key, value = UNSET, update: false)
+      return @cache[pdf_data][key] if cached?(pdf_data, key) && !update
+      @cache[pdf_data][key] = (value == UNSET ? yield : value)
     end
 
     # Returns +true+ if there is a value cached for the composite key consisting of the given
