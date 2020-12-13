@@ -207,9 +207,13 @@ module HexaPDF
         #
         # For information on how this is done see AppearanceGenerator.
         #
-        # Note that an appearance for a text field widget is *always* created even if there is an
-        # existing one to make sure the current field value is properly represented.
+        # Note that no new appearances are created if the field value hasn't changed between
+        # invocations.
         def create_appearances
+          current_value = field_value
+          return if cached?(:last_value) && cache(:last_value) == current_value
+
+          cache(:last_value, current_value, update: true)
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
             appearance_generator_class.new(widget).create_text_appearances

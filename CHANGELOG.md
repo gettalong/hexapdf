@@ -27,6 +27,8 @@
 * Infinite loop when reconstructing the cross-reference table
 * [HexaPDF::Type::AcroForm::ChoiceField] to support export values for option
   items
+* AcroForm text field appearance creation to only create a new appearance if the
+  field's value has changed
 
 
 ## 0.13.0 - 2020-11-15

@@ -131,12 +131,24 @@ describe HexaPDF::Type::AcroForm::TextField do
   end
 
   describe "create_appearances" do
-    it "creates the needed streams" do
+    before do
       @doc.acro_form(create: true)
       @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       @field.set_default_appearance_string
+    end
+
+    it "creates the needed streams" do
       @field.create_appearances
       assert(@field[:AP][:N])
+    end
+
+    it "doesn't create a new appearance stream if the field value hasn't changed" do
+      @field.create_appearances
+      stream = @field[:AP][:N]
+      @field.create_appearances
+      assert_same(stream, @field[:AP][:N])
+      @field.field_value = 'test'
+      refute_same(stream, @field[:AP][:N])
     end
 
     it "uses the configuration option acro_form.appearance_generator" do
