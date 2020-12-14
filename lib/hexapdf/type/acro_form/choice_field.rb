@@ -218,9 +218,13 @@ module HexaPDF
         #
         # For information on how this is done see AppearanceGenerator.
         #
-        # Note that an appearance for a choice field widget is *always* created even if there is an
-        # existing one to make sure the current field value is properly represented.
+        # Note that no new appearances are created if the dictionary fields involved in the creation
+        # of the appearance stream have not been changed between invocations.
         def create_appearances
+          current_appearance_state = [self[:V], self[:I], self[:Opt], self[:TI]]
+          return if cached?(:appearance_state) && cache(:appearance_state) == current_appearance_state
+
+          cache(:appearance_state, current_appearance_state, update: true)
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
             if combo_box?

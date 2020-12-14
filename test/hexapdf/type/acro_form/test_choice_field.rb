@@ -159,6 +159,32 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
       @field.create_appearances
       assert(@field[:AP][:N])
     end
+
+    it "only creates a new appearance if the involved dictionary values have changed" do
+      @field.initialize_as_list_box
+      @field.set_default_appearance_string
+      @field.create_appearances
+      appearance_stream = @field[:AP][:N]
+      assert(appearance_stream)
+
+      @field.create_appearances
+      assert_same(appearance_stream, @field[:AP][:N])
+
+      do_check = lambda do
+        @field.create_appearances
+        refute_same(appearance_stream, @field[:AP][:N])
+        appearance_stream = @field[:AP][:N]
+      end
+
+      @field.option_items = ['a', 'b', 'c']
+      do_check.call
+
+      @field.list_box_top_index = 2
+      do_check.call
+
+      @field.field_value = 'b'
+      do_check.call
+    end
   end
 
   describe "validation" do
