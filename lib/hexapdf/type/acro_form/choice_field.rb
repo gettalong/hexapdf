@@ -198,7 +198,7 @@ module HexaPDF
         # Makes the option item referred to via the given +index+ the first visible option item of a
         # list box.
         def list_box_top_index=(index)
-          if index < 0 || index >= self[:Opt].length
+          if index < 0 || !key?(:Opt) || index >= self[:Opt].length
             raise ArgumentError, "Index out of range for the set option items"
           end
           self[:TI] = index

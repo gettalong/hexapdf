@@ -29,6 +29,8 @@
   items
 * AcroForm text field appearance creation to only create a new appearance if the
   field's value has changed
+* [HexaPDF::Type::AcroForm::ChoiceField#list_box_top_index=] to raise an error
+  if no option items are set
 
 
 ## 0.13.0 - 2020-11-15

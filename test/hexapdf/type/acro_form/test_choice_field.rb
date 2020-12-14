@@ -86,6 +86,8 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
 
       it "can read and set the top index" do
         assert_raises(ArgumentError) { @field.list_box_top_index = 4 }
+        @field.delete(:Opt)
+        assert_raises(ArgumentError) { @field.list_box_top_index = 0 }
         @field.option_items = [1, 2, 3, 4]
         @field.list_box_top_index = 2
         assert_equal(2, @field.list_box_top_index)
