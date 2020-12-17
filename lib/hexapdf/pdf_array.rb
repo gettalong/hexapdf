@@ -181,9 +181,9 @@ module HexaPDF
       self
     end
 
-    # Returns a duplicate of the underlying array.
+    # Returns an array containing the preprocessed values (like in #[]).
     def to_ary
-      value.dup
+      each.to_a
     end
 
     private

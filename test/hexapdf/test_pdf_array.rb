@@ -164,6 +164,6 @@ describe HexaPDF::PDFArray do
   end
 
   it "can be converted to a simple array" do
-    assert_equal(@array.value, @array.to_ary)
+    assert_equal([1, :data, "deref", @array[3]], @array.to_ary)
   end
 end
