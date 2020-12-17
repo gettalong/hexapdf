@@ -304,6 +304,7 @@ module HexaPDF
       def contents
         Array(self[:Contents]).each_with_object("".b) do |content_stream, content|
           content << " " unless content.empty?
+          content_stream = document.object(content_stream) if content_stream.is_a?(HexaPDF::Reference)
           content << content_stream.stream
         end
       end
