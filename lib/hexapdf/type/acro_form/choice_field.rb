@@ -220,9 +220,12 @@ module HexaPDF
         #
         # Note that no new appearances are created if the dictionary fields involved in the creation
         # of the appearance stream have not been changed between invocations.
-        def create_appearances
+        #
+        # By setting +force+ to +true+ the creation of the appearances can be forced.
+        def create_appearances(force: false)
           current_appearance_state = [self[:V], self[:I], self[:Opt], self[:TI]]
-          return if cached?(:appearance_state) && cache(:appearance_state) == current_appearance_state
+          return if !force && cached?(:appearance_state) &&
+            cache(:appearance_state) == current_appearance_state
 
           cache(:appearance_state, current_appearance_state, update: true)
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')

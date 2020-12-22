@@ -233,6 +233,14 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       refute_same(off, widget.appearance.normal_appearance[:Off])
     end
 
+    it "always generates appearances if force is true" do
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      @field.create_appearances
+      yes = widget.appearance.normal_appearance[:Yes]
+      @field.create_appearances(force: true)
+      refute_same(yes, widget.appearance.normal_appearance[:Yes])
+    end
+
     it "fails for unsupported button types" do
       @field.flag(:push_button)
       @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])

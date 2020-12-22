@@ -228,10 +228,12 @@ module HexaPDF
         #
         # The created appearance streams depend on the actual type of the button field. See
         # AppearanceGenerator for the details.
-        def create_appearances
+        #
+        # By setting +force+ to +true+ the creation of the appearances can be forced.
+        def create_appearances(force: false)
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
-            next if widget.appearance?
+            next if !force && widget.appearance?
             if check_box?
               appearance_generator_class.new(widget).create_check_box_appearances
             elsif radio_button?

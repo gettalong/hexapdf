@@ -17,6 +17,8 @@
 * Cross-reference table parsing to handle invalidly numbered main sections
 * [HexaPDF::Document#cache] and [HexaPDF::Object#cache] to allow updating
   values for existing keys
+* Appearance creation methods of AcroForm objects to allow forcing the creation
+  of new appearances
 
 ### Fixed
 

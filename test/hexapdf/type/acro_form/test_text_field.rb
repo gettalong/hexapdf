@@ -151,6 +151,13 @@ describe HexaPDF::Type::AcroForm::TextField do
       refute_same(stream, @field[:AP][:N])
     end
 
+    it "always creates a new appearance stream if force is true" do
+      @field.create_appearances
+      stream = @field[:AP][:N]
+      @field.create_appearances(force: true)
+      refute_same(stream, @field[:AP][:N])
+    end
+
     it "uses the configuration option acro_form.appearance_generator" do
       @doc.config['acro_form.appearance_generator'] = 'NonExistent'
       assert_raises(Exception) { @field.create_appearances }

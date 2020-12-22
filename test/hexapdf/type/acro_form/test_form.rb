@@ -210,15 +210,29 @@ describe HexaPDF::Type::AcroForm::Form do
     assert(@acro_form[:NeedAppearances])
   end
 
-  it "creates the appearances of all field widgets if necessary" do
-    tf = @acro_form.create_text_field('test')
-    tf.set_default_appearance_string
-    tf.create_widget(@doc.pages.add)
-    cb = @acro_form.create_check_box('test2')
-    cb.create_widget(@doc.pages.add)
-    @acro_form.create_appearances
-    assert(tf.each_widget.all? {|w| w.appearance.normal_appearance.kind_of?(HexaPDF::Stream) })
-    assert(cb.each_widget.all? {|w| w.appearance.normal_appearance[:Yes].kind_of?(HexaPDF::Stream) })
+  describe "create_appearances" do
+    before do
+      @tf = @acro_form.create_text_field('test')
+      @tf.set_default_appearance_string
+      @tf.create_widget(@doc.pages.add)
+      @cb = @acro_form.create_check_box('test2')
+      @cb.create_widget(@doc.pages.add)
+    end
+
+    it "creates the appearances of all field widgets if necessary" do
+      @acro_form.create_appearances
+      assert(@tf.each_widget.all? {|w| w.appearance.normal_appearance.kind_of?(HexaPDF::Stream) })
+      assert(@cb.each_widget.all? {|w| w.appearance.normal_appearance[:Yes].kind_of?(HexaPDF::Stream) })
+    end
+
+    it "force the creation of appearances if force is true" do
+      @acro_form.create_appearances
+      text_stream = @tf[:AP][:N]
+      @acro_form.create_appearances
+      assert_same(text_stream, @tf[:AP][:N])
+      @acro_form.create_appearances(force: true)
+      refute_same(text_stream, @tf[:AP][:N])
+    end
   end
 
   describe "perform_validation" do

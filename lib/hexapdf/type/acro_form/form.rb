@@ -251,9 +251,11 @@ module HexaPDF
         end
 
         # Creates the appearances for all widgets of all terminal fields if they don't exist.
-        def create_appearances
+        #
+        # If +force+ is +true+, new appearances are created even if there are existing ones.
+        def create_appearances(force: false)
           each_field do |field|
-            field.create_appearances if field.respond_to?(:create_appearances)
+            field.create_appearances(force: force) if field.respond_to?(:create_appearances)
           end
         end
 

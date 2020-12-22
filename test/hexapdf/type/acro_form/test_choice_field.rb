@@ -185,6 +185,17 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
       @field.field_value = 'b'
       do_check.call
     end
+
+    it "force the creation of appearance streams when force: true" do
+      @field.initialize_as_list_box
+      @field.set_default_appearance_string
+      @field.create_appearances
+      appearance_stream = @field[:AP][:N]
+      assert(appearance_stream)
+
+      @field.create_appearances(force: true)
+      refute_same(appearance_stream, @field[:AP][:N])
+    end
   end
 
   describe "validation" do

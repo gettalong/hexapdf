@@ -209,9 +209,11 @@ module HexaPDF
         #
         # Note that no new appearances are created if the field value hasn't changed between
         # invocations.
-        def create_appearances
+        #
+        # By setting +force+ to +true+ the creation of the appearances can be forced.
+        def create_appearances(force: false)
           current_value = field_value
-          return if cached?(:last_value) && cache(:last_value) == current_value
+          return if !force && cached?(:last_value) && cache(:last_value) == current_value
 
           cache(:last_value, current_value, update: true)
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
