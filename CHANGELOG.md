@@ -19,6 +19,8 @@
   values for existing keys
 * Appearance creation methods of AcroForm objects to allow forcing the creation
   of new appearances
+* [HexaPDF::Type::AcroForm::AppearanceGenerator#create_text_appearances] to
+  re-use existing form objects
 
 ### Fixed
 

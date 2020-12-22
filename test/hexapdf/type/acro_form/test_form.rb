@@ -227,11 +227,11 @@ describe HexaPDF::Type::AcroForm::Form do
 
     it "force the creation of appearances if force is true" do
       @acro_form.create_appearances
-      text_stream = @tf[:AP][:N]
+      text_stream = @tf[:AP][:N].raw_stream
       @acro_form.create_appearances
-      assert_same(text_stream, @tf[:AP][:N])
+      assert_same(text_stream, @tf[:AP][:N].raw_stream)
       @acro_form.create_appearances(force: true)
-      refute_same(text_stream, @tf[:AP][:N])
+      refute_same(text_stream, @tf[:AP][:N].raw_stream)
     end
   end
 

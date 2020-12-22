@@ -144,18 +144,18 @@ describe HexaPDF::Type::AcroForm::TextField do
 
     it "doesn't create a new appearance stream if the field value hasn't changed" do
       @field.create_appearances
-      stream = @field[:AP][:N]
+      stream = @field[:AP][:N].raw_stream
       @field.create_appearances
-      assert_same(stream, @field[:AP][:N])
+      assert_same(stream, @field[:AP][:N].raw_stream)
       @field.field_value = 'test'
-      refute_same(stream, @field[:AP][:N])
+      refute_same(stream, @field[:AP][:N].raw_stream)
     end
 
     it "always creates a new appearance stream if force is true" do
       @field.create_appearances
-      stream = @field[:AP][:N]
+      stream = @field[:AP][:N].raw_stream
       @field.create_appearances(force: true)
-      refute_same(stream, @field[:AP][:N])
+      refute_same(stream, @field[:AP][:N].raw_stream)
     end
 
     it "uses the configuration option acro_form.appearance_generator" do

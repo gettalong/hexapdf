@@ -402,6 +402,19 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       assert_equal(@doc.acro_form.default_resources[:Font][:F1], form[:Resources][:Font][:F1])
     end
 
+    it "re-uses the existing form XObject" do
+      @field[:V] = 'test'
+      @generator.create_appearances
+      form = @widget[:AP][:N]
+      form[:key] = :value
+
+      @field[:V] = 'test1'
+      @generator.create_appearances
+      assert_same(form, @widget[:AP][:N])
+      refute(form.key?(:key))
+      assert_match(/test1/, form.contents)
+    end
+
     describe "font size calculation" do
       before do
         @widget[:Rect].height = 20

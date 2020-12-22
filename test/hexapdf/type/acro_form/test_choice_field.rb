@@ -164,16 +164,15 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
       @field.initialize_as_list_box
       @field.set_default_appearance_string
       @field.create_appearances
-      appearance_stream = @field[:AP][:N]
-      assert(appearance_stream)
+      appearance_stream = @field[:AP][:N].raw_stream
 
       @field.create_appearances
-      assert_same(appearance_stream, @field[:AP][:N])
+      assert_same(appearance_stream, @field[:AP][:N].raw_stream)
 
       do_check = lambda do
         @field.create_appearances
-        refute_same(appearance_stream, @field[:AP][:N])
-        appearance_stream = @field[:AP][:N]
+        refute_same(appearance_stream, @field[:AP][:N].raw_stream)
+        appearance_stream = @field[:AP][:N].raw_stream
       end
 
       @field.option_items = ['a', 'b', 'c']
@@ -190,11 +189,10 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
       @field.initialize_as_list_box
       @field.set_default_appearance_string
       @field.create_appearances
-      appearance_stream = @field[:AP][:N]
-      assert(appearance_stream)
+      appearance_stream = @field[:AP][:N].raw_stream
 
       @field.create_appearances(force: true)
-      refute_same(appearance_stream, @field[:AP][:N])
+      refute_same(appearance_stream, @field[:AP][:N].raw_stream)
     end
   end
 

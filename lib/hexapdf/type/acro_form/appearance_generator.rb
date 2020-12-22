@@ -244,8 +244,9 @@ module HexaPDF
             rect.height = style.scaled_y_max - style.scaled_y_min + 2 * padding
           end
 
-          form = (@widget[:AP] ||= {})[:N] = @document.add({Type: :XObject, Subtype: :Form,
-                                                            BBox: [0, 0, rect.width, rect.height]})
+          form = (@widget[:AP] ||= {})[:N] ||= @document.add({Type: :XObject, Subtype: :Form})
+          form.value.replace({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
+          form.contents = ''
           form[:Resources] = HexaPDF::Object.deep_copy(default_resources)
 
           canvas = form.canvas
