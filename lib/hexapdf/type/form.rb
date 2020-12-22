@@ -94,9 +94,12 @@ module HexaPDF
 
       # Replaces the contents of the form XObject with the given string.
       #
+      # This also clears the cache to avoid returning invalid objects.
+      #
       # Note: This is the same as #stream= but here for interface compatibility with Page.
       def contents=(data)
         self.stream = data
+        clear_cache
       end
 
       # Returns the resource dictionary which is automatically created if it doesn't exist.

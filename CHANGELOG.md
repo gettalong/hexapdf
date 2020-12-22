@@ -36,6 +36,8 @@
 * [HexaPDF::Type::AcroForm::ChoiceField#list_box_top_index=] to raise an error
   if no option items are set
 * [HexaPDF::PDFArray#to_ary] to return an array with preprocessed values
+* [HexaPDF::Type::Form#contents=] to clear cached values to avoid returning e.g.
+  an invalid canvas object later
 
 
 ## 0.13.0 - 2020-11-15

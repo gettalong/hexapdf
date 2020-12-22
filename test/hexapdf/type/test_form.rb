@@ -43,6 +43,13 @@ describe HexaPDF::Type::Form do
       @form.contents = 'test'
       assert_equal('test', @form.stream)
     end
+
+    it "clears the cache to make sure that a new canvas can be created" do
+      @form[:BBox] = [0, 0, 100, 100]
+      canvas = @form.canvas
+      @form.contents = ''
+      refute_same(canvas, @form.canvas)
+    end
   end
 
   describe "resources" do
