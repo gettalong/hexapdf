@@ -21,6 +21,8 @@
   of new appearances
 * [HexaPDF::Type::AcroForm::AppearanceGenerator#create_text_appearances] to
   re-use existing form objects
+* AcroForm field creation methods to allow specifying often used field
+  properties
 
 ### Fixed
 
