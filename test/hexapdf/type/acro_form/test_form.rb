@@ -115,6 +115,10 @@ describe HexaPDF::Type::AcroForm::Form do
   end
 
   describe "create fields" do
+    before do
+      @acro_form = @doc.acro_form(create: true)
+    end
+
     describe "handles the general case" do
       it "works for names with a dot" do
         @acro_form[:Fields] = [{T: "root"}]
@@ -134,15 +138,35 @@ describe HexaPDF::Type::AcroForm::Form do
       end
     end
 
+    def applies_variable_text_properties(method, **args)
+      field = @acro_form.send(method, "field", **args, font: 'Times')
+      font_name, font_size = field.parse_default_appearance_string
+      assert_equal(:'Times-Roman', @acro_form.default_resources.font(font_name)[:BaseFont])
+      assert_equal(0, font_size)
+
+      field = @acro_form.send(method, "field", **args, font_size: 10)
+      font_name, font_size = field.parse_default_appearance_string
+      assert_equal(:Helvetica, @acro_form.default_resources.font(font_name)[:BaseFont])
+      assert_equal(10, font_size)
+
+      field = @acro_form.send(method, "field", **args, font: 'Courier', font_size: 10, align: :center)
+      font_name, font_size = field.parse_default_appearance_string
+      assert_equal(:Courier, @acro_form.default_resources.font(font_name)[:BaseFont])
+      assert_equal(10, font_size)
+      assert_equal(:center, field.text_alignment)
+    end
+
     it "creates a text field" do
       field = @acro_form.create_text_field("field")
       assert_equal(:Tx, field.field_type)
+      applies_variable_text_properties(:create_text_field)
     end
 
     it "creates a multiline text field" do
       field = @acro_form.create_multiline_text_field("field")
       assert_equal(:Tx, field.field_type)
       assert(field.multiline_text_field?)
+      applies_variable_text_properties(:create_multiline_text_field)
     end
 
     it "creates a comb text field" do
@@ -150,18 +174,21 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal(:Tx, field.field_type)
       assert_equal(9, field[:MaxLen])
       assert(field.comb_text_field?)
+      applies_variable_text_properties(:create_comb_text_field, max_chars: 9)
     end
 
     it "creates a password field" do
       field = @acro_form.create_password_field("field")
       assert_equal(:Tx, field.field_type)
       assert(field.password_field?)
+      applies_variable_text_properties(:create_password_field)
     end
 
     it "creates a file select field" do
       field = @acro_form.create_file_select_field("field")
       assert_equal(:Tx, field.field_type)
       assert(field.file_select_field?)
+      applies_variable_text_properties(:create_file_select_field)
     end
 
     it "creates a check box" do
@@ -175,13 +202,19 @@ describe HexaPDF::Type::AcroForm::Form do
     end
 
     it "creates a combo box" do
-      field = @acro_form.create_combo_box("field")
+      field = @acro_form.create_combo_box("field", option_items: ['a', 'b', 'c'], editable: true)
       assert(field.combo_box?)
+      assert_equal(['a', 'b', 'c'], field.option_items)
+      assert(field.flagged?(:edit))
+      applies_variable_text_properties(:create_combo_box)
     end
 
     it "creates a list box" do
-      field = @acro_form.create_list_box("field")
+      field = @acro_form.create_list_box("field", option_items: ['a', 'b', 'c'], multi_select: true)
       assert(field.list_box?)
+      assert_equal(['a', 'b', 'c'], field.option_items)
+      assert(field.flagged?(:multi_select))
+      applies_variable_text_properties(:create_list_box)
     end
   end
 

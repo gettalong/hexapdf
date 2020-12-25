@@ -45,55 +45,44 @@ rb.field_value = :button0
 canvas.text("Text fields", at: [50, 450])
 
 canvas.text("Single line", at: [70, 420])
-tx = form.create_text_field("Single Line")
+tx = form.create_text_field("Single Line", font_size: 16)
 widget = tx.create_widget(page, Rect: [200, 415, 500, 435])
-tx.set_default_appearance_string(font_size: 16)
 tx.field_value = "A sample test string!"
 
 canvas.text("Multiline", at: [70, 390])
-tx = form.create_multiline_text_field("Multiline")
+tx = form.create_multiline_text_field("Multiline", font_size: 0, align: :right)
 widget = tx.create_widget(page, Rect: [200, 325, 500, 405])
 widget.border_style(color: 0, width: 1)
-tx.text_alignment(:right)
-tx.set_default_appearance_string(font_size: 0)
 tx.field_value = "A sample test string! " * 30 + "\nNew line\n\nAnother line"
 
 canvas.text("Password", at: [70, 300])
-tx = form.create_password_field("Password")
+tx = form.create_password_field("Password", font_size: 16)
 widget = tx.create_widget(page, Rect: [200, 295, 500, 315])
-tx.set_default_appearance_string(font_size: 16)
 
 canvas.text("File select", at: [70, 270])
-tx = form.create_file_select_field("File Select")
+tx = form.create_file_select_field("File Select", font_size: 16)
 widget = tx.create_widget(page, Rect: [200, 265, 500, 285])
-tx.set_default_appearance_string(font_size: 16)
 tx.field_value = "path/to/file.pdf"
 
 canvas.text("Comb", at: [70, 240])
-tx = form.create_comb_text_field("Comb field", max_chars: 10)
+tx = form.create_comb_text_field("Comb field", max_chars: 10, font_size: 16, align: :center)
 widget = tx.create_widget(page, Rect: [200, 220, 500, 255])
 widget.border_style(color: [30, 128, 0], width: 1)
-tx.set_default_appearance_string(font_size: 16)
-tx.text_alignment(:center)
 tx.field_value = 'Hello'
 
 canvas.text("Combo Box", at: [50, 170])
-cb = form.create_combo_box("Combo Box")
+cb = form.create_combo_box("Combo Box", font_size: 12, editable: true,
+                           option_items: ['Value 1', 'Another value', 'Choose me!'])
 widget = cb.create_widget(page, Rect: [200, 150, 500, 185])
 widget.border_style(width: 1)
-cb.set_default_appearance_string(font_size: 12)
-cb.option_items = ['Value 1', 'Another value', 'Choose me!']
 cb.field_value = 'Another value'
 
 canvas.text("List Box", at: [50, 120])
-lb = form.create_list_box("List Box")
+lb = form.create_list_box("List Box", font_size: 15, align: :center, multi_select: true,
+                         option_items: 1.upto(7).map {|i| "Value #{i}" })
 widget = lb.create_widget(page, Rect: [200, 50, 500, 135])
 widget.border_style(width: 1)
-lb.set_default_appearance_string(font_size: 15)
-lb.option_items = 1.upto(7).map {|i| "Value #{i}" }
 lb.list_box_top_index = 1
-lb.flag(:multi_select)
-lb.text_alignment(:center)
 lb.field_value = ['Value 6', 'Value 2']
 
 doc.write('acro_form.pdf', optimize: true)
