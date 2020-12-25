@@ -39,6 +39,14 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
       @field.option_items = ["test", "something", "other", "neu"]
     end
 
+    it "updates the widgets to reflect the changed value" do
+      @field.initialize_as_combo_box
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      @field.set_default_appearance_string
+      @field.field_value = 'test'
+      assert(widget[:AP][:N])
+    end
+
     describe "combo_box" do
       before do
         @field.initialize_as_combo_box

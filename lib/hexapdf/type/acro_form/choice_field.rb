@@ -139,6 +139,7 @@ module HexaPDF
                      else
                        @document.config['acro_form.on_invalid_value'].call(self, value)
                      end
+          update_widgets
         end
 
         # Returns the default field value.
@@ -236,6 +237,11 @@ module HexaPDF
               appearance_generator_class.new(widget).create_list_box_appearances
             end
           end
+        end
+
+        # Updates the widgets so that they reflect the current field value.
+        def update_widgets
+          create_appearances
         end
 
         private
