@@ -247,6 +247,7 @@ module HexaPDF
         # Updates the widgets so that they reflect the current field value.
         def update_widgets
           return if push_button?
+          create_appearances
           value = self[:V]
           each_widget do |widget|
             widget[:AS] = (widget.appearance&.normal_appearance&.value&.key?(value) ? value : :Off)

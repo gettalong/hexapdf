@@ -42,6 +42,8 @@
 * [HexaPDF::PDFArray#to_ary] to return an array with preprocessed values
 * [HexaPDF::Type::Form#contents=] to clear cached values to avoid returning e.g.
   an invalid canvas object later
+* [HexaPDF::Type::AcroForm::ButtonField#update_widgets] to create appearances if
+  they don't exist
 
 
 ## 0.13.0 - 2020-11-15

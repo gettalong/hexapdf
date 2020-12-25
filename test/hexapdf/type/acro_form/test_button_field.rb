@@ -271,6 +271,13 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       @field.update_widgets
       assert_equal(:Yes, widget[:AS])
     end
+
+    it "creates the appearances if necessary" do
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      assert_nil(widget[:AP][:N][:Yes])
+      @field.update_widgets
+      assert(widget[:AP][:N][:Yes])
+    end
   end
 
   describe "validation" do
