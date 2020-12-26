@@ -142,13 +142,18 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert(@field[:AP][:N])
     end
 
-    it "doesn't create a new appearance stream if the field value hasn't changed" do
+    it "doesn't create a new appearance stream if the field value hasn't changed, checked per widget" do
       @field.create_appearances
       stream = @field[:AP][:N].raw_stream
       @field.create_appearances
       assert_same(stream, @field[:AP][:N].raw_stream)
       @field.field_value = 'test'
       refute_same(stream, @field[:AP][:N].raw_stream)
+
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      assert_nil(widget[:AP])
+      @field.create_appearances
+      refute_nil(widget[:AP][:N])
     end
 
     it "always creates a new appearance stream if force is true" do

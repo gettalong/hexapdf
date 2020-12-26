@@ -225,12 +225,13 @@ module HexaPDF
         # By setting +force+ to +true+ the creation of the appearances can be forced.
         def create_appearances(force: false)
           current_appearance_state = [self[:V], self[:I], self[:Opt], self[:TI]]
-          return if !force && cached?(:appearance_state) &&
-            cache(:appearance_state) == current_appearance_state
 
-          cache(:appearance_state, current_appearance_state, update: true)
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
+            next if !force && widget.cached?(:appearance_state) &&
+              widget.cache(:appearance_state) == current_appearance_state
+
+            widget.cache(:appearance_state, current_appearance_state, update: true)
             if combo_box?
               appearance_generator_class.new(widget).create_combo_box_appearances
             else

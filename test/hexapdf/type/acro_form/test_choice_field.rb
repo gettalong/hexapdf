@@ -168,7 +168,7 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
       assert(@field[:AP][:N])
     end
 
-    it "only creates a new appearance if the involved dictionary values have changed" do
+    it "only creates a new appearance if the involved dictionary values have changed per widget" do
       @field.initialize_as_list_box
       @field.set_default_appearance_string
       @field.create_appearances
@@ -191,6 +191,11 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
 
       @field.field_value = 'b'
       do_check.call
+
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      assert_nil(widget[:AP])
+      @field.create_appearances
+      refute_nil(widget[:AP][:N])
     end
 
     it "force the creation of appearance streams when force: true" do

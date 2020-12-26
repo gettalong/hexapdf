@@ -213,11 +213,10 @@ module HexaPDF
         # By setting +force+ to +true+ the creation of the appearances can be forced.
         def create_appearances(force: false)
           current_value = field_value
-          return if !force && cached?(:last_value) && cache(:last_value) == current_value
-
-          cache(:last_value, current_value, update: true)
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
+            next if !force && widget.cached?(:last_value) && widget.cache(:last_value) == current_value
+            widget.cache(:last_value, current_value, update: true)
             appearance_generator_class.new(widget).create_text_appearances
           end
         end
