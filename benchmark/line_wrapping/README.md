@@ -42,9 +42,9 @@ The list of the benchmarked libraries:
 
 **Prawn**
 
-: Homepage: <http://hexapdf.gettalong.org>\\
+: Homepage: <https://prawnpdf.org>\\
   Language: Ruby\\
-  Version: 2.2.2
+  Version: 2.3.0
 
   Prawn is much faster and uses much less memory if the input is provided line by line. However, it
   still works if the whole input is provided at once.
@@ -53,7 +53,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://www.reportlab.com/opensource/>\\
   Language: Python\\
-  Version: 3.5.6
+  Version: 3.5.23
 
   ReportLab also needs its input line by line. Otherwise it is much, much slower (at least 60x, then
   the test run was aborted).
@@ -62,7 +62,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://tcpdf.org/>\\
   Language: PHP\\
-  Version: 6.2.13
+  Version: 6.3.5
 
   As with Prawn and ReportLab, TCPDF needs its input line by line. Otherwise it is much, much slower
   when line wrapping needs to be done (the test run was aborted because it took too long).

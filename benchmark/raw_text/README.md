@@ -32,15 +32,15 @@ The list of the benchmarked libraries:
 
 **Prawn**
 
-: Homepage: <http://prawnpdf.org>\\
+: Homepage: <https://prawnpdf.org>\\
   Language: Ruby\\
-  Version: 2.2.2
+  Version: 2.3.0
 
 **ReportLab**
 
 : Homepage: <https://www.reportlab.com/opensource/>\\
   Language: Python\\
-  Version: 3.5.6
+  Version: 3.5.23
 
   ReportLab has a module that implements some features in C to speed up the execution. Both versions
   are used in the benchmark.
@@ -61,16 +61,16 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://tcpdf.org/>\\
   Language: PHP\\
-  Version: 6.2.13
+  Version: 6.3.5
 
 **PDF::API2**
 
 : Homepage: <http://search.cpan.org/perldoc/PDF::API2>\\
   Language: Perl\\
-  Version: 2.033
+  Version: 2.037
 
 **PDFKit**
 
 : Homepage: <https://pdfkit.org/>\\
   Language: Javascript\\
-  Version: 0.8.3
+  Version: 0.11.0
