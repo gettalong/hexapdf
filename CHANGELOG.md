@@ -12,6 +12,7 @@
 * [HexaPDF::Type::AcroForm::ChoiceField#update_widgets] to create appearances if
   they don't exist
 * Methods for caching data to [HexaPDF::Object]
+* Support for splitting by page size to CLI command `hexapdf split`
 
 ### Changed
 

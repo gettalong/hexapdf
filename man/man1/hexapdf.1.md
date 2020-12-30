@@ -16,7 +16,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 {:.compact}
 * Modifying an existing PDF file (see the `modify` command)
 * Merging multiple PDF files into one (see the `merge` command)
-* Splitting a PDF file into individual pages (see the `split` command)
+* Splitting a PDF file into subsets (see the `split` command)
 * Optimizing the file size of a PDF file (see the `optimize` command)
 * Watermarking/Stamping a PDF onto another one (see the `watermark` command)
 * Filling out an interactive PDF form (see the `form` command)
@@ -665,19 +665,40 @@ provide good compression out of the box.
 
 Synopsis: `split` \[`OPTIONS`] *INPUT* \[*OUTPUT_SPEC*]
 
-This command splits the input file into multiple output files, each containing one page.
+This command splits the input file into multiple output files, using different strategies:
 
-If no *OUTPUT_SPEC* is given, files of the form *INPUT_0001.pdf*, *INPUT_0002.pdf*, ... and so on
-are created (only the name *INPUT* without the file extension is used). Otherwise *OUTPUT_SPEC*
-determines the file names of the created files, with a printf-style format string like '%04d' being
-replaced by the page number. For example, if the files should be named *page_01.pdf*, *page_02.pdf*
-and so on, use *page_%02d.pdf* for the *OUTPUT_SPEC*.
+* The default strategy is to split the input file into output files with each containing one page.
+  So splitting is done by page number.
+
+* The other available strategy is to split by page size where pages with the same page size get put
+  into the same output file.
+
+The *OUTPUT_SPEC* argument defines the naming scheme for the output files. If it is not provided,
+the default value of *INPUT_WITHOUT_EXT_%04d.pdf* is used where *INPUT_WITHOUT_EXT* is the *INPUT*
+without the file extension. A printf-style format string like the default '%04d' can (should) be
+included so that different output files are created.
+
+How the printf-style format string is interpreted depends on the strategy:
+
+* When splitting into individual pages (i.e. per page number), the format string is replaced by the
+  formatted page number. So with the default *OUTPUT_SPEC* files of the form *INPUT_0001.pdf*,
+  *INPUT_0002.pdf*, ... and so on are created.
+
+* When splitting by page size, the format string itself is ignored and is replaced with the name of
+  the page size, e.g. A4 or Letter. If the name of the page size can't be determined, the name
+  *WIDTHxHEIGHT* is used.
+
+`-s` *STRATEGY*, `--strategy` *STRATEGY*
+
+: Defines how the PDF file should be split: **page_number** (the default) splits into individual
+  pages and **page_size** splits by page size.
 
 `-p` *PASSWORD*, `--password` *PASSWORD*
 
 : The password to decrypt the *INPUT*. Use **-** for *PASSWORD* for reading it from standard input.
 
-Additionally, the **Optimization Options** and **Encryption Options** can be used.
+Additionally, the **Optimization Options** and **Encryption Options** can be used. Those options are
+applied to each output file.
 
 
 ### watermark
@@ -830,6 +851,11 @@ Optimization: Compress the `input.pdf` to get a smaller file size.
 
 Split the `input.pdf` into individual pages, naming the output files `out_01.pdf`, `out_02.pdf`, and
 so on.
+
+`hexapdf split input.pdf --strategy page_size`
+
+Split the `input.pdf` into files based on their page size, with output file names like
+`input_A4.pdf` or `input_Letter.pdf`.
 
 
 ### watermark
