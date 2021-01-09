@@ -301,7 +301,7 @@ module HexaPDF
 
         # Check the value of the field against the allowed values.
         if field.allowed_values && !field.allowed_values.include?(obj)
-          yield("Field #{name} does not contain an allowed value")
+          yield("Field #{name} does not contain an allowed value: #{obj.inspect}")
         end
 
         # Check if field value needs to be (in)direct

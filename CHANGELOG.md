@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* Validation message when checking for allowed values to include the invalid
+  object
+
+
 ## 0.14.0 - 2020-12-30
 
 ### Added
