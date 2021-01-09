@@ -5,6 +5,11 @@
 * Validation message when checking for allowed values to include the invalid
   object
 
+### Fixed
+
+* Parsing of invalid PDF files where whitespace is missing after the integer
+  value of an indirect object
+
 
 ## 0.14.0 - 2020-12-30
 

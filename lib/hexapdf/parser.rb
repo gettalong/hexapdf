@@ -113,7 +113,15 @@ module HexaPDF
         maybe_raise("No indirect object value between 'obj' and 'endobj'", pos: @tokenizer.pos)
         object = nil
       else
-        object = @tokenizer.next_object
+        begin
+          object = @tokenizer.next_object
+        rescue MalformedPDFError
+          # Handle often found invalid indirect object with missing whitespace after number
+          maybe_raise("Invalid object value after 'obj'", pos: @tokenizer.pos,
+                      force: !(tok.kind_of?(Tokenizer::Token) && tok =~ /\A\d+endobj\z/))
+          object = tok.to_i
+          @tokenizer.pos -= 6
+        end
       end
 
       tok = @tokenizer.next_token

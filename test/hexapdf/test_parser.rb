@@ -88,6 +88,12 @@ describe HexaPDF::Parser do
       assert_equal('12', TestHelper.collector(stream.fiber))
     end
 
+    it "handles invalid indirect object value consisting of number followed by endobj without space" do
+      create_parser("1 0 obj 749endobj")
+      object, * = @parser.parse_indirect_object
+      assert_equal(749, object)
+    end
+
     it "recovers from an invalid stream length value" do
       create_parser("1 0 obj<</Length 4>> stream\n12endstream endobj")
       obj, _, _, stream = @parser.parse_indirect_object
@@ -149,6 +155,12 @@ describe HexaPDF::Parser do
         create_parser("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
         exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
         assert_match(/not CR alone/, exp.message)
+      end
+
+      it "fails for numbers followed by endobj without space" do
+        create_parser("1 0 obj 749endobj")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+        assert_match(/Invalid object value after 'obj'/, exp.message)
       end
 
       it "fails if the stream length value is invalid" do
