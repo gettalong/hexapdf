@@ -9,6 +9,8 @@
 
 * Parsing of invalid PDF files where whitespace is missing after the integer
   value of an indirect object
+* [HexaPDF::Dictionary] so that adding new key-value pairs during validation is
+  possible
 
 
 ## 0.14.0 - 2020-12-30

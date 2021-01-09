@@ -155,6 +155,9 @@ module HexaPDF
     #   available (see ::define_field).
     #
     # * Returns the default value if one is specified and no value is available.
+    #
+    # Note: This method may throw a "can't add a new key into hash during iteration" error in
+    # certain cases because it potentially modifies the underlying hash!
     def [](name)
       field = self.class.field(name)
       data = if key?(name)
@@ -255,7 +258,7 @@ module HexaPDF
 
     # Iterates over all currently set fields and those that are required.
     def each_set_key_or_required_field #:yields: name, field
-      value.each_key {|name| yield(name, self.class.field(name)) }
+      value.keys.each {|name| yield(name, self.class.field(name)) }
       self.class.each_field do |name, field|
         yield(name, field) if field.required? && !value.key?(name)
       end

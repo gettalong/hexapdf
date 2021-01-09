@@ -283,6 +283,11 @@ describe HexaPDF::Dictionary do
       @obj[:TestClass][:Nested][:Nested][:TestClass][:Inherited] = :symbol
       assert(@obj.validate)
     end
+
+    it "makes sure validation works in special case where the dictionary is modified" do
+      @dict[:Array] = 5
+      refute(@dict.validate {|_, _, object| object[:Boolean] })
+    end
   end
 
   describe "delete" do
