@@ -27,6 +27,11 @@ describe HexaPDF::Font::TrueType::Subsetter do
     assert_equal(value, @subsetter.subset_glyph_id(5))
   end
 
+  it "doesn't use certain subset glyph IDs for performance reasons" do
+    1.upto(13) {|i| @subsetter.use_glyph(i) }
+    assert_equal(14, @subsetter.subset_glyph_id(13))
+  end
+
   it "creates the subset font file" do
     gid = @font[:cmap].preferred_table[0x41]
     @subsetter.use_glyph(gid)

@@ -63,6 +63,12 @@ module HexaPDF
         def use_glyph(glyph_id)
           return @glyph_map[glyph_id] if @glyph_map.key?(glyph_id)
           @last_id += 1
+          # Handle codes for ASCII characters \r, (, ) and \ specially so that they never appear in
+          # the output (PDF serialization would need to escape them)
+          if @last_id == 13 || @last_id == 40 || @last_id == 41 || @last_id == 92
+            @glyph_map[:"s#{@last_id}"] = @last_id
+            @last_id += 1
+          end
           @glyph_map[glyph_id] = @last_id
         end
 
@@ -107,7 +113,7 @@ module HexaPDF
           locations = []
 
           @glyph_map.each_key do |old_gid|
-            glyph = orig_glyf[old_gid]
+            glyph = orig_glyf[old_gid.kind_of?(Symbol) ? 0 : old_gid]
             locations << table.size
             data = glyph.raw_data
             if glyph.compound?
@@ -134,7 +140,7 @@ module HexaPDF
           hmtx = @font[:hmtx]
           data = ''.b
           @glyph_map.each_key do |old_gid|
-            metric = hmtx[old_gid]
+            metric = hmtx[old_gid.kind_of?(Symbol) ? 0 : old_gid]
             data << [metric.advance_width, metric.left_side_bearing].pack('n2')
           end
           data
@@ -166,7 +172,10 @@ module HexaPDF
         # Adds the components of compound glyphs to the subset.
         def add_glyph_components
           glyf = @font[:glyf]
-          @glyph_map.keys.each {|gid| glyf[gid].components&.each {|cgid| use_glyph(cgid) } }
+          @glyph_map.keys.each do |gid|
+            next if gid.kind_of?(Symbol)
+            glyf[gid].components&.each {|cgid| use_glyph(cgid) }
+          end
         end
 
       end
