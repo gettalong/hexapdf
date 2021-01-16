@@ -66,7 +66,7 @@ module HexaPDF
     #   subclasses of HexaPDF::Object are returned as is (it makes no sense, for example, to return
     #   the hash that describes the Catalog instead of the Catalog object).
     def [](arg1, arg2 = nil)
-      data = value[arg1, *arg2]
+      data = arg2 ? value[arg1, arg2] : value[arg1]
       return if data.nil?
 
       if arg2 || arg1.kind_of?(Range)
