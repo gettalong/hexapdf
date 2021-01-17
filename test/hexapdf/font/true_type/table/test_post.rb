@@ -72,7 +72,7 @@ describe HexaPDF::Font::TrueType::Table::Post do
       assert_equal('.notdef', table[0])
 
       @font.config['font.true_type.unknown_format'] = :raise
-      assert_raises(HexaPDF::Error) { create_table(:Post) }
+      assert_raises(HexaPDF::Error) { create_table(:Post)[0] }
     end
   end
 end

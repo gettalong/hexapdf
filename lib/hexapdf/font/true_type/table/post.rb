@@ -99,18 +99,23 @@ module HexaPDF
               @max_mem_type42, @min_mem_type1, @max_mem_type1 = read_formatted(24, 's>2N5')
 
             sub_table_length = directory_entry.length - 32
-            @glyph_names = case @format
-                           when 1 then Format1.parse(io, sub_table_length)
-                           when 2 then Format2.parse(io, sub_table_length)
-                           when 3 then Format3.parse(io, sub_table_length)
-                           when 4 then Format4.parse(io, sub_table_length)
-                           else
-                             if font.config['font.true_type.unknown_format'] == :raise
-                               raise HexaPDF::Error, "Unsupported post table format: #{@format}"
+            cur_pos = io.pos
+            @glyph_names = lambda do |glyph_id|
+              io.pos = cur_pos
+              @glyph_names = case @format
+                             when 1 then Format1.parse(io, sub_table_length)
+                             when 2 then Format2.parse(io, sub_table_length)
+                             when 3 then Format3.parse(io, sub_table_length)
+                             when 4 then Format4.parse(io, sub_table_length)
                              else
-                               []
+                               if font.config['font.true_type.unknown_format'] == :raise
+                                 raise HexaPDF::Error, "Unsupported post table format: #{@format}"
+                               else
+                                 []
+                               end
                              end
-                           end
+              @glyph_names[glyph_id]
+            end
           end
 
           # 'post' table format 1
