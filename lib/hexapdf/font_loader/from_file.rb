@@ -39,26 +39,36 @@ require 'hexapdf/font/true_type_wrapper'
 module HexaPDF
   module FontLoader
 
-    # This module interprets the font name as file name and tries to load it.
+    # This module interprets the font name either as file name and tries to load it, or as font
+    # object to be wrapped directly.
     module FromFile
 
-      # Loads the given font by interpreting the font name as file name.
+      # :call-seq:
+      #   FromFile.call(document, file_name, subset: true, **)           -> wrapped_font
+      #   FromFile.call(document, font_object, subset: true, **)    -> wrapped_font
       #
-      # The file object representing the font file is *not* closed and if needed must be closed by
-      # the caller once the font is not needed anymore.
+      # Returns an appropriate font wrapper for the given file name or font object.
+      #
+      # If a file name is given, the file object representing the font file is *not* closed and if
+      # needed must be closed by the caller once the font is not needed anymore.
+      #
+      # The first form using a file name is easier to use in one-off cases. However, if multiple
+      # documents always refer to the same font, the second form is better to avoid re-parsing the
+      # font file.
       #
       # +document+::
       #     The PDF document to associate the font object with.
       #
-      # +name+::
-      #     The file name.
+      # +file_name+/+font_object+::
+      #     The file name or TrueType font object.
       #
       # +subset+::
       #     Specifies whether the font should be subset if possible.
       def self.call(document, name, subset: true, **)
-        return nil unless File.file?(name)
+        is_font = name.kind_of?(HexaPDF::Font::TrueType::Font)
+        return nil unless is_font || File.file?(name)
 
-        font = HexaPDF::Font::TrueType::Font.new(File.open(name, 'rb'))
+        font = is_font ? name : HexaPDF::Font::TrueType::Font.new(File.open(name, 'rb'))
         HexaPDF::Font::TrueTypeWrapper.new(document, font, subset: subset)
       end
 

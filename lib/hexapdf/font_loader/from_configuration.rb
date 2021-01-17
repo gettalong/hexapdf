@@ -63,8 +63,8 @@ module HexaPDF
         file = document.config['font.map'].dig(name, variant)
         return nil if file.nil?
 
-        unless File.file?(file)
-          raise HexaPDF::Error, "The configured font file #{file} does not exist"
+        unless file.kind_of?(HexaPDF::Font::TrueType::Font) || File.file?(file)
+          raise HexaPDF::Error, "The configured font file #{file} is not a valid value"
         end
         FromFile.call(document, file, subset: subset)
       end

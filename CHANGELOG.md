@@ -4,6 +4,7 @@
 
 * Validation message when checking for allowed values to include the invalid
   object
+* [HexaPDF::FontLoader::FromFile] to allow (re)using an existing font object
 
 ### Fixed
 

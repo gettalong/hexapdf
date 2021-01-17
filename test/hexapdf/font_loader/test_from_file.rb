@@ -16,6 +16,13 @@ describe HexaPDF::FontLoader::FromFile do
     assert_equal("Ubuntu-Title", wrapper.wrapped_font.font_name)
   end
 
+  it "loads the specified font object" do
+    font = HexaPDF::Font::TrueType::Font.new(File.open(@font_file, 'rb'))
+    wrapper = @klass.call(@doc, font)
+    assert_equal("Ubuntu-Title", wrapper.wrapped_font.font_name)
+    assert_same(font, wrapper.wrapped_font)
+  end
+
   it "passes the subset value to the wrapper" do
     wrapper = @klass.call(@doc, @font_file)
     assert(wrapper.subset?)
