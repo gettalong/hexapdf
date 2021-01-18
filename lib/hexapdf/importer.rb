@@ -90,7 +90,7 @@ module HexaPDF
     #
     # An error is raised if the object doesn't belong to the +source+ document.
     def import(object)
-      mapped_object = @mapper[object.data] if object.kind_of?(HexaPDF::Object)
+      mapped_object = @mapper[object.data]&.__getobj__ if object.kind_of?(HexaPDF::Object)
       if object.kind_of?(HexaPDF::Object) && object.document? && @source != object.document
         raise HexaPDF::Error, "Import error: Incorrect document object for importer"
       elsif mapped_object && mapped_object == @destination.object(mapped_object)
@@ -118,7 +118,8 @@ module HexaPDF
         if object.type == :Catalog || object.type == :Pages
           @mapper[object.data] = nil
         else
-          obj = @mapper[object.data] = object.dup
+          obj = object.dup
+          @mapper[object.data] = NullableWeakRef.new(obj)
           obj.document = @destination.__getobj__
           obj.instance_variable_set(:@data, obj.data.dup)
           obj.data.oid = 0
