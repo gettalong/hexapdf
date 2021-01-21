@@ -88,13 +88,39 @@ module HexaPDF
 
     # Creates a new Serializer object.
     def initialize
-      @dispatcher = Hash.new do |h, klass|
-        method = nil
-        klass.ancestors.each do |ancestor_klass|
-          method = "serialize_#{ancestor_klass.name.to_s.downcase.gsub(/::/, '_')}"
-          (h[klass] = method; break) if respond_to?(method, true)
-        end
-        method
+      @dispatcher = {
+        Hash => 'serialize_hash',
+        Array => 'serialize_array',
+        Symbol => 'serialize_symbol',
+        String => 'serialize_string',
+        Integer => 'serialize_integer',
+        Float => 'serialize_float',
+        Time => 'serialize_time',
+        TrueClass => 'serialize_trueclass',
+        FalseClass => 'serialize_falseclass',
+        NilClass => 'serialize_nilclass',
+        HexaPDF::Reference => 'serialize_hexapdf_reference',
+        HexaPDF::Object => 'serialize_hexapdf_object',
+        HexaPDF::Stream => 'serialize_hexapdf_stream',
+        HexaPDF::Dictionary => 'serialize_hexapdf_object',
+        HexaPDF::PDFArray => 'serialize_hexapdf_object',
+        HexaPDF::Rectangle => 'serialize_hexapdf_object',
+      }
+      @dispatcher.default_proc = lambda do |h, klass|
+        h[klass] = if klass <= HexaPDF::Stream
+                     "serialize_hexapdf_stream"
+                   elsif klass <= HexaPDF::Object
+                     "serialize_hexapdf_object"
+                   else
+                     method = nil
+                     klass.ancestors.each do |ancestor_klass|
+                       name = ancestor_klass.name.to_s.downcase
+                       name.gsub!(/::/, '_')
+                       method = "serialize_#{name}"
+                       break if respond_to?(method, true)
+                     end
+                     method
+                   end
       end
       @encrypter = false
       @io = nil
