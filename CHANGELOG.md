@@ -1,3 +1,11 @@
+## 0.14.2 - 2021-01-22
+
+### Fixed
+
+* [HexaPDF::Font::TrueType::Subsetter#use_glyph] to really avoid using subset
+  glyph ID 41 (`)`)
+
+
 ## 0.14.1 - 2021-01-21
 
 ### Changed

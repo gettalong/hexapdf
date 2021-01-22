@@ -28,8 +28,11 @@ describe HexaPDF::Font::TrueType::Subsetter do
   end
 
   it "doesn't use certain subset glyph IDs for performance reasons" do
-    1.upto(13) {|i| @subsetter.use_glyph(i) }
-    assert_equal(14, @subsetter.subset_glyph_id(13))
+    1.upto(93) {|i| @subsetter.use_glyph(i) }
+    1.upto(12) {|i| assert_equal(i, @subsetter.subset_glyph_id(i), "id=#{i}") }
+    13.upto(38) {|i| assert_equal(i + 1, @subsetter.subset_glyph_id(i), "id=#{i}") }
+    39.upto(88) {|i| assert_equal(i + 3, @subsetter.subset_glyph_id(i), "id=#{i}") }
+    89.upto(93) {|i| assert_equal(i + 4, @subsetter.subset_glyph_id(i), "id=#{i}") }
   end
 
   it "creates the subset font file" do

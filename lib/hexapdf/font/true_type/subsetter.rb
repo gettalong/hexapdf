@@ -63,11 +63,11 @@ module HexaPDF
         def use_glyph(glyph_id)
           return @glyph_map[glyph_id] if @glyph_map.key?(glyph_id)
           @last_id += 1
-          # Handle codes for ASCII characters \r, (, ) and \ specially so that they never appear in
-          # the output (PDF serialization would need to escape them)
-          if @last_id == 13 || @last_id == 40 || @last_id == 41 || @last_id == 92
+          # Handle codes for ASCII characters \r (13), (, ) (40, 41) and \ (92) specially so that
+          # they never appear in the output (PDF serialization would need to escape them)
+          if @last_id == 13 || @last_id == 40 || @last_id == 92
             @glyph_map[:"s#{@last_id}"] = @last_id
-            @last_id += 1
+            @last_id += (@last_id == 40 ? 2 : 1)
           end
           @glyph_map[glyph_id] = @last_id
         end
