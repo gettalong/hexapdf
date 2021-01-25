@@ -156,6 +156,9 @@ module HexaPDF
     #
     # * Returns the default value if one is specified and no value is available.
     #
+    # Note: If field information is available for the entry, a Hash or Array value will always be
+    # wrapped by Dictionary or PDFArray. Otherwise, the value will be returned as-is.
+    #
     # Note: This method may throw a "can't add a new key into hash during iteration" error in
     # certain cases because it potentially modifies the underlying hash!
     def [](name)

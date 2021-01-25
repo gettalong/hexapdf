@@ -65,6 +65,9 @@ module HexaPDF
     # * Returns the native Ruby object for values with class HexaPDF::Object. However, all
     #   subclasses of HexaPDF::Object are returned as is (it makes no sense, for example, to return
     #   the hash that describes the Catalog instead of the Catalog object).
+    #
+    # Note: Hash or Array values will always be returned as-is, i.e. not wrapped with Dictionary or
+    # PDFArray.
     def [](arg1, arg2 = nil)
       data = arg2 ? value[arg1, arg2] : value[arg1]
       return if data.nil?
