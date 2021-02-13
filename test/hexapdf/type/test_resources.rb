@@ -194,6 +194,12 @@ describe HexaPDF::Type::Resources do
       assert_equal([:PDF, :Text, :ImageB, :ImageC, :ImageI], @res[:ProcSet].value)
     end
 
+    it "handles an invalid ProcSet containing a single value instead of an array" do
+      @res[:ProcSet] = :PDF
+      @res.validate
+      assert_equal([:PDF], @res[:ProcSet].value)
+    end
+
     it "removes invalid procedure set names from ProcSet" do
       @res[:ProcSet] = [:PDF, :Unknown]
       @res.validate
