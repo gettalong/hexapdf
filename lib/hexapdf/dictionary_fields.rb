@@ -344,7 +344,7 @@ module HexaPDF
       # Wraps a given array in the Rectangle class. Otherwise returns +nil+.
       def self.convert(data, _type, document)
         return unless data.kind_of?(Array) || data.kind_of?(HexaPDF::PDFArray)
-        document.wrap(data, type: Rectangle)
+        data.empty? ? document.wrap(nil) : document.wrap(data, type: Rectangle)
       end
 
     end

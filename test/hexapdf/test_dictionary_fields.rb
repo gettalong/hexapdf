@@ -234,5 +234,12 @@ describe HexaPDF::DictionaryFields do
       @field.convert(data, doc)
       doc.verify
     end
+
+    it "converts to a null value if an (invalid) empty array is given" do
+      doc = Minitest::Mock.new
+      doc.expect(:wrap, :data, [nil])
+      @field.convert([], doc)
+      doc.verify
+    end
   end
 end
