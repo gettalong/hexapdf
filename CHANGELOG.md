@@ -4,6 +4,7 @@
 
 * [HexaPDF::Type::Resources] validation to handle an invalid `/ProcSet` entry
   containing a single value instead of an array
+* Processing of invalid PDF files missing a required value in appearance streams
 
 
 ## 0.14.2 - 2021-01-22

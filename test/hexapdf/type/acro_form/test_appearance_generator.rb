@@ -407,10 +407,12 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       @generator.create_appearances
       form = @widget[:AP][:N]
       form[:key] = :value
+      form.delete(:Subtype)
+      @widget[:AP][:N] = @doc.wrap(form, type: HexaPDF::Dictionary)
 
       @field[:V] = 'test1'
       @generator.create_appearances
-      assert_same(form, @widget[:AP][:N])
+      assert_equal(form, @widget[:AP][:N])
       refute(form.key?(:key))
       assert_match(/test1/, form.contents)
     end
