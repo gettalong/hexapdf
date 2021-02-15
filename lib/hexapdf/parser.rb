@@ -72,7 +72,13 @@ module HexaPDF
       obj, oid, gen, stream =
         case xref_entry.type
         when :in_use
-          parse_indirect_object(xref_entry.pos)
+          if xref_entry.pos == 0 && xref_entry.oid != 0
+            # Handle seen-in-the-wild objects with invalid offset 0
+            maybe_raise("Indirect object (#{xref_entry.oid},#{xref_entry.gen}) has offset 0", pos: 0)
+            [nil, xref_entry.oid, xref_entry.gen, nil]
+          else
+            parse_indirect_object(xref_entry.pos)
+          end
         when :free
           [nil, xref_entry.oid, xref_entry.gen, nil]
         when :compressed

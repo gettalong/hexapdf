@@ -222,6 +222,23 @@ describe HexaPDF::Parser do
       assert_equal([1, 2], obj.value)
     end
 
+    it "handles an invalid indirect object offset of 0" do
+      obj = @parser.load_object(HexaPDF::XRefSection.in_use_entry(2, 0, 0))
+      assert(obj.null?)
+      assert_equal(2, obj.oid)
+      assert_equal(0, obj.gen)
+    end
+
+    describe "with strict parsing" do
+      it "raises an error if an indirect object has an offset of 0" do
+        @document.config['parser.on_correctable_error'] = proc { true }
+        exp = assert_raises(HexaPDF::MalformedPDFError) do
+          @parser.load_object(HexaPDF::XRefSection.in_use_entry(2, 0, 0))
+        end
+        assert_match(/has offset 0/, exp.message)
+      end
+    end
+
     it "fails if another object is found instead of an object stream" do
       def (@document).object(_oid)
         :invalid

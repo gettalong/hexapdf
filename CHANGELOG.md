@@ -10,6 +10,7 @@
 * Processing of invalid PDF files missing a required value in appearance streams
 * Processing of invalid empty arrays that should be rectangles by converting
   them to PDF null objects
+* Processing of invalid PDF files containing indirect objects with offset 0
 
 
 ## 0.14.2 - 2021-01-22
