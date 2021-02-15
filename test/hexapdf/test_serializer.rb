@@ -153,6 +153,13 @@ describe HexaPDF::Serializer do
       assert_equal("<</Key(value)/Length 6>>stream\nsome\nendstream", io.string)
     end
 
+    it "doesn't reset the internal recursion flag if the stream is serialized as part of another object" do
+      object = HexaPDF::Dictionary.new({}, oid: 5)
+      object[:Stream] = @stream
+      object[:Self] = object # needs to be the last entry so that :Stream gets serialized first!
+      assert_serialized("<</Stream 2 0 R/Self 5 0 R>>", object)
+    end
+
     it "fails if a stream without object identifier is serialized" do
       @stream.oid = 0
       assert_raises(HexaPDF::Error) { @serializer.serialize(@stream) }

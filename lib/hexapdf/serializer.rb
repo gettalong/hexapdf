@@ -343,6 +343,7 @@ module HexaPDF
           @io << data.freeze
         end
         @io << "\nendstream"
+        @in_object = false
 
         nil
       else
@@ -350,12 +351,12 @@ module HexaPDF
         obj.value[:Length] = data.size
 
         str = serialize_hash(obj.value)
+        @in_object = false
+
         str << "stream\n"
         str << data
         str << "\nendstream"
       end
-    ensure
-      @in_object = false
     end
 
     # Invokes the correct serialization method for the object.
