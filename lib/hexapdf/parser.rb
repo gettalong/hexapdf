@@ -89,7 +89,7 @@ module HexaPDF
 
       if xref_entry.oid != 0 && (oid != xref_entry.oid || gen != xref_entry.gen)
         raise_malformed("The oid,gen (#{oid},#{gen}) values of the indirect object don't match " \
-          "the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref")
+                        "the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref")
       end
 
       @document.wrap(obj, oid: oid, gen: gen, stream: stream)
