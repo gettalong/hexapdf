@@ -67,7 +67,11 @@ module HexaPDF
           # they never appear in the output (PDF serialization would need to escape them)
           if @last_id == 13 || @last_id == 40 || @last_id == 92
             @glyph_map[:"s#{@last_id}"] = @last_id
-            @last_id += (@last_id == 40 ? 2 : 1)
+            if @last_id == 40
+              @last_id += 1
+              @glyph_map[:"s#{@last_id}"] = @last_id
+            end
+            @last_id += 1
           end
           @glyph_map[glyph_id] = @last_id
         end
