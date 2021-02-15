@@ -88,6 +88,12 @@ describe HexaPDF::Parser do
       assert_equal('12', TestHelper.collector(stream.fiber))
     end
 
+    it "handles keyword stream followed by space and CR or LF" do
+      create_parser("1 0 obj<</Length 2>> stream \n12\nendstream endobj")
+      *, stream = @parser.parse_indirect_object
+      assert_equal('12', TestHelper.collector(stream.fiber))
+    end
+
     it "handles invalid indirect object value consisting of number followed by endobj without space" do
       create_parser("1 0 obj 749endobj")
       object, * = @parser.parse_indirect_object
@@ -155,6 +161,12 @@ describe HexaPDF::Parser do
         create_parser("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
         exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
         assert_match(/not CR alone/, exp.message)
+      end
+
+      it "fails if keyword stream is followed by space and CR or LF instead of LF or CR/LF" do
+        create_parser("1 0 obj<</Length 2>> stream \n12\nendstream endobj")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+        assert_match(/must be followed by LF or CR\/LF/, exp.message)
       end
 
       it "fails for numbers followed by endobj without space" do

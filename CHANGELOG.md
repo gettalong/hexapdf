@@ -11,6 +11,8 @@
 * Processing of invalid empty arrays that should be rectangles by converting
   them to PDF null objects
 * Processing of invalid PDF files containing indirect objects with offset 0
+* Processing of invalid PDF files containing a space/CR or space/LF combination
+  after the 'stream' keyword
 
 
 ## 0.14.2 - 2021-01-22
