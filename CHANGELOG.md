@@ -5,7 +5,7 @@
 * Bug in [HexaPDF::Font::TrueType::Subsetter#use_glyph] which lead to corrupt
   text output
 * [HexaPDF::Serializer] to handle infinite recursion problem
-* [HexaPDF::Parser#reconstruct_revision] to avoid an O(n^2) performance problem
+* Cross-reference table reconstruction to avoid an O(n^2) performance problem
 * [HexaPDF::Type::Resources] validation to handle an invalid `/ProcSet` entry
   containing a single value instead of an array
 * Processing of invalid PDF files missing a required value in appearance streams
