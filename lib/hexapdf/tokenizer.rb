@@ -188,6 +188,28 @@ module HexaPDF
       token
     end
 
+    # Returns a single integer or keyword token read from the current position and advances the scan
+    # pointer. If the current position doesn't contain such a token, +nil+ is returned without
+    # advancing the scan pointer. The value +NO_MORE_TOKENS+ is returned if there are no more tokens
+    # available.
+    #
+    # Initial runs of whitespace characters are ignored.
+    #
+    # Note: This is a special method meant for use with reconstructing the cross-reference table!
+    def next_integer_or_keyword
+      skip_whitespace
+      byte = @ss.string.getbyte(@ss.pos) || -1
+      if 48 <= byte && byte <= 57
+        parse_number
+      elsif (97 <= byte && byte <= 122) || (65 <= byte && byte <= 90)
+        parse_keyword
+      elsif byte == -1 # we reached the end of the file
+        NO_MORE_TOKENS
+      else
+        nil
+      end
+    end
+
     # Reads the byte (an integer) at the current position and advances the scan pointer.
     def next_byte
       prepare_string_scanner(1)

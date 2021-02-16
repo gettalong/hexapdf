@@ -27,4 +27,32 @@ describe HexaPDF::Tokenizer do
       5.times {|i| assert_equal(i, @tokenizer.next_token) }
     end
   end
+
+  it "has a special token scanning method for use with xref reconstruction" do
+    create_tokenizer(<<-EOF.chomp.gsub(/^ {8}/, ''))
+        % Comment
+          true
+        123 50
+        obj
+        (ignored)
+        /Ignored
+        [/Ignored]
+        <</Ignored /Values>>
+    EOF
+
+    scan_to_newline = proc { @tokenizer.scan_until(/(\n|\r\n?)+|\z/) }
+
+    assert_nil(@tokenizer.next_integer_or_keyword)
+    scan_to_newline.call
+    assert_equal(true, @tokenizer.next_integer_or_keyword)
+    assert_equal(123, @tokenizer.next_integer_or_keyword)
+    assert_equal(50, @tokenizer.next_integer_or_keyword)
+    assert_equal('obj', @tokenizer.next_integer_or_keyword)
+    4.times do
+      assert_nil(@tokenizer.next_integer_or_keyword)
+      scan_to_newline.call
+    end
+    assert_equal(HexaPDF::Tokenizer::NO_MORE_TOKENS, @tokenizer.next_integer_or_keyword)
+  end
+
 end

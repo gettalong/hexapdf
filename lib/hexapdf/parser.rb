@@ -398,14 +398,14 @@ module HexaPDF
       while true
         @tokenizer.skip_whitespace
         pos = @tokenizer.pos
-        @tokenizer.scan_until(/(\n|\r\n?)+/)
+        @tokenizer.scan_until(/(\n|\r\n?)+|\z/)
         next_new_line_pos = @tokenizer.pos
         @tokenizer.pos = pos
 
-        token = @tokenizer.next_token rescue nil
+        token = @tokenizer.next_integer_or_keyword rescue nil
         if token.kind_of?(Integer)
-          gen = @tokenizer.next_token rescue nil
-          tok = @tokenizer.next_token rescue nil
+          gen = @tokenizer.next_integer_or_keyword rescue nil
+          tok = @tokenizer.next_integer_or_keyword rescue nil
           if @tokenizer.pos > next_new_line_pos
             @tokenizer.pos = next_new_line_pos
           elsif gen.kind_of?(Integer) && tok.kind_of?(Tokenizer::Token) && tok == 'obj'

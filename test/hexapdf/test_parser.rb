@@ -541,6 +541,13 @@ describe HexaPDF::Parser do
       assert_equal(6, @parser.load_object(@xref).value)
     end
 
+    it "handles pathalogical cases which contain many opened literal strings" do
+      time = Time.now
+      create_parser("(1" << "(abc\n" * 10000 << "\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
+      assert_equal(6, @parser.load_object(@xref).value)
+      assert(Time.now - time < 0.5, "Xref reconstruction takes too long")
+    end
+
     it "ignores invalid objects" do
       create_parser("1 x obj\n5\nendobj\n1 0 xobj\n6\nendobj\n1 0 obj 4\nendobj\ntrailer\n<</Size 1>>")
       assert_equal(4, @parser.load_object(@xref).value)
