@@ -191,7 +191,13 @@ module HexaPDF
     #
     # See: PDF1.7 s7.3.3
     def serialize_float(obj)
-      -0.0001 < obj && obj < 0.0001 && obj != 0 ? sprintf("%.6f", obj) : obj.round(6).to_s
+      if -0.0001 < obj && obj < 0.0001 && obj != 0
+        sprintf("%.6f", obj)
+      elsif obj.finite?
+        obj.round(6).to_s
+      else
+        raise HexaPDF::Error, "Can't serialize special floating point number #{obj}"
+      end
     end
 
     # The regexp matches all characters that need to be escaped and the substs hash contains the

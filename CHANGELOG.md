@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Handling of invalid floating point numbers NaN, Inf and -Inf when serializing
+
+
 ## 0.14.3 - 2021-02-16
 
 ### Fixed

@@ -58,6 +58,9 @@ describe HexaPDF::Serializer do
     assert_serialized("0.000005", 0.000005)
     assert_serialized("-0.000005", -0.000005)
     assert_serialized("0.0", 0.0)
+    assert_raises(HexaPDF::Error) { @serializer.serialize(0.0 / 0) }
+    assert_raises(HexaPDF::Error) { @serializer.serialize(1.0 / 0) }
+    assert_raises(HexaPDF::Error) { @serializer.serialize(-1.0 / 0) }
   end
 
   it "serializes numerics" do
