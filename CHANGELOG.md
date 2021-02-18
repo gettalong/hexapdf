@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* Support for the Crypt filters
+
 ### Fixed
 
 * Handling of invalid floating point numbers NaN, Inf and -Inf when serializing

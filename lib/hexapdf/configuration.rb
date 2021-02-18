@@ -393,7 +393,7 @@ module HexaPDF
                         DCTDecode: 'HexaPDF::Filter::PassThrough',
                         DCT: 'HexaPDF::Filter::PassThrough',
                         JPXDecode: 'HexaPDF::Filter::PassThrough',
-                        Crypt: nil,
+                        Crypt: 'HexaPDF::Filter::Crypt',
                         Encryption: 'HexaPDF::Filter::Encryption',
                       },
                       'font.map' => {},

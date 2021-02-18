@@ -297,6 +297,13 @@ describe HexaPDF::Encryption::SecurityHandler do
       assert_equal(@encrypted, @handler.decrypt(@obj)[:Key])
     end
 
+    it "defers handling encryption to a Crypt filter is specified" do
+      data = HexaPDF::StreamData.new(proc { 'mydata' }, filter: :Crypt)
+      obj = @document.wrap({}, oid: 1, stream: data)
+      @handler.decrypt(obj)
+      assert_equal('mydata', obj.stream)
+    end
+
     it "doesn't decrypt XRef streams" do
       @obj[:Type] = :XRef
       assert_equal(@encrypted, @handler.decrypt(@obj)[:Key])
@@ -340,6 +347,14 @@ describe HexaPDF::Encryption::SecurityHandler do
 
     it "doesn't encrypt XRef streams" do
       @stream[:Type] = :XRef
+      assert_equal('string', @handler.encrypt_stream(@stream).resume)
+    end
+
+    it "defers encrypting to a Crypt filter if specified" do
+      @stream.set_filter(:Crypt)
+      assert_equal('string', @handler.encrypt_stream(@stream).resume)
+
+      @stream.set_filter([:Crypt])
       assert_equal('string', @handler.encrypt_stream(@stream).resume)
     end
 

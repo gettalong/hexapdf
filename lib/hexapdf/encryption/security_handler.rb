@@ -268,7 +268,7 @@ module HexaPDF
           str.replace(string_algorithm.decrypt(key, str))
         end
 
-        if obj.kind_of?(HexaPDF::Stream)
+        if obj.kind_of?(HexaPDF::Stream) && obj.raw_stream.filter[0] != :Crypt
           unless string_algorithm == stream_algorithm
             key = object_key(obj.oid, obj.gen, stream_algorithm)
           end
@@ -300,7 +300,12 @@ module HexaPDF
             obj.raw_stream.key == key && obj.raw_stream.algorithm == stream_algorithm
           obj.raw_stream.undecrypted_fiber
         else
-          stream_algorithm.encryption_fiber(key, result)
+          filter = obj[:Filter]
+          if filter == :Crypt || (filter.kind_of?(PDFArray) && filter[0] == :Crypt)
+            result
+          else
+            stream_algorithm.encryption_fiber(key, result)
+          end
         end
       end
 

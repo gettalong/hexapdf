@@ -95,6 +95,7 @@ module HexaPDF
     autoload(:Predictor, 'hexapdf/filter/predictor')
 
     autoload(:Encryption, 'hexapdf/filter/encryption')
+    autoload(:Crypt, 'hexapdf/filter/crypt')
 
     autoload(:PassThrough, 'hexapdf/filter/pass_through')
 
