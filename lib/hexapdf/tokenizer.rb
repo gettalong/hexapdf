@@ -73,11 +73,15 @@ module HexaPDF
     # The IO object from the tokens are read.
     attr_reader :io
 
-    # Creates a new tokenizer.
-    def initialize(io)
+    # Creates a new tokenizer for the given IO stream.
+    #
+    # If +on_correctable_error+ is set to an object responding to +call(msg, pos)+, errors for
+    # correctable situations are only raised if the return value of calling the object is +true+.
+    def initialize(io, on_correctable_error: nil)
       @io = io
       @ss = StringScanner.new(''.b)
       @original_pos = -1
+      @on_correctable_error = on_correctable_error || proc { false }
       self.pos = 0
     end
 
@@ -180,7 +184,8 @@ module HexaPDF
           end
         else
           unless allow_keyword
-            raise HexaPDF::MalformedPDFError.new("Invalid object, got token #{token}", pos: pos)
+            maybe_raise("Invalid object, got token #{token}", force: token !~ /^-?(nan|inf)$/i)
+            token = 0
           end
         end
       end
@@ -426,6 +431,20 @@ module HexaPDF
       end
       @next_read_pos = @io.pos
       true
+    end
+
+    # Calls the @on_correctable_error callable object with the given message and the current
+    # position. If the returned value is +true+, raises a HexaPDF::MalformedPDFError. Otherwise the
+    # error is corrected (by the caller) and tokenization continues.
+    #
+    # If the option +force+ is used, the callable object is not called and the error is raised
+    # immediately.
+    def maybe_raise(msg, force: false)
+      if force || @on_correctable_error.call(msg, pos)
+        error = HexaPDF::MalformedPDFError.new(msg, pos: pos)
+        error.set_backtrace(caller(1))
+        raise error
+      end
     end
 
   end

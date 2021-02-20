@@ -55,4 +55,26 @@ describe HexaPDF::Tokenizer do
     assert_equal(HexaPDF::Tokenizer::NO_MORE_TOKENS, @tokenizer.next_integer_or_keyword)
   end
 
+  describe "can correct some problems" do
+    describe "invalid inf/-inf/nan/-nan tokens" do
+      it "turns them into zeros" do
+        count = 0
+        on_correctable_error = lambda do |msg, pos|
+          count += 1
+          assert_match(/Invalid object, got token/, msg)
+          assert_equal(8, pos) if count == 2
+          false
+        end
+        tokenizer = HexaPDF::Tokenizer.new(StringIO.new("inf -Inf NaN -nan"),
+                                           on_correctable_error: on_correctable_error)
+        assert_equal([0, 0, 0, 0], 4.times.map { tokenizer.next_object })
+        assert_equal(4, count)
+      end
+
+      it "raises an error if configured so" do
+        tokenizer = HexaPDF::Tokenizer.new(StringIO.new("inf"), on_correctable_error: proc { true })
+        assert_raises(HexaPDF::MalformedPDFError) { tokenizer.next_object }
+      end
+    end
+  end
 end

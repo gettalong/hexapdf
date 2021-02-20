@@ -56,7 +56,8 @@ module HexaPDF
     # PDF references are resolved using the associated Document object.
     def initialize(io, document)
       @io = io
-      @tokenizer = Tokenizer.new(io)
+      on_correctable_error = document.config['parser.on_correctable_error'].curry[document]
+      @tokenizer = Tokenizer.new(io, on_correctable_error: on_correctable_error)
       @document = document
       @object_stream_data = {}
       @reconstructed_revision = nil
