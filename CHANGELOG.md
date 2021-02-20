@@ -12,6 +12,8 @@
   line character
 * Cross-reference table reconstruction to handle the case of an entry specifying
   a non-existent indirect object
+* Cross-reference table reconstruction to handle trailers specified by cross-
+  reference streams
 
 
 ## 0.14.3 - 2021-02-16

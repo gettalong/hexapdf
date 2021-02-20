@@ -61,6 +61,7 @@ module HexaPDF
       @document = document
       @object_stream_data = {}
       @reconstructed_revision = nil
+      @in_reconstruct_revision = false
       retrieve_pdf_header_offset_and_version
     end
 
@@ -391,6 +392,9 @@ module HexaPDF
     # If the file contains multiple cross-reference sections, all objects will be put into a single
     # cross-reference table, later objects overwriting prior ones.
     def reconstruct_revision
+      return if @in_reconstruct_revision
+      @in_reconstruct_revision = true
+
       raise unless @document.config['parser.try_xref_reconstruction']
       msg = "#{$!} - trying cross-reference table reconstruction"
       @document.config['parser.on_correctable_error'].call(@document, msg, @tokenizer.pos)
@@ -426,16 +430,21 @@ module HexaPDF
         end
       end
 
-      trailer&.delete(:Prev) # no need for this and may wreak havoc
       if !trailer || trailer.empty?
-        raise_malformed("Could not reconstruct malformed PDF because trailer was not found", pos: 0)
+        _, trailer = load_revision(startxref_offset) rescue nil
+        unless trailer
+          @in_reconstruct_revision = false
+          raise_malformed("Could not reconstruct malformed PDF because trailer was not found", pos: 0)
+        end
       end
+      trailer&.delete(:Prev) # no need for this and may wreak havoc
 
       loader = lambda do |xref_entry|
         obj, oid, gen, stream = parse_indirect_object(xref_entry.pos)
         @document.wrap(obj, oid: oid, gen: gen, stream: stream)
       end
 
+      @in_reconstruct_revision = false
       Revision.new(@document.wrap(trailer, type: :XXTrailer), xref_section: xref,
                    loader: loader)
     end
