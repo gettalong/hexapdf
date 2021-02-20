@@ -207,7 +207,8 @@ module HexaPDF
 
         # Returns the rest of the line, with whitespace stripped.
         def parse_string
-          line = @line.strip!
+          @line.strip!
+          line = @line
           @line = ''
           line
         end

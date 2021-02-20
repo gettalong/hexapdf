@@ -39,6 +39,11 @@ describe HexaPDF::Font::Type1::AFMParser do
     end
   end
 
+  it "parses until EOF if no end token is found" do
+    io = StringIO.new("StartFontMetrics 4.1\nFontName Test")
+    assert_equal('Test', HexaPDF::Font::Type1::AFMParser.parse(io).font_name)
+  end
+
   it "extracts kerning and ligature information" do
     metrics = FONT_TIMES.metrics
     glyph = metrics.character_metrics[:f]

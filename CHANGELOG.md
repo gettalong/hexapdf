@@ -8,6 +8,8 @@
 
 * Handling of invalid floating point numbers NaN, Inf and -Inf when serializing
 * Processing of invalid PDF files containing NaN and Inf instead of numbers
+* Bug in Type1 font AFM parser that occured if the file doesn't end with a new
+  line character
 
 
 ## 0.14.3 - 2021-02-16
