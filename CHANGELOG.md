@@ -14,6 +14,8 @@
   a non-existent indirect object
 * Cross-reference table reconstruction to handle trailers specified by cross-
   reference streams
+* Cross-reference table reconstruction to use the set security handle for
+  decrypting indirect objects
 
 
 ## 0.14.3 - 2021-02-16

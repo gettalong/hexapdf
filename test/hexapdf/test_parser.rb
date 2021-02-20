@@ -531,6 +531,15 @@ describe HexaPDF::Parser do
       assert_equal(6, @parser.load_object(@xref).value)
     end
 
+    it "uses a security handler for decrypting indirect objects if necessary" do
+      handler = Minitest::Mock.new
+      handler.expect(:decrypt, HexaPDF::Object.new(:result, oid: 1), [HexaPDF::Object])
+      @document.instance_variable_set(:@security_handler, handler)
+      create_parser("1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
+      assert_equal(:result, @parser.load_object(@xref).value)
+      assert(handler.verify)
+    end
+
     it "ignores parts where the starting line is split across lines" do
       create_parser("1 0 obj\n5\nendobj\n1 0\nobj\n6\nendobj\ntrailer\n<</Size 1>>")
       assert_equal(5, @parser.load_object(@xref).value)
