@@ -536,6 +536,11 @@ describe HexaPDF::Parser do
       assert_equal(5, @parser.load_object(@xref).value)
     end
 
+    it "handles the case when the specified object had an xref entry but is not found" do
+      create_parser("3 0 obj\n5\nendobj\ntrailer\n<</Size 1>>")
+      assert(@parser.load_object(@xref).null?)
+    end
+
     it "handles cases where the line contains an invalid string that exceeds the read buffer" do
       create_parser("(1" << "(abc" * 32188 << "\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
       assert_equal(6, @parser.load_object(@xref).value)

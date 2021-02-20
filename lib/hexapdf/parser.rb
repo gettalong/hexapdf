@@ -95,7 +95,8 @@ module HexaPDF
 
       @document.wrap(obj, oid: oid, gen: gen, stream: stream)
     rescue HexaPDF::MalformedPDFError
-      reconstructed_revision.object(xref_entry)
+      reconstructed_revision.object(xref_entry) ||
+        @document.wrap(nil, oid: xref_entry.oid, gen: xref_entry.gen)
     end
 
     # Parses the indirect object at the specified offset.

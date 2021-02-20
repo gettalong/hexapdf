@@ -10,6 +10,8 @@
 * Processing of invalid PDF files containing NaN and Inf instead of numbers
 * Bug in Type1 font AFM parser that occured if the file doesn't end with a new
   line character
+* Cross-reference table reconstruction to handle the case of an entry specifying
+  a non-existent indirect object
 
 
 ## 0.14.3 - 2021-02-16
