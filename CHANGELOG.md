@@ -20,6 +20,7 @@
   reference streams
 * Cross-reference table reconstruction to use the set security handle for
   decrypting indirect objects
+* Parsing of cross-reference streams where data is missing
 
 
 ## 0.14.3 - 2021-02-16

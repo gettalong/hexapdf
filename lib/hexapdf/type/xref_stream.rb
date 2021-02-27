@@ -135,6 +135,13 @@ module HexaPDF
         w1 = w[1]
         w2 = w[2]
 
+        needed_bytes = (w0 + w1 + w2) * index.each_slice(2).sum(&:last)
+
+        if needed_bytes > data.size
+          raise HexaPDF::MalformedPDFError, "Cross-reference stream is missing data " \
+            "(#{needed_bytes} bytes needed, got #{data.size})"
+        end
+
         index.each_slice(2) do |first_oid, number_of_entries|
           first_oid.upto(first_oid + number_of_entries - 1) do |oid|
             # Default for first field: type 1

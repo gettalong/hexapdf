@@ -71,6 +71,13 @@ describe HexaPDF::Type::XRefStream do
       assert(section[10, 0].in_use?)
       assert_equal(250, section[10, 0].pos)
     end
+
+    it "fails if there is not enough data available" do
+      @obj[:Index] = [1, 2, 10, 4]
+      @obj[:W] = [1, 2, 1]
+      @obj.stream = "abcd"
+      assert_raises(HexaPDF::MalformedPDFError) { @obj.xref_section }
+    end
   end
 
   describe "trailer" do
