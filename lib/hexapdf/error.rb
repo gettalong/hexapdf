@@ -47,14 +47,14 @@ module HexaPDF
 
     # Creates a new malformed PDF error object for the given exception message.
     #
-    # The byte position where the error occured has to be given via the +pos+ argument.
-    def initialize(message, pos:)
+    # The byte position where the error occured can be given via the +pos+ argument.
+    def initialize(message, pos: nil)
       super(message)
       @pos = pos
     end
 
     def message # :nodoc:
-      "PDF malformed around position #{pos}: #{super}"
+      "PDF malformed#{pos ? "around position #{pos}" : ''}: #{super}"
     end
 
   end

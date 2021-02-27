@@ -4,6 +4,10 @@
 
 * Support for the Crypt filters
 
+### Changed
+
+* [HexaPDF::MalformedPDFError] to make the `pos` argument optional
+
 ### Fixed
 
 * Handling of invalid floating point numbers NaN, Inf and -Inf when serializing
