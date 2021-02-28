@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+benchmark = ARGV[0]
+
 nested = lambda {|h,k| h[k] = Hash.new(&nested)}
 data = Hash.new(&nested)
 $stdin.each_line do |line|
@@ -7,9 +9,14 @@ $stdin.each_line do |line|
   entry = line.gsub(/ms|KiB/, '').split(/ *\| */)
   name = entry[1]
   btype = entry[2]
-  data[:time][btype][name] = entry[3].tr(',.', '')
-  data[:memory][btype][name] = entry[4].tr(',.', '')
-  data[:filesize][btype][name] = entry[5].tr(',.', '')
+  if benchmark == 'pdf_corpus'
+    value, total = entry[3].split('/').map(&:to_i)
+    data[:percentage][btype][name] = value.to_f / total * 100
+  else
+    data[:time][btype][name] = entry[3].tr(',.', '')
+    data[:memory][btype][name] = entry[4].tr(',.', '')
+    data[:filesize][btype][name] = entry[5].tr(',.', '')
+  end
 end
 
 data.each_with_index do |(type, entries), index|
