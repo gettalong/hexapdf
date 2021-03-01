@@ -54,7 +54,7 @@ module HexaPDF
     end
 
     def message # :nodoc:
-      "PDF malformed#{pos ? "around position #{pos}" : ''}: #{super}"
+      "PDF malformed#{pos ? " around position #{pos}" : ''}: #{super}"
     end
 
   end
