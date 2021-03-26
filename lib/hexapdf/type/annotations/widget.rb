@@ -112,7 +112,9 @@ module HexaPDF
         def background_color(*color)
           if color.empty?
             components = self[:MK]&.[](:BG)
-            components.nil? ? nil : Content::ColorSpace.prenormalized_device_color(components)
+            if components && !components.empty?
+              Content::ColorSpace.prenormalized_device_color(components)
+            end
           else
             color = Content::ColorSpace.device_color_from_specification(color)
             (self[:MK] ||= {})[:BG] = color.components

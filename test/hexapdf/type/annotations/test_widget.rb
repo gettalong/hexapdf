@@ -57,6 +57,8 @@ describe HexaPDF::Type::Annotations::Widget do
   describe "background_color" do
     it "returns the current background color" do
       assert_nil(@widget.background_color)
+      @widget[:MK] = {BG: []}
+      assert_nil(@widget.background_color)
       @widget[:MK] = {BG: [1]}
       assert_equal([1], @widget.background_color.components)
     end
