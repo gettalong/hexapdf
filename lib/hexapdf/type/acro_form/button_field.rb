@@ -184,7 +184,7 @@ module HexaPDF
         #
         # Defaults to :Yes if no other name could be determined.
         def check_box_on_name
-          each_widget.to_a.first&.appearance&.normal_appearance&.value&.each_key&.
+          each_widget.to_a.first&.appearance_dict&.normal_appearance&.value&.each_key&.
             find {|key| key != :Off } || :Yes
         end
 
@@ -192,7 +192,7 @@ module HexaPDF
         # button.
         def radio_button_values
           each_widget.map do |widget|
-            widget.appearance&.normal_appearance&.value&.each_key&.find {|key| key != :Off }
+            widget.appearance_dict&.normal_appearance&.value&.each_key&.find {|key| key != :Off }
           end.compact
         end
 
@@ -233,7 +233,9 @@ module HexaPDF
         def create_appearances(force: false)
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
-            next if !force && widget.appearance?
+            normal_appearance = widget.appearance_dict&.normal_appearance
+            next if !force && normal_appearance && normal_appearance.value.length == 2 &&
+              normal_appearance.value.each_value.all?(HexaPDF::Stream)
             if check_box?
               appearance_generator_class.new(widget).create_check_box_appearances
             elsif radio_button?
@@ -250,7 +252,7 @@ module HexaPDF
           create_appearances
           value = self[:V]
           each_widget do |widget|
-            widget[:AS] = (widget.appearance&.normal_appearance&.value&.key?(value) ? value : :Off)
+            widget[:AS] = (widget.appearance_dict&.normal_appearance&.key?(value) ? value : :Off)
           end
         end
 

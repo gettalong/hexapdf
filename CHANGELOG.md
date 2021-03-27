@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Changed
+
+* **Breaking change**: Overhauled the interface for accessing appearances of
+  annotations to make it more convenient
+
 ### Fixed
 
 * [HexaPDF::Type::Annotations::Widget#background_color] to correctly handle

@@ -40,19 +40,23 @@ describe HexaPDF::Type::Annotation do
 
   it "returns the appearance dictionary" do
     @annot[:AP] = :yes
-    assert_equal(:yes, @annot.appearance)
+    assert_equal(:yes, @annot.appearance_dict)
   end
 
-  it "checks whether an appearance exists" do
-    refute(@annot.appearance?)
+  it "returns the appearance stream of the given type" do
+    assert_nil(@annot.appearance)
     @annot[:AP] = {N: {}}
-    refute(@annot.appearance?)
-    @annot[:AP][:N] = @doc.wrap({}, stream: '')
-    assert(@annot.appearance?)
-    @annot[:AP][:N] = {okay: @doc.wrap({}, stream: '')}
-    assert(@annot.appearance?)
-    @annot[:AP][:N][:Off] = :other
-    refute(@annot.appearance?)
+    assert_nil(@annot.appearance)
+    stream = @doc.wrap({}, stream: '')
+    @annot[:AP][:N] = stream
+    assert_same(stream, @annot.appearance)
+    @annot[:AP][:N] = {X: stream}
+    assert_nil(@annot.appearance)
+    @annot[:AS] = :X
+    assert_same(stream, @annot.appearance)
+
+    @annot[:AP][:D] = {X: stream}
+    assert_same(stream, @annot.appearance(:down))
   end
 
   describe "flags" do

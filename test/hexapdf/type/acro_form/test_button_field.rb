@@ -225,20 +225,19 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     it "won't generate appearances if they already exist" do
       widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       @field.create_appearances
-      yes = widget.appearance.normal_appearance[:Yes]
-      off = widget.appearance.normal_appearance[:Off]
-      widget.appearance.normal_appearance.delete(:Off)
+      yes = widget.appearance_dict.normal_appearance[:Yes]
+      off = widget.appearance_dict.normal_appearance[:Off]
       @field.create_appearances
-      assert_same(yes, widget.appearance.normal_appearance[:Yes])
-      refute_same(off, widget.appearance.normal_appearance[:Off])
+      assert_same(yes, widget.appearance_dict.normal_appearance[:Yes])
+      assert_same(off, widget.appearance_dict.normal_appearance[:Off])
     end
 
     it "always generates appearances if force is true" do
       widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       @field.create_appearances
-      yes = widget.appearance.normal_appearance[:Yes]
+      yes = widget.appearance_dict.normal_appearance[:Yes]
       @field.create_appearances(force: true)
-      refute_same(yes, widget.appearance.normal_appearance[:Yes])
+      refute_same(yes, widget.appearance_dict.normal_appearance[:Yes])
     end
 
     it "fails for unsupported button types" do

@@ -125,20 +125,23 @@ module HexaPDF
 
       # Returns the AppearanceDictionary instance associated with the annotation or +nil+ if none is
       # set.
-      def appearance
+      def appearance_dict
         self[:AP]
       end
 
-      # Returns +true+ if the widget's normal appearance exists.
+      # Returns the annotation's appearance stream of the given type (:normal, :rollover, or :down)
+      # or +nil+ if it doesn't exist.
       #
-      # Note that this checks only if the appearance exists but not if the structure of the
-      # appearance dictionary conforms to the expectations of the annotation.
-      def appearance?
-        return false unless (normal_appearance = appearance&.normal_appearance)
-        normal_appearance.kind_of?(HexaPDF::Stream) ||
-          (!normal_appearance.empty? &&
-           normal_appearance.each.all? {|_k, v| v.kind_of?(HexaPDF::Stream) })
+      # The appearance state is taken into account if necessary.
+      def appearance(type = :normal)
+        entry = appearance_dict&.send("#{type}_appearance")
+        if entry.kind_of?(HexaPDF::Stream)
+          entry
+        elsif entry.kind_of?(HexaPDF::Dictionary)
+          entry[self[:AS]]
+        end
       end
+      alias appearance? appearance
 
       private
 

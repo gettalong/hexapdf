@@ -254,8 +254,8 @@ describe HexaPDF::Type::AcroForm::Form do
 
     it "creates the appearances of all field widgets if necessary" do
       @acro_form.create_appearances
-      assert(@tf.each_widget.all? {|w| w.appearance.normal_appearance.kind_of?(HexaPDF::Stream) })
-      assert(@cb.each_widget.all? {|w| w.appearance.normal_appearance[:Yes].kind_of?(HexaPDF::Stream) })
+      assert(@tf.each_widget.all? {|w| w.appearance_dict.normal_appearance.kind_of?(HexaPDF::Stream) })
+      assert(@cb.each_widget.all? {|w| w.appearance_dict.normal_appearance[:Yes].kind_of?(HexaPDF::Stream) })
     end
 
     it "force the creation of appearances if force is true" do
