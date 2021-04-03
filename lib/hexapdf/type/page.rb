@@ -465,6 +465,87 @@ module HexaPDF
         document.wrap(dict, stream: stream)
       end
 
+      # Flattens all or the given annotations of the page. Returns an array with all the annotations
+      # that couldn't be flattened because they don't have an appearance stream.
+      #
+      # Flattening means making the appearances of the annotations part of the content stream of the
+      # page and deleting the annotations themselves. Invisible and hidden fields are deleted but
+      # not rendered into the content stream.
+      #
+      # If an annotation is a form field widget, only the widget will be deleted but not the form
+      # field itself.
+      def flatten_annotations(annotations = self[:Annots])
+        return [] unless key?(:Annots)
+
+        not_flattened = annotations.to_ary
+        annotations = not_flattened & self[:Annots] if annotations != self[:Annots]
+        return not_flattened if annotations.empty?
+
+        canvas = self.canvas(type: :overlay)
+        canvas.save_graphics_state
+        media_box = box(:media)
+        if media_box.left != 0 || media_box.bottom != 0
+          canvas.translate(-media_box.left, -media_box.bottom) # revert initial translation of origin
+        end
+
+        to_delete = []
+        not_flattened -= annotations
+        annotations.each do |annotation|
+          annotation = document.wrap(annotation, type: :Annot)
+          appearance = annotation.appearance
+          if annotation.flagged?(:hidden) || annotation.flagged?(:invisible)
+            to_delete << annotation
+            next
+          elsif !appearance
+            not_flattened << annotation
+            next
+          end
+
+          rect = annotation[:Rect]
+          box = appearance.box
+          matrix = appearance[:Matrix]
+
+          # Adjust position based on matrix
+          pos = [rect.left - matrix[4], rect.bottom - matrix[5]]
+
+          # In case of a rotation we need to counter the default translation in #xobject by adding
+          # box.left and box.bottom, and then translate the origin for the rotation
+          angle = (-Math.atan2(matrix[2], matrix[0]) * 180 / Math::PI).to_i
+          case angle
+          when 0
+            # Nothing to do, no rotation
+          when 90
+            pos[0] += box.top + box.left
+            pos[1] += -box.left + box.bottom
+          when -90
+            pos[0] += -box.bottom + box.left
+            pos[1] += box.right + box.bottom
+          when 180, -180
+            pos[0] += box.right + box.left
+            pos[1] += box.top + box.bottom
+          else
+            not_flattened << annotation
+            next
+          end
+
+          width, height = (angle.abs == 90 ? [rect.height, rect.width] : [rect.width, rect.height])
+          canvas.xobject(appearance, at: pos, width: width, height: height)
+          to_delete << annotation
+        end
+        canvas.restore_graphics_state
+
+        to_delete.each do |annotation|
+          if annotation[:Subtype] == :Widget
+            annotation.form_field.delete_widget(annotation)
+          else
+            self[:Annots].delete(annotation)
+            document.delete(annotation)
+          end
+        end
+
+        not_flattened
+      end
+
       private
 
       # Ensures that the required inheritable fields are set.

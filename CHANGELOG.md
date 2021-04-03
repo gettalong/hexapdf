@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Type::Page#flatten_annotations] for flattening the annotations of a
+  page
+
 ### Changed
 
 * **Breaking change**: Overhauled the interface for accessing appearances of
