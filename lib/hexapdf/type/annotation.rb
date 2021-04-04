@@ -135,10 +135,11 @@ module HexaPDF
       # The appearance state is taken into account if necessary.
       def appearance(type = :normal)
         entry = appearance_dict&.send("#{type}_appearance")
+        if entry.kind_of?(HexaPDF::Dictionary) && !entry.kind_of?(HexaPDF::Stream)
+          entry = entry[self[:AS]]
+        end
         if entry.kind_of?(HexaPDF::Stream)
-          entry
-        elsif entry.kind_of?(HexaPDF::Dictionary)
-          entry[self[:AS]]
+          entry[:Subtype] == :Form ? entry : document.wrap(entry, type: :XObject, subtype: :Form)
         end
       end
       alias appearance? appearance

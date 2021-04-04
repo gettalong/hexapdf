@@ -45,18 +45,24 @@ describe HexaPDF::Type::Annotation do
 
   it "returns the appearance stream of the given type" do
     assert_nil(@annot.appearance)
+
     @annot[:AP] = {N: {}}
     assert_nil(@annot.appearance)
+
     stream = @doc.wrap({}, stream: '')
     @annot[:AP][:N] = stream
-    assert_same(stream, @annot.appearance)
+    appearance = @annot.appearance
+    assert_same(stream.data, appearance.data)
+    assert_equal(:Form, appearance[:Subtype])
+
     @annot[:AP][:N] = {X: stream}
     assert_nil(@annot.appearance)
+
     @annot[:AS] = :X
-    assert_same(stream, @annot.appearance)
+    assert_same(stream.data, @annot.appearance.data)
 
     @annot[:AP][:D] = {X: stream}
-    assert_same(stream, @annot.appearance(:down))
+    assert_same(stream.data, @annot.appearance(:down).data)
   end
 
   describe "flags" do
