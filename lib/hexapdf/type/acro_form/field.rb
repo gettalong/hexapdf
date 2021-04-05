@@ -315,6 +315,7 @@ module HexaPDF
 
           if embedded_widget?
             WIDGET_FIELDS.each {|key| delete(key) }
+            document.revisions.each {|revision| break if revision.update(self)}
           else
             self[:Kids].delete_at(widget_index)
             document.delete(widget)

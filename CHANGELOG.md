@@ -16,6 +16,8 @@
 
 * [HexaPDF::Type::Annotations::Widget#background_color] to correctly handle
   empty background color arrays
+* [HexaPDF::Type::AcroForm::Field#delete_widget] to update the wrapper object
+  stored in the document in case the widget is embedded
 
 
 ## 0.14.4 - 2021-02-27

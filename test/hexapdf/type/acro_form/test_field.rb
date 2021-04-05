@@ -200,9 +200,14 @@ describe HexaPDF::Type::AcroForm::Field do
 
     it "deletes the widget if it is embedded" do
       widget = @field.create_widget(@page)
+      @doc.revisions.current.update(widget)
+      assert_same(widget, @doc.object(widget))
+      refute_same(@field, @doc.object(@field))
+
       @field.delete_widget(widget)
       refute(@field.key?(:Subtype))
       assert(@page[:Annots].empty?)
+      assert_same(@field, @doc.object(@field))
     end
 
     it "deletes the widget if it is not embedded" do
