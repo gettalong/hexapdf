@@ -4,6 +4,8 @@
 
 * [HexaPDF::Type::Page#flatten_annotations] for flattening the annotations of a
   page
+* [HexaPDF::Revision#update] for updating the stored wrapper class of a PDF
+  object
 
 ### Changed
 

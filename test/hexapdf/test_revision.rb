@@ -105,6 +105,27 @@ describe HexaPDF::Revision do
     end
   end
 
+  describe "update" do
+    before do
+      @rev.add(@obj)
+    end
+
+    it "updates the object if it has the same data instance" do
+      x = HexaPDF::Object.new(@obj.data)
+      y = @rev.update(x)
+      assert_same(x, y)
+      refute_same(x, @obj)
+      assert_same(x, @rev.object(@ref))
+    end
+
+    it "doesn't update the object if it refers to a different data instance" do
+      x = HexaPDF::Object.new(:value, oid: 5)
+      assert_nil(@rev.update(x))
+      x.data.oid = 1
+      assert_nil(@rev.update(x))
+    end
+  end
+
   describe "delete" do
     before do
       @rev.add(@obj)

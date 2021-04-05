@@ -159,6 +159,22 @@ module HexaPDF
     end
 
     # :call-seq:
+    #   revision.update(obj)   -> obj or nil
+    #
+    # Updates the stored object to point to the given HexaPDF::Object wrapper, returning the object
+    # if successful or +nil+ otherwise.
+    #
+    # If +obj+ isn't stored in this revision or the stored object doesn't contain the same
+    # HexaPDF::PDFData object as the given object, nothing is done.
+    #
+    # This method should only be used if the wrong wrapper class is stored (e.g. because
+    # auto-detection didn't or couldn't work correctly) and thus needs correction.
+    def update(obj)
+      return nil if object(obj)&.data != obj.data
+      add_without_check(obj)
+    end
+
+    # :call-seq:
     #   revision.delete(ref, mark_as_free: true)
     #   revision.delete(oid, mark_as_free: true)
     #
