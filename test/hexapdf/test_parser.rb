@@ -50,7 +50,8 @@ describe HexaPDF::Parser do
   end
 
   def create_parser(str)
-    @parser = HexaPDF::Parser.new(StringIO.new(str), @document)
+    @parse_io = StringIO.new(str)
+    @parser = HexaPDF::Parser.new(@parse_io, @document)
   end
 
   describe "parse_indirect_object" do
@@ -509,6 +510,13 @@ describe HexaPDF::Parser do
     it "fails if another object is found instead of a cross-reference stream" do
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.load_revision(10) }
       assert_match(/not a cross-reference stream/, exp.message)
+    end
+
+    it "fails if the cross-reference stream is missing data" do
+      @parse_io.string[287..288] = ''
+      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.load_revision(212) }
+      assert_match(/missing data/, exp.message)
+      assert_equal(212, exp.pos)
     end
 
     it "fails on strict parsing if the cross-reference stream doesn't contain an entry for itself" do

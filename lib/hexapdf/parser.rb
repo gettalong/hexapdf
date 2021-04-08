@@ -214,7 +214,12 @@ module HexaPDF
         unless obj.respond_to?(:xref_section)
           raise_malformed("Object is not a cross-reference stream", pos: pos)
         end
-        xref_section = obj.xref_section
+        begin
+          xref_section = obj.xref_section
+        rescue MalformedPDFError => e
+          e.pos = pos
+          raise
+        end
         trailer = obj.trailer
         unless xref_section.entry?(obj.oid, obj.gen)
           maybe_raise("Cross-reference stream doesn't contain entry for itself", pos: pos)
