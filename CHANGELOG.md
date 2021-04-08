@@ -15,6 +15,8 @@
   annotations to make it more convenient
 * Validation of [HexaPDF::Type::FontDescriptor] to delete invalid `/FontWeight`
   value
+* [HexaPDF::MalformedPDFError#pos] an accessor instead of a reader and update
+  the exception message
 
 ### Fixed
 
