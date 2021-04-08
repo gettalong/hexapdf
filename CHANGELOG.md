@@ -6,6 +6,8 @@
   page
 * [HexaPDF::Revision#update] for updating the stored wrapper class of a PDF
   object
+* [HexaPDF::Type::AcroForm::SignatureField] for working with AcroForm signature
+  fields
 
 ### Changed
 

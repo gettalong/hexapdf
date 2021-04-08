@@ -48,6 +48,7 @@ module HexaPDF
       autoload(:TextField, 'hexapdf/type/acro_form/text_field')
       autoload(:ButtonField, 'hexapdf/type/acro_form/button_field')
       autoload(:ChoiceField, 'hexapdf/type/acro_form/choice_field')
+      autoload(:SignatureField, 'hexapdf/type/acro_form/signature_field')
 
       autoload(:AppearanceGenerator, 'hexapdf/type/acro_form/appearance_generator')
 

@@ -516,6 +516,9 @@ module HexaPDF
                         XXAcroFormField: 'HexaPDF::Type::AcroForm::Field',
                         XXAppearanceDictionary: 'HexaPDF::Type::Annotation::AppearanceDictionary',
                         Border: 'HexaPDF::Type::Annotation::Border',
+                        SigFieldLock: 'HexaPDF::Type::AcroForm::SignatureField::LockDictionary',
+                        SV: 'HexaPDF::Type::AcroForm::SignatureField::SeedValueDictionary',
+                        SVCert: 'HexaPDF::Type::AcroForm::SignatureField::CertificateSeedValueDictionary',
                       },
                       'object.subtype_map' => {
                         nil => {
@@ -561,6 +564,7 @@ module HexaPDF
                           Tx: 'HexaPDF::Type::AcroForm::TextField',
                           Btn: 'HexaPDF::Type::AcroForm::ButtonField',
                           Ch: 'HexaPDF::Type::AcroForm::ChoiceField',
+                          Sig: 'HexaPDF::Type::AcroForm::SignatureField',
                         },
                       })
 
