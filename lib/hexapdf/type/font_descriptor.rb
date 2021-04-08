@@ -57,8 +57,7 @@ module HexaPDF
       define_field :FontStretch,  type: Symbol, version: '1.5',
         allowed_values: [:UltraCondensed, :ExtraCondensed, :Condensed, :SemiCondensed,
                          :Normal, :SemiExpanded, :Expanded, :ExtraExpanded, :UltraExpanded]
-      define_field :FontWeight,   type: Numeric, version: '1.5',
-        allowed_values: [100, 200, 300, 400, 500, 600, 700, 800, 900]
+      define_field :FontWeight,   type: Numeric, version: '1.5'
       define_field :Flags,        type: Integer, required: true
       define_field :FontBBox,     type: Rectangle
       define_field :ItalicAngle,  type: Numeric, required: true
@@ -98,10 +97,18 @@ module HexaPDF
         self[:Flags] = value
       end
 
+      ALLOWED_FONT_WEIGHTS = [100, 200, 300, 400, 500, 600, 700, 800, 900] #:nodoc:
+
       def perform_validation #:nodoc:
         super
         if [self[:FontFile], self[:FontFile2], self[:FontFile3]].compact.size > 1
           yield("Only one of /FontFile, /FontFile2 or /FontFile3 may be set", false)
+        end
+
+        font_weight = self[:FontWeight]
+        if font_weight && !ALLOWED_FONT_WEIGHTS.include?(font_weight)
+          yield("Field FontWeight does not contain an allowed value", true)
+          delete(:FontWeight)
         end
 
         descent = self[:Descent]

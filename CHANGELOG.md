@@ -13,6 +13,8 @@
 
 * **Breaking change**: Overhauled the interface for accessing appearances of
   annotations to make it more convenient
+* Validation of [HexaPDF::Type::FontDescriptor] to delete invalid `/FontWeight`
+  value
 
 ### Fixed
 

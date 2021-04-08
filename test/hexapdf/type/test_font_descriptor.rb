@@ -44,6 +44,13 @@ describe HexaPDF::Type::FontDescriptor do
       refute(@font_desc.validate)
     end
 
+    it "deletes the /FontWeight value if it doesn't contain a valid value" do
+      @font_desc[:FontWeight] = 350
+      refute(@font_desc.validate(auto_correct: false))
+      assert(@font_desc.validate)
+      refute(@font_desc.key?(:FontWeight))
+    end
+
     it "updates the /Descent value if it is not a negative number" do
       @font_desc[:Descent] = 5
       refute(@font_desc.validate(auto_correct: false))
