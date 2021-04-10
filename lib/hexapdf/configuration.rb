@@ -164,9 +164,20 @@ module HexaPDF
   # acro_form.fallback_font::
   #    The font that should be used when a variable text field references a font that cannot be used.
   #
-  #    Can either be the name of a font, like 'Helvetica', or an array consisting of the font name
-  #    and a hash of font options, like ['Helvetica', variant: :italic]. If set to +nil+, the use of
-  #    the fallback font is disabled.
+  #    Can be one of the following:
+  #
+  #    * The name of a font, like 'Helvetica'.
+  #
+  #    * An array consisting of the font name and a hash of font options, like ['Helvetica',
+  #      variant: :italic].
+  #
+  #    * A callable object receiving the field and the font object (or +nil+ if no valid font object
+  #      was found) and which has to return either a font name or an array consisting of the font
+  #      name and a hash of font options. This way the response can be different depending on the
+  #      original font and it would also allow e.g. modifying the configured fonts to add custom
+  #      ones.
+  #
+  #    If set to +nil+, the use of the fallback font is disabled.
   #
   #    Default is 'Helvetica'.
   #

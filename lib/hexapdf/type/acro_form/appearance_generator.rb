@@ -219,17 +219,8 @@ module HexaPDF
         #
         # Note: Multiline, comb and rich text fields are currently not supported!
         def create_text_appearances
-          font_name, font_size = @field.parse_default_appearance_string
           default_resources = @document.acro_form.default_resources
-          font = default_resources.font(font_name).font_wrapper rescue nil
-          unless font
-            fallback_font_name, fallback_font_options = @document.config['acro_form.fallback_font']
-            if fallback_font_name
-              font = @document.fonts.add(fallback_font_name, **(fallback_font_options || {}))
-            else
-              raise(HexaPDF::Error, "Font #{font_name} of the AcroForm's default resources not usable")
-            end
-          end
+          font, font_size = retrieve_font_information(default_resources)
           style = HexaPDF::Layout::Style.new(font: font)
           border_style = @widget.border_style
           padding = [1, border_style.width].max
@@ -480,6 +471,27 @@ module HexaPDF
             canvas.fill if canvas.graphics_object == :path
             result.draw(canvas, 2 * padding, rect.height - padding - top_gap)
           end
+        end
+
+        # Returns the font wrapper and font size to be used for a variable text field.
+        def retrieve_font_information(resources)
+          font_name, font_size = @field.parse_default_appearance_string
+          font_object = resources.font(font_name) rescue nil
+          font = font_object&.font_wrapper
+          unless font
+            fallback_font = @document.config['acro_form.fallback_font']
+            fallback_font_name, fallback_font_options = if fallback_font.respond_to?(:call)
+                                                          fallback_font.call(@field, font_object)
+                                                        else
+                                                          fallback_font
+                                                        end
+            if fallback_font_name
+              font = @document.fonts.add(fallback_font_name, **(fallback_font_options || {}))
+            else
+              raise(HexaPDF::Error, "Font #{font_name} of the AcroForm's default resources not usable")
+            end
+          end
+          [font, font_size]
         end
 
         # Calculates the font size for text fields based on the font and font size of the default

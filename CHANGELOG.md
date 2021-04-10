@@ -17,6 +17,8 @@
   value
 * [HexaPDF::MalformedPDFError#pos] an accessor instead of a reader and update
   the exception message
+* Configuration option 'acro_form.fallback_font' to allow a callable object for
+  more advanced fallback font handling
 
 ### Fixed
 

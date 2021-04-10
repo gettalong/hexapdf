@@ -748,17 +748,36 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
     describe "font resolution in case the referenced font is not usable" do
       before do
-        @doc.config['acro_form.fallback_font'] = ['Times', {variant: :none}]
+        @doc.config['acro_form.fallback_font'] = ['Times', {variant: :italic}]
         @field[:V] = 'Test'
       end
 
       it "uses the fallback font if the font is not usable" do
         def (@form.default_resources.font(:F1)).font_wrapper; nil; end
         @generator.create_appearances
-        assert_equal(:'Times-Roman', @widget[:AP][:N][:Resources][:Font][:F2][:BaseFont])
+        assert_equal(:'Times-Italic', @widget[:AP][:N][:Resources][:Font][:F2][:BaseFont])
       end
 
       it "uses the fallback font if the font is not found" do
+        @form.default_resources[:Font].delete(:F1)
+        @generator.create_appearances
+        assert_equal(:'Times-Italic', @widget[:AP][:N][:Resources][:Font][:F1][:BaseFont])
+      end
+
+      it "respects a simple fallback font name" do
+        @doc.config['acro_form.fallback_font'] = 'Times'
+        @form.default_resources[:Font].delete(:F1)
+        @generator.create_appearances
+        assert_equal(:'Times-Roman', @widget[:AP][:N][:Resources][:Font][:F1][:BaseFont])
+      end
+
+      it "respects a fallback font callable object" do
+        field = @field
+        @doc.config['acro_form.fallback_font'] = proc do |field_arg, font_arg|
+          assert_same(field.data, field_arg.data)
+          assert_nil(font_arg)
+          'Times'
+        end
         @form.default_resources[:Font].delete(:F1)
         @generator.create_appearances
         assert_equal(:'Times-Roman', @widget[:AP][:N][:Resources][:Font][:F1][:BaseFont])
