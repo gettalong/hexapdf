@@ -24,6 +24,8 @@
   empty background color arrays
 * [HexaPDF::Type::AcroForm::Field#delete_widget] to update the wrapper object
   stored in the document in case the widget is embedded
+* Processing of invalid PDF files containing a space,CR,LF combination after
+  the 'stream' keyword
 
 
 ## 0.14.4 - 2021-02-27
