@@ -598,7 +598,7 @@ describe HexaPDF::Parser do
     end
 
     it "uses the first trailer in case of a linearized file" do
-      create_parser("trailer <</Size 1/Prev 342>>\ntrailer <</Size 2>>")
+      create_parser("1 0 obj\n<</Linearized true>>\nendobj\ntrailer <</Size 1/Prev 342>>\ntrailer <</Size 2>>")
       assert_equal({Size: 1}, @parser.reconstructed_revision.trailer.value)
     end
 

@@ -26,6 +26,8 @@
   stored in the document in case the widget is embedded
 * Processing of invalid PDF files containing a space,CR,LF combination after
   the 'stream' keyword
+* Cross-reference stream reconstruction with respect to detection of linearized
+  files
 
 
 ## 0.14.4 - 2021-02-27

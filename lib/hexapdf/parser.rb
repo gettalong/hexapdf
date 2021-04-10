@@ -408,6 +408,7 @@ module HexaPDF
 
       xref = XRefSection.new
       @tokenizer.pos = 0
+      linearized = nil
       while true
         @tokenizer.skip_whitespace
         pos = @tokenizer.pos
@@ -423,13 +424,17 @@ module HexaPDF
             @tokenizer.pos = next_new_line_pos
           elsif gen.kind_of?(Integer) && tok.kind_of?(Tokenizer::Token) && tok == 'obj'
             xref.add_in_use_entry(token, gen, pos)
+            if linearized.nil?
+              obj = @tokenizer.next_object rescue nil
+              linearized = obj.kind_of?(Hash) && obj.key?(:Linearized)
+            end
             @tokenizer.scan_until(/(?:\n|\r\n?)endobj\b/)
           end
         elsif token.kind_of?(Tokenizer::Token) && token == 'trailer'
           obj = @tokenizer.next_object rescue nil
           # Use last trailer found in case of multiple revisions but use first trailer in case of
           # linearized file.
-          trailer = obj if obj.kind_of?(Hash) && (obj.key?(:Prev) || trailer.nil?)
+          trailer = obj if obj.kind_of?(Hash) && (!linearized || trailer.nil?)
         elsif token == Tokenizer::NO_MORE_TOKENS
           break
         else
