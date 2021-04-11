@@ -230,6 +230,13 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       @field.create_appearances
       assert_same(yes, widget.appearance_dict.normal_appearance[:Yes])
       assert_same(off, widget.appearance_dict.normal_appearance[:Off])
+
+      @field.delete_widget(widget)
+      @field.flag(:push_button)
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0], AP: {N: @doc.wrap({}, stream: '')})
+      appearance = widget.appearance_dict.normal_appearance
+      @field.create_appearances
+      assert_same(appearance, widget.appearance_dict.normal_appearance)
     end
 
     it "always generates appearances if force is true" do

@@ -31,6 +31,8 @@
   the 'stream' keyword
 * Cross-reference stream reconstruction with respect to detection of linearized
   files
+* Detection of existing appearances for AcroForm push button fields when
+  creating appearances
 
 
 ## 0.14.4 - 2021-02-27
