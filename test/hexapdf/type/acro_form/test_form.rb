@@ -268,6 +268,50 @@ describe HexaPDF::Type::AcroForm::Form do
     end
   end
 
+  describe "flatten" do
+    before do
+      @acro_form.root_fields << @doc.wrap({T: 'test'})
+      @tf = @acro_form.create_text_field('textfields')
+      @tf.set_default_appearance_string
+      @tf[:V] = 'Test'
+      @tf.create_widget(@doc.pages.add)
+      @cb = @acro_form.create_check_box('test.checkbox')
+      @cb.create_widget(@doc.pages[0])
+      @cb.create_widget(@doc.pages.add)
+    end
+
+    it "creates the missing appearances if instructed to do so" do
+      assert_equal(3, @acro_form.flatten(create_appearances: false).size)
+      assert_equal(0, @acro_form.flatten(create_appearances: true).size)
+    end
+
+    it "flattens the whole interactive form" do
+      result = @acro_form.flatten
+      assert(result.empty?)
+      assert(@tf.null?)
+      assert(@cb.null?)
+      assert(@acro_form.null?)
+      refute(@doc.catalog.key?(:AcroForm))
+    end
+
+    it "flattens the given fields" do
+      result = @acro_form.flatten(fields: [@cb])
+      assert(result.empty?)
+      assert(@cb.null?)
+      refute(@tf.null?)
+      refute(@acro_form.null?)
+      assert(@doc.catalog.key?(:AcroForm))
+    end
+
+    it "doesn't delete the form object if not all fields were flattened" do
+      @acro_form.create_appearances
+      @tf.delete(:AP)
+      result = @acro_form.flatten(create_appearances: false)
+      assert_equal(1, result.size)
+      assert(@doc.catalog.key?(:AcroForm))
+    end
+  end
+
   describe "perform_validation" do
     it "checks whether the /DR field is available when /DA is set" do
       @acro_form[:DA] = 'test'

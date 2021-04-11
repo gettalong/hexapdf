@@ -331,6 +331,43 @@ module HexaPDF
           end
         end
 
+        # Flattens the whole interactive form or only the given fields, and returns the fields that
+        # couldn't be flattened.
+        #
+        # Flattening means making the appearance streams of the field widgets part of the respective
+        # page's content stream and removing the fields themselves.
+        #
+        # If the whole interactive form is flattened, the form object itself is also removed if all
+        # fields were flattened.
+        #
+        # The +create_appearances+ argument controls whether missing appearances should
+        # automatically be created.
+        #
+        # See: HexaPDF::Type::Page#flatten_annotations
+        def flatten(fields: nil, create_appearances: true)
+          remove_form = fields.nil?
+          fields ||= each_field.to_a
+          if create_appearances
+            fields.each {|field| field.create_appearances if field.respond_to?(:create_appearances) }
+          end
+
+          not_flattened = fields.map {|field| field.each_widget.to_a }.flatten
+          document.pages.each {|page| not_flattened = page.flatten_annotations(not_flattened) }
+          fields -= not_flattened.map(&:form_field)
+
+          fields.each do |field|
+            (field[:Parent]&.[](:Kids) || self[:Fields]).delete(field)
+            document.delete(field)
+          end
+
+          if remove_form && not_flattened.empty?
+            document.catalog.delete(:AcroForm)
+            document.delete(self)
+          end
+
+          not_flattened
+        end
+
         private
 
         # Helper method for bit field getter access.

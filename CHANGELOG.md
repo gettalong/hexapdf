@@ -4,6 +4,7 @@
 
 * [HexaPDF::Type::Page#flatten_annotations] for flattening the annotations of a
   page
+* [HexaPDF::Type::AcroForm::Form#flatten] for flattening interactive forms
 * [HexaPDF::Revision#update] for updating the stored wrapper class of a PDF
   object
 * [HexaPDF::Type::AcroForm::SignatureField] for working with AcroForm signature
