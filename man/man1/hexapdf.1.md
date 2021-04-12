@@ -256,13 +256,25 @@ fields are listed in page order. By default the field name followed by a help te
 (if available) is shown, followed on the next line by the current value. Using the global
 `--verbose` option will show additional information like field type and location on the page.
 
-If *OUTPUT* is provided, the command prompts for the values of the form fields and stores the
-updated PDF file in *OUTPUT*. The values for the form fields are asked in the same order as when
-listing the fields. If no input for a field is given, the field's value is not changed from its
-current value.
+If *OUTPUT* is provided, the fields can be filled out interactively, via a template file or the
+fields can just be flattened. Form field flattening can also be activated in addition to filling out
+the form.
 
-By additionally using the `--template` option, the data for the fields is read from the given
-template file instead of the standard input. See the `--template` option for details.
+When filling out the form interactively (the default), the command prompts for the values of the
+form fields and stores the updated PDF file in *OUTPUT*. The values for the form fields are asked in
+the same order as when listing the fields. If no input for a field is given, the field's value is
+not changed from its current value.
+
+By using the `--template` option, the data for the fields is read from the given template file
+instead of the standard input. See the `--template` option for details.
+
+If the `--flatten` is specified but neither `--fill` nor `--template`, the form is just flattened.
+Otherwise the form is filled out and flattened in addtion.
+
+`--fill`
+
+: Fill out the form fields interactively. This is also the default if neither `--fill` nor
+  `--template` nor `--flatten` is specified.
 
 `-t TEMPLATE_FILE`, `--template TEMPLATE_FILE`
 
@@ -287,6 +299,11 @@ template file instead of the standard input. See the `--template` option for det
 
       Another form field:
         Value for this form field.
+
+`--flatten`
+
+: Flattens the form fields by making them part of the content of the page. This option can be used
+  standalone or in addition to `--fill` or `--template`.
 
 `--[no-]viewer-override`
 
@@ -878,6 +895,10 @@ List all form fields of the `input_form.pdf` with additional information.
 `hexapdf form input_form.pdf output.pdf`
 
 Interactively fill out the `input_form.pdf` PDF form and save the result in `output.pdf`.
+
+`hexapdf form --flatten --fill input_form.pdf output.pdf`
+
+Interactively fill out the `input_form.pdf` PDF form, flatten it and save the result in `output.pdf`.
 
 
 ### files

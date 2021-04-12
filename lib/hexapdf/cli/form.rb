@@ -52,18 +52,26 @@ module HexaPDF
           If the the output file name is not given, all form fields are listed in page order. Use
           the global --verbose option to show additional information like field type and location.
 
-          If the output file name is given, the fields can be interactively filled out. By
-          additionally using the --template option, the data for the fields is read from the given
-          template file instead of the standard input.
+          If the output file name is given, the fields can be filled out interactively, via a
+          template or just flattened by using the respective options. Form field flattening can also
+          be activated in addition to filling out the form. If neither --fill, --template nor
+          --flatten is specified, --fill is implied.
         EOF
 
         options.on("--password PASSWORD", "-p", String,
                    "The password for decryption. Use - for reading from standard input.") do |pwd|
           @password = (pwd == '-' ? read_password : pwd)
         end
+        options.on("--fill", "Fill out the form") do
+          @fill = true
+        end
         options.on("--template TEMPLATE_FILE", "-t TEMPLATE_FILE",
-                   "Use the template file for the field values") do |template|
+                   "Use the template file for the field values (implies --fill)") do |template|
           @template = template
+          @fill = true
+        end
+        options.on('--flatten', 'Flatten the form fields') do
+          @flatten = true
         end
         options.on("--[no-]viewer-override", "Let the PDF viewer override the visual " \
                    "appearance. Default: use setting from input PDF") do |need_appearances|
@@ -75,6 +83,8 @@ module HexaPDF
         end
 
         @password = nil
+        @fill = false
+        @flatten = false
         @template = nil
         @need_appearances = nil
         @incremental = true
@@ -82,16 +92,28 @@ module HexaPDF
 
       def execute(in_file, out_file = nil) #:nodoc:
         maybe_raise_on_existing_file(out_file) if out_file
+        if (@fill || @flatten) && !out_file
+          raise "Output file missing"
+        end
         with_document(in_file, password: @password, out_file: out_file,
                       incremental: @incremental) do |doc|
           if !doc.acro_form
             raise "This PDF doesn't contain an interactive form"
           elsif out_file
             doc.acro_form[:NeedAppearances] = @need_appearances unless @need_appearances.nil?
-            if @template
-              fill_form_with_template(doc)
-            else
-              fill_form(doc)
+            if @fill || !@flatten
+              if @template
+                fill_form_with_template(doc)
+              else
+                fill_form(doc)
+              end
+            end
+            if @flatten
+              unless doc.acro_form.flatten.empty?
+                $stderr.puts "Warning: Not all form fields could be flattened"
+                doc.catalog.delete(:AcroForm)
+                doc.delete(doc.acro_form)
+              end
             end
           else
             list_form_fields(doc)

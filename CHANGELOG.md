@@ -9,6 +9,7 @@
   object
 * [HexaPDF::Type::AcroForm::SignatureField] for working with AcroForm signature
   fields
+* Support for form field flattening to the `hexapdf form` CLI command
 
 ### Changed
 
