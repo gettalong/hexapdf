@@ -47,18 +47,18 @@ module HexaPDF
       #
       # +rwidth+::
       #     The requested width. If +rheight+ is not specified, it is chosen so that the aspect
-      #     ratio is maintained
+      #     ratio is maintained. In case of +width+ begin zero, +height+ is used for the height.
       #
       # +rheight+::
       #     The requested height. If +rwidth+ is not specified, it is chosen so that the aspect
-      #     ratio is maintained
+      #     ratio is maintained. In case of +height+ begin zero, +width+ is used for the width.
       def calculate_dimensions(width, height, rwidth: nil, rheight: nil)
         if rwidth && rheight
           [rwidth, rheight]
         elsif rwidth
-          [rwidth, height * rwidth / width.to_f]
+          [rwidth, width == 0 ? height : height * rwidth / width.to_f]
         elsif rheight
-          [width * rheight / height.to_f, rheight]
+          [height == 0 ? width : width * rheight / height.to_f, rheight]
         else
           [width, height]
         end

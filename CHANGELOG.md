@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Potential division by zero when calculating the scaling for XObjects
+
+
 ## 0.15.0 - 2021-04-12
 
 ### Added

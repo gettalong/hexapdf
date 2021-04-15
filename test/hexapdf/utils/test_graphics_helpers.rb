@@ -15,8 +15,16 @@ describe HexaPDF::Utils::GraphicsHelpers do
       assert_equal([10, 12], calculate_dimensions(5, 6, rwidth: 10))
     end
 
+    it "returns the requested width and the given height if width is zero" do
+      assert_equal([10, 6], calculate_dimensions(0, 6, rwidth: 10))
+    end
+
     it "returns the requested height and an adjusted width" do
       assert_equal([10, 12], calculate_dimensions(5, 6, rheight: 12))
+    end
+
+    it "returns the requested height and the given width if height is zero" do
+      assert_equal([5, 12], calculate_dimensions(5, 0, rheight: 12))
     end
   end
 
