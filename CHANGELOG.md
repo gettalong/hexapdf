@@ -3,6 +3,7 @@
 ### Fixed
 
 * Potential division by zero when calculating the scaling for XObjects
+* Handling of XObjects with a width or height of zero when drawing on canvas
 
 
 ## 0.15.0 - 2021-04-12

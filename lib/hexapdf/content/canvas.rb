@@ -1260,6 +1260,7 @@ module HexaPDF
         unless obj.kind_of?(HexaPDF::Stream)
           obj = context.document.images.add(obj)
         end
+        return obj if obj.width == 0 || obj.height == 0
 
         width, height = calculate_dimensions(obj.width, obj.height,
                                              rwidth: width, rheight: height)

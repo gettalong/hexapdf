@@ -831,6 +831,17 @@ describe HexaPDF::Content::Canvas do
                                         [:restore_graphics_state]])
     end
 
+    it "doesn't do anything if the image's width or height is zero" do
+      @image[:Width] = 0
+      @canvas.xobject(@image, at: [0, 0])
+      assert_operators(@page.contents, [])
+
+      @image[:Width] = 10
+      @image[:Height] = 0
+      @canvas.xobject(@image, at: [0, 0])
+      assert_operators(@page.contents, [])
+    end
+
     it "correctly serializes the form with no options" do
       @canvas.xobject(@form, at: [1, 2])
       assert_operators(@page.contents, [[:save_graphics_state],
@@ -861,6 +872,16 @@ describe HexaPDF::Content::Canvas do
                                         [:concatenate_matrix, [0.5, 0, 0, 0.2, -99, -48]],
                                         [:paint_xobject, [:XO1]],
                                         [:restore_graphics_state]])
+    end
+
+    it "doesn't do anything if the form's width or height is zero" do
+      @form[:BBox] = [100, 50, 100, 200]
+      @canvas.xobject(@form, at: [0, 0])
+      assert_operators(@page.contents, [])
+
+      @form[:BBox] = [100, 50, 150, 50]
+      @canvas.xobject(@form, at: [0, 0])
+      assert_operators(@page.contents, [])
     end
   end
 
