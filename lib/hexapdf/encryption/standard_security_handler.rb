@@ -241,7 +241,7 @@ module HexaPDF
       end
 
       def decrypt(obj) #:nodoc:
-        if obj.type == :Metadata && obj == document.catalog.value[:Metadata] && !dict[:EncryptMetadata]
+        if dict[:V] >= 4 && obj.type == :Metadata && obj[:Subtype] == :XML && !dict[:EncryptMetadata]
           obj
         else
           super
@@ -249,7 +249,11 @@ module HexaPDF
       end
 
       def encrypt_stream(obj) #:nodoc
-        obj == document.catalog.value[:Metadata] && !dict[:EncryptMetadata] ? obj.stream_encoder : super
+        if dict[:V] >= 4 && obj.type == :Metadata && obj[:Subtype] == :XML && !dict[:EncryptMetadata]
+          obj.stream_encoder
+        else
+          super
+        end
       end
 
       private

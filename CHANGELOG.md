@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Handling of general (not document-level), unencrypted metadata streams
+
+
 ## 0.15.2 - 2021-05-01
 
 ### Fixed

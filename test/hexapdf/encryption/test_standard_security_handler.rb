@@ -296,11 +296,11 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
   describe "handling of metadata streams" do
     before do
       @doc = HexaPDF::Document.new
-      @doc.encrypt(encrypt_metadata: false)
       @output = StringIO.new(''.b)
     end
 
-    it "doesn't decrypt or encrypt the document level metadata stream if /EncryptMetadata is false" do
+    it "doesn't decrypt or encrypt a metadata stream if /EncryptMetadata is false" do
+      @doc.encrypt(encrypt_metadata: false)
       @doc.catalog[:Metadata] = @doc.wrap({Type: :Metadata, Subtype: :XML}, stream: "HELLODATA")
       @doc.write(@output)
       assert_match(/stream\nHELLODATA\nendstream/, @output.string)
@@ -309,13 +309,14 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       assert_equal('HELLODATA', doc.catalog[:Metadata].stream)
     end
 
-    it "doesn't modify decryption/encryption for arbitrary metadata streams" do
-      @doc.catalog[:Anything] = @doc.wrap({Type: :Metadata, Subtype: :XML}, stream: "HELLODATA")
+    it "doesn't modify decryption/encryption for metadata streams if /V is not 4 or 5" do
+      @doc.encrypt(encrypt_metadata: false, algorithm: :arc4)
+      @doc.catalog[:Metadata] = @doc.wrap({Type: :Metadata, Subtype: :XML}, stream: "HELLODATA")
       @doc.write(@output)
       refute_match(/stream\nHELLODATA\nendstream/, @output.string)
 
       doc = HexaPDF::Document.new(io: @output)
-      assert_equal('HELLODATA', doc.catalog[:Anything].stream)
+      assert_equal('HELLODATA', doc.catalog[:Metadata].stream)
     end
   end
 end
