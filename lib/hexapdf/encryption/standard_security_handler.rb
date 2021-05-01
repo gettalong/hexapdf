@@ -240,6 +240,18 @@ module HexaPDF
         end
       end
 
+      def decrypt(obj) #:nodoc:
+        if obj.type == :Metadata && obj == document.catalog.value[:Metadata] && !dict[:EncryptMetadata]
+          obj
+        else
+          super
+        end
+      end
+
+      def encrypt_stream(obj) #:nodoc
+        obj == document.catalog.value[:Metadata] && !dict[:EncryptMetadata] ? obj.stream_encoder : super
+      end
+
       private
 
       # Prepares the security handler for use in encrypting the document.
