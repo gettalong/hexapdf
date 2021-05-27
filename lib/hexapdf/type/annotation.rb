@@ -138,8 +138,13 @@ module HexaPDF
         if entry.kind_of?(HexaPDF::Dictionary) && !entry.kind_of?(HexaPDF::Stream)
           entry = entry[self[:AS]]
         end
-        if entry.kind_of?(HexaPDF::Stream)
-          entry[:Subtype] == :Form ? entry : document.wrap(entry, type: :XObject, subtype: :Form)
+        return unless entry.kind_of?(HexaPDF::Stream)
+
+        if entry.type == :XObject && entry[:Subtype] == :Form
+          entry
+        elsif (entry[:Type].nil? || entry[:Type] == :XObject) &&
+            (entry[:Subtype].nil? || entry[:Subtype] == :Form) && entry[:BBox]
+          document.wrap(entry, type: :XObject, subtype: :Form)
         end
       end
       alias appearance? appearance

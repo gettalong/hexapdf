@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Type::Annotation#appearance] to handle cases where there is
+  no valid appearance stream
+
+
 ## 0.15.3 - 2021-05-01
 
 ### Fixed

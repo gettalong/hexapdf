@@ -51,14 +51,18 @@ describe HexaPDF::Type::Annotation do
 
     stream = @doc.wrap({}, stream: '')
     @annot[:AP][:N] = stream
+    assert_nil(@annot.appearance)
+
+    stream[:BBox] = [1, 2, 3, 4]
     appearance = @annot.appearance
     assert_same(stream.data, appearance.data)
     assert_equal(:Form, appearance[:Subtype])
 
-    @annot[:AP][:N] = {X: stream}
+    @annot[:AP][:N] = {X: {}}
     assert_nil(@annot.appearance)
 
     @annot[:AS] = :X
+    @annot[:AP][:N][:X] = stream
     assert_same(stream.data, @annot.appearance.data)
 
     @annot[:AP][:D] = {X: stream}
