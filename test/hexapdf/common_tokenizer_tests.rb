@@ -143,6 +143,16 @@ module CommonTokenizerTests
     assert_equal({Name: 5}, @tokenizer.next_object)
   end
 
+  it "next_token: fails on a array without closing bracket" do
+    create_tokenizer("[1 2")
+    assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_object }
+  end
+
+  it "next_token: fails on a dict without closing bracket" do
+    create_tokenizer("<</Name /5")
+    assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_object }
+  end
+
   it "next_object: allows keywords if the corresponding option is set" do
     create_tokenizer("name")
     obj = @tokenizer.next_object(allow_keyword: true)

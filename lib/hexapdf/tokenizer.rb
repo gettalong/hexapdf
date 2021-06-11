@@ -384,6 +384,9 @@ module HexaPDF
       while true
         obj = next_object(allow_end_array_token: true)
         break if obj.equal?(TOKEN_ARRAY_END)
+        if obj.equal?(NO_MORE_TOKENS)
+          raise HexaPDF::MalformedPDFError.new("Reached end of file while parsing array", pos: pos)
+        end
         result << obj
       end
       result
@@ -401,6 +404,9 @@ module HexaPDF
         # throw an error with #next_object.
         key = next_token
         break if key.equal?(TOKEN_DICT_END)
+        if key.equal?(NO_MORE_TOKENS)
+          raise HexaPDF::MalformedPDFError.new("Reached end of file while parsing dictionary", pos: pos)
+        end
         unless key.kind_of?(Symbol)
           raise HexaPDF::MalformedPDFError.new("Dictionary keys must be PDF name objects", pos: pos)
         end
