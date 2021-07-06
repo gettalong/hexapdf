@@ -263,9 +263,9 @@ module HexaPDF
 
         @tokenizer.skip_whitespace
         start.upto(start + number_of_entries - 1) do |oid|
-          pos, gen, type = @tokenizer.next_xref_entry do |matched_size|
+          pos, gen, type = @tokenizer.next_xref_entry do |recoverable|
             maybe_raise("Invalid cross-reference entry", pos: @tokenizer.pos,
-                        force: !matched_size)
+                        force: !recoverable)
           end
           if xref.entry?(oid)
             next

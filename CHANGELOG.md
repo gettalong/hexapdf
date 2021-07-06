@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Changed
+
+* Refactored [HexaPDF::Tokenizer#next_xref_entry] and changed yielded value
+
+
 ### Fixed
 
 * Handling of invalid cross-reference stream entries that ends with the sequence

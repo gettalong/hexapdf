@@ -225,14 +225,14 @@ module HexaPDF
     # Reads the cross-reference subsection entry at the current position and advances the scan
     # pointer.
     #
-    # If a possible problem is detected, yields to caller.
+    # If a problem is detected, yields to caller where the argument +recoverable+ is truthy if the
+    # problem is recoverable.
     #
     # See: PDF1.7 7.5.4
-    def next_xref_entry #:yield: matched_size
+    def next_xref_entry #:yield: recoverable
       prepare_string_scanner(20)
-      unless @ss.skip(/(\d{10}) (\d{5}) ([nf])(?: \r| \n|\r\n|\r\r|\r|\n)/) &&
-          (@ss.matched_size == 20 && !@ss.matched.end_with?("\r\r"))
-        yield(@ss.matched_size)
+      if !@ss.skip(/(\d{10}) (\d{5}) ([nf])(?: \r| \n|\r\n|(\r\r|\r|\n))/) || @ss[4]
+        yield(@ss[4])
       end
       [@ss[1].to_i, @ss[2].to_i, @ss[3]]
     end

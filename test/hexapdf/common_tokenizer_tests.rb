@@ -210,10 +210,12 @@ module CommonTokenizerTests
 
   it "next_xref_entry: fails on invalidly formatted entries" do
     create_tokenizer("0000000001 00001 g \n")
-    assert_raises(RuntimeError) { @tokenizer.next_xref_entry { raise } }
+    assert_raises(RuntimeError) { @tokenizer.next_xref_entry {|recoverable| refute(recoverable); raise } }
     create_tokenizer("0000000001 00001 n\n")
-    assert_raises(RuntimeError) { @tokenizer.next_xref_entry { raise } }
+    assert_raises(RuntimeError) { @tokenizer.next_xref_entry {|recoverable| assert(recoverable); raise } }
+    create_tokenizer("0000000001 00001 n\r")
+    assert_raises(RuntimeError) { @tokenizer.next_xref_entry {|recoverable| assert(recoverable); raise } }
     create_tokenizer("0000000001 00001 n\r\r")
-    assert_raises(RuntimeError) { @tokenizer.next_xref_entry { raise } }
+    assert_raises(RuntimeError) { @tokenizer.next_xref_entry {|recoverable| assert(recoverable); raise } }
   end
 end
