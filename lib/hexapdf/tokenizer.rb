@@ -230,7 +230,8 @@ module HexaPDF
     # See: PDF1.7 7.5.4
     def next_xref_entry #:yield: matched_size
       prepare_string_scanner(20)
-      unless @ss.skip(/(\d{10}) (\d{5}) ([nf])(?: \r| \n|\r\n|\r|\n)/) && @ss.matched_size == 20
+      unless @ss.skip(/(\d{10}) (\d{5}) ([nf])(?: \r| \n|\r\n|\r\r|\r|\n)/) &&
+          (@ss.matched_size == 20 && !@ss.matched.end_with?("\r\r"))
         yield(@ss.matched_size)
       end
       [@ss[1].to_i, @ss[2].to_i, @ss[3]]

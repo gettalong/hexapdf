@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* Handling of invalid cross-reference stream entries that ends with the sequence
+  `\r\r`
+
+
 ## 0.15.4 - 2021-05-27
 
 ### Fixed

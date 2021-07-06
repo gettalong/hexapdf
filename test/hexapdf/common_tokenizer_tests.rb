@@ -213,5 +213,7 @@ module CommonTokenizerTests
     assert_raises(RuntimeError) { @tokenizer.next_xref_entry { raise } }
     create_tokenizer("0000000001 00001 n\n")
     assert_raises(RuntimeError) { @tokenizer.next_xref_entry { raise } }
+    create_tokenizer("0000000001 00001 n\r\r")
+    assert_raises(RuntimeError) { @tokenizer.next_xref_entry { raise } }
   end
 end
