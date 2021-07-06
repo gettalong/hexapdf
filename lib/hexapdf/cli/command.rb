@@ -50,7 +50,7 @@ module HexaPDF
       module Extensions #:nodoc:
         def help_banner #:nodoc:
           "hexapdf #{HexaPDF::VERSION} - Versatile PDF Manipulation Tool\n" \
-            "Copyright (c) 2014-2017 Thomas Leitner; licensed under the AGPLv3\n\n" \
+            "Copyright (c) 2014-2021 Thomas Leitner; licensed under the AGPLv3\n\n" \
             "#{format(usage, indent: 7)}\n\n"
         end
       end
