@@ -125,11 +125,14 @@ module HexaPDF
         begin
           object = @tokenizer.next_object
         rescue MalformedPDFError
-          # Handle often found invalid indirect object with missing whitespace after number
-          maybe_raise("Invalid object value after 'obj'", pos: @tokenizer.pos,
-                      force: !(tok.kind_of?(Tokenizer::Token) && tok =~ /\A\d+endobj\z/))
-          object = tok.to_i
-          @tokenizer.pos -= 6
+          if tok.kind_of?(Tokenizer::Token) && tok =~ /\A\d+endobj\z/
+            # Handle often found invalid indirect object with missing whitespace after number
+            maybe_raise("Missing whitespace after number'", pos: @tokenizer.pos)
+            object = tok.to_i
+            @tokenizer.pos -= 6
+          else
+            maybe_raise("Invalid value after '#{oid} #{gen} obj', treating as null", pos: @tokenizer.pos)
+          end
         end
       end
 

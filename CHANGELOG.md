@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* Handling of indirect objects with invalid values which are now treated as null
+  objects
+
+
 ## 0.15.5 - 2021-07-06
 
 ### Changed
