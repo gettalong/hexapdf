@@ -387,7 +387,11 @@ module HexaPDF
       result = []
       while true
         obj = next_object(allow_end_array_token: true)
-        break if obj.equal?(TOKEN_ARRAY_END)
+        if obj.equal?(TOKEN_ARRAY_END)
+          break
+        elsif obj.equal?(NO_MORE_TOKENS)
+          raise HexaPDF::MalformedPDFError.new("Unclosed array found", pos: pos)
+        end
         result << obj
       end
       result

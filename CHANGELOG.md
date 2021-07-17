@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Infinite loop while parsing PDF array due to missing closing bracket
+
+
 ## 0.15.6 - 2021-07-16
 
 ### Fixed
