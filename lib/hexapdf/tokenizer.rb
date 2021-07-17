@@ -55,6 +55,9 @@ module HexaPDF
 
     # This object is returned when there are no more tokens to read.
     NO_MORE_TOKENS = ::Object.new
+    def NO_MORE_TOKENS.to_s
+      "EOS - no more tokens"
+    end
 
     # Characters defined as whitespace.
     #
@@ -403,7 +406,8 @@ module HexaPDF
         key = next_token
         break if key.equal?(TOKEN_DICT_END)
         unless key.kind_of?(Symbol)
-          raise HexaPDF::MalformedPDFError.new("Dictionary keys must be PDF name objects", pos: pos)
+          raise HexaPDF::MalformedPDFError.new("Dictionary keys must be PDF name objects, " \
+                                               "found '#{key}'", pos: pos)
         end
 
         val = next_object

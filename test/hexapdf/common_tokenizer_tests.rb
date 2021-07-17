@@ -161,6 +161,15 @@ module CommonTokenizerTests
     assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_object }
   end
 
+  it "next_object: fails for a dictionary without closing bracket, encountering EOS" do
+    create_tokenizer("<</Name 5")
+    exception = assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_object }
+    assert_match(/must be PDF name objects.*EOS/, exception.message)
+    create_tokenizer("<</Name 5 /Other")
+    exception = assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_object }
+    assert_match(/must be PDF name objects.*EOS/, exception.message)
+  end
+
   it "returns the correct position on operations" do
     create_tokenizer("hallo du" << " " * 50000 << "hallo du")
     @tokenizer.next_token
