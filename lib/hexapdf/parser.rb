@@ -448,6 +448,15 @@ module HexaPDF
       if !trailer || trailer.empty?
         _, trailer = load_revision(startxref_offset) rescue nil
         unless trailer
+          xref.each do |_oid, _gen, xref_entry|
+            obj, * = parse_indirect_object(xref_entry.pos) rescue nil
+            if obj.kind_of?(Hash) && obj[:Type] == :Catalog
+              trailer = {Root: HexaPDF::Reference.new(xref_entry.oid, xref_entry.gen)}
+              break
+            end
+          end
+        end
+        unless trailer
           @in_reconstruct_revision = false
           raise_malformed("Could not reconstruct malformed PDF because trailer was not found", pos: 0)
         end

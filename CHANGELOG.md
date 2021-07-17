@@ -3,6 +3,7 @@
 ### Fixed
 
 * Infinite loop while parsing PDF array due to missing closing bracket
+* Handling of invalid files with missing or corrupted trailer dictionary
 
 
 ## 0.15.6 - 2021-07-16

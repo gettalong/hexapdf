@@ -619,7 +619,12 @@ describe HexaPDF::Parser do
       assert_equal({Size: 1}, @parser.reconstructed_revision.trailer.value)
     end
 
-    it "fails if no trailer is found and the trailer specified at the startxref position is not valid" do
+    it "constructs a trailer with a /Root entry if no valid trailer was found" do
+      create_parser("1 0 obj\n<</Type /Catalog/Pages 2 0 R>>\nendobj\nxref trailer <</Size 1/Prev 5\n%%EOF")
+      assert_equal({Root: HexaPDF::Reference.new(1, 0)}, @parser.reconstructed_revision.trailer.value)
+    end
+
+    it "fails if no valid trailer is found and couldn't be constructed" do
       create_parser("1 0 obj\n5\nendobj\nquack trailer <</Size 1>>\nstartxref\n22\n%%EOF")
       assert_raises(HexaPDF::MalformedPDFError) { @parser.reconstructed_revision.trailer }
     end
