@@ -1,3 +1,10 @@
+## 0.15.8 - 2021-08-16
+
+### Fixed
+
+* Regression when using `-v` with the hexapdf command line tool
+
+
 ## 0.15.7 - 2021-07-17
 
 ### Fixed
