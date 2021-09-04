@@ -1,3 +1,11 @@
+## 0.15.9 - 2021-09-04
+
+### Fixed
+
+* Handling of files that contain stream length values that are indirect objects
+  not referring to a number
+
+
 ## 0.15.8 - 2021-08-16
 
 ### Fixed

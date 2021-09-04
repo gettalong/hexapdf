@@ -165,7 +165,7 @@ module HexaPDF
                  else
                    0
                  end
-        @tokenizer.pos = pos + length
+        @tokenizer.pos = pos + length rescue pos
 
         tok = @tokenizer.next_token
         unless tok.kind_of?(Tokenizer::Token) && tok == 'endstream'
