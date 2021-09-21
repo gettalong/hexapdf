@@ -245,7 +245,7 @@ module HexaPDF
   #    Defines a mapping from font names and variants to font files.
   #
   #    The value needs to be a hash of the form:
-  #      {"font_name": {variant: file_name, variant2: file_name2, ...}, ...}
+  #      {"font_name" => {variant: file_name, variant2: file_name2, ...}, ...}
   #
   #    Once a font is registered in this way, the font name together with a variant name can be used
   #    with the HexaPDF::Document::Fonts#add method to load the font.
