@@ -73,8 +73,16 @@ describe HexaPDF::Content::ColorSpace do
       assert_equal([0.2, 1, 0], @class.device_color_from_specification(51, 255, 0).components)
     end
 
-    it "works for RGB values given as string" do
+    it "works for RGB values given as full hex string" do
       assert_equal([0.2, 1, 0], @class.device_color_from_specification("33FF00").components)
+    end
+
+    it "works for RGB values given as half hex string" do
+      assert_equal([0.2, 1, 0], @class.device_color_from_specification("3F0").components)
+    end
+
+    it "works for RGB values given as color names" do
+      assert_equal([0, 0, 1], @class.device_color_from_specification("blue").components)
     end
 
     it "works for CMYK values" do
@@ -84,6 +92,10 @@ describe HexaPDF::Content::ColorSpace do
 
     it "works when an array is given" do
       assert_equal([0.2], @class.device_color_from_specification([51]).components)
+    end
+
+    it "raises an error if an invalid color string is given" do
+      assert_raises(ArgumentError) { @class.device_color_from_specification("unknown") }
     end
   end
 

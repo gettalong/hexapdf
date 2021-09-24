@@ -675,6 +675,10 @@ module HexaPDF
       # * Three numeric arguments specify an RGB color (see Content::ColorSpace::DeviceRGB::Color).
       # * A string in the format "RRGGBB" where "RR" is the hexadecimal number for the red, "GG"
       #   for the green and "BB" for the blue color value also specifies an RGB color.
+      # * As does a string in the format "RGB" where "RR", "GG" and "BB" would be used as the
+      #   hexadecimal numbers for the red, green and blue color values of an RGB color.
+      # * Any other string is treated as a CSS Color Module Level 3 color name, see
+      #   https://www.w3.org/TR/css-color-3/#svg-color.
       # * Four numeric arguments specify a CMYK color (see Content::ColorSpace::DeviceCMYK::Color).
       # * A color object is used directly (normally used for color spaces other than DeviceRGB,
       #   DeviceCMYK and DeviceGray).
