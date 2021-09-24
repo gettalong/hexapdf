@@ -1852,7 +1852,7 @@ module HexaPDF
       # on the possible color specifications.
       def color_from_specification(spec)
         if spec.length == 1 && spec[0].kind_of?(String)
-          resources.color_space(:DeviceRGB).color(*spec[0].scan(/../).map!(&:hex))
+          ColorSpace.device_color_from_specification(spec)
         elsif spec.length == 1 && spec[0].respond_to?(:color_space)
           spec[0]
         else
