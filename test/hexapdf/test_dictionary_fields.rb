@@ -242,4 +242,19 @@ describe HexaPDF::DictionaryFields do
       doc.verify
     end
   end
+
+  describe "IntegerConverter" do
+    before do
+      @field = self.class::Field.new(Integer)
+    end
+
+    it "no additional field types allowed" do
+      assert_equal([Integer], @field.type)
+    end
+
+    it "allows conversion to an Integer from an equivalent Float value" do
+      refute_same(3, @field.convert(3.1, nil))
+      assert_same(3, @field.convert(3.0, nil))
+    end
+  end
 end

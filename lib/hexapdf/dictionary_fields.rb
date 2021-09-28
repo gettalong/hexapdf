@@ -349,9 +349,30 @@ module HexaPDF
 
     end
 
+    # Converter module for fields of type Integer.
+    module IntegerConverter
+
+      # This converter is usable if the +type+ is Integer.
+      def self.usable_for?(type)
+        type == Integer
+      end
+
+      # :nodoc:
+      def self.additional_types
+      end
+
+      # Converts a Float value into an Integer if the float is equal to its integer value. Otherwise
+      # returns +nil+
+      def self.convert(data, _type, _document)
+        return unless data.kind_of?(Float) && data == data.to_i
+        data.to_i
+      end
+
+    end
+
     Field.converters.replace([FileSpecificationConverter, DictionaryConverter, ArrayConverter,
                               StringConverter, PDFByteStringConverter, DateConverter,
-                              RectangleConverter])
+                              RectangleConverter, IntegerConverter])
 
   end
 

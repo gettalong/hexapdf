@@ -4,6 +4,7 @@
 
 * Support for RGB color values of the form "RGB" in addition to "RRGGBB" and for
   CSS color module level 3 color names
+* Conversion module for Integer fields to fix certain invalid PDF files
 
 
 ## 0.15.9 - 2021-09-04
