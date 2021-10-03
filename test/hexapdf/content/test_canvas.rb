@@ -1128,6 +1128,7 @@ describe HexaPDF::Content::Canvas do
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 10]],
                                           [:begin_text],
                                           [:set_text_matrix, [1, 0, 0, 1, 100, 100]],
+                                          [:set_leading, [10]],
                                           [:show_text_with_positioning, [["Hallo"]]]])
     end
 
@@ -1135,6 +1136,7 @@ describe HexaPDF::Content::Canvas do
       @canvas.font("Times", size: 10)
       @canvas.text("H\u{D A}H\u{A}H\u{B}H\u{c}H\u{D}H\u{85}H\u{2028}H\u{2029}H")
       assert_operators(@canvas.contents, [[:set_font_and_size, [:F1, 10]],
+                                          [:set_leading, [10]],
                                           [:begin_text],
                                           [:show_text_with_positioning, [["H"]]], [:move_text_next_line],
                                           [:show_text_with_positioning, [["H"]]], [:move_text_next_line],

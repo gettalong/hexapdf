@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::Content::Canvas#text] to use the font size as leading if no leading
+  has been set
+
+
 ## 0.16.0 - 2021-09-28
 
 ## Added

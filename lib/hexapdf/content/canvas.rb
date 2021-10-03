@@ -1667,7 +1667,8 @@ module HexaPDF
       # cursor (the origin in case of a new text object or otherwise after the last shown text).
       #
       # The text string may contain any valid Unicode newline separator and if so, multiple lines
-      # are shown, using #leading for offsetting the lines.
+      # are shown, using #leading for offsetting the lines. If no leading has been set, a leading
+      # equal to the font size will be set..
       #
       # Note that there are no provisions to make sure that all text is visible! So if the text
       # string is too long, it will just flow off the page and be cut off.
@@ -1681,6 +1682,7 @@ module HexaPDF
       def text(text, at: nil)
         raise_unless_font_set
         move_text_cursor(offset: at) if at
+        leading(font_size) if leading == 0
         lines = text.split(/\u{D A}|(?!\u{D A})[\u{A}-\u{D}\u{85}\u{2028}\u{2029}]/, -1)
         lines.each_with_index do |str, index|
           show_glyphs(@font.decode_utf8(str))
