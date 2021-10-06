@@ -56,7 +56,7 @@ module HexaPDF
     # know all operators and their operands.
     #
     # This is rather tedious and therefore this class exists. It allows one to modify a content
-    # stream by invoking methods that should be familiar to anyone that has ever used a graphic
+    # stream by invoking methods that should be familiar to anyone that has ever used a graphics
     # API. There are methods for moving the current point, drawing lines and curves, setting the
     # color, line width and so on.
     #
@@ -64,6 +64,84 @@ module HexaPDF
     # the Operator::BaseOperator#invoke and Operator::BaseOperator#serialize methods for applying
     # changes and serialization, with one exception: color setters don't invoke the corresponding
     # operator implementation but directly work on the graphics state.
+    #
+    # === General Graphics State Manipulation Methods
+    #
+    # * #save_graphics_state
+    # * #restore_graphics_state
+    # * #fill_color
+    # * #stroke_color
+    # * #opacity
+    # * #rendering_intent
+    #
+    # === Transformation Methods
+    #
+    # * #transform
+    # * #translate
+    # * #scale
+    # * #rotate
+    # * #skew
+    #
+    # === Path Construction Methods
+    #
+    # * #move_to
+    # * #line_to
+    # * #curve_to
+    # * #rectangle
+    # * #line
+    # * #polyline
+    # * #polygon
+    # * #circle
+    # * #ellipse
+    # * #arc
+    # * #close_subpath
+    # * #end_path
+    #
+    # === Path Painting Methods
+    #
+    # * #fill
+    # * #stroke
+    # * #fill_stroke
+    # * #close_stroke
+    # * #close_fill_stroke
+    # * #clip_path
+    #
+    # === Path Related Graphics State Methods
+    #
+    # * #line_cap_style
+    # * #line_dash_pattern
+    # * #line_join_style
+    # * #line_width
+    # * #miter_limit
+    #
+    # === Text Related Methods
+    #
+    # * #begin_text
+    # * #end_text
+    # * #text
+    # * #show_glyphs
+    # * #show_glyphs_only
+    # * #text_cursor
+    # * #move_text_cursor
+    # * #font
+    # * #font_size
+    # * #character_spacing
+    # * #horizontal_scaling
+    # * #text_rise
+    # * #word_spacing
+    # * #leading
+    # * #text_matrix
+    # * #text_rendering_mode
+    #
+    # === Other Methods
+    #
+    # * #image
+    # * #xobject
+    # * #graphic_object
+    # * #draw
+    # * #marked_content_point
+    # * #marked_content_sequence
+    # * #end_marked_content_sequence
     #
     #
     # == PDF Graphics
@@ -122,16 +200,6 @@ module HexaPDF
     # In addition filling may be done using either the nonzero winding number rule or the even-odd
     # rule.
     #
-    #
-    # == Special Graphics State Methods
-    #
-    # These methods are only allowed when the current graphics object is :none, i.e. operations are
-    # done on the page description level.
-    #
-    # * #save_graphics_state
-    # * #restore_graphics_state
-    # * #transform, #rotate, #scale, #translate, #skew
-    #
     # See: PDF1.7 s8, s9
     class Canvas
 
@@ -154,8 +222,10 @@ module HexaPDF
       # operations.
       #
       # In contrast to #contents, it is ensured that an open graphics object is closed and all saved
-      # graphics states are restored when the contents of the stream data object is read. *Note*
-      # that this means that reading the stream data object may change the state of the canvas.
+      # graphics states are restored when the contents of the stream data object is read.
+      #
+      # *Note* that this means that reading the stream data object may change the state of the
+      # canvas!
       attr_reader :stream_data
 
       # The Content::GraphicsState object containing the current graphics state.
@@ -166,8 +236,8 @@ module HexaPDF
 
       # The current graphics object.
       #
-      # The graphics object should not be changed directly. It is automatically updated according
-      # to the invoked methods.
+      # The graphics object should not be changed directly. It is automatically updated by the
+      # invoked methods.
       #
       # This attribute can have the following values:
       #
@@ -189,9 +259,21 @@ module HexaPDF
       attr_reader :current_point
 
       # The operator name/implementation map used when invoking or serializing an operator.
+      #
+      # Defaults to Content::Operator::DEFAULT_OPERATORS.
       attr_reader :operators
 
-      # Creates a new Canvas object for the given context object (either a Page or a Form).
+      # Creates a new Canvas object for the given context object (either a HexaPDF::Type::Page or a
+      # HexaPDF::Type::Form).
+      #
+      # This method is usually not invoked directly but through HexaPDF::Type::Page#canvas or
+      # HexaPDF::Type::Form#canvas to make sure the contents of the canvas is properly assigned to
+      # the context object.
+      #
+      # Examples:
+      #
+      #   doc = HexaPDF::Document.new
+      #   canvas = doc.pages.add.canvas
       def initialize(context)
         @context = context
         @operators = Operator::DEFAULT_OPERATORS.dup
@@ -214,6 +296,8 @@ module HexaPDF
       end
 
       # Returns the resource dictionary of the context object.
+      #
+      # See HexaPDF::Type::Resources
       def resources
         @context.resources
       end
@@ -224,22 +308,29 @@ module HexaPDF
       #
       # Saves the current graphics state and returns self.
       #
-      # If invoked without a block a corresponding call to #restore_graphics_state must be done.
-      # Otherwise the graphics state is automatically restored when the block is finished.
+      # If invoked without a block a corresponding call to #restore_graphics_state must be done to
+      # ensure proper nesting. Otherwise, i.e. when invoked with a block, the graphics state is
+      # automatically restored when the block is finished.
+      #
+      # Any saved graphics states are also restored when the content stream associated with the
+      # canvas is serialized to ensure proper nesting.
       #
       # Examples:
       #
+      #   #>pdf
       #   # With a block
       #   canvas.save_graphics_state do
-      #     canvas.line_width(10)
-      #     canvas.line(100, 100, 200, 200)
+      #     canvas.stroke_color("red")                     # After the block the color is reset
+      #     canvas.line(20, 20, 70, 180).stroke
       #   end
+      #   canvas.line(60, 20, 110, 180).stroke
       #
       #   # Same without a block
-      #   canvas.save_graphics_state
-      #   canvas.line_width(10)
-      #   canvas.line(100, 100, 200, 200)
-      #   canvas.restore_graphics_state
+      #   canvas.save_graphics_state.
+      #     stroke_color("red").
+      #     line(100, 20, 150, 180).stroke.
+      #     restore_graphics_state
+      #   canvas.line(140, 20, 190, 180).stroke
       #
       # See: PDF1.7 s8.4.2, #restore_graphics_state
       def save_graphics_state
@@ -286,10 +377,12 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.transform(1, 0, 0, 1, 100, 100) do  # Translate origin to (100, 100)
-      #     canvas.line(0, 0, 100, 100)              # Actually from (100, 100) to (200, 200)
+      #     canvas.stroke_color("red").
+      #       line(0, 0, 100, 50).stroke             # Actually from (100, 100) to (200, 150)
       #   end
-      #   canvas.line(0, 0, 100, 100)                # Again from (0, 0) to (100, 100)
+      #   canvas.line(0, 0, 100, 50).stroke          # Really from (0, 0) to (100, 50)
       #
       # See: PDF1.7 s8.3, s8.4.4
       def transform(a, b, c, d, e, f)
@@ -313,20 +406,25 @@ module HexaPDF
       # If invoked with a block, the rotation of the user space is only active during the block by
       # saving and restoring the graphics state.
       #
-      # Note that the origin of the coordinate system itself doesn't change!
+      # Note that the origin of the coordinate system itself doesn't change even if the +origin+
+      # argument is given!
       #
       # origin::
       #   The point around which the user space should be rotated.
       #
       # Examples:
       #
-      #   canvas.rotate(90) do                 # Positive x-axis is now pointing upwards
-      #     canvas.line(0, 0, 100, 0)          # Actually from (0, 0) to (0, 100)
+      #   #>pdf-center
+      #   canvas.stroke_color("lightgrey").
+      #     rectangle(0, 0, 60, 40).stroke
+      #   canvas.rotate(45) do                       # Positive x-axis pointing to top-right corner
+      #     canvas.stroke_color("red").
+      #       rectangle(0, 0, 60, 40).stroke
       #   end
-      #   canvas.line(0, 0, 100, 0)            # Again from (0, 0) to (100, 0)
       #
-      #   canvas.rotate(90, origin: [100, 100]) do
-      #     canvas.line(100, 100, 200, 0)      # Actually from (100, 100) to (100, 200)
+      #   canvas.rotate(-45, origin: [-50, -50]) do  # Rotate around (-50,-50)
+      #     canvas.stroke_color("blue").
+      #       rectangle(0, 0, 60, 40).stroke
       #   end
       #
       # See: #transform
@@ -352,20 +450,25 @@ module HexaPDF
       # If invoked with a block, the scaling is only active during the block by saving and
       # restoring the graphics state.
       #
-      # Note that the origin of the coordinate system itself doesn't change!
+      # Note that the origin of the coordinate system itself doesn't change even if the +origin+
+      # argument is given!
       #
       # origin::
       #   The point from which the user space should be scaled.
       #
       # Examples:
       #
-      #   canvas.scale(2, 3) do                # Point (1, 1) is now actually (2, 3)
-      #     canvas.line(50, 50, 100, 100)      # Actually from (100, 150) to (200, 300)
+      #   #>pdf-center
+      #   canvas.stroke_color("lightgrey").
+      #     rectangle(10, 10, 10, 10).stroke
+      #   canvas.scale(4, 2) do                     # Scale from origin
+      #     canvas.stroke_color("blue").
+      #       rectangle(10, 10, 10, 10).stroke      # Actually (40, 20) to (80, 40)
       #   end
-      #   canvas.line(0, 0, 100, 0)            # Again from (0, 0) to (100, 0)
       #
-      #   canvas.scale(2, 3, origin: [50, 50]) do
-      #     canvas.line(50, 50, 100, 100)      # Actually from (50, 50) to (200, 300)
+      #   canvas.scale(-2, 4, origin: [10, 10]) do  # Scale from (10, 10)
+      #     canvas.stroke_color("red").
+      #       rectangle(10, 10, 10, 10).stroke      # Actually (10, 10) to (-10, 40)
       #   end
       #
       # See: #transform
@@ -389,10 +492,12 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.translate(100, 100) do        # Origin is now at (100, 100)
-      #     canvas.line(0, 0, 100, 0)          # Actually from (100, 100) to (200, 100)
+      #   #>pdf-center
+      #   canvas.rectangle(0, 0, 40, 20).stroke     # Rectangle from (0, 0) to (40, 20)
+      #   canvas.translate(50, 50) do               # Origin is now at (50, 50)
+      #     canvas.stroke_color("red").
+      #       rectangle(0, 0, 40, 20).stroke        # Actually (50, 50) to (90, 70)
       #   end
-      #   canvas.line(0, 0, 100, 0)            # Again from (0, 0) to (100, 0)
       #
       # See: #transform
       def translate(x, y, &block)
@@ -416,13 +521,17 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.skew(0, 45) do                 # Point (1, 1) is now actually (2, 1)
-      #     canvas.line(50, 50, 100, 100)       # Actually from (100, 50) to (200, 100)
+      #   #>pdf-center
+      #   canvas.stroke_color("lightgrey").
+      #     rectangle(10, 10, 40, 20).stroke
+      #   canvas.skew(0, 30) do                   # Point (10, 10) is now actually (15, 10)
+      #     canvas.stroke_color("blue").
+      #       rectangle(10, 10, 40, 20).stroke    # Now a parallelogram
       #   end
-      #   canvas.line(0, 0, 100, 0)             # Again from (0, 0) to (100, 0)
       #
-      #   canvas.skew(0, origin: [50, 50]) do
-      #     canvas.line(50, 50, 100, 100)       # Actually from (50, 50) to (200, 300)
+      #   canvas.skew(30, 30, origin: [-50, 50]) do  # Skew from (-50, 50)
+      #     canvas.stroke_color("red").
+      #       rectangle(-50, 50, 20, 20).stroke
       #   end
       #
       # See: #transform
@@ -453,14 +562,19 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.line_width(10)
+      #   #>pdf
+      #   canvas.line_width(10).
+      #     line(10, 10, 10, 190).stroke
       #   canvas.line_width          # => 10
       #   canvas.line_width = 5      # => 5
+      #   canvas.line(60, 10, 60, 190).stroke
       #
       #   canvas.line_width(10) do
       #     canvas.line_width        # => 10
+      #     canvas.line(110, 10, 110, 190).stroke
       #   end
       #   canvas.line_width          # => 5
+      #   canvas.line(160, 10, 160, 190).stroke
       #
       # See: PDF1.7 s8.4.3.2
       def line_width(width = nil, &block)
@@ -487,6 +601,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.line_cap_style(:butt)
       #   canvas.line_cap_style               # => #<NamedValue @name=:butt, @value=0>
       #   canvas.line_cap_style = :round      # => #<NamedValue @name=:round, @value=1>
@@ -495,6 +610,13 @@ module HexaPDF
       #     canvas.line_cap_style             # => #<NamedValue @name=:butt, @value=0>
       #   end
       #   canvas.line_cap_style               # => #<NamedValue @name=:round, @value=1>
+      #
+      #   # visual example
+      #   [:butt, :round, :projecting_square].each_with_index do |style, index|
+      #      canvas.line_cap_style(style)
+      #      canvas.line_width(10).line(50 + index * 50, 30, 50 + index * 50, 170).
+      #        stroke
+      #   end
       #
       # See: PDF1.7 s8.4.3.3
       def line_cap_style(style = nil, &block)
@@ -521,6 +643,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.line_join_style(:miter)
       #   canvas.line_join_style               # => #<NamedValue @name=:miter, @value=0>
       #   canvas.line_join_style = :round      # => #<NamedValue @name=:round, @value=1>
@@ -529,6 +652,13 @@ module HexaPDF
       #     canvas.line_join_style             # => #<NamedValue @name=:bevel, @value=2>
       #   end
       #   canvas.line_join_style               # => #<NamedValue @name=:round, @value=1>
+      #
+      #   # visual example
+      #   [:miter, :round, :bevel].each_with_index do |style, index|
+      #      canvas.line_join_style(style)
+      #      canvas.line_width(10).polyline(20 + index * 60, 30, 40 + index * 60, 170,
+      #                                     60 + index * 60, 30).stroke
+      #   end
       #
       # See: PDF1.7 s8.4.3.4
       def line_join_style(style = nil, &block)
@@ -554,6 +684,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.miter_limit(10)
       #   canvas.miter_limit          # => 10
       #   canvas.miter_limit = 5      # => 5
@@ -562,6 +693,13 @@ module HexaPDF
       #     canvas.miter_limit        # => 10
       #   end
       #   canvas.miter_limit          # => 5
+      #
+      #   # visual example
+      #   [10, 5].each_with_index do |limit, index|
+      #      canvas.miter_limit(limit)
+      #      canvas.line_width(10).polyline(20 + index * 80, 30, 40 + index * 80, 170,
+      #                                     60 + index * 80, 30).stroke
+      #   end
       #
       # See: PDF1.7 s8.4.3.5
       def miter_limit(limit = nil, &block)
@@ -600,16 +738,24 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.line_dash_pattern(10)
       #   canvas.line_dash_pattern                # => LineDashPattern.new([10], 0)
       #   canvas.line_dash_pattern(10, 2)
       #   canvas.line_dash_pattern([5, 3, 1], 2)
-      #   canvas.line_dash_pattern = LineDashPattern.new([5, 3, 1], 1)
+      #   canvas.line_dash_pattern = HexaPDF::Content::LineDashPattern.new([5, 3, 1], 1)
       #
       #   canvas.line_dash_pattern(10) do
       #     canvas.line_dash_pattern              # => LineDashPattern.new([10], 0)
       #   end
       #   canvas.line_dash_pattern                # => LineDashPattern.new([5, 3, 1], 1)
+      #
+      #   # visual example
+      #   [10, [10, 2], [[5, 3, 1], 2]].each_with_index do |pattern, index|
+      #      canvas.line_dash_pattern(*pattern)
+      #      canvas.line_width(10).line(50 + index * 50, 30, 50 + index * 50, 170).
+      #        stroke
+      #   end
       #
       # See: PDF1.7 s8.4.3.5, LineDashPattern
       def line_dash_pattern(value = nil, phase = 0, &block)
@@ -693,6 +839,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   # With no arguments just returns the current color
       #   canvas.stroke_color                        # => DeviceGray.color(0.0)
       #
@@ -703,22 +850,30 @@ module HexaPDF
       #   # Specifying RGB colors
       #   canvas.stroke_color(255, 255, 0)
       #   canvas.stroke_color("FFFF00")
+      #   canvas.stroke_color("FF0")
+      #   canvas.stroke_color("yellow")
       #
       #   # Specifying CMYK colors
-      #   canvas.stroke_color(255, 255, 0, 128)
+      #   canvas.stroke_color(100, 100, 0, 60)
       #
       #   # Can use a color object directly
-      #   color = HexaPDF::Content::ColorSpace::DeviceRGB.color(255, 255, 0)
+      #   color = HexaPDF::Content::ColorSpace::DeviceRGB.new.color(255, 255, 0)
       #   canvas.stroke_color(color)
       #
       #   # An array argument is destructured - these calls are all equal
-      #   cnavas.stroke_color(255, 255, 0)
+      #   canvas.stroke_color(255, 255, 0)
       #   canvas.stroke_color([255, 255, 0])
       #   canvas.stroke_color = [255, 255, 0]
       #
       #   # As usual, can be invoked with a block to limit the effects
       #   canvas.stroke_color(102) do
       #     canvas.stroke_color                      # => ColorSpace::DeviceGray.color(0.4)
+      #   end
+      #
+      #   # visual example
+      #   [102, [255, 255, 0], [100, 100, 0, 60]].each_with_index do |color_spec, index|
+      #     canvas.stroke_color(color_spec).
+      #       line(50 + index * 50, 10, 50 + index * 50, 190).stroke
       #   end
       #
       # See: PDF1.7 s8.6, ColorSpace
@@ -729,7 +884,7 @@ module HexaPDF
 
       # The fill color defines the color used for non-stroking operations, i.e. for filling paths.
       #
-      # Works exactly the same #stroke_color but for the fill color. See #stroke_color for
+      # Works exactly the same as #stroke_color but for the fill color. See #stroke_color for
       # details on invocation and use.
       def fill_color(*color, &block)
         color_getter_setter(:fill_color, color, :rg, :g, :k, :cs, :scn, &block)
@@ -757,6 +912,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.opacity(fill_alpha: 0.5)
       #   canvas.opacity                               # => {fill_alpha: 0.5, stroke_alpha: 1.0}
       #   canvas.opacity(fill_alpha: 0.4, stroke_alpha: 0.9)
@@ -766,6 +922,15 @@ module HexaPDF
       #     canvas.opacity                             # => {fill_alpha: 0.4, stroke_alpha: 0.7}
       #   end
       #   canvas.opacity                               # => {fill_alpha: 0.4, stroke_alpha: 0.9}
+      #
+      #   # visual example
+      #   canvas.opacity(fill_alpha: 1, stroke_alpha: 1) do   # background rectangle on right side
+      #     canvas.fill_color("lightgrey").rectangle(100, 0, 100, 200).fill
+      #   end
+      #   canvas.opacity(fill_alpha: 0.5, stroke_alpha: 0.8). # foreground rectangle, with a thick
+      #     line_width(20).                                   # stroke that also overlays the
+      #     fill_color("red").stroke_color("blue").           # inside of the rectangle, creating
+      #     rectangle(20, 20, 160, 160).fill_stroke           # multiple shadings due to opacity
       #
       # See: PDF1.7 s11.6.4.4
       def opacity(fill_alpha: nil, stroke_alpha: nil)
@@ -800,7 +965,10 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.move_to(100, 50)
+      #   canvas.move_to(10, 50)
+      #   canvas.current_point         # => [10, 50]
+      #
+      # See: PDF1.7 s8.5.2.1
       def move_to(x, y)
         raise_unless_at_page_description_level_or_in_path
         invoke2(:m, x, y)
@@ -817,7 +985,13 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.line_to(100, 100)
+      #   #>pdf-center
+      #   canvas.move_to(10, 50).
+      #     line_to(80, 80)
+      #   canvas.current_point          # => [80, 80]
+      #   canvas.stroke
+      #
+      # See: PDF1.7 s8.5.2.1
       def line_to(x, y)
         raise_unless_in_path
         invoke2(:l, x, y)
@@ -835,7 +1009,7 @@ module HexaPDF
       # point becomes the new current point.
       #
       # A Bezier curve consists of the start point, the end point and the two control points +p1+
-      # and +p2+. The start point is always the current point and the end point is specified as
+      # and +p2+. The start point is always the current point and the end point is specified as the
       # +x+ and +y+ arguments.
       #
       # Additionally, either the first control point +p1+ or the second control +p2+ or both
@@ -845,9 +1019,15 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.curve_to(100, 100, p1: [100, 50], p2: [50, 100])
-      #   canvas.curve_to(100, 100, p1: [100, 50])
-      #   canvas.curve_to(100, 100, p2: [50, 100])
+      #   #>pdf-center
+      #   canvas.move_to(10, 50).
+      #     curve_to(80, 80, p1: [10, 70], p2: [50, 100]).
+      #     curve_to(90, -20, p1: [50, 50]).
+      #     curve_to(-30, 60, p2: [-20, -40])
+      #   canvas.current_point                        # => [-30, 60]
+      #   canvas.stroke
+      #
+      # See: PDF1.7 s8.5.2.2
       def curve_to(x, y, p1: nil, p2: nil)
         raise_unless_in_path
         if p1 && p2
@@ -880,8 +1060,11 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.rectangle(100, 100, 100, 50)
-      #   canvas.rectangle(100, 100, 100, 50, radius: 10)
+      #   #>pdf
+      #   canvas.rectangle(10, 10, 80, 50).stroke
+      #   canvas.rectangle(110, 110, 80, 50, radius: 10).stroke
+      #
+      # See: PDF1.7 s8.5.2.1
       def rectangle(x, y, width, height, radius: 0)
         raise_unless_at_page_description_level_or_in_path
         if radius == 0
@@ -899,6 +1082,17 @@ module HexaPDF
       #
       # Closes the current subpath by appending a straight line from the current point to the
       # start point of the subpath which also becomes the new current point.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.move_to(10, 10).
+      #     line_to(110, 10).
+      #     line_to(60, 60).
+      #     close_subpath.           # Draws the line from (60, 60) to (10, 10)
+      #     stroke
+      #
+      # See: PDF1.7 s8.5.2.1
       def close_subpath
         raise_unless_in_path
         invoke0(:h)
@@ -915,7 +1109,8 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.line(10, 10, 100, 100)
+      #   #>pdf
+      #   canvas.line(10, 10, 100, 100).stroke
       def line(x0, y0, x1, y1)
         move_to(x0, y0)
         line_to(x1, y1)
@@ -930,7 +1125,8 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.polyline(0, 0, 100, 0, 100, 100, 0, 100, 0, 0)
+      #   #>pdf
+      #   canvas.polyline(50, 50, 150, 50, 150, 150, 50, 150, 50, 50).stroke
       def polyline(*points)
         check_poly_points(points)
         move_to(points[0], points[1])
@@ -954,8 +1150,10 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.polygon(0, 0, 100, 0, 100, 100, 0, 100)
-      #   canvas.polygon(0, 0, 100, 0, 100, 100, 0, 100, radius: 10)
+      #   #>pdf
+      #   canvas.polygon(10, 10, 90, 10, 70, 90, 20, 100).stroke
+      #   canvas.stroke_color("red").
+      #     polygon(130, 130, 150, 100, 170, 150, 130, 190, radius: 10).stroke
       def polygon(*points, radius: 0)
         if radius == 0
           polyline(*points)
@@ -979,7 +1177,8 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.circle(100, 100, 10)
+      #   #>pdf
+      #   canvas.circle(100, 100, 30).stroke
       #
       # See: #arc (for approximation accuracy)
       def circle(cx, cy, radius)
@@ -998,11 +1197,13 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   # Ellipse aligned to x-axis and y-axis
-      #   canvas.ellipse(100, 100, a: 10, b: 5)
+      #   canvas.ellipse(50, 50, a: 20, b: 10).stroke
       #
       #   # Inclined ellipse
-      #   canvas.ellipse(100, 100, a: 10, b: 5, inclination: 45)
+      #   canvas.stroke_color("red").
+      #     ellipse(150, 150, a: 20, b: 10, inclination: 30).stroke
       #
       # See: #arc (for approximation accuracy)
       def ellipse(cx, cy, a:, b:, inclination: 0)
@@ -1036,7 +1237,7 @@ module HexaPDF
       #
       # +clockwise+::
       #   If +true+ the arc is drawn in clockwise direction, otherwise in counterclockwise
-      #   direction.
+      #   direction (default: false).
       #
       # +inclination+::
       #   Angle in degrees between the x-axis and the semi-major axis (default: 0)
@@ -1052,18 +1253,24 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.arc(0, 0, a: 10)                         # Circle at (0, 0) with radius 10
-      #   canvas.arc(0, 0, a: 10, b: 5)                   # Ellipse at (0, 0) with radii 10 and 5
-      #   canvas.arc(0, 0, a: 10, b: 5, inclination: 45)  # The above ellipse inclined 45 degrees
+      #   #>pdf
+      #   canvas.arc(50, 150, a: 10)                         # Circle with radius 10
+      #   canvas.arc(100, 150, a: 10, b: 5)                  # Ellipse with radii 10 and 5
+      #   canvas.arc(150, 150, a: 10, b: 5, inclination: 45) # The above ellipse inclined 45 degrees
+      #   canvas.stroke
       #
-      #   # Circular and elliptical arcs from 45 degrees to 135 degrees
-      #   canvas.arc(0, 0, a: 10, start_angle: 45, end_angle: 135)
-      #   canvas.arc(0, 0, a: 10, b: 5, start_angle: 45, end_angle: 135)
+      #   # Circular and elliptical arcs from 30 degrees to 160 degrees
+      #   canvas.stroke_color("red")
+      #   canvas.arc(50, 100, a: 10, start_angle: 30, end_angle: 160)
+      #   canvas.arc(100, 100, a: 10, b: 5, start_angle: 30, end_angle: 160)
+      #   canvas.stroke
       #
-      #   # Arcs from 135 degrees to 15 degrees, the first in counterclockwise direction (i.e. the
+      #   # Arcs from 135 degrees to 30 degrees, the first in counterclockwise direction (i.e. the
       #   # big arc), the other in clockwise direction (i.e. the small arc)
-      #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15)
-      #   canvas.arc(0, 0, a: 10, start_angle: 135, end_angle: 15, clockwise: true)
+      #   canvas.stroke_color("blue")
+      #   canvas.arc(50, 50, a: 10, start_angle: 135, end_angle: 30)
+      #   canvas.arc(100, 50, a: 10, start_angle: 135, end_angle: 30, clockwise: true)
+      #   canvas.stroke
       #
       # See: Content::GraphicObject::Arc
       def arc(cx, cy, a:, b: a, start_angle: 0, end_angle: 360, clockwise: false, inclination: 0)
@@ -1086,8 +1293,12 @@ module HexaPDF
       #
       # Examples:
       #
-      #   obj = canvas.graphic_object(:arc, cx: 10, cy: 10)
-      #   canvas.draw(obj)
+      #   #>pdf
+      #   obj = canvas.graphic_object(:solid_arc, cx: 100, cy: 100, inner_a: 20, inner_b: 10,
+      #                               outer_a: 50, outer_b: 40, end_angle: 135)
+      #   canvas.draw(obj).stroke
+      #
+      # See: Content::GraphicObject
       def graphic_object(obj, **options)
         unless obj.respond_to?(:configure)
           obj = context.document.config.constantize('graphic_object.map', obj)
@@ -1102,11 +1313,9 @@ module HexaPDF
       #
       # Draws the given graphic object on the canvas.
       #
-      # See #graphic_object for information on the arguments.
+      # This is the same as "graphic_object(obj_or_name, **options).draw(self)".
       #
-      # Examples:
-      #
-      #   canvas.draw(:arc, cx: 10, cy: 10)
+      # See #graphic_object for details on the arguments and invocation.
       def draw(name, **options)
         graphic_object(name, **options).draw(self)
         self
@@ -1116,6 +1325,12 @@ module HexaPDF
       #   canvas.stroke    => canvas
       #
       # Strokes the path.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.polyline(10, 10, 120, 40, 50, 160)
+      #   canvas.stroke
       #
       # See: PDF1.7 s8.5.3.1, s8.5.3.2
       def stroke
@@ -1128,6 +1343,12 @@ module HexaPDF
       #   canvas.close_stroke    => canvas
       #
       # Closes the last subpath and then strokes the path.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.polyline(10, 10, 120, 40, 50, 160)      # No line from the top to the left
+      #   canvas.close_stroke
       #
       # See: PDF1.7 s8.5.3.1, s8.5.3.2
       def close_stroke
@@ -1142,9 +1363,20 @@ module HexaPDF
       # Fills the path using the given rule.
       #
       # The argument +rule+ may either be +:nonzero+ to use the nonzero winding number rule or
-      # +:even_odd+ to use the even-odd rule for determining which regions to fill in.
+      # +:even_odd+ to use the even-odd rule for determining which regions to fill in. Details on
+      # how these rules work are found in the PDF 1.7 spec section 8.5.3.3 or via Internet search.
       #
       # Any open subpaths are implicitly closed before being filled.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.polyline(20, 10, 90, 60, 10, 60, 80, 10, 50, 90)
+      #   canvas.fill
+      #
+      #   canvas.fill_color("red")
+      #   canvas.polyline(120, 110, 190, 160, 110, 160, 180, 110, 150, 190)
+      #   canvas.fill(:even_odd)
       #
       # See: PDF1.7 s8.5.3.1, s8.5.3.3
       def fill(rule = :nonzero)
@@ -1159,9 +1391,23 @@ module HexaPDF
       # Fills and then strokes the path using the given rule.
       #
       # The argument +rule+ may either be +:nonzero+ to use the nonzero winding number rule or
-      # +:even_odd+ to use the even-odd rule for determining which regions to fill in.
+      # +:even_odd+ to use the even-odd rule for determining which regions to fill in. Details on
+      # how these rules work are found in the PDF 1.7 spec section 8.5.3.3 or via Internet search.
       #
-      # See: PDF1.7 s8.5.3
+      # Note that any open subpaths are *not* closed!
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.stroke_color("green").line_width(3)
+      #   canvas.polyline(20, 10, 90, 60, 10, 60, 80, 10, 50, 90)
+      #   canvas.fill_stroke                 # Note the missing stroke from the top corner
+      #
+      #   canvas.fill_color("red")
+      #   canvas.polyline(120, 110, 190, 160, 110, 160, 180, 110, 150, 190)
+      #   canvas.fill_stroke(:even_odd)      # Note the missing stroke from the top corner
+      #
+      # See: PDF1.7 s8.5.3.1, s8.5.3.3
       def fill_stroke(rule = :nonzero)
         raise_unless_in_path_or_clipping_path
         invoke0(rule == :nonzero ? :B : :'B*')
@@ -1174,7 +1420,19 @@ module HexaPDF
       # Closes the last subpath and then fills and strokes the path using the given rule.
       #
       # The argument +rule+ may either be +:nonzero+ to use the nonzero winding number rule or
-      # +:even_odd+ to use the even-odd rule for determining which regions to fill in.
+      # +:even_odd+ to use the even-odd rule for determining which regions to fill in. Details on
+      # how these rules work are found in the PDF 1.7 spec section 8.5.3.3 or via Internet search.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.stroke_color("green").line_width(3)
+      #   canvas.polyline(20, 10, 90, 60, 10, 60, 80, 10, 50, 90)
+      #   canvas.close_fill_stroke
+      #
+      #   canvas.fill_color("red")
+      #   canvas.polyline(120, 110, 190, 160, 110, 160, 180, 110, 150, 190)
+      #   canvas.close_fill_stroke(:even_odd)
       #
       # See: PDF1.7 s8.5.3
       def close_fill_stroke(rule = :nonzero)
@@ -1191,7 +1449,12 @@ module HexaPDF
       # This method is normally used in conjunction with the clipping path methods to define the
       # clipping.
       #
-      # See: PDF1.7 s8.5.3.1 #clip
+      # Examples:
+      #
+      #   canvas.line(10, 10, 100, 100)
+      #   canvas.end_path                    # Nothing to see here!
+      #
+      # See: PDF1.7 s8.5.3.1, #clip_path
       def end_path
         raise_unless_in_path_or_clipping_path
         invoke0(:n)
@@ -1205,10 +1468,23 @@ module HexaPDF
       #
       # The argument +rule+ may either be +:nonzero+ to use the nonzero winding number rule or
       # +:even_odd+ to use the even-odd rule for determining which regions lie inside the clipping
-      # path.
+      # path. Details on how these rules work are found in the PDF 1.7 spec section 8.5.3.3 or via
+      # Internet search.
+      #
+      # The initial clipping path includes the entire canvas. Once the clipping path is reduced to a
+      # subset of the canvas, there is no way to enlarge it. To restrict the effect of this method,
+      # use #save_graphics_state before modifying the clipping path.
       #
       # Note that the current path cannot be modified after invoking this method! This means that
       # one of the path painting methods or #end_path must be called immediately afterwards.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.ellipse(100, 100, a: 50, b: 30).   # Restrict operations to this intersecting path
+      #     ellipse(100, 100, a: 30, b: 50).        # where the inside is not part of it
+      #     clip_path(:even_odd).end_path
+      #   canvas.rectangle(0, 0, 200, 200).fill     # Fills everything inside the clipping path
       #
       # See: PDF1.7 s8.5.4
       def clip_path(rule = :nonzero)
@@ -1249,15 +1525,19 @@ module HexaPDF
       #
       # Examples:
       #
-      #   canvas.xobject('test.png', at: [100, 100])
-      #   canvas.xobject('test.pdf', at: [100, 100])
+      #   #>pdf
+      #   canvas.xobject(machu_picchu, at: [10, 10], width: 90)        # bottom left
       #
-      #   File.new('test.jpg', 'rb') do |io|
-      #     canvas.xobject(io, at: [100, 200], width: 300)
-      #   end
+      #   file = File.new(machu_picchu, 'rb')                         # top left
+      #   canvas.xobject(file, at: [10, 110], height: 50)
       #
-      #   image = document.object(5)    # Object with oid=5 is an image XObject in this example
-      #   canvas.xobject(image, at: [100, 200], width: 200, height: 300)
+      #   image = doc.images.add(machu_picchu)
+      #   canvas.xobject(image, at: [110, 10], width: 50, height: 90)  # bottom right
+      #
+      #   form = doc.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 100, 100]})
+      #   form.canvas.line(10, 10, 90, 90).stroke
+      #   canvas.line_width = 20
+      #   canvas.xobject(form, at: [100, 100])                         # top right
       #
       # See: PDF1.7 s8.8, s.8.10.1
       def xobject(obj, at:, width: nil, height: nil)
@@ -1302,6 +1582,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.character_spacing(0.25)
       #   canvas.character_spacing                      # => 0.25
       #   canvas.character_spacing = 0.5                # => 0.5
@@ -1310,6 +1591,13 @@ module HexaPDF
       #     canvas.character_spacing                    # => 0.10
       #   end
       #   canvas.character_spacing                      # => 0.5
+      #
+      #   # visual example
+      #   canvas.font("Helvetica", size: 10)
+      #   canvas.character_spacing = 0                  # initial value
+      #   canvas.text("This is an example text.", at: [10, 150])
+      #   canvas.character_spacing = 3
+      #   canvas.text("This is an example text.", at: [10, 100])
       #
       # See: PDF1.7 s9.3.2
       def character_spacing(amount = nil, &bk)
@@ -1327,8 +1615,8 @@ module HexaPDF
       # writing positive values increase the distance between two words, whereas for vertical
       # writing negative values increase the distance.
       #
-      # Note that in HexaPDF only the standard 14 PDF Type1 fonts support this property! When using
-      # any other font, for example a TrueType font, this property has no effect.
+      # *Important*: In HexaPDF only the standard 14 PDF Type1 fonts support this property! When
+      # using any other font, for example a TrueType font, this property has no effect.
       #
       # Returns the current word spacing value (see Content::GraphicsState#word_spacing) when no
       # argument is given. Otherwise sets the word spacing using the +amount+ argument and returns
@@ -1339,6 +1627,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.word_spacing(0.25)
       #   canvas.word_spacing                      # => 0.25
       #   canvas.word_spacing = 0.5                # => 0.5
@@ -1347,6 +1636,13 @@ module HexaPDF
       #     canvas.word_spacing                    # => 0.10
       #   end
       #   canvas.word_spacing                      # => 0.5
+      #
+      #   # visual example
+      #   canvas.font("Helvetica", size: 10)
+      #   canvas.word_spacing = 0                  # initial value
+      #   canvas.text("This is an example text.", at: [10, 150])
+      #   canvas.word_spacing = 10
+      #   canvas.text("This is an example text.", at: [10, 100])
       #
       # See: PDF1.7 s9.3.3
       def word_spacing(amount = nil, &bk)
@@ -1361,7 +1657,7 @@ module HexaPDF
       #
       # The horizontal scaling adjusts the width of text character glyphs by stretching or
       # compressing them in the horizontal direction. The value is specified as percent of the
-      # normal width.
+      # normal width, so 100 means no scaling.
       #
       # Returns the current horizontal scaling value (see Content::GraphicsState#horizontal_scaling)
       # when no argument is given. Otherwise sets the horizontal scaling using the +percent+
@@ -1373,6 +1669,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.horizontal_scaling(50)                  # each glyph has only 50% width
       #   canvas.horizontal_scaling                      # => 50
       #   canvas.horizontal_scaling = 125                # => 125
@@ -1381,6 +1678,13 @@ module HexaPDF
       #     canvas.horizontal_scaling                    # => 75
       #   end
       #   canvas.horizontal_scaling                      # => 125
+      #
+      #   # visual example
+      #   canvas.font("Helvetica", size: 10)
+      #   canvas.horizontal_scaling = 100                  # initial value
+      #   canvas.text("This is an example text.", at: [10, 150])
+      #   canvas.horizontal_scaling = 50
+      #   canvas.text("This is an example text.", at: [10, 100])
       #
       # See: PDF1.7 s9.3.4
       def horizontal_scaling(amount = nil, &bk)
@@ -1393,7 +1697,12 @@ module HexaPDF
       #   canvas.leading(amount)               => canvas
       #   canvas.leading(amount) { block }     => canvas
       #
-      # The leading specifies the vertical distance between the baselines of adjacent text lines.
+      # The leading specifies the vertical distance between the baselines of adjacent text lines. It
+      # defaults to 0 if not changed.
+      #
+      # It is *only* used by HexaPDF when invoking #move_text_cursor with +offset+ set to +nil+.
+      # There are other PDF content stream operators that would be effected but those are not used
+      # by the canvas.
       #
       # Returns the current leading value (see Content::GraphicsState#leading) when no argument is
       # given. Otherwise sets the leading using the +amount+ argument and returns self. The setter
@@ -1404,6 +1713,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.leading(14.5)
       #   canvas.leading                      # => 14.5
       #   canvas.leading = 10                 # => 10
@@ -1413,7 +1723,12 @@ module HexaPDF
       #   end
       #   canvas.leading                      # => 10
       #
-      # See: PDF1.7 s9.3.5
+      #   # visual example
+      #   canvas.font("Helvetica", size: 10)
+      #   canvas.leading = 15
+      #   canvas.text("This is an example text.\nwith a second\nand thrid line", at: [10, 150])
+      #
+      # See: PDF1.7 s9.3.5, #move_text_cursor
       def leading(amount = nil, &bk)
         gs_getter_setter(:leading, :TL, amount, &bk)
       end
@@ -1440,6 +1755,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.text_rendering_mode(:fill)
       #   canvas.text_rendering_mode               # => #<NamedValue @name=:fill, @value = 0>
       #   canvas.text_rendering_mode = :stroke     # => #<NamedValue @name=:stroke, @value = 1>
@@ -1449,7 +1765,15 @@ module HexaPDF
       #   end
       #   canvas.text_rendering_mode               # => #<NamedValue @name=:stroke, @value = 1>
       #
-      # See: PDF1.7 s9.3.6
+      #   # visual example
+      #   canvas.font("Helvetica", size: 25)
+      #   canvas.stroke_color("green")
+      #   [:fill, :stroke, :fill_stroke, :invisible].each_with_index do |trm, index|
+      #     canvas.text_rendering_mode = trm
+      #     canvas.text("#{trm} text.", at: [20, 150 - 30 * index])
+      #   end
+      #
+      # See: PDF1.7 s9.3.6, Content::GraphicsState::TextRenderingMode
       def text_rendering_mode(m = nil, &bk)
         gs_getter_setter(:text_rendering_mode, :Tr, m && TextRenderingMode.normalize(m), &bk)
       end
@@ -1472,6 +1796,7 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.text_rise(5)
       #   canvas.text_rise                      # => 5
       #   canvas.text_rise = 10                 # => 10
@@ -1480,6 +1805,15 @@ module HexaPDF
       #     canvas.text_rise                    # => 15
       #   end
       #   canvas.text_rise                      # => 10
+      #
+      #   # visual example
+      #   canvas.font("Helvetica", size: 10)
+      #   canvas.text_rise = 0                             # Set the default value
+      #   canvas.text("Hello", at: [20, 150])
+      #   canvas.text_rise = 10
+      #   canvas.text("from up here")
+      #   canvas.text_rise = -10
+      #   canvas.text("and also down here")
       #
       # See: PDF1.7 s9.3.7
       def text_rise(amount = nil, &bk)
@@ -1495,6 +1829,9 @@ module HexaPDF
       # If +force+ is +true+ and the current graphics object is already a text object, it is ended
       # and a new text object is begun.
       #
+      # It is not necessary to invoke this method manually in most cases since it is automatically
+      # called when needed by other methods, i.e. the #text method.
+      #
       # See: PDF1.7 s9.4.1
       def begin_text(force_new: false)
         raise_unless_at_page_description_level_or_in_text
@@ -1507,6 +1844,9 @@ module HexaPDF
       #   canvas.end_text       -> canvas
       #
       # Ends the current text object.
+      #
+      # It is not necessary to invoke this method manually in most cases since it is automatically
+      # called when needed by other methods, i.e. when creating a new path.
       #
       # See: PDF1.7 s9.4.1
       def end_text
@@ -1526,10 +1866,19 @@ module HexaPDF
       #   c d 0
       #   e f 1
       #
+      # If the current graphics object is not a text object, #begin_text is automatically called
+      # because the text matrix is only available within a text object.
+      #
       # Examples:
       #
-      #   canvas.begin_text
-      #   canvas.text_matrix(1, 0, 0, 1, 100, 100)
+      #   #>pdf
+      #   canvas.font("Helvetica", size: 10)
+      #   canvas.begin_text                         # Not necessary
+      #   canvas.text_matrix(1, 0, 0, 1, 50, 100)   # Translate text origin to (50, 100)
+      #   canvas.text("This is some text")
+      #
+      #   canvas.text_matrix(2, 1, 3, 0.5, 50, 50)
+      #   canvas.text("This is some text")
       #
       # See: PDF1.7 s9.4.2
       def text_matrix(a, b, c, d, e, f)
@@ -1559,7 +1908,24 @@ module HexaPDF
       #   offset from the start of the current line (the origin of the text line matrix) by
       #   +offset+.
       #
-      # See: #show_glyphs
+      # If the current graphics object is not a text object, #begin_text is automatically called
+      # because the text matrix is only available within a text object.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.font("Helvetica", size: 10)
+      #   canvas.move_text_cursor(offset: [30, 150])
+      #   canvas.text("Absolutely positioned at (30, 150)")
+      #
+      #   canvas.move_text_cursor(offset: [20, -15], absolute: false)
+      #   canvas.text("Relative offset (20, -15)")
+      #
+      #   canvas.leading(30)
+      #   canvas.move_text_cursor
+      #   canvas.text("Text on next line with leading=30")
+      #
+      # See: PDF1.7 s9.4.2, #show_glyphs
       def move_text_cursor(offset: nil, absolute: true)
         begin_text
         if offset
@@ -1581,6 +1947,18 @@ module HexaPDF
       #
       # Note that this method can only be called while the current graphic object is a text object
       # since the text matrix is otherwise undefined.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.font("Helvetica", size: 10)
+      #   canvas.text("Some sample text", at: [30, 150])
+      #   pos = canvas.text_cursor                          # Cursor is directly after the text
+      #   canvas.line_width(0.5).stroke_color("red").
+      #     polyline(pos[0], pos[1] + 10, pos[0], pos[1], pos[0] + 10, pos[1]).stroke
+      #   canvas.text("Last cursor: #{pos.map! {|f| f.round(2)}.join(", ")}", at: [30, 100])
+      #
+      # See: #move_text_cursor
       def text_cursor
         raise_unless_in_text
         graphics_state.tm.evaluate(0, 0)
@@ -1590,26 +1968,34 @@ module HexaPDF
       #   canvas.font                              => current_font
       #   canvas.font(name, size: nil, **options)  => canvas
       #
-      # Specifies the font that should be used when showing text.
+      # Specifies the font and optional the font size that should be used when showing text.
       #
-      # A valid font size need to be provided on the first invocation, otherwise an error is raised.
+      # A valid font size need to be provided on the first invocation, otherwise an error is raised
+      # (this is due to how setting a font works with PDFs).
       #
-      # *Note* that this method returns the font object itself, not the PDF dictionary representing
-      # the font!
+      # If +size+ is specified, the #font_size method is invoked with it as argument.
       #
-      # If +size+ is specified, the #font_size method is invoked with it as argument. All other
-      # options are passed on to the font loaders (see HexaPDF::FontLoader) that are used for
-      # loading the specified font.
+      # All other options are passed on to the font loaders (see HexaPDF::FontLoader) that are used
+      # for loading the specified font. One standard keyword argument for fonts is +:variant+ which
+      # specifies the font variant to use, with standard values of :none, :italic, :bold and
+      # :bold_italic.
       #
-      # Returns the current font object when no argument is given.
+      # Returns the current font object when no argument is given. *Note* that this is the font
+      # object itself, not the PDF dictionary representing the font.
       #
       # Examples:
       #
-      #   canvas.font("Times", variant: :bold, size: 12)
+      #   #>pdf
+      #   canvas.font("Times", variant: :bold, size: 10)
       #   canvas.font                                          # => font object
       #   canvas.font = "Times"
       #
-      # See: PDF1.7 s9.2.2
+      #   # visual example
+      #   canvas.text("Times at size 10", at: [10, 150])
+      #   canvas.font("Times", variant: :bold_italic, size: 15)
+      #   canvas.text("Times bold+italic at size 15", at: [10, 100])
+      #
+      # See: PDF1.7 s9.2.2, #font_size
       def font(name = nil, size: nil, **options)
         if name
           @font = (name.respond_to?(:pdf_object) ? name : context.document.fonts.add(name, **options))
@@ -1633,17 +2019,27 @@ module HexaPDF
       #
       # Specifies the font size.
       #
-      # Note that an error is raised if no font has been set before!
+      # Note that an error is raised if no font has been set before via #font (this is due to how
+      # setting font and font size works in PDF).
       #
-      # Returns the current font size when no argument is given.
+      # Returns the current font size when no argument is given. The setter version can also
+      # be called in the font_size= form.
       #
       # Examples:
       #
+      #   #>pdf
+      #   canvas.font("Helvetica", size: 10)     # Necessary only the first time
       #   canvas.font_size(12)
       #   canvas.font_size                       # => 12
-      #   canvas.font_size = 12
+      #   canvas.font_size = 10
       #
-      # See: PDF1.7 s9.2.2
+      #   # visual example
+      #   6.step(to: 20, by: 2).each_with_index do |size, index|
+      #     canvas.font_size(size)
+      #     canvas.text("Text in size #{size}", at: [15, 180 - index * 20])
+      #   end
+      #
+      # See: PDF1.7 s9.2.2, #font
       def font_size(size = nil)
         if size
           unless @font
@@ -1661,10 +2057,10 @@ module HexaPDF
       #   canvas.text(text)                  -> canvas
       #   canvas.text(text, at: [x, y])      -> canvas
       #
-      # Shows the given text string.
+      # Shows the given text string, either at the current or the provided position.
       #
       # If no position is provided, the text is positioned at the current position of the text
-      # cursor (the origin in case of a new text object or otherwise after the last shown text).
+      # cursor (see #text_cursor).
       #
       # The text string may contain any valid Unicode newline separator and if so, multiple lines
       # are shown, using #leading for offsetting the lines. If no leading has been set, a leading
@@ -1675,10 +2071,12 @@ module HexaPDF
       #
       # Examples:
       #
+      #   #>pdf
       #   canvas.font('Times', size: 12)
-      #   canvas.text("This is a \n multiline text", at: [100, 100])
+      #   canvas.text("This is a \n multiline text", at: [15, 150])  # Sets leading=12
+      #   canvas.text(". Some more text\nafter the newline.")   # Starts right after the last text
       #
-      # See: http://www.unicode.org/reports/tr18/#Line_Boundaries
+      # See: #leading, http://www.unicode.org/reports/tr18/#Line_Boundaries
       def text(text, at: nil)
         raise_unless_font_set
         move_text_cursor(offset: at) if at
@@ -1704,8 +2102,19 @@ module HexaPDF
       # method.
       #
       # The text matrix is updated to correctly represent the graphics state after the invocation.
+      # Since this is a compute intensive operation, use #show_glyphs_only if you don't need a
+      # correct text matrix.
       #
       # This method is usually not invoked directly but by higher level methods like #text.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.font("Helvetica", size: 10)
+      #   glyphs = canvas.font.decode_utf8("Some text here")
+      #   canvas.move_text_cursor(offset: [15, 100])
+      #   canvas.show_glyphs(glyphs)
+      #   canvas.text(canvas.text_cursor.map(&:to_i).join(", "), at: [15, 80])
       def show_glyphs(glyphs)
         return if glyphs.empty?
         raise_unless_font_set
@@ -1742,7 +2151,16 @@ module HexaPDF
       #
       # *Warning*: Since this method doesn't update the text matrix, all following results from
       # #text_cursor and other methods using the current text matrix are invalid until the next call
-      # to #text_matrix or #end_text.
+      # that sets the text matrix.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.font("Helvetica", size: 10)
+      #   glyphs = canvas.font.decode_utf8("Some text here")
+      #   canvas.move_text_cursor(offset: [15, 100])
+      #   canvas.show_glyphs_only(glyphs)
+      #   canvas.text(canvas.text_cursor.map(&:to_i).join(", "), at: [15, 80])
       def show_glyphs_only(glyphs)
         return if glyphs.empty?
         raise_unless_font_set
@@ -1800,9 +2218,9 @@ module HexaPDF
       # Inserts a marked-content sequence, optionally associated with a property list.
       #
       # A marked-content sequence is used to identify a sequence of complete graphics objects in the
-      # content stream for later use by other applications. The symbol +tag+ is used to uniquely
-      # identify the role of the marked-content sequence and should be registered with ISO to avoid
-      # conflicts.
+      # content stream for later use by other applications, e.g. for tagged PDF. The symbol +tag+ is
+      # used to uniquely identify the role of the marked-content sequence and should be registered
+      # with ISO to avoid conflicts.
       #
       # The optional +property_list+ argument can either be a valid PDF dictionary or a symbol
       # referencing an already used property list in the resource dictionary's /Properties
@@ -1812,7 +2230,7 @@ module HexaPDF
       # done. Otherwise the marked-content sequence automatically ends when the block is finished.
       #
       # Although the PDF specification would allow using marked-content sequences inside text
-      # objects, this is prohibited.
+      # objects, this is prohibited in HexaPDF.
       #
       # Examples:
       #
@@ -1856,6 +2274,9 @@ module HexaPDF
 
       # Creates a color object from the given color specification. See #stroke_color for details
       # on the possible color specifications.
+      #
+      # This utility method is meant for use by higher-level methods that need to convert a color
+      # specification into a color object for this Canvas object.
       def color_from_specification(spec)
         if spec.length == 1 && spec[0].kind_of?(String)
           ColorSpace.device_color_from_specification(spec)
