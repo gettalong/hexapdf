@@ -234,7 +234,7 @@ module HexaPDF
         when :radio_button
           field.field_value = value.intern
         else
-          raise "Field type not yet supported"
+          raise "Field type #{field.concrete_field_type} not yet supported"
         end
       end
 
