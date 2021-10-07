@@ -220,7 +220,7 @@ module HexaPDF
       # Applies the given value to the field.
       def apply_field_value(field, value)
         case field.concrete_field_type
-        when :single_line_text_field
+        when :single_line_text_field, :multiline_text_field, :comb_text_field
           field.field_value = value
         when :combo_box, :list_box
           field.field_value = value

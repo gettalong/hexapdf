@@ -6,6 +6,10 @@
   has been set
 * [HexaPDF::Content::Canvas#line_with_rounded_corner] to be a public method
 
+### Fixed
+
+* `hexapdf form` to allow filling in multiline and comb text fields
+
 
 ## 0.16.0 - 2021-09-28
 
