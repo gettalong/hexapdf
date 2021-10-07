@@ -217,7 +217,7 @@ module HexaPDF
         # * The background color is determined by the widget's background color. See
         #   HexaPDF::Type::Annotations::Widget#background_color.
         #
-        # Note: Multiline, comb and rich text fields are currently not supported!
+        # Note: Rich text fields are currently not supported!
         def create_text_appearances
           default_resources = @document.acro_form.default_resources
           font, font_size = retrieve_font_information(default_resources)
