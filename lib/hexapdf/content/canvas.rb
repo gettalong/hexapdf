@@ -1161,7 +1161,9 @@ module HexaPDF
           check_poly_points(points)
           move_to(*point_on_line(points[0], points[1], points[2], points[3], distance: radius))
           points.concat(points[0, 4])
-          0.step(points.length - 6, 2) {|i| line_with_rounded_corner(*points[i, 6], radius) }
+          0.step(points.length - 6, 2) do |i|
+            line_with_rounded_corner(*points[i + 2, 4], in_radius: radius)
+          end
         end
         close_subpath
       end
@@ -1279,6 +1281,42 @@ module HexaPDF
                                            clockwise: clockwise, inclination: inclination)
         arc.draw(self)
         self
+      end
+
+      # Used for calculating the optimal distance of the control points for
+      # #line_with_rounded_corner.
+      #
+      # See: http://itc.ktu.lt/itc354/Riskus354.pdf, p373 right column
+      KAPPA = 0.55191496 #:nodoc:
+
+      # :call-seq:
+      #   canvas.line_with_rounded_corner(x1, y1, x2, y2, in_radius:, out_radius: in_radius)
+      #
+      # Appends a line with a rounded corner at (x1, y1) from the current point. The end point of
+      # the rounded corner (i.e. +out_radius+ units from (x1, y1) in the direction of (x2, y2))
+      # becomes the current point.
+      #
+      # The corner is specified by the current point, (x1, y1) and (x2, y2). The +in_radius+
+      # specifies the corner radius into the corner and the +out_radius+ the one out of the corner.
+      #
+      # There has to be a current path when this method is invoked. For example, the current point
+      # ould be estabilshed beforehand using #move_to.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.move_to(50, 50)
+      #   canvas.line_with_rounded_corner(150, 50, 150, 100, in_radius: 20)
+      #   canvas.line_to(150, 100)
+      #   canvas.line_with_rounded_corner(150, 150, 50, 150, in_radius: 20, out_radius: 50)
+      #   canvas.stroke
+      def line_with_rounded_corner(x1, y1, x2, y2, in_radius:, out_radius: in_radius)
+        p0 = point_on_line(x1, y1, *current_point, distance: in_radius)
+        p3 = point_on_line(x1, y1, x2, y2, distance: out_radius)
+        p1 = point_on_line(p0[0], p0[1], x1, y1, distance: KAPPA * in_radius)
+        p2 = point_on_line(p3[0], p3[1], x1, y1, distance: KAPPA * out_radius)
+        line_to(p0[0], p0[1])
+        curve_to(p3[0], p3[1], p1: p1, p2: p2)
       end
 
       # :call-seq:
@@ -2465,22 +2503,6 @@ module HexaPDF
         elsif points.length.odd?
           raise ArgumentError, "Missing y-coordinate for last point"
         end
-      end
-
-      # Used for calculating the optimal distance of the control points.
-      #
-      # See: http://itc.ktu.lt/itc354/Riskus354.pdf, p373 right column
-      KAPPA = 0.55191496 #:nodoc:
-
-      # Appends a line with a rounded corner from the current point. The corner is specified by
-      # the three points (x0, y0), (x1, y1) and (x2, y2) where (x1, y1) is the corner point.
-      def line_with_rounded_corner(x0, y0, x1, y1, x2, y2, radius)
-        p0 = point_on_line(x1, y1, x0, y0, distance: radius)
-        p3 = point_on_line(x1, y1, x2, y2, distance: radius)
-        p1 = point_on_line(p0[0], p0[1], x1, y1, distance: KAPPA * radius)
-        p2 = point_on_line(p3[0], p3[1], x1, y1, distance: KAPPA * radius)
-        line_to(p0[0], p0[1])
-        curve_to(p3[0], p3[1], p1: p1, p2: p2)
       end
 
     end

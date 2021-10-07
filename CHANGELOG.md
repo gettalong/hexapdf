@@ -4,6 +4,7 @@
 
 * [HexaPDF::Content::Canvas#text] to use the font size as leading if no leading
   has been set
+* [HexaPDF::Content::Canvas#line_with_rounded_corner] to be a public method
 
 
 ## 0.16.0 - 2021-09-28
