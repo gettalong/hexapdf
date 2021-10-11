@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require 'geom2d'
 require 'hexapdf/layout/width_from_polygon'
 
 describe HexaPDF::Layout::WidthFromPolygon do

@@ -167,7 +167,7 @@ module HexaPDF
 
         temp_result = result
         outside = true
-        temp_result.sort_by! {|a| a[0] }.map! do |min, max, stat|
+        temp_result.sort!.map! do |min, max, stat|
           if stat == :crossed_both
             outside = !outside
             [min, max]
