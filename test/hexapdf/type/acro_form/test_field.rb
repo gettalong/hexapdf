@@ -17,6 +17,7 @@ describe HexaPDF::Type::AcroForm::Field do
   before do
     @doc = HexaPDF::Document.new
     @field = @doc.add({}, type: :XXAcroFormField)
+    @doc.acro_form(create: true).root_fields << @field
   end
 
   it "must always be an indirect object" do
@@ -116,6 +117,17 @@ describe HexaPDF::Type::AcroForm::Field do
 
     it "yields all widgets in the /Kids array" do
       @field[:Kids] = [{Subtype: :Widget, Rect: [0, 0, 0, 0], X: 1}]
+      widgets = @field.each_widget.to_a
+      assert_kind_of(HexaPDF::Type::Annotations::Widget, *widgets)
+      assert_equal(1, widgets.first[:X])
+    end
+
+    it "yields all widgets of other fields with the same full field name" do
+      @field[:T] = 'a'
+      @doc.acro_form.root_fields <<
+        @doc.add({T: "b", Subtype: :Widget, Rect: [0, 0, 0, 0]}, type: :XXAcroFormField) <<
+        @doc.add({T: "a", X: 1, Subtype: :Widget, Rect: [0, 0, 0, 0]}, type: :XXAcroFormField)
+
       widgets = @field.each_widget.to_a
       assert_kind_of(HexaPDF::Type::Annotations::Widget, *widgets)
       assert_equal(1, widgets.first[:X])

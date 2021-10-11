@@ -8,6 +8,8 @@
 
 ### Fixed
 
+* [HexaPDF::Type::AcroForm::Field#each_widget] to also return widgets of other
+  form fields that have the same name
 * `hexapdf form` to allow filling in multiline and comb text fields
 * `hexapdf form` to correctly work for PDF files containing null values in the
   list of annotations

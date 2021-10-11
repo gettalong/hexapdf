@@ -247,14 +247,33 @@ module HexaPDF
         #
         # Yields each widget, i.e. visual representation, of this field.
         #
+        # Widgets can be associated to the field in three ways:
+        #
+        # 1. The widget can be embedded in the field itself.
+        # 2. One or more widgets are defined as children of this field.
+        # 3. Widgets of *another field instance with the same full field name*.
+        #
+        # Because of possibility 3 all fields of the form have to be searched to check whether there
+        # is another field with the same full field name.
+        #
         # See: HexaPDF::Type::Annotations::Widget
-        def each_widget # :yields: widget
+        def each_widget(direct_only: false, &block) # :yields: widget
           return to_enum(__method__) unless block_given?
+
           if embedded_widget?
             yield(document.wrap(self))
           elsif terminal_field?
             self[:Kids]&.each {|kid| yield(document.wrap(kid)) }
           end
+
+          unless direct_only
+            my_name = full_field_name
+            document.acro_form&.each_field do |field|
+              next if field.full_field_name != my_name || field == self
+              field.each_widget(direct_only: true, &block)
+            end
+          end
+
           self
         end
 
