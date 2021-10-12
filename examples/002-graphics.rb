@@ -145,13 +145,13 @@ canvas.translate(0, 320) do
   canvas.fill_color(0.4, 0.3, 0.4)
   canvas.move_to(450, 50)
   canvas.line_to(*arc.start_point)
-  arc.curves.each {|c| canvas.curve_to(*c)}
+  arc.curves.each {|x, y, hash| canvas.curve_to(x, y, **hash)}
   canvas.fill
   arc.configure(start_angle: 105, end_angle: -30)
   canvas.fill_color(0.3, 0.7, 0.7)
   canvas.move_to(450, 50)
   canvas.line_to(*arc.start_point)
-  arc.curves.each {|c| canvas.curve_to(*c)}
+  arc.curves.each {|x, y, hash| canvas.curve_to(x, y, **hash)}
   canvas.fill
 
   arc = canvas.graphic_object(:arc, cx: 530, cy: 50, a: 40, b: 20,
@@ -159,13 +159,13 @@ canvas.translate(0, 320) do
   canvas.fill_color(0.4, 0.3, 0.4)
   canvas.move_to(530, 50)
   canvas.line_to(*arc.start_point)
-  arc.curves.each {|c| canvas.curve_to(*c)}
+  arc.curves.each {|x, y, hash| canvas.curve_to(x, y, **hash)}
   canvas.fill
   arc.configure(start_angle: 105, end_angle: -30)
   canvas.fill_color(0.7, 0.7, 0.3)
   canvas.move_to(530, 50)
   canvas.line_to(*arc.start_point)
-  arc.curves.each {|c| canvas.curve_to(*c)}
+  arc.curves.each {|x, y, hash| canvas.curve_to(x, y, **hash)}
   canvas.fill
 end
 
