@@ -840,40 +840,39 @@ module HexaPDF
       # Examples:
       #
       #   #>pdf
+      #   canvas.line_width(5)
+      #
       #   # With no arguments just returns the current color
       #   canvas.stroke_color                        # => DeviceGray.color(0.0)
       #
       #   # Same gray color because integer values are normalized to the range of 0.0 to 1.0
-      #   canvas.stroke_color(102)
-      #   canvas.stroke_color(0.4)
+      #   canvas.stroke_color(102).rectangle(10, 170, 20, 20).stroke
+      #   canvas.stroke_color(0.4).rectangle(40, 170, 20, 20).stroke
       #
-      #   # Specifying RGB colors
-      #   canvas.stroke_color(255, 255, 0)
-      #   canvas.stroke_color("FFFF00")
-      #   canvas.stroke_color("FF0")
-      #   canvas.stroke_color("yellow")
+      #   # Specifying RGB color yellow in all possible formats
+      #   canvas.stroke_color(255, 255, 0).rectangle(10, 140, 20, 20).stroke
+      #   canvas.stroke_color(1.0, 1.0, 0).rectangle(40, 140, 20, 20).stroke
+      #   canvas.stroke_color("FFFF00").rectangle(70, 140, 20, 20).stroke
+      #   canvas.stroke_color("FF0").rectangle(100, 140, 20, 20).stroke
+      #   canvas.stroke_color("yellow").rectangle(130, 140, 20, 20).stroke
       #
       #   # Specifying CMYK colors
-      #   canvas.stroke_color(100, 100, 0, 60)
+      #   canvas.stroke_color(100, 100, 0, 60).rectangle(10, 110, 20, 20).stroke
+      #   canvas.stroke_color(1.0, 1.0, 0, 0.6).rectangle(40, 110, 20, 20).stroke
       #
-      #   # Can use a color object directly
-      #   color = HexaPDF::Content::ColorSpace::DeviceRGB.new.color(255, 255, 0)
-      #   canvas.stroke_color(color)
+      #   # Can use a color object directly, only numeric normalization is performed
+      #   color = HexaPDF::Content::ColorSpace::DeviceRGB.new.color(0, 255, 0)
+      #   canvas.stroke_color(color).rectangle(10, 80, 20, 20).stroke
       #
       #   # An array argument is destructured - these calls are all equal
-      #   canvas.stroke_color(255, 255, 0)
-      #   canvas.stroke_color([255, 255, 0])
-      #   canvas.stroke_color = [255, 255, 0]
+      #   canvas.stroke_color(0, 255, 0).rectangle(40, 80, 20, 20).stroke
+      #   canvas.stroke_color([0, 255, 0]).rectangle(70, 80, 20, 20).stroke
+      #   canvas.stroke_color = [0, 255, 0]
+      #   canvas.rectangle(100, 80, 20, 20).stroke
       #
       #   # As usual, can be invoked with a block to limit the effects
       #   canvas.stroke_color(102) do
       #     canvas.stroke_color                      # => ColorSpace::DeviceGray.color(0.4)
-      #   end
-      #
-      #   # visual example
-      #   [102, [255, 255, 0], [100, 100, 0, 60]].each_with_index do |color_spec, index|
-      #     canvas.stroke_color(color_spec).
-      #       line(50 + index * 50, 10, 50 + index * 50, 190).stroke
       #   end
       #
       # See: PDF1.7 s8.6, ColorSpace

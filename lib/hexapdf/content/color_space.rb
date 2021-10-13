@@ -97,6 +97,19 @@ module HexaPDF
     module ColorSpace
 
       # Mapping of CSS Color Module Level 3 names to RGB values.
+      #
+      # Visual listing of all colors:
+      #
+      #   #>pdf-big
+      #   canvas.font("Helvetica", size: 8)
+      #   map = HexaPDF::Content::ColorSpace::CSS_COLOR_NAMES
+      #   map.each_slice(38).each_with_index do |slice, col|
+      #     x = 10 + col * 100
+      #     slice.each_with_index do |(name, rgb), row|
+      #       canvas.fill_color(rgb).rectangle(x, 380 - row * 10, 10, 10).fill
+      #       canvas.fill_color("black").text(name, at: [x + 15, 380 - row * 10 + 2])
+      #     end
+      #   end
       CSS_COLOR_NAMES = {
         "aliceblue" => [240, 248, 255],
         "antiquewhite" => [250, 235, 215],
@@ -270,7 +283,10 @@ module HexaPDF
       # * An array is treated as if its items were specified separately as arguments.
       #
       # Note that it makes a difference whether integer or float values are used because the given
-      # values are first normalized - see DeviceGray#color, DeviceRGB#color and DeviceCMYK#color.
+      # values are first normalized (expected range by the PDF specification is 0.0 - 1.0) - see
+      # DeviceGray#color, DeviceRGB#color and DeviceCMYK#color for details.
+      #
+      # For examples see HexaPDF::Content::Canvas#stroke_color.
       def self.device_color_from_specification(*spec)
         spec.flatten!
         first_item = spec[0]
