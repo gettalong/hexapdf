@@ -693,10 +693,13 @@ describe HexaPDF::Content::Canvas do
     it "serializes correctly" do
       @canvas.move_to(10, 10)
       @canvas.line_with_rounded_corner(30, 10, 30, 50, in_radius: 10, out_radius: 5)
+      @canvas.line_with_rounded_corner(30, 50, 30, 10, 30, 50, in_radius: 10, out_radius: 5)
       assert_operators(@canvas.contents,
                        [[:move_to, [10, 10]],
                         [:line_to, [20, 10]],
-                        [:curve_to, [25.51915, 10.0, 30.0, 12.240425, 30.0, 15.0]]])
+                        [:curve_to, [25.51915, 10.0, 30.0, 12.240425, 30.0, 15.0]],
+                        [:line_to, [30, 20]],
+                        [:curve_to, [30.0, 14.48085, 30.0, 12.240425, 30.0, 15.0]]])
     end
 
     it "returns the canvas object" do

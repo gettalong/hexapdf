@@ -1161,7 +1161,7 @@ module HexaPDF
           move_to(*point_on_line(points[0], points[1], points[2], points[3], distance: radius))
           points.concat(points[0, 4])
           0.step(points.length - 6, 2) do |i|
-            line_with_rounded_corner(*points[i + 2, 4], in_radius: radius)
+            line_with_rounded_corner(*points[i, 6], in_radius: radius)
           end
         end
         close_subpath
@@ -1289,14 +1289,15 @@ module HexaPDF
       KAPPA = 0.55191496 #:nodoc:
 
       # :call-seq:
-      #   canvas.line_with_rounded_corner(x1, y1, x2, y2, in_radius:, out_radius: in_radius)
+      #   canvas.line_with_rounded_corner(x0 = current_point[0], y0 = current_point[1], x1, y1, x2, y2, in_radius:, out_radius: in_radius)
       #
       # Appends a line with a rounded corner at (x1, y1) from the current point. The end point of
       # the rounded corner (i.e. +out_radius+ units from (x1, y1) in the direction of (x2, y2))
       # becomes the current point.
       #
-      # The corner is specified by the current point, (x1, y1) and (x2, y2). The +in_radius+
-      # specifies the corner radius into the corner and the +out_radius+ the one out of the corner.
+      # The corner is specified by (x0, y0) which defaults to the #current_point of the path, (x1,
+      # y1) and (x2, y2) - all of which need to be different points. The +in_radius+ specifies the
+      # corner radius into the corner and the +out_radius+ the one out of the corner.
       #
       # There has to be a current path when this method is invoked. For example, the current point
       # ould be estabilshed beforehand using #move_to.
@@ -1309,8 +1310,13 @@ module HexaPDF
       #   canvas.line_to(150, 100)
       #   canvas.line_with_rounded_corner(150, 150, 50, 150, in_radius: 20, out_radius: 50)
       #   canvas.stroke
-      def line_with_rounded_corner(x1, y1, x2, y2, in_radius:, out_radius: in_radius)
-        p0 = point_on_line(x1, y1, *current_point, distance: in_radius)
+      #
+      #   # Special effects when (x0, y0) is not the current point, like when the current point
+      #   # would be equal to the corner point
+      #   canvas.rectangle(70, 70, 60, 60, radius: 60).stroke
+      def line_with_rounded_corner(x0 = current_point[0], y0 = current_point[1], x1, y1, x2, y2,
+                                   in_radius:, out_radius: in_radius)
+        p0 = point_on_line(x1, y1, x0, y0, distance: in_radius)
         p3 = point_on_line(x1, y1, x2, y2, distance: out_radius)
         p1 = point_on_line(p0[0], p0[1], x1, y1, distance: KAPPA * in_radius)
         p2 = point_on_line(p3[0], p3[1], x1, y1, distance: KAPPA * out_radius)
