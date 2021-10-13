@@ -37,6 +37,9 @@ doc.write("hello-world.pdf")
 For detailed information have a look at the [HexaPDF website][website] where you will the API
 documentation, example code and more.
 
+It is recommend to use the HTML API documentation provided by the HexaPDF website as it is enhanced
+with example graphics and PDF files and tightly integrated into the rest of the website.
+
 [website]: http://hexapdf.gettalong.org
 
 
@@ -46,8 +49,9 @@ Since HexaPDF is written in Ruby, a working Ruby installation is needed - see th
 [official installation documentation][rbinstall] for details. Note that you need Ruby version 2.4 or
 higher as prior versions are not supported!
 
-Apart from Ruby itself the HexaPDF library has no external dependencies. The `hexapdf` application
-has a dependency on `cmdparse`, a command line parsing library.
+Apart from Ruby itself the HexaPDF library has only one external dependency `geom2d` which is
+written and provided by the HexaPDF authors. The `hexapdf` application has an additional dependency
+on `cmdparse`, a command line parsing library.
 
 HexaPDF itself is distributed via Rubygems and therefore easily installable via `gem install
 hexapdf`.
@@ -89,6 +93,11 @@ So why use HexaPDF?
 
 [Prawn]: http://prawnpdf.org
 [page canvas API]: https://hexapdf.gettalong.org/api/HexaPDF/Content/Canvas.html
+
+## Development
+
+Clone the repository and then run `rake dev:setup`. This will install the needed Rubygem
+dependencies as well as make sure that all applications needed for the tests are available.
 
 
 ## License
