@@ -587,10 +587,18 @@ module HexaPDF
       #   canvas.line_cap_style(style)             => canvas
       #   canvas.line_cap_style(style) { block }   => canvas
       #
-      # The line cap style specifies how the ends of stroked open paths should look like. The
-      # +style+ parameter can either be a valid integer or one of the symbols +:butt+, +:round+ or
-      # +:projecting_square+ (see Content::LineCapStyle.normalize for details). Note that the return
-      # value is always a normalized line cap style.
+      # The line cap style specifies how the ends of stroked open paths should look like.
+      #
+      # The +style+ parameter can be one of:
+      #
+      # :butt or 0::
+      #     Stroke is squared off at the endpoint of a path.
+      # :round or 1::
+      #     A semicircular arc is drawn at the endpoint of a path.
+      # :projecting_square or 2::
+      #     The stroke continues half the line width beyond the endpoint of a path.
+      #
+      # Note that the return value is always a normalized line cap style.
       #
       # Returns the current line cap style (see Content::GraphicsState#line_cap_style) when no
       # argument is given. Otherwise sets the line cap style to the given +style+ and returns self.
@@ -613,12 +621,14 @@ module HexaPDF
       #
       #   # visual example
       #   [:butt, :round, :projecting_square].each_with_index do |style, index|
-      #      canvas.line_cap_style(style)
-      #      canvas.line_width(10).line(50 + index * 50, 30, 50 + index * 50, 170).
-      #        stroke
+      #      canvas.line_cap_style(style).
+      #        line_width(10).stroke_color("black").
+      #        line(50 + index * 50, 30, 50 + index * 50, 170).stroke
+      #      canvas.stroke_color("white").line_width(1).line_cap_style(:butt).
+      #        line(50 + index * 50, 30, 50 + index * 50, 170).stroke
       #   end
       #
-      # See: PDF1.7 s8.4.3.3
+      # See: PDF1.7 s8.4.3.3, Content::LineCapStyle
       def line_cap_style(style = nil, &block)
         gs_getter_setter(:line_cap_style, :J, style && LineCapStyle.normalize(style), &block)
       end
@@ -629,10 +639,19 @@ module HexaPDF
       #   canvas.line_join_style(style)             => canvas
       #   canvas.line_join_style(style) { block }   => canvas
       #
-      # The line join style specifies the shape that is used at the corners of stroked paths. The
-      # +style+ parameter can either be a valid integer or one of the symbols +:miter+, +:round+ or
-      # +:bevel+ (see Content::LineJoinStyle.normalize for details). Note that the return value is
-      # always a normalized line join style.
+      # The line join style specifies the shape that is used at the corners of stroked paths.
+      #
+      # The +style+ parameter can be one of:
+      #
+      # :miter or 0::
+      #     The outer lines of the two segments continue until the meet at an angle.
+      # :round or 1::
+      #     An arc of a circle is drawn around the point where the segments meet.
+      # :bevel or 2::
+      #     The two segments are finished with butt caps and the space between the ends is filled
+      #     with a triangle.
+      #
+      # Note that the return value is always a normalized line join style.
       #
       # Returns the current line join style (see Content::GraphicsState#line_join_style) when no
       # argument is given. Otherwise sets the line join style to the given +style+ and returns self.
@@ -655,12 +674,14 @@ module HexaPDF
       #
       #   # visual example
       #   [:miter, :round, :bevel].each_with_index do |style, index|
-      #      canvas.line_join_style(style)
-      #      canvas.line_width(10).polyline(20 + index * 60, 30, 40 + index * 60, 170,
-      #                                     60 + index * 60, 30).stroke
+      #      canvas.line_join_style(style).
+      #        line_width(10).stroke_color("black").
+      #        polyline(20 + index * 60, 30, 40 + index * 60, 170, 60 + index * 60, 30).stroke
+      #      canvas.stroke_color("white").line_width(1).line_join_style(:bevel).
+      #        polyline(20 + index * 60, 30, 40 + index * 60, 170, 60 + index * 60, 30).stroke
       #   end
       #
-      # See: PDF1.7 s8.4.3.4
+      # See: PDF1.7 s8.4.3.4, Content::LineJoinStyle
       def line_join_style(style = nil, &block)
         gs_getter_setter(:line_join_style, :j, style && LineJoinStyle.normalize(style), &block)
       end
