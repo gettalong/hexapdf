@@ -702,6 +702,48 @@ describe HexaPDF::Content::Canvas do
                         [:curve_to, [30.0, 14.48085, 30.0, 12.240425, 30.0, 15.0]]])
     end
 
+    describe "degraded cases" do
+      it "p0 equal p1" do
+        @canvas.move_to(10, 10)
+        @canvas.line_with_rounded_corner(10, 10, 10, 20, in_radius: 5)
+        assert_operators(@canvas.contents,
+                         [[:move_to, [10, 10]],
+                          [:line_to, [10, 10]]])
+      end
+
+      it "p1 equal p2" do
+        @canvas.move_to(10, 10)
+        @canvas.line_with_rounded_corner(20, 10, 20, 10, in_radius: 5)
+        assert_operators(@canvas.contents,
+                         [[:move_to, [10, 10]],
+                          [:line_to, [20, 10]]])
+      end
+
+      it "p0 equal p1 equal p2" do
+        @canvas.move_to(10, 10)
+        @canvas.line_with_rounded_corner(10, 10, 10, 10, in_radius: 5)
+        assert_operators(@canvas.contents,
+                         [[:move_to, [10, 10]],
+                          [:line_to, [10, 10]]])
+      end
+
+      it "in_radius = 0" do
+        @canvas.move_to(10, 10)
+        @canvas.line_with_rounded_corner(20, 10, 20, 20, in_radius: 0, out_radius: 5)
+        assert_operators(@canvas.contents,
+                         [[:move_to, [10, 10]],
+                          [:line_to, [20, 10]]])
+      end
+
+      it "out_radius = 0" do
+        @canvas.move_to(10, 10)
+        @canvas.line_with_rounded_corner(20, 10, 20, 20, in_radius: 5, out_radius: 0)
+        assert_operators(@canvas.contents,
+                         [[:move_to, [10, 10]],
+                          [:line_to, [20, 10]]])
+      end
+    end
+
     it "returns the canvas object" do
       @canvas.move_to(10, 10)
       assert_equal(@canvas, @canvas.line_with_rounded_corner(30, 30, 30, 50, in_radius: 10))

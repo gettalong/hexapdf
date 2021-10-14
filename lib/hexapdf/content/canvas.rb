@@ -1314,11 +1314,13 @@ module HexaPDF
       #
       # Appends a line with a rounded corner at (x1, y1) from the current point. The end point of
       # the rounded corner (i.e. +out_radius+ units from (x1, y1) in the direction of (x2, y2))
-      # becomes the current point.
+      # becomes the current point. In degraded cases the corner point (x1, y1) becomes the current
+      # point.
       #
       # The corner is specified by (x0, y0) which defaults to the #current_point of the path, (x1,
       # y1) and (x2, y2) - all of which need to be different points. The +in_radius+ specifies the
-      # corner radius into the corner and the +out_radius+ the one out of the corner.
+      # corner radius into the corner and the +out_radius+ the one out of the corner. Degraded
+      # cases, like with (x0, y0) == (x1, y1), are handled gracefully.
       #
       # There has to be a current path when this method is invoked. For example, the current point
       # ould be estabilshed beforehand using #move_to.
@@ -1326,23 +1328,35 @@ module HexaPDF
       # Examples:
       #
       #   #>pdf
-      #   canvas.move_to(50, 50)
-      #   canvas.line_with_rounded_corner(150, 50, 150, 100, in_radius: 20)
-      #   canvas.line_to(150, 100)
-      #   canvas.line_with_rounded_corner(150, 150, 50, 150, in_radius: 20, out_radius: 50)
+      #   canvas.move_to(10, 180)   # Both radii are the same
+      #   canvas.line_with_rounded_corner(180, 180, 180, 100, in_radius: 20)
+      #   canvas.move_to(10, 150)   # Different radii
+      #   canvas.line_with_rounded_corner(180, 150, 180, 100, in_radius: 50, out_radius: 20)
+      #   canvas.move_to(10, 120)   # One radius is zero, making it just a line
+      #   canvas.line_with_rounded_corner(180, 120, 150, 100, in_radius: 0, out_radius: 10)
       #   canvas.stroke
       #
       #   # Special effects when (x0, y0) is not the current point, like when the current point
       #   # would be equal to the corner point
-      #   canvas.rectangle(70, 70, 60, 60, radius: 60).stroke
+      #   canvas.rectangle(10, 10, 60, 60, radius: 60).stroke
+      #   canvas.rectangle(110, 10, 60, 60, radius: 70).stroke
       def line_with_rounded_corner(x0 = current_point[0], y0 = current_point[1], x1, y1, x2, y2,
                                    in_radius:, out_radius: in_radius)
-        p0 = point_on_line(x1, y1, x0, y0, distance: in_radius)
-        p3 = point_on_line(x1, y1, x2, y2, distance: out_radius)
-        p1 = point_on_line(p0[0], p0[1], x1, y1, distance: KAPPA * in_radius)
-        p2 = point_on_line(p3[0], p3[1], x1, y1, distance: KAPPA * out_radius)
-        line_to(p0[0], p0[1])
-        curve_to(p3[0], p3[1], p1: p1, p2: p2)
+        if in_radius == 0 || out_radius == 0
+          line_to(x1, y1)
+        else
+          p0 = point_on_line(x1, y1, x0, y0, distance: in_radius)
+          p3 = point_on_line(x1, y1, x2, y2, distance: out_radius)
+          p1 = point_on_line(p0[0], p0[1], x1, y1, distance: KAPPA * in_radius)
+          p2 = point_on_line(p3[0], p3[1], x1, y1, distance: KAPPA * out_radius)
+          if p0[0].finite? && p3[0].finite?
+            line_to(*p0)
+            curve_to(p3[0], p3[1], p1: p1, p2: p2)
+          else
+            line_to(x1, y1)
+          end
+        end
+        self
       end
 
       # :call-seq:
