@@ -90,6 +90,7 @@ describe HexaPDF::Layout::Box do
         canvas.line_width(15)
       end
       box.style.background_color = 0.5
+      box.style.background_alpha = 0.5
       box.style.border(width: 5)
       box.style.padding([10, 20])
       box.style.underlays.add {|canvas, _| canvas.line_width(10) }
@@ -98,6 +99,7 @@ describe HexaPDF::Layout::Box do
       @canvas = HexaPDF::Document.new.pages.add.canvas
       box.draw(@canvas, 5, 5)
       assert_operators(@canvas.contents, [[:save_graphics_state],
+                                          [:set_graphics_state_parameters, [:GS1]],
                                           [:set_device_gray_non_stroking_color, [0.5]],
                                           [:append_rectangle, [5, 5, 150, 130]],
                                           [:fill_path_non_zero],

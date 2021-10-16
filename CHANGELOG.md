@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Layout::Style#background_alpha] for defining the opacity of the
+  background
+
 ### Changed
 
 * [HexaPDF::Content::Canvas#text] to use the font size as leading if no leading

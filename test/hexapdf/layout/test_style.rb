@@ -664,6 +664,7 @@ describe HexaPDF::Layout::Style do
     assert_equal(:top, @style.valign)
     assert_equal(0, @style.text_indent)
     assert_nil(@style.background_color)
+    assert_equal(1, @style.background_alpha)
     assert(@style.padding.simple?)
     assert_equal(0, @style.padding.top)
     assert(@style.margin.simple?)

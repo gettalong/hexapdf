@@ -815,6 +815,16 @@ module HexaPDF
       # The color used for backgrounds, defaults to +nil+ (i.e. no background).
 
       ##
+      # :method: background_alpha
+      # :call-seq:
+      #   background_alpha(alpha = nil)
+      #
+      # The alpha value applied to the background when it is colored, defaults to 1 (i.e. 100%
+      # opaque).
+      #
+      # See: HexaPDF::Content::Canvas#opacity
+
+      ##
       # :method: padding
       # :call-seq:
       #   padding(value = nil)
@@ -939,6 +949,7 @@ module HexaPDF
           extra_args: ", extra_arg = nil"}],
         [:last_line_gap, false, {valid_values: [true, false]}],
         [:background_color, nil],
+        [:background_alpha, 1],
         [:padding, "Quad.new(0)", {setter: "Quad.new(value)"}],
         [:margin, "Quad.new(0)", {setter: "Quad.new(value)"}],
         [:border, "Border.new", {setter: "Border.new(**value)"}],

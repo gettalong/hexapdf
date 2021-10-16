@@ -78,6 +78,7 @@ module HexaPDF
       # Only the following properties are used:
       #
       # * Style#background_color
+      # * Style#background_alpha
       # * Style#padding
       # * Style#border
       # * Style#overlay_callback
@@ -153,7 +154,8 @@ module HexaPDF
       def draw(canvas, x, y)
         if style.background_color? && style.background_color
           canvas.save_graphics_state do
-            canvas.fill_color(style.background_color).rectangle(x, y, width, height).fill
+            canvas.opacity(fill_alpha: style.background_alpha).
+              fill_color(style.background_color).rectangle(x, y, width, height).fill
           end
         end
 
