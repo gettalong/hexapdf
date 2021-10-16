@@ -5,6 +5,8 @@
 * [HexaPDF::Content::Canvas#text] to use the font size as leading if no leading
   has been set
 * [HexaPDF::Content::Canvas#line_with_rounded_corner] to be a public method
+* [HexaPDF::Layout::Style::LineSpacing] to allow using integers or floats as
+  type argument to mean proportional line spacing
 
 ### Fixed
 

@@ -98,6 +98,9 @@ module HexaPDF
           when LineSpacing
             @type = type.type
             @value = type.value
+          when Integer, Float
+            @type = :proportional
+            @value = type
           else
             raise ArgumentError, "Invalid type #{type} for line spacing"
           end

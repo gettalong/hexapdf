@@ -45,6 +45,16 @@ describe HexaPDF::Layout::Style::LineSpacing do
     assert_equal((1 + 4) * 0.5, obj.gap(@line1, @line2))
   end
 
+  it "allows using an Integer or Float as type to mean proportional line spacing" do
+    obj = line_spacing(2)
+    assert_equal(:proportional, obj.type)
+    assert_equal(2, obj.value)
+
+    obj = line_spacing(2.5)
+    assert_equal(:proportional, obj.type)
+    assert_equal(2.5, obj.value)
+  end
+
   it "allows fixed line spacing" do
     obj = line_spacing(:fixed, 7)
     assert_equal(:fixed, obj.type)
