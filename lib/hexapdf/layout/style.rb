@@ -624,7 +624,7 @@ module HexaPDF
       #   text_rendering_mode(mode = nil)
       #
       # The text rendering mode, i.e. whether text should be filled, stroked, clipped, invisible or
-      # a combination thereof, defaults to :fill. The returned values is always a normalized text
+      # a combination thereof, defaults to :fill. The returned value is always a normalized text
       # rendering mode value.
       #
       # See: HexaPDF::Content::Canvas#text_rendering_mode
@@ -646,6 +646,20 @@ module HexaPDF
       # Render the text as superscript, i.e. higher and in a smaller font size; defaults to false.
       #
       # If subscript is set, it will be deactivated.
+
+      ##
+      # :method: underline
+      # :call-seq:
+      #   underline(enable = false)
+      #
+      # Renders a line underneath the text; defaults to false.
+
+      ##
+      # :method: strikeout
+      # :call-seq:
+      #   strikeout(enable = false)
+      #
+      # Renders a line through the text; defaults to false.
 
       ##
       # :method: fill_color
@@ -723,6 +737,16 @@ module HexaPDF
       # :miter, defaults to 10.0.
       #
       # See: HexaPDF::Content::Canvas#miter_limit
+
+      ##
+      # :method: stroke_dash_pattern
+      # :call-seq:
+      #   stroke_dash_pattern(pattern = nil)
+      #
+      # The line dash pattern used for stroking operations (e.g. text outlines), defaults to a solid
+      # line.
+      #
+      # See: HexaPDF::Content::Canvas#line_dash_pattern
 
       ##
       # :method: align
