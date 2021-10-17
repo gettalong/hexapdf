@@ -61,6 +61,16 @@ module HexaPDF
 
         UNSET_ARG = ::Object.new # :nodoc:
 
+        # Parses the given appearance string. If no block is given, the appearance string is
+        # searched for font name and font size both of which are returend. Otherwise the block is
+        # called with each found content stream operator and has to handle them themselves.
+        def self.parse_appearance_string(appearance_string, &block) # :yield: obj, params
+          font_params = nil
+          block ||= lambda {|obj, params| font_params = params.dup if obj == :Tf }
+          HexaPDF::Content::Parser.parse(appearance_string.sub(/\/\//, '/'), &block)
+          font_params
+        end
+
         # :call-seq:
         #   field.text_alignment                -> alignment
         #   field.text_alignment(alignment)     -> field
@@ -107,12 +117,7 @@ module HexaPDF
         def parse_default_appearance_string
           da = self[:DA] || (document.acro_form && document.acro_form[:DA])
           raise HexaPDF::Error, "No default appearance string set" unless da
-
-          font_params = nil
-          HexaPDF::Content::Parser.parse(da) do |obj, params|
-            font_params = params.dup if obj == :Tf
-          end
-          font_params
+          self.class.parse_appearance_string(da)
         end
 
       end

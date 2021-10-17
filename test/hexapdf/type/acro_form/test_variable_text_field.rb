@@ -55,7 +55,7 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
 
   describe "parse_default_appearance_string" do
     it "parses the default appearance string of the field" do
-      @field[:DA] = "1 g /F1 20 Tf 5 w /F2 10 Tf"
+      @field[:DA] = "1 g //F1 20 Tf 5 w /F2 10 Tf"
       assert_equal([:F2, 10], @field.parse_default_appearance_string)
     end
 

@@ -308,7 +308,7 @@ module HexaPDF
             size = 0
             color = [0]
             if (da = self[:DA] || field[:DA])
-              HexaPDF::Content::Parser.parse(da) do |obj, params|
+              HexaPDF::Type::AcroForm::VariableTextField.parse_appearance_string(da) do |obj, params|
                 case obj
                 when :rg, :g, :k then color = params.dup
                 when :Tf then size = params[1]

@@ -20,6 +20,7 @@
 * `hexapdf form` to allow filling in multiline and comb text fields
 * `hexapdf form` to correctly work for PDF files containing null values in the
   list of annotations
+* Handling of files that contain invalid default appearance strings
 
 
 ## 0.16.0 - 2021-09-28
