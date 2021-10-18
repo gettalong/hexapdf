@@ -108,12 +108,10 @@ module HexaPDF
                 fill_form(doc)
               end
             end
-            if @flatten
-              unless doc.acro_form.flatten.empty?
-                $stderr.puts "Warning: Not all form fields could be flattened"
-                doc.catalog.delete(:AcroForm)
-                doc.delete(doc.acro_form)
-              end
+            if @flatten && !doc.acro_form.flatten.empty?
+              $stderr.puts "Warning: Not all form fields could be flattened"
+              doc.catalog.delete(:AcroForm)
+              doc.delete(doc.acro_form)
             end
           else
             list_form_fields(doc)
@@ -146,8 +144,8 @@ module HexaPDF
           if command_parser.verbosity_info?
             if field.field_type == :Ch
               puts "    └─ Options: #{field.option_items.map(&:inspect).join(', ')}"
-            elsif concrete_field_type == :radio_button
-              puts "    └─ Options: #{field.radio_button_values.map(&:inspect).join(', ')}"
+            elsif concrete_field_type == :radio_button || concrete_field_type == :check_box
+              puts "    └─ Options: #{([:Off] + field.allowed_values).map(&:to_s).join(', ')}"
             end
           end
         end
@@ -170,11 +168,13 @@ module HexaPDF
           puts "    └─ Current value: #{field.field_value.inspect}"
 
           if field.field_type == :Ch
-            puts "    └─ Possible values: #{field.option_items.map(&:inspect).join(', ')}"
+            puts "    └─ Possible values: #{field.option_items.map(&:to_s).join(', ')}"
           elsif concrete_field_type == :radio_button
-            puts "    └─ Possible values: #{field.radio_button_values.map(&:inspect).join(', ')}"
+            puts "    └─ Possible values: Off, #{field.allowed_values.map(&:to_s).join(', ')}"
           elsif concrete_field_type == :check_box
-            puts "    └─ Possible values: y(es), t(rue); n(o), f(alse)"
+            av = field.allowed_values
+            puts "    └─ Possible values: n(o), f(alse); #{av.size == 1 ? 'y(es), t(rue); ' : ''}" \
+              "#{av.map(&:to_s).join(', ')}"
           end
 
           begin
@@ -220,19 +220,20 @@ module HexaPDF
       # Applies the given value to the field.
       def apply_field_value(field, value)
         case field.concrete_field_type
-        when :single_line_text_field, :multiline_text_field, :comb_text_field
-          field.field_value = value
-        when :combo_box, :list_box
-          field.field_value = value
-        when :editable_combo_box
+        when :single_line_text_field, :multiline_text_field, :comb_text_field, :combo_box,
+            :list_box, :editable_combo_box
           field.field_value = value
         when :check_box
-          unless value.match?(/y(es)?|t(rue)?|f(alse)?|n(o)/)
-            raise HexaPDF::Error, "Invalid input, use one of the possible values"
-          end
-          field.field_value = value.match?(/y(es)?|t(rue)?/)
+          field.field_value = case value
+                              when /y(es)?|t(rue)?/
+                                true
+                              when /n(o)?|f(alse)?/
+                                false
+                              else
+                                value
+                              end
         when :radio_button
-          field.field_value = value.intern
+          field.field_value = value.to_sym
         else
           raise "Field type #{field.concrete_field_type} not yet supported"
         end
@@ -248,9 +249,9 @@ module HexaPDF
             next unless annotation&.[](:Subtype) == :Widget
             field = annotation.form_field
             next if field.concrete_field_type == :push_button
-            unless seen[field]
+            unless seen[field.full_field_name]
               yield(page, page_index, field, annotation)
-              seen[field] = true
+              seen[field.full_field_name] = true
             end
           end
         end
