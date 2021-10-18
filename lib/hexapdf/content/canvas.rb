@@ -1081,8 +1081,10 @@ module HexaPDF
       # Examples:
       #
       #   #>pdf
-      #   canvas.rectangle(10, 10, 80, 50).stroke
+      #   canvas.rectangle(10, 110, 80, 50).stroke
       #   canvas.rectangle(110, 110, 80, 50, radius: 10).stroke
+      #   canvas.rectangle(10, 10, 80, 0).stroke      # Degraded: Just a line
+      #   canvas.rectangle(110, 10, 0, 0).stroke      # Degraded: Draws nothing
       #
       # See: PDF1.7 s8.5.2.1
       def rectangle(x, y, width, height, radius: 0)
