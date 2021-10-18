@@ -7,6 +7,8 @@
 
 ### Changed
 
+* **Breaking change**: Handling of AcroForm check boxes to allow multiple
+  widgets with different values
 * [HexaPDF::Content::Canvas#text] to use the font size as leading if no leading
   has been set
 * [HexaPDF::Content::Canvas#line_with_rounded_corner] to be a public method

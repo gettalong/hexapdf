@@ -50,11 +50,28 @@ module HexaPDF
       # methods on the main Form instance (HexaPDF::Document#acro_form). By using those methods,
       # everything needed is automatically set up.
       #
+      # Radio buttons are widgets of a single radio button field. This is also called a radio button
+      # group. Of the radio button group only one radio button (= widget of the radio button field)
+      # may be selected at all times. Each widget must have a different value to be distinguishable;
+      # otherwise the widgets with the same value represent the same thing. Although there is the
+      # +no_toggle_to_off+ field flag, no PDF viewer implements that; one needs to use check boxes
+      # for this feature.
+      #
+      # Check boxes can be toggled on and off. One check box field may have multiple widgets. If
+      # those widgets have the same value, they will all be toggled on or off simultaneously.
+      # Otherwise only one of those widgets will be toggled on while the others are off. In such a
+      # case the check box fields acts like a radio button group, with the additional feature that
+      # no check box may be selected.
+      #
       # == Type Specific Field Flags
       #
       # :no_toggle_to_off:: Only used with radio buttons fields. If this flag is set, one button
       #                     needs to be selected at all times. Otherwise, clicking on the selected
       #                     button deselects it.
+      #
+      #                     Note: This deselectiong is not implemented in *any* tested PDF viewer. A
+      #                     work-around is to use multiple check box widgets with different on
+      #                     names.
       #
       # :radio:: If this flag is set, the field is a set of radio buttons. Otherwise it is a check
       #          box. Additionally, the :pushbutton flag needs to be clear.
@@ -131,8 +148,8 @@ module HexaPDF
         #
         # Push buttons:: They don't have a value, so +nil+ is always returned.
         #
-        # Check boxes:: For check boxes that are in the on state the value +true+ is returned.
-        #               Otherwise +false+ is returned.
+        # Check boxes:: For check boxes that are checked the value of the specific check box that is
+        #               checked is returned. Otherwise +nil+ is returned.
         #
         # Radio buttons:: If no radio button is selected, +nil+ is returned. Otherwise the value (a
         #                 Symbol) of the specific radio button that is selected is returned.
@@ -145,8 +162,11 @@ module HexaPDF
         # Push buttons:: Since push buttons don't store any value, the given value is ignored and
         #                nothing is stored for them (e.g a no-op).
         #
-        # Check boxes:: Use +true+ for checking the box, i.e. toggling it to the on state, and
-        #               +false+ for unchecking it.
+        # Check boxes:: Provide +nil+ or +false+ as value to toggle all check box widgets off. If
+        #               there is only one possible value, +true+ may be used for checking the box,
+        #               i.e. toggling it to the on state. Otherwise provide the value (a Symbol or
+        #               an object responding to +#to_sym+) of the check box widget that should be
+        #               toggled on.
         #
         # Radio buttons:: To turn all radio buttons off, provide +nil+ as value. Otherwise provide
         #                 the value (a Symbol or an object responding to +#to_sym+) of a radio
@@ -180,20 +200,16 @@ module HexaPDF
           end
         end
 
-        # Returns the name (a Symbol) used for setting the check box to the on state.
+        # Returns the array of Symbol values (minus the /Off value) that can be used for the field
+        # value for check boxes or radio buttons.
         #
-        # Defaults to :Yes if no other name could be determined.
-        def check_box_on_name
-          each_widget.to_a.first&.appearance_dict&.normal_appearance&.value&.each_key&.
-            find {|key| key != :Off } || :Yes
-        end
-
-        # Returns the array of Symbol values that can be used for the field value of the radio
-        # button.
-        def radio_button_values
-          each_widget.map do |widget|
-            widget.appearance_dict&.normal_appearance&.value&.each_key&.find {|key| key != :Off }
-          end.compact
+        # Note that this will only return useful values if there is at least one correctly set-up
+        # widget.
+        def allowed_values
+          (each_widget.each_with_object([]) do |widget, result|
+             keys = widget.appearance_dict&.normal_appearance&.value&.keys
+             result.concat(keys) if keys
+           end - [:Off]).uniq
         end
 
         # Creates a widget for the button field.
@@ -205,12 +221,14 @@ module HexaPDF
         # the value (a Symbol or an object responding to +#to_sym+) this widget represents. It can
         # be used with #field_value= to set this specific widget of the radio button set to on.
         #
+        # The +value+ is optional for check box fields; if not specified, the default of :Yes will
+        # be used.
+        #
         # See: Field#create_widget, AppearanceGenerator button field methods
         def create_widget(page, defaults: true, value: nil, **values)
           super(page, allow_embedded: !radio_button?, **values).tap do |widget|
-            if check_box?
-              widget[:AP] = {N: {Yes: nil, Off: nil}}
-            elsif radio_button?
+            value = :Yes if check_box? && value.nil?
+            if radio_button? || check_box?
               unless value.respond_to?(:to_sym)
                 raise ArgumentError, "Argument 'value' has to be provided for radio buttons " \
                   "and needs to respond to #to_sym"
@@ -266,9 +284,7 @@ module HexaPDF
         def normalized_field_value(key)
           if push_button?
             nil
-          elsif check_box?
-            self[key] == check_box_on_name
-          elsif radio_button?
+          else
             self[key] == :Off ? nil : self[key]
           end
         end
@@ -279,11 +295,20 @@ module HexaPDF
         # See #field_value= for details.
         def normalized_field_value_set(key, value)
           return if push_button?
-          self[key] = if check_box?
-                        value == true ? check_box_on_name : :Off
-                      elsif value.nil?
+          av = allowed_values
+          self[key] = if value.nil? || value == :Off
                         :Off
-                      elsif radio_button_values.include?(value.to_sym)
+                      elsif check_box?
+                        if value == false
+                          :Off
+                        elsif value == true && av.size == 1
+                          av[0]
+                        elsif av.include?(value.to_sym)
+                          value.to_sym
+                        else
+                          @document.config['acro_form.on_invalid_value'].call(self, value)
+                        end
+                      elsif av.include?(value.to_sym)
                         value.to_sym
                       else
                         @document.config['acro_form.on_invalid_value'].call(self, value)

@@ -233,6 +233,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
 
       it "creates the needed appearance streams" do
+        @widget[:AP][:N].delete(:Off)
         @generator.create_appearances
         assert_equal(:XObject, @widget[:AP][:N][:Off].type)
         assert_equal(:XObject, @widget[:AP][:N][:Yes].type)
@@ -269,7 +270,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
 
       it "fails if the appearance dictionaries are not set up" do
-        @widget[:AP][:N].delete(:Off)
+        @widget[:AP][:N].delete(:Yes)
         assert_raises(HexaPDF::Error) { @generator.create_appearances }
       end
     end

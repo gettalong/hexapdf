@@ -78,14 +78,18 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       @field[:V] = :Off
       refute(@field.field_value)
       @field[:V] = :Yes
-      assert(@field.field_value)
+      assert_equal(:Yes, @field.field_value)
     end
 
     it "sets a correct field value" do
+      @field.create_widget(@doc.pages.add, value: :check)
       @field.field_value = true
-      assert_equal(:Yes, @field[:V])
+      assert_equal(:check, @field[:V])
       @field.field_value = false
       assert_equal(:Off, @field[:V])
+      @field.field_value = "check"
+      assert_equal(:check, @field[:V])
+      assert_raises(HexaPDF::Error) { @field.field_value = :unknown }
     end
 
     it "returns the correct concrete field type" do
@@ -93,18 +97,16 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     end
 
     it "updates the widgets after setting the field value" do
-      widget = @field.create_widget(@doc.pages.add)
+      widget = @field.create_widget(@doc.pages.add, value: :check)
       @field.field_value = true
-      assert_equal(:Yes, widget[:AS])
+      assert_equal(:check, widget[:AS])
     end
 
-    it "can determine the name of the on state" do
-      assert_equal(:Yes, @field.check_box_on_name)
-      widget = @field.create_widget(@doc.pages.add)
-      assert_equal(:Yes, @field.check_box_on_name)
-      widget[:AP][:N].delete(:Yes)
-      widget[:AP][:N][:On] = nil
-      assert_equal(:On, @field.check_box_on_name)
+    it "returns an array of allowed values" do
+      @field.create_widget(@doc.pages.add, value: "Test")
+      @field.create_widget(@doc.pages.add, value: "Test")
+      @field.create_widget(@doc.pages.add, value: :x)
+      assert_equal([:Test, :x], @field.allowed_values)
     end
 
     it "applies sensible default values when creating a widget" do
@@ -116,6 +118,10 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(:solid, border_style.style)
       assert_equal([1], widget.background_color.components)
       assert_equal(:check, widget.marker_style.style)
+    end
+
+    it "fails if the value argument for create_widget doesn't respond to to_sym" do
+      assert_raises(ArgumentError) { @field.create_widget(@doc.pages.add, value: 5) }
     end
   end
 
@@ -157,11 +163,11 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert_equal(:Test, widget[:AS])
     end
 
-    it "returns an array of possible values" do
+    it "returns an array of allowed values" do
       @field.create_widget(@doc.pages.add, value: "Test")
       @field.create_widget(@doc.pages.add, value: :x)
       @field.create_widget(@doc.pages.add, value: :y)
-      assert_equal([:Test, :x, :y], @field.radio_button_values)
+      assert_equal([:Test, :x, :y], @field.allowed_values)
     end
 
     it "applies sensible default values when creating a widget" do
