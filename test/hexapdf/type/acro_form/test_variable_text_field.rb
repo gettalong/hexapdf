@@ -46,10 +46,21 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
       assert_equal(:Helvetica, font[:BaseFont])
     end
 
-    it "allows specifying the used font and font size" do
-      @field.set_default_appearance_string(font: 'Times', font_size: 10)
-      assert_equal("0 g /F2 10 Tf", @field[:DA])
+    it "allows specifying the font" do
+      @field.set_default_appearance_string(font: 'Times')
+      assert_equal("0 g /F2 0 Tf", @field[:DA])
       assert_equal(:'Times-Roman', @doc.acro_form.default_resources.font(:F2)[:BaseFont])
+    end
+
+    it "allows specifying the font options" do
+      @field.set_default_appearance_string(font_options: {variant: :italic})
+      assert_equal("0 g /F2 0 Tf", @field[:DA])
+      assert_equal(:'Helvetica-Oblique', @doc.acro_form.default_resources.font(:F2)[:BaseFont])
+    end
+
+    it "allows specifying the font size" do
+      @field.set_default_appearance_string(font_size: 10)
+      assert_equal("0 g /F1 10 Tf", @field[:DA])
     end
   end
 

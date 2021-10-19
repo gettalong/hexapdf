@@ -15,6 +15,8 @@
 * [HexaPDF::Content::Canvas#line_with_rounded_corner] to be a public method
 * [HexaPDF::Layout::Style::LineSpacing] to allow using integers or floats as
   type argument to mean proportional line spacing
+* [HexaPDF::Type::AcroForm::VariableTextField#set_default_appearance_string] to
+  allow specifying font options
 
 ### Fixed
 

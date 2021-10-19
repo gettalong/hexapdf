@@ -103,9 +103,12 @@ module HexaPDF
         #
         # The default argument values are a sane default. If +font_size+ is set to 0, the font size
         # is calculated using the height/width of the field.
-        def set_default_appearance_string(font: 'Helvetica', font_size: 0)
+        #
+        # Use the +font_options+ hash to provide font options like :variant, see
+        # HexaPDF::Document::Fonts#add.
+        def set_default_appearance_string(font: 'Helvetica', font_options: {}, font_size: 0)
           name = document.acro_form(create: true).default_resources.
-            add_font(document.fonts.add(font).pdf_object)
+            add_font(document.fonts.add(font, **font_options).pdf_object)
           self[:DA] = "0 g /#{name} #{font_size} Tf"
         end
 
