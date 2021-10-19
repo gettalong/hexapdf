@@ -157,18 +157,27 @@ module HexaPDF
         # The optional keyword arguments allow setting often used properties of the field:
         #
         # +font+::
-        #     The font that should be used for the text of the field. If +font_size+ is specified
-        #     but +font+ isn't, the font Helvetica is used.
+        #     The font that should be used for the text of the field. If +font_size+ or
+        #     +font_options+ is specified but +font+ isn't, the font Helvetica is used.
+        #
+        #     If no font is set on the text field, the default font properties of the AcroForm form
+        #     are used. Note that field specific or form specific font properties have to be set.
+        #     Otherwise there will be an error when trying to generate a visual representation of
+        #     the field value.
+        #
+        # +font_options+::
+        #     A hash with font options like :variant that should be used.
         #
         # +font_size+::
-        #     The font size that should be used. If +font+ is specified but +font_size+ isn't, font
-        #     size defaults to 0 (= auto-sizing).
+        #     The font size that should be used. If +font+ or +font_options+ is specified but
+        #     +font_size+ isn't, font size defaults to 0 (= auto-sizing).
         #
         # +align+::
         #     The alignment of the text, either :left, :center or :right.
-        def create_text_field(name, font: nil, font_size: nil, align: nil)
+        def create_text_field(name, font: nil, font_options: nil, font_size: nil, align: nil)
           create_field(name, :Tx) do |field|
-            apply_variable_text_properties(field, font: font, font_size: font_size, align: align)
+            apply_variable_text_properties(field, font: font, font_options: font_options,
+                                           font_size: font_size, align: align)
           end
         end
 
@@ -179,10 +188,12 @@ module HexaPDF
         #
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
-        def create_multiline_text_field(name, font: nil, font_size: nil, align: nil)
+        def create_multiline_text_field(name, font: nil, font_options: nil, font_size: nil,
+                                        align: nil)
           create_field(name, :Tx) do |field|
             field.initialize_as_multiline_text_field
-            apply_variable_text_properties(field, font: font, font_size: font_size, align: align)
+            apply_variable_text_properties(field, font: font, font_options: font_options,
+                                           font_size: font_size, align: align)
           end
         end
 
@@ -196,10 +207,12 @@ module HexaPDF
         #
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
-        def create_comb_text_field(name, max_chars:, font: nil, font_size: nil, align: nil)
+        def create_comb_text_field(name, max_chars:, font: nil, font_options: nil, font_size: nil,
+                                   align: nil)
           create_field(name, :Tx) do |field|
             field.initialize_as_comb_text_field
-            apply_variable_text_properties(field, font: font, font_size: font_size, align: align)
+            apply_variable_text_properties(field, font: font, font_options: font_options,
+                                           font_size: font_size, align: align)
             field[:MaxLen] = max_chars
           end
         end
@@ -211,10 +224,11 @@ module HexaPDF
         #
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
-        def create_file_select_field(name, font: nil, font_size: nil, align: nil)
+        def create_file_select_field(name, font: nil, font_options: nil, font_size: nil, align: nil)
           create_field(name, :Tx) do |field|
             field.initialize_as_file_select_field
-            apply_variable_text_properties(field, font: font, font_size: font_size, align: align)
+            apply_variable_text_properties(field, font: font, font_options: font_options,
+                                           font_size: font_size, align: align)
           end
         end
 
@@ -225,10 +239,11 @@ module HexaPDF
         #
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
-        def create_password_field(name, font: nil, font_size: nil, align: nil)
+        def create_password_field(name, font: nil, font_options: nil, font_size: nil, align: nil)
           create_field(name, :Tx) do |field|
             field.initialize_as_password_field
-            apply_variable_text_properties(field, font: font, font_size: font_size, align: align)
+            apply_variable_text_properties(field, font: font, font_options: font_options,
+                                           font_size: font_size, align: align)
           end
         end
 
@@ -262,15 +277,16 @@ module HexaPDF
         #     If set to +true+, the combo box allows entering an arbitrary value in addition to
         #     selecting one of the provided option items.
         #
-        # +font+, +font_size+ and +align+::
+        # +font+, +font_options+, +font_size+ and +align+::
         #     See #create_text_field
-        def create_combo_box(name, option_items: nil, editable: nil, font: nil, font_size: nil,
-                             align: nil)
+        def create_combo_box(name, option_items: nil, editable: nil, font: nil,
+                             font_options: nil, font_size: nil, align: nil)
           create_field(name, :Ch) do |field|
             field.initialize_as_combo_box
             field.option_items = option_items if option_items
             field.flag(:edit) if editable
-            apply_variable_text_properties(field, font: font, font_size: font_size, align: align)
+            apply_variable_text_properties(field, font: font, font_options: font_options,
+                                           font_size: font_size, align: align)
           end
         end
 
@@ -287,15 +303,16 @@ module HexaPDF
         # +multi_select+::
         #     If set to +true+, the list box allows selecting multiple items instead of only one.
         #
-        # +font+, +font_size+ and +align+::
+        # +font+, +font_options+, +font_size+ and +align+::
         #     See #create_text_field.
-        def create_list_box(name, option_items: nil, multi_select: nil, font: nil, font_size: nil,
-                            align: nil)
+        def create_list_box(name, option_items: nil, multi_select: nil, font: nil,
+                            font_options: nil, font_size: nil, align: nil)
           create_field(name, :Ch) do |field|
             field.initialize_as_list_box
             field.option_items = option_items if option_items
             field.flag(:multi_select) if multi_select
-            apply_variable_text_properties(field, font: font, font_size: font_size, align: align)
+            apply_variable_text_properties(field, font: font, font_options: font_options,
+                                           font_size: font_size, align: align)
           end
         end
 
@@ -402,9 +419,12 @@ module HexaPDF
         end
 
         # Applies the given variable field properties to the field.
-        def apply_variable_text_properties(field, font: nil, font_size: nil, align: nil)
-          if font || font_size
-            field.set_default_appearance_string(font: font || 'Helvetica', font_size: font_size || 0)
+        def apply_variable_text_properties(field, font: nil, font_options: nil, font_size: nil,
+                                           align: nil)
+          if font || font_options || font_size
+            field.set_default_appearance_string(font: font || 'Helvetica',
+                                                font_options: font_options || {},
+                                                font_size: font_size || 0)
           end
           field.text_alignment(align) if align
         end

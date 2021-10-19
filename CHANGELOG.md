@@ -17,6 +17,8 @@
   type argument to mean proportional line spacing
 * [HexaPDF::Type::AcroForm::VariableTextField#set_default_appearance_string] to
   allow specifying font options
+* AcroForm text field creation methods in [HexaPDF::Type::AcroForm::Form] to
+  allow specifying font options
 
 ### Fixed
 

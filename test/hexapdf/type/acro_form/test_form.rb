@@ -144,6 +144,10 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal(:'Times-Roman', @acro_form.default_resources.font(font_name)[:BaseFont])
       assert_equal(0, font_size)
 
+      field = @acro_form.send(method, "field", **args, font_options: {variant: :bold})
+      font_name, font_size = field.parse_default_appearance_string
+      assert_equal(:'Helvetica-Bold', @acro_form.default_resources.font(font_name)[:BaseFont])
+
       field = @acro_form.send(method, "field", **args, font_size: 10)
       font_name, font_size = field.parse_default_appearance_string
       assert_equal(:Helvetica, @acro_form.default_resources.font(font_name)[:BaseFont])
