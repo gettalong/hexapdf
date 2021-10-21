@@ -5,6 +5,8 @@
 * CLI command `hexapdf fonts` for listing fonts of a PDF file
 * [HexaPDF::Layout::Style#background_alpha] for defining the opacity of the
   background
+* [HexaPDF::Type::Page#each_annotation] for iterating over all annotations of a
+  page
 
 ### Changed
 

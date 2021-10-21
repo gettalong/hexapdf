@@ -465,6 +465,20 @@ module HexaPDF
         document.wrap(dict, stream: stream)
       end
 
+      # :call-seq:
+      #   page.each_annotation {|annotation| block}    -> page
+      #   page.each_annotation                         -> Enumerator
+      #
+      # Yields each annotation of this page.
+      def each_annotation
+        return to_enum(__method__) unless block_given?
+        self[:Annots]&.each do |annotation|
+          next unless annotation
+          yield(document.wrap(annotation, type: :Annot))
+        end
+        self
+      end
+
       # Flattens all or the given annotations of the page. Returns an array with all the annotations
       # that couldn't be flattened because they don't have an appearance stream.
       #

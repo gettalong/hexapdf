@@ -582,6 +582,17 @@ describe HexaPDF::Type::Page do
       @page.flatten_annotations
       assert_operators(@canvas.contents, [:concatenate_matrix, [0.5, 0, 0, 2, 110, 105]], range: 2)
     end
+  end
 
+  it "yields each annotation" do
+    page = @doc.pages.add
+    annot1 = @doc.add({Type: :Annot, Subtype: :Text, Rect: [100, 100, 160, 125]})
+    annot2 = @doc.add({Rect: [10, 10, 70, 35]})
+    page[:Annots] = [annot1, nil, annot2]
+
+    annotations = page.each_annotation.to_a
+    assert_equal([100, 100, 160, 125], annotations[0][:Rect])
+    assert_equal(:Annot, annotations[0].type)
+    assert_equal(:Annot, annotations[1].type)
   end
 end
