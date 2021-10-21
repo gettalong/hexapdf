@@ -40,10 +40,19 @@ module HexaPDF
   module Content
     module GraphicObject
 
-      # This class describes an elliptical in center parameterization arc that is approximated using
+      # This class describes an elliptical arc in center parameterization that is approximated using
       # Bezier curves. It can be used to draw circles, circular arcs, ellipses and elliptical arcs,
       # all either in clockwise or counterclockwise direction and optionally inclined in respect to
       # the x-axis.
+      #
+      # This graphic object is registered under the :arc key for use with the
+      # HexaPDF::Content::Canvas class.
+      #
+      # Examples:
+      #
+      #   #>pdf-center
+      #   arc = canvas.graphic_object(:arc, a: 100, b: 50).stroke
+      #   arc.draw(canvas).stroke    # or: canvas.draw(arc).stroke
       #
       # See: ELL - https://spaceroots.org/documents/ellipse/elliptical-arc.pdf
       class Arc
@@ -62,34 +71,109 @@ module HexaPDF
         # The higher the value the better the approximation will be but it will also take longer
         # to compute. The value should not be lower than 4. Default value is 6 which already
         # provides a good approximation.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, cx: -50, a: 40, b: 40)
+        #   arc.max_curves = 2
+        #   canvas.draw(arc)
+        #   arc.max_curves = 10
+        #   canvas.draw(arc, cx: 50)
+        #   canvas.stroke
         attr_accessor :max_curves
 
         # x-coordinate of center point
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 30, b: 20)
+        #   canvas.draw(arc).stroke
+        #   canvas.stroke_color("red").draw(arc, cx: -50).stroke
         attr_reader :cx
 
         # y-coordinate of center point
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 30, b: 20)
+        #   canvas.draw(arc).stroke
+        #   canvas.stroke_color("red").draw(arc, cy: 50).stroke
         attr_reader :cy
 
-        # Length of semi-major axis
+        # Length of semi-major axis which (without altering the #inclination) is parallel to the
+        # x-axis
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 30, b: 30)
+        #   canvas.draw(arc).stroke
+        #   canvas.stroke_color("red").draw(arc, a: 60).stroke
         attr_reader :a
 
-        # Length of semi-minor axis
+        # Length of semi-minor axis which (without altering the #inclination) is parallel to the
+        # y-axis
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 30, b: 30)
+        #   canvas.draw(arc).stroke
+        #   canvas.stroke_color("red").draw(arc, b: 60).stroke
         attr_reader :b
 
-        # Start angle in degrees
+        # Start angle of the arc in degrees
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 30, b: 30)
+        #   canvas.draw(arc, start_angle: 45).stroke
         attr_reader :start_angle
 
-        # End angle in degrees
+        # End angle of the arc in degrees
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 30, b: 30)
+        #   canvas.draw(arc, end_angle: 160).stroke
         attr_reader :end_angle
 
-        # Inclination in degrees of semi-major axis in respect to x-axis
+        # Inclination in degrees of the semi-major axis with respect to the x-axis
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 60, b: 30)
+        #   canvas.draw(arc, inclination: 45).stroke
         attr_reader :inclination
 
         # Direction of arc - if +true+ in clockwise direction, else in counterclockwise direction
+        #
+        # This is needed when filling paths using the nonzero winding number rule to achieve
+        # different effects.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 40, b: 40)
+        #   canvas.draw(arc, cx: -50).draw(arc, cx: 50).
+        #     draw(arc, cx: -50, b: 80).
+        #     draw(arc, cx: 50, b: 80, clockwise: true).
+        #     fill(:nonzero)
         attr_reader :clockwise
 
         # Creates an elliptical arc with default values (a counterclockwise unit circle at the
         # origin).
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   canvas.draw(:arc).stroke
         def initialize
           @max_curves = nil
           @cx = @cy = 0
@@ -135,11 +219,25 @@ module HexaPDF
         end
 
         # Returns the start point of the elliptical arc.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 40, b: 30, start_angle: 60)
+        #   canvas.draw(arc).stroke
+        #   canvas.fill_color("red").circle(*arc.start_point, 2).fill
         def start_point
           evaluate(@start_eta)
         end
 
         # Returns the end point of the elliptical arc.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 40, b: 30, end_angle: 245)
+        #   canvas.draw(arc).stroke
+        #   canvas.fill_color("red").circle(*arc.end_point, 2).fill
         def end_point
           evaluate(@end_eta)
         end
