@@ -165,7 +165,7 @@ module HexaPDF
           if flagged?(:password)
             raise HexaPDF::Error, "Storing a field value for a password field is not allowed"
           end
-          str = str.gsub(/[[:space:]]/, ' ') if concrete_field_type == :single_line_text_field
+          str = str.gsub(/[[:space:]]/, ' ') if str && concrete_field_type == :single_line_text_field
           self[:V] = str
           update_widgets
         end

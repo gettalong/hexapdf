@@ -98,6 +98,12 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert_equal('str ing', @field.field_value)
     end
 
+    it "allows unsetting the value using +nil+" do
+      @field[:V] = "test"
+      @field.field_value = nil
+      assert_nil(@field.field_value)
+    end
+
     it "updates the widgets to reflect the changed value" do
       widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       @field.set_default_appearance_string

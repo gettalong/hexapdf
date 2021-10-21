@@ -28,6 +28,8 @@
 * `hexapdf form` to correctly work for PDF files containing null values in the
   list of annotations
 * Handling of files that contain invalid default appearance strings
+* [HexaPDF::Type::AcroForm::TextField#field_value] to allow setting a `nil`
+  value for single line text fields
 
 
 ## 0.16.0 - 2021-09-28
