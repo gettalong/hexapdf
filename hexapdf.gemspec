@@ -41,7 +41,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('kramdown', '~> 2.3')
   s.add_development_dependency('reline', '~> 0.1')
   s.add_development_dependency('rubocop', '~> 1.0')
-  s.required_ruby_version = '>= 2.4'
+  s.required_ruby_version = '>= 2.5'
 
   s.author = 'Thomas Leitner'
   s.email = 't_leitner@gmx.at'
