@@ -96,7 +96,7 @@ module HexaPDF
         def find_root_fields
           result = []
           document.pages.each do |page|
-            page[:Annots]&.each do |annot|
+            page.each_annotation do |annot|
               if !annot.key?(:Parent) && annot.key?(:FT)
                 result << document.wrap(annot, type: :XXAcroFormField, subtype: annot[:FT])
               elsif annot.key?(:Parent)

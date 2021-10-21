@@ -245,8 +245,8 @@ module HexaPDF
         seen = {}
 
         doc.pages.each_with_index do |page, page_index|
-          page[:Annots]&.each do |annotation|
-            next unless annotation&.[](:Subtype) == :Widget
+          page.each_annotation do |annotation|
+            next unless annotation[:Subtype] == :Widget
             field = annotation.form_field
             next if field.concrete_field_type == :push_button
             unless seen[field.full_field_name]

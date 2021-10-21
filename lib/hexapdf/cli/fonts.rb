@@ -129,8 +129,7 @@ module HexaPDF
             next unless xobj[:Subtype] == :Form
             xobj.ressources[:Font]&.each(&font_proc)
           end
-          page[:Annots]&.each do |annotation|
-            annotation = doc.wrap(annotation, type: :Annot)
+          page.each_annotation do |annotation|
             appearance = annotation.appearance
             next unless appearance
             appearance.resources[:Font]&.each(&font_proc)
