@@ -24,6 +24,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 * Extracting images (see the `images` command)
 * Converting images to PDF (see the `image2pdf` command)
 * Showing general information of a PDF file (see the `info` command)
+* Listing all fonts of a PDF file (see the `fonts` command)
 * Batch execution of a command on multiple PDF files (see the `batch` command)
 * Inspecting the internal structure of a PDF file (see the `inspect` command)
 
@@ -245,6 +246,51 @@ indices and names of the embedded files are just listed.
 `-p` *PASSWORD*, `--password` *PASSWORD*
 
 : The password to decrypt the *PDF*. Use **-** for *PASSWORD* for reading it from standard input.
+
+
+### fonts
+
+Synopsis: `fonts` \[`OPTIONS`] *PDF*
+
+This command list fonts of the *PDF* file. If the `--pages` option is not specified, all fonts in
+the whole file are listed. Otherwise all fonts occuring on the specified pages are listed (fonts may
+be listed multiple times, i.e. for each page).
+
+`-i` *PAGES*, `--pages` *PAGES*
+
+: The pages from the *PDF* for which the fonts should be listed. See the **PAGES SPECIFICATION**
+  below for details on the allowed format of *PAGES*.
+
+`-p` *PASSWORD*, `--password` *PASSWORD*
+
+: The password to decrypt the *PDF*. Use **-** for *PASSWORD* for reading it from standard input.
+
+The following information is shown for each font:
+
+> **page**
+> : The page number on which the font appears.
+>
+> **name**
+> : The name of the font as found in the *PDF*.
+>
+> **type**
+> : The type of the font. Can be 'Type 1, 'Type 1C' (Type 1 font in Compact Font Format \[CFF]),
+>   'Type 3', 'Truetype', 'CID CFF' or 'CID TrueType'.
+>
+> **encoding**
+> : The font's encoding.
+>
+> **emb**
+> : 'yes' if the font is embedded
+>
+> **sub**
+> : 'yes' if the font is subset
+>
+> **size**
+> : The size of the embedded font file. Only valid if the font file is actually embedded.
+>
+> **oid**
+> : The PDF internal object identifier consisting of the object and generation numbers.
 
 
 ### form

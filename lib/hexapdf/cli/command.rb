@@ -354,6 +354,15 @@ module HexaPDF
         end
       end
 
+      # Returns the human readable file size.
+      def human_readable_file_size(size)
+        case size
+        when 0..9999 then "#{size}B"
+        when 10_000..999_999 then "#{(size / 1024.to_f).round(1)}K"
+        else "#{(size.to_f / 1024 / 1024).round(1)}M"
+        end
+      end
+
       private
 
       # Displays the given prompt, reads from the console without echo and returns the read string.

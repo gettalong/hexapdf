@@ -2,6 +2,7 @@
 
 ### Added
 
+* CLI command `hexapdf fonts` for listing fonts of a PDF file
 * [HexaPDF::Layout::Style#background_alpha] for defining the opacity of the
   background
 
