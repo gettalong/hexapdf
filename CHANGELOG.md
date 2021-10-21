@@ -33,6 +33,8 @@
 * Handling of files that contain invalid default appearance strings
 * [HexaPDF::Type::AcroForm::TextField#field_value] to allow setting a `nil`
   value for single line text fields
+* [HexaPDF::Content::GraphicObject::Arc] to respect the value set by the
+  `#max_curves` accessor
 
 
 ## 0.16.0 - 2021-09-28

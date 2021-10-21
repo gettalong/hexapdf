@@ -80,14 +80,23 @@ describe HexaPDF::Content::GraphicObject::Arc do
   end
 
   describe "draw" do
+    before do
+      @doc = HexaPDF::Document.new
+      @page = @doc.pages.add
+      @canvas = @page.canvas
+    end
+
     it "draws the arc onto the canvas" do
-      doc = HexaPDF::Document.new
-      page = doc.pages.add
-      canvas = page.canvas
-      @arc.max_curves = 4
-      @arc.draw(canvas)
-      assert_equal(doc.config['graphic_object.arc.max_curves'], @arc.max_curves)
-      refute(page.contents.empty?)
+      @arc.draw(@canvas)
+      refute(@page.contents.empty?)
+    end
+
+    it "uses the configuration option for max_curves if no value is set" do
+      @arc.draw(@canvas)
+      assert_equal(@doc.config['graphic_object.arc.max_curves'], @arc.max_curves)
+      @arc.max_curves = 2
+      @arc.draw(@canvas)
+      assert_equal(2, @arc.max_curves)
     end
   end
 end

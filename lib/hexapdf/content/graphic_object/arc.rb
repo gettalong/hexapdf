@@ -91,7 +91,7 @@ module HexaPDF
         # Creates an elliptical arc with default values (a counterclockwise unit circle at the
         # origin).
         def initialize
-          @max_curves = 6
+          @max_curves = nil
           @cx = @cy = 0
           @a = @b = 1
           @start_angle = 0
@@ -157,10 +157,10 @@ module HexaPDF
         # move the current point to the start point of the arc. Otherwise it is assumed that the
         # current point already coincides with the start point
         #
-        # The #max_curves value is set to the value of the configuration option
-        # 'graphic_object.arc.max_curves' before drawing.
+        # The #max_curves value, if not already changed, is set to the value of the configuration
+        # option 'graphic_object.arc.max_curves' before drawing.
         def draw(canvas, move_to_start: true)
-          @max_curves = canvas.context.document.config['graphic_object.arc.max_curves']
+          @max_curves ||= canvas.context.document.config['graphic_object.arc.max_curves']
           canvas.move_to(*start_point) if move_to_start
           curves.each {|x, y, hash| canvas.curve_to(x, y, **hash) }
         end
@@ -183,7 +183,8 @@ module HexaPDF
           result = []
 
           # Number of curves to use, maximal segment angle is 2*PI/max_curves
-          n = [@max_curves, ((@end_eta - @start_eta).abs / (2 * Math::PI / @max_curves)).ceil].min
+          max_curves = @max_curves || 6
+          n = [max_curves, ((@end_eta - @start_eta).abs / (2 * Math::PI / max_curves)).ceil].min
           d_eta = (@end_eta - @start_eta) / n
 
           alpha = Math.sin(d_eta) * (Math.sqrt(4 + 3 * Math.tan(d_eta / 2)**2) - 1) / 3
