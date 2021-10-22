@@ -233,11 +233,16 @@ module HexaPDF
 
       # Converts the string into UTF-8 encoding, assuming it is a binary string. Otherwise +nil+ is
       # returned.
-      def self.convert(str, _type, _document)
+      def self.convert(str, _type, document)
         return unless str.kind_of?(String) && str.encoding == Encoding::BINARY
 
         if str.getbyte(0) == 254 && str.getbyte(1) == 255
-          str[2..-1].force_encoding(Encoding::UTF_16BE).encode(Encoding::UTF_8)
+          str = str[2..-1].force_encoding(Encoding::UTF_16BE)
+          if str.valid_encoding?
+            str.encode!(Encoding::UTF_8)
+          else
+            document.configuration['document.on_invalid_string'].call(str)
+          end
         else
           Utils::PDFDocEncoding.convert_to_utf8(str)
         end

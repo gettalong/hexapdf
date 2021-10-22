@@ -133,6 +133,15 @@ describe HexaPDF::DictionaryFields do
       assert_equal("Testing\u0153\u2122", str)
       assert_equal(Encoding::UTF_8, str.encoding)
     end
+
+    def configuration
+      {'document.on_invalid_string' => proc {|str| str }}
+    end
+
+    it "calls document.on_invalid_string if the provided string is invalid" do
+      str = "\xfe\xff\xD8\x00\x00s\x00t".b
+      assert_equal("\xD8\x00\x00s\x00t".force_encoding("UTF-16BE"), @field.convert(str, self))
+    end
   end
 
   describe "PDFByteStringConverter" do

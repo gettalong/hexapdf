@@ -203,6 +203,12 @@ module HexaPDF
   #
   #    In nearly all cases this option should not be changed from its default setting!
   #
+  # document.on_invalid_string::
+  #    A callable object that takes the invalid UTF-16BE encoded string and returns a valid UTF-8
+  #    encoded string.
+  #
+  #    The default is to remove all invalid characters.
+  #
   # encryption.aes::
   #    The class that should be used for AES encryption. If the value is a String, it should
   #    contain the name of a constant to such a class.
@@ -380,6 +386,9 @@ module HexaPDF
                       end,
                       'acro_form.text_field.default_width' => 100,
                       'document.auto_decrypt' => true,
+                      'document.on_invalid_string' => proc do |str|
+                        str.encode(Encoding::UTF_8, invalid: :replace, replace: '')
+                      end,
                       'encryption.aes' => 'HexaPDF::Encryption::FastAES',
                       'encryption.arc4' => 'HexaPDF::Encryption::FastARC4',
                       'encryption.filter_map' => {

@@ -1,3 +1,10 @@
+## 0.17.1 - 2021-10-21
+
+### Fixed
+
+* Handling of files containing invalid UTF-16 strings
+
+
 ## 0.17.0 - 2021-10-21
 
 ### Added
