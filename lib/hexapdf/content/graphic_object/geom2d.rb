@@ -57,9 +57,22 @@ module HexaPDF
         attr_accessor :object
 
         # The radius to use when drawing Geom2D::Point objects; defaults to 1
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   canvas.draw(:geom2d, object: ::Geom2D::Point(0, 0))
+        #   canvas.draw(:geom2d, object: ::Geom2D::Point(50, 0), point_radius: 5)
         attr_accessor :point_radius
 
         # Specifies whether only paths should be drawn or if they should be stroked/filled too
+        # (default).
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   canvas.draw(:geom2d, object: ::Geom2D::Segment([0, 0], [0, 50]))
+        #   canvas.draw(:geom2d, object: ::Geom2D::Segment([0, 0], [50, 0]), path_only: true)
         attr_accessor :path_only
 
         # Creates a Geom2D drawing support object.
