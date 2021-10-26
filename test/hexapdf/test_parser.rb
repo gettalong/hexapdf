@@ -601,7 +601,7 @@ describe HexaPDF::Parser do
         create_parser("(1" << "(abc\n" * 10000 << "\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
         assert_equal(6, @parser.load_object(@xref).value)
       end
-      assert_operator(duration, :<, 0.5, "Xref reconstruction takes too long")
+      assert_operator(duration, :<, 1.0, "Xref reconstruction takes too long")
     end
 
     it "ignores invalid objects" do
