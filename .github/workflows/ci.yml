@@ -1,0 +1,18 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  specs:
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [ 2.5, 2.6, 2.7, 3.0, truffleruby-head ]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler: none
+    - run: sudo apt install netpbm pngcheck
+    - run: rake dev:setup
+    - run: rake test
