@@ -4,6 +4,7 @@ require 'test_helper'
 require 'hexapdf/document'
 require 'hexapdf/parser'
 require 'stringio'
+require 'benchmark'
 
 describe HexaPDF::Parser do
   before do
@@ -596,10 +597,11 @@ describe HexaPDF::Parser do
     end
 
     it "handles pathalogical cases which contain many opened literal strings" do
-      time = Time.now
-      create_parser("(1" << "(abc\n" * 10000 << "\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
-      assert_equal(6, @parser.load_object(@xref).value)
-      assert(Time.now - time < 0.5, "Xref reconstruction takes too long")
+      duration = Benchmark.realtime do
+        create_parser("(1" << "(abc\n" * 10000 << "\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
+        assert_equal(6, @parser.load_object(@xref).value)
+      end
+      assert_operator(duration, :<, 0.5, "Xref reconstruction takes too long")
     end
 
     it "ignores invalid objects" do
