@@ -1,3 +1,10 @@
+## 0.17.2 - 2021-10-26
+
+### Fixed
+
+* Deployment of HexaPDF's Rubygem
+
+
 ## 0.17.1 - 2021-10-21
 
 ### Fixed

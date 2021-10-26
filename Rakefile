@@ -33,8 +33,8 @@ namespace :dev do
     `git log | grep ^Author: | sed 's/^Author: //' | sort | uniq -c | sort -nr >> CONTRIBUTERS`
   end
 
-  spec = eval(File.read('hexapdf.gemspec'), binding, 'hexapdf.gemspec')
   ENV['REAL_GEM'] = "true"
+  spec = eval(File.read('hexapdf.gemspec'), binding, 'hexapdf.gemspec')
   Gem::PackageTask.new(spec) do |pkg|
     pkg.need_zip = true
     pkg.need_tar = true
