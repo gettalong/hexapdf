@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* Reconstruction of invalid PDF files where the PDF header is not at the start
+  of the file
+
+
 ## 0.17.2 - 2021-10-26
 
 ### Fixed

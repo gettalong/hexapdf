@@ -404,6 +404,7 @@ module HexaPDF
     def reconstruct_revision
       return if @in_reconstruct_revision
       @in_reconstruct_revision = true
+      @header_offset = 0
 
       raise unless @document.config['parser.try_xref_reconstruction']
       msg = "#{$!} - trying cross-reference table reconstruction"

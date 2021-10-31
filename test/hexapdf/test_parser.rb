@@ -612,6 +612,12 @@ describe HexaPDF::Parser do
       assert_equal(6, @parser.load_object(@xref).value)
     end
 
+    it "resets the header offset" do
+      create_parser("1 0 obj\n5\nendobj\ntrailer\n<</Size 1>>")
+      @parser.instance_variable_set(:@header_offset, 5)
+      assert_equal(5, @parser.load_object(@xref).value)
+    end
+
     it "uses the last trailer" do
       create_parser("trailer <</Size 1>>\ntrailer <</Size 2/Prev 342>>")
       assert_equal({Size: 2}, @parser.reconstructed_revision.trailer.value)
