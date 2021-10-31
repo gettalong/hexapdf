@@ -135,12 +135,12 @@ describe HexaPDF::DictionaryFields do
     end
 
     def configuration
-      {'document.on_invalid_string' => proc {|str| str }}
+      HexaPDF::Configuration.with_defaults
     end
 
     it "calls document.on_invalid_string if the provided string is invalid" do
       str = "\xfe\xff\xD8\x00\x00s\x00t".b
-      assert_equal("\xD8\x00\x00s\x00t".force_encoding("UTF-16BE"), @field.convert(str, self))
+      assert_equal("st", @field.convert(str, self))
     end
   end
 
