@@ -607,6 +607,11 @@ describe HexaPDF::Parser do
       assert_equal(4, @parser.load_object(@xref).value)
     end
 
+    it "handles an invalid object as first object" do
+      create_parser("2 0 obj\n(a(b\nendobj\n1 0 obj\n6\nendobj #)(\ntrailer\n<</Size 1>>")
+      assert_equal(6, @parser.load_object(@xref).value)
+    end
+
     it "ignores invalid lines" do
       create_parser("1 0 obj\n5\nendobj\nhello there\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
       assert_equal(6, @parser.load_object(@xref).value)

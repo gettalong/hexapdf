@@ -4,6 +4,7 @@
 
 * Reconstruction of invalid PDF files where the PDF header is not at the start
   of the file
+* Reconstruction of invalid PDF files where the first object is invalid
 
 
 ## 0.17.2 - 2021-10-26

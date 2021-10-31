@@ -429,8 +429,10 @@ module HexaPDF
           elsif gen.kind_of?(Integer) && tok.kind_of?(Tokenizer::Token) && tok == 'obj'
             xref.add_in_use_entry(token, gen, pos)
             if linearized.nil?
+              pos = @tokenizer.pos
               obj = @tokenizer.next_object rescue nil
               linearized = obj.kind_of?(Hash) && obj.key?(:Linearized)
+              @tokenizer.pos = pos
             end
             @tokenizer.scan_until(/(?:\n|\r\n?)endobj\b/)
           end
