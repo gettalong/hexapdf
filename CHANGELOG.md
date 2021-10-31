@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Content::GraphicObject::EndpointArc] to correctly determine the
+  start and end points
+
+
 ## 0.17.3 - 2021-10-31
 
 ### Fixed

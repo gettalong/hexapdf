@@ -251,10 +251,10 @@ module HexaPDF
           cy = sin_theta * cxp + cos_theta * cyp + (y1 + y2) / 2.0
 
           # F.6.5.5
-          start_angle = compute_angle_to_x_axis((x1p - cxp) / rx, (y1p - cyp) / ry)
+          start_angle = compute_angle_to_x_axis((x1p - cxp), (y1p - cyp)) % 360
 
           # F.6.5.6 (modified bc we just need the end angle)
-          end_angle = compute_angle_to_x_axis((-x1p - cxp) / rx, (-y1p - cyp) / ry)
+          end_angle = compute_angle_to_x_axis((-x1p - cxp), (-y1p - cyp)) % 360
 
           {cx: cx, cy: cy, a: rx, b: ry, start_angle: start_angle, end_angle: end_angle,
            inclination: @inclination, clockwise: @clockwise}

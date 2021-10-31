@@ -55,21 +55,29 @@ describe HexaPDF::Content::GraphicObject::EndpointArc do
 
     it "draws the arc onto the canvas" do
       {
-        [false, false] => {cx: 100, cy: 50, start_angle: 180, end_angle: 270, clockwise: false},
-        [false, true] => {cx: 50, cy: 25, start_angle: 90, end_angle: 0, clockwise: true},
-        [true, false] => {cx: 50, cy: 25, start_angle: 90, end_angle: 360, clockwise: false},
-        [true, true] => {cx: 100, cy: 50, start_angle: 180, end_angle: -90, clockwise: true},
+        [false, false] => {cx: 100, cy: 50, a: 50, b: 25, start_angle: 180, end_angle: 270, clockwise: false},
+        [false, true] => {cx: 50, cy: 25, a: 50, b: 25, start_angle: 90, end_angle: 0, clockwise: true},
+        [true, false] => {cx: 50, cy: 25, a: 50, b: 25, start_angle: 90, end_angle: 360, clockwise: false},
+        [true, true] => {cx: 0, cy: 0, a: 40, b: 30, start_angle: 60, end_angle: 120},
       }.each do |(large_arc, clockwise), data|
         @page.delete(:Contents)
         canvas = @page.canvas
-        canvas.draw(:arc, a: 50, b: 25, inclination: 0, **data)
+        arc = canvas.graphic_object(:arc, **data)
+        canvas.draw(arc)
         arc_data = @page.contents
 
         canvas.contents.clear
         assert(@page.contents.empty?)
-        canvas.move_to(50.0, 50.0)
-        canvas.draw(:endpoint_arc, x: 100, y: 25, a: 50, b: 25, inclination: 0,
-                    large_arc: large_arc, clockwise: clockwise)
+        canvas.move_to(*arc.start_point)
+        earc = canvas.graphic_object(:endpoint_arc, x: arc.end_point[0], y: arc.end_point[1],
+                                     a: data[:a], b: data[:b], inclination: data[:inclination] || 0,
+                                     large_arc: large_arc, clockwise: clockwise)
+        canvas.draw(earc)
+        narc = canvas.graphic_object(:arc, **earc.send(:compute_arc_values, *arc.start_point))
+        assert_in_delta(arc.start_point[0], narc.start_point[0], 0.0001)
+        assert_in_delta(arc.start_point[1], narc.start_point[1], 0.0001)
+        assert_in_delta(arc.end_point[0], narc.end_point[0], 0.0001)
+        assert_in_delta(arc.end_point[1], narc.end_point[1], 0.0001)
         assert_equal(arc_data, @page.contents)
       end
     end
