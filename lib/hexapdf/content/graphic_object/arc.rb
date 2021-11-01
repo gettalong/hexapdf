@@ -51,8 +51,8 @@ module HexaPDF
       # Examples:
       #
       #   #>pdf-center
-      #   arc = canvas.graphic_object(:arc, a: 100, b: 50).stroke
-      #   arc.draw(canvas).stroke    # or: canvas.draw(arc).stroke
+      #   arc = canvas.graphic_object(:arc, a: 100, b: 50, end_angle: 150)
+      #   canvas.draw(arc).stroke
       #
       # See: ELL - https://spaceroots.org/documents/ellipse/elliptical-arc.pdf
       class Arc

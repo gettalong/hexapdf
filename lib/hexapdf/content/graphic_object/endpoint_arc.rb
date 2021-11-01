@@ -49,8 +49,8 @@ module HexaPDF
       # Examples:
       #
       #   #>pdf-center
-      #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 10).stroke
-      #   arc.move_to(0, 0).draw(canvas).stroke    # or: canvas.draw(arc).stroke
+      #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 10)
+      #   canvas.move_to(0, 0).draw(arc).stroke
       #
       # See: GraphicObject::Arc, ARC - https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
       class EndpointArc
