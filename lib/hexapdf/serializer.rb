@@ -35,6 +35,8 @@
 #++
 
 require 'time'
+require 'hexapdf/object'
+require 'hexapdf/stream'
 require 'hexapdf/tokenizer'
 require 'hexapdf/filter'
 require 'hexapdf/utils/lru_cache'
