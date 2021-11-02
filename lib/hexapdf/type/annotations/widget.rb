@@ -268,6 +268,7 @@ module HexaPDF
             style ||= (field.check_box? ? :check : :cicrle)
             size ||= 0
             color = Content::ColorSpace.device_color_from_specification(color || 0)
+            serialized_color = Content::ColorSpace.serialize_device_color(color)
 
             self[:MK] ||= {}
             self[:MK][:CA] = case style
@@ -281,13 +282,6 @@ module HexaPDF
                              else
                                raise ArgumentError, "Unknown value #{style} for argument 'style'"
                              end
-            operator = case color.color_space.family
-                       when :DeviceRGB then :rg
-                       when :DeviceGray then :g
-                       when :DeviceCMYK then :k
-                       end
-            serialized_color = Content::Operator::DEFAULT_OPERATORS[operator].
-              serialize(HexaPDF::Serializer.new, *color.components)
             self[:DA] = "/ZaDb #{size} Tf #{serialized_color}".strip
           else
             style = case self[:MK]&.[](:CA)
