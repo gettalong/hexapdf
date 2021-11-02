@@ -99,6 +99,32 @@ describe HexaPDF::Content::ColorSpace do
     end
   end
 
+  describe "self.serialize_device_color" do
+    it "works for device gray colors" do
+      color = @class.device_color_from_specification(0.5)
+      assert_equal("0.5 g\n", @class.serialize_device_color(color))
+      assert_equal("0.5 G\n", @class.serialize_device_color(color, type: :stroke))
+    end
+
+    it "works for device RGB colors" do
+      color = @class.device_color_from_specification("red")
+      assert_equal("1.0 0.0 0.0 rg\n", @class.serialize_device_color(color))
+      assert_equal("1.0 0.0 0.0 RG\n", @class.serialize_device_color(color, type: :stroke))
+    end
+
+    it "works for device CMYK colors" do
+      color = @class.device_color_from_specification([100, 100, 100, 0])
+      assert_equal("1.0 1.0 1.0 0.0 k\n", @class.serialize_device_color(color))
+      assert_equal("1.0 1.0 1.0 0.0 K\n", @class.serialize_device_color(color, type: :stroke))
+    end
+
+    it "fails if no device color is provided" do
+      assert_raises(ArgumentError) do
+        @class.serialize_device_color(@class::Universal.new([]).default_color)
+      end
+    end
+  end
+
   it "returns a device color object for prenormalized color values" do
     assert_equal([5, 6, 7], @class.prenormalized_device_color([5, 6, 7]).components)
   end

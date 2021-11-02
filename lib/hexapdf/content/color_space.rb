@@ -35,7 +35,9 @@
 #++
 
 require 'hexapdf/error'
+require 'hexapdf/content'
 require 'hexapdf/configuration'
+require 'hexapdf/serializer'
 
 module HexaPDF
   module Content
@@ -302,6 +304,23 @@ module HexaPDF
                  end
         end
         GlobalConfiguration.constantize('color_space.map', for_components(spec)).new.color(*spec)
+      end
+
+      # Serializes the given device color into the form expected by PDF content streams.
+      #
+      # The +type+ argument can either be :stroke to serialize as stroke color operator or :fill as
+      # fill color operator.
+      def self.serialize_device_color(color, type: :fill)
+        operator = case color.color_space.family
+                   when :DeviceRGB then :rg
+                   when :DeviceGray then :g
+                   when :DeviceCMYK then :k
+                   else
+                     raise ArgumentError, "Device color object expected, got #{color.class}"
+                   end
+        operator = operator.upcase if type == :stroke
+        Content::Operator::DEFAULT_OPERATORS[operator].
+          serialize(HexaPDF::Serializer.new, *color.components)
       end
 
       # Returns a device color object for the given components array without applying value

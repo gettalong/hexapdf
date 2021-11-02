@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Content::ColorSpace::serialize_device_color] for serialization of
+  device colors in parts other than the canvas
+
 ### Fixed
 
 * [HexaPDF::Content::GraphicObject::EndpointArc] to correctly determine the
