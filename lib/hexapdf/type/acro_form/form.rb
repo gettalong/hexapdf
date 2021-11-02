@@ -437,7 +437,7 @@ module HexaPDF
               yield("When the field /DA is present, the field /DR must also be present")
               return
             end
-            font_name, _ = VariableTextField.parse_appearance_string(da)
+            font_name, = VariableTextField.parse_appearance_string(da)
             if font_name && !(self[:DR][:Font] && self[:DR][:Font][font_name])
               yield("The font specified in /DA is not in the /DR resource dictionary")
             end

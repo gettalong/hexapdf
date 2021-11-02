@@ -5,6 +5,11 @@
 * [HexaPDF::Content::ColorSpace::serialize_device_color] for serialization of
   device colors in parts other than the canvas
 
+### Changed
+
+* [HexaPDF::Type::AcroForm::VariableTextField::parse_appearance_string] to also
+  return the font color
+
 ### Fixed
 
 * [HexaPDF::Content::GraphicObject::EndpointArc] to correctly determine the

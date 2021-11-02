@@ -300,16 +300,10 @@ module HexaPDF
                       end
                     end
             size = 0
-            color = [0]
+            color = HexaPDF::Content::ColorSpace.prenormalized_device_color([0])
             if (da = self[:DA] || field[:DA])
-              HexaPDF::Type::AcroForm::VariableTextField.parse_appearance_string(da) do |obj, params|
-                case obj
-                when :rg, :g, :k then color = params.dup
-                when :Tf then size = params[1]
-                end
-              end
+              _, size, color = HexaPDF::Type::AcroForm::VariableTextField.parse_appearance_string(da)
             end
-            color = HexaPDF::Content::ColorSpace.prenormalized_device_color(color)
 
             MarkerStyle.new(style, size, color)
           end

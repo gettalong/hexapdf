@@ -37,7 +37,7 @@
 require 'hexapdf/dictionary'
 require 'hexapdf/stream'
 require 'hexapdf/error'
-require 'hexapdf/content/parser'
+require 'hexapdf/content'
 
 module HexaPDF
   module Type
@@ -61,14 +61,27 @@ module HexaPDF
 
         UNSET_ARG = ::Object.new # :nodoc:
 
-        # Parses the given appearance string. If no block is given, the appearance string is
-        # searched for font name and font size both of which are returend. Otherwise the block is
-        # called with each found content stream operator and has to handle them themselves.
+        # :call-seq:
+        #   VariableTextField.parse_appearance_string(string)  -> [font_name, font_size, font_color]
+        #   VariableTextField.parse_appearance_string(string) {|obj, params| block }   -> nil
+        #
+        # Parses the given appearance string.
+        #
+        # If no block is given, the appearance string is searched for font name, font size and font
+        # color all of which are returned. Otherwise the block is called with each found content
+        # stream operator and has to handle them itself.
         def self.parse_appearance_string(appearance_string, &block) # :yield: obj, params
-          font_params = nil
-          block ||= lambda {|obj, params| font_params = params.dup if obj == :Tf }
+          font_params = [nil, nil, nil]
+          block ||= lambda do |obj, params|
+            case obj
+            when :Tf
+              font_params[0, 2] = params
+            when :rg, :g, :k
+              font_params[2] = HexaPDF::Content::ColorSpace.prenormalized_device_color(params)
+            end
+          end
           HexaPDF::Content::Parser.parse(appearance_string.sub(/\/\//, '/'), &block)
-          font_params
+          block_given? ? nil : font_params
         end
 
         # :call-seq:
@@ -113,7 +126,7 @@ module HexaPDF
         end
 
         # Parses the default appearance string and returns an array containing [font_name,
-        # font_size].
+        # font_size, font_color].
         #
         # The default appearance string is taken from the field or, if not set, the default
         # appearance string of the form.
