@@ -31,7 +31,7 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
     end
   end
 
-  describe "set_default_appearance_string" do
+  describe "set_default_appearance_string / self.create_appearance_string" do
     it "creates the AcroForm object if it doesn't exist" do
       @doc.catalog.delete(:AcroForm)
       @field.set_default_appearance_string

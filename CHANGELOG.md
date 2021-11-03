@@ -4,6 +4,8 @@
 
 * [HexaPDF::Content::ColorSpace::serialize_device_color] for serialization of
   device colors in parts other than the canvas
+* [HexaPDF::Type::AcroForm::VariableTextField::create_appearance_string] for
+  centralized creation of appearance strings
 
 ### Changed
 

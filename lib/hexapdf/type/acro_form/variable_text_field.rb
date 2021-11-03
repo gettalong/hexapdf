@@ -61,6 +61,32 @@ module HexaPDF
 
         UNSET_ARG = ::Object.new # :nodoc:
 
+        # Creates an AcroForm appearance string for the HexaPDF +document+ from the given arguments
+        # and returns it.
+        #
+        # +font+::
+        #     The name of the font.
+        #
+        # +font_options+::
+        #     Additional font options like :variant used when loading the font. See
+        #     HexaPDF::Document::Fonts#add
+        #
+        # +font_size+::
+        #     The font size. If this is set to 0, the font size is calculated using the height/width
+        #     of the field.
+        #
+        # +font_color+::
+        #     The font color. See HexaPDF::Content::ColorSpace.device_color_from_specification for
+        #     allowed values.
+        def self.create_appearance_string(document, font: 'Helvetica', font_options: {},
+                                          font_size: 0, font_color: 0)
+          name = document.acro_form(create: true).default_resources.
+            add_font(document.fonts.add(font, **font_options).pdf_object)
+          font_color = HexaPDF::Content::ColorSpace.device_color_from_specification(font_color)
+          color_string = HexaPDF::Content::ColorSpace.serialize_device_color(font_color)
+          "#{color_string.chomp} /#{name} #{font_size} Tf"
+        end
+
         # :call-seq:
         #   VariableTextField.parse_appearance_string(string)  -> [font_name, font_size, font_color]
         #   VariableTextField.parse_appearance_string(string) {|obj, params| block }   -> nil
@@ -115,27 +141,13 @@ module HexaPDF
         # Sets the default appearance string using the provided values or the default values which
         # provide a sane default.
         #
-        # +font+::
-        #     The name of the font.
-        #
-        # +font_options+::
-        #     Additional font options like :variant used when loading the font. See
-        #     HexaPDF::Document::Fonts#add
-        #
-        # +font_size+::
-        #     The font size. If this is set to 0, the font size is calculated using the height/width
-        #     of the field.
-        #
-        # +font_color+::
-        #     The font color. See HexaPDF::Content::ColorSpace.device_color_from_specification for
-        #     allowed values.
+        # See ::create_appearance_string for information on the arguments.
         def set_default_appearance_string(font: 'Helvetica', font_options: {}, font_size: 0,
                                           font_color: 0)
-          name = document.acro_form(create: true).default_resources.
-            add_font(document.fonts.add(font, **font_options).pdf_object)
-          font_color = HexaPDF::Content::ColorSpace.device_color_from_specification(font_color)
-          color_string = HexaPDF::Content::ColorSpace.serialize_device_color(font_color)
-          self[:DA] = "#{color_string.chomp} /#{name} #{font_size} Tf"
+          self[:DA] = self.class.create_appearance_string(document, font: font,
+                                                          font_options: font_options,
+                                                          font_size: font_size,
+                                                          font_color: font_color)
         end
 
         # Parses the default appearance string and returns an array containing [font_name,
