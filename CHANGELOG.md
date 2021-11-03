@@ -9,6 +9,8 @@
 
 * [HexaPDF::Type::AcroForm::VariableTextField::parse_appearance_string] to also
   return the font color
+* [HexaPDF::Type::AcroForm::VariableTextField#set_default_appearance_string] to
+  allow specifying the font color
 
 ### Fixed
 

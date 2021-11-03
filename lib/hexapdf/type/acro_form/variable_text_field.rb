@@ -112,17 +112,30 @@ module HexaPDF
           end
         end
 
-        # Sets the default appearance string using the provided values.
+        # Sets the default appearance string using the provided values or the default values which
+        # provide a sane default.
         #
-        # The default argument values are a sane default. If +font_size+ is set to 0, the font size
-        # is calculated using the height/width of the field.
+        # +font+::
+        #     The name of the font.
         #
-        # Use the +font_options+ hash to provide font options like :variant, see
-        # HexaPDF::Document::Fonts#add.
-        def set_default_appearance_string(font: 'Helvetica', font_options: {}, font_size: 0)
+        # +font_options+::
+        #     Additional font options like :variant used when loading the font. See
+        #     HexaPDF::Document::Fonts#add
+        #
+        # +font_size+::
+        #     The font size. If this is set to 0, the font size is calculated using the height/width
+        #     of the field.
+        #
+        # +font_color+::
+        #     The font color. See HexaPDF::Content::ColorSpace.device_color_from_specification for
+        #     allowed values.
+        def set_default_appearance_string(font: 'Helvetica', font_options: {}, font_size: 0,
+                                          font_color: 0)
           name = document.acro_form(create: true).default_resources.
             add_font(document.fonts.add(font, **font_options).pdf_object)
-          self[:DA] = "0 g /#{name} #{font_size} Tf"
+          font_color = HexaPDF::Content::ColorSpace.device_color_from_specification(font_color)
+          color_string = HexaPDF::Content::ColorSpace.serialize_device_color(font_color)
+          self[:DA] = "#{color_string.chomp} /#{name} #{font_size} Tf"
         end
 
         # Parses the default appearance string and returns an array containing [font_name,

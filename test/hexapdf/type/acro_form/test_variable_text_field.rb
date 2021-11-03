@@ -40,7 +40,7 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
 
     it "uses sane default values if no arguments are provided" do
       @field.set_default_appearance_string
-      assert_equal("0 g /F1 0 Tf", @field[:DA])
+      assert_equal("0.0 g /F1 0 Tf", @field[:DA])
       font = @doc.acro_form.default_resources.font(:F1)
       assert(font)
       assert_equal(:Helvetica, font[:BaseFont])
@@ -48,19 +48,24 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
 
     it "allows specifying the font" do
       @field.set_default_appearance_string(font: 'Times')
-      assert_equal("0 g /F2 0 Tf", @field[:DA])
+      assert_equal("0.0 g /F2 0 Tf", @field[:DA])
       assert_equal(:'Times-Roman', @doc.acro_form.default_resources.font(:F2)[:BaseFont])
     end
 
     it "allows specifying the font options" do
       @field.set_default_appearance_string(font_options: {variant: :italic})
-      assert_equal("0 g /F2 0 Tf", @field[:DA])
+      assert_equal("0.0 g /F2 0 Tf", @field[:DA])
       assert_equal(:'Helvetica-Oblique', @doc.acro_form.default_resources.font(:F2)[:BaseFont])
     end
 
     it "allows specifying the font size" do
       @field.set_default_appearance_string(font_size: 10)
-      assert_equal("0 g /F1 10 Tf", @field[:DA])
+      assert_equal("0.0 g /F1 10 Tf", @field[:DA])
+    end
+
+    it "allows specifying the font color" do
+      @field.set_default_appearance_string(font_color: "red")
+      assert_equal("1.0 0.0 0.0 rg /F1 0 Tf", @field[:DA])
     end
   end
 
