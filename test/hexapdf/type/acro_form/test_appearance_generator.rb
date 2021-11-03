@@ -499,6 +499,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
       it "creates the /N appearance stream according to the set string" do
         @field.field_value = 'Text'
+        @field.set_default_appearance_string(font_color: "red")
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
                          [[:begin_marked_content, [:Tx]],
@@ -507,6 +508,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:clip_path_non_zero],
                           [:end_path],
                           [:set_font_and_size, [:F1, 6.641436]],
+                          [:set_device_rgb_non_stroking_color, [1.0, 0.0, 0.0]],
                           [:begin_text],
                           [:set_text_matrix, [1, 0, 0, 1, 2, 3.240724]],
                           [:show_text, ["Text"]],
@@ -556,6 +558,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
       it "creates the /N appearance stream according to the set string" do
         @field.field_value = "Test\nValue"
+        @field.set_default_appearance_string(font_size: 10, font_color: "red")
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
                          [[:begin_marked_content, [:Tx]],
@@ -566,6 +569,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:save_graphics_state],
                           [:set_leading, [11.5625]],
                           [:set_font_and_size, [:F1, 10]],
+                          [:set_device_rgb_non_stroking_color, [1.0, 0.0, 0.0]],
                           [:begin_text],
                           [:set_text_matrix, [1, 0, 0, 1, 2, 16.195]],
                           [:show_text, ['Test']],
@@ -653,6 +657,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
       it "creates the /N appearance stream according to the set string" do
         @field.field_value = 'Text'
+        @field.set_default_appearance_string(font_size: 10, font_color: "red")
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
                          [[:begin_marked_content, [:Tx]],
@@ -661,6 +666,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:clip_path_non_zero],
                           [:end_path],
                           [:set_font_and_size, [:F1, 10]],
+                          [:set_device_rgb_non_stroking_color, [1.0, 0.0, 0.0]],
                           [:begin_text],
                           [:set_text_matrix, [1, 0, 0, 1, 2.945, 6.41]],
                           [:show_text_with_positioning, [['T', -416.5, 'e', -472, 'x', -611, 't']]],
@@ -721,6 +727,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         it "creates the /N appearance stream" do
           @field[:I] = [1, 2]
           @field[:V] = ['b', 'c']
+          @field.set_default_appearance_string(font_size: 12, font_color: "red")
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
                            [[:begin_marked_content, [:Tx]],
@@ -734,7 +741,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                             [:save_graphics_state],
                             [:set_leading, [13.875]],
                             [:set_font_and_size, [:F1, 12]],
-                            [:set_device_gray_non_stroking_color, [0.0]],
+                            [:set_device_rgb_non_stroking_color, [1.0, 0.0, 0.0]],
                             [:begin_text],
                             [:set_text_matrix, [1, 0, 0, 1, 2, 23.609]],
                             [:show_text, ["a"]],

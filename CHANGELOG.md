@@ -15,6 +15,8 @@
   allow specifying the font color
 * [HexaPDF::Type::AcroForm::Form] methods to support new variable text field
   methods
+* [HexaPDF::Type::AcroForm::AppearanceGenerator] to support the set font color
+  when creating text field appearances
 
 ### Fixed
 

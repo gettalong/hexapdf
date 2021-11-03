@@ -227,8 +227,8 @@ module HexaPDF
         # Note: Rich text fields are currently not supported!
         def create_text_appearances
           default_resources = @document.acro_form.default_resources
-          font, font_size = retrieve_font_information(default_resources)
-          style = HexaPDF::Layout::Style.new(font: font)
+          font, font_size, font_color = retrieve_font_information(default_resources)
+          style = HexaPDF::Layout::Style.new(font: font, fill_color: font_color)
           border_style = @widget.border_style
           padding = [1, border_style.width].max
 
@@ -482,7 +482,7 @@ module HexaPDF
 
         # Returns the font wrapper and font size to be used for a variable text field.
         def retrieve_font_information(resources)
-          font_name, font_size = @field.parse_default_appearance_string
+          font_name, font_size, font_color = @field.parse_default_appearance_string
           font_object = resources.font(font_name) rescue nil
           font = font_object&.font_wrapper
           unless font
@@ -498,7 +498,7 @@ module HexaPDF
               raise(HexaPDF::Error, "Font #{font_name} of the AcroForm's default resources not usable")
             end
           end
-          [font, font_size]
+          [font, font_size, font_color]
         end
 
         # Calculates the font size for text fields based on the font and font size of the default
