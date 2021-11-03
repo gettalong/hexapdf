@@ -8,6 +8,7 @@ describe HexaPDF::Type::AcroForm::Form do
   before do
     @doc = HexaPDF::Document.new
     @acro_form = @doc.add({Fields: []}, type: :XXAcroForm)
+    @doc.catalog[:AcroForm] = @acro_form
   end
 
   describe "signature flags" do
@@ -140,18 +141,23 @@ describe HexaPDF::Type::AcroForm::Form do
 
     def applies_variable_text_properties(method, **args)
       field = @acro_form.send(method, "field", **args, font: 'Times')
-      font_name, font_size = field.parse_default_appearance_string
+      font_name, font_size, font_color = field.parse_default_appearance_string
       assert_equal(:'Times-Roman', @acro_form.default_resources.font(font_name)[:BaseFont])
       assert_equal(0, font_size)
+      assert_equal(HexaPDF::Content::ColorSpace::DeviceGray.new.color(0), font_color)
 
       field = @acro_form.send(method, "field", **args, font_options: {variant: :bold})
-      font_name, font_size = field.parse_default_appearance_string
+      font_name, = field.parse_default_appearance_string
       assert_equal(:'Helvetica-Bold', @acro_form.default_resources.font(font_name)[:BaseFont])
 
       field = @acro_form.send(method, "field", **args, font_size: 10)
       font_name, font_size = field.parse_default_appearance_string
       assert_equal(:Helvetica, @acro_form.default_resources.font(font_name)[:BaseFont])
       assert_equal(10, font_size)
+
+      field = @acro_form.send(method, "field", **args, font_color: "red")
+      _, _, font_color = field.parse_default_appearance_string
+      assert_equal(HexaPDF::Content::ColorSpace::DeviceRGB.new.color(255, 0, 0), font_color)
 
       field = @acro_form.send(method, "field", **args, font: 'Courier', font_size: 10, align: :center)
       font_name, font_size = field.parse_default_appearance_string
@@ -229,16 +235,17 @@ describe HexaPDF::Type::AcroForm::Form do
   describe "set_default_appearance_string" do
     it "uses sane default values if no arguments are provided" do
       @acro_form.set_default_appearance_string
-      assert_equal("0 g /F1 0 Tf", @acro_form[:DA])
+      assert_equal("0.0 g /F1 0 Tf", @acro_form[:DA])
       font = @acro_form.default_resources.font(:F1)
       assert(font)
       assert_equal(:Helvetica, font[:BaseFont])
     end
 
-    it "allows specifying the used font and font size" do
-      @acro_form.set_default_appearance_string(font: 'Times', font_size: 10)
-      assert_equal("0 g /F1 10 Tf", @acro_form[:DA])
-      assert_equal(:'Times-Roman', @acro_form.default_resources.font(:F1)[:BaseFont])
+    it "allows specifying the used font, font size and font color" do
+      @acro_form.set_default_appearance_string(font: 'Times', font_options: {variant: :bold},
+                                               font_size: 10, font_color: "red")
+      assert_equal("1.0 0.0 0.0 rg /F1 10 Tf", @acro_form[:DA])
+      assert_equal(:'Times-Bold', @acro_form.default_resources.font(:F1)[:BaseFont])
     end
   end
 
@@ -333,7 +340,7 @@ describe HexaPDF::Type::AcroForm::Form do
 
     it "set the default appearance string, though optional, to a valid value to avoid problems" do
       assert(@acro_form.validate)
-      assert_equal("0 g /F1 0 Tf", @acro_form[:DA])
+      assert_equal("0.0 g /F1 0 Tf", @acro_form[:DA])
     end
 
     describe "automatically creates the terminal fields; appearances" do

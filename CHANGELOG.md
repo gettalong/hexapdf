@@ -13,6 +13,8 @@
   return the font color
 * [HexaPDF::Type::AcroForm::VariableTextField#set_default_appearance_string] to
   allow specifying the font color
+* [HexaPDF::Type::AcroForm::Form] methods to support new variable text field
+  methods
 
 ### Fixed
 

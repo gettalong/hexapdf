@@ -157,8 +157,8 @@ module HexaPDF
         # The optional keyword arguments allow setting often used properties of the field:
         #
         # +font+::
-        #     The font that should be used for the text of the field. If +font_size+ or
-        #     +font_options+ is specified but +font+ isn't, the font Helvetica is used.
+        #     The font that should be used for the text of the field. If +font_size+, +font_options+
+        #     or +font_color+ is specified but +font+ isn't, the font Helvetica is used.
         #
         #     If no font is set on the text field, the default font properties of the AcroForm form
         #     are used. Note that field specific or form specific font properties have to be set.
@@ -169,15 +169,20 @@ module HexaPDF
         #     A hash with font options like :variant that should be used.
         #
         # +font_size+::
-        #     The font size that should be used. If +font+ or +font_options+ is specified but
-        #     +font_size+ isn't, font size defaults to 0 (= auto-sizing).
+        #     The font size that should be used. If +font+, +font_options+ or +font_color+ is
+        #     specified but +font_size+ isn't, font size defaults to 0 (= auto-sizing).
+        #
+        # +font_color+::
+        #     The font color that should be used. If +font+, +font_options+ or +font_size+ is
+        #     specified but +font_color+ isn't, font color defaults to 0 (i.e. black).
         #
         # +align+::
         #     The alignment of the text, either :left, :center or :right.
-        def create_text_field(name, font: nil, font_options: nil, font_size: nil, align: nil)
+        def create_text_field(name, font: nil, font_options: nil, font_size: nil, font_color: nil,
+                              align: nil)
           create_field(name, :Tx) do |field|
             apply_variable_text_properties(field, font: font, font_options: font_options,
-                                           font_size: font_size, align: align)
+                                           font_size: font_size, font_color: font_color, align: align)
           end
         end
 
@@ -189,11 +194,11 @@ module HexaPDF
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
         def create_multiline_text_field(name, font: nil, font_options: nil, font_size: nil,
-                                        align: nil)
+                                        font_color: nil, align: nil)
           create_field(name, :Tx) do |field|
             field.initialize_as_multiline_text_field
             apply_variable_text_properties(field, font: font, font_options: font_options,
-                                           font_size: font_size, align: align)
+                                           font_size: font_size, font_color: font_color, align: align)
           end
         end
 
@@ -208,11 +213,11 @@ module HexaPDF
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
         def create_comb_text_field(name, max_chars:, font: nil, font_options: nil, font_size: nil,
-                                   align: nil)
+                                   font_color: nil, align: nil)
           create_field(name, :Tx) do |field|
             field.initialize_as_comb_text_field
             apply_variable_text_properties(field, font: font, font_options: font_options,
-                                           font_size: font_size, align: align)
+                                           font_size: font_size, font_color: font_color, align: align)
             field[:MaxLen] = max_chars
           end
         end
@@ -224,11 +229,12 @@ module HexaPDF
         #
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
-        def create_file_select_field(name, font: nil, font_options: nil, font_size: nil, align: nil)
+        def create_file_select_field(name, font: nil, font_options: nil, font_size: nil,
+                                     font_color: nil, align: nil)
           create_field(name, :Tx) do |field|
             field.initialize_as_file_select_field
             apply_variable_text_properties(field, font: font, font_options: font_options,
-                                           font_size: font_size, align: align)
+                                           font_size: font_size, font_color: font_color, align: align)
           end
         end
 
@@ -239,11 +245,12 @@ module HexaPDF
         #
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
-        def create_password_field(name, font: nil, font_options: nil, font_size: nil, align: nil)
+        def create_password_field(name, font: nil, font_options: nil, font_size: nil,
+                                  font_color: nil, align: nil)
           create_field(name, :Tx) do |field|
             field.initialize_as_password_field
             apply_variable_text_properties(field, font: font, font_options: font_options,
-                                           font_size: font_size, align: align)
+                                           font_size: font_size, font_color: font_color, align: align)
           end
         end
 
@@ -280,13 +287,13 @@ module HexaPDF
         # +font+, +font_options+, +font_size+ and +align+::
         #     See #create_text_field
         def create_combo_box(name, option_items: nil, editable: nil, font: nil,
-                             font_options: nil, font_size: nil, align: nil)
+                             font_options: nil, font_size: nil, font_color: nil, align: nil)
           create_field(name, :Ch) do |field|
             field.initialize_as_combo_box
             field.option_items = option_items if option_items
             field.flag(:edit) if editable
             apply_variable_text_properties(field, font: font, font_options: font_options,
-                                           font_size: font_size, align: align)
+                                           font_size: font_size, font_color: font_color, align: align)
           end
         end
 
@@ -306,13 +313,13 @@ module HexaPDF
         # +font+, +font_options+, +font_size+ and +align+::
         #     See #create_text_field.
         def create_list_box(name, option_items: nil, multi_select: nil, font: nil,
-                            font_options: nil, font_size: nil, align: nil)
+                            font_options: nil, font_size: nil, font_color: nil, align: nil)
           create_field(name, :Ch) do |field|
             field.initialize_as_list_box
             field.option_items = option_items if option_items
             field.flag(:multi_select) if multi_select
             apply_variable_text_properties(field, font: font, font_options: font_options,
-                                           font_size: font_size, align: align)
+                                           font_size: font_size, font_color: font_color, align: align)
           end
         end
 
@@ -322,13 +329,16 @@ module HexaPDF
                                       type: :XXResources)
         end
 
-        # Sets the global default appearance string using the provided values.
+        # Sets the global default appearance string using the provided values or the default values
+        # which provide a sane default.
         #
-        # The default argument values are a sane default. If +font_size+ is set to 0, the font size
-        # is calculated using the height/width of the field.
-        def set_default_appearance_string(font: 'Helvetica', font_size: 0)
-          name = default_resources.add_font(document.fonts.add(font).pdf_object)
-          self[:DA] = "0 g /#{name} #{font_size} Tf"
+        # See VariableTextField::create_appearance_string for information on the arguments.
+        def set_default_appearance_string(font: 'Helvetica', font_options: {}, font_size: 0,
+                                          font_color: 0)
+          self[:DA] = VariableTextField.create_appearance_string(document, font: font,
+                                                                 font_options: font_options,
+                                                                 font_size: font_size,
+                                                                 font_color: font_color)
         end
 
         # Sets the /NeedAppearances field to +true+.
@@ -420,11 +430,12 @@ module HexaPDF
 
         # Applies the given variable field properties to the field.
         def apply_variable_text_properties(field, font: nil, font_options: nil, font_size: nil,
-                                           align: nil)
-          if font || font_options || font_size
+                                           font_color: nil, align: nil)
+          if font || font_options || font_size || font_color
             field.set_default_appearance_string(font: font || 'Helvetica',
                                                 font_options: font_options || {},
-                                                font_size: font_size || 0)
+                                                font_size: font_size || 0,
+                                                font_color: font_color || 0)
           end
           field.text_alignment(align) if align
         end
