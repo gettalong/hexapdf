@@ -6,7 +6,7 @@
   device colors in parts other than the canvas
 * [HexaPDF::Type::AcroForm::VariableTextField::create_appearance_string] for
   centralized creation of appearance strings
-* [HexaPDF::Object.make_direct] for making objects and all parts of them direct
+* [HexaPDF::Object::make_direct] for making objects and all parts of them direct
   instead of indirect
 
 ### Changed
@@ -26,7 +26,7 @@
   dictionary are indirect objects
 * [HexaPDF::Content::GraphicObject::EndpointArc] to correctly determine the
   start and end points
-* [HexaPDF::Dictionary#perform_validation] to correctly handle objects that
+* HexaPDF::Dictionary#perform_validation to correctly handle objects that
   should not be indirect objects
 
 
