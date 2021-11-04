@@ -107,9 +107,11 @@ describe HexaPDF::Encryption::SecurityHandler do
       end
 
       it "updates the trailer's /Encrypt entry to be wrapped by an encryption dictionary" do
-        @document.trailer[:Encrypt] = {Filter: :Test, V: 1}
+        @document.trailer[:Encrypt] = {Filter: :Test,
+                                       V: HexaPDF::Object.new(1, oid: 1, document: @document)}
         HexaPDF::Encryption::SecurityHandler.set_up_decryption(@document)
         assert_kind_of(HexaPDF::Encryption::EncryptionDictionary, @document.trailer[:Encrypt])
+        assert_equal({Filter: :Test, V: 1}, @document.trailer[:Encrypt].value)
       end
 
       it "returns the frozen security handler" do
