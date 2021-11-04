@@ -318,8 +318,8 @@ module HexaPDF
             value[name] = document.add(obj)
           elsif !field.indirect && obj.kind_of?(HexaPDF::Object) && obj.indirect?
             yield("Field #{name} needs to be a direct object", true)
-            document.delete(obj)
             value[name] = obj.value
+            document.delete(obj)
           end
         end
       end

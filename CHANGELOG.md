@@ -22,6 +22,8 @@
 
 * [HexaPDF::Content::GraphicObject::EndpointArc] to correctly determine the
   start and end points
+* [HexaPDF::Dictionary#perform_validation] to correctly handle objects that
+  should not be indirect objects
 
 
 ## 0.17.3 - 2021-10-31

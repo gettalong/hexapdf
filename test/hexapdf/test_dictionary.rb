@@ -20,6 +20,7 @@ describe HexaPDF::Dictionary do
   end
 
   def delete(_obj)
+    _obj.data.value = nil
   end
 
   def wrap(obj, type:)
