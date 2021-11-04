@@ -45,6 +45,34 @@ describe HexaPDF::Object do
     end
   end
 
+  describe "class.make_direct" do
+    before do
+      @doc = HexaPDF::Document.new
+    end
+
+    it "doesn't touch wrapped direct objects" do
+      obj = HexaPDF::Object.new(5)
+      assert_same(obj, HexaPDF::Object.make_direct(obj))
+    end
+
+    it "works for simple values" do
+      obj = HexaPDF::Object.new(5, oid: 1, document: @doc)
+      assert_same(5, HexaPDF::Object.make_direct(obj))
+    end
+
+    it "works for hashes" do
+      obj = HexaPDF::Dictionary.new({a: 5, b: HexaPDF::Object.new(:a, oid: 3, document: @doc)},
+                                    oid: 1, document: @doc)
+      assert_equal({a: 5, b: :a}, HexaPDF::Object.make_direct(obj))
+    end
+
+    it "works for arrays" do
+      obj = HexaPDF::PDFArray.new([:b, HexaPDF::Object.new(:a, oid: 3, document: @doc)],
+                                    oid: 1, document: @doc)
+      assert_equal([:b, :a], HexaPDF::Object.make_direct(obj))
+    end
+  end
+
   describe "initialize" do
     it "uses a simple value as is" do
       obj = HexaPDF::Object.new(5)

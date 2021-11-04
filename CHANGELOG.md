@@ -6,6 +6,8 @@
   device colors in parts other than the canvas
 * [HexaPDF::Type::AcroForm::VariableTextField::create_appearance_string] for
   centralized creation of appearance strings
+* [HexaPDF::Object.make_direct] for making objects and all parts of them direct
+  instead of indirect
 
 ### Changed
 

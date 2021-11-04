@@ -141,6 +141,24 @@ module HexaPDF
       end
     end
 
+    # Makes sure that the object itself as well as all nested values are direct objects.
+    #
+    # If an indirect object is found, it is turned into a direct object and the indirect object is
+    # deleted from the document.
+    def self.make_direct(object)
+      if object.kind_of?(HexaPDF::Object) && object.indirect?
+        object_to_delete = object
+        object = object.value
+        object_to_delete.document.delete(object_to_delete)
+      end
+      if object.kind_of?(Hash)
+        object.transform_values! {|val| make_direct(val) }
+      elsif object.kind_of?(Array)
+        object.map! {|val| make_direct(val) }
+      end
+      object
+    end
+
     # The wrapped HexaPDF::PDFData value.
     #
     # This attribute is not part of the public API!
