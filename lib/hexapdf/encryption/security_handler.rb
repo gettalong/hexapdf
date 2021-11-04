@@ -213,8 +213,8 @@ module HexaPDF
         end
 
         handler = handler.new(document)
-        document.trailer[:Encrypt] = handler.set_up_decryption(dict, **options)
-        document.revisions.current.update(document.trailer[:Encrypt])
+        dict = document.trailer[:Encrypt] = handler.set_up_decryption(dict, **options)
+        document.revisions.current.update(dict)
         document.revisions.each do |r|
           loader = r.loader
           r.loader = lambda do |xref_entry|
