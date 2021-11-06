@@ -589,7 +589,7 @@ module HexaPDF
       #
       # The line cap style specifies how the ends of stroked open paths should look like.
       #
-      # The +style+ parameter can be one of:
+      # The +style+ parameter can be one of (also see LineCapStyle):
       #
       # :butt or 0::
       #     Stroke is squared off at the endpoint of a path.
@@ -641,7 +641,7 @@ module HexaPDF
       #
       # The line join style specifies the shape that is used at the corners of stroked paths.
       #
-      # The +style+ parameter can be one of:
+      # The +style+ parameter can be one of (also see LineJoinStyle):
       #
       # :miter or 0::
       #     The outer lines of the two segments continue until the meet at an angle.
