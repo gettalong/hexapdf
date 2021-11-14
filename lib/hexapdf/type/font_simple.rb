@@ -133,7 +133,7 @@ module HexaPDF
       #
       # This method has to be implemented in subclasses.
       def encoding_from_font
-        raise NotImplementedError
+        raise "Needs to be implemented in subclass"
       end
 
       # Uses the given base encoding and the differences array to create a DifferenceEncoding

@@ -25,7 +25,7 @@ describe HexaPDF::Type::FontSimple do
   describe "encoding" do
     it "fails if /Encoding is absent because encoding_from_font is not implemented" do
       @font.delete(:Encoding)
-      assert_raises(NotImplementedError) { @font.encoding }
+      assert_raises(RuntimeError) { @font.encoding }
     end
 
     describe "/Encoding is a name" do
@@ -35,7 +35,7 @@ describe HexaPDF::Type::FontSimple do
 
       it "fails if /Encoding is an invalid name because encoding_from_font is not implemented" do
         @font[:Encoding] = :SomethingUnknown
-        assert_raises(NotImplementedError) { @font.encoding }
+        assert_raises(RuntimeError) { @font.encoding }
       end
     end
 
@@ -47,12 +47,12 @@ describe HexaPDF::Type::FontSimple do
       describe "no /BaseEncoding is specified" do
         it "fails if the font is embedded because encoding_from_font is not implemented" do
           @font[:FontDescriptor][:FontFile] = 5
-          assert_raises(NotImplementedError) { @font.encoding }
+          assert_raises(RuntimeError) { @font.encoding }
         end
 
         it "fails for a symbolic non-embedded font because encoding_from_font is not implemented" do
           @font[:FontDescriptor].flag(:symbolic, clear_existing: true)
-          assert_raises(NotImplementedError) { @font.encoding }
+          assert_raises(RuntimeError) { @font.encoding }
         end
 
         it "returns the StandardEncoding for a non-symbolic non-embedded font" do
@@ -68,7 +68,7 @@ describe HexaPDF::Type::FontSimple do
 
       it "fails if /BaseEncoding is invalid because encoding_from_font is not implemented" do
         @font[:Encoding] = {BaseEncoding: :SomethingUnknown}
-        assert_raises(NotImplementedError) { @font.encoding }
+        assert_raises(RuntimeError) { @font.encoding }
       end
 
       it "returns a difference encoding if /Differences is specified" do

@@ -455,7 +455,7 @@ module HexaPDF
       # Decodes the given array containing text and positioning information while assuming that the
       # writing direction is vertical.
       def decode_vertical_text(_data)
-        raise NotImplementedError
+        raise "Not yet implemented"
       end
 
     end

@@ -156,7 +156,7 @@ describe HexaPDF::Content::Processor do
 
       it "fails if the current font is a vertical font" do
         @processor.graphics_state.font.define_singleton_method(:writing_mode) { :vertical }
-        assert_raises(NotImplementedError) { @processor.send(:decode_text_with_positioning, "a") }
+        assert_raises(RuntimeError) { @processor.send(:decode_text_with_positioning, "a") }
       end
     end
   end
