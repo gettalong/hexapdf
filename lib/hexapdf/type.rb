@@ -72,6 +72,7 @@ module HexaPDF
     autoload(:FontType3, 'hexapdf/type/font_type3')
     autoload(:IconFit, 'hexapdf/type/icon_fit')
     autoload(:AcroForm, 'hexapdf/type/acro_form')
+    autoload(:Signature, 'hexapdf/type/signature')
 
   end
 

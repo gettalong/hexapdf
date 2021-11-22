@@ -596,6 +596,24 @@ describe HexaPDF::Document do
     end
   end
 
+  describe "signature interface" do
+    it "returns whether the document is signed or not" do
+      refute(@doc.signed?)
+
+      form = @doc.acro_form(create: true)
+      form.signature_flag(:signatures_exist)
+      assert(@doc.signed?)
+    end
+
+    it "returns all signature fields of the document" do
+      form = @doc.acro_form(create: true)
+      sig1 = @doc.add({FT: :Sig, T: 'sig1', V: :sig1})
+      sig2 = @doc.add({FT: :Sig, T: 'sig2', V: :sig2})
+      form.root_fields << sig1 << sig2
+      assert_equal([:sig1, :sig2], @doc.signatures)
+    end
+  end
+
   describe "listener interface" do
     it "allows registering and dispatching messages" do
       args = []

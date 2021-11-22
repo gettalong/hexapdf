@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* Support for reading and validating digital signatures
+
+
 ## 0.19.3 - 2021-12-14
 
 ### Fixed

@@ -617,6 +617,17 @@ module HexaPDF
       @security_handler
     end
 
+    # Returns +true+ if the document is signed, i.e. contains digital signatures.
+    def signed?
+      acro_form&.signature_flag?(:signatures_exist)
+    end
+
+    # Returns an array with the digital signatures of this document.
+    def signatures
+      return [] unless (form = acro_form)
+      form.each_field.select {|field| field.field_type == :Sig }.map(&:field_value)
+    end
+
     # Validates all objects, or, if +only_loaded+ is +true+, only loaded objects, with optional
     # auto-correction, and returns +true+ if everything is fine.
     #

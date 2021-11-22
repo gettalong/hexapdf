@@ -373,6 +373,15 @@ module HexaPDF
   #
   #    See HexaPDF::Layout::Style::Layers for more information.
   #
+  # signature.sub_filter_map::
+  #    A mapping from a PDF name (a Symbol) to a signature handler class (see
+  #    HexaPDF::Type::Signature::Handler). If the value is a String, it should contain the name of a
+  #    constant to such a class.
+  #
+  #    The sub filter map is used for mapping specific signature algorithms to handler classes. The
+  #    filter value of a signature dictionary is ignored since we only support the standard
+  #    signature algorithms.
+  #
   # task.map::
   #    A mapping from task names to callable task objects. See HexaPDF::Task for more information.
   DefaultDocumentConfiguration =
@@ -450,6 +459,11 @@ module HexaPDF
                       'sorted_tree.max_leaf_node_size' => 64,
                       'style.layers_map' => {
                         link: 'HexaPDF::Layout::Style::LinkLayer',
+                      },
+                      'signature.sub_filter_map' => {
+                        'adbe.x509.rsa_sha1': 'HexaPDF::Type::Signature::AdbeX509RsaSha1',
+                        'adbe.pkcs7.detached': 'HexaPDF::Type::Signature::AdbePkcs7Detached',
+                        'ETSI.CAdES.detached': 'HexaPDF::Type::Signature::AdbePkcs7Detached',
                       },
                       'task.map' => {
                         optimize: 'HexaPDF::Task::Optimize',
@@ -539,6 +553,10 @@ module HexaPDF
                         SigFieldLock: 'HexaPDF::Type::AcroForm::SignatureField::LockDictionary',
                         SV: 'HexaPDF::Type::AcroForm::SignatureField::SeedValueDictionary',
                         SVCert: 'HexaPDF::Type::AcroForm::SignatureField::CertificateSeedValueDictionary',
+                        Sig: 'HexaPDF::Type::Signature',
+                        DocTimeStamp: 'HexaPDF::Type::Signature',
+                        SigRef: 'HexaPDF::Type::Signature::SignatureReference',
+                        TransformParams: 'HexaPDF::Type::Signature::TransformParams',
                       },
                       'object.subtype_map' => {
                         nil => {
