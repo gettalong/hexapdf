@@ -130,6 +130,25 @@ module HexaPDF
             output_line("Encrypted", "yes (no or wrong password given)")
           end
 
+          unless doc.signatures.empty?
+            nr_sigs = doc.signatures.count
+            output_line("Document signed", "yes - #{nr_sigs} signature#{nr_sigs > 1 ? 's' : ''}")
+            doc.signatures.each do |signature|
+              output_line("  Signer", signature.signer_name)
+              output_line("    Signing time", signature.signing_time)
+              if (reason = signature.signing_reason)
+                output_line("    Reason", reason)
+              end
+              if (location = signature.signing_location)
+                output_line("    Location", location)
+              end
+              output_line("    Signature type", signature.signature_type)
+              signature.verify(allow_self_signed: true).messages.sort.each do |msg|
+                output_line("    #{msg.type.capitalize}", msg.content)
+              end
+            end
+          end
+
           output_line("Pages", doc.pages.count.to_s)
           output_line("Version", doc.version)
         end
@@ -162,7 +181,7 @@ module HexaPDF
       end
 
       def output_line(header, text) #:nodoc:
-        puts(("#{header}:").ljust(COLUMN_WIDTH) << text)
+        puts(("#{header}:").ljust(COLUMN_WIDTH) << text.to_s)
       end
 
     end

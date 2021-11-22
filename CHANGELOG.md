@@ -3,6 +3,7 @@
 ### Added
 
 * Support for reading and validating digital signatures
+* Output info regarding digital signatures when using the `hexapdf info` command
 
 
 ## 0.19.3 - 2021-12-14
