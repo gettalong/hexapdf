@@ -458,10 +458,8 @@ module HexaPDF
           option_items = @field.option_items
           top_index = @field.list_box_top_index
           items = [Layout::TextFragment.create(option_items[top_index..-1].join("\n"), style)]
-
-          indices = @field[:I] || []
-          value_indices = [@field.field_value].flatten.compact.map {|val| option_items.index(val) }
-          indices = value_indices if indices != value_indices
+          # Should use /I but if it differs from /V, we need to use /V; so just use /V...
+          indices = [@field.field_value].flatten.compact.map {|val| option_items.index(val) }
 
           layouter = Layout::TextLayouter.new(style)
           layouter.style.align(@field.text_alignment).line_spacing(:proportional, 1.25)
