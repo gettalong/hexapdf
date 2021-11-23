@@ -50,13 +50,6 @@ describe HexaPDF::Rectangle do
     assert_equal(12, rect.top)
   end
 
-  it "allows comparison to arrays" do
-    rect = HexaPDF::Rectangle.new([0, 1, 2, 5])
-    assert(rect == [0, 1, 2, 5])
-    rect.oid = 5
-    refute(rect == [0, 1, 2, 5])
-  end
-
   describe "validation" do
     it "ensures that it is a correct PDF rectangle" do
       doc = HexaPDF::Document.new

@@ -114,12 +114,6 @@ module HexaPDF
       self[3] = self[1] + val
     end
 
-    # Compares this rectangle to +other+ like in Object#== but also allows comparison to simple
-    # arrays if the rectangle is a direct object.
-    def ==(other)
-      super || (other.kind_of?(Array) && !indirect? && other == data.value)
-    end
-
     private
 
     # Ensures that the value is an array containing four numbers that specify the bottom left and

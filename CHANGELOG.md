@@ -5,6 +5,10 @@
 * Support for reading and validating digital signatures
 * Output info regarding digital signatures when using the `hexapdf info` command
 
+### Changed
+
+* [HexaPDF::Object#==] to allow comparison to simple value if not indirect
+
 
 ## 0.19.3 - 2021-12-14
 

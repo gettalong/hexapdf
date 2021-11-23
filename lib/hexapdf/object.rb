@@ -333,10 +333,12 @@ module HexaPDF
       (oid == other.oid ? gen <=> other.gen : oid <=> other.oid)
     end
 
-    # Returns +true+ if the other object is an Object and wraps the same #data structure, or if the
-    # other object is a Reference with the same oid/gen.
+    # Returns +true+ if the other object is an Object and wraps the same #data structure, if the
+    # other object is a Reference with the same oid/gen, or if this object is not indirect and its
+    # value is equal to the other object.
     def ==(other)
-      (other.kind_of?(Object) && data == other.data) || (other.kind_of?(Reference) && other == self)
+      (other.kind_of?(Object) && data == other.data) || (other.kind_of?(Reference) && other == self) ||
+        (other.kind_of?(value.class) && !indirect? && other == data.value)
     end
 
     # Returns +true+ if the other object references the same PDF object as this object.
