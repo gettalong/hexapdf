@@ -75,7 +75,7 @@ module HexaPDF
 
         define_type :XXAcroForm
 
-        define_field :Fields,          type: PDFArray, required: true, version: '1.2'
+        define_field :Fields,          type: PDFArray, required: true, default: [], version: '1.2'
         define_field :NeedAppearances, type: Boolean, default: false
         define_field :SigFlags,        type: Integer, version: '1.3'
         define_field :CO,              type: PDFArray, version: '1.3'
