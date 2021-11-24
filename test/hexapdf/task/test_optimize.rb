@@ -159,4 +159,30 @@ describe HexaPDF::Task::Optimize do
       assert_equal("10 10 m\nq\nQ\nBI\n/Name 5 ID\ndataEI\n", page.contents)
     end
   end
+
+  describe "prune_page_resources" do
+    it "removes all unused XObject references" do
+      [false, true].each do |compress_pages|
+        page1 = @doc.pages.add
+        page1.resources[:XObject] = {}
+        page1.resources[:XObject][:test] = @doc.add({})
+        page1.resources[:XObject][:used_on_page2] = @doc.add({})
+        page1.resources[:XObject][:unused] = @doc.add({})
+        page1.contents = "/test Do"
+        page2 = @doc.pages.add
+        page2.resources[:XObject] = {}
+        page2.resources[:XObject][:used_on2] = page1.resources[:XObject][:used_on_page2]
+        page2.resources[:XObject][:also_unused] = page1.resources[:XObject][:unused]
+        page2.contents = "/used_on2 Do"
+
+        @doc.task(:optimize, prune_page_resources: true, compress_pages: compress_pages)
+
+        assert(page1.resources[:XObject].key?(:test))
+        assert(page1.resources[:XObject].key?(:used_on_page2))
+        refute(page1.resources[:XObject].key?(:unused))
+        assert(page2.resources[:XObject].key?(:used_on2))
+        refute(page2.resources[:XObject].key?(:also_unused))
+      end
+    end
+  end
 end

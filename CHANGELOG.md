@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* Page resource pruning to the optimization task
+
+
 ## 0.18.0 - 2021-11-04
 
 ### Added

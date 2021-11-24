@@ -72,8 +72,19 @@ module HexaPDF
       #   Compresses the content streams of all pages if set to +true+. Note that this can take a
       #   *very* long time because each content stream has to be unfiltered, parsed, serialized
       #   and then filtered again.
+      #
+      # prune_page_resources::
+      #   Removes all unused XObjects from the resources dictionaries of all pages. It is
+      #   recommended to also set the +compact+ argument because otherwise the unused XObjects won't
+      #   be deleted from the document.
+      #
+      #   This is sometimes necessary after importing pages from other PDF files that use a single
+      #   resources dictionary for all pages.
       def self.call(doc, compact: false, object_streams: :preserve, xref_streams: :preserve,
-                    compress_pages: false)
+                    compress_pages: false, prune_page_resources: false)
+        used_refs = compress_pages(doc) if compress_pages
+        prune_page_resources(doc, used_refs) if prune_page_resources
+
         if compact
           compact(doc, object_streams, xref_streams)
         elsif object_streams != :preserve
@@ -83,8 +94,6 @@ module HexaPDF
         else
           doc.each(only_current: false, &method(:delete_fields_with_defaults))
         end
-
-        compress_pages(doc) if compress_pages
       end
 
       # Compacts the document by merging all revisions into one, deleting null and unused entries
@@ -214,12 +223,41 @@ module HexaPDF
 
       # Compresses the contents of all pages by parsing and then serializing again. The HexaPDF
       # serializer is already optimized for small output size so nothing else needs to be done.
+      #
+      # Returns a hash of the form key=>true where the keys are the used XObjects (for use with
+      # #prune_page_resources).
       def self.compress_pages(doc)
+        used_refs = {}
         doc.pages.each do |page|
           processor = SerializationProcessor.new
           HexaPDF::Content::Parser.parse(page.contents, processor)
           page.contents = processor.result
           page[:Contents].set_filter(:FlateDecode)
+          xobjects = page.resources[:XObject]
+          processor.used_references.each {|ref| used_refs[xobjects[ref]] = true }
+        end
+        used_refs
+      end
+
+      # Deletes all XObject entries from the resources dictionaries of all pages whose names do not
+      # match the keys in +used_refs+.
+      def self.prune_page_resources(doc, used_refs)
+        unless used_refs
+          used_refs = {}
+          doc.pages.each do |page|
+            xobjects = page.resources[:XObject]
+            HexaPDF::Content::Parser.parse(page.contents) do |op, operands|
+              used_refs[xobjects[operands[0]]] = true if op == :Do
+            end
+          end
+        end
+
+        doc.pages.each do |page|
+          xobjects = page.resources[:XObject]
+          xobjects.each do |key, obj|
+            next if used_refs[obj]
+            xobjects.delete(key)
+          end
         end
       end
 
@@ -228,14 +266,19 @@ module HexaPDF
 
         attr_reader :result #:nodoc:
 
+        # Contains all found references
+        attr_reader :used_references
+
         def initialize #:nodoc:
           @result = ''.b
           @serializer = HexaPDF::Serializer.new
+          @used_references = []
         end
 
         def process(op, operands) #:nodoc:
           @result << HexaPDF::Content::Operator::DEFAULT_OPERATORS[op].
             serialize(@serializer, *operands)
+          @used_references << operands[0] if op == :Do
         end
 
       end
