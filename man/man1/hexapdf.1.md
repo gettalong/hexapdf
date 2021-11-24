@@ -103,6 +103,12 @@ depending on the command.
 : Recompress page content streams. This is a very expensive operation in terms of processing time
   and won't lead to great file size improvements in many cases. Default: *no*.
 
+`--[no-]prune-page-resources`
+
+: Removes unused objects from the page resources dictionaries. This is a very expensive operation in
+  terms of processing time but can yield drastic size reductions in certain cases (e.g. for PDFs
+  that contain pages from other PDFs). Default: *no*.
+
 `--[no-]optimize-fonts`
 
 : Optimize embedded font files by removing normally unneeded font data. Note that this may have a

@@ -3,6 +3,8 @@
 ### Added
 
 * Page resource pruning to the optimization task
+* An option for page resources pruning to the optimization options of the
+  `hexapdf` command
 
 
 ## 0.18.0 - 2021-11-04

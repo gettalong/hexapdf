@@ -66,6 +66,7 @@ module HexaPDF
         @out_options.xref_streams = :preserve
         @out_options.streams = :preserve
         @out_options.optimize_fonts = false
+        @out_options.prune_page_resources = false
 
         @out_options.encryption = :preserve
         @out_options.enc_user_pwd = @out_options.enc_owner_pwd = nil
@@ -169,6 +170,10 @@ module HexaPDF
                    "time; default: #{@out_options.compress_pages})") do |c|
           @out_options.compress_pages = c
         end
+        options.on("--[no-]prune-page-resources", "Prunes unused objects from the page resources " \
+                   "(may take a long time; default: #{@out_options.prune_page_resources})") do |c|
+          @out_options.prune_page_resources = c
+        end
         options.on("--[no-]optimize-fonts", "Optimize embedded font files; " \
                    "default: #{@out_options.optimize_fonts})") do |o|
           @out_options.optimize_fonts = o
@@ -236,7 +241,8 @@ module HexaPDF
         doc.task(:optimize, compact: @out_options.compact,
                  object_streams: @out_options.object_streams,
                  xref_streams: @out_options.xref_streams,
-                 compress_pages: @out_options.compress_pages)
+                 compress_pages: @out_options.compress_pages,
+                 prune_page_resources: @out_options.prune_page_resources)
         if @out_options.streams != :preserve || @out_options.optimize_fonts
           doc.each(only_current: false) do |obj|
             optimize_stream(obj)
