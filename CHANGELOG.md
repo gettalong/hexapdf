@@ -6,6 +6,11 @@
 * An option for page resources pruning to the optimization options of the
   `hexapdf` command
 
+### Fixed
+
+* Handling of invalid date strings with a minute time zone offset greater than
+  59
+
 
 ## 0.18.0 - 2021-11-04
 

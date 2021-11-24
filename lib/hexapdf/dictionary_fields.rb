@@ -293,7 +293,7 @@ module HexaPDF
       end
 
       # :nodoc:
-      DATE_RE = /\AD:(\d{4})(\d\d)?(\d\d)?(\d\d)?(\d\d)?(\d\d)?([Z+-])?(?:(\d\d)(?:'|'(\d\d)'?|\z)?)?\z/n
+      DATE_RE = /\AD:(\d{4})(\d\d)?(\d\d)?(\d\d)?(\d\d)?(\d\d)?([Z+-])?(?:(\d\d)(?:'|'([0-5]\d)'?|\z)?)?\z/n
 
       # Checks if the given object is a string and converts into a Time object if possible.
       # Otherwise returns +nil+.

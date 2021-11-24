@@ -173,6 +173,7 @@ describe HexaPDF::DictionaryFields do
 
     it "allows conversion to a Time object from a binary string" do
       refute(@field.convert('test'.b, self))
+      refute(@field.convert('D:01211016165909+00\'64'.b, self))
 
       [
         ["D:1998", [1998, 01, 01, 00, 00, 00, "-00:00"]],
