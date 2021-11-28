@@ -226,6 +226,11 @@ describe HexaPDF::Type::AcroForm::Form do
       assert(field.flagged?(:multi_select))
       applies_variable_text_properties(:create_list_box)
     end
+
+    it "creates a signature field" do
+      field = @acro_form.create_signature_field("field")
+      assert_equal(:signature_field, field.concrete_field_type)
+    end
   end
 
   it "returns the default resources" do

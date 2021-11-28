@@ -323,6 +323,14 @@ module HexaPDF
           end
         end
 
+        # Creates a signature field with the given name and adds it to the form.
+        #
+        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
+        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        def create_signature_field(name)
+          create_field(name, :Sig) {}
+        end
+
         # Returns the dictionary containing the default resources for form field appearance streams.
         def default_resources
           self[:DR] ||= document.wrap({ProcSet: [:PDF, :Text, :ImageB, :ImageC, :ImageI]},
