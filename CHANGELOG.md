@@ -13,6 +13,7 @@
 * [HexaPDF::Type::AcroForm::Form] to use an empty array as default for the
   /Fields field
 * [HexaPDF::Type::ObjectStream] to not store signature fields in object streams
+* [HexaPDF::Writer] to return the last written cross-reference section
 
 
 ## 0.19.3 - 2021-12-14

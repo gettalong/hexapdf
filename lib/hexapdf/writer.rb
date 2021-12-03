@@ -44,8 +44,10 @@ module HexaPDF
   # Writes the contents of a PDF document to an IO stream.
   class Writer
 
-    # Writes the document to the IO object. If +incremental+ is +true+ and the document was created
-    # from an existing PDF file, the changes are appended to a full copy of the source document.
+    # Writes the document to the IO object and returns the last XRefSection written.
+    #
+    # If +incremental+ is +true+ and the document was created from an existing PDF file, the changes
+    # are appended to a full copy of the source document.
     def self.write(document, io, incremental: false)
       if incremental && document.revisions.parser
         new(document, io).write_incremental
@@ -70,18 +72,21 @@ module HexaPDF
       @use_xref_streams = false
     end
 
-    # Writes the document to the IO object.
+    # Writes the document to the IO object and returns the last XRefSection written.
     def write
       write_file_header
 
-      pos = nil
+      pos = xref_section = nil
       @document.trailer.info[:Producer] = "HexaPDF version #{HexaPDF::VERSION}"
       @document.revisions.each do |rev|
-        pos = write_revision(rev, pos)
+        pos, xref_section = write_revision(rev, pos)
       end
+
+      xref_section
     end
 
-    # Writes the complete source document and one revision containing all changes to the IO.
+    # Writes the complete source document unmodified to the IO and then one revision containing all
+    # changes. Returns the XRefSection of that one revision.
     #
     # For this method to work the document must have been created from an existing file.
     def write_incremental
@@ -95,7 +100,9 @@ module HexaPDF
       @document.revisions.each do |rev|
         rev.each_modified_object {|obj| revision.send(:add_without_check, obj) }
       end
-      write_revision(revision, @document.revisions.parser.startxref_offset)
+      _pos, xref_section = write_revision(revision, @document.revisions.parser.startxref_offset)
+
+      xref_section
     end
 
     private
@@ -150,7 +157,7 @@ module HexaPDF
 
       write_startxref(startxref)
 
-      startxref
+      [startxref, xref_section]
     end
 
     # :call-seq:
