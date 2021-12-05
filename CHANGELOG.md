@@ -2,6 +2,7 @@
 
 ### Added
 
+* Support for signing a PDF using a digital signature
 * Support for reading and validating digital signatures
 * Output info regarding digital signatures when using the `hexapdf info` command
 * [HexaPDF::Type::AcroForm::Form#create_signature_field] for adding signature

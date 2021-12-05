@@ -104,6 +104,7 @@ module HexaPDF
     autoload(:Fonts, 'hexapdf/document/fonts')
     autoload(:Images, 'hexapdf/document/images')
     autoload(:Files, 'hexapdf/document/files')
+    autoload(:Signatures, 'hexapdf/document/signatures')
 
     # :call-seq:
     #   Document.open(filename, **docargs)                   -> doc
@@ -624,8 +625,7 @@ module HexaPDF
 
     # Returns an array with the digital signatures of this document.
     def signatures
-      return [] unless (form = acro_form)
-      form.each_field.select {|field| field.field_type == :Sig }.map(&:field_value)
+      @signatures ||= Signatures.new(self)
     end
 
     # Validates all objects, or, if +only_loaded+ is +true+, only loaded objects, with optional

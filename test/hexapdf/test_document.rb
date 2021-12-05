@@ -610,7 +610,7 @@ describe HexaPDF::Document do
       sig1 = @doc.add({FT: :Sig, T: 'sig1', V: :sig1})
       sig2 = @doc.add({FT: :Sig, T: 'sig2', V: :sig2})
       form.root_fields << sig1 << sig2
-      assert_equal([:sig1, :sig2], @doc.signatures)
+      assert_equal([:sig1, :sig2], @doc.signatures.to_a)
     end
   end
 

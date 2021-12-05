@@ -130,10 +130,11 @@ module HexaPDF
             output_line("Encrypted", "yes (no or wrong password given)")
           end
 
-          unless doc.signatures.empty?
-            nr_sigs = doc.signatures.count
+          signatures = doc.signatures.to_a
+          unless signatures.empty?
+            nr_sigs = signatures.count
             output_line("Document signed", "yes - #{nr_sigs} signature#{nr_sigs > 1 ? 's' : ''}")
-            doc.signatures.each do |signature|
+            signatures.each do |signature|
               output_line("  Signer", signature.signer_name)
               output_line("    Signing time", signature.signing_time)
               if (reason = signature.signing_reason)
