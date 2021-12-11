@@ -41,6 +41,10 @@ module HexaPDF
 
     # Represents a Type 3 font.
     #
+    # Note: We assume the /FontMatrix is only used for scaling, i.e. of the form [x 0 0 +/-x 0 0].
+    # If it is of a different form, things won't work correctly. This will be handled once such a
+    # case is found.
+    #
     # See: PDF1.7 s9.6.5
     class FontType3 < FontSimple
 
@@ -50,6 +54,17 @@ module HexaPDF
       define_field :FontMatrix, type: PDFArray, required: true
       define_field :CharProcs,  type: Dictionary, required: true
       define_field :Resources,  type: Dictionary, version: '1.2'
+
+      # Returns the bounding box of the font.
+      def bounding_box
+        matrix = self[:FontMatrix]
+        bbox = self[:FontBBox].value
+        if matrix[3] < 0    # Some writers invert the y-axis
+          bbox = bbox.dup
+          bbox[1], bbox[3] = -bbox[3], -bbox[1]
+        end
+        bbox
+      end
 
       private
 

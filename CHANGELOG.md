@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::Type::FontType3#bounding_box] to fix content stream processing error
+
+
 ## 0.19.0 - 2021-11-24
 
 ### Added

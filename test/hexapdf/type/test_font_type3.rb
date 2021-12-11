@@ -9,8 +9,19 @@ describe HexaPDF::Type::FontType3 do
     @doc = HexaPDF::Document.new
     @font = @doc.add({Type: :Font, Subtype: :Type3, Encoding: :WinAnsiEncoding,
                       FirstChar: 32, LastChar: 34, Widths: [600, 0, 700],
-                      FontBBox: [0, 0, 100, 100], FontMatrix: [1, 0, 0, 1, 0, 0],
+                      FontBBox: [0, 100, 100, 0], FontMatrix: [1, 0, 0, 1, 0, 0],
                       CharProcs: {}})
+  end
+
+  describe "bounding_box" do
+    it "returns the font's bounding box" do
+      assert_equal([0, 0, 100, 100], @font.bounding_box)
+    end
+
+    it "inverts the y-values if necessary based on /FontMatrix" do
+      @font[:FontMatrix][3] = -1
+      assert_equal([0, -100, 100, 0], @font.bounding_box)
+    end
   end
 
   describe "validation" do
