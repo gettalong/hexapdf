@@ -9,7 +9,7 @@ describe HexaPDF::Type::FontType3 do
     @doc = HexaPDF::Document.new
     @font = @doc.add({Type: :Font, Subtype: :Type3, Encoding: :WinAnsiEncoding,
                       FirstChar: 32, LastChar: 34, Widths: [600, 0, 700],
-                      FontBBox: [0, 100, 100, 0], FontMatrix: [1, 0, 0, 1, 0, 0],
+                      FontBBox: [0, 100, 100, 0], FontMatrix: [0.002, 0, 0, 0.002, 0, 0],
                       CharProcs: {}})
   end
 
@@ -19,9 +19,13 @@ describe HexaPDF::Type::FontType3 do
     end
 
     it "inverts the y-values if necessary based on /FontMatrix" do
-      @font[:FontMatrix][3] = -1
+      @font[:FontMatrix][3] *= -1
       assert_equal([0, -100, 100, 0], @font.bounding_box)
     end
+  end
+
+  it "returns the glyph scaling factor" do
+    assert_equal(0.002, @font.glyph_scaling_factor)
   end
 
   describe "validation" do

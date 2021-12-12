@@ -4,6 +4,7 @@ require 'test_helper'
 require 'hexapdf/content/operator'
 require 'hexapdf/content/processor'
 require 'hexapdf/serializer'
+require 'ostruct'
 
 describe HexaPDF::Content::Operator::BaseOperator do
   before do
@@ -190,9 +191,11 @@ end
 
 describe_operator :SetGraphicsStateParameters, :gs do
   it "applies parameters from an ExtGState dictionary" do
+    font = OpenStruct.new
+    font.glyph_scaling_factor = 0.01
     @processor.resources[:ExtGState] = {Name: {LW: 10, LC: 2, LJ: 2, ML: 2, D: [[3, 5], 2],
                                                RI: 2, SA: true, BM: :Multiply, CA: 0.5, ca: 0.5,
-                                               AIS: true, TK: false, Font: [:Test, 10]}}
+                                               AIS: true, TK: false, Font: [font, 10]}}
     @processor.resources.define_singleton_method(:document) do
       Object.new.tap {|obj| obj.define_singleton_method(:deref) {|o| o } }
     end
@@ -210,7 +213,7 @@ describe_operator :SetGraphicsStateParameters, :gs do
     assert_equal(0.5, gs.stroke_alpha)
     assert_equal(0.5, gs.fill_alpha)
     assert(gs.alpha_source)
-    assert_equal(:Test, gs.font)
+    assert_equal(font, gs.font)
     assert_equal(10, gs.font_size)
     refute(gs.text_knockout)
   end
@@ -448,7 +451,9 @@ describe_operator :SetFontAndSize, :Tf do
       self[:Font] && self[:Font][name]
     end
 
-    @processor.resources[:Font] = {F1: :test}
+    font = OpenStruct.new
+    font.glyph_scaling_factor = 0.01
+    @processor.resources[:Font] = {F1: font}
     invoke(:F1, 10)
     assert_equal(@processor.resources.font(:F1), @processor.graphics_state.font)
     assert_equal(10, @processor.graphics_state.font_size)

@@ -512,7 +512,7 @@ module HexaPDF
       attr_accessor :leading
 
       # The font for the text.
-      attr_accessor :font
+      attr_reader :font
 
       # The font size.
       attr_reader :font_size
@@ -552,9 +552,11 @@ module HexaPDF
 
       # The scaled font size used in glyph displacement calculations.
       #
-      # This returns the font size divided by 1000 multiplied by #scaled_horizontal_scaling.
+      # This returns the font size multiplied by the scaling factor from glyph space to text space
+      # (0.001 for all fonts except Type3 fonts or the scaling specified in /FontMatrix for Type3
+      # fonts) and multiplied by #scaled_horizontal_scaling.
       #
-      # See PDF1.7 s9.4.4
+      # See PDF1.7 s9.4.4, HexaPDF::Type::FontType3
       attr_reader :scaled_font_size
 
       # The scaled horizontal scaling used in glyph displacement calculations.
@@ -666,6 +668,15 @@ module HexaPDF
       end
 
       ##
+      # :attr_writer: font
+      #
+      # Sets the font and updates the glyph space to text space scaling.
+      def font=(font)
+        @font = font
+        update_scaled_font_size
+      end
+
+      ##
       # :attr_writer: character_spacing
       #
       # Sets the character spacing and updates the scaled character spacing.
@@ -689,7 +700,7 @@ module HexaPDF
       # Sets the font size and updates the scaled font size.
       def font_size=(size)
         @font_size = size
-        @scaled_font_size = size / 1000.0 * @scaled_horizontal_scaling
+        update_scaled_font_size
       end
 
       ##
@@ -702,7 +713,15 @@ module HexaPDF
         @scaled_horizontal_scaling = scaling / 100.0
         @scaled_character_spacing = @character_spacing * @scaled_horizontal_scaling
         @scaled_word_spacing = @word_spacing * @scaled_horizontal_scaling
-        @scaled_font_size = @font_size / 1000.0 * @scaled_horizontal_scaling
+        update_scaled_font_size
+      end
+
+      private
+
+      # Updates the cached value for the scaled font size.
+      def update_scaled_font_size
+        @scaled_font_size = @font_size * (@font&.glyph_scaling_factor || 0.001) *
+          @scaled_horizontal_scaling
       end
 
     end

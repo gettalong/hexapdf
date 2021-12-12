@@ -597,6 +597,11 @@ end
 describe HexaPDF::Layout::Style do
   before do
     @style = HexaPDF::Layout::Style.new
+    @style.font = Object.new.tap do |obj|
+      obj.define_singleton_method(:pdf_object) do
+        Object.new.tap {|pdf| pdf.define_singleton_method(:glyph_scaling_factor) { 0.001 } }
+      end
+    end
   end
 
   it "can assign values on initialization" do
@@ -644,6 +649,7 @@ describe HexaPDF::Layout::Style do
   end
 
   it "has several simple and dynamically generated properties with default values" do
+    @style = HexaPDF::Layout::Style.new
     assert_raises(HexaPDF::Error) { @style.font }
     assert_equal(10, @style.font_size)
     assert_equal(0, @style.character_spacing)
@@ -725,6 +731,11 @@ describe HexaPDF::Layout::Style do
       font = Object.new
       font.define_singleton_method(:scaling_factor) { 1 }
       font.define_singleton_method(:wrapped_font) { wrapped_font }
+      font.define_singleton_method(:pdf_object) do
+        obj = Object.new
+        obj.define_singleton_method(:glyph_scaling_factor) { 0.001 }
+        obj
+      end
       @style.font = font
     end
 

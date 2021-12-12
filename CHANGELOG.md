@@ -4,6 +4,11 @@
 
 * [HexaPDF::Type::FontType3#bounding_box] to fix content stream processing error
 
+### Fixed
+
+* Calculation of scaled font size for [HexaPDF::Content::GraphicsState] and
+  [HexaPDF::Layout::Style] when Type3 fonts are used
+
 
 ## 0.19.0 - 2021-11-24
 

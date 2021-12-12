@@ -64,4 +64,8 @@ describe HexaPDF::Type::Font do
       assert_equal(5, @font.font_file)
     end
   end
+
+  it "returns the glyph scaling factor" do
+    assert_equal(0.001, @font.glyph_scaling_factor)
+  end
 end

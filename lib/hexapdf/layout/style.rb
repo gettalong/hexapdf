@@ -1069,7 +1069,8 @@ module HexaPDF
 
       # The font size scaled appropriately.
       def scaled_font_size
-        @scaled_font_size ||= calculated_font_size / 1000.0 * scaled_horizontal_scaling
+        @scaled_font_size ||= calculated_font_size * font.pdf_object.glyph_scaling_factor *
+          scaled_horizontal_scaling
       end
 
       # The character spacing scaled appropriately.

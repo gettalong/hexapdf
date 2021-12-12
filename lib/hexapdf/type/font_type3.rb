@@ -66,6 +66,11 @@ module HexaPDF
         bbox
       end
 
+      # Returns the glyph scaling factor for transforming from glyph space to text space.
+      def glyph_scaling_factor
+        self[:FontMatrix][0]
+      end
+
       private
 
       def perform_validation

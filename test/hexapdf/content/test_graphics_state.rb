@@ -2,6 +2,7 @@
 
 require 'test_helper'
 require 'hexapdf/content/graphics_state'
+require 'ostruct'
 
 # Dummy class used as wrapper so that constant lookup works correctly
 class GraphicsStateWrapper < Minitest::Spec
@@ -146,6 +147,13 @@ class GraphicsStateWrapper < Minitest::Spec
     it "fails when restoring the graphics state if the stack is empty" do
       assert_raises(HexaPDF::Error) { @gs.restore }
     end
-  end
 
+    it "uses the correct glyph to text space scaling" do
+      font = OpenStruct.new
+      font.glyph_scaling_factor = 0.002
+      @gs.font = font
+      @gs.font_size = 10
+      assert_equal(0.02, @gs.scaled_font_size)
+    end
+  end
 end

@@ -98,6 +98,11 @@ module HexaPDF
         embedded?
       end
 
+      # Returns the glyph scaling factor for transforming from glyph space to text space.
+      def glyph_scaling_factor
+        0.001
+      end
+
       private
 
       # Parses and caches the ToUnicode CMap.
