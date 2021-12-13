@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* Set the trailer's ID field to an array of two empty strings when decrypting in
+  case it is missing
+
+
 ## 0.19.1 - 2021-12-12
 
 ### Added

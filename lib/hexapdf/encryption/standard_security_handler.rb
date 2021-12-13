@@ -328,8 +328,7 @@ module HexaPDF
           raise(HexaPDF::UnsupportedEncryptionError,
                 "Invalid /R value for standard security handler")
         elsif dict[:R] <= 4 && !document.trailer[:ID].kind_of?(PDFArray)
-          raise(HexaPDF::EncryptionError,
-                "Document ID for needed for decryption")
+          document.trailer[:ID] = ['', '']
         end
         @trailer_id_hash = trailer_id_hash
 
