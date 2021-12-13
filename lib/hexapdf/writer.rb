@@ -66,6 +66,8 @@ module HexaPDF
       @serializer = Serializer.new
       @serializer.encrypter = @document.encrypted? ? @document.security_handler : nil
       @rev_size = 0
+
+      @use_xref_streams = false
     end
 
     # Writes the document to the IO object.
@@ -87,6 +89,7 @@ module HexaPDF
       IO.copy_stream(@document.revisions.parser.io, @io)
 
       @rev_size = @document.revisions.current.next_free_oid
+      @use_xref_streams = @document.revisions.parser.contains_xref_streams?
 
       revision = Revision.new(@document.revisions.current.trailer)
       @document.revisions.each do |rev|
@@ -170,9 +173,12 @@ module HexaPDF
         end
       end
 
-      if !object_streams.empty? && xref_stream.nil?
-        raise HexaPDF::Error, "Cannot use object streams when there is no xref stream"
+      if (!object_streams.empty? || @use_xref_streams) && xref_stream.nil?
+        xref_stream = @document.wrap({Type: :XRef}, oid: rev.next_free_oid)
+        rev.add(xref_stream)
       end
+
+      @use_xref_streams = true if xref_stream
 
       [xref_stream, object_streams]
     end

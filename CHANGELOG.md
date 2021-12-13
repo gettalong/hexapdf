@@ -4,6 +4,8 @@
 
 * Set the trailer's ID field to an array of two empty strings when decrypting in
   case it is missing
+* Incremental writing when one of the existing revisions contains a
+  cross-reference stream
 
 
 ## 0.19.1 - 2021-12-12

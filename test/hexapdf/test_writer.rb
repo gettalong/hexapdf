@@ -103,21 +103,50 @@ describe HexaPDF::Writer do
     assert_document_conversion(@compressed_input_io)
   end
 
-  it "writes a document in incremental mode" do
-    doc = HexaPDF::Document.new(io: @std_input_io)
-    doc.pages.add
-    output_io = StringIO.new
-    HexaPDF::Writer.write(doc, output_io, incremental: true)
-    assert_equal(output_io.string[0, @std_input_io.string.length], @std_input_io.string)
-    doc = HexaPDF::Document.new(io: output_io)
-    assert_equal(4, doc.revisions.size)
-    assert_equal(2, doc.revisions.current.each.to_a.size)
+  describe "write_incremental" do
+    it "writes a document in incremental mode" do
+      doc = HexaPDF::Document.new(io: @std_input_io)
+      doc.pages.add
+      output_io = StringIO.new
+      HexaPDF::Writer.write(doc, output_io, incremental: true)
+      assert_equal(output_io.string[0, @std_input_io.string.length], @std_input_io.string)
+      doc = HexaPDF::Document.new(io: output_io)
+      assert_equal(4, doc.revisions.size)
+      assert_equal(2, doc.revisions.current.each.to_a.size)
+    end
+
+    it "uses an xref stream if the document already contains at least one" do
+      doc = HexaPDF::Document.new(io: @compressed_input_io)
+      doc.pages.add
+      output_io = StringIO.new
+      HexaPDF::Writer.write(doc, output_io, incremental: true)
+      refute_match(/^trailer/, output_io.string)
+    end
   end
 
-  it "raises an error if no xref stream is in a revision but object streams are" do
+  it "creates an xref stream if no xref stream is in a revision but object streams are" do
     document = HexaPDF::Document.new
     document.add({Type: :ObjStm})
-    assert_raises(HexaPDF::Error) { HexaPDF::Writer.new(document, StringIO.new).write }
+    HexaPDF::Writer.new(document, StringIO.new).write
+    assert(:XRef, document.object(2).type)
+  end
+
+  it "creates an xref stream if a previous revision had one" do
+    document = HexaPDF::Document.new
+    document.pages.add
+    document.revisions.add
+    document.pages.add
+    document.add({Type: :ObjStm})
+    document.revisions.add
+    document.pages.add
+    io = StringIO.new
+    HexaPDF::Writer.new(document, io).write
+
+    document = HexaPDF::Document.new(io: io)
+    assert_equal(3, document.revisions.count)
+    assert(document.revisions[0].none? {|obj| obj.type == :XRef })
+    assert(document.revisions[1].one? {|obj| obj.type == :XRef })
+    assert(document.revisions[2].one? {|obj| obj.type == :XRef })
   end
 
   it "raises an error if the class is misused and an xref section contains invalid entries" do
