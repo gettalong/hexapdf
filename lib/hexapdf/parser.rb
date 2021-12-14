@@ -342,7 +342,8 @@ module HexaPDF
       step_size = 1024
       pos = @io.pos
       eof_not_found = pos == 0
-      startxref_missing = false
+      startxref_missing = startxref_mangled = false
+      startxref_offset = nil
 
       while pos != 0
         @io.pos = [pos - step_size, 0].max
@@ -350,27 +351,31 @@ module HexaPDF
         lines = @io.read(step_size + 40).split(/[\r\n]+/)
 
         eof_index = lines.rindex {|l| l.strip == '%%EOF' }
-        unless eof_index
+        if !eof_index
           eof_not_found = true
-          next
-        end
-        unless eof_index >= 2 && lines[eof_index - 2].strip == "startxref"
+        elsif lines[eof_index - 1].strip =~ /\Astartxref\s(\d+)\z/
+          startxref_offset = $1.to_i
+          startxref_mangled = true
+          break # we found it even if it the syntax is not entirely correct
+        elsif eof_index < 2 || lines[eof_index - 2].strip != "startxref"
           startxref_missing = true
-          next
+        else
+          startxref_offset = lines[eof_index - 1].to_i
+          break # we found it
         end
-
-        break # we found the startxref offset
       end
 
       if eof_not_found
         maybe_raise("PDF file trailer with end-of-file marker not found", pos: pos,
                     force: !eof_index)
+      elsif startxref_mangled
+        maybe_raise("PDF file trailer keyword startxref on same line as value", pos: pos)
       elsif startxref_missing
         maybe_raise("PDF file trailer is missing startxref keyword", pos: pos,
                     force: eof_index < 2 || lines[eof_index - 2].strip != "startxref")
       end
 
-      @startxref_offset = lines[eof_index - 1].to_i
+      @startxref_offset = startxref_offset
     end
 
     # Returns the reconstructed revision.

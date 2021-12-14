@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* Handling of invalid files where the "startxref" keyword and its value are on
+  the same line
+
+
 ## 0.19.2 - 2021-12-14
 
 ### Fixed

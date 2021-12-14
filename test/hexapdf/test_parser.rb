@@ -338,6 +338,11 @@ describe HexaPDF::Parser do
       assert_equal(5, @parser.startxref_offset)
     end
 
+    it "handles the case of startxref and its value being on the same line" do
+      create_parser("startxref 5\n%%EOF")
+      assert_equal(5, @parser.startxref_offset)
+    end
+
     it "fails even in big files when nothing is found" do
       create_parser("\nhallo" * 5000)
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
@@ -365,6 +370,13 @@ describe HexaPDF::Parser do
       create_parser("startxref\n5\n%%EOF" << "\nhallo" * 5000)
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
       assert_match(/end-of-file marker not found/, exp.message)
+    end
+
+    it "fails on strict parsing if the startxref is on the same line as its value" do
+      @document.config['parser.on_correctable_error'] = proc { true }
+      create_parser("startxref 5\n%%EOF")
+      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
+      assert_match(/startxref on same line/, exp.message)
     end
   end
 
