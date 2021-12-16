@@ -92,6 +92,7 @@ module HexaPDF
     def write_incremental
       @document.revisions.parser.io.seek(0, IO::SEEK_SET)
       IO.copy_stream(@document.revisions.parser.io, @io)
+      @io << "\n"
 
       @rev_size = @document.revisions.current.next_free_oid
       @use_xref_streams = @document.revisions.parser.contains_xref_streams?
