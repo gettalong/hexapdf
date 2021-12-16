@@ -15,6 +15,8 @@
   /Fields field
 * [HexaPDF::Type::ObjectStream] to not store signature fields in object streams
 * [HexaPDF::Writer] to return the last written cross-reference section
+* [HexaPDF::Type::AcroForm::Field#create_widget] to automatically set the print
+  flag
 
 
 ## 0.19.3 - 2021-12-14

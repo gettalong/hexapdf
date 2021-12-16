@@ -310,6 +310,7 @@ module HexaPDF
             widget = document.wrap(self)
           end
 
+          widget.flag(:print)
           (page[:Annots] ||= []) << widget
 
           widget
