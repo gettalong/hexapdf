@@ -51,7 +51,7 @@ end
 describe HexaPDF::Type::Annotation do
   before do
     @doc = HexaPDF::Document.new
-    @annot = @doc.add({Type: :Annot, F: 0b100011})
+    @annot = @doc.add({Type: :Annot, F: 0b100011, Rect: [10, 10, 110, 60]})
   end
 
   it "must always be indirect" do
@@ -89,6 +89,22 @@ describe HexaPDF::Type::Annotation do
     @annot[:AP][:D] = {X: stream}
     assert_same(stream.data, @annot.appearance(type: :down).data)
     assert_same(stream.data, @annot.appearance(type: :down, state_name: :X).data)
+  end
+
+  describe "create_appearance" do
+    it "creates the appearance stream directly underneath /AP" do
+      stream = @annot.create_appearance
+      assert_same(stream, @annot.appearance_dict.normal_appearance)
+    end
+
+    it "respects the state name when creating the appearance" do
+      stream = @annot.create_appearance(type: :down, state_name: :X)
+      assert_same(stream, @annot.appearance_dict.down_appearance[:X])
+
+      @annot[:AS] = :X
+      stream = @annot.create_appearance(type: :down)
+      assert_same(stream, @annot.appearance_dict.down_appearance[:X])
+    end
   end
 
   describe "flags" do

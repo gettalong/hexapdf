@@ -9,6 +9,8 @@
   fields
 * [HexaPDF::Type::Annotation::AppearanceDictionary#set_appearance] for setting
   the appearance stream
+* [HexaPDF::Type::Annotation#create_appearance] for creating an empty appearance
+  stream
 
 ### Changed
 

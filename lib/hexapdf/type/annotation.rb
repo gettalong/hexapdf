@@ -169,6 +169,19 @@ module HexaPDF
       end
       alias appearance? appearance
 
+      # Creates an empty appearance stream (a Form XObject) of the given type (:normal, :rollover,
+      # or :down) and returns it. If an appearance stream already exist, it is overwritten.
+      #
+      # If there can be multiple appearance streams for the annotation, use the +state_name+
+      # argument to provide the appearance state name.
+      def create_appearance(type: :normal, state_name: self[:AS])
+        xobject = document.add({Type: :XObject, Subtype: :Form,
+                                BBox: [0, 0, self[:Rect].width, self[:Rect].height]})
+        self[:AP] ||= {}
+        appearance_dict.set_appearance(xobject, type: type, state_name: state_name)
+        xobject
+      end
+
       private
 
       # Helper method for bit field getter access.
