@@ -87,7 +87,8 @@ describe HexaPDF::Type::Annotation do
     assert_same(stream.data, @annot.appearance.data)
 
     @annot[:AP][:D] = {X: stream}
-    assert_same(stream.data, @annot.appearance(:down).data)
+    assert_same(stream.data, @annot.appearance(type: :down).data)
+    assert_same(stream.data, @annot.appearance(type: :down, state_name: :X).data)
   end
 
   describe "flags" do

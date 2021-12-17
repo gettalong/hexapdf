@@ -151,11 +151,12 @@ module HexaPDF
       # Returns the annotation's appearance stream of the given type (:normal, :rollover, or :down)
       # or +nil+ if it doesn't exist.
       #
-      # The appearance state is taken into account if necessary.
-      def appearance(type = :normal)
+      # The appearance state in /AS or the one provided via +state_name+ is taken into account if
+      # necessary.
+      def appearance(type: :normal, state_name: self[:AS])
         entry = appearance_dict&.send("#{type}_appearance")
         if entry.kind_of?(HexaPDF::Dictionary) && !entry.kind_of?(HexaPDF::Stream)
-          entry = entry[self[:AS]]
+          entry = entry[state_name]
         end
         return unless entry.kind_of?(HexaPDF::Stream)
 

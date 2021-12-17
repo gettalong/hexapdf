@@ -12,6 +12,8 @@
 
 ### Changed
 
+* **Breaking change**: Method signature of
+  [HexaPDF::Type::Annotation#appearance] changed
 * [HexaPDF::Object#==] to allow comparison to simple value if not indirect
 * [HexaPDF::Type::AcroForm::Form] to use an empty array as default for the
   /Fields field
