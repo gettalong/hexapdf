@@ -7,6 +7,8 @@
 * Output info regarding digital signatures when using the `hexapdf info` command
 * [HexaPDF::Type::AcroForm::Form#create_signature_field] for adding signature
   fields
+* [HexaPDF::Type::Annotation::AppearanceDictionary#set_appearance] for setting
+  the appearance stream
 
 ### Changed
 

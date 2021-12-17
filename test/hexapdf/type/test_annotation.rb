@@ -25,6 +25,27 @@ describe HexaPDF::Type::Annotation::AppearanceDictionary do
     @ap.delete(:D)
     assert_equal(:n, @ap.down_appearance)
   end
+
+  describe "set_appearance" do
+    it "sets the appearance for the given type" do
+      @ap.set_appearance(1, type: :normal)
+      @ap.set_appearance(2, type: :rollover)
+      @ap.set_appearance(3, type: :down)
+
+      assert_equal(1, @ap.normal_appearance)
+      assert_equal(2, @ap.rollover_appearance)
+      assert_equal(3, @ap.down_appearance)
+    end
+
+    it "respects the provided state name" do
+      @ap.set_appearance(1, state_name: :X)
+      assert_equal(1, @ap.normal_appearance[:X])
+    end
+
+    it "fails if an invalid appearance type is specified" do
+      assert_raises(ArgumentError) { @ap.set_appearance(5, type: :other) }
+    end
+  end
 end
 
 describe HexaPDF::Type::Annotation do

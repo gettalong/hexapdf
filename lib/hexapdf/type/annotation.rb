@@ -78,6 +78,25 @@ module HexaPDF
           self[:D] || self[:N]
         end
 
+        APPEARANCE_TYPE_TO_KEY = {normal: :N, rollover: :R, down: :D}.freeze #:nodoc:
+
+        # Sets the appearance of the given appearance +type+, which can either be :normal, :rollover
+        # or :down, to +appearance+.
+        #
+        # If the +state_name+ argument is provided, the +appearance+ is stored under the
+        # +state_name+ key in a sub-dictionary of the appearance.
+        def set_appearance(appearance, type: :normal, state_name: nil)
+          key = APPEARANCE_TYPE_TO_KEY.fetch(type) do
+            raise ArgumentError, "Invalid value for type specified: #{type.inspect}"
+          end
+          if state_name
+            self[key] = {} unless value[key].kind_of?(Hash)
+            self[key][state_name] = appearance
+          else
+            self[key] = appearance
+          end
+        end
+
       end
 
       # Border style dictionary used by various annotation types.
