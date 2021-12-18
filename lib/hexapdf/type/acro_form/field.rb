@@ -311,6 +311,7 @@ module HexaPDF
           end
 
           widget.flag(:print)
+          widget[:P] = page
           (page[:Annots] ||= []) << widget
 
           widget

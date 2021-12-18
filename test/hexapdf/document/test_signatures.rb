@@ -84,7 +84,7 @@ describe HexaPDF::Document::Signatures do
       sig = @doc.signatures.first
       assert_equal(:'Adobe.PPKLite', sig[:Filter])
       assert_equal(:'adbe.pkcs7.detached', sig[:SubFilter])
-      assert_equal([0, 968, 3590, 2417], sig[:ByteRange].value)
+      assert_equal([0, 968, 3590, 2425], sig[:ByteRange].value)
       assert_equal(:sig, sig[:key])
       assert_equal(:sig_field, @doc.acro_form.each_field.first[:key])
       assert(sig.key?(:Contents))
