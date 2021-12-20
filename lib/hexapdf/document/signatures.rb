@@ -48,14 +48,34 @@ module HexaPDF
       # It also serves as an example on how to create a custom handler: The public methods
       # #filter_name, #sub_filter_name, #signature_size, #finalize_objects and #sign are used by the
       # digital signature algorithm.
+      #
+      # A custom signing handler can also be created and can be registered under the
+      # 'signature.signing_handler' configuration option for easy use. It has to take keyword
+      # arguments in its initialize method to be compatible with the Signatures#handler method.
       class DefaultHandler
 
-        # Creates a new DefaultHandler with the given signing certificate, the associated signing
-        # key and an optional array of certificates that should also be present in the signature.
-        def initialize(certificate, key, certificate_chain = [])
-          @certificate = certificate
-          @key = key
-          @certificate_chain = certificate_chain
+        # The certificate with which to sign the PDF.
+        attr_accessor :certificate
+
+        # The private key for the #certificate.
+        attr_accessor :key
+
+        # The certificate chain that should be embedded in the PDF; normally contains all
+        # certificates up to the root certificate.
+        attr_accessor :certificate_chain
+
+        # The reason for signing. If used, will be set on the signature object.
+        attr_accessor :reason
+
+        # The signing location. If used, will be set on the signature object.
+        attr_accessor :location
+
+        # The contact information. If used, will be set on the signature object.
+        attr_accessor :contact_info
+
+        # Creates a new DefaultHandler with the given attributes.
+        def initialize(**arguments)
+          arguments.each {|name, value| send("#{name}=", value) }
         end
 
         # Returns the name to be set on the /Filter key when using this signing handler.
@@ -74,7 +94,10 @@ module HexaPDF
         end
 
         # Finalizes the signature field as well as the signature dictionary before writing.
-        def finalize_objects(signature_field, signature)
+        def finalize_objects(_signature_field, signature)
+          signature[:Reason] = reason if reason
+          signature[:Location] = location if location
+          signature[:ContactInfo] = contact_info if contact_info
         end
 
         # Returns the DER serialized OpenSSL::PKCS7 structure containing the signature for the given
@@ -91,6 +114,17 @@ module HexaPDF
       # Creates a new Signatures object for the given PDF document.
       def initialize(document)
         @document = document
+      end
+
+      # Creates a signing handler with the given options and returns it.
+      #
+      # A signing handler name is mapped to a class via the 'signature.signing_handler'
+      # configuration option.
+      def handler(name: :default, **options)
+        handler = @document.config.constantize('signature.signing_handler', name) do
+          raise HexaPDF::Error, "No signing handler named '#{name}' is available"
+        end
+        handler.new(**options)
       end
 
       # Adds a signature to the document and returns the corresponding signature object.
@@ -117,8 +151,8 @@ module HexaPDF
       #     page.
       #
       # +handler+::
-      #     The signature handler that provides the necessary methods for signing, see
-      #     DefaultHandler.
+      #     The signing handler that provides the necessary methods for signing and adjusting the
+      #     signature and signature field objects to one's liking, see #handler and DefaultHandler.
       #
       # +write_options+::
       #     The key-value pairs of this hash will be passed on to the HexaPDF::Document#write

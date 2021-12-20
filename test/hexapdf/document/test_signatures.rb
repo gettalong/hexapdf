@@ -12,9 +12,11 @@ describe HexaPDF::Document::Signatures do
     @form = @doc.acro_form(create: true)
     @sig1 = @form.create_signature_field("test1")
     @sig2 = @form.create_signature_field("test2")
-    @handler = HexaPDF::Document::Signatures::DefaultHandler.new(CERTIFICATES.signer_certificate,
-                                                                 CERTIFICATES.signer_key,
-                                                                 [CERTIFICATES.ca_certificate])
+    @handler = HexaPDF::Document::Signatures::DefaultHandler.new(
+      certificate: CERTIFICATES.signer_certificate,
+      key: CERTIFICATES.signer_key,
+      certificate_chain: [CERTIFICATES.ca_certificate]
+    )
   end
 
   describe "DefaultHandler" do
@@ -41,6 +43,21 @@ describe HexaPDF::Document::Signatures do
                    pkcs7.certificates)
       assert(pkcs7.verify([], store, data, OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY))
     end
+
+    it "finalizes the signature field and signature object" do
+      field = {}
+      obj = {}
+      @handler.finalize_objects(field, obj)
+      assert(field.empty?)
+      assert(obj.empty?)
+
+      @handler.reason = 'Reason'
+      @handler.location = 'Location'
+      @handler.contact_info = 'Contact'
+      @handler.finalize_objects(field, obj)
+      assert(field.empty?)
+      assert_equal({Reason: 'Reason', Location: 'Location', ContactInfo: 'Contact'}, obj)
+    end
   end
 
   it "iterates over all signature dictionaries" do
@@ -53,6 +70,18 @@ describe HexaPDF::Document::Signatures do
   it "returns the number of signature dictionaries" do
     @sig1.field_value = :sig1
     assert_equal(1, @doc.signatures.count)
+  end
+
+  describe "handler" do
+    it "return the initialized handler" do
+      handler = @doc.signatures.handler(certificate: 'cert', reason: 'reason')
+      assert_equal('cert', handler.certificate)
+      assert_equal('reason', handler.reason)
+    end
+
+    it "fails if the given task is not available" do
+      assert_raises(HexaPDF::Error) { @doc.signatures.handler(name: :unknown) }
+    end
   end
 
   describe "add" do

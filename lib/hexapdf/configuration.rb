@@ -373,6 +373,11 @@ module HexaPDF
   #
   #    See HexaPDF::Layout::Style::Layers for more information.
   #
+  # signature.signing_handler::
+  #   A mapping from a Symbol to a signing handler class (see
+  #   HexaPDF::Document::Signatures::DefaultHandler). If the value is a String, it should contain
+  #   the name of a constant to such a class.
+  #
   # signature.sub_filter_map::
   #    A mapping from a PDF name (a Symbol) to a signature handler class (see
   #    HexaPDF::Type::Signature::Handler). If the value is a String, it should contain the name of a
@@ -459,6 +464,9 @@ module HexaPDF
                       'sorted_tree.max_leaf_node_size' => 64,
                       'style.layers_map' => {
                         link: 'HexaPDF::Layout::Style::LinkLayer',
+                      },
+                      'signature.signing_handler' => {
+                        default: 'HexaPDF::Document::Signatures::DefaultHandler',
                       },
                       'signature.sub_filter_map' => {
                         'adbe.x509.rsa_sha1': 'HexaPDF::Type::Signature::AdbeX509RsaSha1',
