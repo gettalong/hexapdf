@@ -24,6 +24,11 @@
 * [HexaPDF::Type::AcroForm::Field#create_widget] to automatically set the print
   flag and assign the page
 
+### Fixed
+
+* Incremental writing of files in cases where object streams were deleted (e.g.
+  when using the `optimize: true` argument when writing)
+
 
 ## 0.19.3 - 2021-12-14
 

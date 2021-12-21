@@ -228,7 +228,8 @@ module HexaPDF
     #   revision.each_modified_object {|obj| block }   -> revision
     #   revision.each_modified_object                  -> Enumerator
     #
-    # Calls the given block once for each object that has been modified since it was loaded.
+    # Calls the given block once for each object that has been modified since it was loaded. Deleted
+    # object and cross-reference streams are ignored.
     #
     # Note that this also means that for revisions without an associated cross-reference section all
     # loaded objects will be yielded.
@@ -238,6 +239,7 @@ module HexaPDF
       @objects.each do |oid, gen, obj|
         if @xref_section.entry?(oid, gen)
           stored_obj = @loader.call(@xref_section[oid, gen])
+          next if (stored_obj.type == :ObjStm || stored_obj.type == :XRef) && obj.null?
           if obj.data.value != stored_obj.data.value || obj.data.stream != stored_obj.data.stream
             yield(obj)
           end

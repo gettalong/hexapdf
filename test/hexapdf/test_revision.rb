@@ -2,7 +2,7 @@
 
 require 'test_helper'
 require 'hexapdf/revision'
-require 'hexapdf/object'
+require 'hexapdf/dictionary'
 require 'hexapdf/reference'
 require 'hexapdf/xref_section'
 require 'stringio'
@@ -12,6 +12,8 @@ describe HexaPDF::Revision do
     @xref_section = HexaPDF::XRefSection.new
     @xref_section.add_in_use_entry(2, 0, 5000)
     @xref_section.add_free_entry(3, 0)
+    @xref_section.add_in_use_entry(4, 0, 1000)
+    @xref_section.add_in_use_entry(5, 0, 1000)
     @obj = HexaPDF::Object.new(:val, oid: 1, gen: 0)
     @ref = HexaPDF::Reference.new(1, 0)
 
@@ -19,7 +21,11 @@ describe HexaPDF::Revision do
       if entry.type == :free
         HexaPDF::Object.new(nil, oid: entry.oid, gen: entry.gen)
       else
-        HexaPDF::Object.new(:Test, oid: entry.oid, gen: entry.gen)
+        case entry.oid
+        when 4 then HexaPDF::Dictionary.new({Type: :XRef}, oid: entry.oid, gen: entry.gen)
+        when 5 then HexaPDF::Dictionary.new({Type: :ObjStm}, oid: entry.oid, gen: entry.gen)
+        else HexaPDF::Object.new(:Test, oid: entry.oid, gen: entry.gen)
+        end
       end
     end
     @rev = HexaPDF::Revision.new({}, xref_section: @xref_section, loader: @loader)
@@ -36,10 +42,10 @@ describe HexaPDF::Revision do
   end
 
   it "returns the next free object number" do
-    assert_equal(4, @rev.next_free_oid)
-    @obj.oid = 4
+    assert_equal(6, @rev.next_free_oid)
+    @obj.oid = 6
     @rev.add(@obj)
-    assert_equal(5, @rev.next_free_oid)
+    assert_equal(7, @rev.next_free_oid)
   end
 
   describe "add" do
@@ -157,9 +163,7 @@ describe HexaPDF::Revision do
   describe "object iteration" do
     it "iterates over all objects via each" do
       @rev.add(@obj)
-      obj2 = @rev.object(2)
-      obj3 = @rev.object(3)
-      assert_equal([@obj, obj2, obj3], @rev.each.to_a)
+      assert_equal([@obj, *(2..5).map {|i| @rev.object(i) }], @rev.each.to_a)
     end
 
     it "iterates only over loaded objects" do
@@ -181,8 +185,11 @@ describe HexaPDF::Revision do
   it "can iterate over all modified objects" do
     obj = @rev.object(2)
     assert_equal([], @rev.each_modified_object.to_a)
+
     obj.value = :Other
     @rev.add(@obj)
+    @rev.delete(4)
+    @rev.delete(5)
     assert_equal([obj, @obj], @rev.each_modified_object.to_a)
   end
 end
