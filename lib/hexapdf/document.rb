@@ -36,6 +36,7 @@
 
 require 'stringio'
 require 'hexapdf/error'
+require 'hexapdf/data_dir'
 require 'hexapdf/content'
 require 'hexapdf/configuration'
 require 'hexapdf/reference'
