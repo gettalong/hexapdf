@@ -13,8 +13,8 @@ cd $BENCH_DIR &>/dev/null
 
 FILTER_SCRIPT='
 case $_
-when /^Using ruby ([\d.]+)(?:.*?(JIT)|)/ then cur_ruby = $1 + ($2 ? "-jit" : "");
-when /^\| hexapdf(?:\s+([^\s|]+)|)/ then
+when /^Using ruby ([\d.]+)(?:.*?([MY]JIT)|)/ then cur_ruby = $1 + ($2 ? "-#{$2.downcase}" : "");
+when /^\| (?:ERR )?hexapdf(?:\s+([^\s|]+)|)/ then
   special = $1
   puts $_.sub(/hexapdf( \w+)?/, "hexapdf #{cur_ruby}").sub(/^(\|.*?\|)/, "\\1 #{special}")
 else puts $_
@@ -24,9 +24,12 @@ $stdout.flush
 
 eval "$(rbenv init -)"
 for RUBY_VERSION in $RUBY_VERSIONS; do
-  if [[ ${RUBY_VERSION: -1} = j ]]; then
-    rbenv shell ${RUBY_VERSION%j}
-    export RUBYOPT=--jit
+  if [[ ${RUBY_VERSION: -1} = y ]]; then
+    rbenv shell ${RUBY_VERSION%y}
+    export RUBYOPT=--yjit
+  elif [[ ${RUBY_VERSION: -1} = m ]]; then
+    rbenv shell ${RUBY_VERSION%m}
+    export RUBYOPT=--mjit
   else
     rbenv shell $RUBY_VERSION
     unset RUBYOPT
