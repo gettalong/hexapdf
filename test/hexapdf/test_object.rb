@@ -196,6 +196,7 @@ describe HexaPDF::Object do
     refute_equal(obj, 5)
     obj.data.oid = 0
     assert_equal(obj, 5)
+    assert_equal(obj, HexaPDF::Object.new(5))
   end
 
   it "works correctly as hash key, is interchangable in this regard with Reference objects" do
@@ -220,7 +221,7 @@ describe HexaPDF::Object do
     it "creates an independent object" do
       obj = HexaPDF::Object.new({a: "mystring", b: HexaPDF::Reference.new(1, 0), c: 5})
       copy = obj.deep_copy
-      refute_equal(copy, obj)
+      refute_same(copy, obj)
       assert_equal(copy.value, obj.value)
       refute_same(copy.value[:a], obj.value[:a])
     end

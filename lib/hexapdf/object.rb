@@ -338,7 +338,7 @@ module HexaPDF
     # value is equal to the other object.
     def ==(other)
       (other.kind_of?(Object) && data == other.data) || (other.kind_of?(Reference) && other == self) ||
-        (other.kind_of?(value.class) && !indirect? && other == data.value)
+        (!indirect? && other == data.value)
     end
 
     # Returns +true+ if the other object references the same PDF object as this object.

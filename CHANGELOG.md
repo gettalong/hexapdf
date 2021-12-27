@@ -28,6 +28,8 @@
 
 * Incremental writing of files in cases where object streams were deleted (e.g.
   when using the `optimize: true` argument when writing)
+* Comparison of non-indirect [HexaPDF::Object] instances with other
+  HexaPDF::Object instances
 
 
 ## 0.19.3 - 2021-12-14
