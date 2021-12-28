@@ -93,7 +93,7 @@ module HexaPDF
       mapped_object = @mapper[object.data]&.__getobj__ if object.kind_of?(HexaPDF::Object)
       if object.kind_of?(HexaPDF::Object) && object.document? && @source != object.document
         raise HexaPDF::Error, "Import error: Incorrect document object for importer"
-      elsif mapped_object && mapped_object == @destination.object(mapped_object)
+      elsif mapped_object && !mapped_object.null?
         mapped_object
       else
         duplicate(object)

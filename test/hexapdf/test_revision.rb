@@ -157,6 +157,7 @@ describe HexaPDF::Revision do
       assert(@rev.object(@ref).null?)
       assert(@obj.null?)
       assert_raises(HexaPDF::Error) { @obj.document }
+      assert_same(@obj.data, @rev.object(@ref).data)
     end
   end
 

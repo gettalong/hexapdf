@@ -190,7 +190,7 @@ module HexaPDF
       obj.data.value = nil
       obj.document = nil
       if mark_as_free
-        add_without_check(HexaPDF::Object.new(nil, oid: obj.oid, gen: obj.gen))
+        add_without_check(HexaPDF::Object.new(obj.data))
       else
         @xref_section.delete(ref_or_oid)
         @objects.delete(ref_or_oid)

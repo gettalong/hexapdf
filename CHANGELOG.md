@@ -30,6 +30,9 @@
   when using the `optimize: true` argument when writing)
 * Comparison of non-indirect [HexaPDF::Object] instances with other
   HexaPDF::Object instances
+* Deleting of objects via [HexaPDF::Revision#delete] to re-use the
+  [HexaPDF::PDFData] object of the deleted object when using
+  `mark_as_free: true`
 
 
 ## 0.19.3 - 2021-12-14
