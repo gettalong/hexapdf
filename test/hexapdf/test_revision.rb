@@ -5,6 +5,7 @@ require 'hexapdf/revision'
 require 'hexapdf/dictionary'
 require 'hexapdf/reference'
 require 'hexapdf/xref_section'
+require 'hexapdf/type/catalog'
 require 'stringio'
 
 describe HexaPDF::Revision do
@@ -14,6 +15,8 @@ describe HexaPDF::Revision do
     @xref_section.add_free_entry(3, 0)
     @xref_section.add_in_use_entry(4, 0, 1000)
     @xref_section.add_in_use_entry(5, 0, 1000)
+    @xref_section.add_in_use_entry(6, 0, 5000)
+    @xref_section.add_in_use_entry(7, 0, 5000)
     @obj = HexaPDF::Object.new(:val, oid: 1, gen: 0)
     @ref = HexaPDF::Reference.new(1, 0)
 
@@ -24,6 +27,8 @@ describe HexaPDF::Revision do
         case entry.oid
         when 4 then HexaPDF::Dictionary.new({Type: :XRef}, oid: entry.oid, gen: entry.gen)
         when 5 then HexaPDF::Dictionary.new({Type: :ObjStm}, oid: entry.oid, gen: entry.gen)
+        when 7 then HexaPDF::Type::Catalog.new({Type: :Catalog}, oid: entry.oid, gen: entry.gen,
+                                              document: self)
         else HexaPDF::Object.new(:Test, oid: entry.oid, gen: entry.gen)
         end
       end
@@ -42,10 +47,10 @@ describe HexaPDF::Revision do
   end
 
   it "returns the next free object number" do
-    assert_equal(6, @rev.next_free_oid)
-    @obj.oid = 6
+    assert_equal(8, @rev.next_free_oid)
+    @obj.oid = 8
     @rev.add(@obj)
-    assert_equal(7, @rev.next_free_oid)
+    assert_equal(9, @rev.next_free_oid)
   end
 
   describe "add" do
@@ -164,7 +169,7 @@ describe HexaPDF::Revision do
   describe "object iteration" do
     it "iterates over all objects via each" do
       @rev.add(@obj)
-      assert_equal([@obj, *(2..5).map {|i| @rev.object(i) }], @rev.each.to_a)
+      assert_equal([@obj, *(2..7).map {|i| @rev.object(i) }], @rev.each.to_a)
     end
 
     it "iterates only over loaded objects" do
@@ -183,14 +188,31 @@ describe HexaPDF::Revision do
     refute(rev.object?(@ref))
   end
 
-  it "can iterate over all modified objects" do
-    obj = @rev.object(2)
-    assert_equal([], @rev.each_modified_object.to_a)
+  describe "each_modified_object" do
+    it "returns modified objects" do
+      obj = @rev.object(2)
+      obj.value = :Other
+      @rev.add(@obj)
+      deleted = @rev.object(6)
+      @rev.delete(6)
+      assert_equal([obj, @obj, deleted], @rev.each_modified_object.to_a)
+    end
 
-    obj.value = :Other
-    @rev.add(@obj)
-    @rev.delete(4)
-    @rev.delete(5)
-    assert_equal([obj, @obj], @rev.each_modified_object.to_a)
+    it "ignores object and xref streams that were deleted" do
+      @rev.delete(4)
+      @rev.delete(5)
+      assert_equal([], @rev.each_modified_object.to_a)
+    end
+
+    it "doesn't return non-modified objects" do
+      @rev.object(2)
+      assert_equal([], @rev.each_modified_object.to_a)
+    end
+
+    it "doesn't return objects that have modified values just because of reading" do
+      obj = @rev.object(7)
+      obj.delete(:Type)
+      assert_equal([], @rev.each_modified_object.to_a)
+    end
   end
 end

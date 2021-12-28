@@ -33,6 +33,8 @@
 * Deleting of objects via [HexaPDF::Revision#delete] to re-use the
   [HexaPDF::PDFData] object of the deleted object when using
   `mark_as_free: true`
+* [HexaPDF::Revision#each_modified_object] to work correctly for dictionary
+  objects even if a value is changed only by reading it
 
 
 ## 0.19.3 - 2021-12-14

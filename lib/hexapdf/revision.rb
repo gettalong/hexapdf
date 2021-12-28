@@ -240,12 +240,17 @@ module HexaPDF
         if @xref_section.entry?(oid, gen)
           stored_obj = @loader.call(@xref_section[oid, gen])
           next if (stored_obj.type == :ObjStm || stored_obj.type == :XRef) && obj.null?
-          if obj.data.value != stored_obj.data.value || obj.data.stream != stored_obj.data.stream
-            yield(obj)
+
+          streams_are_same = (obj.data.stream == stored_obj.data.stream)
+          next if obj.value == stored_obj.value && streams_are_same
+
+          if obj.value.kind_of?(Hash) && stored_obj.value.kind_of?(Hash)
+            keys = obj.value.keys | stored_obj.value.keys
+            next if keys.all? {|key| obj[key] == stored_obj[key] } && streams_are_same
           end
-        else
-          yield(obj)
         end
+
+        yield(obj)
       end
 
       self
