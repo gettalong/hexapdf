@@ -153,8 +153,8 @@ describe HexaPDF::Document::Signatures do
 
     it "handles different xref section types correctly when determing the offsets" do
       @doc.delete(7)
-      sig = @doc.signatures.add(@io, @handler)
-      assert_equal([0, 968, 3590, 2498], sig[:ByteRange].value)
+      sig = @doc.signatures.add(@io, @handler, write_options: {update_fields: false})
+      assert_equal([0, 968, 3590, 2412], sig[:ByteRange].value)
     end
 
     it "allows writing to a file in addition to writing to an IO" do
