@@ -35,6 +35,7 @@
 #++
 
 require 'openssl'
+require 'hexapdf/error'
 
 module HexaPDF
   class Document
@@ -45,11 +46,18 @@ module HexaPDF
       # This is the default signing handler which provides the ability to sign a document with a
       # provided certificate using the adb.pkcs7.detached algorithm.
       #
-      # It also serves as an example on how to create a custom handler: The public methods
+      # Additional functionality:
+      #
+      # * Optionally setting the reason, location and contact information.
+      # * Making the signature a certification signature by applying the DocMDP transform method.
+      #
+      # == Implementing a Signing Handler
+      #
+      # This class also serves as an example on how to create a custom handler: The public methods
       # #filter_name, #sub_filter_name, #signature_size, #finalize_objects and #sign are used by the
       # digital signature algorithm.
       #
-      # A custom signing handler can also be created and can be registered under the
+      # Once a custom signing handler has been created, it can be registered under the
       # 'signature.signing_handler' configuration option for easy use. It has to take keyword
       # arguments in its initialize method to be compatible with the Signatures#handler method.
       class DefaultHandler
@@ -73,6 +81,11 @@ module HexaPDF
         # The contact information. If used, will be set on the signature object.
         attr_accessor :contact_info
 
+        # The DocMDP permissions that should be set on the document.
+        #
+        # See #doc_mdp_permissions=
+        attr_reader :doc_mdp_permissions
+
         # Creates a new DefaultHandler with the given attributes.
         def initialize(**arguments)
           arguments.each {|name, value| send("#{name}=", value) }
@@ -88,6 +101,33 @@ module HexaPDF
           :"adbe.pkcs7.detached"
         end
 
+        # Sets the DocMDP permissions that should be applied to the document.
+        #
+        # Valid values for +permissions+ are:
+        #
+        # +nil+::
+        #     Don't set any DocMDP permissions (default).
+        #
+        # +:no_changes+ or 1::
+        #     No changes whatsoever are allowed.
+        #
+        # +:form_filling+ or 2::
+        #     Only filling in forms and signing are allowed.
+        #
+        # +:form_filling_and_annotations+ or 3::
+        #     Only filling in forms, signing and annotation creation/deletion/modification are
+        #     allowed.
+        def doc_mdp_permissions=(permissions)
+          case permissions
+          when :no_changes, 1 then @doc_mdp_permissions = 1
+          when :form_filling, 2 then @doc_mdp_permissions = 2
+          when :form_filling_and_annotations, 3 then @doc_mdp_permissions = 3
+          when nil then @doc_mdp_permissions = nil
+          else
+            raise ArgumentError, "Invalid permissions value '#{permissions.inspect}'"
+          end
+        end
+
         # Returns the size of the signature that would be created.
         def signature_size
           sign("").size
@@ -98,6 +138,18 @@ module HexaPDF
           signature[:Reason] = reason if reason
           signature[:Location] = location if location
           signature[:ContactInfo] = contact_info if contact_info
+
+          if doc_mdp_permissions
+            doc = signature.document
+            if doc.signatures.count > 1
+              raise HexaPDF::Error, "Can set DocMDP access permissions only on first signature"
+            end
+            params = doc.add({Type: :TransformParams, V: :'1.2', P: doc_mdp_permissions})
+            sigref = doc.add({Type: :SigRef, TransformMethod: :DocMDP, DigestMethod: :SHA1,
+                              TransformParams: params})
+            signature[:Reference] = [sigref]
+            (doc.catalog[:Perms] ||= {})[:DocMDP] = signature
+          end
         end
 
         # Returns the DER serialized OpenSSL::PKCS7 structure containing the signature for the given
