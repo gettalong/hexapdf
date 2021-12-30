@@ -612,6 +612,16 @@ describe HexaPDF::Document do
       form.root_fields << sig1 << sig2
       assert_equal([:sig1, :sig2], @doc.signatures.to_a)
     end
+
+    it "allows to conveniently sign a document" do
+      mock = Minitest::Mock.new
+      mock.expect(:handler, :handler, [{name: :handler, opt: :key}])
+      mock.expect(:add, :added, [:io, :handler, {signature: :sig, write_options: :write_options}])
+      @doc.instance_variable_set(:@signatures, mock)
+      result = @doc.sign(:io, handler: :handler, write_options: :write_options, signature: :sig, opt: :key)
+      assert_equal(:added, result)
+      mock.verify
+    end
   end
 
   describe "listener interface" do

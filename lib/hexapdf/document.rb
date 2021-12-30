@@ -629,6 +629,20 @@ module HexaPDF
       @signatures ||= Signatures.new(self)
     end
 
+    # Signs the document and writes it to the given file or IO object.
+    #
+    # For details on the arguments +file_or_io+, +signature+ and +write_options+ see
+    # HexaPDF::Document::Signatures#add.
+    #
+    # The signing handler to be used is determined by the +handler+ argument together with the rest
+    # of the keyword arguments (see HexaPDF::Document::Signatures#handler for details).
+    #
+    # If not changed, the default signing handler is HexaPDF::Document::Signatures::DefaultHandler.
+    def sign(file_or_io, handler: :default, signature: nil, write_options: {}, **handler_options)
+      handler = signatures.handler(name: handler, **handler_options)
+      signatures.add(file_or_io, handler, signature: signature, write_options: write_options)
+    end
+
     # Validates all objects, or, if +only_loaded+ is +true+, only loaded objects, with optional
     # auto-correction, and returns +true+ if everything is fine.
     #
