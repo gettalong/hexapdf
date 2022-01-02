@@ -2,6 +2,7 @@
 
 require 'test_helper'
 require 'hexapdf/type/signature'
+require 'hexapdf/document'
 require 'time'
 require 'ostruct'
 
@@ -10,6 +11,7 @@ describe HexaPDF::Type::Signature::Handler do
     @time = Time.parse("2021-11-14 7:00")
     @dict = {Name: "handler", M: @time}
     @handler = HexaPDF::Type::Signature::Handler.new(@dict)
+    @result = HexaPDF::Type::Signature::VerificationResult.new
   end
 
   it "returns the signer name" do
@@ -30,7 +32,6 @@ describe HexaPDF::Type::Signature::Handler do
 
   describe "store_verification_callback" do
     before do
-      @result = HexaPDF::Type::Signature::VerificationResult.new
       @context = OpenStruct.new
     end
 
@@ -51,26 +52,51 @@ describe HexaPDF::Type::Signature::Handler do
   end
 
   it "verifies the signing time" do
-    result = HexaPDF::Type::Signature::VerificationResult.new
     [
       [true, '6:00', '8:00'],
       [false, '7:30', '8:00'],
       [false, '5:00', '6:00'],
     ].each do |success, not_before, not_after|
-      result.messages.clear
+      @result.messages.clear
       @handler.define_singleton_method(:signer_certificate) do
         OpenStruct.new.tap do |struct|
           struct.not_before = Time.parse("2021-11-14 #{not_before}")
           struct.not_after = Time.parse("2021-11-14 #{not_after}")
         end
       end
-      @handler.send(:verify_signing_time, result)
+      @handler.send(:verify_signing_time, @result)
       if success
-        assert(result.messages.empty?)
+        assert(@result.messages.empty?)
       else
-        assert_equal(1, result.messages.size)
+        assert_equal(1, @result.messages.size)
       end
       @handler.singleton_class.remove_method(:signer_certificate)
+    end
+  end
+
+  describe "check_certified_signature" do
+    before do
+      @dict = HexaPDF::Document.new.wrap({Type: :Sig})
+      @handler.instance_variable_set(:@signature_dict, @dict)
+    end
+
+    it "logs nothing if there is no signature reference dictionary" do
+      @handler.send(:check_certified_signature, @result)
+      assert(@result.messages.empty?)
+    end
+
+    it "logs nothing if the global DocMDP permissions entry doesn't point to the signature" do
+      @dict[:Reference] = [{TransformMethod: :DocMDP}]
+      @handler.send(:check_certified_signature, @result)
+      assert(@result.messages.empty?)
+    end
+
+    it "logs a message if the signature is a certified one" do
+      @dict[:Reference] = [{TransformMethod: :DocMDP}]
+      @dict.document.catalog[:Perms] = {DocMDP: @dict}
+      @handler.send(:check_certified_signature, @result)
+      assert_equal(1, @result.messages.size)
+      assert_match(/certified signature/i, @result.messages[0].content)
     end
   end
 end

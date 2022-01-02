@@ -84,6 +84,7 @@ module HexaPDF
         # Needs to be called by specific handlers.
         def verify(store, allow_self_signed: false)
           result = VerificationResult.new
+          check_certified_signature(result)
           verify_signing_time(result)
           store.verify_callback =
             store_verification_callback(result, allow_self_signed: allow_self_signed)
@@ -98,6 +99,21 @@ module HexaPDF
           cert = signer_certificate
           if time && cert && (time < cert.not_before || time > cert.not_after)
             result.log(:error, "Signer certificate not valid at signing time")
+          end
+        end
+
+        DOCMDP_PERMS_MESSAGE_MAP = { # :nodoc:
+          1 => "No changes allowed",
+          2 => "Form filling and signing allowed",
+          3 => "Form filling, signing and annotation manipulation allowed",
+        }
+
+        # Sets an informational message on +result+ whether the signature is a certified signature.
+        def check_certified_signature(result)
+          sigref = signature_dict[:Reference]&.find {|ref| ref[:TransformMethod] == :DocMDP }
+          if sigref && signature_dict.document.catalog[:Perms]&.[](:DocMDP) == signature_dict
+            perms = sigref[:TransformParams]&.[](:P) || 2
+            result.log(:info, "Certified signature (#{DOCMDP_PERMS_MESSAGE_MAP[perms]})")
           end
         end
 
