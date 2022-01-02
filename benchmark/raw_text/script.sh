@@ -47,7 +47,6 @@ for ttf in "${TTFS[@]}"; do
     file=${input_files[$key]}
     bench_cmd "hexapdf     | ${key} ${ttf: -3}" ruby $BMDIR/hexapdf.rb $file ${OUT_FILE} $ttf
     bench_cmd "prawn       | ${key} ${ttf: -3}" ruby $BMDIR/prawn.rb $file ${OUT_FILE} $ttf
-    bench_cmd "reportlab   | ${key} ${ttf: -3}" python $BMDIR/rlcli.py $file ${OUT_FILE} $ttf
     bench_cmd "reportlab/C | ${key} ${ttf: -3}" python3 $BMDIR/rlcli.py $file ${OUT_FILE} $ttf
     bench_cmd "jPDFWriter  | ${key} ${ttf: -3}" java -cp $CLASSPATH:$BMDIR JPDFWriter $file ${OUT_FILE} $ttf
     bench_cmd "tcpdf       | ${key} ${ttf: -3}" php $BMDIR/tcpdf.php $file ${OUT_FILE} $ttf

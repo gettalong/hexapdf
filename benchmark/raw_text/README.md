@@ -34,16 +34,16 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://prawnpdf.org>\\
   Language: Ruby\\
-  Version: 2.3.0
+  Version: 2.4.0
 
 **ReportLab**
 
 : Homepage: <https://www.reportlab.com/opensource/>\\
   Language: Python\\
-  Version: 3.5.23
+  Version: 3.5.34
 
-  ReportLab has a module that implements some features in C to speed up the execution. Both versions
-  are used in the benchmark.
+  ReportLab has a module that implements some features in C to speed up the execution. This module
+  is used in the benchmark.
 
 **jPDFWriter**
 

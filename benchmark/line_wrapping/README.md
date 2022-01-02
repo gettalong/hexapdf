@@ -44,7 +44,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://prawnpdf.org>\\
   Language: Ruby\\
-  Version: 2.3.0
+  Version: 2.4.0
 
   Prawn is much faster and uses much less memory if the input is provided line by line. However, it
   still works if the whole input is provided at once.
@@ -53,7 +53,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://www.reportlab.com/opensource/>\\
   Language: Python\\
-  Version: 3.5.23
+  Version: 3.5.34
 
   ReportLab also needs its input line by line. Otherwise it is much, much slower (at least 60x, then
   the test run was aborted).
