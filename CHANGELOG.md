@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* Refactored signature handlers, making `#store_verification_callback` a
+  protected method
+
+
 ## 0.20.0 - 2021-12-30
 
 ### Added

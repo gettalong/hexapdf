@@ -60,7 +60,7 @@ module HexaPDF
 
         # Verifies the signature using the provided OpenSSL::X509::Store object.
         def verify(store, allow_self_signed: false)
-          result = VerificationResult.new
+          result = super
 
           signer_certificate = self.signer_certificate
           certificate_chain = self.certificate_chain
@@ -76,10 +76,6 @@ module HexaPDF
             return result
           end
 
-          verify_signing_time(result)
-
-          store.verify_callback = store_verification_callback(result,
-                                                              allow_self_signed: allow_self_signed)
           store.verify(signer_certificate, certificate_chain)
 
           if signer_certificate.public_key.verify(OpenSSL::Digest.new('SHA1'),

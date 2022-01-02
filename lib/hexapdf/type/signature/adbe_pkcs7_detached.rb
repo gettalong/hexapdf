@@ -78,7 +78,7 @@ module HexaPDF
 
         # Verifies the signature using the provided OpenSSL::X509::Store object.
         def verify(store, allow_self_signed: false)
-          result = VerificationResult.new
+          result = super
 
           signer_info = self.signer_info
           signer_certificate = self.signer_certificate
@@ -104,10 +104,6 @@ module HexaPDF
             result.log(:error, "Certificate key usage is missing 'Digital Signature'")
           end
 
-          verify_signing_time(result)
-
-          store.verify_callback = store_verification_callback(result,
-                                                              allow_self_signed: allow_self_signed)
           if @pkcs7.verify(certificate_chain, store, signature_dict.signed_data,
                            OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY)
             result.log(:info, "Signature valid")

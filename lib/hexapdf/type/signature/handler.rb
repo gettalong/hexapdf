@@ -78,6 +78,29 @@ module HexaPDF
           raise "Needs to be implemented by specific handlers"
         end
 
+        # Verifies general signature properties and prepares the provided OpenSSL::X509::Store
+        # object for use by concrete implementations.
+        #
+        # Needs to be called by specific handlers.
+        def verify(store, allow_self_signed: false)
+          result = VerificationResult.new
+          verify_signing_time(result)
+          store.verify_callback =
+            store_verification_callback(result, allow_self_signed: allow_self_signed)
+          result
+        end
+
+        protected
+
+        # Verifies that the signing time was within the validity period of the signer certificate.
+        def verify_signing_time(result)
+          time = signing_time
+          cert = signer_certificate
+          if time && cert && (time < cert.not_before || time > cert.not_after)
+            result.log(:error, "Signer certificate not valid at signing time")
+          end
+        end
+
         # Returns the block that should be used as the OpenSSL::X509::Store verification callback.
         #
         # +result+:: The VerificationResult object that should be updated if problems are found.
@@ -91,17 +114,6 @@ module HexaPDF
             end
 
             true
-          end
-        end
-
-        protected
-
-        # Verifies that the signing time was within the validity period of the signer certificate.
-        def verify_signing_time(result)
-          time = signing_time
-          cert = signer_certificate
-          if time && (time < cert.not_before || time > cert.not_after)
-            result.log(:error, "Signer certificate not valid at signing time")
           end
         end
 

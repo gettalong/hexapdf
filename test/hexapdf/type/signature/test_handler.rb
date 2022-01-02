@@ -40,7 +40,7 @@ describe HexaPDF::Type::Signature::Handler do
         [true, false].each do |allow_self_signed|
           @result.messages.clear
           @context.error = error
-          @handler.store_verification_callback(@result, allow_self_signed: allow_self_signed).
+          @handler.send(:store_verification_callback, @result, allow_self_signed: allow_self_signed).
             call(false, @context)
           assert_equal(1, @result.messages.size)
           assert_match(/self-signed certificate/i, @result.messages[0].content)
