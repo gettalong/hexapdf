@@ -5,6 +5,10 @@
 * Refactored signature handlers, making `#store_verification_callback` a
   protected method
 
+### Fixed
+
+* [HexaPDF::Task::Dereference] to work for even very deeply nested structures
+
 
 ## 0.20.0 - 2021-12-30
 

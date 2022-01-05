@@ -68,9 +68,9 @@ module HexaPDF
 
       def execute #:nodoc:
         if @object
-          dereference(@object)
+          dereference_all(@object)
         else
-          dereference(@doc.trailer)
+          dereference_all(@doc.trailer)
           @result = []
           @doc.each(only_current: false) do |obj|
             if !@seen.key?(obj.data) && obj.type != :ObjStm && obj.type != :XRef
@@ -81,6 +81,11 @@ module HexaPDF
             end
           end
         end
+      end
+
+      def dereference_all(object) # :nodoc:
+        @dereference_later = [object]
+        dereference(@dereference_later.pop) until @dereference_later.empty?
       end
 
       def dereference(object) #:nodoc:
@@ -97,9 +102,12 @@ module HexaPDF
         when Array
           val.map! {|v| recurse(v) }
         when HexaPDF::Reference
-          dereference(@doc.object(val))
+          val = @doc.object(val)
+          @dereference_later.push(val)
+          val
         when HexaPDF::Object
-          dereference(val)
+          @dereference_later.push(val)
+          val
         else
           val
         end
