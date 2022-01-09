@@ -131,13 +131,12 @@ module HexaPDF
         def load_file(file)
           name2uni = {}
           uni2name = {}
-          File.open(file, 'rb') do |f|
+          File.open(file, 'r:UTF-8') do |f|
+            25.times { f.gets } # Skip comments
             while (line = f.gets)
-              next if line.start_with?('#')
-              index = line.index(';')
-              name = line[0, index].to_sym
-              codes = line[index + 1, 50].split(" ").map(&:hex).pack('U*')
-              name2uni[name] = codes
+              name, codes = line.split(';', 2)
+              name = name.to_sym
+              name2uni[name] = codes.chomp!
               uni2name[codes] = name unless uni2name.key?(codes)
             end
           end
