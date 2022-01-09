@@ -19,7 +19,7 @@ function bench_allowed_cmd() {
   local entry cmdname="$(echo $1 | cut -d\| -f1 | xargs echo)"
   if [ ${#USED_BENCH_CMDS[@]} -eq 0 ]; then return 0; fi
   for entry in "${USED_BENCH_CMDS[@]}"; do
-    [[ "$cmdname" =~ "$entry" ]] && return 0;
+    [[ "$cmdname" =~ $entry ]] && return 0;
   done
   return 1
 }
