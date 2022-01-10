@@ -254,7 +254,7 @@ module HexaPDF
 
         doc.pages.each do |page|
           xobjects = page.resources[:XObject]
-          xobjects.each do |key, obj|
+          xobjects&.each do |key, obj|
             next if used_refs[obj]
             xobjects.delete(key)
           end
