@@ -168,12 +168,14 @@ describe HexaPDF::Task::Optimize do
         page1.resources[:XObject][:test] = @doc.add({})
         page1.resources[:XObject][:used_on_page2] = @doc.add({})
         page1.resources[:XObject][:unused] = @doc.add({})
-        page1.contents = "/test Do"
+        page1.contents = "/test Do /InvalidRef Do"
         page2 = @doc.pages.add
         page2.resources[:XObject] = {}
         page2.resources[:XObject][:used_on2] = page1.resources[:XObject][:used_on_page2]
         page2.resources[:XObject][:also_unused] = page1.resources[:XObject][:unused]
         page2.contents = "/used_on2 Do"
+        page3 = @doc.pages.add
+        page3.contents = "/unused Do   "
 
         @doc.task(:optimize, prune_page_resources: true, compress_pages: compress_pages)
 
@@ -182,6 +184,7 @@ describe HexaPDF::Task::Optimize do
         refute(page1.resources[:XObject].key?(:unused))
         assert(page2.resources[:XObject].key?(:used_on2))
         refute(page2.resources[:XObject].key?(:also_unused))
+        assert_equal("/unused Do#{compress_pages ? "\n" : '   '}", page3.contents)
       end
     end
   end

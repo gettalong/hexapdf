@@ -234,7 +234,7 @@ module HexaPDF
           page.contents = processor.result
           page[:Contents].set_filter(:FlateDecode)
           xobjects = page.resources[:XObject]
-          processor.used_references.each {|ref| used_refs[xobjects[ref]] = true }
+          processor.used_references.each {|ref| used_refs[xobjects[ref]] = true } if xobjects
         end
         used_refs
       end
@@ -245,7 +245,7 @@ module HexaPDF
         unless used_refs
           used_refs = {}
           doc.pages.each do |page|
-            xobjects = page.resources[:XObject]
+            next unless (xobjects = page.resources[:XObject])
             HexaPDF::Content::Parser.parse(page.contents) do |op, operands|
               used_refs[xobjects[operands[0]]] = true if op == :Do
             end
@@ -253,7 +253,7 @@ module HexaPDF
         end
 
         doc.pages.each do |page|
-          xobjects = page.resources[:XObject]
+          next unless (xobjects = page.resources[:XObject])
           xobjects.each do |key, obj|
             next if used_refs[obj]
             xobjects.delete(key)

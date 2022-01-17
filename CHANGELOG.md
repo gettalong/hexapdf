@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Task::Optimize] so that page resource pruning works for pages
+  without XObjects
+
+
 ## 0.20.1 - 2022-01-05
 
 ### Changed
