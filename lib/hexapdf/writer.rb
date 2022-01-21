@@ -90,12 +90,20 @@ module HexaPDF
     #
     # For this method to work the document must have been created from an existing file.
     def write_incremental
-      @document.revisions.parser.io.seek(0, IO::SEEK_SET)
-      IO.copy_stream(@document.revisions.parser.io, @io)
+      parser = @document.revisions.parser
+
+      _, orig_trailer = parser.load_revision(parser.startxref_offset)
+      orig_trailer = @document.wrap(orig_trailer, type: :XXTrailer)
+      if @document.revisions.current.trailer[:Encrypt]&.value != orig_trailer[:Encrypt]&.value
+        raise HexaPDF::Error, "Used encryption cannot be modified when doing incremental writing"
+      end
+
+      parser.io.seek(0, IO::SEEK_SET)
+      IO.copy_stream(parser.io, @io)
       @io << "\n"
 
       @rev_size = @document.revisions.current.next_free_oid
-      @use_xref_streams = @document.revisions.parser.contains_xref_streams?
+      @use_xref_streams = parser.contains_xref_streams?
 
       revision = Revision.new(@document.revisions.current.trailer)
       @document.revisions.each do |rev|

@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* Writing of encrypted PDF files in incremental node in case the encryption was
+  changed
+
+
 ## 0.20.2 - 2022-01-17
 
 ### Fixed

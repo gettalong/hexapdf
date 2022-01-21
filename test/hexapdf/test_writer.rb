@@ -123,6 +123,17 @@ describe HexaPDF::Writer do
       HexaPDF::Writer.write(doc, output_io, incremental: true)
       refute_match(/^trailer/, output_io.string)
     end
+
+    it "raises an error if the used encryption was changed" do
+      io = StringIO.new
+      doc = HexaPDF::Document.new
+      doc.encrypt
+      doc.write(io)
+
+      doc = HexaPDF::Document.new(io: io)
+      doc.encrypt(owner_password: 'test')
+      assert_raises(HexaPDF::Error) { doc.write('notused', incremental: true) }
+    end
   end
 
   it "creates an xref stream if no xref stream is in a revision but object streams are" do
