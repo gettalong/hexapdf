@@ -77,7 +77,13 @@ describe HexaPDF::Type::Annotation do
     stream[:BBox] = [1, 2, 3, 4]
     appearance = @annot.appearance
     assert_same(stream.data, appearance.data)
-    assert_equal(:Form, appearance[:Subtype])
+    assert_kind_of(HexaPDF::Type::Form, appearance)
+
+    stream[:Type] = :XObject
+    stream[:Subtype] = :Form
+    appearance = @annot.appearance
+    assert_same(stream.data, appearance.data)
+    assert_kind_of(HexaPDF::Type::Form, appearance)
 
     @annot[:AP][:N] = {X: {}}
     assert_nil(@annot.appearance)

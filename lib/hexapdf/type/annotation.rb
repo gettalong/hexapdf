@@ -160,7 +160,7 @@ module HexaPDF
         end
         return unless entry.kind_of?(HexaPDF::Stream)
 
-        if entry.type == :XObject && entry[:Subtype] == :Form
+        if entry.type == :XObject && entry[:Subtype] == :Form && !entry.instance_of?(HexaPDF::Stream)
           entry
         elsif (entry[:Type].nil? || entry[:Type] == :XObject) &&
             (entry[:Subtype].nil? || entry[:Subtype] == :Form) && entry[:BBox]
