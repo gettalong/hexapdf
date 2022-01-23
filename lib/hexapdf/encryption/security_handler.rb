@@ -249,6 +249,10 @@ module HexaPDF
         @document = document
         @encrypt_dict_hash = nil
         @encryption_details = {}
+
+        @is_encrypt_dict = document.revisions.each.with_object({}) do |rev, hash|
+          hash[rev.trailer[:Encrypt]] = true
+        end
       end
 
       # Checks if the encryption key computed by this security handler is derived from the
@@ -262,7 +266,7 @@ module HexaPDF
       #
       # See: PDF1.7 s7.6.2
       def decrypt(obj)
-        return obj if obj == document.trailer[:Encrypt] || obj.type == :XRef
+        return obj if @is_encrypt_dict[obj] || obj.type == :XRef
 
         key = object_key(obj.oid, obj.gen, string_algorithm)
         each_string_in_object(obj.value) do |str|

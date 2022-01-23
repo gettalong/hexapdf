@@ -294,9 +294,17 @@ describe HexaPDF::Encryption::SecurityHandler do
       assert_equal('string', obj.stream)
     end
 
-    it "doesn't decrypt a document's Encrypt dictionary" do
-      @document.trailer[:Encrypt] = @obj
-      assert_equal(@encrypted, @handler.decrypt(@obj)[:Key])
+    it "doesn't decrypt a document's Encrypt dictionaries" do
+      @document = HexaPDF::Document.new
+      @document.trailer[:Encrypt] = @document.add({Key: "Something"})
+      @document.revisions.add
+      @document.trailer[:Encrypt] = @document.add({Key: "Otherthing"})
+      @handler = TestHandler.new(@document)
+
+      assert_equal("Something",
+                   @handler.decrypt(@document.revisions[0].trailer[:Encrypt])[:Key])
+      assert_equal("Otherthing",
+                   @handler.decrypt(@document.revisions[1].trailer[:Encrypt])[:Key])
     end
 
     it "defers handling encryption to a Crypt filter is specified" do

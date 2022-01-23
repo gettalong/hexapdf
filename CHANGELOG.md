@@ -6,6 +6,7 @@
   changed
 * [HexaPDF::Type::Annotation#appearance] to return correctly wrapped object in
   case of Form XObjects missing required data
+* Decrypting of files with multiple revisions
 
 
 ## 0.20.2 - 2022-01-17
