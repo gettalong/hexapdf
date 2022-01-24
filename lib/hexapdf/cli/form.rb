@@ -135,12 +135,20 @@ module HexaPDF
           concrete_field_type = field.concrete_field_type
           nice_field_type = concrete_field_type.to_s.split('_').map(&:capitalize).join(' ')
           position = "(#{widget[:Rect].left}, #{widget[:Rect].bottom})"
+          field_value = if !field.field_value || concrete_field_type != :signature_field
+                          field.field_value.inspect
+                        else
+                          sig = field.field_value
+                          temp = "#{sig.signer_name} (#{sig.signing_time})"
+                          temp << " (#{sig.signing_reason})" if sig.signing_reason
+                          temp
+                        end
 
           puts "  #{field_name}"
           if command_parser.verbosity_info?
             printf("    └─ %-22s | %-20s\n", nice_field_type, position)
           end
-          puts "    └─ #{field.field_value.inspect}"
+          puts "    └─ #{field_value}"
           if command_parser.verbosity_info?
             if field.field_type == :Ch
               puts "    └─ Options: #{field.option_items.map(&:inspect).join(', ')}"

@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Changed
+
+* Appearance of signature field values when using the `hexapdf form` command
+
 ### Fixed
 
 * Writing of encrypted PDF files in incremental node in case the encryption was
