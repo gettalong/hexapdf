@@ -103,5 +103,9 @@ describe HexaPDF::Font::Type1Wrapper do
     it "sets the circular reference" do
       assert_same(@times_wrapper, @times_wrapper.pdf_object.font_wrapper)
     end
+
+    it "makes sure that the PDF dictionaries are indirect" do
+      assert(@times_wrapper.pdf_object.indirect?)
+    end
   end
 end

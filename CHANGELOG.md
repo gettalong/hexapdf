@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Regression when using Type1 font with different encodings
+
+
 ## 0.20.3 - 2022-01-24
 
 ### Changed

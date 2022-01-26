@@ -212,24 +212,23 @@ module HexaPDF
 
       # Creates a PDF object representing the wrapped font for the given PDF document.
       def create_pdf_object(document)
-        fd = document.wrap({Type: :FontDescriptor,
-                            FontName: @wrapped_font.font_name.intern,
-                            FontWeight: @wrapped_font.weight_class,
-                            FontBBox: @wrapped_font.bounding_box,
-                            ItalicAngle: @wrapped_font.italic_angle || 0,
-                            Ascent: @wrapped_font.ascender || 0,
-                            Descent: @wrapped_font.descender || 0,
-                            CapHeight: @wrapped_font.cap_height,
-                            XHeight: @wrapped_font.x_height,
-                            StemH: @wrapped_font.dominant_horizontal_stem_width,
-                            StemV: @wrapped_font.dominant_vertical_stem_width || 0})
+        fd = document.add({Type: :FontDescriptor,
+                           FontName: @wrapped_font.font_name.intern,
+                           FontWeight: @wrapped_font.weight_class,
+                           FontBBox: @wrapped_font.bounding_box,
+                           ItalicAngle: @wrapped_font.italic_angle || 0,
+                           Ascent: @wrapped_font.ascender || 0,
+                           Descent: @wrapped_font.descender || 0,
+                           CapHeight: @wrapped_font.cap_height,
+                           XHeight: @wrapped_font.x_height,
+                           StemH: @wrapped_font.dominant_horizontal_stem_width,
+                           StemV: @wrapped_font.dominant_vertical_stem_width || 0})
         fd.flag(:fixed_pitch) if @wrapped_font.metrics.is_fixed_pitch
         fd.flag(@wrapped_font.metrics.character_set == 'Special' ? :symbolic : :nonsymbolic)
-        fd.must_be_indirect = true
 
-        dict = document.wrap({Type: :Font, Subtype: :Type1,
-                              BaseFont: @wrapped_font.font_name.intern,
-                              FontDescriptor: fd})
+        dict = document.add({Type: :Font, Subtype: :Type1,
+                             BaseFont: @wrapped_font.font_name.intern,
+                             FontDescriptor: fd})
         dict.font_wrapper = self
 
         document.register_listener(:complete_objects) do
