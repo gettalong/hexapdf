@@ -7,12 +7,11 @@ short, it allows
 * **manipulating** existing PDF files,
 * **merging** multiple PDF files into one,
 * **extracting** meta information, text, images and files from PDF files,
-* **securing** PDF files by encrypting them and
+* **securing** PDF files by encrypting or signing them and
 * **optimizing** PDF files for smaller file size or other criteria.
 
 HexaPDF was designed with ease of use and performance in mind. It uses lazy loading and lazy
 computing when possible and tries to produce small PDF files by default.
-
 
 ## Usage
 
@@ -46,8 +45,11 @@ with example graphics and PDF files and tightly integrated into the rest of the 
 ## Requirements and Installation
 
 Since HexaPDF is written in Ruby, a working Ruby installation is needed - see the
-[official installation documentation][rbinstall] for details. Note that you need Ruby version 2.4 or
+[official installation documentation][rbinstall] for details. Note that you need Ruby version 2.5 or
 higher as prior versions are not supported!
+
+HexaPDF works on all Ruby implementations that are CRuby compatible, e.g. TruffleRuby, and on any
+platform supported by Ruby (Linux, macOS, Windows, ...).
 
 Apart from Ruby itself the HexaPDF library has only one external dependency `geom2d` which is
 written and provided by the HexaPDF authors. The `hexapdf` application has an additional dependency
