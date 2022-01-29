@@ -112,7 +112,8 @@ module HexaPDF
           output_line("File name", file)
           output_line("File size", File.stat(file).size.to_s << " bytes")
           @auto_decrypt && INFO_KEYS.each do |name|
-            next unless doc.trailer.info.key?(name)
+            value = doc.trailer.info[name]
+            next if !value || (value.kind_of?(String) && value.empty?)
             output_line(name.to_s, doc.trailer.info[name].to_s)
           end
 
