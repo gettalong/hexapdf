@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::Parser#reconstructed?] which returns true if the cross-reference
+  table was reconstructed
+
+
 ## 0.20.4 - 2022-01-26
 
 ### Fixed

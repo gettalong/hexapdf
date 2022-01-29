@@ -71,6 +71,11 @@ module HexaPDF
       @contains_xref_streams
     end
 
+    # Returns +true+ if the PDF file was damaged and could be reconstructed.
+    def reconstructed?
+      !@reconstructed_revision.nil?
+    end
+
     # Loads the indirect (potentially compressed) object specified by the given cross-reference
     # entry.
     #

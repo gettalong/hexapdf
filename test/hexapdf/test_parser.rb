@@ -580,6 +580,12 @@ describe HexaPDF::Parser do
       @xref = HexaPDF::XRefSection.in_use_entry(1, 0, 100)
     end
 
+    it "can tell us if the cross-reference table was reconstructed" do
+      create_parser("1 0 obj\n5\nendobj\ntrailer\n<</Size 1>>")
+      @parser.load_object(@xref)
+      assert(@parser.reconstructed?)
+    end
+
     it "serially parses the contents" do
       create_parser("1 0 obj\n5\nendobj\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
       assert_equal(6, @parser.load_object(@xref).value)
