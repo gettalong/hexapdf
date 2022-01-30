@@ -153,6 +153,9 @@ module HexaPDF
 
           output_line("Pages", doc.pages.count.to_s)
           output_line("Version", doc.version)
+          if doc.revisions.parser.reconstructed?
+            output_line("Reconstructed", "yes (use --check for details)")
+          end
         end
       rescue HexaPDF::EncryptionError
         if @auto_decrypt
