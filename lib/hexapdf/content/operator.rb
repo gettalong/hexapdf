@@ -1036,14 +1036,14 @@ module HexaPDF
         s: EndPath.new('s'),
         f: EndPath.new('f'),
         F: EndPath.new('F'),
-        'f*'.to_sym => EndPath.new('f*'),
+        'f*': EndPath.new('f*'),
         B: EndPath.new('B'),
-        'B*'.to_sym => EndPath.new('B*'),
+        'B*': EndPath.new('B*'),
         b: EndPath.new('b'),
-        'b*'.to_sym => EndPath.new('b*'),
+        'b*': EndPath.new('b*'),
         n: EndPath.new('n'),
         W: ClipPath.new('W'),
-        'W*'.to_sym => ClipPath.new('W*'),
+        'W*': ClipPath.new('W*'),
 
         BI: InlineImage.new,
 
@@ -1059,10 +1059,10 @@ module HexaPDF
         Td: MoveText.new,
         TD: MoveTextAndSetLeading.new,
         Tm: SetTextMatrix.new,
-        'T*'.to_sym => MoveTextNextLine.new,
+        'T*': MoveTextNextLine.new,
         Tj: ShowText.new,
-        '\''.to_sym => MoveTextNextLineAndShowText.new,
-        '"'.to_sym => SetSpacingMoveTextNextLineAndShowText.new,
+        "'": MoveTextNextLineAndShowText.new,
+        '"': SetSpacingMoveTextNextLineAndShowText.new,
         TJ: ShowTextWithPositioning.new,
       }
       DEFAULT_OPERATORS.default_proc = proc {|h, k| h[k] = BaseOperator.new(k.to_s) }

@@ -128,8 +128,8 @@ module HexaPDF
           items = option_items
           array_value = [value].flatten
           all_included = array_value.all? {|v| items.include?(v) }
-          self[:V] = if (combo_box? && value.kind_of?(String) &&
-                         (flagged?(:edit) || all_included))
+          self[:V] = if combo_box? && value.kind_of?(String) &&
+                         (flagged?(:edit) || all_included)
                        delete(:I)
                        value
                      elsif list_box? && all_included &&

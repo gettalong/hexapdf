@@ -260,9 +260,10 @@ module HexaPDF
               canvas.save_graphics_state do
                 canvas.rectangle(padding, padding, rect.width - 2 * padding,
                                  rect.height - 2 * padding).clip_path.end_path
-                if @field.concrete_field_type == :multiline_text_field
+                case @field.concrete_field_type
+                when :multiline_text_field
                   draw_multiline_text(canvas, rect, style, padding)
-                elsif @field.concrete_field_type == :list_box
+                when :list_box
                   draw_list_box(canvas, rect, style, padding)
                 else
                   draw_single_line_text(canvas, rect, style, padding)
@@ -503,9 +504,10 @@ module HexaPDF
         # appearance string, the annotation rectangle and the border style.
         def calculate_font_size(font, font_size, rect, border_style)
           if font_size == 0
-            if @field.concrete_field_type == :multiline_text_field
+            case @field.concrete_field_type
+            when :multiline_text_field
               0 # Handled by multiline drawing code
-            elsif @field.concrete_field_type == :list_box
+            when :list_box
               12 # Seems to be Adobe's default
             else
               unit_font_size = (font.wrapped_font.bounding_box[3] - font.wrapped_font.bounding_box[1]) *

@@ -47,15 +47,13 @@ describe HexaPDF::StreamData do
     end
 
     it "returns a fiber for a string representing a file name" do
-      begin
-        file = Tempfile.new('hexapdf-stream')
-        file.write('source')
-        file.close
-        s = HexaPDF::StreamData.new(file.path)
-        assert_equal('source', s.fiber.resume)
-      ensure
-        file.unlink
-      end
+      file = Tempfile.new('hexapdf-stream')
+      file.write('source')
+      file.close
+      s = HexaPDF::StreamData.new(file.path)
+      assert_equal('source', s.fiber.resume)
+    ensure
+      file.unlink
     end
   end
 

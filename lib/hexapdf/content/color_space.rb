@@ -296,7 +296,7 @@ module HexaPDF
           spec = if first_item.match?(/\A\h{6}\z/)
                    first_item.scan(/../).map!(&:hex)
                  elsif first_item.match?(/\A\h{3}\z/)
-                   first_item.each_char.map {|x| (x*2).hex}
+                   first_item.each_char.map {|x| (x * 2).hex }
                  elsif CSS_COLOR_NAMES.key?(first_item)
                    CSS_COLOR_NAMES[first_item]
                  else

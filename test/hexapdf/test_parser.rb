@@ -109,7 +109,7 @@ describe HexaPDF::Parser do
 
     it "treats indirect objects with invalid values as null objects" do
       create_parser("1 0 obj <</test ( /other (end)>> endobj")
-      object, * =  @parser.parse_indirect_object
+      object, * = @parser.parse_indirect_object
       assert_nil(object)
     end
 
@@ -475,33 +475,33 @@ describe HexaPDF::Parser do
     describe "invalid numbering of main xref section" do
       it "handles the xref if the numbering is off by N" do
         create_parser(" 1 0 obj 1 endobj\n" \
-          "xref\n1 2\n0000000000 65535 f \n0000000001 00000 n \ntrailer\n<<>>\n")
+                      "xref\n1 2\n0000000000 65535 f \n0000000001 00000 n \ntrailer\n<<>>\n")
         section, _trailer = @parser.parse_xref_section_and_trailer(17)
         assert_equal(HexaPDF::XRefSection.in_use_entry(1, 0, 1), section[1])
       end
 
       it "fails if the first entry is not the one for oid=0" do
         create_parser(" 1 0 obj 1 endobj\n" \
-          "xref\n1 2\n0000000000 00005 f \n0000000001 00000 n \ntrailer\n<<>>\n")
+                      "xref\n1 2\n0000000000 00005 f \n0000000001 00000 n \ntrailer\n<<>>\n")
         exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(17) }
         assert_match(/Main.*invalid numbering/i, exp.message)
 
         create_parser(" 1 0 obj 1 endobj\n" \
-          "xref\n1 2\n0000000001 00000 n \n0000000001 00000 n \ntrailer\n<<>>\n")
+                      "xref\n1 2\n0000000001 00000 n \n0000000001 00000 n \ntrailer\n<<>>\n")
         exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(17) }
         assert_match(/Main.*invalid numbering/i, exp.message)
       end
 
       it "fails if the tested entry position is invalid" do
         create_parser(" 1 0 obj 1 endobj\n" \
-          "xref\n1 2\n0000000000 65535 f \n0000000005 00000 n \ntrailer\n<<>>\n")
+                      "xref\n1 2\n0000000000 65535 f \n0000000005 00000 n \ntrailer\n<<>>\n")
         exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(17) }
         assert_match(/Main.*invalid numbering/i, exp.message)
       end
 
       it "fails if the tested entry position's oid doesn't match the corrected entry oid" do
         create_parser(" 2 0 obj 1 endobj\n" \
-          "xref\n1 2\n0000000000 65535 f \n0000000001 00000 n \ntrailer\n<<>>\n")
+                      "xref\n1 2\n0000000000 65535 f \n0000000001 00000 n \ntrailer\n<<>>\n")
         exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_xref_section_and_trailer(17) }
         assert_match(/Main.*invalid numbering/i, exp.message)
       end
@@ -649,7 +649,7 @@ describe HexaPDF::Parser do
     end
 
     it "uses the first trailer in case of a linearized file" do
-      create_parser("1 0 obj\n<</Linearized true>>\nendobj\ntrailer <</Size 1/Prev 342>>\ntrailer <</Size 2>>")
+      create_parser("1 0 obj\n<</Linearized true>>\nendobj\ntrailer <</Size 1/Prev 34>>\ntrailer <</Size 2>>")
       assert_equal({Size: 1}, @parser.reconstructed_revision.trailer.value)
     end
 

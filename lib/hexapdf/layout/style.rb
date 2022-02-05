@@ -1115,13 +1115,11 @@ module HexaPDF
       # inside a TextFragment.
       def scaled_item_width(item)
         @scaled_item_widths[item] ||=
-          begin
-            if item.kind_of?(Numeric)
-              -item * scaled_font_size
-            else
-              item.width * scaled_font_size + scaled_character_spacing +
-                (item.apply_word_spacing? ? scaled_word_spacing : 0)
-            end
+          if item.kind_of?(Numeric)
+            -item * scaled_font_size
+          else
+            item.width * scaled_font_size + scaled_character_spacing +
+              (item.apply_word_spacing? ? scaled_word_spacing : 0)
           end
       end
 

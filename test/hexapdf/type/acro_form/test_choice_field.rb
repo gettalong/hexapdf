@@ -120,7 +120,7 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
 
   describe "option items" do
     before do
-      @items = [["a", "Zx"], "\xFE\xFF".b << "Töne".encode('UTF-16BE').b, "H\xe4llo".b,]
+      @items = [["a", "Zx"], "\xFE\xFF".b << "Töne".encode('UTF-16BE').b, "H\xe4llo".b]
     end
 
     it "sets the option items" do

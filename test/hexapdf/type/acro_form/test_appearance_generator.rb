@@ -602,8 +602,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:end_text],
                           [:restore_graphics_state],
                           [:restore_graphics_state],
-                          [:end_marked_content]],
-                        )
+                          [:end_marked_content]])
       end
     end
 

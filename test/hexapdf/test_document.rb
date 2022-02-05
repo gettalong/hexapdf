@@ -476,16 +476,14 @@ describe HexaPDF::Document do
 
   describe "write" do
     it "writes the document to a file" do
-      begin
-        file = Tempfile.new('hexapdf-write')
-        file.close
-        @io_doc.write(file.path)
-        HexaPDF::Document.open(file.path) do |doc|
-          assert_equal(200, doc.object(2).value)
-        end
-      ensure
-        file.unlink
+      file = Tempfile.new('hexapdf-write')
+      file.close
+      @io_doc.write(file.path)
+      HexaPDF::Document.open(file.path) do |doc|
+        assert_equal(200, doc.object(2).value)
       end
+    ensure
+      file.unlink
     end
 
     it "writes the document to an IO object" do

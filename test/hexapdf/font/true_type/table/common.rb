@@ -16,7 +16,7 @@ module TestHelper
   end
 
   def create_table(name, data = nil, standalone: false)
-    font, entry = !standalone ? [@font, @entry] : set_up_stub_true_type_font(register_vars: false)
+    font, entry = standalone ? set_up_stub_true_type_font(register_vars: false) : [@font, @entry]
     if data
       font.io.string = data
       entry.length = font.io.length

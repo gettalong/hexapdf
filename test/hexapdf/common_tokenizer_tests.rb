@@ -60,9 +60,9 @@ module CommonTokenizerTests
       'obj', 'endobj', 'f*', '*f', '{', '}',
       "parentheses ( ) and (\nspecial \0053++characters\n (*!&}^% and so on).\n", '',
       "Nov shmoz ka pop.", "\x90\x1F\xA3", "\x90\x1F\xA0",
-      :Name1, :ASomewhatLongerName, :"A;Name_With-Various***Characters?",
-      :"1.2", :"$$", :"@pattern", :".notdef", :"lime Green", :"paired()parentheses",
-      :"The_Key_of_F#_Minor", :AB, :"",
+      :Name1, :ASomewhatLongerName, :'A;Name_With-Various***Characters?',
+      :'1.2', :$$, :@pattern, :'.notdef', :'lime Green', :'paired()parentheses',
+      :'The_Key_of_F#_Minor', :AB, :"",
       '[', 5, 6, :Name, ']', '[', 5, 6, :Name, ']',
       '<<', :Name, 5, '>>'
     ].each {|t| t.force_encoding('BINARY') if t.respond_to?(:force_encoding) }
@@ -85,12 +85,12 @@ module CommonTokenizerTests
 
     create_tokenizer("/Hößgang")
     token = @tokenizer.next_token
-    assert_equal(:"Hößgang", token)
+    assert_equal(:Hößgang, token)
     assert_equal(Encoding::UTF_8, token.encoding)
 
     create_tokenizer('/H#c3#b6#c3#9fgang')
     token = @tokenizer.next_token
-    assert_equal(:"Hößgang", token)
+    assert_equal(:Hößgang, token)
     assert_equal(Encoding::UTF_8, token.encoding)
 
     create_tokenizer('/H#E8lp')

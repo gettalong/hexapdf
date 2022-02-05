@@ -93,12 +93,12 @@ module HexaPDF
 
         # Returns the name to be set on the /Filter key when using this signing handler.
         def filter_name
-          :"Adobe.PPKLite"
+          :'Adobe.PPKLite'
         end
 
         # Returns the name to be set on the /SubFilter key when using this signing handler.
         def sub_filter_name
-          :"adbe.pkcs7.detached"
+          :'adbe.pkcs7.detached'
         end
 
         # Sets the DocMDP permissions that should be applied to the document.

@@ -119,7 +119,7 @@ describe HexaPDF::Content::Processor do
       @processor.process(:BT)
       @processor.graphics_state.font = @font = @doc.add({Type: :Font, Subtype: :Type1,
                                                          Encoding: :WinAnsiEncoding,
-                                                         BaseFont: :"Times-Roman"})
+                                                         BaseFont: :'Times-Roman'})
       @processor.graphics_state.font_size = 10
       @processor.graphics_state.text_rise = 10
       @processor.graphics_state.character_spacing = 1

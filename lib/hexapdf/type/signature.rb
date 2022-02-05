@@ -75,7 +75,7 @@ module HexaPDF
 
         # For DocMDP, also used by UR
         define_field :P, type: [Integer, Boolean]
-        define_field :V, type: Symbol, allowed_values: [:"1.2", :"2.2"]
+        define_field :V, type: Symbol, allowed_values: [:'1.2', :'2.2']
 
         # For UR
         define_field :Document,  type: PDFArray

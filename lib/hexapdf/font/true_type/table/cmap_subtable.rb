@@ -282,12 +282,12 @@ module HexaPDF
             def self.mapper(end_codes, start_codes, id_deltas, id_range_offsets, glyph_indexes)
               compute_glyph_id = lambda do |index, code|
                 offset = id_range_offsets[index]
-                if offset != 0
+                if offset == 0
+                  glyph_id = (code + id_deltas[index]) % 65536
+                else
                   glyph_id = glyph_indexes[offset - end_codes.length + (code - start_codes[index])]
                   glyph_id ||= 0 # Handle invalid subtable entries
                   glyph_id = (glyph_id + id_deltas[index]) % 65536 if glyph_id != 0
-                else
-                  glyph_id = (code + id_deltas[index]) % 65536
                 end
                 glyph_id
               end

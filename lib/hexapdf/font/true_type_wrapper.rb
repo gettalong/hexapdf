@@ -165,12 +165,10 @@ module HexaPDF
       # Note: Although this method is public, it should normally not be used by application code!
       def glyph(id, str = nil)
         @id_to_glyph[id] ||=
-          begin
-            if id >= 0 && id < @wrapped_font[:maxp].num_glyphs
-              Glyph.new(@wrapped_font, id, str || (+'' << (@cmap.gid_to_code(id) || 0xFFFD)))
-            else
-              @missing_glyph_callable.call("\u{FFFD}", font_type, @wrapped_font)
-            end
+          if id >= 0 && id < @wrapped_font[:maxp].num_glyphs
+            Glyph.new(@wrapped_font, id, str || (+'' << (@cmap.gid_to_code(id) || 0xFFFD)))
+          else
+            @missing_glyph_callable.call("\u{FFFD}", font_type, @wrapped_font)
           end
       end
 
@@ -178,12 +176,10 @@ module HexaPDF
       def decode_utf8(str)
         str.codepoints.map! do |c|
           @codepoint_to_glyph[c] ||=
-            begin
-              if (gid = @cmap[c])
-                glyph(gid, +'' << c)
-              else
-                @missing_glyph_callable.call(+'' << c, font_type, @wrapped_font)
-              end
+            if (gid = @cmap[c])
+              glyph(gid, +'' << c)
+            else
+              @missing_glyph_callable.call(+'' << c, font_type, @wrapped_font)
             end
         end
       end
@@ -250,7 +246,7 @@ module HexaPDF
                                                  Supplement: 0},
                                  CIDToGIDMap: :Identity})
         dict = document.add({Type: :Font, Subtype: :Type0, BaseFont: cid_font[:BaseFont],
-                             Encoding: :"Identity-H", DescendantFonts: [cid_font]})
+                             Encoding: :'Identity-H', DescendantFonts: [cid_font]})
         dict.font_wrapper = self
 
         document.register_listener(:complete_objects) do

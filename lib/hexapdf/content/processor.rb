@@ -187,7 +187,7 @@ module HexaPDF
 
         # Returns the concatenated text of the boxes.
         def string
-          @boxes.map(&:string).join('')
+          @boxes.map(&:string).join
         end
 
         # :call-seq:
@@ -260,14 +260,14 @@ module HexaPDF
         s: :close_and_stroke_path,
         f: :fill_path_non_zero,
         F: :fill_path_non_zero,
-        'f*'.to_sym => :fill_path_even_odd,
+        'f*': :fill_path_even_odd,
         B: :fill_and_stroke_path_non_zero,
-        'B*'.to_sym => :fill_and_stroke_path_even_odd,
+        'B*': :fill_and_stroke_path_even_odd,
         b: :close_fill_and_stroke_path_non_zero,
-        'b*'.to_sym => :close_fill_and_stroke_path_even_odd,
+        'b*': :close_fill_and_stroke_path_even_odd,
         n: :end_path,
         W: :clip_path_non_zero,
-        'W*'.to_sym => :clip_path_even_odd,
+        'W*': :clip_path_even_odd,
         BT: :begin_text,
         ET: :end_text,
         Tc: :set_character_spacing,
@@ -280,10 +280,10 @@ module HexaPDF
         Td: :move_text,
         TD: :move_text_and_set_leading,
         Tm: :set_text_matrix,
-        'T*'.to_sym => :move_text_next_line,
+        'T*': :move_text_next_line,
         Tj: :show_text,
-        '\''.to_sym => :move_text_next_line_and_show_text,
-        '"'.to_sym => :set_spacing_move_text_next_line_and_show_text,
+        "'": :move_text_next_line_and_show_text,
+        '"': :set_spacing_move_text_next_line_and_show_text,
         TJ: :show_text_with_positioning,
         d0: :set_glyph_width, # only for Type 3 fonts
         d1: :set_glyph_width_and_bounding_box, # only for Type 3 fonts
@@ -392,7 +392,7 @@ module HexaPDF
           data = data.each_with_object(''.b) {|obj, result| result << obj if obj.kind_of?(String) }
         end
         font = graphics_state.font
-        font.decode(data).map {|code_point| font.to_utf8(code_point) }.join('')
+        font.decode(data).map {|code_point| font.to_utf8(code_point) }.join
       end
 
       # Decodes the given text object and returns it as a CompositeBox object.

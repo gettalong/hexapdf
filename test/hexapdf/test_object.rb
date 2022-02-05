@@ -68,7 +68,7 @@ describe HexaPDF::Object do
 
     it "works for arrays" do
       obj = HexaPDF::PDFArray.new([:b, HexaPDF::Object.new(:a, oid: 3, document: @doc)],
-                                    oid: 1, document: @doc)
+                                  oid: 1, document: @doc)
       assert_equal([:b, :a], HexaPDF::Object.make_direct(obj))
     end
   end

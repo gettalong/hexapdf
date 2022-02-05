@@ -62,29 +62,25 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
   test_files.each do |file|
     basename = File.basename(file)
     it "can decrypt, encrypt and decrypt the encrypted file #{basename} with the user password" do
-      begin
-        doc = HexaPDF::Document.new(io: StringIO.new(File.binread(file)),
-                                    decryption_opts: {password: user_password})
-        assert_equal(minimal_doc.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
+      doc = HexaPDF::Document.new(io: StringIO.new(File.binread(file)),
+                                  decryption_opts: {password: user_password})
+      assert_equal(minimal_doc.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
 
-        out = StringIO.new(''.b)
-        HexaPDF::Writer.new(doc, out).write
-        doc = HexaPDF::Document.new(io: out, decryption_opts: {password: user_password})
-        assert_equal(minimal_doc.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
-      rescue HexaPDF::EncryptionError => e
-        flunk("Error processing #{basename}: #{e}")
-      end
+      out = StringIO.new(''.b)
+      HexaPDF::Writer.new(doc, out).write
+      doc = HexaPDF::Document.new(io: out, decryption_opts: {password: user_password})
+      assert_equal(minimal_doc.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
+    rescue HexaPDF::EncryptionError => e
+      flunk("Error processing #{basename}: #{e}")
     end
 
     unless basename.start_with?("userpwd")
       it "can decrypt the encrypted file #{basename} with the owner password" do
-        begin
-          doc = HexaPDF::Document.new(io: StringIO.new(File.binread(file)),
-                                      decryption_opts: {password: owner_password})
-          assert_equal(minimal_doc.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
-        rescue HexaPDF::EncryptionError => e
-          flunk("Error processing #{basename}: #{e}")
-        end
+        doc = HexaPDF::Document.new(io: StringIO.new(File.binread(file)),
+                                    decryption_opts: {password: owner_password})
+        assert_equal(minimal_doc.trailer[:Info][:ModDate], doc.trailer[:Info][:ModDate])
+      rescue HexaPDF::EncryptionError => e
+        flunk("Error processing #{basename}: #{e}")
       end
     end
   end
@@ -97,16 +93,14 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
   it "can encrypt and then decrypt with all encryption variations" do
     {arc4: [40, 48, 128], aes: [128, 256]}.each do |algorithm, key_lengths|
       key_lengths.each do |key_length|
-        begin
-          doc = HexaPDF::Document.new
-          doc.encrypt(algorithm: algorithm, key_length: key_length)
-          sio = StringIO.new
-          doc.write(sio)
-          doc = HexaPDF::Document.new(io: sio)
-          assert_kind_of(Time, doc.trailer.info[:ModDate], "alg: #{algorithm} #{key_length} bits")
-        rescue HexaPDF::Error => e
-          flunk("Error using variation: #{algorithm} #{key_length} bits\n" << e.message)
-        end
+        doc = HexaPDF::Document.new
+        doc.encrypt(algorithm: algorithm, key_length: key_length)
+        sio = StringIO.new
+        doc.write(sio)
+        doc = HexaPDF::Document.new(io: sio)
+        assert_kind_of(Time, doc.trailer.info[:ModDate], "alg: #{algorithm} #{key_length} bits")
+      rescue HexaPDF::Error => e
+        flunk("Error using variation: #{algorithm} #{key_length} bits\n" << e.message)
       end
     end
   end

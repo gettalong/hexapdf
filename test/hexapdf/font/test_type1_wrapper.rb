@@ -14,7 +14,7 @@ describe HexaPDF::Font::Type1Wrapper do
 
   it "can be used with an existing PDF object" do
     font = @doc.add({Type: :Font, Subtype: :Type1, Encoding: {Differences: [65, :B]},
-                     BaseFont: :"Times-Roman"})
+                     BaseFont: :'Times-Roman'})
     wrapper = HexaPDF::Font::Type1Wrapper.new(@doc, FONT_TIMES, pdf_object: font)
     assert_equal([:B, :E, :A, :S, :T], wrapper.decode_utf8("BEAST").map(&:name))
     assert_equal("A", wrapper.encode(wrapper.glyph(:A)))

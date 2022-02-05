@@ -141,7 +141,7 @@ module HexaPDF
           registry = system_info[:Registry]
           ordering = system_info[:Ordering]
           if (encoding.kind_of?(Symbol) && HexaPDF::Font::CMap.predefined?(encoding.to_s) &&
-            encoding != :"Identity-H" && encoding != :"Identity-V") ||
+            encoding != :'Identity-H' && encoding != :'Identity-V') ||
               (registry == "Adobe" && ['GB1', 'CNS1', 'Japan1', 'Korea1'].include?(ordering))
             HexaPDF::Font::CMap.for_name("#{registry}-#{ordering}-UCS2")
           end

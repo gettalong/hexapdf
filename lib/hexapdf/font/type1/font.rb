@@ -89,19 +89,17 @@ module HexaPDF
         # Returns the built-in encoding of the font.
         def encoding
           @encoding ||=
-            begin
-              if @metrics.encoding_scheme == 'AdobeStandardEncoding'
-                Encoding.for_name(:StandardEncoding)
-              elsif font_name == 'ZapfDingbats' || font_name == 'Symbol'
-                Encoding.for_name((font_name + "Encoding").to_sym)
-              else
-                encoding = Encoding::Base.new
-                @metrics.character_metrics.each do |key, char_metric|
-                  next unless key.kind_of?(Integer) && key >= 0
-                  encoding.code_to_name[key] = char_metric.name
-                end
-                encoding
+            if @metrics.encoding_scheme == 'AdobeStandardEncoding'
+              Encoding.for_name(:StandardEncoding)
+            elsif font_name == 'ZapfDingbats' || font_name == 'Symbol'
+              Encoding.for_name("#{font_name}Encoding".to_sym)
+            else
+              encoding = Encoding::Base.new
+              @metrics.character_metrics.each do |key, char_metric|
+                next unless key.kind_of?(Integer) && key >= 0
+                encoding.code_to_name[key] = char_metric.name
               end
+              encoding
             end
         end
 

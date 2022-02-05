@@ -156,4 +156,5 @@ class GraphicsStateWrapper < Minitest::Spec
       assert_equal(0.02, @gs.scaled_font_size)
     end
   end
+
 end

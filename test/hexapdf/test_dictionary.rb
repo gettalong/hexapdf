@@ -19,8 +19,8 @@ describe HexaPDF::Dictionary do
     klass.new(obj, oid: 1)
   end
 
-  def delete(_obj)
-    _obj.data.value = nil
+  def delete(obj)
+    obj.data.value = nil
   end
 
   def wrap(obj, type:)

@@ -33,14 +33,12 @@ describe HexaPDF::ImageLoader::PDF do
     end
 
     it "works for PDF files using a string object and use_stringio=false" do
-      begin
-        @doc.config['image_loader.pdf.use_stringio'] = false
-        form = @loader.load(@doc, @pdf)
-        assert_equal(:Form, form[:Subtype])
-      ensure
-        ObjectSpace.each_object(File) do |file|
-          file.close if file.path == @pdf && !file.closed?
-        end
+      @doc.config['image_loader.pdf.use_stringio'] = false
+      form = @loader.load(@doc, @pdf)
+      assert_equal(:Form, form[:Subtype])
+    ensure
+      ObjectSpace.each_object(File) do |file|
+        file.close if file.path == @pdf && !file.closed?
       end
     end
   end

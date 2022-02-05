@@ -10,24 +10,24 @@ describe HexaPDF::Type::FontType1::StandardFonts do
   end
 
   it "checks whether a given name corresponds to a standard font via #standard_font?" do
-    assert(@obj.standard_font?(:"Times-Roman"))
+    assert(@obj.standard_font?(:'Times-Roman'))
     assert(@obj.standard_font?(:TimesNewRoman))
     refute(@obj.standard_font?(:LibreSans))
   end
 
   it "returns the standard PDF name for an alias via #standard_name" do
-    assert_equal(:"Times-Roman", @obj.standard_name(:TimesNewRoman))
+    assert_equal(:'Times-Roman', @obj.standard_name(:TimesNewRoman))
   end
 
   describe "font" do
     it "returns the Type1 font object for a given standard name" do
-      font = @obj.font(:"Times-Roman")
+      font = @obj.font(:'Times-Roman')
       assert_equal("Times Roman", font.full_name)
     end
 
     it "caches the font for reuse" do
-      font = @obj.font(:"Times-Roman")
-      assert_same(font, @obj.font(:"Times-Roman"))
+      font = @obj.font(:'Times-Roman')
+      assert_same(font, @obj.font(:'Times-Roman'))
     end
 
     it "returns nil if the given name doesn't belong to a standard font" do
@@ -40,7 +40,7 @@ describe HexaPDF::Type::FontType1 do
   before do
     @doc = HexaPDF::Document.new
     @font = @doc.add({Type: :Font, Subtype: :Type1, Encoding: :WinAnsiEncoding,
-                      BaseFont: :"Times-Roman"})
+                      BaseFont: :'Times-Roman'})
 
     font_file = @doc.add({}, stream: <<-EOF)
       /Encoding 256 array
@@ -95,7 +95,7 @@ describe HexaPDF::Type::FontType1 do
 
   describe "bounding_box" do
     it "returns the bounding box for a standard font" do
-      font = HexaPDF::Type::FontType1::StandardFonts.font(:"Times-Roman")
+      font = HexaPDF::Type::FontType1::StandardFonts.font(:'Times-Roman')
       assert_equal(font.bounding_box, @font.bounding_box)
     end
 

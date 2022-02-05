@@ -165,26 +165,22 @@ describe HexaPDF::Type::Image do
     end
 
     it "writes JPEG images to a file with .jpg extension" do
-      begin
-        file = Tempfile.new(['hexapdf-image-write-test', '.jpg'])
-        image = @doc.images.add(@jpg)
-        image.write(file.path)
-        assert_equal(File.binread(@jpg), File.binread(file.path))
-      ensure
-        file.unlink
-      end
+      file = Tempfile.new(['hexapdf-image-write-test', '.jpg'])
+      image = @doc.images.add(@jpg)
+      image.write(file.path)
+      assert_equal(File.binread(@jpg), File.binread(file.path))
+    ensure
+      file.unlink
     end
 
     it "writes JPEG2000 images to a file with .jpx extension" do
-      begin
-        file = Tempfile.new(['hexapdf-image-write-test', '.jpx'])
-        image = @doc.images.add(@jpg)
-        image.set_filter(:JPXDecode) # fake it
-        image.write(file.path)
-        assert_equal(File.binread(@jpg), File.binread(file.path))
-      ensure
-        file.unlink
-      end
+      file = Tempfile.new(['hexapdf-image-write-test', '.jpx'])
+      image = @doc.images.add(@jpg)
+      image.set_filter(:JPXDecode) # fake it
+      image.write(file.path)
+      assert_equal(File.binread(@jpg), File.binread(file.path))
+    ensure
+      file.unlink
     end
 
     Dir.glob(File.join(TEST_DATA_DIR, 'images', '*.png')).each do |png_file|

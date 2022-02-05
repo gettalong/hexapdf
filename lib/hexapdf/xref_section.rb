@@ -109,7 +109,7 @@ module HexaPDF
 
     # Make the assignment method private so that only the provided convenience methods can be
     # used.
-    private :"[]="
+    private :'[]='
 
     # Adds an in-use entry to the cross-reference section.
     #

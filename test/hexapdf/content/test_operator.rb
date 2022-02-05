@@ -391,7 +391,7 @@ describe_operator :CurveToNoSecondControlPoint, :y do
   end
 end
 
-[:S, :s, :f, :F, 'f*'.intern, :B, 'B*'.intern, :b, 'b*'.intern, :n].each do |sym|
+[:S, :s, :f, :F, :'f*', :B, :'B*', :b, :'b*', :n].each do |sym|
   describe_operator :EndPath, sym do
     it "changes the graphics object to none" do
       @processor.graphics_object = :path
@@ -401,7 +401,7 @@ end
   end
 end
 
-[:W, 'W*'.intern].each do |sym|
+[:W, :'W*'].each do |sym|
   describe_operator :ClipPath, sym do
     it "changes the graphics object to clipping_path for clip path operations" do
       invoke

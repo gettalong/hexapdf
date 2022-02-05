@@ -30,11 +30,11 @@ describe HexaPDF::ImageLoader::PNG do
     assert_equal(height, image[:Height])
     assert_equal(bpc, image[:BitsPerComponent])
     assert_equal(color_space, @doc.unwrap(image[:ColorSpace])) if color_space
-    data = stream.map {|row| [row.map {|i| i.to_s(2).rjust(bpc, '0') }.join("")].pack('B*') }.join("")
+    data = stream.map {|row| [row.map {|i| i.to_s(2).rjust(bpc, '0') }.join].pack('B*') }.join
     assert_equal(data, image.stream)
   end
 
-  # Note: colors and image data for comparisons were extracted using GIMP and its color tools
+  # NOTE: colors and image data for comparisons were extracted using GIMP and its color tools
   describe "load" do
     before do
       @greyscale_1bit_data = [[1, 1, 0, 0, 0],

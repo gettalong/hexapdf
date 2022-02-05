@@ -9,7 +9,7 @@ module TestHelper
     end
 
     def ca_certificate
-      @ca_cert ||=
+      @ca_certificate ||=
         begin
           ca_name = OpenSSL::X509::Name.parse('/C=AT/O=HexaPDF/CN=HexaPDF Test Root CA')
 

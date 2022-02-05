@@ -70,16 +70,16 @@ describe HexaPDF::Serializer do
 
   it "serializes symbols" do
     assert_serialized("/Name", :Name)
-    assert_serialized("/A;Name_With-Various***Chars?", 'A;Name_With-Various***Chars?'.intern)
-    assert_serialized("/1.2", '1.2'.intern)
-    assert_serialized("/$$", '$$'.intern)
-    assert_serialized("/@pattern", '@pattern'.intern)
-    assert_serialized('/.notdef', '.notdef'.intern)
-    assert_serialized('/lime#20Green', 'lime Green'.intern)
-    assert_serialized('/paired#28#29parentheses', 'paired()parentheses'.intern)
-    assert_serialized('/The_Key_of_F#23_Minor', 'The_Key_of_F#_Minor'.intern)
-    assert_serialized('/ ', ''.intern)
-    assert_serialized('/H#c3#b6#c3#9fgang', "Hößgang".intern)
+    assert_serialized("/A;Name_With-Various***Chars?", :'A;Name_With-Various***Chars?')
+    assert_serialized("/1.2", :'1.2')
+    assert_serialized("/$$", :$$)
+    assert_serialized("/@pattern", :@pattern)
+    assert_serialized('/.notdef', :'.notdef')
+    assert_serialized('/lime#20Green', :'lime Green')
+    assert_serialized('/paired#28#29parentheses', :'paired()parentheses')
+    assert_serialized('/The_Key_of_F#23_Minor', :'The_Key_of_F#_Minor')
+    assert_serialized('/ ', :"")
+    assert_serialized('/H#c3#b6#c3#9fgang', :Hößgang)
     assert_serialized('/H#e8lp', "H\xE8lp".force_encoding('BINARY').intern)
   end
 
@@ -101,18 +101,16 @@ describe HexaPDF::Serializer do
   end
 
   it "serializes time like objects" do
-    begin
-      tz = ENV['TZ']
-      ENV['TZ'] = 'Europe/Vienna'
-      assert_serialized("(D:20150416094100)", Time.new(2015, 04, 16, 9, 41, 0, 0))
-      assert_serialized("(D:20150416094100+01'00')", Time.new(2015, 04, 16, 9, 41, 0, 3600))
-      assert_serialized("(D:20150416094100-01'20')", Time.new(2015, 04, 16, 9, 41, 0, -4800))
-      assert_serialized("(D:20150416000000+02'00')", Date.parse("2015-04-16 9:41:00 +02:00"))
-      assert_serialized("(D:20150416094100+02'00')",
-                        Time.parse("2015-04-16 9:41:00 +02:00").to_datetime)
-    ensure
-      ENV['TZ'] = tz
-    end
+    tz = ENV['TZ']
+    ENV['TZ'] = 'Europe/Vienna'
+    assert_serialized("(D:20150416094100)", Time.new(2015, 04, 16, 9, 41, 0, 0))
+    assert_serialized("(D:20150416094100+01'00')", Time.new(2015, 04, 16, 9, 41, 0, 3600))
+    assert_serialized("(D:20150416094100-01'20')", Time.new(2015, 04, 16, 9, 41, 0, -4800))
+    assert_serialized("(D:20150416000000+02'00')", Date.parse("2015-04-16 9:41:00 +02:00"))
+    assert_serialized("(D:20150416094100+02'00')",
+                      Time.parse("2015-04-16 9:41:00 +02:00").to_datetime)
+  ensure
+    ENV['TZ'] = tz
   end
 
   it "serializes HexaPDF objects" do

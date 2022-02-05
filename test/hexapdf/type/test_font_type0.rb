@@ -112,7 +112,7 @@ describe HexaPDF::Type::FontType0 do
     end
 
     it "calls the configured proc if no mapping is available" do
-      @font[:Encoding] = :"Identity-H"
+      @font[:Encoding] = :'Identity-H'
       @cid_font[:CIDSystemInfo][:Registry] = :Unknown
       assert_raises(HexaPDF::Error) { @font.to_utf8(32) }
     end

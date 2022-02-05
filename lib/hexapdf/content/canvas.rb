@@ -2015,7 +2015,7 @@ module HexaPDF
             invoke2(:Td, offset[0], offset[1])
           end
         else
-          invoke0(:"T*")
+          invoke0(:'T*')
         end
         self
       end

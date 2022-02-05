@@ -136,7 +136,7 @@ module HexaPDF
         end
 
         @page_name_cache[media_box] =
-          paper_size ? paper_size[0] : "%.0fx%.0f" % media_box.values_at(2, 3)
+          paper_size ? paper_size[0] : sprintf("%.0fx%.0f", *media_box.values_at(2, 3))
       end
 
     end

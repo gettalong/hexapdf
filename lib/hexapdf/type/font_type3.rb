@@ -59,7 +59,7 @@ module HexaPDF
       def bounding_box
         matrix = self[:FontMatrix]
         bbox = self[:FontBBox].value
-        if matrix[3] < 0    # Some writers invert the y-axis
+        if matrix[3] < 0 # Some writers invert the y-axis
           bbox = bbox.dup
           bbox[1], bbox[3] = -bbox[3], -bbox[1]
         end

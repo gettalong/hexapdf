@@ -55,7 +55,7 @@ module HexaPDF
             'hmtx' => font[:hmtx].raw_data,
           }
           tables['cmap'] = font[:cmap].raw_data if font[:cmap]
-          tables['cvt '] = font[:"cvt "].raw_data if font[:"cvt "]
+          tables['cvt '] = font[:'cvt '].raw_data if font[:'cvt ']
           tables['fpgm'] = font[:fpgm].raw_data if font[:fpgm]
           tables['prep'] = font[:prep].raw_data if font[:prep]
           Builder.build(tables)

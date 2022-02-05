@@ -258,7 +258,7 @@ module HexaPDF
         #
         # See: HexaPDF::Type::Annotations::Widget
         def each_widget(direct_only: false, &block) # :yields: widget
-          return to_enum(__method__) unless block_given?
+          return to_enum(__method__, direct_only: direct_only) unless block_given?
 
           if embedded_widget?
             yield(document.wrap(self))
@@ -336,7 +336,7 @@ module HexaPDF
 
           if embedded_widget?
             WIDGET_FIELDS.each {|key| delete(key) }
-            document.revisions.each {|revision| break if revision.update(self)}
+            document.revisions.each {|revision| break if revision.update(self) }
           else
             self[:Kids].delete_at(widget_index)
             document.delete(widget)

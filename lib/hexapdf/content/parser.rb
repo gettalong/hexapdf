@@ -94,11 +94,11 @@ module HexaPDF
         elsif byte == 40 # (
           parse_literal_string
         elsif byte == 60 # <
-          if @string.getbyte(@ss.pos + 1) != 60
-            parse_hex_string
-          else
+          if @string.getbyte(@ss.pos + 1) == 60
             @ss.pos += 2
             TOKEN_DICT_START
+          else
+            parse_hex_string
           end
         elsif byte == 62 # >
           unless @string.getbyte(@ss.pos + 1) == 62

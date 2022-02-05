@@ -99,7 +99,7 @@ module HexaPDF
             'loca' => loca,
             'hmtx' => hmtx,
           }
-          tables['cvt '] = @font[:"cvt "].raw_data if @font[:"cvt "]
+          tables['cvt '] = @font[:'cvt '].raw_data if @font[:'cvt ']
           tables['fpgm'] = @font[:fpgm].raw_data if @font[:fpgm]
           tables['prep'] = @font[:prep].raw_data if @font[:prep]
 

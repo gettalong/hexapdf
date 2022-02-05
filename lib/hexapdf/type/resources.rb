@@ -218,10 +218,7 @@ module HexaPDF
       def perform_validation
         super
         val = self[:ProcSet]
-        if !val
-          yield("No procedure set specified", true)
-          self[:ProcSet] = [:PDF, :Text, :ImageB, :ImageC, :ImageI]
-        else
+        if val
           if val.kind_of?(Symbol)
             yield("Procedure set is a single value instead of an Array", true)
             val = value[:ProcSet] = [val]
@@ -235,6 +232,9 @@ module HexaPDF
               true
             end
           end
+        else
+          yield("No procedure set specified", true)
+          self[:ProcSet] = [:PDF, :Text, :ImageB, :ImageC, :ImageI]
         end
       end
 
