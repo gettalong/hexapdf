@@ -46,8 +46,17 @@ namespace :dev do
     puts 'done'
   end
 
+  task :test_all do
+    versions = `rbenv versions --bare | grep -i 2.[567]\\\\\\|3.`.split("\n")
+    versions.each do |version|
+      sh "rbenv shell #{version} &>/dev/null && rake test"
+    end
+    puts "Looks okay? (enter to continue, Ctrl-c to abort)"
+    $stdin.gets
+  end
+
   desc 'Release HexaPDF version ' + HexaPDF::VERSION
-  task release: [:clobber, :package, :publish_files]
+  task release: [:clobber, :test_all, :package, :publish_files]
 
   desc "Set-up everything for development"
   task :setup do
