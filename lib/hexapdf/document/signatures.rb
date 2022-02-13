@@ -171,7 +171,7 @@ module HexaPDF
       # Creates a signing handler with the given options and returns it.
       #
       # A signing handler name is mapped to a class via the 'signature.signing_handler'
-      # configuration option.
+      # configuration option. The default signing handler is DefaultHandler.
       def handler(name: :default, **options)
         handler = @document.config.constantize('signature.signing_handler', name) do
           raise HexaPDF::Error, "No signing handler named '#{name}' is available"
@@ -183,7 +183,8 @@ module HexaPDF
       #
       # This method will add a new signature to the document and write the updated document to the
       # given file or IO stream. Afterwards the document can't be modified anymore and still retain
-      # a correct digital signature; create a new document based on the file or IO stream instead.
+      # a correct digital signature. To modify the signed document (e.g. for adding another
+      # signature) create a new document based on the given file or IO stream instead.
       #
       # +signature+::
       #     Can either be a signature object (determined via the /Type key), a signature field or

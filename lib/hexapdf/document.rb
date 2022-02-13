@@ -638,6 +638,9 @@ module HexaPDF
     # of the keyword arguments (see HexaPDF::Document::Signatures#handler for details).
     #
     # If not changed, the default signing handler is HexaPDF::Document::Signatures::DefaultHandler.
+    #
+    # *Note*: Once signing is done the document cannot be changed anymore since it was written. If a
+    # document needs to be signed multiple times, it needs to be loaded again after writing.
     def sign(file_or_io, handler: :default, signature: nil, write_options: {}, **handler_options)
       handler = signatures.handler(name: handler, **handler_options)
       signatures.add(file_or_io, handler, signature: signature, write_options: write_options)
