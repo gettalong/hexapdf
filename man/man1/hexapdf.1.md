@@ -597,6 +597,15 @@ The available commands are:
 : Print the raw stream, i.e. the stream as it appears in the file. This is useful, for example, to
   extract streams into files.
 
+`rev[ision] [NUMBER]`
+
+: If no argument is given, prints information about all revisions of the document. The information
+  includes the number of objects in the revision, whether it was signed and the byte range. A PDF
+  document contains at least one revision but may contain more if it was updated incrementally.
+
+  If *NUMBER* is specified, the specified revision is output. This is useful, for example, to
+  extract a signed revision to view it in the state as it has been signed.
+
 `x[ref] OID[,GEN]`
 
 : Print the cross-reference entry for the given indirect object.

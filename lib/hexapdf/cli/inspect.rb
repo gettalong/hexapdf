@@ -216,6 +216,28 @@ module HexaPDF
               end
             end
 
+          when 'rev', 'revision'
+            if (rev_index = data.shift)
+              rev_index = rev_index.to_i - 1
+              if rev_index < 0 || rev_index >= @doc.revisions.count
+                $stderr.puts("Error: Invalid revision numer specified")
+                next
+              end
+              length = 0
+              revision_information do |_, index, _, _, end_offset|
+                length = end_offset if index == rev_index
+              end
+              IO.copy_stream(@doc.revisions.parser.io, $stdout, length, 0)
+            else
+              puts "Document has #{@doc.revisions.size} revision#{@doc.revisions.size == 1 ? '' : 's'}"
+              revision_information do |_, index, count, signature, end_offset|
+                puts "Revision #{index + 1}"
+                puts "  Objects   : #{count}"
+                puts "  Signed    : yes" if signature
+                puts "  Byte range: 0-#{end_offset}"
+              end
+            end
+
           when 'q', 'quit'
             return true
 
@@ -294,11 +316,48 @@ module HexaPDF
         puts if indent == 0
       end
 
+      # Yields information about the document's revisions.
+      #
+      # Returns an array of arrays that include the following information:
+      #
+      # - The revision object itself
+      # - The index of the revision in terms of all revisions of the document
+      # - The number of objects in the revision
+      # - The signature dictionary if this revision was signed
+      # - The byte offset from the start of the file to the end of the revision
+      def revision_information
+        signatures = @doc.signatures.map do |sig|
+          [@doc.revisions.find {|rev| rev.object(sig) == sig }, sig]
+        end.to_h
+        io = @doc.revisions.parser.io
+
+        startxrefs = @doc.revisions.map {|rev| rev.trailer[:Prev] }
+        io.seek(0, IO::SEEK_END)
+        startxrefs.push(@doc.revisions.parser.startxref_offset, io.pos).shift
+
+        @doc.revisions.each_with_index.map do |rev, index|
+          end_index = 0
+          sig = signatures[rev]
+          if sig
+            end_index = sig[:ByteRange][-2] + sig[:ByteRange][-1]
+          else
+            io.seek(startxrefs[index], IO::SEEK_SET)
+            while io.pos < startxrefs[index + 1]
+              if io.gets =~ /^\s*%%EOF\s*$/
+                end_index = io.pos
+              end
+            end
+          end
+          yield(rev, index, rev.next_free_oid - 1, sig, end_index)
+        end
+      end
+
       COMMAND_DESCRIPTIONS = [ #:nodoc:
         ["OID[,GEN] | o[bject] OID[,GEN]", "Print object"],
         ["r[ecursive] OID[,GEN]", "Print object recursively"],
         ["s[tream] OID[,GEN]", "Print filtered stream"],
         ["raw[-stream] OID[,GEN]", "Print raw stream"],
+        ["rev[ision] [NUMBER]", "Print or extract revision"],
         ["x[ref] OID[,GEN]", "Print the cross-reference entry"],
         ["c[atalog]", "Print the catalog dictionary"],
         ["t[railer]", "Print the trailer dictionary"],

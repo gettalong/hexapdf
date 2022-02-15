@@ -4,6 +4,8 @@
 
 * [HexaPDF::Parser#reconstructed?] which returns true if the cross-reference
   table was reconstructed
+* The ability to view revisions of a PDF document or extract a single revision
+  via `hexapdf inspect`
 
 
 ## 0.20.4 - 2022-01-26
