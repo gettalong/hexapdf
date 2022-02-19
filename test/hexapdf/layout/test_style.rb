@@ -604,6 +604,26 @@ describe HexaPDF::Layout::Style do
     end
   end
 
+  describe "self.create" do
+    it "returns the provided style argument" do
+      assert_same(@style, HexaPDF::Layout::Style.create(@style))
+    end
+
+    it "creates a new Style object based on the passed hash" do
+      style = HexaPDF::Layout::Style.create(font_size: 10, fill_color: 'green')
+      assert_equal(10, style.font_size)
+      assert_equal('green', style.fill_color)
+    end
+
+    it "creates an empty Style object if nil is passed" do
+      assert_kind_of(HexaPDF::Layout::Style, HexaPDF::Layout::Style.create(nil))
+    end
+
+    it "raises an error if an invalid object is provided" do
+      assert_raises(ArgumentError) { HexaPDF::Layout::Style.create(5) }
+    end
+  end
+
   it "can assign values on initialization" do
     style = HexaPDF::Layout::Style.new(font_size: 10)
     assert_equal(10, style.font_size)

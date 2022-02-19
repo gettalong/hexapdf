@@ -518,6 +518,27 @@ module HexaPDF
 
       UNSET = ::Object.new # :nodoc:
 
+      # :call-seq:
+      #   Style.create(style)     -> style
+      #   Style.create(properties_hash)   -> style
+      #
+      # Creates a Style object based on the +style+ argument and returns it:
+      #
+      # * If +style+ is already a Style object, it is just returned.
+      #
+      # * If +style+ is a hash, a new Style object with the style properties specified by the hash
+      # * is created.
+      #
+      # * If +style+ is +nil+, a new Style object with only default values is created.
+      def self.create(style)
+        case style
+        when self then style
+        when Hash then new(**style)
+        when nil then new
+        else raise ArgumentError, "Invalid argument class #{style.class}"
+        end
+      end
+
       # Creates a new Style object.
       #
       # The +properties+ hash may be used to set the initial values of properties by using keys

@@ -4,6 +4,7 @@
 
 * [HexaPDF::Parser#reconstructed?] which returns true if the cross-reference
   table was reconstructed
+- [HexaPDF::Layout::Style::create] for easier creation of style objects
 * The ability to view revisions of a PDF document or extract a single revision
   via `hexapdf inspect`
 
