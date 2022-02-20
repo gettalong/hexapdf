@@ -56,7 +56,7 @@ module HexaPDF
       # Creates a new Image box object for the given +image+ argument which needs to be an image
       # object (e.g. returned by HexaPDF::Document::Images#add).
       def initialize(image, **kwargs)
-        super(**kwargs, &:unused_draw_block)
+        super(**kwargs)
         @image = image
       end
 
