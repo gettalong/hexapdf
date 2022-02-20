@@ -20,7 +20,7 @@ describe HexaPDF::Layout::TextFragment do
   end
 
   describe "create" do
-    it "creates a TextFragment from text and options" do
+    it "creates a TextFragment from text and style" do
       frag = HexaPDF::Layout::TextFragment.create("Tom", font: @font, font_size: 20,
                                                   font_features: {kern: true})
       assert_equal(4, frag.items.length)

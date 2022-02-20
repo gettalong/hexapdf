@@ -51,13 +51,16 @@ module HexaPDF
     # * If width or height is set to zero, they are determined automatically during layouting.
     class Box
 
-      # Creates a new Box object, using the provided block as drawing block (see ::new). Any
-      # additional keyword arguments are used for creating the box's Style object.
+      # Creates a new Box object, using the provided block as drawing block (see ::new).
       #
       # If +content_box+ is +true+, the width and height are taken to mean the content width and
       # height and the style's padding and border are removed from them appropriately.
-      def self.create(width: 0, height: 0, content_box: false, **style, &block)
-        style = Style.new(**style)
+      #
+      # The +style+ argument defines the Style object (see Style::create for details) for the box.
+      # Any additional keyword arguments have to be style properties and are applied to the style
+      # object.
+      def self.create(width: 0, height: 0, content_box: false, style: nil, **style_properties, &block)
+        style = Style.create(style).update(**style_properties)
         if content_box
           width += style.padding.left + style.padding.right +
             style.border.width.left + style.border.width.right
@@ -86,7 +89,7 @@ module HexaPDF
       attr_reader :style
 
       # :call-seq:
-      #    Box.new(width: 0, height: 0, style: Style.new) {|canv, box| block} -> box
+      #    Box.new(width: 0, height: 0, style: nil) {|canv, box| block} -> box
       #
       # Creates a new Box object with the given width and height that uses the provided block when
       # it is asked to draw itself on a canvas (see #draw).
@@ -94,10 +97,10 @@ module HexaPDF
       # Since the final location of the box is not known beforehand, the drawing operations inside
       # the block should draw inside the rectangle (0, 0, content_width, content_height) - note that
       # the width and height of the box may not be known beforehand.
-      def initialize(width: 0, height: 0, style: Style.new, &block)
+      def initialize(width: 0, height: 0, style: nil, &block)
         @width = @initial_width = width
         @height = @initial_height = height
-        @style = (style.kind_of?(Style) ? style : Style.new(**style))
+        @style = Style.create(style)
         @draw_block = block
       end
 

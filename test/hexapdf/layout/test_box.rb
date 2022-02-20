@@ -17,9 +17,19 @@ describe HexaPDF::Layout::Box do
       assert_same(block, box.instance_eval { @draw_block })
     end
 
-    it "allows specifying style options" do
+    it "allows specifying a style object" do
+      box = HexaPDF::Layout::Box.create(style: {background_color: 20})
+      assert_equal(20, box.style.background_color)
+    end
+
+    it "allows specifying style properties" do
       box = HexaPDF::Layout::Box.create(background_color: 20)
       assert_equal(20, box.style.background_color)
+    end
+
+    it "applies the additional style properties to the style object" do
+      box = HexaPDF::Layout::Box.create(style: {background_color: 20}, background_color: 15)
+      assert_equal(15, box.style.background_color)
     end
 
     it "takes content width and height" do
