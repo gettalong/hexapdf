@@ -664,4 +664,8 @@ describe HexaPDF::Document do
       assert_raises(LocalJumpError) { @doc.cache(:a, :b) }
     end
   end
+
+  it "can be inspected and the output is not too large" do
+    assert_match(/HexaPDF::Document:\d+/, @doc.inspect)
+  end
 end

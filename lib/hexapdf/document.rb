@@ -717,6 +717,10 @@ module HexaPDF
       end
     end
 
+    def inspect #:nodoc:
+      "<#{self.class.name}:#{object_id}>"
+    end
+
   end
 
 end
