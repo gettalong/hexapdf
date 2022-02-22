@@ -966,7 +966,8 @@ module HexaPDF
         [:valign, :top, {valid_values: [:top, :center, :bottom]}],
         [:text_indent, 0],
         [:line_spacing, "LineSpacing.new(type: :single)",
-         {setter: "LineSpacing.new(**(value.kind_of?(Symbol) ? {type: value, value: extra_arg} : value))",
+         {setter: "LineSpacing.new(**(value.kind_of?(Symbol) || value.kind_of?(Numeric) ? " \
+           "{type: value, value: extra_arg} : value))",
           extra_args: ", extra_arg = nil"}],
         [:last_line_gap, false, {valid_values: [true, false]}],
         [:background_color, nil],

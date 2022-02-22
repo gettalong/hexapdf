@@ -712,6 +712,9 @@ describe HexaPDF::Layout::Style do
 
     @style.stroke_dash_pattern(5, 2)
     assert_equal([[5], 2], @style.stroke_dash_pattern.to_operands)
+
+    @style.line_spacing(1.2)
+    assert_equal([:proportional, 1.2], [@style.line_spacing.type, @style.line_spacing.value])
   end
 
   it "allows checking for valid values" do

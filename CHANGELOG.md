@@ -8,6 +8,11 @@
 * The ability to view revisions of a PDF document or extract a single revision
   via `hexapdf inspect`
 
+### Fixed
+
+* Setter for [HexaPDF::Layout::Style#line_spacing] to allow usage of numeric
+  arguments
+
 
 ## 0.20.4 - 2022-01-26
 
