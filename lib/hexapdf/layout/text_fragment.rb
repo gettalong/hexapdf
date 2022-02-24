@@ -97,8 +97,8 @@ module HexaPDF
       # * Style#stroke_join_style
       # * Style#stroke_miter_limit
       # * Style#stroke_dash_pattern
-      # * Style#underlay_callback
-      # * Style#overlay_callback
+      # * Style#underlays
+      # * Style#overlays
       attr_reader :style
 
       # Creates a new TextFragment object with the given items and style.

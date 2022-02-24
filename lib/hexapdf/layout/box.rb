@@ -84,8 +84,8 @@ module HexaPDF
       # * Style#background_alpha
       # * Style#padding
       # * Style#border
-      # * Style#overlay_callback
-      # * Style#underlay_callback
+      # * Style#overlays
+      # * Style#underlays
       attr_reader :style
 
       # :call-seq:
