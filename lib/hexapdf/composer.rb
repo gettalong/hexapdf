@@ -39,8 +39,9 @@ require 'hexapdf/layout'
 
 module HexaPDF
 
-  # The composer class can be used to create PDF documents from scratch. It uses Frame and Box
-  # objects underneath.
+  # The composer class can be used to create PDF documents from scratch. It uses
+  # HexaPDF::Layout::Frame and HexaPDF::Layout::Box objects underneath and binds them together to
+  # provide a convenient interface for working with them.
   #
   # == Usage
   #
@@ -57,10 +58,23 @@ module HexaPDF
   # page. Behind the scenes HexaPDF::Layout::Box (and subclass) objects are created and drawn on the
   # page via the frame.
   #
-  # The base style that is used by all these boxes can be defined using the #base_style method which
-  # returns a HexaPDF::Layout::Style object. The only style property that is set by default is the
-  # font (Times) because otherwise there would be problems with text drawing operations (font is the
-  # only style property that has no valid default value).
+  # All drawing methods accept HexaPDF::Layout::Style objects or names for style objects (defined
+  # via #style). The HexaPDF::Layout::Style#font is handled specially:
+  #
+  # * If no font is set on a style, the font "Times" is automatically set because otherwise there
+  #   would be problems with text drawing operations (font is the only style property that has no
+  #   valid default value).
+  #
+  # * Standard style objects only allow font wrapper objects to be set via the
+  #   HexaPDF::Layout::Style#font method. Composer makes usage easier by allowing strings or an
+  #   array [name, options_hash] to be used, like with e.g Content::Canvas. So using Helvetica as
+  #   font, one could just do this by saying
+  #
+  #     style.font = 'Helvetica'
+  #
+  #   And if Helvetica bold should be used it would be
+  #
+  #     style.font = ['Helvetica', variant: :bold]
   #
   # If the frame of a page is full and a box doesn't fit anymore, a new page is automatically
   # created. The box is either split into two boxes where one fits on the first page and the other
@@ -105,11 +119,8 @@ module HexaPDF
     # The Content::Canvas of the current page. Can be used to perform arbitrary drawing operations.
     attr_reader :canvas
 
-    # The Layout::Frame for automatic box placement.
+    # The HexaPDF::Layout::Frame for automatic box placement.
     attr_reader :frame
-
-    # The base style which is used when no explicit style is provided to methods (e.g. to #text).
-    attr_reader :base_style
 
     # Creates a new Composer object and optionally yields it to the given block.
     #
@@ -122,15 +133,22 @@ module HexaPDF
     #     +page_size+ is one of the predefined page sizes.
     #
     # margin::
-    #     The margin to use. See Layout::Style::Quad#set for possible values.
+    #     The margin to use. See HexaPDF::Layout::Style::Quad#set for possible values.
+    #
+    # Example:
+    #
+    #   composer = HexaPDF::Composer.new            # uses the default values
+    #   HexaPDF::Composer.new(page_size: :Letter, margin: 72) do |composer|
+    #     #...
+    #   end
     def initialize(page_size: :A4, page_orientation: :portrait, margin: 36) #:yields: composer
       @document = HexaPDF::Document.new
       @page_size = page_size
       @page_orientation = page_orientation
       @margin = Layout::Style::Quad.new(margin)
+      @styles = {base: Layout::Style.new}
 
       new_page
-      @base_style = Layout::Style.new(font: 'Times')
       yield(self) if block_given?
     end
 
@@ -170,32 +188,85 @@ module HexaPDF
       @document.write(output, optimize: optimize, **options)
     end
 
+    # :call-seq:
+    #    composer.style(:header)                              -> style
+    #    composer.style(:header, base: :base, **properties)   -> style
+    #
+    # Creates or updates the HexaPDF::Layout::Style object called +name+ with the given property
+    # values and returns it. Such a style can then be used by name in the various box drawing
+    # methods, e.g. #text or #image.
+    #
+    # If neither +base+ nor any style properties are specified, the style +name+ is just returned.
+    #
+    # If the style +name+ does not exist yet and the argument +base+ specifies the name of another
+    # style, that style is duplicated and used as basis for the style.
+    #
+    # The special name :base should be used for setting the base style which is used when no
+    # specific style is set. It is best to fully initialize the base style before creating any
+    # other styles.
+    #
+    # Note that the style property 'font' is handled specially by Composer, see the class
+    # documentation for details.
+    #
+    # Example:
+    #
+    #   composer.style(:base, font_size: 12, leading: 1.2)
+    #   composer.style(:header, font: 'Helvetica', fill_color: "008")
+    #   composer.style(:header1, base: :header, font_size: 30)
+    #
+    # See: HexaPDF::Layout::Style
+    def style(name, base: :base, **properties)
+      style = @styles[name] ||= (@styles.key?(base) ? @styles[base].dup : Layout::Style.new)
+      style.update(**properties) unless properties.empty?
+      style
+    end
+
     # Draws the given text at the current position into the current frame.
     #
-    # This method is the main method for displaying text on a PDF page. It uses a Layout::TextBox
-    # behind the scenes to do the actual work.
+    # This method is the main method for displaying text on a PDF page. It uses a
+    # HexaPDF::Layout::TextBox behind the scenes to do the actual work.
     #
     # The text will be positioned at the current position if possible. Otherwise the next best
     # position is used. If the text doesn't fit onto the current page or only partially, new pages
     # are created automatically.
     #
-    # The arguments +width+ and +height+ are used as constraints and are respected when fitting the
-    # box.
+    # +width+, +height+::
+    #     The arguments +width+ and +height+ are used as constraints and are respected when fitting
+    #     the box. The default value of 0 means that no constraints are set.
     #
-    # The text is styled using the given +style+ object (see Layout::Style) or, if no style object
-    # is specified, the base style (see #base_style). If any additional style +options+ are
-    # specified, the used style is copied and the additional styles are applied.
+    # +style+, +style_properties+::
+    #     The box and the text are styled using the given +style+. This can either be a style name
+    #     set via #style or anything HexaPDF::Layout::Style::create accepts. If any additional
+    #     +style_properties+ are specified, the style is duplicated and the additional styles are
+    #     applied.
     #
-    # See HexaPDF::Layout::TextBox for details.
-    def text(str, width: 0, height: 0, style: nil, **options)
-      style = update_style(style, options)
+    # +box_style+::
+    #     Sometimes it is necessary for the box to have a different style than the text, e.g. when
+    #     using overlays. In such a case use +box_style+ for specifiying the style of the box (a
+    #     style name set via #style or anything HexaPDF::Layout::Style::create accepts). The +style+
+    #     together with the +style_properties+ will be used for the text style.
+    #
+    # Examples:
+    #
+    #   #>pdf-composer
+    #   composer.text("Test " * 15)
+    #   composer.text("Now " * 7, width: 100)
+    #   composer.text("Another test", font_size: 15, fill_color: "green")
+    #   composer.text("Different box style", fill_color: 'white', box_style: {
+    #     underlays: [->(c, b) { c.rectangle(0, 0, b.content_width, b.content_height).fill }]
+    #   })
+    #
+    # See HexaPDF::HexaPDF::Layout::TextBox for details.
+    def text(str, width: 0, height: 0, style: nil, box_style: nil, **style_properties)
+      style = retrieve_style(style, style_properties)
+      box_style = (box_style ? retrieve_style(box_style) : style)
       draw_box(Layout::TextBox.new([Layout::TextFragment.create(str, style)],
-                                   width: width, height: height, style: style))
+                                   width: width, height: height, style: box_style))
     end
 
-    # Draws text like #text but where parts of it can be formatted differently.
+    # Draws text like #text but allows parts of the text to be formatted differently.
     #
-    # The argument +data+ needs to be an array of String or Hash objects:
+    # The argument +data+ needs to be an array of String and/or Hash objects:
     #
     # * A String object is treated like {text: data}.
     #
@@ -206,48 +277,58 @@ module HexaPDF
     #   link:: A URL that should be linked to. If no text is provided but a link, the link is used
     #          as text.
     #
-    #   style:: A Layout::Style object to use as basis instead of the style created from the +style+
-    #           and +options+ arguments.
+    #   style:: The style to be use as basis instead of the style created from the +style+ and
+    #           +style_properties+ arguments. See HexaPDF::Layout::Style::create for allowed values.
     #
     #   If any style properties are set, the used style is copied and the additional properties
     #   applied.
     #
+    # See #text for details on +width+, +height+, +style+, +style_properties+ and +box_style+.
+    #
     # Examples:
     #
-    #   composer.formatted_text(["Some string"])   # The same as #text
-    #   composer.formatted_text(["Some ", {text: "string", fill_color: 128}]
-    #   composer.formatted_text(["Some ", {link: "https://example.com", text: "Example"}])
-    #   composer.formatted_text(["Some ", {text: "string", style: my_style}])
-    def formatted_text(data, width: 0, height: 0, style: nil, **options)
-      style = update_style(style, options)
+    #   #>pdf-composer
+    #   composer.formatted_text(["Some string"])
+    #   composer.formatted_text(["Some ", {text: "string", fill_color: 128}])
+    #   composer.formatted_text(["Some ", {link: "https://example.com",
+    #                                      fill_color: 'blue', text: "Example"}])
+    #   composer.formatted_text(["Some ", {text: "string", style: {font_size: 20}}])
+    #
+    # See: #text, HexaPDF::Layout::TextBox, HexaPDF::Layout::TextFragment
+    def formatted_text(data, width: 0, height: 0, style: nil, box_style: nil, **style_properties)
+      style = retrieve_style(style, style_properties)
+      box_style = (box_style ? retrieve_style(box_style) : style)
       data.map! do |hash|
         if hash.kind_of?(String)
           Layout::TextFragment.create(hash, style)
         else
           link = hash.delete(:link)
+          (hash[:overlays] ||= []) << [:link, {uri: link}] if link
           text = hash.delete(:text) || link || ""
-          used_style = update_style(hash.delete(:style), options) || style
-          if link || !hash.empty?
-            used_style = used_style.dup
-            hash.each {|key, value| used_style.send(key, value) }
-            used_style.overlays.add(:link, uri: link) if link
-          end
-          Layout::TextFragment.create(text, used_style)
+          Layout::TextFragment.create(text, retrieve_style(hash.delete(:style) || style, hash))
         end
       end
-      draw_box(Layout::TextBox.new(data, width: width, height: height, style: style))
+      draw_box(Layout::TextBox.new(data, width: width, height: height, style: box_style))
     end
 
-    # Draws the given image file at the current position.
+    # Draws the given image at the current position.
     #
-    # See #text for details on +width+, +height+, +style+ and +options+.
-    def image(file, width: 0, height: 0, style: nil, **options)
-      style = update_style(style, options)
+    # The +file+ argument can be anything that is accepted by HexaPDF::Document::Images#add.
+    #
+    # See #text for details on +width+, +height+, +style+ and +style_properties+.
+    #
+    # Examples:
+    #
+    #   #>pdf-composer
+    #   composer.image(machu_picchu, border: {width: 3})
+    #   composer.image(machu_picchu, height: 30)
+    def image(file, width: 0, height: 0, style: nil, **style_properties)
+      style = retrieve_style(style, style_properties)
       image = document.images.add(file)
       draw_box(Layout::ImageBox.new(image, width: width, height: height, style: style))
     end
 
-    # Draws the given Layout::Box.
+    # Draws the given HexaPDF::Layout::Box.
     #
     # The box is drawn into the current frame if possible. If it doesn't fit, the box is split. If
     # it still doesn't fit, a new region of the frame is determined and then the process starts
@@ -291,13 +372,26 @@ module HexaPDF
                                  media_box.height - @margin.bottom - @margin.top)
     end
 
-    # Updates the Layout::Style object +style+ if one is provided, or the base style, with the style
-    # options to make it work in all cases.
-    def update_style(style, options = {})
-      style ||= base_style
-      style = style.dup.update(**options) unless options.empty?
-      style.font(base_style.font) unless style.font?
-      style.font(@document.fonts.add(style.font)) unless style.font.respond_to?(:pdf_object)
+    # Retrieves the appropriate HexaPDF::Layout::Style object based on the +style+ and +properties+
+    # arguments.
+    #
+    # The +style+ argument specifies the style to retrieve. It can either be a registered style name
+    # (see #style), a hash with style properties or +nil+. In the latter case the registered style
+    # :base is used
+    #
+    # If the +properties+ hash is not empty, the retrieved style is duplicated and the properties
+    # hash is applied to it.
+    #
+    # Finally, a default font is set if necessary to ensure that the style object works in all
+    # cases.
+    def retrieve_style(style, properties = nil)
+      style = Layout::Style.create(@styles[style] || style || @styles[:base])
+      style = style.dup.update(**properties) unless properties.nil? || properties.empty?
+      style.font('Times') unless style.font?
+      unless style.font.respond_to?(:pdf_object)
+        name, options = *style.font
+        style.font(@document.fonts.add(name, **(options || {})))
+      end
       style
     end
 

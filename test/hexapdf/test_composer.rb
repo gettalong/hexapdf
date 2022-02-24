@@ -19,7 +19,7 @@ describe HexaPDF::Composer do
       assert_equal(36, @composer.frame.bottom)
       assert_equal(523, @composer.frame.width)
       assert_equal(770, @composer.frame.height)
-      assert_equal("Times", @composer.base_style.font)
+      assert_kind_of(HexaPDF::Layout::Style, @composer.style(:base))
     end
 
     it "allows the customization of the page size" do
@@ -86,83 +86,144 @@ describe HexaPDF::Composer do
     assert_equal(806, @composer.y)
   end
 
-  describe "text" do
-    it "creates a text box and draws it on the canvas" do
-      box = nil
-      @composer.define_singleton_method(:draw_box) {|arg| box = arg }
+  describe "style" do
+    it "creates a new style if it does not exist based on the base argument" do
+      @composer.style(:base, font_size: 20)
+      assert_equal(20, @composer.style(:newstyle, subscript: true).font_size)
+      refute( @composer.style(:base).subscript)
+      assert_equal(10, @composer.style(:another_new, base: nil).font_size)
+      assert(@composer.style(:yet_another_new, base: :newstyle).subscript)
+    end
 
+    it "returns the named style" do
+      assert_kind_of(HexaPDF::Layout::Style, @composer.style(:base))
+    end
+
+    it "updates the style with the given properties" do
+      assert_equal(20, @composer.style(:base, font_size: 20).font_size)
+    end
+  end
+
+  describe "text" do
+    before do
+      test_self = self
+      @composer.define_singleton_method(:draw_box) do |arg|
+        test_self.instance_variable_set(:@box, arg)
+      end
+    end
+
+    it "creates a text box and draws it on the canvas" do
       @composer.text("Test", width: 10, height: 15)
-      assert_equal(10, box.width)
-      assert_equal(15, box.height)
-      assert_same(@composer.document.fonts.add("Times"), box.style.font)
-      items = box.instance_variable_get(:@items)
+      assert_equal(10, @box.width)
+      assert_equal(15, @box.height)
+      assert_same(@composer.document.fonts.add("Times"), @box.style.font)
+      items = @box.instance_variable_get(:@items)
       assert_equal(1, items.length)
-      assert_same(box.style, items.first.style)
+      assert_same(@box.style, items.first.style)
     end
 
     it "allows setting of a custom style" do
-      box = nil
-      @composer.define_singleton_method(:draw_box) {|arg| box = arg }
+      style = HexaPDF::Layout::Style.new(font_size: 20, font: ['Times', {variant: :bold}])
+      @composer.text("Test", style: style)
+      assert_same(@box.style, style)
+      assert_same(@composer.document.fonts.add("Times", variant: :bold), @box.style.font)
+      assert_equal(20, @box.style.font_size)
 
-      @composer.text("Test", style: HexaPDF::Layout::Style.new(font_size: 20))
-      assert_same(@composer.document.fonts.add("Times"), box.style.font)
-      assert_equal(20, box.style.font_size)
+      @composer.text("Test", style: {font_size: 20})
+      assert_equal(20, @box.style.font_size)
+
+      @composer.style(:named, font_size: 20)
+      @composer.text("Test", style: :named)
+      assert_equal(20, @box.style.font_size)
     end
 
     it "updates the used style with the provided options" do
-      box = nil
-      @composer.define_singleton_method(:draw_box) {|arg| box = arg }
+      @composer.text("Test", style: {subscript: true}, font_size: 20)
+      assert_equal(20, @box.style.font_size)
+    end
 
-      @composer.text("Test", style: HexaPDF::Layout::Style.new, font_size: 20)
-      assert_equal(20, box.style.font_size)
+    it "allows using a box style different from the text style" do
+      style = HexaPDF::Layout::Style.new(font_size: 20)
+      @composer.text("Test", box_style: style)
+      refute_same(@box.instance_variable_get(:@items).first.style, style)
+      assert_same(@box.style, style)
+
+      @composer.style(:named, font_size: 20)
+      @composer.text("Test", box_style: :named)
+      assert_equal(20, @box.style.font_size)
     end
   end
 
   describe "formatted_text" do
-    it "creates a text box with the formatted text and draws it on the canvas" do
-      box = nil
-      @composer.define_singleton_method(:draw_box) {|arg| box = arg }
+    before do
+      test_self = self
+      @composer.define_singleton_method(:draw_box) do |arg|
+        test_self.instance_variable_set(:@box, arg)
+      end
+    end
 
+    it "creates a text box with the given text and draws it on the canvas" do
       @composer.formatted_text(["Test"], width: 10, height: 15)
-      assert_equal(10, box.width)
-      assert_equal(15, box.height)
-      assert_equal(1, box.instance_variable_get(:@items).length)
+      assert_equal(10, @box.width)
+      assert_equal(15, @box.height)
+      assert_equal(1, @box.instance_variable_get(:@items).length)
     end
 
-    it "a hash can be used for custom style properties" do
-      box = nil
-      @composer.define_singleton_method(:draw_box) {|arg| box = arg }
-
-      @composer.formatted_text([{text: "Test", font_size: 20}], align: :center)
-      items = box.instance_variable_get(:@items)
-      assert_equal(1, items.length)
-      assert_equal(20, items.first.style.font_size)
-      assert_equal(:center, items.first.style.align)
-      assert_equal(10, box.style.font_size)
-    end
-
-    it "a hash can be used to provide a custom style" do
-      box = nil
-      @composer.define_singleton_method(:draw_box) {|arg| box = arg }
-
-      @composer.formatted_text([{text: "Test", style: HexaPDF::Layout::Style.new(fill_color: 128),
-                                 font_size: 20}], align: :center)
-      items = box.instance_variable_get(:@items)
-      assert_equal(20, items.first.style.font_size)
-      assert_equal(128, items.first.style.fill_color)
-      assert_equal(:center, items.first.style.align)
-    end
-
-    it "a hash can be used to link to an URL" do
-      box = nil
-      @composer.define_singleton_method(:draw_box) {|arg| box = arg }
-
-      @composer.formatted_text([{text: "Test", link: "URI"}, {link: "URI"}])
-      items = box.instance_variable_get(:@items)
-      assert_equal(2, items.length)
+    it "allows using a hash with :text key instead of a simple string" do
+      @composer.formatted_text([{text: "Test"}])
+      items = @box.instance_variable_get(:@items)
       assert_equal(4, items[0].items.length)
-      assert_equal(3, items[1].items.length)
+    end
+
+    it "uses an empty string if the :text key for a hash is not specified" do
+      @composer.formatted_text([{font_size: "Test"}])
+      items = @box.instance_variable_get(:@items)
+      assert_equal(0, items[0].items.length)
+    end
+
+    it "allows setting a custom base style for all parts" do
+      @composer.formatted_text(["Test", "other"], font_size: 20)
+      items = @box.instance_variable_get(:@items)
+      assert_equal(20, @box.style.font_size)
+      assert_equal(20, items[0].style.font_size)
+      assert_equal(20, items[1].style.font_size)
+    end
+
+    it "allows using custom style properties for a single part" do
+      @composer.formatted_text([{text: "Test", font_size: 20}, "test"], align: :center)
+      items = @box.instance_variable_get(:@items)
+      assert_equal(10, @box.style.font_size)
+
+      assert_equal(20, items[0].style.font_size)
+      assert_equal(:center, items[0].style.align)
+
+      assert_equal(10, items[1].style.font_size)
+      assert_equal(:center, items[1].style.align)
+    end
+
+    it "allows using a custom style as basis for a single part" do
+      @composer.formatted_text([{text: "Test", style: {font_size: 20}, subscript: true}, "test"],
+                               align: :center)
+      items = @box.instance_variable_get(:@items)
+      assert_equal(10, @box.style.font_size)
+
+      assert_equal(20, items[0].style.font_size)
+      assert_equal(:left, items[0].style.align)
+      assert(items[0].style.subscript)
+
+      assert_equal(10, items[1].style.font_size)
+      assert_equal(:center, items[1].style.align)
+      refute(items[1].style.subscript)
+    end
+
+    it "allows specifying a link to an URL via the :link key" do
+      @composer.formatted_text([{text: "Test", link: "URI"}, {link: "URI"}, "test"])
+      items = @box.instance_variable_get(:@items)
+      assert_equal(3, items.length)
+      assert_equal(4, items[0].items.length, "text should be Test")
+      assert_equal(3, items[1].items.length, "text should be URI")
       assert_equal([:link, {uri: 'URI'}], items[0].style.overlays.instance_variable_get(:@layers)[0])
+      refute(items[2].style.overlays?)
     end
   end
 
@@ -172,9 +233,11 @@ describe HexaPDF::Composer do
       @composer.define_singleton_method(:draw_box) {|arg| box = arg }
       image_path = File.join(TEST_DATA_DIR, 'images', 'gray.jpg')
 
-      @composer.image(image_path, width: 10, height: 15)
+      @composer.image(image_path, width: 10, height: 15, style: {font_size: 20}, subscript: true)
       assert_equal(10, box.width)
       assert_equal(15, box.height)
+      assert_equal(20, box.style.font_size)
+      assert(box.style.subscript)
       assert_same(@composer.document.images.add(image_path), box.image)
     end
   end

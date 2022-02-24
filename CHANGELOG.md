@@ -8,6 +8,11 @@
 * The ability to view revisions of a PDF document or extract a single revision
   via `hexapdf inspect`
 
+### Changed
+
+* **Breaking change**: Refactored [HexaPDF::Composer] for better and more
+  consistent style support
+
 ### Fixed
 
 * Setter for [HexaPDF::Layout::Style#line_spacing] to allow usage of numeric
