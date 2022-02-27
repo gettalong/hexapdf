@@ -100,7 +100,7 @@ module HexaPDF
           end
 
           key_usage = signer_certificate.extensions.find {|ext| ext.oid == 'keyUsage' }
-          unless key_usage.value.split(', ').include?("Digital Signature")
+          unless key_usage && key_usage.value.split(', ').include?("Digital Signature")
             result.log(:error, "Certificate key usage is missing 'Digital Signature'")
           end
 

@@ -17,6 +17,8 @@
 
 * Setter for [HexaPDF::Layout::Style#line_spacing] to allow usage of numeric
   arguments
+* Digital Signature validation for 'adbe.pkcs7.detached' certifiates in case no
+  key usage was defined
 
 
 ## 0.20.4 - 2022-01-26
