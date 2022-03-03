@@ -119,7 +119,6 @@ module HexaPDF
       def initialize(document, font, pdf_object: nil, custom_encoding: false)
         @wrapped_font = font
         @pdf_object = pdf_object || create_pdf_object(document)
-        @missing_glyph_callable = document.config['font.on_missing_glyph']
 
         if pdf_object
           @encoding = pdf_object.encoding
@@ -160,7 +159,7 @@ module HexaPDF
             if @wrapped_font.metrics.character_metrics.key?(name)
               Glyph.new(@wrapped_font, name, str)
             else
-              @missing_glyph_callable.call(str, self)
+              @pdf_object.document.config['font.on_missing_glyph'].call(str, self)
             end
           end
       end

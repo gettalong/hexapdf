@@ -21,6 +21,8 @@
   arguments
 * Digital Signature validation for 'adbe.pkcs7.detached' certifiates in case no
   key usage was defined
+* Removed caching of configuration 'font.on_missing_glyph' in font wrappers to
+  avoid problems
 
 
 ## 0.20.4 - 2022-01-26

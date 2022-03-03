@@ -126,7 +126,6 @@ module HexaPDF
       # If +subset+ is true, the font is subset.
       def initialize(document, font, pdf_object: nil, subset: true)
         @wrapped_font = font
-        @missing_glyph_callable = document.config['font.on_missing_glyph']
 
         @subsetter = (subset ? HexaPDF::Font::TrueType::Subsetter.new(font) : nil)
 
@@ -168,7 +167,7 @@ module HexaPDF
           if id >= 0 && id < @wrapped_font[:maxp].num_glyphs
             Glyph.new(@wrapped_font, id, str || (+'' << (@cmap.gid_to_code(id) || 0xFFFD)))
           else
-            @missing_glyph_callable.call("\u{FFFD}", self)
+            @pdf_object.document.config['font.on_missing_glyph'].call("\u{FFFD}", self)
           end
       end
 
@@ -179,7 +178,7 @@ module HexaPDF
             if (gid = @cmap[c])
               glyph(gid, +'' << c)
             else
-              @missing_glyph_callable.call(+'' << c, self)
+              @pdf_object.document.config['font.on_missing_glyph'].call(+'' << c, self)
             end
         end
       end
