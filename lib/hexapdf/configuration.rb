@@ -266,9 +266,13 @@ module HexaPDF
   # font.on_missing_glyph::
   #    Callback hook when an UTF-8 character cannot be mapped to a glyph of a font.
   #
-  #    The value needs to be an object that responds to \#call(character, font_type, font) where
+  #    The value needs to be an object that responds to \#call(character, font_wrapper) where
   #    +character+ is the Unicode character for the missing glyph and returns a substitute glyph to
   #    be used instead.
+  #
+  #    The +font_wrapper+ argument is the used font wrapper object, e.g.
+  #    HexaPDF::Font::TrueTypeWrapper. To access the HexaPDF::Document instance from which this hook
+  #    was called, you can use +font_wrapper.pdf_object.document+.
   #
   #    The default implementation returns an object of class HexaPDF::Font::InvalidGlyph which, when
   #    not removed before encoding, will raise an error.
@@ -431,8 +435,8 @@ module HexaPDF
                         Encryption: 'HexaPDF::Filter::Encryption',
                       },
                       'font.map' => {},
-                      'font.on_missing_glyph' => proc do |char, _type, font|
-                        HexaPDF::Font::InvalidGlyph.new(font, char)
+                      'font.on_missing_glyph' => proc do |char, font_wrapper|
+                        HexaPDF::Font::InvalidGlyph.new(font_wrapper.wrapped_font, char)
                       end,
                       'font.on_missing_unicode_mapping' => proc do |code_point, font|
                         raise HexaPDF::Error, "No Unicode mapping for code point #{code_point} " \

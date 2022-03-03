@@ -168,7 +168,7 @@ module HexaPDF
           if id >= 0 && id < @wrapped_font[:maxp].num_glyphs
             Glyph.new(@wrapped_font, id, str || (+'' << (@cmap.gid_to_code(id) || 0xFFFD)))
           else
-            @missing_glyph_callable.call("\u{FFFD}", font_type, @wrapped_font)
+            @missing_glyph_callable.call("\u{FFFD}", self)
           end
       end
 
@@ -179,7 +179,7 @@ module HexaPDF
             if (gid = @cmap[c])
               glyph(gid, +'' << c)
             else
-              @missing_glyph_callable.call(+'' << c, font_type, @wrapped_font)
+              @missing_glyph_callable.call(+'' << c, self)
             end
         end
       end

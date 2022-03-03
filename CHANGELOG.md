@@ -12,6 +12,8 @@
 
 * **Breaking change**: Refactored [HexaPDF::Composer] for better and more
   consistent style support
+* **Breaking change**: Arguments for configuration option
+  'font.on_missing_glyph' have changed to allow access to the document instance
 
 ### Fixed
 

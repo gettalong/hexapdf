@@ -160,7 +160,7 @@ module HexaPDF
             if @wrapped_font.metrics.character_metrics.key?(name)
               Glyph.new(@wrapped_font, name, str)
             else
-              @missing_glyph_callable.call(str, font_type, @wrapped_font)
+              @missing_glyph_callable.call(str, self)
             end
           end
       end
