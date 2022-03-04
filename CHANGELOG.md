@@ -246,7 +246,7 @@
 
 ## 0.16.0 - 2021-09-28
 
-## Added
+### Added
 
 * Support for RGB color values of the form "RGB" in addition to "RRGGBB" and for
   CSS color module level 3 color names
