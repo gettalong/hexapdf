@@ -34,11 +34,15 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'geom2d/utils'
+
 module HexaPDF
   module Layout
 
     # Utility class for generating width specifications for TextLayouter#fit from polygons.
     class WidthFromPolygon
+
+      include Geom2D::Utils
 
       # Creates a new object for the given polygon (or polygon set) and immediately prepares it so
       # that #call can be used.
@@ -101,7 +105,7 @@ module HexaPDF
                    end
 
           segments.each do |_segment, miny, maxy, minyx, maxyx, vertical, slope, intercept|
-            next unless miny < y2 && maxy > y1
+            next unless float_compare(miny, y2) < 0 && float_compare(maxy, y1) > 0
 
             if vertical
               min_x = max_x = minyx
@@ -111,9 +115,9 @@ module HexaPDF
               min_x, max_x = max_x, min_x if min_x > max_x
             end
 
-            if miny <= y1 && maxy >= y2 # segment crosses both lines
+            if float_compare(miny, y1) <= 0 && float_compare(maxy, y2) >= 0 # segment crosses both lines
               temp_result << [min_x, max_x, :crossed_both]
-            elsif miny <= y1 # segment crosses bottom line
+            elsif float_compare(miny, y1) <= 0 # segment crosses bottom line
               if status == :outside
                 temp_result << [min_x, max_x, :crossed_bottom]
                 status = :inside
@@ -127,7 +131,7 @@ module HexaPDF
                 temp_result << [min_x, max_x, :crossed_bottom]
                 status = :outside
               end
-            elsif maxy >= y2 # segment crosses top line
+            elsif float_compare(maxy, y2) >= 0 # segment crosses top line
               if status == :outside
                 temp_result << [min_x, max_x, :crossed_top]
                 status = :inside

@@ -60,6 +60,12 @@ describe HexaPDF::Layout::WidthFromPolygon do
     assert_equal([5, 5], ws.call(4, 2))
   end
 
+  it "works in case of small floating point differences" do
+    ws = create_width_spec(Geom2D::Polygon([0, 0], [10, 0], [10, 5.99999999999994], [8, 6], [8, 10],
+                                           [6, 10], [6, 5], [0, 5]))
+    assert_equal([6, 4], ws.call(4.0, 3.0))
+  end
+
   describe "multiple polygons" do
     it "rectangle in rectangle" do
       ws = create_width_spec(Geom2D::PolygonSet(Geom2D::Polygon([0, 0], [0, 10], [10, 10], [10, 0]),

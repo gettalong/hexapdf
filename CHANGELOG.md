@@ -11,6 +11,8 @@
   needs to be split
 * [HexaPDF::Layout::TextLayouter] to avoid the possible splitting of a text
   fragment if there would not be enough height left anyway
+* [HexaPDF::Layout::WidthFromPolygon] to work correctly in case of very small
+  floating point errors
 
 
 ## 0.23.0 - 2022-05-26
