@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+- Handling of invalid AES encrypted files where the padding is missing
+
+
 ## 0.21.0 - 2022-03-04
 
 ### Added

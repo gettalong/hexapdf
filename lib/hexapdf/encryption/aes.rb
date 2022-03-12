@@ -114,10 +114,12 @@ module HexaPDF
         #
         # See: PDF1.7 s7.6.2.
         def decrypt(key, data)
-          if data.length % BLOCK_SIZE != 0 || data.length < 2 * BLOCK_SIZE
+          if data.length % BLOCK_SIZE != 0 || data.length < BLOCK_SIZE
             raise HexaPDF::EncryptionError, "Invalid data for decryption, need 32 + 16*n bytes"
           end
-          unpad(new(key, data.slice!(0, BLOCK_SIZE), :decrypt).process(data))
+          iv = data.slice!(0, BLOCK_SIZE)
+          # Handle invalid files with missing padding
+          data.empty? ? data : unpad(new(key, iv, :decrypt).process(data))
         end
 
         # Returns a Fiber object that decrypts the data from the given source fiber with the
@@ -140,11 +142,13 @@ module HexaPDF
               Fiber.yield(algorithm.process(new_data))
             end
 
-            if data.length < BLOCK_SIZE || data.length % BLOCK_SIZE != 0
+            if data.length % BLOCK_SIZE != 0
               raise HexaPDF::EncryptionError, "Invalid data for decryption, need 32 + 16*n bytes"
+            elsif data.empty?
+              data # Handle invalid files with missing padding
+            else
+              unpad(algorithm.process(data))
             end
-
-            unpad(algorithm.process(data))
           end
         end
 
