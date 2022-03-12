@@ -49,7 +49,7 @@ namespace :dev do
   task :test_all do
     versions = `rbenv versions --bare | grep -i 2.[567]\\\\\\|3.`.split("\n")
     versions.each do |version|
-      sh "rbenv shell #{version} &>/dev/null && rake test"
+      sh "eval \"$(rbenv init -)\"; rbenv shell #{version} && ruby -v && rake test"
     end
     puts "Looks okay? (enter to continue, Ctrl-c to abort)"
     $stdin.gets
