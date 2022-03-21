@@ -97,6 +97,10 @@ module HexaPDF
         end
         with_document(in_file, password: @password, out_file: out_file,
                       incremental: @incremental) do |doc|
+          if doc.acro_form[:XFA]
+            $stderr.puts "Warning: Unsupported XFA form detected, some things may not work correctly"
+          end
+
           if !doc.acro_form
             raise "This PDF doesn't contain an interactive form"
           elsif out_file

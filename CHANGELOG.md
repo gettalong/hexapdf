@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+- CLI command `hexapdf form` to show a warning when working with a file
+  containing an XFA form
+
+
 ## 0.21.1 - 2022-03-12
 
 ### Fixed

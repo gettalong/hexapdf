@@ -323,6 +323,11 @@ instead of the standard input. See the `--template` option for details.
 If the `--flatten` is specified but neither `--fill` nor `--template`, the form is just flattened.
 Otherwise the form is filled out and flattened in addtion.
 
+There exist two different types of PDF forms: The standard interactive forms (AcroForm) and the more
+advanced but proprietary and in PDF 2.0 deprecated XFA forms. HexaPDF only supports the standard
+AcroForm forms. It is possible to work with XFA forms to a certain degree but since the advanced
+features are not supported, the result may not be correct.
+
 `--fill`
 
 : Fill out the form fields interactively. This is also the default if neither `--fill` nor
