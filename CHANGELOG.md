@@ -5,6 +5,11 @@
 - CLI command `hexapdf form` to show a warning when working with a file
   containing an XFA form
 
+### Fixed
+
+- [HexaPDF::Type::AcroForm::Form#field_by_name] to work correctly when field
+  name parts are UTF-16BE encoded
+
 
 ## 0.21.1 - 2022-03-12
 

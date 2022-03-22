@@ -86,7 +86,8 @@ describe HexaPDF::Type::AcroForm::Form do
     before do
       @acro_form[:Fields] = [
         {T: "root only", Kids: [{Subtype: :Widget}]},
-        {T: "children", Kids: [{T: "child", FT: :Btn}, {T: "sub", Kids: [{T: "child"}]}]},
+        {T: "children", Kids: [{T: "\xFE\xFF".b << "child".encode('UTF-16BE').b, FT: :Btn},
+                               {T: "sub", Kids: [{T: "child"}]}]},
       ]
     end
 

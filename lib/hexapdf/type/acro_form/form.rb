@@ -139,13 +139,19 @@ module HexaPDF
         def field_by_name(name)
           fields = root_fields
           field = nil
+
           name.split('.').each do |part|
-            field = fields&.find {|f| f[:T] == part }
-            break unless field
-            field = document.wrap(field, type: :XXAcroFormField,
-                                  subtype: Field.inherited_value(field, :FT))
-            fields = field[:Kids] unless field.terminal_field?
+            field = nil
+            fields&.each do |f|
+              f = document.wrap(f, type: :XXAcroFormField,
+                                subtype: Field.inherited_value(f, :FT))
+              next unless f[:T] == part
+              field = f
+              fields = field[:Kids] unless field.terminal_field?
+              break
+            end
           end
+
           field
         end
 
