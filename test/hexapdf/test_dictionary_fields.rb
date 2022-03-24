@@ -134,7 +134,7 @@ describe HexaPDF::DictionaryFields do
       assert_equal(Encoding::UTF_8, str.encoding)
     end
 
-    def configuration
+    def config
       HexaPDF::Configuration.with_defaults
     end
 

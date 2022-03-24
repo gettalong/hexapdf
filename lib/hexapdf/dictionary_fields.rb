@@ -241,7 +241,7 @@ module HexaPDF
           if str.valid_encoding?
             str.encode!(Encoding::UTF_8)
           else
-            document.configuration['document.on_invalid_string'].call(str)
+            document.config['document.on_invalid_string'].call(str)
           end
         else
           Utils::PDFDocEncoding.convert_to_utf8(str)
