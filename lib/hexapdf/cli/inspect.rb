@@ -342,10 +342,14 @@ module HexaPDF
             end_index = sig[:ByteRange][-2] + sig[:ByteRange][-1]
           else
             io.seek(startxrefs[index], IO::SEEK_SET)
+            buffer = ''.b
             while io.pos < startxrefs[index + 1]
-              if io.gets =~ /^\s*%%EOF\s*$/
-                end_index = io.pos
+              buffer << io.read(1_000)
+              if (buffer_index = buffer.index(/(?:\n|\r\n?)\s*%%EOF\s*(?:\n|\r\n?)/))
+                end_index = io.pos - buffer.size + buffer_index + $~[0].size
+                break
               end
+              buffer = buffer[-20..-1]
             end
           end
           yield(rev, index, rev.next_free_oid - 1, sig, end_index)

@@ -9,6 +9,7 @@
 
 - [HexaPDF::Type::AcroForm::Form#field_by_name] to work correctly when field
   name parts are UTF-16BE encoded
+- `hexapdf inspect` command 'revision' to correctly detect the end of revisions
 
 
 ## 0.21.1 - 2022-03-12
