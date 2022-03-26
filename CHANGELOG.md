@@ -3,6 +3,7 @@
 ### Added
 
 - Support for writing images with an ICCBased color space
+- Support for writing images with soft masks
 
 ### Changed
 

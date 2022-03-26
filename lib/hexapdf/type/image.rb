@@ -173,7 +173,13 @@ module HexaPDF
           result.writable = false if result.type == :png
         end
 
-        result.writable = false if self[:SMask]
+        smask = self[:SMask]
+        if smask && (result.type != :png ||
+                     !(result.bits_per_component == 8 || result.bits_per_component == 16) ||
+                     result.bits_per_component != smask[:BitsPerComponent] ||
+                     result.width != smask[:Width] || result.height != smask[:Height])
+          result.writable = false
+        end
 
         result
       end
@@ -234,6 +240,10 @@ module HexaPDF
                        ImageLoader::PNG::GREYSCALE
                      end
 
+        if self[:SMask] && color_type != ImageLoader::PNG::INDEXED
+          color_type += 4 # change it to TrueColor/Greyscale with Alpha
+        end
+
         flate_decode = config.constantize('filter.map', :FlateDecode)
 
         io << png_chunk('IHDR', [info.width, info.height, info.bits_per_component,
@@ -272,7 +282,11 @@ module HexaPDF
 
         filter, = *self[:Filter]
         decode_parms, = *self[:DecodeParms]
-        if filter == :FlateDecode && decode_parms && decode_parms[:Predictor].to_i >= 10
+        if self[:SMask]
+          data = flate_decode.encoder(Fiber.new { png_combine_image_and_soft_mask(info) }, Predictor: 15,
+                                      Colors: info.components + 1, Columns: info.width,
+                                      BitsPerComponent: info.bits_per_component)
+        elsif filter == :FlateDecode && decode_parms && decode_parms[:Predictor].to_i >= 10
           data = stream_source
         else
           colors = (color_type == ImageLoader::PNG::INDEXED ? 1 : info.components)
@@ -288,6 +302,23 @@ module HexaPDF
       # Returns the binary representation of the PNG chunk for the given chunk type and data.
       def png_chunk(type, data = '')
         [data.length].pack("N") << type << data << [Zlib.crc32(data, Zlib.crc32(type))].pack("N")
+      end
+
+      # Combines the image data with the soft mask data as needed for a PNG data stream.
+      def png_combine_image_and_soft_mask(info)
+        bytes_per_colors = info.bits_per_component * info.components / 8
+        bytes_per_alpha = info.bits_per_component / 8
+        image_data = stream
+        mask_data = self[:SMask].stream
+
+        data = ''.b
+        ii = im = 0
+        while ii < image_data.length
+          data << image_data[ii, bytes_per_colors] << mask_data[im, bytes_per_alpha]
+          ii += bytes_per_colors
+          im += bytes_per_alpha
+        end
+        data
       end
 
     end

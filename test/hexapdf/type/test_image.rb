@@ -126,9 +126,31 @@ describe HexaPDF::Type::Image do
     end
 
     it "processes the SMask entry" do
-      @image[:SMask] = :something
-      info = @image.info
-      refute(info.writable)
+      @image[:SMask] = {BitsPerComponent: 8, Width: 10, Height: 5}
+
+      @image[:BitsPerComponent] = 8
+      assert(@image.info.writable)
+
+      @image[:BitsPerComponent] = 16
+      refute(@image.info.writable)
+      @image[:SMask][:BitsPerComponent] = 16
+      assert(@image.info.writable)
+
+      @image[:BitsPerComponent] = 4
+      refute(@image.info.writable)
+      @image[:SMask][:BitsPerComponent] = 4
+      refute(@image.info.writable)
+
+      @image[:BitsPerComponent] = @image[:SMask][:BitsPerComponent] = 8
+      @image[:SMask][:Width] = 8
+      refute(@image.info.writable)
+
+      @image[:SMask][:Width] = 10
+      @image[:SMask][:Height] = 8
+      refute(@image.info.writable)
+
+      @image[:SMask][:Height] = 5
+      assert(@image.info.writable)
     end
   end
 
@@ -188,7 +210,7 @@ describe HexaPDF::Type::Image do
     end
 
     Dir.glob(File.join(TEST_DATA_DIR, 'images', '*.png')).each do |png_file|
-      next if png_file =~ /alpha/
+      next if png_file =~ /indexed-alpha/
       it "writes #{File.basename(png_file)} correctly as PNG file" do
         image = @doc.images.add(png_file)
         if png_file =~ /greyscale-1bit.png/ # force use of arrays for one image
@@ -212,6 +234,7 @@ describe HexaPDF::Type::Image do
         else
           assert_nil(new_image[:Mask], "file: #{png_file}")
         end
+        assert(new_image[:SMask]) if png_file =~ /alpha/
         assert_equal(image.stream, new_image.stream, "file: #{png_file}")
 
         # ColorSpace is currently not always preserved, e.g. with CalRGB
