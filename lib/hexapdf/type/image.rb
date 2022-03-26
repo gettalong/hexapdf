@@ -163,6 +163,10 @@ module HexaPDF
           result.color_space = :cmyk
           result.components = 4
           result.writable = false if result.type == :png
+        when :ICCBased
+          result.color_space = :icc
+          result.components = self[:ColorSpace][1][:N]
+          result.writable = false if result.type == :png && result.components == 4
         else
           result.color_space = :other
           result.components = -1
@@ -224,9 +228,13 @@ module HexaPDF
                        ImageLoader::PNG::INDEXED
                      elsif info.color_space == :rgb
                        ImageLoader::PNG::TRUECOLOR
+                     elsif info.color_space == :icc
+                       info.components == 3 ? ImageLoader::PNG::TRUECOLOR : ImageLoader::PNG::GREYSCALE
                      else
                        ImageLoader::PNG::GREYSCALE
                      end
+
+        flate_decode = config.constantize('filter.map', :FlateDecode)
 
         io << png_chunk('IHDR', [info.width, info.height, info.bits_per_component,
                                  color_type, 0, 0, 0].pack('N2C5'))
@@ -237,6 +245,12 @@ module HexaPDF
           io << png_chunk('sRGB', intent.chr) <<
             png_chunk('gAMA', [45455].pack('N')) <<
             png_chunk('cHRM', [31270, 32900, 64000, 33000, 30000, 60000, 15000, 6000].pack('N8'))
+        end
+
+        if info.color_space == :icc
+          _, stream = *self[:ColorSpace]
+          data = flate_decode.encoder(stream.stream_decoder)
+          io << png_chunk('iCCP', "ICCProfile\x00\x00".b << Filter.string_from_source(data))
         end
 
         if color_type == ImageLoader::PNG::INDEXED
@@ -262,7 +276,6 @@ module HexaPDF
           data = stream_source
         else
           colors = (color_type == ImageLoader::PNG::INDEXED ? 1 : info.components)
-          flate_decode = config.constantize('filter.map', :FlateDecode)
           data = flate_decode.encoder(stream_decoder, Predictor: 15,
                                       Colors: colors, Columns: info.width,
                                       BitsPerComponent: info.bits_per_component)

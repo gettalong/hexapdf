@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+- Support for writing images with an ICCBased color space
+
 ### Changed
 
 - CLI command `hexapdf form` to show a warning when working with a file

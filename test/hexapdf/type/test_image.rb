@@ -115,10 +115,14 @@ describe HexaPDF::Type::Image do
       assert(info.indexed)
       assert(info.writable)
 
-      @image[:ColorSpace] = :ICCBased
+      @image[:ColorSpace] = [:ICCBased, {N: 3}]
       info = @image.info
-      assert_equal(:other, info.color_space)
-      assert_equal(-1, info.components)
+      assert_equal(:icc, info.color_space)
+      assert_equal(3, info.components)
+      assert(info.writable)
+      @image[:ColorSpace] = [:ICCBased, {N: 4}]
+      info = @image.info
+      refute(info.writable)
     end
 
     it "processes the SMask entry" do
@@ -236,6 +240,15 @@ describe HexaPDF::Type::Image do
       assert_equal(image.stream, new_image.stream)
     end
 
+    it "works for images with an ICCBased color space" do
+      image = @doc.add({Type: :XObject, Subtype: :Image, Width: 2, Height: 2, BitsPerComponent: 2,
+                        ColorSpace: [:ICCBased, @doc.wrap({}, stream: 'abcd')]})
+      image.stream = HexaPDF::StreamData.new(filter: :ASCIIHexDecode) { "10 B0".b }
+      image.write(@file.path)
+      assert_valid_png(@file.path)
+      assert_match(/iCCPICCProfile\x00\x00/, File.binread(@file.path))
+    end
+
     it "fails if an unsupported stream filter is used" do
       image = @doc.images.add(@jpg)
       image.set_filter([:DCTDecode, :ASCIIHexDecode])
@@ -244,13 +257,13 @@ describe HexaPDF::Type::Image do
 
     it "fails if an unsupported colorspace is used" do
       image = @doc.add({Type: :XObject, Subtype: :Image, Width: 1, Height: 1, BitsPerComponent: 8,
-                        ColorSpace: :ICCBased})
+                        ColorSpace: :Unknown})
       assert_raises(HexaPDF::Error) { image.write(@file) }
     end
 
     it "fails if an indexed image with an unsupported colorspace is used" do
       image = @doc.add({Type: :XObject, Subtype: :Image, Width: 1, Height: 1, BitsPerComponent: 8,
-                        ColorSpace: [:Indexed, :ICCBased, 0, "0"]})
+                        ColorSpace: [:Indexed, :Unknown, 0, "0"]})
       assert_raises(HexaPDF::Error) { image.write(@file) }
     end
   end
