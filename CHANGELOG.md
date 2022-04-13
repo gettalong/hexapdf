@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+- CLI command `hexapdf inspect` to show the type of revisions
+
+
 ## 0.22.0 - 2022-03-26
 
 ### Added
