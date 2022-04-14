@@ -2,7 +2,8 @@
 
 ### Changed
 
-- CLI command `hexapdf inspect` to show the type of revisions
+- CLI command `hexapdf inspect` to show the type of revisions, as well as the
+  number of objects per revision
 
 
 ## 0.22.0 - 2022-03-26

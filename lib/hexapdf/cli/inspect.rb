@@ -241,6 +241,7 @@ module HexaPDF
                 puts "Revision #{index + 1}"
                 puts "  Type      : #{type}"
                 puts "  Objects   : #{count}"
+                puts "  Size      : #{rev.trailer[:Size]}"
                 puts "  Signed    : yes" if signature
                 puts "  Byte range: 0-#{end_offset}"
               end
@@ -360,7 +361,7 @@ module HexaPDF
               buffer = buffer[-20..-1]
             end
           end
-          yield(rev, index, rev.next_free_oid - 1, sig, end_index)
+          yield(rev, index, rev.each.count, sig, end_index)
         end
       end
 
