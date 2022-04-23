@@ -51,6 +51,10 @@ module HexaPDF
   # the newest revision the highest index. This is also the order in which the revisions get
   # written.
   #
+  # *Important*: It is possible to manipulate the individual revisions and their objects oneself but
+  # this should only be done if one is familiar with the inner workings of HexaPDF. Otherwise it is
+  # best to use the convenience methods of this class to create, access or delete indirect objects.
+  #
   # See: PDF1.7 s7.5.6, HexaPDF::Revision
   class Revisions
 
@@ -133,23 +137,154 @@ module HexaPDF
       end
     end
 
-    # Returns the revision at the specified index.
-    def revision(index)
-      @revisions[index]
+    # Returns the next object identifier that should be used when adding a new object.
+    def next_oid
+      @revisions.map(&:next_free_oid).max
     end
-    alias [] revision
+
+    # :call-seq:
+    #   revisions.object(ref)    -> obj or nil
+    #   revisions.object(oid)    -> obj or nil
+    #
+    # Returns the current version of the indirect object for the given exact reference or for the
+    # given object number.
+    #
+    # For references to unknown objects, +nil+ is returned but free objects are represented by a
+    # PDF Null object, not by +nil+!
+    #
+    # See: PDF1.7 s7.3.9
+    def object(ref)
+      i = @revisions.size - 1
+      while i >= 0
+        if (result = @revisions[i].object(ref))
+          return result
+        end
+        i -= 1
+      end
+      nil
+    end
+
+    # :call-seq:
+    #   revisions.object?(ref)    -> true or false
+    #   revisions.object?(oid)    -> true or false
+    #
+    # Returns +true+ if one of the revisions contains an indirect object for the given exact
+    # reference or for the given object number.
+    #
+    # Even though this method might return +true+ for some references, #object may return +nil+
+    # because this method takes *all* revisions into account.
+    def object?(ref)
+      @revisions.any? {|rev| rev.object?(ref) }
+    end
+
+    # :call-seq:
+    #   revisions.add_object(object)     -> object
+    #
+    # Adds the given HexaPDF::Object to the current revision and returns it.
+    #
+    # If +object+ is a direct object, an object number is automatically assigned.
+    def add_object(obj)
+      if obj.indirect? && (rev_obj = current.object(obj.oid))
+        if rev_obj.data == obj.data
+          return obj
+        else
+          raise HexaPDF::Error, "Can't add object because there is already " \
+            "an object with object number #{obj.oid}"
+        end
+      end
+
+      obj.oid = next_oid unless obj.indirect?
+      current.add(obj)
+    end
+
+    # :call-seq:
+    #   revisions.delete_object(ref)
+    #   revisions.delete_object(oid)
+    #
+    # Deletes the indirect object specified by an exact reference or by an object number.
+    def delete_object(ref)
+      @revisions.reverse_each do |rev|
+        if rev.object?(ref)
+          rev.delete(ref)
+          break
+        end
+      end
+    end
+
+    # :call-seq:
+    #   revisions.each_object(only_current: true, only_loaded: false) {|obj| block }      -> revisions
+    #   revisions.each_object(only_current: true, only_loaded: false) {|obj, rev| block } -> revisions
+    #   revisions.each_object(only_current: true, only_loaded: false)                     -> Enumerator
+    #
+    # Yields every object and optionally the revision it is in.
+    #
+    # If +only_loaded+ is +true+, only the already loaded objects of the PDF document are yielded.
+    # This does only matter when the document instance was created from an existing PDF document.
+    #
+    # By default, only the current version of each object is returned which implies that each object
+    # number is yielded exactly once. If the +only_current+ option is +false+, all stored objects
+    # from newest to oldest are returned, not only the current version of each object.
+    #
+    # The +only_current+ option can make a difference because the document can contain multiple
+    # revisions:
+    #
+    # * Multiple revisions may contain objects with the same object and generation numbers, e.g.
+    #   two (different) objects with oid/gen [3,0].
+    #
+    # * Additionally, there may also be objects with the same object number but different
+    #   generation numbers in different revisions, e.g. one object with oid/gen [3,0] and one with
+    #   oid/gen [3,1].
+    def each_object(only_current: true, only_loaded: false, &block)
+      unless block_given?
+        return to_enum(__method__, only_current: only_current, only_loaded: only_loaded)
+      end
+
+      yield_rev = (block.arity == 2)
+      oids = {}
+      @revisions.reverse_each do |rev|
+        rev.each(only_loaded: only_loaded) do |obj|
+          next if only_current && oids.include?(obj.oid)
+          yield_rev ? yield(obj, rev) : yield(obj)
+          oids[obj.oid] = true
+        end
+      end
+      self
+    end
 
     # Returns the current revision.
+    #
+    # *Note*: This method should only be used if one is familiar with the inner workings of HexaPDF
+    # *and the PDF specification.
     def current
       @revisions.last
     end
 
-    # Returns the number of HexaPDF::Revision objects managed by this object.
-    def size
-      @revisions.size
+    # Returns a list of all revisions.
+    #
+    # *Note*: This method should only be used if one is familiar with the inner workings of HexaPDF
+    # *and the PDF specification.
+    def all
+      @revisions
+    end
+
+    # :call-seq:
+    #   revisions.each {|rev| block }   -> revisions
+    #   revisions.each                  -> Enumerator
+    #
+    # Iterates over all revisions from oldest to current one.
+    #
+    # *Note*: This method should only be used if one is familiar with the inner workings of HexaPDF
+    # *and the PDF specification.
+    def each(&block)
+      return to_enum(__method__) unless block_given?
+      @revisions.each(&block)
+      self
     end
 
     # Adds a new empty revision to the document and returns it.
+    #
+    # *Note*: This method should only be used if one is familiar with the inner workings of HexaPDF
+    # *and the PDF specification.
     def add
       if @revisions.empty?
         trailer = {}
@@ -162,28 +297,6 @@ module HexaPDF
       rev = Revision.new(@document.wrap(trailer, type: :XXTrailer))
       @revisions.push(rev)
       rev
-    end
-
-    # :call-seq:
-    #   revisions.delete(index)    -> rev or nil
-    #   revisions.delete(oid)      -> rev or nil
-    #
-    # Deletes a revision from the document, either by index or by specifying the revision object
-    # itself.
-    #
-    # Returns the deleted revision object, or +nil+ if the index was out of range or no matching
-    # revision was found.
-    #
-    # Regarding the index: The oldest revision has index 0 and the current revision the highest
-    # index!
-    def delete(index_or_rev)
-      if @revisions.length == 1
-        raise HexaPDF::Error, "A document must have a least one revision, can't delete last one"
-      elsif index_or_rev.kind_of?(Integer)
-        @revisions.delete_at(index_or_rev)
-      else
-        @revisions.delete(index_or_rev)
-      end
     end
 
     # :call-seq:
@@ -203,17 +316,6 @@ module HexaPDF
       end
       _first, *other = *@revisions[range]
       other.each {|rev| @revisions.delete(rev) }
-      self
-    end
-
-    # :call-seq:
-    #   revisions.each {|rev| block }   -> revisions
-    #   revisions.each                  -> Enumerator
-    #
-    # Iterates over all revisions from oldest to current one.
-    def each(&block)
-      return to_enum(__method__) unless block_given?
-      @revisions.each(&block)
       self
     end
 

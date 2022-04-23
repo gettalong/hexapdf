@@ -229,7 +229,7 @@ module HexaPDF
               end
               IO.copy_stream(@doc.revisions.parser.io, $stdout, length, 0)
             else
-              puts "Document has #{@doc.revisions.size} revision#{@doc.revisions.size == 1 ? '' : 's'}"
+              puts "Document has #{@doc.revisions.count} revision#{@doc.revisions.count == 1 ? '' : 's'}"
               revision_information do |rev, index, count, signature, end_offset|
                 type = if rev.trailer[:XRefStm]
                          "xref table + stream"

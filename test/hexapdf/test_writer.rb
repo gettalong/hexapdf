@@ -112,7 +112,7 @@ describe HexaPDF::Writer do
       HexaPDF::Writer.write(doc, output_io, incremental: true)
       assert_equal(output_io.string[0, @std_input_io.string.length], @std_input_io.string)
       doc = HexaPDF::Document.new(io: output_io)
-      assert_equal(4, doc.revisions.size)
+      assert_equal(4, doc.revisions.count)
       assert_equal(2, doc.revisions.current.each.to_a.size)
     end
 
@@ -156,9 +156,9 @@ describe HexaPDF::Writer do
 
     document = HexaPDF::Document.new(io: io)
     assert_equal(3, document.revisions.count)
-    assert(document.revisions[0].none? {|obj| obj.type == :XRef })
-    assert(document.revisions[1].one? {|obj| obj.type == :XRef })
-    assert(document.revisions[2].one? {|obj| obj.type == :XRef })
+    assert(document.revisions.all[0].none? {|obj| obj.type == :XRef })
+    assert(document.revisions.all[1].one? {|obj| obj.type == :XRef })
+    assert(document.revisions.all[2].one? {|obj| obj.type == :XRef })
   end
 
   it "raises an error if the class is misused and an xref section contains invalid entries" do

@@ -91,43 +91,6 @@ describe HexaPDF::Document do
     end
   end
 
-  describe "object" do
-    it "accepts a Reference object as argument" do
-      assert_equal(10, @io_doc.object(HexaPDF::Reference.new(1, 0)).value)
-    end
-
-    it "accepts an object number as arguments" do
-      assert_equal(10, @io_doc.object(1).value)
-    end
-
-    it "returns added objects" do
-      obj = @io_doc.add(@io_doc.wrap({Type: :Test}, oid: 100))
-      assert_equal(obj, @io_doc.object(100))
-    end
-
-    it "returns nil for unknown object references" do
-      assert_nil(@io_doc.object(100))
-    end
-
-    it "returns only the newest version of an object" do
-      assert_equal(200, @io_doc.object(2).value)
-      assert_equal(200, @io_doc.object(HexaPDF::Reference.new(2, 0)).value)
-      assert_nil(@io_doc.object(3).value)
-      assert_nil(@io_doc.object(HexaPDF::Reference.new(3, 1)).value)
-      assert_equal(30, @io_doc.object(HexaPDF::Reference.new(3, 0)).value)
-    end
-  end
-
-  describe "object?" do
-    it "works with a Reference object as argument" do
-      assert(@io_doc.object?(HexaPDF::Reference.new(1, 0)))
-    end
-
-    it "works with an object number as arguments" do
-      assert(@io_doc.object?(1))
-    end
-  end
-
   describe "deref" do
     it "returns a dereferenced object when given a Reference object" do
       assert_equal(@io_doc.object(1), @io_doc.deref(HexaPDF::Reference.new(1, 0)))
@@ -139,13 +102,6 @@ describe HexaPDF::Document do
   end
 
   describe "add" do
-    it "automatically assigns free object numbers" do
-      assert_equal(1, @doc.add(5).oid)
-      assert_equal(2, @doc.add(5).oid)
-      @doc.revisions.add
-      assert_equal(3, @doc.add(5).oid)
-    end
-
     it "assigns the object's document" do
       obj = @doc.add(5)
       assert_equal(@doc, obj.document)
@@ -166,82 +122,38 @@ describe HexaPDF::Document do
       assert_equal(5, obj.value)
     end
 
-    it "returns the given object if it is already stored in the document" do
-      obj = @doc.add(5)
-      assert_same(obj, @doc.add(obj))
-    end
-
-    it "allows specifying a revision to which the object should be added" do
-      @doc.revisions.add
-      @doc.revisions.add
-
-      @doc.add(@doc.wrap(5, oid: 1), revision: 0)
-      assert_equal(5, @doc.object(1).value)
-
-      @doc.add(@doc.wrap(10, oid: 1), revision: 2)
-      assert_equal(10, @doc.object(1).value)
-
-      @doc.add(@doc.wrap(7.5, oid: 1), revision: 1)
-      assert_equal(10, @doc.object(1).value)
-    end
-
-    it "fails if the specified revision index is invalid" do
-      assert_raises(ArgumentError) { @doc.add(5, revision: 5) }
-    end
-
     it "fails if the object to be added is associated with another document" do
       doc = HexaPDF::Document.new
       obj = doc.add(5)
       assert_raises(HexaPDF::Error) { @doc.add(obj) }
     end
-
-    it "fails if the object number is already associated with another object" do
-      obj = @doc.add(5)
-      assert_raises(HexaPDF::Error) { @doc.add(@doc.wrap(5, oid: obj.oid, gen: 1)) }
-    end
   end
 
-  describe "delete" do
-    it "works with a Reference object as argument" do
-      obj = @doc.add(5)
-      @doc.delete(obj, mark_as_free: false)
-      refute(@doc.object?(obj))
-    end
+  it "defers to @revisions for retrieving an object" do
+    revs = Minitest::Mock.new
+    revs.expect(:object, :retval, [:ref])
+    doc = HexaPDF::Document.new
+    doc.instance_variable_set(:@revisions, revs)
+    doc.object(:ref)
+    revs.verify
+  end
 
-    it "works with an object number as arguments" do
-      @doc.add(5)
-      @doc.delete(1, mark_as_free: false)
-      refute(@doc.object?(1))
-    end
+  it "defers to @revisions for checking for the existence of an object" do
+    revs = Minitest::Mock.new
+    revs.expect(:object?, :retval, [:ref])
+    doc = HexaPDF::Document.new
+    doc.instance_variable_set(:@revisions, revs)
+    doc.object?(:ref)
+    revs.verify
+  end
 
-    describe "with an object in multiple revisions" do
-      before do
-        @ref = HexaPDF::Reference.new(2, 3)
-        obj = @doc.wrap(5, oid: @ref.oid, gen: @ref.gen)
-        @doc.revisions.add
-        @doc.add(obj, revision: 0)
-        @doc.add(obj, revision: 1)
-      end
-
-      it "deletes an object for all revisions when revision = :all" do
-        @doc.delete(@ref, revision: :all, mark_as_free: false)
-        refute(@doc.object?(@ref))
-      end
-
-      it "deletes an object only in the current revision when revision = :current" do
-        @doc.delete(@ref, revision: :current, mark_as_free: false)
-        assert(@doc.object?(@ref))
-      end
-
-      it "marks the object as PDF null object when using mark_as_free=true" do
-        @doc.delete(@ref, revision: :current)
-        assert(@doc.object(@ref).null?)
-      end
-    end
-
-    it "fails if the revision argument is invalid" do
-      assert_raises(ArgumentError) { @doc.delete(1, revision: :invalid) }
-    end
+  it "defers to @revisions for deleting an object" do
+    revs = Minitest::Mock.new
+    revs.expect(:delete_object, :retval, [:ref])
+    doc = HexaPDF::Document.new
+    doc.instance_variable_set(:@revisions, revs)
+    doc.delete(:ref)
+    revs.verify
   end
 
   describe "import" do
@@ -388,28 +300,13 @@ describe HexaPDF::Document do
     end
   end
 
-  describe "each" do
-    it "iterates over the current objects" do
-      assert_equal([10, 200, nil], @io_doc.each(only_current: true).sort.map(&:value))
-    end
-
-    it "iterates over all objects" do
-      assert_equal([10, 200, 20, 30, nil], @io_doc.each(only_current: false).sort.map(&:value))
-    end
-
-    it "iterates over all loaded objects" do
-      assert_equal(200, @io_doc.object(2).value)
-      assert_equal([200], @io_doc.each(only_loaded: true).sort.map(&:value))
-    end
-
-    it "yields the revision as second argument if the block accepts exactly two arguments" do
-      objs = [[10, 20, 30], [200, nil]]
-      data = @io_doc.revisions.map.with_index {|rev, i| objs[i].map {|o| [o, rev] } }.reverse.flatten
-      @io_doc.each(only_current: false) do |obj, rev|
-        assert(data.shift == obj.value)
-        assert_equal(data.shift, rev)
-      end
-    end
+  it "defers to @revisions for iterating over all objects" do
+    revs = Minitest::Mock.new
+    revs.expect(:each_object, :retval, [{only_current: true, only_loaded: true}])
+    doc = HexaPDF::Document.new
+    doc.instance_variable_set(:@revisions, revs)
+    doc.each(only_current: true, only_loaded: true)
+    revs.verify
   end
 
   describe "encryption" do

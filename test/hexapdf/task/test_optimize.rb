@@ -52,7 +52,7 @@ describe HexaPDF::Task::Optimize do
   describe "compact" do
     it "compacts the document" do
       @doc.task(:optimize, compact: true)
-      assert_equal(1, @doc.revisions.size)
+      assert_equal(1, @doc.revisions.count)
       assert_equal(2, @doc.each(only_current: false).to_a.size)
       refute_equal(@obj2, @doc.object(@obj2))
       refute_equal(@obj3, @doc.object(@obj3))
@@ -81,8 +81,8 @@ describe HexaPDF::Task::Optimize do
     end
 
     it "compacts and deletes xref streams" do
-      @doc.add({Type: :XRef}, revision: 0)
-      @doc.add({Type: :XRef}, revision: 1)
+      @doc.revisions.all[0].add(@doc.wrap({Type: :XRef}, oid: @doc.revisions.next_oid))
+      @doc.revisions.all[1].add(@doc.wrap({Type: :XRef}, oid: @doc.revisions.next_oid))
       @doc.task(:optimize, compact: true, xref_streams: :delete)
       assert_no_xrefstms
       assert_default_deleted
@@ -108,7 +108,9 @@ describe HexaPDF::Task::Optimize do
       assert_objstms_generated
       assert_default_deleted
       assert_nil(@doc.object(objstm).value)
-      assert_equal(2, @doc.revisions.current.find_all {|obj| obj.type == :ObjStm }.size)
+      objstms = @doc.revisions.current.find_all {|obj| obj.type == :ObjStm }
+      assert_equal(2, objstms.size)
+      assert_equal(400, objstms[0].instance_variable_get(:@objects).size)
     end
 
     it "deletes object and xref streams" do

@@ -2,6 +2,8 @@
 
 ### Changed
 
+- **Breaking change**: Refactored the [HexaPDF::Document] interface for working
+  with objects and move parts into [HexaPDF::Revisions]
 - CLI command `hexapdf inspect` to show the type of revisions, as well as the
   number of objects per revision
 

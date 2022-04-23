@@ -70,6 +70,141 @@ describe HexaPDF::Revisions do
     @revisions = @doc.revisions
   end
 
+  describe "initialize" do
+    it "automatically loads all revisions from the underlying IO object" do
+      assert_kind_of(HexaPDF::Parser, @revisions.parser)
+      assert_equal(20, @revisions.all[0].object(2).value)
+      assert_equal(300, @revisions.all[1].object(2).value)
+      assert_equal(400, @revisions.all[2].object(2).value)
+    end
+
+    it "creates an empty revision when not using initial revisions" do
+      revisions = HexaPDF::Revisions.new(@doc)
+      assert_equal(1, revisions.all.count)
+    end
+  end
+
+  it "returns the next free oid" do
+    assert_equal(4, @revisions.next_oid)
+  end
+
+  describe "object" do
+    it "accepts a Reference object as argument" do
+      assert_equal(400, @revisions.object(HexaPDF::Reference.new(2, 0)).value)
+    end
+
+    it "accepts an object number as arguments" do
+      assert_equal(400, @revisions.object(2).value)
+    end
+
+    it "returns nil for unknown object references" do
+      assert_nil(@revisions.object(100))
+    end
+
+    it "returns a null object for freed objects" do
+      @revisions.delete_object(2)
+      assert(@revisions.object(2).null?)
+    end
+  end
+
+  describe "object?" do
+    it "works with a Reference object as argument" do
+      assert(@revisions.object?(HexaPDF::Reference.new(2, 0)))
+    end
+
+    it "works with an object number as arguments" do
+      assert(@revisions.object?(2))
+    end
+
+    it "returns false when no object is found" do
+      refute(@revisions.object?(20))
+    end
+
+    it "returns true for freed objects" do
+      @revisions.delete_object(2)
+      assert(@revisions.object?(2))
+    end
+  end
+
+  describe "add_object" do
+    before do
+      @obj = HexaPDF::Object.new(5)
+    end
+
+    it "adds the object to the current revision" do
+      @revisions.add_object(@obj)
+      assert_same(@obj, @revisions.current.object(@obj))
+    end
+
+    it "returns the added object" do
+      obj = @revisions.add_object(@obj)
+      assert_same(@obj, obj)
+    end
+
+    it "returns the given object if it is already stored in the document" do
+      obj = @revisions.add_object(@obj)
+      assert_same(obj, @revisions.add_object(obj))
+    end
+
+    it "fails if the object number is already associated with another object" do
+      @revisions.add_object(@obj)
+      assert_raises(HexaPDF::Error) { @revisions.add_object(@doc.wrap(5, oid: @obj.oid)) }
+    end
+
+    it "automatically assign an object number for direct objects" do
+      assert_equal(4, @revisions.add_object(@obj).oid)
+    end
+  end
+
+  describe "delete_object" do
+    it "works with a Reference object as argument" do
+      @revisions.delete_object(@doc.object(2))
+      assert(@revisions.object(2).null?)
+    end
+
+    it "works with an object number as arguments" do
+      @revisions.delete_object(2)
+      assert(@revisions.object(2).null?)
+    end
+
+    it "deletes an object only in the most recent revision" do
+      @revisions.delete_object(2)
+      assert_equal(20, @revisions.all[0].object(2).value)
+      assert_equal(300, @revisions.all[1].object(2).value)
+      assert(@revisions.all[2].object(2).null?)
+    end
+  end
+
+  describe "each_object" do
+    before do
+      @obj3 = @revisions.object(3).value
+    end
+
+    it "iterates over the current objects" do
+      assert_equal([10, 400, @obj3], @revisions.each_object(only_current: true).sort.map(&:value))
+    end
+
+    it "iterates over all objects" do
+      assert_equal([10, 400, 300, 20, @obj3],
+                   @revisions.each_object(only_current: false).sort.map(&:value))
+    end
+
+    it "iterates over all loaded objects" do
+      assert_equal([@obj3], @revisions.each_object(only_loaded: true).map(&:value))
+      assert_equal(400, @revisions.object(2).value)
+      assert_equal([400, @obj3], @revisions.each_object(only_loaded: true).sort.map(&:value))
+    end
+
+    it "yields the revision as second argument if the block accepts exactly two arguments" do
+      data = [400, @revisions.all[-1], @obj3, @revisions.all[-2], 10, @revisions.all[0]]
+      @revisions.each_object do |obj, rev|
+        assert_equal(data.shift, obj.value)
+        assert_equal(data.shift, rev)
+      end
+      assert(data.empty?)
+    end
+  end
+
   describe "add" do
     it "adds an empty revision as the current revision" do
       rev = @revisions.add
@@ -78,50 +213,23 @@ describe HexaPDF::Revisions do
     end
   end
 
-  describe "delete_revision" do
-    it "allows deleting a revision by index" do
-      rev = @revisions.revision(0)
-      @revisions.delete(0)
-      refute(@revisions.any? {|r| r == rev })
-    end
-
-    it "allows deleting a revision by specifying a revision" do
-      rev = @revisions.revision(0)
-      @revisions.delete(rev)
-      refute(@revisions.any? {|r| r == rev })
-    end
-
-    it "fails when trying to delete the only existing revision" do
-      assert_raises(HexaPDF::Error) { @revisions.delete(0) while @revisions.current }
-    end
-  end
-
   describe "merge" do
     it "does nothing when only one revision is specified" do
       @revisions.merge(1..1)
-      assert_equal(3, @revisions.each.to_a.size)
+      assert_equal(3, @revisions.all.size)
     end
 
     it "merges the higher into the the lower revision" do
       @revisions.merge
-      assert_equal(1, @revisions.each.to_a.size)
+      assert_equal(1, @revisions.all.size)
       assert_equal([10, 400, @doc.object(3).value], @revisions.current.each.to_a.sort.map(&:value))
     end
 
     it "handles objects correctly that are in multiple revisions" do
-      @revisions.current.add(@revisions[0].object(1))
+      @revisions.current.add(@revisions.all[0].object(1))
       @revisions.merge
       assert_equal(1, @revisions.each.to_a.size)
       assert_equal([10, 400, @doc.object(3).value], @revisions.current.each.to_a.sort.map(&:value))
-    end
-  end
-
-  describe "initialize" do
-    it "automatically loads all revisions from the underlying IO object" do
-      assert_kind_of(HexaPDF::Parser, @revisions.parser)
-      assert_equal(20, @revisions.revision(0).object(2).value)
-      assert_equal(300, @revisions[1].object(2).value)
-      assert_equal(400, @revisions[2].object(2).value)
     end
   end
 
@@ -191,6 +299,6 @@ describe HexaPDF::Revisions do
     EOF
     doc = HexaPDF::Document.new(io: io)
     assert_equal(2, doc.revisions.count)
-    assert_same(doc.revisions[0].trailer.value, doc.revisions[1].trailer.value)
+    assert_same(doc.revisions.all[0].trailer.value, doc.revisions.all[1].trailer.value)
   end
 end

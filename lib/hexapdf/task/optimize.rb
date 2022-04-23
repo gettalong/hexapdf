@@ -106,7 +106,7 @@ module HexaPDF
         rev = doc.revisions.add
 
         oid = 1
-        doc.revisions[0].each do |obj|
+        doc.revisions.all[0].each do |obj|
           if obj.null? || unused.include?(obj) || (obj.type == :ObjStm) ||
               (obj.type == :XRef && xref_streams != :preserve)
             obj.data.value = nil
@@ -119,7 +119,7 @@ module HexaPDF
           rev.add(obj)
           oid += 1
         end
-        doc.revisions.delete(0)
+        doc.revisions.all.delete_at(0)
 
         if object_streams == :generate
           process_object_streams(doc, :generate, xref_streams)
@@ -134,7 +134,7 @@ module HexaPDF
       def self.process_object_streams(doc, method, xref_streams)
         case method
         when :delete
-          doc.revisions.each_with_index do |rev, rev_index|
+          doc.revisions.each do |rev|
             xref_stream = false
             objects_to_delete = []
             rev.each do |obj|
@@ -150,11 +150,11 @@ module HexaPDF
             end
             objects_to_delete.each {|obj| rev.delete(obj) }
             if xref_streams == :generate && !xref_stream
-              doc.add({Type: :XRef}, revision: rev_index)
+              rev.add(doc.wrap({Type: :XRef}, oid: doc.revisions.next_oid))
             end
           end
         when :generate
-          doc.revisions.each_with_index do |rev, rev_index|
+          doc.revisions.each do |rev|
             xref_stream = false
             count = 0
             objstms = [doc.wrap({Type: :ObjStm})]
@@ -178,8 +178,11 @@ module HexaPDF
               end
             end
             old_objstms.each {|objstm| rev.delete(objstm) }
-            objstms.each {|objstm| doc.add(objstm, revision: rev_index) }
-            doc.add({Type: :XRef}, revision: rev_index) unless xref_stream
+            objstms.each do |objstm|
+              objstm.data.oid = doc.revisions.next_oid
+              rev.add(objstm)
+            end
+            rev.add(doc.wrap({Type: :XRef}, oid: doc.revisions.next_oid)) unless xref_stream
           end
         end
       end
@@ -198,13 +201,13 @@ module HexaPDF
             end
           end
         when :generate
-          doc.revisions.each_with_index do |rev, rev_index|
+          doc.revisions.each do |rev|
             xref_stream = false
             rev.each do |obj|
               xref_stream = true if obj.type == :XRef
               delete_fields_with_defaults(obj)
             end
-            doc.add({Type: :XRef}, revision: rev_index) unless xref_stream
+            rev.add(doc.wrap({Type: :XRef}, oid: doc.revisions.next_oid)) unless xref_stream
           end
         end
       end

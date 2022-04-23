@@ -302,9 +302,9 @@ describe HexaPDF::Encryption::SecurityHandler do
       @handler = TestHandler.new(@document)
 
       assert_equal("Something",
-                   @handler.decrypt(@document.revisions[0].trailer[:Encrypt])[:Key])
+                   @handler.decrypt(@document.revisions.all[0].trailer[:Encrypt])[:Key])
       assert_equal("Otherthing",
-                   @handler.decrypt(@document.revisions[1].trailer[:Encrypt])[:Key])
+                   @handler.decrypt(@document.revisions.all[1].trailer[:Encrypt])[:Key])
     end
 
     it "defers handling encryption to a Crypt filter is specified" do

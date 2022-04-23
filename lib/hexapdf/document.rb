@@ -184,22 +184,9 @@ module HexaPDF
     # For references to unknown objects, +nil+ is returned but free objects are represented by a
     # PDF Null object, not by +nil+!
     #
-    # See: PDF1.7 s7.3.9
+    # See: Revisions#object
     def object(ref)
-      i = @revisions.size - 1
-      while i >= 0
-        return @revisions[i].object(ref) if @revisions[i].object?(ref)
-        i -= 1
-      end
-      nil
-    end
-
-    # Dereferences the given object.
-    #
-    # Return the object itself if it is not a reference, or the indirect object specified by the
-    # reference.
-    def deref(obj)
-      obj.kind_of?(Reference) ? object(obj) : obj
+      @revisions.object(ref)
     end
 
     # :call-seq:
@@ -212,74 +199,51 @@ module HexaPDF
     # Even though this method might return +true+ for some references, #object may return +nil+
     # because this method takes *all* revisions into account. Also see the discussion on #each for
     # more information.
+    #
+    # See: Revisions#object?
     def object?(ref)
-      @revisions.any? {|rev| rev.object?(ref) }
+      @revisions.object?(ref)
+    end
+
+    # Dereferences the given object.
+    #
+    # Return the object itself if it is not a reference, or the indirect object specified by the
+    # reference.
+    def deref(obj)
+      obj.kind_of?(Reference) ? object(obj) : obj
     end
 
     # :call-seq:
-    #   doc.add(obj, revision: :current, **wrap_opts)     -> indirect_object
+    #   doc.add(obj, **wrap_opts)     -> indirect_object
     #
-    # Adds the object to the specified revision of the document and returns the wrapped indirect
-    # object.
+    # Adds the object to the document and returns the wrapped indirect object.
     #
     # The object can either be a native Ruby object (Hash, Array, Integer, ...) or a
     # HexaPDF::Object. If it is not the latter, #wrap is called with the object and the
     # additional keyword arguments.
     #
-    # If the +revision+ option is +:current+, the current revision is used. Otherwise +revision+
-    # should be a revision index.
-    def add(obj, revision: :current, **wrap_opts)
+    # See: Revisions#add_object
+    def add(obj, **wrap_opts)
       obj = wrap(obj, **wrap_opts) unless obj.kind_of?(HexaPDF::Object)
-
-      revision = (revision == :current ? @revisions.current : @revisions.revision(revision))
-      if revision.nil?
-        raise ArgumentError, "Invalid revision index specified"
-      end
 
       if obj.document? && obj.document != self
         raise HexaPDF::Error, "Can't add object that is already attached to another document"
       end
       obj.document = self
 
-      if obj.indirect? && (rev_obj = revision.object(obj.oid))
-        if rev_obj.equal?(obj)
-          return obj
-        else
-          raise HexaPDF::Error, "Can't add object because the specified revision already has " \
-            "an object with object number #{obj.oid}"
-        end
-      end
-
-      obj.oid = @revisions.map(&:next_free_oid).max unless obj.indirect?
-
-      revision.add(obj)
+      @revisions.add_object(obj)
     end
 
     # :call-seq:
-    #   doc.delete(ref, revision: :all)
-    #   doc.delete(oid, revision: :all)
+    #   doc.delete(ref)
+    #   doc.delete(oid)
     #
     # Deletes the indirect object specified by an exact reference or by an object number from the
     # document.
     #
-    # Options:
-    #
-    # revision:: Specifies from which revisions the object should be deleted:
-    #
-    #            :all:: Delete the object from all revisions.
-    #            :current:: Delete the object only from the current revision.
-    #
-    # mark_as_free:: If +true+, objects are only marked as free objects instead of being actually
-    #                deleted.
-    def delete(ref, revision: :all, mark_as_free: true)
-      case revision
-      when :current
-        @revisions.current.delete(ref, mark_as_free: mark_as_free)
-      when :all
-        @revisions.each {|rev| rev.delete(ref, mark_as_free: mark_as_free) }
-      else
-        raise ArgumentError, "Unsupported option revision: #{revision}"
-      end
+    # See: Revisions#delete_object
+    def delete(ref)
+      @revisions.delete_object(ref)
     end
 
     # :call-seq:
@@ -414,42 +378,20 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   doc.each(only_current: true, only_loaded: false) {|obj| block }        -> doc
-    #   doc.each(only_current: true, only_loaded: false) {|obj, rev| block }   -> doc
+    #   doc.each(only_current: true, only_loaded: false) {|obj| block }
+    #   doc.each(only_current: true, only_loaded: false) {|obj, rev| block }
     #   doc.each(only_current: true, only_loaded: false)                       -> Enumerator
     #
-    # Calls the given block once for every object, or, if +only_loaded+ is +true+, for every loaded
-    # object in the PDF document. The block may either accept only the object or the object and the
-    # revision it is in.
+    # Yields every object and the revision it is in.
     #
-    # By default, only the current version of each object is returned which implies that each object
-    # number is yielded exactly once. If the +only_current+ option is +false+, all stored objects
-    # from newest to oldest are returned, not only the current version of each object.
+    # If +only_current+ is +true+, only the current version of each object is yielded, otherwise
+    # all objects from all revisions.
     #
-    # The +only_current+ option can make a difference because the document can contain multiple
-    # revisions:
+    # If +only_loaded+ is +true+, only the already loaded objects are yielded.
     #
-    # * Multiple revisions may contain objects with the same object and generation numbers, e.g.
-    #   two (different) objects with oid/gen [3,0].
-    #
-    # * Additionally, there may also be objects with the same object number but different
-    #   generation numbers in different revisions, e.g. one object with oid/gen [3,0] and one with
-    #   oid/gen [3,1].
+    # For details see Revisions#each_object
     def each(only_current: true, only_loaded: false, &block)
-      unless block_given?
-        return to_enum(__method__, only_current: only_current, only_loaded: only_loaded)
-      end
-
-      yield_rev = (block.arity == 2)
-      oids = {}
-      @revisions.reverse_each do |rev|
-        rev.each(only_loaded: only_loaded) do |obj|
-          next if only_current && oids.include?(obj.oid)
-          (yield_rev ? yield(obj, rev) : yield(obj))
-          oids[obj.oid] = true
-        end
-      end
-      self
+      @revisions.each_object(only_current: only_current, only_loaded: only_loaded, &block)
     end
 
     # :call-seq:
