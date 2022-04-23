@@ -109,7 +109,7 @@ module HexaPDF
       @document.revisions.each do |rev|
         rev.each_modified_object {|obj| revision.send(:add_without_check, obj) }
       end
-      _pos, xref_section = write_revision(revision, @document.revisions.parser.startxref_offset)
+      _pos, xref_section = write_revision(revision, parser.startxref_offset)
 
       xref_section
     end
