@@ -74,6 +74,7 @@ module HexaPDF
 
     # Writes the document to the IO object and returns the last XRefSection written.
     def write
+      move_modified_objects_into_current_revision
       write_file_header
 
       pos = xref_section = nil
@@ -121,6 +122,18 @@ module HexaPDF
     # See: PDF1.7 s7.5.2
     def write_file_header
       @io << "%PDF-#{@document.version}\n%\xCF\xEC\xFF\xE8\xD7\xCB\xCD\n"
+    end
+
+    # Moves all modified objects into the current revision to avoid invalid references and such.
+    def move_modified_objects_into_current_revision
+      return if @document.revisions.count == 1
+
+      revision = @document.revisions.add
+      @document.revisions.all[0..-2].each do |rev|
+        rev.each_modified_object {|obj| revision.send(:add_without_check, obj) }
+        rev.reset_objects
+      end
+      @document.revisions.merge(-2..-1)
     end
 
     # Writes the given revision.

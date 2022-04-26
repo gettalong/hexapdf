@@ -46,7 +46,7 @@ describe HexaPDF::Writer do
       3 1
       0000000296 00000 n 
       trailer
-      <</Prev 219/Size 4/Root<</Type/Catalog>>/Info 3 0 R>>
+      <</Size 4/Root<</Type/Catalog>>/Info 3 0 R/Prev 219>>
       startxref
       349
       %%EOF
@@ -80,7 +80,7 @@ describe HexaPDF::Writer do
       endstream
       endobj
       4 0 obj
-      <</Size 7/Prev 141/Root<</Type/Catalog>>/Info 6 0 R/Type/XRef/W[1 2 2]/Index[2 1 4 1 6 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 22>>stream
+      <</Size 7/Root<</Type/Catalog>>/Info 6 0 R/Prev 141/Type/XRef/W[1 2 2]/Index[2 1 4 1 6 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 22>>stream
       x\xDAcbdlg``b`\xB0\x04\x93\x93\x18\x18\x00\f\e\x01[
       endstream
       endobj
@@ -136,6 +136,30 @@ describe HexaPDF::Writer do
     end
   end
 
+  it "moves modified objects into the last revision" do
+    io = StringIO.new
+    io2 = StringIO.new
+
+    document = HexaPDF::Document.new
+    document.pages.add
+    HexaPDF::Writer.new(document, io).write
+
+    document = HexaPDF::Document.new(io: io)
+    document.pages.add
+    HexaPDF::Writer.new(document, io2).write_incremental
+
+    document = HexaPDF::Document.new(io: io2)
+    document.revisions.add
+    document.pages.add
+    HexaPDF::Writer.new(document, io).write
+
+    document = HexaPDF::Document.new(io: io)
+    assert_equal(3, document.revisions.count)
+    assert_equal(1, document.revisions.all[0].object(2)[:Kids].length)
+    assert_equal(2, document.revisions.all[1].object(2)[:Kids].length)
+    assert_equal(3, document.revisions.all[2].object(2)[:Kids].length)
+  end
+
   it "creates an xref stream if no xref stream is in a revision but object streams are" do
     document = HexaPDF::Document.new
     document.add({Type: :ObjStm})
@@ -146,13 +170,18 @@ describe HexaPDF::Writer do
   it "creates an xref stream if a previous revision had one" do
     document = HexaPDF::Document.new
     document.pages.add
-    document.revisions.add
-    document.pages.add
-    document.add({Type: :ObjStm})
-    document.revisions.add
-    document.pages.add
     io = StringIO.new
     HexaPDF::Writer.new(document, io).write
+
+    document = HexaPDF::Document.new(io: io)
+    document.pages.add
+    document.add({Type: :ObjStm})
+    io2 = StringIO.new
+    HexaPDF::Writer.new(document, io2).write_incremental
+
+    document = HexaPDF::Document.new(io: io2)
+    document.pages.add
+    HexaPDF::Writer.new(document, io).write_incremental
 
     document = HexaPDF::Document.new(io: io)
     assert_equal(3, document.revisions.count)

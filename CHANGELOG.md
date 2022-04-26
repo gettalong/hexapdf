@@ -12,6 +12,10 @@
 - CLI command `hexapdf inspect` to show the type of revisions, as well as the
   number of objects per revision
 
+### Fixed
+
+- [HexaPDF::Writer#write] to write modified objects into the correct revision
+
 
 ## 0.22.0 - 2022-03-26
 
