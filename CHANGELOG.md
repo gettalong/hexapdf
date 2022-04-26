@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+- [HexaPDF::Revision#reset_objects] for deleting all live loaded and added
+  objects
+
 ### Changed
 
 - **Breaking change**: Refactored the [HexaPDF::Document] interface for working

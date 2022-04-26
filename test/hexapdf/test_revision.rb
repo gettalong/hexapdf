@@ -215,4 +215,18 @@ describe HexaPDF::Revision do
       assert_equal([], @rev.each_modified_object.to_a)
     end
   end
+
+  describe "reset_objects" do
+    it "deletes loaded objects" do
+      @rev.object(2)
+      @rev.reset_objects
+      assert(@rev.instance_variable_get(:@objects).oids.empty?)
+    end
+
+    it "deletes added objects" do
+      @rev.add(@obj)
+      @rev.reset_objects
+      assert(@rev.instance_variable_get(:@objects).oids.empty?)
+    end
+  end
 end

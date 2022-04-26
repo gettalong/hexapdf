@@ -82,6 +82,7 @@ module HexaPDF
       @loader = xref_section && (block || loader)
       @xref_section = xref_section || XRefSection.new
       @objects = HexaPDF::Utils::ObjectHash.new
+      @all_objects_loaded = false
     end
 
     # Returns the next free object number for adding an object to this revision.
@@ -209,7 +210,7 @@ module HexaPDF
     def each(only_loaded: false)
       return to_enum(__method__, only_loaded: only_loaded) unless block_given?
 
-      if defined?(@all_objects_loaded) || only_loaded
+      if @all_objects_loaded || only_loaded
         @objects.each {|_oid, _gen, data| yield(data) }
       else
         seen = {}
@@ -254,6 +255,12 @@ module HexaPDF
       end
 
       self
+    end
+
+    # Resets the revision by deleting all loaded and added objects from it.
+    def reset_objects
+      @objects = HexaPDF::Utils::ObjectHash.new
+      @all_objects_loaded = false
     end
 
     private
