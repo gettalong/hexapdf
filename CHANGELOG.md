@@ -15,6 +15,7 @@
 ### Fixed
 
 - [HexaPDF::Writer#write] to write modified objects into the correct revision
+- [HexaPDF::Revisions::from_io] to correctly handle hybrid-reference files
 
 
 ## 0.22.0 - 2022-03-26

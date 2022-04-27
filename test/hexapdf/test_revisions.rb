@@ -74,7 +74,7 @@ describe HexaPDF::Revisions do
     it "automatically loads all revisions from the underlying IO object" do
       assert_kind_of(HexaPDF::Parser, @revisions.parser)
       assert_equal(20, @revisions.all[0].object(2).value)
-      assert_equal(300, @revisions.all[1].object(2).value)
+      assert_equal(200, @revisions.all[1].object(2).value)
       assert_equal(400, @revisions.all[2].object(2).value)
     end
 
@@ -170,7 +170,7 @@ describe HexaPDF::Revisions do
     it "deletes an object only in the most recent revision" do
       @revisions.delete_object(2)
       assert_equal(20, @revisions.all[0].object(2).value)
-      assert_equal(300, @revisions.all[1].object(2).value)
+      assert_equal(200, @revisions.all[1].object(2).value)
       assert(@revisions.all[2].object(2).null?)
     end
   end
@@ -185,7 +185,7 @@ describe HexaPDF::Revisions do
     end
 
     it "iterates over all objects" do
-      assert_equal([10, 400, 300, 20, @obj3],
+      assert_equal([10, 400, 200, 20, @obj3, @obj3],
                    @revisions.each_object(only_current: false).sort.map(&:value))
     end
 
@@ -196,7 +196,7 @@ describe HexaPDF::Revisions do
     end
 
     it "yields the revision as second argument if the block accepts exactly two arguments" do
-      data = [400, @revisions.all[-1], @obj3, @revisions.all[-2], 10, @revisions.all[0]]
+      data = [@obj3, @revisions.all[-1], 400, @revisions.all[-1], 10, @revisions.all[0]]
       @revisions.each_object do |obj, rev|
         assert_equal(data.shift, obj.value)
         assert_equal(data.shift, rev)
