@@ -203,7 +203,7 @@ module HexaPDF
       end
 
       if (!object_streams.empty? || @use_xref_streams) && xref_stream.nil?
-        xref_stream = @document.wrap({Type: :XRef}, oid: rev.next_free_oid)
+        xref_stream = @document.wrap({Type: :XRef}, oid: @document.revisions.next_oid)
         rev.add(xref_stream)
       end
 

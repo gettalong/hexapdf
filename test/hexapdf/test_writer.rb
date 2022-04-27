@@ -164,7 +164,7 @@ describe HexaPDF::Writer do
     document = HexaPDF::Document.new
     document.add({Type: :ObjStm})
     HexaPDF::Writer.new(document, StringIO.new).write
-    assert(:XRef, document.object(2).type)
+    assert_equal(:XRef, document.object(4).type)
   end
 
   it "creates an xref stream if a previous revision had one" do

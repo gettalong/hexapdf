@@ -16,6 +16,8 @@
 
 - [HexaPDF::Writer#write] to write modified objects into the correct revision
 - [HexaPDF::Revisions::from_io] to correctly handle hybrid-reference files
+- [HexaPDF::Writer] to assign a valid object number to a created cross-reference
+  stream in all cases
 
 
 ## 0.22.0 - 2022-03-26
