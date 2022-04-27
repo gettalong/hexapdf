@@ -548,7 +548,7 @@ describe HexaPDF::Parser do
 
     it "works for a cross-reference stream" do
       xref_section, trailer = @parser.load_revision(212)
-      assert_equal({Size: 2}, trailer)
+      assert_equal({Size: 2, Type: :XRef}, trailer)
       assert(xref_section[1].in_use?)
       assert(@parser.contains_xref_streams?)
     end

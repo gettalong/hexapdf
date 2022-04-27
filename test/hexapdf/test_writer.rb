@@ -64,7 +64,7 @@ describe HexaPDF::Writer do
       20
       endobj
       3 0 obj
-      <</Size 6/Type/XRef/W[1 1 2]/Index[0 4 5 1]/Filter/FlateDecode/DecodeParms<</Columns 4/Predictor 12>>/Length 31>>stream
+      <</Type/XRef/Size 6/W[1 1 2]/Index[0 4 5 1]/Filter/FlateDecode/DecodeParms<</Columns 4/Predictor 12>>/Length 31>>stream
       x\xDAcb`\xF8\xFF\x9F\x89\x89\x95\x91\x91\xE9\x7F\x19\x03\x03\x13\x83\x10\x88he`\x00\x00B4\x04\x1E
       endstream
       endobj
@@ -80,7 +80,7 @@ describe HexaPDF::Writer do
       endstream
       endobj
       4 0 obj
-      <</Size 7/Root<</Type/Catalog>>/Info 6 0 R/Prev 141/Type/XRef/W[1 2 2]/Index[2 1 4 1 6 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 22>>stream
+      <</Type/XRef/Size 7/Root<</Type/Catalog>>/Info 6 0 R/Prev 141/W[1 2 2]/Index[2 1 4 1 6 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 22>>stream
       x\xDAcbdlg``b`\xB0\x04\x93\x93\x18\x18\x00\f\e\x01[
       endstream
       endobj

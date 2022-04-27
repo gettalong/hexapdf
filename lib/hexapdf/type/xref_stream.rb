@@ -93,7 +93,8 @@ module HexaPDF
       #
       # See: Type::Trailer
       def trailer
-        Trailer.each_field.with_object({}) do |(name, _data), hash|
+        trailer = {Type: :XRef}
+        Trailer.each_field.with_object(trailer) do |(name, _data), hash|
           hash[name] = value[name] if key?(name)
         end
       end

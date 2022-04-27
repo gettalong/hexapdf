@@ -233,7 +233,7 @@ module HexaPDF
               revision_information do |rev, index, count, signature, end_offset|
                 type = if rev.trailer[:XRefStm]
                          "xref table + stream"
-                       elsif rev.trailer.type == :XRef
+                       elsif rev.trailer[:Type] == :XRef
                          "xref stream"
                        else
                          "xref table"

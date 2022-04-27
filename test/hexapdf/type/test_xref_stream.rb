@@ -88,10 +88,11 @@ describe HexaPDF::Type::XRefStream do
       @obj[:Index] = [0, 5]
       @obj[:W] = [1, 2, 2]
       dict = @obj.trailer
-      assert_equal(3, dict.length)
+      assert_equal(4, dict.length)
       assert_equal(5, dict[:Size])
       assert_equal(["a", "b"], dict[:ID])
       assert_equal('x', dict[:Root])
+      assert_equal(:XRef, dict[:Type])
     end
   end
 
