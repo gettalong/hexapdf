@@ -90,7 +90,7 @@ describe HexaPDF::Composer do
     it "creates a new style if it does not exist based on the base argument" do
       @composer.style(:base, font_size: 20)
       assert_equal(20, @composer.style(:newstyle, subscript: true).font_size)
-      refute( @composer.style(:base).subscript)
+      refute(@composer.style(:base).subscript)
       assert_equal(10, @composer.style(:another_new, base: nil).font_size)
       assert(@composer.style(:yet_another_new, base: :newstyle).subscript)
     end
