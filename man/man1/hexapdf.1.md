@@ -724,6 +724,11 @@ ways.
 : Embed the given file into the *OUTPUT* using built-in features of PDF. This option can be used
   multiple times to embed more than one file.
 
+`--annotations` *MODE*
+
+: Handle the annotations of the included pages by either removing them (**remove**) or flattening
+  them (**flatten**). Either way there are no annotations left afterwards.
+
 Additionally, the **Optimization Options** and **Encryption Options** can be used.
 
 

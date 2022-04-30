@@ -53,14 +53,15 @@ module HexaPDF
         super('modify', takes_commands: false)
         short_desc("Modify a PDF file")
         long_desc(<<~EOF)
-          This command modifies a PDF file. It can be used to select pages that should appear in
-          the output file and/or rotate them. The output file can also be encrypted/decrypted and
-          optimized in various ways.
+          This command modifies a PDF file. It can be used, for example, to select pages that should
+          appear in the output file and/or rotate them. The output file can also be
+          encrypted/decrypted and optimized in various ways.
         EOF
 
         @password = nil
         @pages = '1-e'
         @embed_files = []
+        @annotation_mode = nil
 
         options.on("--password PASSWORD", "-p", String,
                    "The password for decryption. Use - for reading from standard input.") do |pwd|
@@ -74,6 +75,10 @@ module HexaPDF
                    "used multiple times)") do |file|
           @embed_files << file
         end
+        options.on("--annotations MODE", [:remove, :flatten], "Handling of annotations (either " \
+                   "remove or flatten)") do |mode|
+          @annotation_mode = mode
+        end
         define_optimization_options
         define_encryption_options
       end
@@ -82,6 +87,7 @@ module HexaPDF
         maybe_raise_on_existing_file(out_file)
         with_document(in_file, password: @password, out_file: out_file) do |doc|
           arrange_pages(doc) unless @pages == '1-e'
+          handle_annotations(doc)
           @embed_files.each {|file| doc.files.add(file, embed: true) }
           apply_encryption_options(doc)
           apply_optimization_options(doc)
@@ -107,6 +113,20 @@ module HexaPDF
         doc.catalog[:Pages] = new_page_tree
         remove_unused_pages(doc)
         doc.pages.add unless doc.pages.count > 0
+      end
+
+      # Handles the annotations of all selected pages by doing nothing, removing them or flattening
+      # them.
+      def handle_annotations(doc)
+        return unless @annotation_mode
+
+        doc.pages.each do |page|
+          if @annotation_mode == :remove
+            page.delete(:Annots)
+          else
+            page.flatten_annotations
+          end
+        end
       end
 
     end
