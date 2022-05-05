@@ -905,6 +905,10 @@ ordered in the correct way.
 
 ### modify
 
+`hexapdf modify input.pdf -i 1,7-10 output.pdf`
+
+Page selection: Select only the pages 1 and 7 to 10 from the `input.pdf`.
+
 `hexapdf modify input.pdf -i 1-5,7-10,12-e output.pdf`
 
 Page removal: Remove the pages 6 and 11 from the `input.pdf`.
