@@ -120,6 +120,11 @@ describe HexaPDF::Type::AcroForm::TextField do
       @field.initialize_as_comb_text_field
       assert_raises(HexaPDF::Error) { @field.field_value = 'test' }
     end
+
+    it "fails if the value exceeds the length set by /MaxLen" do
+      @field[:MaxLen] = 5
+      assert_raises(HexaPDF::Error) { @field.field_value = 'testdf' }
+    end
   end
 
   it "sets and returns the default field value" do

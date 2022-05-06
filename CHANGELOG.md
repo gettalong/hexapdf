@@ -23,6 +23,8 @@
   value for comb text fields
 * [HexaPDF::Type::AcroForm::TextField#field_value=] to check for the existence
   of /MaxLen when setting a value for a comb text field
+* [HexaPDF::Type::AcroForm::TextField#field_value=] to check the value against
+  /MaxLen
 
 
 ## 0.22.0 - 2022-03-26

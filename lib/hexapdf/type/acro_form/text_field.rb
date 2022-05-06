@@ -168,6 +168,9 @@ module HexaPDF
             raise HexaPDF::Error, "A comb text field need a valid /MaxLen value"
           end
           str = str.gsub(/[[:space:]]/, ' ') if str && concrete_field_type == :single_line_text_field
+          if key?(:MaxLen) && str && str.length > self[:MaxLen]
+            raise HexaPDF::Error, "Value exceeds maximum allowed length of #{self[:MaxLen]}"
+          end
           self[:V] = str
           update_widgets
         end
