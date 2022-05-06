@@ -164,6 +164,8 @@ module HexaPDF
         def field_value=(str)
           if flagged?(:password)
             raise HexaPDF::Error, "Storing a field value for a password field is not allowed"
+          elsif comb_text_field? && !key?(:MaxLen)
+            raise HexaPDF::Error, "A comb text field need a valid /MaxLen value"
           end
           str = str.gsub(/[[:space:]]/, ' ') if str && concrete_field_type == :single_line_text_field
           self[:V] = str

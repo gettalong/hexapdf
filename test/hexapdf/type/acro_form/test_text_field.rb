@@ -115,6 +115,11 @@ describe HexaPDF::Type::AcroForm::TextField do
       @field.flag(:password)
       assert_raises(HexaPDF::Error) { @field.field_value = 'test' }
     end
+
+    it "fails if it is a comb text field without a /MaxLen entry" do
+      @field.initialize_as_comb_text_field
+      assert_raises(HexaPDF::Error) { @field.field_value = 'test' }
+    end
   end
 
   it "sets and returns the default field value" do
