@@ -243,6 +243,9 @@ module HexaPDF
           if (max_len = self[:MaxLen]) && field_value && field_value.length > max_len
             yield("Text contents of field '#{full_field_name}' is too long")
           end
+          if comb_text_field? && !max_len
+            yield("Comb text field needs a value for /MaxLen")
+          end
         end
 
       end

@@ -197,5 +197,12 @@ describe HexaPDF::Type::AcroForm::TextField do
       @field[:V] = nil
       assert(@field.validate)
     end
+
+    it "checks that /MaxLen is set for comb text fields" do
+      @field.initialize_as_comb_text_field
+      refute(@field.validate)
+      @field[:MaxLen] = 2
+      assert(@field.validate)
+    end
   end
 end

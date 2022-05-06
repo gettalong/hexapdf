@@ -19,6 +19,8 @@
 - [HexaPDF::Revisions::from_io] to correctly handle hybrid-reference files
 - [HexaPDF::Writer] to assign a valid object number to a created cross-reference
   stream in all cases
+* [HexaPDF::Type::AcroForm::TextField] to validate the existence of a /MaxLen
+  value for comb text fields
 
 
 ## 0.22.0 - 2022-03-26
