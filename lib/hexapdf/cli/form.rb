@@ -70,6 +70,9 @@ module HexaPDF
           @template = template
           @fill = true
         end
+        options.on('--generate-template', 'Print a template for use with --template') do
+          @generate_template = true
+        end
         options.on('--flatten', 'Flatten the form fields') do
           @flatten = true
         end
@@ -85,6 +88,7 @@ module HexaPDF
         @password = nil
         @fill = false
         @flatten = false
+        @generate_template = false
         @template = nil
         @need_appearances = nil
         @incremental = true
@@ -116,6 +120,15 @@ module HexaPDF
               $stderr.puts "Warning: Not all form fields could be flattened"
               doc.catalog.delete(:AcroForm)
               doc.delete(doc.acro_form)
+            end
+          elsif @generate_template
+            unsupported_fields = [:signature_field, :password_field]
+            each_field(doc) do |_, _, field, _|
+              next if unsupported_fields.include?(field.concrete_field_type)
+              name = field.full_field_name.gsub(':', "\\:")
+              Array(field.field_value).each do |val|
+                puts "#{name}: #{val.to_s.gsub(/(\r|\r\n|\n)/, '\1  ')}"
+              end
             end
           else
             list_form_fields(doc)

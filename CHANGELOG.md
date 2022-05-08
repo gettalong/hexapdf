@@ -5,6 +5,7 @@
 - [HexaPDF::Revision#reset_objects] for deleting all live loaded and added
   objects
 - Support for removing or flattening annotations to the `hexapdf modify` command
+- Option to CLI command `hexapdf form` to allow generation of a template file
 
 ### Changed
 
