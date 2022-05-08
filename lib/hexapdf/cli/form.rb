@@ -270,6 +270,8 @@ module HexaPDF
         else
           raise "Field type #{field.concrete_field_type} not yet supported"
         end
+      rescue
+        raise "Error while setting '#{field.full_field_name}': #{$!.message}"
       end
 
       # Iterates over all non-push button fields in page order. If a field appears on multiple
