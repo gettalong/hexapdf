@@ -26,6 +26,7 @@
 * [HexaPDF::Type::AcroForm::TextField#field_value=] to check the value against
   /MaxLen
 * CLI command `hexapdf form` to allow setting array values when using a template
+* CLI command `hexapdf form` to allow setting file select fields
 
 
 ## 0.22.0 - 2022-03-26
