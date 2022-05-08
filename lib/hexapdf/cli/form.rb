@@ -220,8 +220,16 @@ module HexaPDF
           field_name = scanner.scan(/(\\:|[^:])*?:/)
           break unless field_name
           field_name.gsub!(/\\:/, ':')
+          field_name.chop!
           field_value = scanner.scan(/.*?(?=^\S|\z)/m)
-          data[field_name.chop] = field_value.strip.gsub(/^\s*/, '') if field_value
+          next unless field_value
+          field_value = field_value.strip.gsub(/^\s*/, '')
+          if data.key?(field_name)
+            data[field_name] = [data[field_name]] unless data[field_name].kind_of?(Array)
+            data[field_name] << field_value
+          else
+            data[field_name] = field_value
+          end
         end
         if !scanner.eos? && command_parser.verbosity_warning?
           $stderr.puts "Warning: Some template could not be parsed"
