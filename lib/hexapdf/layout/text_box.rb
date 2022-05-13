@@ -77,7 +77,11 @@ module HexaPDF
                     height = (@initial_height > 0 ? @initial_height : available_height) - @height
                     @tl.fit(@items, width, height)
                   end
-        @width += (@initial_width > 0 ? width : @result.lines.max_by(&:width)&.width || 0)
+        @width += if @initial_width > 0 || style.align == :center || style.align == :right
+                    width
+                  else
+                    @result.lines.max_by(&:width)&.width || 0
+                  end
         @height += (@initial_height > 0 ? height : @result.height)
         if style.last_line_gap && @result.lines.last
           @height += style.line_spacing.gap(@result.lines.last, @result.lines.last)

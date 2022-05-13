@@ -53,6 +53,14 @@ describe HexaPDF::Layout::TextBox do
       assert_equal(20, box.height)
     end
 
+    it "uses the whole available width when aligning to the center or right" do
+      [:center, :right].each do |align|
+        box = create_box([@inline_box], style: {align: align})
+        assert(box.fit(100, 100, @frame))
+        assert_equal(100, box.width)
+      end
+    end
+
     it "can't fit the text box if the set width is bigger than the available width" do
       box = create_box([@inline_box], width: 101)
       refute(box.fit(100, 100, @frame))
