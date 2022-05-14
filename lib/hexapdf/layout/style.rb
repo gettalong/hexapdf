@@ -925,6 +925,7 @@ module HexaPDF
       #
       #   :left:: (default) Float the box to the left side of the available region.
       #   :right::  Float the box to the right side of the available region.
+      #   :center:: Float the box to the center of the available region.
       #
       # :absolute::
       #

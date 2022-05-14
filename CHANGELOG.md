@@ -6,6 +6,7 @@
   objects
 - Support for removing or flattening annotations to the `hexapdf modify` command
 - Option to CLI command `hexapdf form` to allow generation of a template file
+- Support for centering a floating box in [HexaPDF::Layout::Frame]
 
 ### Changed
 

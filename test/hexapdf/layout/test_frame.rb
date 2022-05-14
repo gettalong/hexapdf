@@ -196,8 +196,15 @@ describe HexaPDF::Layout::Frame do
                   [[[10, 10], [110, 10], [110, 60], [60, 60], [60, 110], [10, 110]]])
       end
 
+      it "draws the box in the center" do
+        check_box({width: 50, height: 50, position: :float, position_hint: :center},
+                  [35, 60],
+                  [[[10, 10], [110, 10], [110, 110], [85, 110], [85, 60], [35, 60],
+                    [35, 110], [10, 110]]])
+      end
+
       describe "with margin" do
-        [:left, :right].each do |hint|
+        [:left, :center, :right].each do |hint|
           it "ignores all margins if the box fills the whole frame, with position hint #{hint}" do
             check_box({margin: 10, position: :float, position_hint: hint},
                       [10, 10], [])
@@ -217,6 +224,13 @@ describe HexaPDF::Layout::Frame do
           check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :left},
                     [30, 60],
                     [[[20, 10], [110, 10], [110, 110], [90, 110], [90, 50], [20, 50]]])
+        end
+
+        it "uses the left and the right margin if aligned center" do
+          check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :center},
+                    [35, 60],
+                    [[[10, 10], [110, 10], [110, 110], [95, 110], [95, 50], [25, 50],
+                      [25, 110], [10, 110]]])
         end
 
         it "ignores the right, but not the left margin if aligned right to the frame border" do

@@ -252,14 +252,6 @@ module HexaPDF
                       else
                         create_rectangle(x, y, x + width, y + height)
                       end
-        when :float
-          x = @x + @fit_data.margin_left
-          x += @fit_data.available_width - width if box.style.position_hint == :right
-          y = @y - height - @fit_data.margin_top
-          # We use the real margins from the box because they either have the desired effect or just
-          # extend the rectangle outside the frame.
-          rectangle = create_rectangle(x - (margin&.left || 0), y - (margin&.bottom || 0),
-                                       x + width + (margin&.right || 0), @y)
         when :flow
           x = 0
           y = @y - height
@@ -280,7 +272,14 @@ module HexaPDF
                 @x + @fit_data.margin_left
               end
           y = @y - height - @fit_data.margin_top
-          rectangle = create_rectangle(left, y - (margin&.bottom || 0), left + self.width, @y)
+          rectangle = if box.style.position == :float
+                        # We use the real margins from the box because they either have the desired
+                        # effect or just extend the rectangle outside the frame.
+                        create_rectangle(x - (margin&.left || 0), y - (margin&.bottom || 0),
+                                         x + width + (margin&.right || 0), @y)
+                      else
+                        create_rectangle(left, y - (margin&.bottom || 0), left + self.width, @y)
+                      end
         end
 
         box.draw(canvas, x, y)
