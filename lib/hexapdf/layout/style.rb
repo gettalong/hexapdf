@@ -581,9 +581,22 @@ module HexaPDF
       #
       # The font to be used, must be set to a valid font wrapper object before it can be used.
       #
+      # HexaPDF::Composer handles this property specially in that it resolves a set string or array
+      # to a font wrapper object before doing else with the style object.
+      #
       # This is the only style property without a default value!
       #
       # See: HexaPDF::Content::Canvas#font
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Helvetica", font: composer.document.fonts.add("Helvetica"))
+      #   composer.text("Courier", font: "Courier") # works only with composer
+      #
+      #   helvetica_bold = composer.document.fonts.add("Helvetica", variant: :bold)
+      #   composer.text("Helvetica Bold", font: helvetica_bold)
+      #   composer.text("Courier Bold", font: ["Courier", variant: :bold]) # only composer
 
       ##
       # :method: font_size
@@ -593,6 +606,12 @@ module HexaPDF
       # The font size, defaults to 10.
       #
       # See: HexaPDF::Content::Canvas#font_size
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Default size")
+      #   composer.text("Larger size", font_size: 20)
 
       ##
       # :method: character_spacing
@@ -602,6 +621,11 @@ module HexaPDF
       # The character spacing, defaults to 0 (i.e. no additional character spacing).
       #
       # See: HexaPDF::Content::Canvas#character_spacing
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("More spacing between characters", character_spacing: 1)
 
       ##
       # :method: word_spacing
@@ -611,6 +635,11 @@ module HexaPDF
       # The word spacing, defaults to 0 (i.e. no additional word spacing).
       #
       # See: HexaPDF::Content::Canvas#word_spacing
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("More word spacing", word_spacing: 20)
 
       ##
       # :method: horizontal_scaling
@@ -620,6 +649,11 @@ module HexaPDF
       # The horizontal scaling, defaults to 100 (in percent, i.e. normal scaling).
       #
       # See: HexaPDF::Content::Canvas#horizontal_scaling
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Horizontal scaling", horizontal_scaling: 150)
 
       ##
       # :method: text_rise
@@ -629,6 +663,11 @@ module HexaPDF
       # The text rise, i.e. the vertical offset from the baseline, defaults to 0.
       #
       # See: HexaPDF::Content::Canvas#text_rise
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.formatted_text(["Normal", {text: "Up in the air", text_rise: 5}])
 
       ##
       # :method: font_features
@@ -641,6 +680,13 @@ module HexaPDF
       # Each feature to be applied is indicated by a key with a truthy value.
       #
       # See: HexaPDF::Layout::TextShaper#shape_text for available features.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.style(:base, font: ["Times", custom_encoding: true], font_size: 30)
+      #   composer.text("Test flight")
+      #   composer.text("Test flight", font_features: {kern: true, liga: true})
 
       ##
       # :method: text_rendering_mode
@@ -652,6 +698,11 @@ module HexaPDF
       # rendering mode value.
       #
       # See: HexaPDF::Content::Canvas#text_rendering_mode
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Test flight", font_size: 40, text_rendering_mode: :stroke)
 
       ##
       # :method: subscript
@@ -661,6 +712,11 @@ module HexaPDF
       # Render the text as subscript, i.e. lower and in a smaller font size; defaults to false.
       #
       # If superscript is set, it will be deactivated.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.formatted_text(["Some ", {text: "subscript text", subscript: true}])
 
       ##
       # :method: superscript
@@ -670,6 +726,11 @@ module HexaPDF
       # Render the text as superscript, i.e. higher and in a smaller font size; defaults to false.
       #
       # If subscript is set, it will be deactivated.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.formatted_text(["Some ", {text: "superscript text", superscript: true}])
 
       ##
       # :method: underline
@@ -677,6 +738,11 @@ module HexaPDF
       #   underline(enable = false)
       #
       # Renders a line underneath the text; defaults to false.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Underlined text", underline: true)
 
       ##
       # :method: strikeout
@@ -684,6 +750,11 @@ module HexaPDF
       #   strikeout(enable = false)
       #
       # Renders a line through the text; defaults to false.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Strikeout text", strikeout: true)
 
       ##
       # :method: fill_color
@@ -693,6 +764,11 @@ module HexaPDF
       # The color used for filling (e.g. text), defaults to black.
       #
       # See: HexaPDF::Content::Canvas#fill_color
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("This is some red text", fill_color: "red")
 
       ##
       # :method: fill_alpha
@@ -703,6 +779,11 @@ module HexaPDF
       # opaque).
       #
       # See: HexaPDF::Content::Canvas#opacity
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("This is some semi-transparent text", fill_alpha: 0.5)
 
       ##
       # :method: stroke_color
@@ -712,6 +793,12 @@ module HexaPDF
       # The color used for stroking (e.g. text outlines), defaults to black.
       #
       # See: HexaPDF::Content::Canvas#stroke_color
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Stroked text", font_size: 40, stroke_color: "red",
+      #                 text_rendering_mode: :stroke)
 
       ##
       # :method: stroke_alpha
@@ -722,6 +809,12 @@ module HexaPDF
       # 100% opaque).
       #
       # See: HexaPDF::Content::Canvas#opacity
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Stroked text", font_size: 40, stroke_alpha: 0.5,
+      #                 text_rendering_mode: :stroke)
 
       ##
       # :method: stroke_width
@@ -731,6 +824,12 @@ module HexaPDF
       # The line width used for stroking operations (e.g. text outlines), defaults to 1.
       #
       # See: HexaPDF::Content::Canvas#line_width
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Stroked text", font_size: 40, stroke_width: 2,
+      #                 text_rendering_mode: :stroke)
 
       ##
       # :method: stroke_cap_style
@@ -741,6 +840,12 @@ module HexaPDF
       # returned values is always a normalized line cap style value.
       #
       # See: HexaPDF::Content::Canvas#line_cap_style
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Stroked text", font_size: 40, stroke_cap_style: :round,
+      #                 text_rendering_mode: :stroke)
 
       ##
       # :method: stroke_join_style
@@ -751,6 +856,12 @@ module HexaPDF
       # The returned values is always a normalized line joine style value.
       #
       # See: HexaPDF::Content::Canvas#line_join_style
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Stroked text", font_size: 40, stroke_join_style: :bevel,
+      #                 text_rendering_mode: :stroke)
 
       ##
       # :method: stroke_miter_limit
@@ -761,6 +872,12 @@ module HexaPDF
       # :miter, defaults to 10.0.
       #
       # See: HexaPDF::Content::Canvas#miter_limit
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Stroked text", font_size: 40, stroke_join_style: :bevel,
+      #                 stroke_miter_limit: 1, text_rendering_mode: :stroke)
 
       ##
       # :method: stroke_dash_pattern
@@ -771,6 +888,12 @@ module HexaPDF
       # line.
       #
       # See: HexaPDF::Content::Canvas#line_dash_pattern
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Stroked text", font_size: 40, stroke_dash_pattern: [4, 2],
+      #                 text_rendering_mode: :stroke)
 
       ##
       # :method: align
@@ -785,19 +908,42 @@ module HexaPDF
       # :center::  Center the text horizontally.
       # :right::   Right-align the text, i.e. the left side is rugged.
       # :justify:: Justify the text, except for those lines that end in a hard line break.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   text = "Lorem ipsum dolor sit amet. " * 2
+      #   composer.style(:base, border: {width: 1})
+      #   composer.text(text, align: :left)
+      #   composer.text(text, align: :center)
+      #   composer.text(text, align: :right)
+      #   composer.text(text, align: :justify)
 
       ##
       # :method: valign
       # :call-seq:
       #   valign(direction = nil)
       #
-      # The vertical alignment of items (normally text) inside a box, defaults to :top.
+      # The vertical alignment of items (normally text) inside a text box, defaults to :top.
+      #
+      # For :center and :bottom alignment the box will fill the whole available height. If this is
+      # not wanted, an explicit height will need to be set for the box.
+      #
+      # This property is ignored when using position :flow for a text box.
       #
       # Possible values:
       #
       # :top::    Vertically align the items to the top of the box.
       # :center:: Vertically align the items in the center of the box.
       # :bottom:: Vertically align the items to the bottom of the box.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.style(:base, border: {width: 1})
+      #   composer.text("Top aligned", height: 20, valign: :top)
+      #   composer.text("Center aligned", height: 20, valign: :center)
+      #   composer.text("Bottom aligned", valign: :bottom)
 
       ##
       # :method: text_indent
@@ -805,6 +951,12 @@ module HexaPDF
       #   text_indent(amount = nil)
       #
       # The indentation to be used for the first line of a sequence of text lines, defaults to 0.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("This is some longer text that wraps around in two lines.",
+      #                 text_indent: 10)
 
       ##
       # :method: line_spacing
@@ -819,7 +971,20 @@ module HexaPDF
       # * Using two positional arguments +type+ and +value+.
       # * Or a hash with the keys +type+ and +value+.
       #
+      # Note that the last line has no additional spacing after it by default. Set #last_line_gap
+      # for adding such a spacing.
+      #
       # See LineSpacing for supported types of line spacing.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("This is some longer text that wraps around in two lines.",
+      #                 line_spacing: 1.5)
+      #   composer.text("This is some longer text that wraps around in two lines.",
+      #                 line_spacing: :double)
+      #   composer.text("This is some longer text that wraps around in two lines.",
+      #                 line_spacing: {type: :proportional, value: 1.2})
 
       ##
       # :method: last_line_gap
@@ -827,6 +992,13 @@ module HexaPDF
       #   last_line_gap(enable = false)
       #
       # Add an appropriately sized gap after the last line of text if enabled, defaults to false.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("This is some longer text that wraps around in two lines.",
+      #                 line_spacing: 1.5, last_line_gap: true)
+      #   composer.text("There is spacing above this line due to last_line_gap.")
 
       ##
       # :method: background_color
@@ -834,6 +1006,11 @@ module HexaPDF
       #   background_color(color = nil)
       #
       # The color used for backgrounds, defaults to +nil+ (i.e. no background).
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Some text here", background_color: "lightgrey")
 
       ##
       # :method: background_alpha
@@ -844,6 +1021,11 @@ module HexaPDF
       # opaque).
       #
       # See: HexaPDF::Content::Canvas#opacity
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Some text here", background_color: "red", background_alpha: 0.5)
 
       ##
       # :method: padding
@@ -851,6 +1033,13 @@ module HexaPDF
       #   padding(value = nil)
       #
       # The padding between the border and the contents, defaults to 0 for all four sides.
+      #
+      # See Style::Quad#set for information on how to set the values.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Some text here", padding: 10, border: {width: 1})
 
       ##
       # :method: margin
@@ -858,29 +1047,83 @@ module HexaPDF
       #   margin(value = nil)
       #
       # The margin around a box, defaults to 0 for all four sides.
+      #
+      # See Style::Quad#set for information on how to set the values.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Some text here", margin: [5, 10], position: :float,
+      #                 border: {width: 1})
+      #   composer.text("Text starts after floating box and continues below it, " \
+      #                 "respecting the margin.", position: :flow)
 
       ##
       # :method: border
       # :call-seq:
       #   border(value = nil)
       #
-      # The border around the contents, defaults to no border.
+      # The border around the contents, defaults to no border for all four sides.
+      #
+      # The value has to be a hash containing any of the keys :width, :color and :style. The width,
+      # color and style of the border can be set independently for each side (see Style::Quad#set).
+      #
+      # See Border for more details.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Some text here", border: {
+      #                    width: [6, 3],
+      #                    color: ["green", "blue", "orange"],
+      #                    style: [:solid, :dashed]
+      #                 })
 
       ##
       # :method: overlays
       # :call-seq:
       #   overlays(layers = nil)
       #
-      # A Layers object containing all the layers that should be drawn over the box; defaults to no
-      # layers being drawn.
+      # A Style::Layers object containing all the layers that should be drawn over the box; defaults
+      # to no layers being drawn.
+      #
+      # The +layers+ argument needs to be an array of layer objects. To define a layer either use a
+      # callable object taking the canvas and the box as arguments; or use a pre-defined layer using
+      # an array of the form [:layer_name, **options]. See Style::Layers for details.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Some text here", overlays: [
+      #     lambda do |canvas, box|
+      #       canvas.stroke_color("red").opacity(stroke_alpha: 0.5).
+      #         line_width(5).line(0, 0, box.width, box.height).stroke
+      #     end,
+      #     [:link, uri: "https://hexapdf.gettalong.org"]
+      #   ])
 
       ##
       # :method: underlays
       # :call-seq:
       #   underlays(layers = nil)
       #
-      # A Layers object containing all the layers that should be drawn under the box; defaults to no
-      # layers being drawn.
+      # A Style::Layers object containing all the layers that should be drawn under the box;
+      # defaults to no layers being drawn.
+      #
+      # The +layers+ argument needs to be an array of layer objects. To define a layer either use a
+      # callable object taking the canvas and the box as arguments; or use a pre-defined layer using
+      # an array of the form [:layer_name, **options]. See Style::Layers for details.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Some text here", underlays: [
+      #     lambda do |canvas, box|
+      #       canvas.stroke_color("red").opacity(stroke_alpha: 0.5).
+      #         line_width(5).line(0, 0, box.width, box.height).stroke
+      #     end,
+      #     [:link, uri: "https://hexapdf.gettalong.org"]
+      #   ])
 
       ##
       # :method: position
@@ -904,6 +1147,8 @@ module HexaPDF
       #
       # :absolute:: Position the box at an absolute position relative to the frame. The coordinates
       #             are given via the position hint.
+      #
+      # See #position_hint for examples
 
       ##
       # :method: position_hint
@@ -918,20 +1163,47 @@ module HexaPDF
       # :default::
       #
       #   :left:: (default) Align the box to the left side of the available region.
-      #   :right:: Align the box to the right side of the available region.
       #   :center:: Horizontally center the box in the available region.
+      #   :right:: Align the box to the right side of the available region.
+      #
+      #   Examples:
+      #
+      #     #>pdf-composer100
+      #     composer.text("Left", border: {width: 1})
+      #     draw_current_frame_shape("red")
+      #     composer.text("Center", position_hint: :center, border: {width: 1})
+      #     draw_current_frame_shape("blue")
+      #     composer.text("Right", position_hint: :right, border: {width: 1})
+      #     draw_current_frame_shape("green")
       #
       # :float::
       #
       #   :left:: (default) Float the box to the left side of the available region.
-      #   :right::  Float the box to the right side of the available region.
       #   :center:: Float the box to the center of the available region.
+      #   :right::  Float the box to the right side of the available region.
+      #
+      #   Examples:
+      #
+      #     #>pdf-composer100
+      #     composer.style(:base, position: :float, border: {width: 1})
+      #     composer.text("Left", position_hint: :left)
+      #     draw_current_frame_shape("red")
+      #     composer.text("Center", position_hint: :center)
+      #     draw_current_frame_shape("blue")
+      #     composer.text("Right", position_hint: :right)
+      #     draw_current_frame_shape("green")
       #
       # :absolute::
       #
       #    An array with the x- and y-coordinates of the bottom left corner of the absolutely
       #    positioned box. The coordinates are taken as being relative to the bottom left corner of
       #    the frame into which the box is drawn.
+      #
+      #    Examples:
+      #
+      #      #>pdf-composer100
+      #      composer.text("Absolute", position: :absolute, position_hint: [30, 40])
+      #      draw_current_frame_shape("red")
 
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
