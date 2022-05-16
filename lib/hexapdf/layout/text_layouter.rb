@@ -825,7 +825,12 @@ module HexaPDF
         end
 
         unless lines.empty?
-          lines.first.y_offset += initial_baseline_offset(lines, height, actual_height)
+          # Apply baseline offset only for non-variable width text
+          lines.first.y_offset += if width_block.arity == 1
+                                    lines.first.y_max
+                                  else
+                                    initial_baseline_offset(lines, height, actual_height)
+                                  end
         end
 
         Result.new(status, lines, rest)

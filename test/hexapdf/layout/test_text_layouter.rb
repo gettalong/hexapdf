@@ -646,6 +646,13 @@ describe HexaPDF::Layout::TextLayouter do
         assert_equal(100 - 20 * 2 + 20, result.lines[0].y_offset)
         assert_equal(100, result.height)
       end
+
+      it "doesn't vertically align when layouting in variable-width mode" do
+        @style.valign = :bottom
+        result = @layouter.fit(@items, proc { 40 }, 100)
+        assert_equal(result.lines[0].y_max, result.lines[0].y_offset)
+        assert_equal(40, result.height)
+      end
     end
 
     it "post-processes lines for justification if needed" do
