@@ -14,6 +14,8 @@
   with objects and move parts into [HexaPDF::Revisions]
 - **Breaking change**: [HexaPDF::Layout::TextBox] to use whole available width
   when aligning to the center or right
+- **Breaking change**: [HexaPDF::Layout::TextBox] to use whole available height
+  when vertically aligning to the center or bottom
 - CLI command `hexapdf inspect` to show the type of revisions, as well as the
   number of objects per revision
 

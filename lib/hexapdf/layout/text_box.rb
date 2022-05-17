@@ -82,7 +82,11 @@ module HexaPDF
                   else
                     @result.lines.max_by(&:width)&.width || 0
                   end
-        @height += (@initial_height > 0 ? height : @result.height)
+        @height += if @initial_height > 0 || style.valign == :center || style.valign == :bottom
+                     height
+                   else
+                     @result.height
+                   end
         if style.last_line_gap && @result.lines.last
           @height += style.line_spacing.gap(@result.lines.last, @result.lines.last)
         end

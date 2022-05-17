@@ -61,6 +61,14 @@ describe HexaPDF::Layout::TextBox do
       end
     end
 
+    it "uses the whole available height when vertically aligning to the center or bottom" do
+      [:center, :bottom].each do |valign|
+        box = create_box([@inline_box], style: {valign: valign})
+        assert(box.fit(100, 100, @frame))
+        assert_equal(100, box.height)
+      end
+    end
+
     it "can't fit the text box if the set width is bigger than the available width" do
       box = create_box([@inline_box], width: 101)
       refute(box.fit(100, 100, @frame))
