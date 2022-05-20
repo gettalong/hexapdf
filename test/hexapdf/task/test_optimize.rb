@@ -160,6 +160,17 @@ describe HexaPDF::Task::Optimize do
       @doc.task(:optimize, compress_pages: true)
       assert_equal("10 10 m\nq\nQ\nBI\n/Name 5 ID\ndataEI\n", page.contents)
     end
+
+    it "uses parser.on_correctable_error to defer a decision regarding invalid operations" do
+      page = @doc.pages.add
+      page.contents = "10 20-30 m"
+      @doc.task(:optimize, compress_pages: true)
+      assert_equal("", page.contents)
+
+      @doc.config['parser.on_correctable_error'] = proc { true }
+      page.contents = "10 20-30 m"
+      assert_raises(HexaPDF::Error) { @doc.task(:optimize, compress_pages: true) }
+    end
   end
 
   describe "prune_page_resources" do

@@ -232,7 +232,10 @@ module HexaPDF
       def self.compress_pages(doc)
         used_refs = {}
         doc.pages.each do |page|
-          processor = SerializationProcessor.new
+          processor = SerializationProcessor.new do |error_message|
+            doc.config['parser.on_correctable_error'].call(doc, error_message, 0) &&
+              raise(HexaPDF::Error, error_message)
+          end
           HexaPDF::Content::Parser.parse(page.contents, processor)
           page.contents = processor.result
           page[:Contents].set_filter(:FlateDecode)
@@ -272,16 +275,20 @@ module HexaPDF
         # Contains all found references
         attr_reader :used_references
 
-        def initialize #:nodoc:
+        def initialize(&error_block) #:nodoc:
           @result = ''.b
           @serializer = HexaPDF::Serializer.new
           @used_references = []
+          @error_block = error_block
         end
 
         def process(op, operands) #:nodoc:
           @result << HexaPDF::Content::Operator::DEFAULT_OPERATORS[op].
             serialize(@serializer, *operands)
           @used_references << operands[0] if op == :Do
+        rescue StandardError => e
+          @error_block.call("Invalid content stream operation found: " \
+                            "#{op}#{operands.inspect} (#{e.message})")
         end
 
       end

@@ -18,6 +18,7 @@
   when vertically aligning to the center or bottom
 - CLI command `hexapdf inspect` to show the type of revisions, as well as the
   number of objects per revision
+- [HexaPDF::Task::Optimize] to allow skipping invalid content stream operations
 
 ### Fixed
 
