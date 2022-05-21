@@ -2,6 +2,7 @@
 
 ### Added
 
+- [HexaPDF::Composer#create_stamp] for creating a form Xobject
 - [HexaPDF::Revision#reset_objects] for deleting all live loaded and added
   objects
 - Support for removing or flattening annotations to the `hexapdf modify` command

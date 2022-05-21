@@ -325,4 +325,20 @@ describe HexaPDF::Composer do
       end
     end
   end
+
+  describe "create_stamp" do
+    it "creates and returns a form XObject" do
+      stamp = @composer.create_stamp(10, 5)
+      assert_kind_of(HexaPDF::Type::Form, stamp)
+      assert_equal(10, stamp.width)
+      assert_equal(5, stamp.height)
+    end
+
+    it "allows using a block to draw on the canvas of the form XObject" do
+      stamp = @composer.create_stamp(10, 10) do |canvas|
+        canvas.line_width(5)
+      end
+      assert_equal("5 w\n", stamp.canvas.contents)
+    end
+  end
 end

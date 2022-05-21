@@ -362,6 +362,27 @@ module HexaPDF
       end
     end
 
+    # Creates a stamp (Form XObject) which can be used like an image multiple times on a single page
+    # or on multiple pages.
+    #
+    # The width and the height of the stamp need to be set (frame.width/height or
+    # page.box.width/height might be good choices).
+    #
+    # Examples:
+    #
+    #   #>pdf-composer
+    #   stamp = composer.create_stamp(50, 50) do |canvas|
+    #     canvas.fill_color("red").line_width(5).
+    #       rectangle(10, 10, 30, 30).fill_stroke
+    #   end
+    #   composer.image(stamp, width: 20, height: 20)
+    #   composer.image(stamp, width: 50)
+    def create_stamp(width, height) # :yield: canvas
+      stamp = @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, width, height]})
+      yield(stamp.canvas) if block_given?
+      stamp
+    end
+
     private
 
     # Creates the frame into which boxes are layed out when a new page is created.
