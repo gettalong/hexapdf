@@ -19,6 +19,7 @@
 - CLI command `hexapdf inspect` to show the type of revisions, as well as the
   number of objects per revision
 - [HexaPDF::Task::Optimize] to allow skipping invalid content stream operations
+- [HexaPDF::Composer#image] to allow using a form xobject in place of the image
 
 ### Fixed
 

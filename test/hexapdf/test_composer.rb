@@ -240,6 +240,13 @@ describe HexaPDF::Composer do
       assert(box.style.subscript)
       assert_same(@composer.document.images.add(image_path), box.image)
     end
+
+    it "allows using a form XObject" do
+      form = @composer.document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 10, 10]})
+      @composer.image(form, width: 10)
+      assert_equal(796, @composer.y)
+      assert_equal(36, @composer.x)
+    end
   end
 
   describe "draw_box" do

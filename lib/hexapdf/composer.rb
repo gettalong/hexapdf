@@ -313,7 +313,8 @@ module HexaPDF
 
     # Draws the given image at the current position.
     #
-    # The +file+ argument can be anything that is accepted by HexaPDF::Document::Images#add.
+    # The +file+ argument can be anything that is accepted by HexaPDF::Document::Images#add or a
+    # HexaPDF::Type::Form object.
     #
     # See #text for details on +width+, +height+, +style+ and +style_properties+.
     #
@@ -324,7 +325,7 @@ module HexaPDF
     #   composer.image(machu_picchu, height: 30)
     def image(file, width: 0, height: 0, style: nil, **style_properties)
       style = retrieve_style(style, style_properties)
-      image = document.images.add(file)
+      image = file.kind_of?(HexaPDF::Stream) ? file : document.images.add(file)
       draw_box(Layout::ImageBox.new(image, width: width, height: height, style: style))
     end
 
