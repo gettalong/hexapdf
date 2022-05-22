@@ -90,7 +90,7 @@ module HexaPDF
         true
       end
 
-      # Returns the root node of the page tree.
+      # Returns the root node of the page tree, creating it if needed.
       #
       # See: PageTreeNode
       def pages
