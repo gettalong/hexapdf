@@ -97,6 +97,14 @@ module HexaPDF
         self[:Pages] ||= document.add({Type: :Pages})
       end
 
+      # Returns the name dictionary containing all name trees of the document, creating it if
+      # needed.
+      #
+      # See: Names
+      def names
+        self[:Names] ||= document.add({}, type: :XXNames)
+      end
+
       # Returns the main AcroForm object.
       #
       # * If an AcroForm object exists, the +create+ argument is not used.

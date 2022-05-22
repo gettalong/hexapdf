@@ -21,6 +21,14 @@ describe HexaPDF::Type::Catalog do
     assert_equal(:Pages, pages.type)
   end
 
+  it "creates the name dictionary on access" do
+    assert_nil(@catalog[:Names])
+    names = @catalog.names
+    assert_equal(:XXNames, names.type)
+    other = @catalog.names
+    assert_same(other, names)
+  end
+
   describe "acro_form" do
     it "returns an existing form object" do
       @catalog[:AcroForm] = :test
