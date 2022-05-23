@@ -9,6 +9,8 @@
 - Option to CLI command `hexapdf form` to allow generation of a template file
 - Support for centering a floating box in [HexaPDF::Layout::Frame]
 - [HexaPDF::Type::Catalog#names] for easier access to the name dictionary
+- [HexaPDF::Type::Names#destinations] for easier access to the destinations name
+  tree
 
 ### Changed
 

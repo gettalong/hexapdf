@@ -63,6 +63,15 @@ module HexaPDF
       define_field :AlternatePresentations, type: NameTreeNode, version: '1.4'
       define_field :Renditions,             type: NameTreeNode, version: '1.5'
 
+      # Returns the destinations name tree containing a mapping from names to destination objects.
+      #
+      # The name tree will be created if needed.
+      #
+      # See: PDF1.7 s12.3.2
+      def destinations
+        self[:Dests] ||= document.add({}, type: NameTreeNode)
+      end
+
     end
 
   end
