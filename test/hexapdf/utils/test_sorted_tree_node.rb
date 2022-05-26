@@ -135,7 +135,17 @@ describe HexaPDF::Utils::SortedTreeNode do
       assert_nil(@root.find_entry('non'))
     end
 
-    it "works when no entry exists" do
+    it "works when no entry exists and neither /Names nor /Kids are set" do
+      assert_nil(@root.find_entry('non'))
+    end
+
+    it "works when no entry exists and /Names is set" do
+      @root[:Names] = []
+      assert_nil(@root.find_entry('non'))
+    end
+
+    it "works when no entry exists and /Kids is set" do
+      @root[:Kids] = []
       assert_nil(@root.find_entry('non'))
     end
   end

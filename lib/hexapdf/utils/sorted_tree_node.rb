@@ -168,11 +168,13 @@ module HexaPDF
             index = find_in_leaf_node(node[container_name], key)
             if node[container_name][index] == key
               result = node[container_name][index + 1]
+            else
+              break
             end
           elsif node.key?(:Kids)
             index = find_in_intermediate_node(node[:Kids], key)
             node = node[:Kids][index]
-            break unless key >= node[:Limits][0] && key <= node[:Limits][1]
+            break unless node && key >= node[:Limits][0] && key <= node[:Limits][1]
           else
             break
           end

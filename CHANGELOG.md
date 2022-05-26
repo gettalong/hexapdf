@@ -39,6 +39,8 @@
   /MaxLen
 * [HexaPDF::Layout::TextLayouter#fit] to not use style valign when doing
   variable width layouting
+* [HexaPDF::Utils::SortedTreeNode#find_entry] to work in case of a node without
+  a container name or kids key
 * CLI command `hexapdf form` to allow setting array values when using a template
 * CLI command `hexapdf form` to allow setting file select fields
 
