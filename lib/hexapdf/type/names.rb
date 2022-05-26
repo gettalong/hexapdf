@@ -67,6 +67,10 @@ module HexaPDF
       #
       # The name tree will be created if needed.
       #
+      # Note: It is possible to use this name tree directly, but HexaPDF::Document::Destinations
+      # provides a much easier to work with convenience interface for working with destination
+      # objects.
+      #
       # See: PDF1.7 s12.3.2
       def destinations
         self[:Dests] ||= document.add({}, type: NameTreeNode)

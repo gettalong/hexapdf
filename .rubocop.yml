@@ -12,6 +12,7 @@ Layout/LineLength:
   Max: 110 # Preferred length is 100
   Exclude:
     - lib/hexapdf/content/canvas.rb
+    - lib/hexapdf/document/destinations.rb
     - lib/hexapdf/serializer.rb
     - test/hexapdf/content/test_parser.rb
     - test/hexapdf/layout/test_text_layouter.rb

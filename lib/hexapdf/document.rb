@@ -106,6 +106,7 @@ module HexaPDF
     autoload(:Images, 'hexapdf/document/images')
     autoload(:Files, 'hexapdf/document/files')
     autoload(:Signatures, 'hexapdf/document/signatures')
+    autoload(:Destinations, 'hexapdf/document/destinations')
 
     # :call-seq:
     #   Document.open(filename, **docargs)                   -> doc
@@ -469,6 +470,12 @@ module HexaPDF
     # Returns the Fonts object that provides convenience methods for working with fonts.
     def fonts
       @fonts ||= Fonts.new(self)
+    end
+
+    # Returns the Destinations object that provides convenience methods for working with destination
+    # objects.
+    def destinations
+      @destinations ||= Destinations.new(self)
     end
 
     # Returns the main AcroForm object for dealing with interactive forms.

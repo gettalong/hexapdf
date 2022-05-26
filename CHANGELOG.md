@@ -11,6 +11,9 @@
 - [HexaPDF::Type::Catalog#names] for easier access to the name dictionary
 - [HexaPDF::Type::Names#destinations] for easier access to the destinations name
   tree
+- [HexaPDF::Document::Destinations], accessible via
+  [HexaPDF::Document#destinations], as convenience interface for working with
+  destination arrays
 
 ### Changed
 
