@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Layout::MultiFrame] for placing boxes into  multiple frames
+
 ### Changed
 
 * **Breaking change**: Refactored [HexaPDF::Layout::Frame] and associated data
