@@ -369,7 +369,7 @@ describe HexaPDF::Layout::TextFragment do
   end
 
   it "can be inspected" do
-    frag = setup_fragment(@font.decode_utf8("H"))
+    frag = setup_fragment(@font.decode_utf8("H") << 5)
     assert_match(/:H/, frag.inspect)
   end
 end

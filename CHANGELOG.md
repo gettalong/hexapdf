@@ -17,6 +17,8 @@
   fragment if there would not be enough height left anyway
 * [HexaPDF::Layout::WidthFromPolygon] to work correctly in case of very small
   floating point errors
+* HexaPDF::Layout::TextFragment#inspect to work in case of interspersed
+  numbers
 
 
 ## 0.23.0 - 2022-05-26

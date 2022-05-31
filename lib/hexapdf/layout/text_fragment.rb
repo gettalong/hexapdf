@@ -273,7 +273,8 @@ module HexaPDF
 
       # :nodoc:
       def inspect
-        "#<#{self.class.name} #{items.map(&:str).join.inspect} #{items.inspect}>"
+        "#<#{self.class.name} #{items.reject {|i| i.kind_of?(Numeric) }.map(&:str).join.inspect} " \
+          "#{items.inspect}>"
       end
 
       private
