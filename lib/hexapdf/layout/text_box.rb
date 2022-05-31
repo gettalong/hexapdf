@@ -97,17 +97,15 @@ module HexaPDF
       # Splits the text box into two boxes if necessary and possible.
       def split(available_width, available_height, frame)
         fit(available_width, available_height, frame) unless @result
-        if @width > available_width || @height > available_height
+
+        if style.position != :flow && (@width > available_width || @height > available_height)
           [nil, self]
         elsif @result.remaining_items.empty?
           [self]
         elsif @result.lines.empty?
           [nil, self]
         else
-          box = clone
-          box.instance_variable_set(:@result, nil)
-          box.instance_variable_set(:@items, @result.remaining_items)
-          [self, box]
+          [self, create_box_for_remaining_items]
         end
       end
 
@@ -122,6 +120,14 @@ module HexaPDF
       def draw_content(canvas, x, y)
         return unless @result && !@result.lines.empty?
         @result.draw(canvas, x, y + content_height)
+      end
+
+      # Creates a new TextBox instance for the items remaining after fitting the box.
+      def create_box_for_remaining_items
+        box = clone
+        box.instance_variable_set(:@result, nil)
+        box.instance_variable_set(:@items, @result.remaining_items)
+        box
       end
 
     end

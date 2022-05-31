@@ -104,9 +104,18 @@ describe HexaPDF::Layout::TextBox do
       assert_equal([nil, box], box.split(100, 100, @frame))
     end
 
-    it "splits the box if necessary" do
+    it "splits the box if necessary when using non-flowing text" do
       box = create_box([@inline_box] * 10)
       boxes = box.split(50, 10, @frame)
+      assert_equal(2, boxes.length)
+      assert_equal(box, boxes[0])
+      assert_equal(5, boxes[1].instance_variable_get(:@items).length)
+    end
+
+    it "splits the box if necessary when using flowing text that results in a wider box" do
+      @frame.remove_area(Geom2D::Polygon.new([[0, 100], [50, 100], [50, 10], [0, 10]]))
+      box = create_box([@inline_box] * 60, style: {position: :flow})
+      boxes = box.split(50, 100, @frame)
       assert_equal(2, boxes.length)
       assert_equal(box, boxes[0])
       assert_equal(5, boxes[1].instance_variable_get(:@items).length)

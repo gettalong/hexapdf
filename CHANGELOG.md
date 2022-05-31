@@ -19,6 +19,8 @@
   floating point errors
 * HexaPDF::Layout::TextFragment#inspect to work in case of interspersed
   numbers
+* [HexaPDF::Layout::TextBox#split] to work for position :flow when box is wider
+  than the initial available width
 
 
 ## 0.23.0 - 2022-05-26
