@@ -237,7 +237,8 @@ module HexaPDF
           when :flow
             x = 0
             y = @y - height
-            rectangle = create_rectangle(left, y, left + self.width, @y)
+            rectangle = create_rectangle(left, [bottom, y - (margin&.bottom || 0)].max,
+                                         left + self.width, @y)
           else
             x = case box.style.position_hint
                 when nil, :left
@@ -255,12 +256,13 @@ module HexaPDF
                 end
             y = @y - height - margin_top
             rectangle = if box.style.position == :float
-                          # We use the real margins from the box because they either have the desired
-                          # effect or just extend the rectangle outside the frame.
-                          create_rectangle(x - (margin&.left || 0), y - (margin&.bottom || 0),
-                                           x + width + (margin&.right || 0), @y)
+                          create_rectangle([left, x - (margin&.left || 0)].max,
+                                           [bottom, y - (margin&.bottom || 0)].max,
+                                           [left + self.width, x + width + (margin&.right || 0)].min,
+                                           @y)
                         else
-                          create_rectangle(left, y - (margin&.bottom || 0), left + self.width, @y)
+                          create_rectangle(left, [bottom, y - (margin&.bottom || 0)].max,
+                                           left + self.width, @y)
                         end
           end
         end

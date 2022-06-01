@@ -21,6 +21,7 @@
   numbers
 * [HexaPDF::Layout::TextBox#split] to work for position :flow when box is wider
   than the initial available width
+* [HexaPDF::Layout::Frame#fit] to create minimally sized mask rectangles
 
 
 ## 0.23.0 - 2022-05-26

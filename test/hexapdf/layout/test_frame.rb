@@ -49,12 +49,13 @@ describe HexaPDF::Layout::Frame do
     # Creates a box with the given option, storing it in @box, and draws it inside @frame. It is
     # checked whether the box coordinates are pos and whether the frame has the shape given by
     # points.
-    def check_box(box_opts, pos, points)
+    def check_box(box_opts, pos, mask, points)
       @box = HexaPDF::Layout::Box.create(**box_opts) {}
       @canvas.expect(:translate, nil, pos)
       fit_result = @frame.fit(@box)
       refute_nil(fit_result)
       @frame.draw(@canvas, fit_result)
+      assert_equal(mask, fit_result.mask.bbox.to_a)
       assert_equal(points, @frame.shape.polygons.map(&:to_a))
       @canvas.verify
     end
@@ -77,6 +78,7 @@ describe HexaPDF::Layout::Frame do
         check_box(
           {width: 50, height: 50, position: :absolute, position_hint: [10, 10]},
           [20, 20],
+          [20, 20, 70, 70],
           [[[10, 10], [110, 10], [110, 110], [10, 110]],
            [[20, 20], [70, 20], [70, 70], [20, 70]]]
         )
@@ -86,6 +88,7 @@ describe HexaPDF::Layout::Frame do
         check_box(
           {position: :absolute, position_hint: [10, 10]},
           [20, 20],
+          [20, 20, 110, 110],
           [[[10, 10], [110, 10], [110, 20], [20, 20], [20, 110], [10, 110]]]
         )
       end
@@ -95,6 +98,7 @@ describe HexaPDF::Layout::Frame do
           {width: 50, height: 50, position: :absolute, position_hint: [10, 10],
            margin: [10, 20, 30, 40]},
           [20, 20],
+          [-20, -10, 90, 80],
           [[[10, 80], [90, 80], [90, 10], [110, 10], [110, 110], [10, 110]]]
         )
       end
@@ -104,18 +108,21 @@ describe HexaPDF::Layout::Frame do
       it "draws the box on the left side" do
         check_box({width: 50, height: 50},
                   [10, 60],
+                  [10, 60, 110, 110],
                   [[[10, 10], [110, 10], [110, 60], [10, 60]]])
       end
 
       it "draws the box on the right side" do
         check_box({width: 50, height: 50, position_hint: :right},
                   [60, 60],
+                  [10, 60, 110, 110],
                   [[[10, 10], [110, 10], [110, 60], [10, 60]]])
       end
 
       it "draws the box in the center" do
         check_box({width: 50, height: 50, position_hint: :center},
                   [35, 60],
+                  [10, 60, 110, 110],
                   [[[10, 10], [110, 10], [110, 60], [10, 60]]])
       end
 
@@ -123,7 +130,7 @@ describe HexaPDF::Layout::Frame do
         [:left, :center, :right].each do |hint|
           it "ignores all margins if the box fills the whole frame, with position hint #{hint}" do
             check_box({margin: 10, position_hint: hint},
-                      [10, 10], [])
+                      [10, 10], [10, 10, 110, 110], [])
             assert_equal(100, @box.width)
             assert_equal(100, @box.height)
           end
@@ -132,6 +139,7 @@ describe HexaPDF::Layout::Frame do
             "frame's, with position hint #{hint}" do
             check_box({height: 50, margin: 10, position_hint: hint},
                       [10, 60],
+                      [10, 50, 110, 110],
                       [[[10, 10], [110, 10], [110, 50], [10, 50]]])
           end
 
@@ -140,6 +148,7 @@ describe HexaPDF::Layout::Frame do
             remove_area(:top)
             check_box({height: 50, margin: 10, position_hint: hint},
                       [10, 40],
+                      [10, 30, 110, 100],
                       [[[10, 10], [110, 10], [110, 30], [10, 30]]])
             assert_equal(100, @box.width)
           end
@@ -149,6 +158,7 @@ describe HexaPDF::Layout::Frame do
             remove_area(:left)
             check_box({height: 50, margin: 10, position_hint: hint},
                       [30, 60],
+                      [10, 50, 110, 110],
                       [[[20, 10], [110, 10], [110, 50], [20, 50]]])
             assert_equal(80, @box.width)
           end
@@ -158,6 +168,7 @@ describe HexaPDF::Layout::Frame do
             remove_area(:right)
             check_box({height: 50, margin: 10, position_hint: hint},
                       [10, 60],
+                      [10, 50, 110, 110],
                       [[[10, 10], [100, 10], [100, 50], [10, 50]]])
             assert_equal(80, @box.width)
           end
@@ -166,6 +177,7 @@ describe HexaPDF::Layout::Frame do
         it "perfectly centers a box if possible, margins ignored" do
           check_box({width: 50, height: 10, margin: [10, 10, 10, 20], position_hint: :center},
                     [35, 100],
+                    [10, 90, 110, 110],
                     [[[10, 10], [110, 10], [110, 90], [10, 90]]])
         end
 
@@ -173,6 +185,7 @@ describe HexaPDF::Layout::Frame do
           remove_area(:left, :right)
           check_box({width: 40, height: 10, margin: [10, 10, 10, 20], position_hint: :center},
                     [40, 100],
+                    [10, 90, 110, 110],
                     [[[20, 10], [100, 10], [100, 90], [20, 90]]])
         end
 
@@ -180,6 +193,7 @@ describe HexaPDF::Layout::Frame do
           remove_area(:left, :right)
           check_box({width: 20, height: 10, margin: [10, 10, 10, 40], position_hint: :center},
                     [65, 100],
+                    [10, 90, 110, 110],
                     [[[20, 10], [100, 10], [100, 90], [20, 90]]])
         end
       end
@@ -189,18 +203,21 @@ describe HexaPDF::Layout::Frame do
       it "draws the box on the left side" do
         check_box({width: 50, height: 50, position: :float},
                   [10, 60],
+                  [10, 60, 60, 110],
                   [[[10, 10], [110, 10], [110, 110], [60, 110], [60, 60], [10, 60]]])
       end
 
       it "draws the box on the right side" do
         check_box({width: 50, height: 50, position: :float, position_hint: :right},
                   [60, 60],
+                  [60, 60, 110, 110],
                   [[[10, 10], [110, 10], [110, 60], [60, 60], [60, 110], [10, 110]]])
       end
 
       it "draws the box in the center" do
         check_box({width: 50, height: 50, position: :float, position_hint: :center},
                   [35, 60],
+                  [35, 60, 85, 110],
                   [[[10, 10], [110, 10], [110, 110], [85, 110], [85, 60], [35, 60],
                     [35, 110], [10, 110]]])
       end
@@ -209,7 +226,7 @@ describe HexaPDF::Layout::Frame do
         [:left, :center, :right].each do |hint|
           it "ignores all margins if the box fills the whole frame, with position hint #{hint}" do
             check_box({margin: 10, position: :float, position_hint: hint},
-                      [10, 10], [])
+                      [10, 10], [10, 10, 110, 110], [])
             assert_equal(100, @box.width)
             assert_equal(100, @box.height)
           end
@@ -218,6 +235,7 @@ describe HexaPDF::Layout::Frame do
         it "ignores the left, but not the right margin if aligned left to the frame border" do
           check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :left},
                     [10, 60],
+                    [10, 50, 70, 110],
                     [[[10, 10], [110, 10], [110, 110], [70, 110], [70, 50], [10, 50]]])
         end
 
@@ -225,12 +243,14 @@ describe HexaPDF::Layout::Frame do
           remove_area(:left)
           check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :left},
                     [30, 60],
+                    [20, 50, 90, 110],
                     [[[20, 10], [110, 10], [110, 110], [90, 110], [90, 50], [20, 50]]])
         end
 
         it "uses the left and the right margin if aligned center" do
           check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :center},
                     [35, 60],
+                    [25, 50, 95, 110],
                     [[[10, 10], [110, 10], [110, 110], [95, 110], [95, 50], [25, 50],
                       [25, 110], [10, 110]]])
         end
@@ -238,6 +258,7 @@ describe HexaPDF::Layout::Frame do
         it "ignores the right, but not the left margin if aligned right to the frame border" do
           check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :right},
                     [60, 60],
+                    [50, 50, 110, 110],
                     [[[10, 10], [110, 10], [110, 50], [50, 50], [50, 110], [10, 110]]])
         end
 
@@ -245,6 +266,7 @@ describe HexaPDF::Layout::Frame do
           remove_area(:right)
           check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :right},
                     [40, 60],
+                    [30, 50, 100, 110],
                     [[[10, 10], [100, 10], [100, 50], [30, 50], [30, 110], [10, 110]]])
         end
       end
@@ -252,9 +274,10 @@ describe HexaPDF::Layout::Frame do
 
     describe "flowing boxes" do
       it "flows inside the frame's outline" do
-        check_box({width: 10, height: 20, position: :flow},
+        check_box({width: 10, height: 20, margin: 10, position: :flow},
                   [0, 90],
-                  [[[10, 10], [110, 10], [110, 90], [10, 90]]])
+                  [10, 80, 110, 110],
+                  [[[10, 10], [110, 10], [110, 80], [10, 80]]])
       end
     end
 
