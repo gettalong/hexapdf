@@ -57,7 +57,7 @@ describe HexaPDF::Content::GraphicObject::Geom2D do
       @obj.draw(@canvas)
       assert_operators(@canvas.contents,
                        [[:move_to, [5, 6]], [:line_to, [10, 11]], [:line_to, [7, 9]],
-                        [:stroke_path]])
+                        [:close_subpath], [:stroke_path]])
     end
 
     it "draws a Geom2D::PolygonSet onto the canvas" do

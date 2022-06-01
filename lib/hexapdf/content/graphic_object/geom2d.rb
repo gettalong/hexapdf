@@ -128,6 +128,7 @@ module HexaPDF
           return unless @object.nr_of_vertices > 1
           canvas.move_to(@object[0].x, @object[0].y)
           1.upto(@object.nr_of_vertices - 1) {|i| canvas.line_to(@object[i].x, @object[i].y) }
+          canvas.close_subpath
           canvas.stroke unless @path_only
         end
 
