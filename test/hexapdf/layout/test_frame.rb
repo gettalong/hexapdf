@@ -3,6 +3,35 @@
 require 'test_helper'
 require 'hexapdf/layout/frame'
 require 'hexapdf/layout/box'
+require 'hexapdf/document'
+
+describe HexaPDF::Layout::Frame do
+  it "shows the box's mask area on #draw when using debug output" do
+    doc = HexaPDF::Document.new(config: {'debug' => true})
+    canvas = doc.pages.add.canvas
+    box = HexaPDF::Layout::Box.create(width: 20, height: 20) {}
+    result = HexaPDF::Layout::Frame::FitResult.new(box)
+    result.mask = Geom2D::Polygon([0, 0], [0, 20], [20, 20], [20, 0])
+    result.x = result.y = 0
+    result.draw(canvas)
+    assert_equal(<<~CONTENTS, canvas.contents)
+      q
+      0.0 0.501961 0.0 rg
+      0.0 0.392157 0.0 RG
+      /GS1 gs
+      0 0 m
+      0 20 l
+      20 20 l
+      20 0 l
+      h
+      B
+      Q
+      q
+      1 0 0 1 0 0 cm
+      Q
+    CONTENTS
+  end
+end
 
 describe HexaPDF::Layout::Frame do
   before do
@@ -44,6 +73,11 @@ describe HexaPDF::Layout::Frame do
     before do
       @frame = HexaPDF::Layout::Frame.new(10, 10, 100, 100)
       @canvas = Minitest::Mock.new
+      def @canvas.context
+        Object.new.tap do |ctx|
+          def ctx.document; Object.new.tap {|doc| def doc.config; Hash.new(false); end } end
+        end
+      end
     end
 
     # Creates a box with the given option, storing it in @box, and draws it inside @frame. It is
