@@ -193,6 +193,9 @@ module HexaPDF
   # acro_form.text_field.default_width::
   #    A number specifying the default width of AcroForm text fields which should be auto-sized.
   #
+  # debug::
+  #    If set to +true+, enables debug output.
+  #
   # document.auto_decrypt::
   #    A boolean determining whether the document should be decrypted automatically when parsed.
   #
@@ -403,6 +406,7 @@ module HexaPDF
                           "#{field.concrete_field_type} field #{field.full_field_name}"
                       end,
                       'acro_form.text_field.default_width' => 100,
+                      'debug' => false,
                       'document.auto_decrypt' => true,
                       'document.on_invalid_string' => proc do |str|
                         str.encode(Encoding::UTF_8, invalid: :replace, replace: '')

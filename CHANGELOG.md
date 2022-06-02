@@ -3,6 +3,7 @@
 ### Added
 
 * [HexaPDF::Layout::MultiFrame] for placing boxes into  multiple frames
+* New configuration option 'debug' for enabling debug output
 
 ### Changed
 
