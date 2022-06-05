@@ -32,6 +32,13 @@ describe HexaPDF::Layout::WidthFromPolygon do
     assert_equal([2.5, 7.5], ws.call(5, 1))
   end
 
+  it "works for polygons in counterclockwise order with some segments crossing only top or bottom" do
+    ws = create_width_spec(Geom2D::PolygonSet(Geom2D::Polygon([55.0, 65.0], [70, 65], [70.0, 50.0],
+                                                              [100.0, 50.0], [100.0, 63.0], [120, 63],
+                                                              [120, 70], [55, 70])))
+    assert_equal([70, 30], ws.call(0, 10))
+  end
+
   it "works if some segments only cross the top line" do
     ws = create_width_spec(Geom2D::Polygon([0, 0], [0, 10], [2, 11], [4, 9], [6, 11], [10, 10],
                                            [10, 0]))

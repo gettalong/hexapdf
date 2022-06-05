@@ -203,7 +203,7 @@ module HexaPDF
       # Prepare the segments and other data for later use.
       def prepare(offset)
         @max_y = @polygon.bbox.max_y - offset
-        @polygon_segments = if @polygon.nr_of_contours > 1
+        @polygon_segments = if @polygon.respond_to?(:polygons)
                               @polygon.polygons.map {|polygon| process_polygon(polygon) }
                             else
                               [process_polygon(@polygon)]
@@ -226,6 +226,7 @@ module HexaPDF
       def process_polygon(polygon)
         rotate_nr = 0
         min_x = Float::INFINITY
+        polygon = Geom2D::Polygon(*polygon.to_ary.reverse!) if polygon.ccw?
         segments = polygon.each_segment.reject(&:horizontal?)
         segments.map!.with_index do |segment, index|
           (rotate_nr = index; min_x = segment.min.x) if segment.min.x < min_x

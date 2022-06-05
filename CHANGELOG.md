@@ -26,6 +26,7 @@
 * [HexaPDF::Layout::Frame#fit] to create minimally sized mask rectangles
 * [HexaPDF::Content::GraphicObject::Geom2D] to close the path when drawing
   polygons
+* [HexaPDF::Layout::WidthFromPolygon] to work for all counterclockwise polygons
 
 
 ## 0.23.0 - 2022-05-26
