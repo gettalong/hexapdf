@@ -412,7 +412,7 @@ describe HexaPDF::Layout::Frame do
       frame.remove_area(Geom2D::PolygonSet(top_cut, left_cut))
 
       check_regions(frame, [[0, 100, 20, 60], [0, 90, 20, 50], [0, 80, 100, 40],
-                            [30, 40, 70, 40], [0, 20, 100, 20]])
+                            [30, 80, 70, 80], [0, 20, 100, 20]])
     end
   end
 

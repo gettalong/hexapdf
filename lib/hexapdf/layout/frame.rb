@@ -414,9 +414,18 @@ module HexaPDF
         # Just use the second top-most segment
         # TODO: not the optimal solution!
         index = segments.rindex {|s| s.start_point.y < @y }
-        y = segments[index].start_point.y
-        remove_area(Geom2D::Polygon([left, y], [left + width, y],
-                                    [left + width, @y], [left, @y]))
+        segment = segments[index]
+        y = segment.start_point.y
+        polygon = if segment.min.x == @x
+                    # Trim the rectangular part from the left to the segment's length
+                    Geom2D::Polygon([@x, @y], [@x, y],
+                                    [@x + segment.length, y], [@x + segment.length, @y])
+                  else
+                    # Trim the whole slice between the two top-most segments
+                    Geom2D::Polygon([left, y], [left + width, y],
+                                    [left + width, @y], [left, @y])
+                  end
+        remove_area(polygon)
       end
 
       # Finds and sets the top-left point for the next region. This is always the top-most,
