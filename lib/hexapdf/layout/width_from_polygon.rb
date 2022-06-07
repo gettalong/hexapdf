@@ -98,7 +98,8 @@ module HexaPDF
 
         @polygon_segments.each do |segments|
           temp_result = []
-          status = if segments.first[0].start_point.y > y2 || segments.first[0].start_point.y < y1
+          status = if float_compare(segments.first[0].start_point.y, y2) >= 0 ||
+                       float_compare(segments.first[0].start_point.y, y1) <= 0
                      :outside
                    else
                      :inside
@@ -226,7 +227,6 @@ module HexaPDF
       def process_polygon(polygon)
         rotate_nr = 0
         min_x = Float::INFINITY
-        polygon = Geom2D::Polygon(*polygon.to_ary.reverse!) if polygon.ccw?
         segments = polygon.each_segment.reject(&:horizontal?)
         segments.map!.with_index do |segment, index|
           (rotate_nr = index; min_x = segment.min.x) if segment.min.x < min_x
