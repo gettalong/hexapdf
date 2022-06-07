@@ -69,7 +69,7 @@ module HexaPDF
 
         @width = @height = 0
         @result = if style.position == :flow
-                    @tl.fit(@items, frame.width_specification, frame.contour_line.bbox.height)
+                    @tl.fit(@items, frame.width_specification, frame.shape.bbox.height)
                   else
                     @width = reserved_width
                     @height = reserved_height

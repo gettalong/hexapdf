@@ -75,17 +75,15 @@ module HexaPDF
     # fitting, splitting or drawing a box. Note that the margin is ignored if a box's side coincides
     # with the frame's original boundary.
     #
-    # == Frame Shape and Contour Line
+    # == Frame Shape
     #
-    # A frame's shape is used to determine the available space for laying out boxes and its contour
-    # line is used whenever text should be flown around objects. They are normally the same but can
-    # differ if a box with an arbitrary contour line is drawn onto the frame.
+    # A frame's shape is used to determine the available space for laying out boxes.
     #
     # Initially, a frame has a rectangular shape. However, once boxes are added and the frame's
     # available area gets reduced, a frame may have a polygon set consisting of arbitrary
     # rectilinear polygons as shape.
     #
-    # In contrast to the frame's shape its contour line may be a completely arbitrary polygon set.
+    # It is also possible to provide a different initial shape on initialization.
     class Frame
 
       include Geom2D::Utils
@@ -184,12 +182,11 @@ module HexaPDF
       attr_reader :available_height
 
       # Creates a new Frame object for the given rectangular area.
-      def initialize(left, bottom, width, height, shape: nil, contour_line: nil)
+      def initialize(left, bottom, width, height, shape: nil)
         @left = left
         @bottom = bottom
         @width = width
         @height = height
-        @contour_line = contour_line
         @shape = shape || Geom2D::PolygonSet.new(
           [create_rectangle(left, bottom, left + width, bottom + height)]
         )
@@ -296,8 +293,8 @@ module HexaPDF
 
       # Draws the box of the given FitResult onto the canvas at the fitted position.
       #
-      # After a box is successfully drawn, the frame's shape and contour line are adjusted to remove
-      # the occupied area.
+      # After a box is successfully drawn, the frame's shape is adjusted to remove the occupied
+      # area.
       def draw(canvas, fit_result)
         return if fit_result.box.height == 0 || fit_result.box.width == 0
         fit_result.draw(canvas)
@@ -333,14 +330,9 @@ module HexaPDF
         available_width != 0
       end
 
-      # Removes the given *rectilinear* polygon from both the frame's shape and the frame's contour
-      # line.
+      # Removes the given *rectilinear* polygon from the frame's shape.
       def remove_area(polygon)
         @shape = Geom2D::Algorithms::PolygonOperation.run(@shape, polygon, :difference)
-        if @contour_line
-          @contour_line = Geom2D::Algorithms::PolygonOperation.run(@contour_line, polygon,
-                                                                   :difference)
-        end
         @region_selection = :max_width
         find_next_region
       end
@@ -350,25 +342,20 @@ module HexaPDF
         available_width == 0
       end
 
-      # The contour line of the frame, a Geom2D::PolygonSet consisting of arbitrary polygons.
-      def contour_line
-        @contour_line || @shape
-      end
-
-      # Returns a width specification for the frame's contour line that can be used, for example,
-      # with TextLayouter.
+      # Returns a width specification for the frame's shape that can be used, for example, with
+      # TextLayouter.
       #
       # Since not all text may start at the top of the frame, the offset argument can be used to
       # specify a vertical offset from the top of the frame where layouting should start.
       #
       # To be compatible with TextLayouter, the top left corner of the bounding box of the frame's
-      # contour line is the origin of the coordinate system for the width specification, with
-      # positive x-values to the right and positive y-values downwards.
+      # shape is the origin of the coordinate system for the width specification, with positive
+      # x-values to the right and positive y-values downwards.
       #
       # Depending on the complexity of the frame, the result may be any of the allowed width
       # specifications of TextLayouter#fit.
       def width_specification(offset = 0)
-        WidthFromPolygon.new(contour_line, offset)
+        WidthFromPolygon.new(shape, offset)
       end
 
       private

@@ -62,18 +62,6 @@ describe HexaPDF::Layout::Frame do
     assert_equal(90, frame.available_height)
   end
 
-  describe "contour_line" do
-    it "has a contour line equal to the bounding box by default" do
-      assert_equal([[5, 10], [105, 10], [105, 160], [5, 160]], @frame.contour_line.polygons[0].to_a)
-    end
-
-    it "can have a custom contour line polygon" do
-      contour_line = Geom2D::Polygon([0, 0], [10, 10], [10, 0])
-      frame = HexaPDF::Layout::Frame.new(0, 0, 10, 10, contour_line: contour_line)
-      assert_same(contour_line, frame.contour_line)
-    end
-  end
-
   it "returns an appropriate width specification object" do
     ws = @frame.width_specification(10)
     assert_kind_of(HexaPDF::Layout::WidthFromPolygon, ws)
@@ -423,16 +411,6 @@ describe HexaPDF::Layout::Frame do
 
       check_regions(frame, [[0, 100, 20, 60], [0, 90, 20, 50], [0, 80, 100, 40],
                             [30, 80, 70, 80], [0, 20, 100, 20]])
-    end
-  end
-
-  describe "remove_area" do
-    it "recalculates the contour line only if necessary" do
-      contour = Geom2D::Polygon([10, 10], [10, 90], [90, 90], [90, 10])
-      frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100, contour_line: contour)
-      frame.remove_area(Geom2D::Polygon([0, 0], [20, 0], [20, 100], [0, 100]))
-      assert_equal([[[20, 10], [90, 10], [90, 90], [20, 90]]],
-                   frame.contour_line.polygons.map(&:to_a))
     end
   end
 end
