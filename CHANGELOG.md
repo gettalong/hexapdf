@@ -10,6 +10,7 @@
 * **Breaking change**: Refactored [HexaPDF::Layout::Frame] and associated data
   structures so that the complete result of fitting a box is returned
 * [HexaPDF::Layout::Frame] to use a better algorithm for trimming the shape
+* [HexaPDF::Layout::Frame::new] to allow setting the initial shape
 
 ### Fixed
 

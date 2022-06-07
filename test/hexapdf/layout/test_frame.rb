@@ -52,6 +52,16 @@ describe HexaPDF::Layout::Frame do
     assert_equal(150, @frame.available_height)
   end
 
+  it "allows setting the shape of the frame on initialization" do
+    shape = Geom2D::Polygon([50, 10], [55, 100], [105, 100], [105, 10])
+    frame = HexaPDF::Layout::Frame.new(5, 10, 100, 150, shape: shape)
+    assert_equal(shape, frame.shape)
+    assert_equal(55, frame.x)
+    assert_equal(100, frame.y)
+    assert_equal(50, frame.available_width)
+    assert_equal(90, frame.available_height)
+  end
+
   describe "contour_line" do
     it "has a contour line equal to the bounding box by default" do
       assert_equal([[5, 10], [105, 10], [105, 160], [5, 160]], @frame.contour_line.polygons[0].to_a)

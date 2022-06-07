@@ -184,19 +184,21 @@ module HexaPDF
       attr_reader :available_height
 
       # Creates a new Frame object for the given rectangular area.
-      def initialize(left, bottom, width, height, contour_line: nil)
+      def initialize(left, bottom, width, height, shape: nil, contour_line: nil)
         @left = left
         @bottom = bottom
         @width = width
         @height = height
         @contour_line = contour_line
-        @shape = Geom2D::PolygonSet.new(
+        @shape = shape || Geom2D::PolygonSet.new(
           [create_rectangle(left, bottom, left + width, bottom + height)]
         )
         @x = left
         @y = bottom + height
         @available_width = width
         @available_height = height
+
+        find_max_width_region if shape
         @region_selection = :max_height
       end
 
