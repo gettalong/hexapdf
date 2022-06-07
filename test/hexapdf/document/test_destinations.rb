@@ -215,7 +215,7 @@ describe HexaPDF::Document::Destinations do
 
   describe "create_fit_page" do
     it "creates the destination" do
-      dest = @doc.destinations.create_fit_page( @page)
+      dest = @doc.destinations.create_fit_page(@page)
       assert_equal([@page, :Fit], dest)
     end
 

@@ -270,7 +270,7 @@ module HexaPDF
         else
           raise "Field type #{field.concrete_field_type} not yet supported"
         end
-      rescue
+      rescue StandardError
         raise "Error while setting '#{field.full_field_name}': #{$!.message}"
       end
 
