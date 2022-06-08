@@ -1,0 +1,110 @@
+# -*- encoding: utf-8 -*-
+
+require 'test_helper'
+require_relative '../content/common'
+require 'hexapdf/document'
+require 'hexapdf/layout/column_box'
+
+describe HexaPDF::Layout::ColumnBox do
+  before do
+    @frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100)
+    inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {}
+    @text_boxes = 5.times.map { HexaPDF::Layout::TextBox.new([inline_box] * 15, style: {position: :default}) }
+    draw_block = lambda do |canvas, box|
+      canvas.move_to(0, 0).end_path
+    end
+    @fixed_size_boxes = 15.times.map { HexaPDF::Layout::Box.new(width: 20, height: 10, &draw_block) }
+  end
+
+  def create_box(**kwargs)
+    HexaPDF::Layout::ColumnBox.new(gap: 10, **kwargs)
+  end
+
+  def check_box(box, width, height, fit_pos = nil)
+    assert(box.fit(@frame.available_width, @frame.available_height, @frame), "box fit?")
+    assert_equal(width, box.width, "box width")
+    assert_equal(height, box.height, "box height")
+    if fit_pos
+      multi_frame = box.instance_variable_get(:@multi_frame)
+      assert_equal(fit_pos.size, multi_frame.fit_results.size)
+      fit_pos.each_with_index do |(x, y), index|
+        assert_equal(x, multi_frame.fit_results[index].x, "result[#{index}].x")
+        assert_equal(y, multi_frame.fit_results[index].y, "result[#{index}].y")
+      end
+    end
+  end
+
+  describe "initialize" do
+    it "creates a new instance with the given arguments" do
+      box = create_box(children: [:a], columns: 3, gap: 10, equal_height: false)
+      assert_equal([:a], box.children)
+      assert_equal(3, box.columns)
+      assert_equal(10, box.gap)
+      assert_equal(false, box.equal_height)
+    end
+  end
+
+  describe "fit" do
+    [:default, :flow].each do |position|
+      it "respects the set initial width, position #{position}" do
+        box = create_box(children: @text_boxes[0..1], width: 50, style: {position: position})
+        check_box(box, 50, 80)
+      end
+
+      it "respects the set initial height, position #{position}" do
+        box = create_box(children: @text_boxes[0..1], height: 50, equal_height: false,
+                         style: {position: position})
+        check_box(box, 100, 50)
+      end
+
+      it "respects the border and padding around all columns, position #{position}" do
+        box = create_box(children: @fixed_size_boxes[0, 3],
+                         style: {border: {width: [5, 4, 3, 2]}, padding: [5, 4, 3, 2], position: position})
+        check_box(box, 100, 36, [[4, 80], [4, 70], [53, 80]])
+      end
+    end
+
+    it "uses the frame's current cursor position and available width/height when style position=:default" do
+      @frame.remove_area(Geom2D::Polygon([0, 0], [10, 0], [10, 90], [100, 90], [100, 100], [0, 100]))
+      box = create_box(children: @fixed_size_boxes[0, 4])
+      check_box(box, 90, 20, [[10, 80], [10, 70], [60, 80], [60, 70]])
+    end
+
+    it "respects the frame's shape when style position=:flow" do
+      @frame.remove_area(Geom2D::Polygon([30, 65], [70, 65], [70, 35], [30, 35]))
+      box = create_box(children: @text_boxes[0, 3], style: {position: :flow})
+      check_box(box, 100, 70, [[0, 70], [0, 60], [0, 30], [55, 80], [55, 70], [70, 30]])
+    end
+
+    it "allows fitting the contents to fill the columns instead of equalizing the height" do
+      box = create_box(children: @fixed_size_boxes, equal_height: false)
+      check_box(box, 100, 100, [[0, 90], [0, 80], [0, 70], [0, 60], [0, 50], [0, 40], [0, 30],
+                                [0, 20], [0, 10], [0, 0], [55, 90], [55, 80], [55, 70],
+                                [55, 60], [55, 50]])
+    end
+  end
+
+  it "draws the result onto the canvas" do
+    box = create_box(children: @fixed_size_boxes)
+    box.fit(100, 100, @frame)
+
+    @canvas = HexaPDF::Document.new.pages.add.canvas
+    box.draw(@canvas, 0, 0)
+    operators = 90.step(to: 20, by: -10).map do |y|
+      [[:save_graphics_state],
+       [:concatenate_matrix, [1, 0, 0, 1, 0, y]],
+       [:move_to, [0, 0]],
+       [:end_path],
+       [:restore_graphics_state]]
+    end
+    operators.concat(90.step(to: 30, by: -10).map do |y|
+                       [[:save_graphics_state],
+                        [:concatenate_matrix, [1, 0, 0, 1, 55, y]],
+                        [:move_to, [0, 0]],
+                        [:end_path],
+                        [:restore_graphics_state]]
+                     end)
+    operators.flatten!(1)
+    assert_operators(@canvas.contents, operators)
+  end
+end
