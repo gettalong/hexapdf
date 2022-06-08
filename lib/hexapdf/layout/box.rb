@@ -165,11 +165,7 @@ module HexaPDF
         style.underlays.draw(canvas, x, y, self) if style.underlays?
         style.border.draw(canvas, x, y, width, height) if style.border?
 
-        cx = x
-        cy = y
-        (cx += style.padding.left; cy += style.padding.bottom) if style.padding?
-        (cx += style.border.width.left; cy += style.border.width.bottom) if style.border?
-        draw_content(canvas, cx, cy)
+        draw_content(canvas, x + reserved_width_left, y + reserved_height_bottom)
 
         style.overlays.draw(canvas, x, y, self) if style.overlays?
       end
@@ -187,17 +183,47 @@ module HexaPDF
 
       # Returns the width that is reserved by the padding and border style properties.
       def reserved_width
-        result = 0
-        result += style.padding.left + style.padding.right if style.padding?
-        result += style.border.width.left + style.border.width.right if style.border?
-        result
+        reserved_width_left + reserved_width_right
       end
 
       # Returns the height that is reserved by the padding and border style properties.
       def reserved_height
+        reserved_height_top + reserved_height_bottom
+      end
+
+      # Returns the width that is reserved by the padding and the border style properties on the
+      # left side of the box.
+      def reserved_width_left
         result = 0
-        result += style.padding.top + style.padding.bottom if style.padding?
-        result += style.border.width.top + style.border.width.bottom if style.border?
+        result += style.padding.left if style.padding?
+        result += style.border.width.left if style.border?
+        result
+      end
+
+      # Returns the width that is reserved by the padding and the border style properties on the
+      # right side of the box.
+      def reserved_width_right
+        result = 0
+        result += style.padding.right if style.padding?
+        result += style.border.width.right if style.border?
+        result
+      end
+
+      # Returns the height that is reserved by the padding and the border style properties on the
+      # top side of the box.
+      def reserved_height_top
+        result = 0
+        result += style.padding.top if style.padding?
+        result += style.border.width.top if style.border?
+        result
+      end
+
+      # Returns the height that is reserved by the padding and the border style properties on the
+      # bottom side of the box.
+      def reserved_height_bottom
+        result = 0
+        result += style.padding.bottom if style.padding?
+        result += style.border.width.bottom if style.border?
         result
       end
 
