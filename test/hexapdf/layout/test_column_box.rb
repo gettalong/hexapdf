@@ -17,7 +17,7 @@ describe HexaPDF::Layout::ColumnBox do
   end
 
   def create_box(**kwargs)
-    HexaPDF::Layout::ColumnBox.new(gap: 10, **kwargs)
+    HexaPDF::Layout::ColumnBox.new(gaps: 10, **kwargs)
   end
 
   def check_box(box, width, height, fit_pos = nil)
@@ -36,10 +36,10 @@ describe HexaPDF::Layout::ColumnBox do
 
   describe "initialize" do
     it "creates a new instance with the given arguments" do
-      box = create_box(children: [:a], columns: 3, gap: 10, equal_height: false)
+      box = create_box(children: [:a], columns: 3, gaps: 10, equal_height: false)
       assert_equal([:a], box.children)
-      assert_equal(3, box.columns)
-      assert_equal(10, box.gap)
+      assert_equal([-1, -1, -1], box.columns)
+      assert_equal([10], box.gaps)
       assert_equal(false, box.equal_height)
     end
   end
@@ -81,6 +81,43 @@ describe HexaPDF::Layout::ColumnBox do
       check_box(box, 100, 100, [[0, 90], [0, 80], [0, 70], [0, 60], [0, 50], [0, 40], [0, 30],
                                 [0, 20], [0, 10], [0, 0], [55, 90], [55, 80], [55, 70],
                                 [55, 60], [55, 50]])
+    end
+
+    describe "columns calculations" do
+      it "works for a single column with a specified width" do
+        box = create_box(children: @fixed_size_boxes[0..0], columns: [50])
+        check_box(box, 50, 10, [[0, 90]])
+      end
+
+      it "works for multiple columns with specified widths" do
+        box = create_box(children: @fixed_size_boxes[0..1], columns: [50, 30])
+        check_box(box, 90, 10, [[0, 90], [60, 90]])
+      end
+
+      it "works for a single column with auto-width" do
+        box = create_box(children: @fixed_size_boxes[0..0], columns: [-5])
+        check_box(box, 100, 10, [[0, 90]])
+      end
+
+      it "works for multiple columns with auto-widths" do
+        box = create_box(children: @fixed_size_boxes[0..1], columns: [-2, -1])
+        check_box(box, 100, 10, [[0, 90], [70, 90]])
+      end
+
+      it "works for mixed columns with specified widths and auto-widths" do
+        box = create_box(children: @fixed_size_boxes[0..2], columns: [20, -1, -2])
+        check_box(box, 100, 10, [[0, 90], [30, 90], [60, 90]])
+      end
+
+      it "cycles the gap array" do
+        box = create_box(children: @fixed_size_boxes[0..3], columns: 4, gaps: [5, 10])
+        check_box(box, 100, 10, [[0, 90], [25, 90], [55, 90], [80, 90]])
+      end
+
+      it "fails if the necessary width is larger than the available one" do
+        box = create_box(children: @fixed_size_boxes[0..2], columns: 4, gaps: [40])
+        refute(box.fit(100, 100, @frame))
+      end
     end
   end
 

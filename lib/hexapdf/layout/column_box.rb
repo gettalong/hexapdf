@@ -41,7 +41,9 @@ module HexaPDF
 
     # A ColumnBox arranges boxes in one or more columns.
     #
-    # The number of columns as well as the size of the gap between the columns can be modified.
+    # The number and width of the columns as well as the size of the gap between the columns can be
+    # modified. Additionally, the contents can either fill the columns one after the other or the
+    # columns can be made equally high.
     #
     # If the column box has padding and/or borders specified, they are handled like with any other
     # box. This means they are around all columns and their contents and are not used separately for
@@ -58,21 +60,45 @@ module HexaPDF
       # The child boxes of this ColumnBox. They need to be finalized before #fit is called.
       attr_reader :children
 
-      # The number of columns.
+      # The columns definition.
+      #
+      # This is an array containing the widths of the columns. The size of the array is the number
+      # of columns.
+      #
+      # If a negative integer is used for the width, the column is auto-sized. Such columns split
+      # the remaining width (after substracting the widths of the fixed columns) proportionally
+      # among them. For example, if the definition is [-1, -2, -2], the first column is a fifth of
+      # the width and the other columns are each two fifth of the width.
       attr_reader :columns
 
-      # The size of the gap between the columns.
-      attr_reader :gap
+      # The size of the gaps between the columns.
+      #
+      # This is an array containing the width of the gaps. If there are more gaps than numbers in
+      # the array, the array is cycled.
+      attr_reader :gaps
 
       # Determines whether the columns should all be equally high or not.
       attr_reader :equal_height
 
-      # Creates a new ColumnBox object.
-      def initialize(children: [], columns: 2, gap: 36, equal_height: true, **kwargs)
+      # Creates a new ColumnBox object for the given child boxes in +children+.
+      #
+      # +columns+::
+      #
+      #     Can either simply integer specify the number of columns or be a full column definition
+      #     (see #columns for details).
+      #
+      # +gaps+::
+      #     Can either be a simply integer specifying the width between two columns or a full gap
+      #     definition (see #gap for details).
+      #
+      # +equal_height+::
+      #     If +true+, the #fit method tries to balance the columns in terms of their height.
+      #     Otherwise the columns are filled from the left.
+      def initialize(children: [], columns: 2, gaps: 36, equal_height: true, **kwargs)
         super(**kwargs)
         @children = children
-        @columns = columns
-        @gap = gap
+        @columns = (columns.kind_of?(Array) ? columns : [-1] * columns)
+        @gaps = (gaps.kind_of?(Array) ? gaps : [gaps])
         @equal_height = equal_height
       end
 
@@ -94,7 +120,9 @@ module HexaPDF
                    (@initial_height > 0 ? @initial_height : available_height) - reserved_height
                  end
 
-        column_width = (@width - gap * (@columns - 1)).to_f / @columns
+        columns = calculate_columns(@width)
+        return false if columns.empty?
+
         left = (style.position == :flow ? frame.left : frame.x) + reserved_width_left
         top = (style.position == :flow ? frame.bottom + frame.height : frame.y) - reserved_height_top
         successful_height = height
@@ -103,8 +131,8 @@ module HexaPDF
         while true
           @multi_frame = MultiFrame.new
 
-          @columns.times do |col_nr|
-            column_left = left + (column_width + gap) * col_nr
+          columns.each do |col_x, column_width|
+            column_left = left + col_x
             column_bottom = top - height
             if style.position == :flow
               rect = Geom2D::Polygon([column_left, column_bottom],
@@ -139,13 +167,37 @@ module HexaPDF
           tries += 1
         end
 
-        @width += reserved_width
+        @width = columns[-1].sum + reserved_width
         @height = @multi_frame.content_heights.max + reserved_height
 
         @multi_frame.fit_successful?
       end
 
       private
+
+      # Calculates the x-coordinates and widths of all columns based on the given total available
+      # width.
+      #
+      # If it is not possible to fit all columns into the given +width+, an empty array is returned.
+      def calculate_columns(width)
+        number_of_columns = @columns.size
+        gaps = @gaps.cycle.take(number_of_columns - 1)
+        fixed_width, variable_width = @columns.partition(&:positive?).map {|c| c.sum(&:abs) }
+        rest_width = width - fixed_width - gaps.sum
+        return [] if rest_width <= 0
+
+        variable_width_unit = rest_width / variable_width.to_f
+        position = 0
+        @columns.map.with_index do |column, index|
+          result = if column > 0
+                     [position, column]
+                   else
+                     [position, column.abs * variable_width_unit]
+                   end
+          position += result[1] + (gaps[index] || 0)
+          result
+        end
+      end
 
       # Draws the child boxes onto the canvas at position [x, y].
       def draw_content(canvas, _x, _y)
