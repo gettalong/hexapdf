@@ -323,6 +323,8 @@ module HexaPDF
     #   #>pdf-composer
     #   composer.image(machu_picchu, border: {width: 3})
     #   composer.image(machu_picchu, height: 30)
+    #
+    # See: HexaPDF::Layout::ImageBox
     def image(file, width: 0, height: 0, style: nil, **style_properties)
       style = retrieve_style(style, style_properties)
       image = file.kind_of?(HexaPDF::Stream) ? file : document.images.add(file)

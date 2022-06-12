@@ -58,7 +58,7 @@ module HexaPDF
       #
       # Depending on the 'position' style property, the text is either fit into the rectangular area
       # given by +available_width+ and +available_height+, or fit to the outline of the frame
-      # starting from the top.
+      # starting from the top (when 'position' is set to :flow).
       #
       # The spacing after the last line can be controlled via the style property +last_line_gap+.
       #

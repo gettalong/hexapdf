@@ -40,12 +40,26 @@ module HexaPDF
 
     # An Image box object is used for displaying an image.
     #
+    # It can either be used directly or through the HexaPDF::Composer#image method.
+    #
     # How an image is displayed inside an image box, depends on whether the +width+ and/or +height+
     # of the box has been set:
     #
     # * If one of them has been set, the other is adjusted to retain the image ratio.
+    #
+    #     #>pdf-composer100
+    #     composer.image(machu_picchu, width: 40)
+    #     composer.image(machu_picchu, height: 40)
+    #
     # * If both have been set, both are used as is.
+    #
+    #     #>pdf-composer100
+    #     composer.image(machu_picchu, width: 100, height: 30)
+    #
     # * If neither has been set, the image is scaled to fit the available space.
+    #
+    #     #>pdf-composer100
+    #     composer.image(machu_picchu)
     #
     # Also see: HexaPDF::Content::Canvas#image
     class ImageBox < Box
@@ -60,8 +74,9 @@ module HexaPDF
         @image = image
       end
 
-      # Fits the image into the available space.
-      def fit(available_width, available_height, _)
+      # Fits the image into the available space, taking the initially set width and height into
+      # account (see the class description for details).
+      def fit(available_width, available_height, _frame)
         image_width = @image.width.to_f
         image_height = @image.height.to_f
         image_ratio = image_width / image_height

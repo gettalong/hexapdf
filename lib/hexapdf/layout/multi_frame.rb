@@ -55,6 +55,8 @@ module HexaPDF
     class MultiFrame
 
       # The array of frames inside of which the boxes should be laid out.
+      #
+      # Use #<< to add additional frames.
       attr_reader :frames
 
       # The Frame::FitResult objects for the successfully fitted objects in the order the boxes were
