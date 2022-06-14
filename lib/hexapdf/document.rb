@@ -107,6 +107,7 @@ module HexaPDF
     autoload(:Files, 'hexapdf/document/files')
     autoload(:Signatures, 'hexapdf/document/signatures')
     autoload(:Destinations, 'hexapdf/document/destinations')
+    autoload(:Layout, 'hexapdf/document/layout')
 
     # :call-seq:
     #   Document.open(filename, **docargs)                   -> doc
@@ -476,6 +477,12 @@ module HexaPDF
     # objects.
     def destinations
       @destinations ||= Destinations.new(self)
+    end
+
+    # Returns the Layout object that provides convenience methods for working with the
+    # HexaPDF::Layout classes for document layout.
+    def layout
+      @layout ||= Layout.new(self)
     end
 
     # Returns the main AcroForm object for dealing with interactive forms.
