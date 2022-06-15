@@ -155,4 +155,26 @@ describe HexaPDF::Document::Layout do
       assert_same(form, box.image)
     end
   end
+
+  describe "lorem_ipsum_box" do
+    it "creates a standard lorem ipsum box" do
+      box = @layout.lorem_ipsum_box(width: 10, height: 15, font_size: 15)
+      assert_equal(10, box.width)
+      assert_equal(15, box.height)
+      items = box.instance_variable_get(:@items)
+      assert_equal(HexaPDF::Document::Layout::LOREM_IPSUM.join(" ").size, items[0].items.length)
+    end
+
+    it "can use just some sentences from the lorem ipsum text" do
+      box = @layout.lorem_ipsum_box(sentences: 1)
+      items = box.instance_variable_get(:@items)
+      assert_equal(HexaPDF::Document::Layout::LOREM_IPSUM[0].size, items[0].items.length)
+    end
+
+    it "can use multiple of the selected sentences" do
+      box = @layout.lorem_ipsum_box(sentences: 2, count: 2)
+      items = box.instance_variable_get(:@items)
+      assert_equal(HexaPDF::Document::Layout::LOREM_IPSUM[0, 2].join(" ").size * 2 + 2, items[0].items.length)
+    end
+  end
 end

@@ -235,6 +235,25 @@ module HexaPDF
         HexaPDF::Layout::ImageBox.new(image, width: width, height: height, style: style)
       end
 
+      # :nodoc:
+      LOREM_IPSUM = [
+        "Lorem ipsum dolor sit amet, con\u{00AD}sectetur adipis\u{00AD}cing elit, sed " \
+          "do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "Ut enim ad minim veniam, quis nostrud exer\u{00AD}citation ullamco laboris nisi ut " \
+          "aliquip ex ea commodo consequat. ",
+        "Duis aute irure dolor in reprehen\u{00AD}derit in voluptate velit esse cillum dolore " \
+          "eu fugiat nulla pariatur. ",
+        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " \
+          "mollit anim id est laborum.",
+      ]
+
+      # Uses #text_box to create +count+ paragraphs of lorem ipsum text.
+      #
+      # The +text_box_properties+ arguments are passed as is to #text_box.
+      def lorem_ipsum_box(sentences: 4, count: 1, **text_box_properties)
+        text_box(([LOREM_IPSUM[0, sentences].join(" ")] * count).join("\n\n"), **text_box_properties)
+      end
+
       private
 
       # Retrieves the appropriate HexaPDF::Layout::Style object based on the +style+ and +properties+
