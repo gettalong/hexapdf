@@ -47,7 +47,7 @@ module HexaPDF
 
       # Creates a new TextBox object with the given inline items (e.g. TextFragment and InlineBox
       # objects).
-      def initialize(items, **kwargs)
+      def initialize(items:, **kwargs)
         super(**kwargs)
         @tl = TextLayouter.new(style)
         @items = items

@@ -44,7 +44,8 @@ boxes = []
   boxes << Box.create(width: 50, height: 50, margin: 20,
     position: :float, position_hint: :right,
     border: {width: 1, color: [[255, 0, 0]]})
-  boxes << TextBox.new(items, style: {position: :flow, align: :justify, font: doc.fonts.add('Times')})
+  boxes << TextBox.new(items: items, style: {position: :flow, align: :justify,
+                                             font: doc.fonts.add('Times')})
 end
 
 polygon = Geom2D::Polygon([200, 350], [400, 350], [400, 450], [200, 450])

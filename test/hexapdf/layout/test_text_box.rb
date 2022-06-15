@@ -12,7 +12,7 @@ describe HexaPDF::Layout::TextBox do
   end
 
   def create_box(items, **kwargs)
-    HexaPDF::Layout::TextBox.new(items, **kwargs)
+    HexaPDF::Layout::TextBox.new(items: items, **kwargs)
   end
 
   describe "initialize" do

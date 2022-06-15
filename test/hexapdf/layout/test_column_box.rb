@@ -9,7 +9,9 @@ describe HexaPDF::Layout::ColumnBox do
   before do
     @frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100)
     inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {}
-    @text_boxes = 5.times.map { HexaPDF::Layout::TextBox.new([inline_box] * 15, style: {position: :default}) }
+    @text_boxes = 5.times.map do
+      HexaPDF::Layout::TextBox.new(items: [inline_box] * 15, style: {position: :default})
+    end
     draw_block = lambda do |canvas, box|
       canvas.move_to(0, 0).end_path
     end

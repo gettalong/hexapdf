@@ -13,6 +13,9 @@
 * [HexaPDF::Layout::Frame] to use a better algorithm for trimming the shape
 * [HexaPDF::Layout::Frame::new] to allow setting the initial shape
 * **Breaking change**: Removed contour line from [HexaPDF::Layout::Frame]
+* **Breaking change**: Changed positional arguments of
+  [HexaPDF::Layout::TextBox::new] and [HexaPDF::Layout::ImageBox::new] to
+  keyword arguments for a consistent box initialization interface
 
 ### Fixed
 

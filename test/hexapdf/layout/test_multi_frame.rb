@@ -15,7 +15,7 @@ describe HexaPDF::Layout::MultiFrame do
 
   def fit_box(count, width: 10, height: 10)
     ibox = HexaPDF::Layout::InlineBox.create(width: width, height: height) {}
-    @multi_frame.fit(HexaPDF::Layout::TextBox.new([ibox] * count))
+    @multi_frame.fit(HexaPDF::Layout::TextBox.new(items: [ibox] * count))
   end
 
   def check_result(*pos, content_heights:, successful: true, boxes_remain: false)

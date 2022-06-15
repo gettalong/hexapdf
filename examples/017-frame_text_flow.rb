@@ -43,7 +43,7 @@ end
 boxes << Box.create(width: 50, height: 50, margin: 20,
                     position: :float, position_hint: :right,
                     border: {width: 1, color: [[255, 0, 0]]})
-boxes << TextBox.new(items, style: {position: :flow, align: :justify})
+boxes << TextBox.new(items: items, style: {position: :flow, align: :justify})
 
 i = 0
 frame_filled = false
