@@ -40,6 +40,8 @@ module HexaPDF
 
     # The base class for all layout boxes.
     #
+    # == Box Model
+    #
     # HexaPDF uses the following box model:
     #
     # * Each box can specify a width and height. Padding and border are inside, the margin outside
@@ -49,12 +51,21 @@ module HexaPDF
     #   the content box without padding and the border.
     #
     # * If width or height is set to zero, they are determined automatically during layouting.
+    #
+    #
+    # == Subclasses
+    #
+    # Each subclass should only take keyword arguments on initialization so that the boxes can be
+    # instantiated from a common convenience method.
+    #
+    # The methods #fit, #split and either #draw or #draw_content need to be customized according to
+    # the subclass's use case.
     class Box
 
       # Creates a new Box object, using the provided block as drawing block (see ::new).
       #
       # If +content_box+ is +true+, the width and height are taken to mean the content width and
-      # height and the style's padding and border are removed from them appropriately.
+      # height and the style's padding and border are added to them appropriately.
       #
       # The +style+ argument defines the Style object (see Style::create for details) for the box.
       # Any additional keyword arguments have to be style properties and are applied to the style
@@ -130,9 +141,10 @@ module HexaPDF
       # and returns the parts as array.
       #
       # In many cases the first box in the list will be this box, meaning that even when #fit fails,
-      # a part of the box may still fit. Note that #fit may not be called if the first box is this
-      # box since it is assumed that it is already fitted. If not even a part of this box fits into
-      # the available space, +nil+ should be returned as the first array element.
+      # a part of the box may still fit. Note that #fit may not be called before #draw on the first
+      # box if the first box is this box since it is assumed that it is already fitted. If not even
+      # a part of this box fits into the available space, +nil+ should be returned as the first
+      # array element.
       #
       # Possible return values:
       #
