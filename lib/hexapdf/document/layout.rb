@@ -129,6 +129,23 @@ module HexaPDF
         style
       end
 
+      # Creates the named box and returns it.
+      #
+      # The +name+ argument refers to the registered name of the box class that is looked up in the
+      # 'layout.boxes.map' configuration option. The +box_options+ are passed as-is to the
+      # initialization method of that box class
+      #
+      # See #text_box for details on +width+, +height+ and +style+ (note that there is no
+      # +style_properties+ argument).
+      #
+      # Example:
+      #
+      #   doc.layout.box(:column, columns: 2, gap: 15)   # => column_box_instance
+      def box(name, width: 0, height: 0, style: nil, **box_options)
+        box_class_for_name(name).new(width: width, height: height,
+                                     style: retrieve_style(style), **box_options)
+      end
+
       # Creates a HexaPDF::Layout::TextBox for the given text.
       #
       # This method is of the two main methods for creating text boxes, the other being
@@ -164,8 +181,8 @@ module HexaPDF
       def text_box(text, width: 0, height: 0, style: nil, box_style: nil, **style_properties)
         style = retrieve_style(style, style_properties)
         box_style = (box_style ? retrieve_style(box_style) : style)
-        HexaPDF::Layout::TextBox.new(items: [HexaPDF::Layout::TextFragment.create(text, style)],
-                                     width: width, height: height, style: box_style)
+        box_class_for_name(:text).new(items: [HexaPDF::Layout::TextFragment.create(text, style)],
+                                      width: width, height: height, style: box_style)
       end
 
       # Creates a HexaPDF::Layout::TextBox like #text_box but allows parts of the text to be
@@ -213,7 +230,7 @@ module HexaPDF
             HexaPDF::Layout::TextFragment.create(text, retrieve_style(hash.delete(:style) || style, hash))
           end
         end
-        HexaPDF::Layout::TextBox.new(items: data, width: width, height: height, style: box_style)
+        box_class_for_name(:text).new(items: data, width: width, height: height, style: box_style)
       end
 
       # Creates a HexaPDF::Layout::ImageBox for the given image.
@@ -232,7 +249,7 @@ module HexaPDF
       def image_box(file, width: 0, height: 0, style: nil, **style_properties)
         style = retrieve_style(style, style_properties)
         image = file.kind_of?(HexaPDF::Stream) ? file : @document.images.add(file)
-        HexaPDF::Layout::ImageBox.new(image: image, width: width, height: height, style: style)
+        box_class_for_name(:image).new(image: image, width: width, height: height, style: style)
       end
 
       # :nodoc:
@@ -255,6 +272,13 @@ module HexaPDF
       end
 
       private
+
+      # Returns the configured box class for the given +name+.
+      def box_class_for_name(name)
+        @document.config.constantize('layout.boxes.map', name) do
+          raise HexaPDF::Error, "Couldn't retrieve box class #{name} from configuration"
+        end
+      end
 
       # Retrieves the appropriate HexaPDF::Layout::Style object based on the +style+ and +properties+
       # arguments.

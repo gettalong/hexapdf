@@ -340,6 +340,12 @@ module HexaPDF
   #    This can be used to limit the memory needed for reading or writing PDF files with huge
   #    stream objects.
   #
+  # layout.boxes.map::
+  #    A mapping from layout box names to box classes. If the value is a String, it should contain
+  #    the name of a constant to such a class.
+  #
+  #    See HexaPDF::Layout::Box for more information.
+  #
   # page.default_media_box::
   #    The media box that is used for new pages that don't define a media box. Default value is
   #    A4. See HexaPDF::Type::Page::PAPER_SIZE for a list of predefined paper sizes.
@@ -465,6 +471,11 @@ module HexaPDF
                       ],
                       'image_loader.pdf.use_stringio' => true,
                       'io.chunk_size' => 2**16,
+                      'layout.boxes.map' => {
+                        text: 'HexaPDF::Layout::TextBox',
+                        image: 'HexaPDF::Layout::ImageBox',
+                        column: 'HexaPDF::Layout::ColumnBox',
+                      },
                       'page.default_media_box' => :A4,
                       'page.default_media_orientation' => :portrait,
                       'parser.on_correctable_error' => proc { false },

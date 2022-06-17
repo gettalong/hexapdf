@@ -27,6 +27,21 @@ describe HexaPDF::Document::Layout do
     end
   end
 
+  describe "box" do
+    it "creates the request box" do
+      box = @layout.box(:column, columns: 3, gaps: 20, width: 15, height: 30, style: {font_size: 10})
+      assert_equal(15, box.width)
+      assert_equal(30, box.height)
+      assert_equal([-1, -1, -1], box.columns)
+      assert_equal([20], box.gaps)
+      assert_equal(10, box.style.font_size)
+    end
+
+    it "fails if the name is not registered" do
+      assert_raises(HexaPDF::Error) { @layout.box(:unknown) }
+    end
+  end
+
   describe "text_box" do
     it "creates a text box" do
       box = @layout.text_box("Test", width: 10, height: 15)

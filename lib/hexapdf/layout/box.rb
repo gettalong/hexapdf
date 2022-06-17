@@ -56,7 +56,8 @@ module HexaPDF
     # == Subclasses
     #
     # Each subclass should only take keyword arguments on initialization so that the boxes can be
-    # instantiated from a common convenience method.
+    # instantiated from the common convenience method HexaPDF::Document::Layout#box. To use this
+    # facility subclasses need to be registered with the configuration option 'layout.boxes.map'.
     #
     # The methods #fit, #split and either #draw or #draw_content need to be customized according to
     # the subclass's use case.
