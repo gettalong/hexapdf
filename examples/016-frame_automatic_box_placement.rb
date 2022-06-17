@@ -47,8 +47,9 @@ draw_box = lambda do |**args|
     if result.success?
       frame.draw(canvas, result)
       drawn = true
+    else
+      frame.find_next_region
     end
-    frame.find_next_region unless drawn
   end
 
   canvas.line_width(3).draw(:geom2d, object: frame.shape)
