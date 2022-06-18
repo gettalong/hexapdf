@@ -33,6 +33,8 @@
 * [HexaPDF::Content::GraphicObject::Geom2D] to close the path when drawing
   polygons
 * [HexaPDF::Layout::WidthFromPolygon] to work for all counterclockwise polygons
+* [HexaPDF::Type::PageTreeNode#move_page] to work in case the parent node of the
+  moved node doesn't change
 
 
 ## 0.23.0 - 2022-05-26

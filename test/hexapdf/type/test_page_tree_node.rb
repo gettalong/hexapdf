@@ -229,6 +229,16 @@ describe HexaPDF::Type::PageTreeNode do
       assert(@root.validate)
     end
 
+    it "moves the page to the correct location within the same parent node" do
+      @root.move_page(2, 4)
+      assert_equal([@pages[0], @pages[1], @pages[3], @pages[2], *@pages[4..-1]], @root.each_page.to_a)
+      assert(@root.validate)
+
+      @root.move_page(4, 3)
+      assert_equal([@pages[0], @pages[1], @pages[3], @pages[4], @pages[2], *@pages[5..-1]], @root.each_page.to_a)
+      assert(@root.validate)
+    end
+
     it "fails if the index to the moving page is invalid" do
       assert_raises(HexaPDF::Error) { @root.move_page(10, 0) }
     end
