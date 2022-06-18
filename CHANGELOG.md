@@ -35,6 +35,8 @@
 * [HexaPDF::Layout::WidthFromPolygon] to work for all counterclockwise polygons
 * [HexaPDF::Type::PageTreeNode#move_page] to work in case the parent node of the
   moved node doesn't change
+* [HexaPDF::Type::PageTreeNode#move_page] to use the correct target position
+  when the moved node is before the target position
 
 
 ## 0.23.0 - 2022-05-26

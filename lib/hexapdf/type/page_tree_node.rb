@@ -209,12 +209,16 @@ module HexaPDF
         parent = page[:Parent]
         prev_index = page.index
         prev_kid_index = parent[:Kids].index(page)
+        if to_index < 0
+          to_index = self[:Count] + to_index + 1
+        elsif prev_index < to_index
+          to_index += 1
+        end
 
         insert_page(to_index, page)
 
         ancestors.each {|node| node[:Count] -= 1 }
         if page[:Parent] == parent
-          to_index = self[:Count] + to_index + 1 if to_index < 0
           if prev_index < to_index
             parent[:Kids].delete_at(prev_kid_index)
           else
