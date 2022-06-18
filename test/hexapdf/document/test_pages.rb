@@ -72,6 +72,15 @@ describe HexaPDF::Document::Pages do
     end
   end
 
+  describe "move" do
+    it "moves the page to the given index" do
+      first = @doc.pages.add
+      second = @doc.pages.add
+      @doc.pages.move(first, -1)
+      assert_equal([second, first], @doc.pages.each.to_a)
+    end
+  end
+
   describe "delete" do
     it "deletes a given page" do
       page1 = @doc.pages.add

@@ -101,6 +101,22 @@ module HexaPDF
         @document.catalog.pages.insert_page(index, page)
       end
 
+      # :call-seq:
+      #   pages.move(page, to_index)
+      #   pages.move(index, to_index)
+      #
+      # Moves the given page or the page at the position specified by the zero-based index to the
+      # +to_index+ position.
+      #
+      # If the page that should be moved, doesn't exist or is invalid, an error is raised.
+      #
+      # Negative indices count backwards from the end, i.e. -1 is the last page. When using a
+      # negative index, the page will be moved after that element. So using an index of -1 will
+      # move the page after the last page.
+      def move(page, to_index)
+        @document.catalog.pages.move_page(page, to_index)
+      end
+
       # Deletes the given page object from the document's page tree and the document.
       #
       # Also see: HexaPDF::Type::PageTreeNode#delete_page

@@ -5,6 +5,7 @@
 * [HexaPDF::Layout::ColumnBox] for rendering content inside columns
 * [HexaPDF::Layout::MultiFrame] for placing boxes into  multiple frames
 * New configuration option 'debug' for enabling debug output
+* [HexaPDF::Document::Pages#move] for moving pages around the same document
 
 ### Changed
 
