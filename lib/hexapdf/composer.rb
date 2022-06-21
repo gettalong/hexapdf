@@ -255,6 +255,21 @@ module HexaPDF
                                           style: style, **style_properties))
     end
 
+    # Draws the named box at the current position.
+    #
+    # It uses HexaPDF::Document::Layout#box behind the scenes to create the named box. See that
+    # method for details on the arguments.
+    #
+    # Examples:
+    #
+    #   #>pdf-composer
+    #   composer.box(:image, image: composer.document.images.add(machu_picchu))
+    #
+    # See: HexaPDF::Document::Layout#box
+    def box(name, width: 0, height: 0, style: nil, **box_options)
+      draw_box(@document.layout.box(name, width: width, height: height, style: style, **box_options))
+    end
+
     # Draws the given HexaPDF::Layout::Box.
     #
     # The box is drawn into the current frame if possible. If it doesn't fit, the box is split. If

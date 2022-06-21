@@ -249,6 +249,17 @@ describe HexaPDF::Composer do
     end
   end
 
+  describe "box" do
+    it "creates the named box and draws it on the canvas" do
+      box = nil
+      @composer.define_singleton_method(:draw_box) {|arg| box = arg }
+      image = @composer.document.images.add(File.join(TEST_DATA_DIR, 'images', 'gray.jpg'))
+      @composer.box(:image, image: image, width: 20)
+      assert_equal(20, box.width)
+      assert_same(image, box.image)
+    end
+  end
+
   describe "draw_box" do
     def create_box(**kwargs)
       HexaPDF::Layout::Box.new(**kwargs) {}
