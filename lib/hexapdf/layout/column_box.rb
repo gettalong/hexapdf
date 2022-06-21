@@ -69,15 +69,40 @@ module HexaPDF
       # the remaining width (after substracting the widths of the fixed columns) proportionally
       # among them. For example, if the definition is [-1, -2, -2], the first column is a fifth of
       # the width and the other columns are each two fifth of the width.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer
+      #   composer.box(:column, columns: 2, gaps: 10,
+      #                children: [composer.document.layout.lorem_ipsum_box])
+      #
+      # ---
+      #
+      #   #>pdf-composer
+      #   composer.box(:column, columns: [50, -2, -1], gaps: [10, 5],
+      #                children: [composer.document.layout.lorem_ipsum_box])
       attr_reader :columns
 
       # The size of the gaps between the columns.
       #
       # This is an array containing the width of the gaps. If there are more gaps than numbers in
       # the array, the array is cycled.
+      #
+      # Examples: see #columns
       attr_reader :gaps
 
       # Determines whether the columns should all be equally high or not.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer
+      #   composer.box(:column, children: [composer.document.layout.lorem_ipsum_box])
+      #
+      # ---
+      #
+      #   #>pdf-composer
+      #   composer.box(:column, equal_height: false,
+      #                children: [composer.document.layout.lorem_ipsum_box])
       attr_reader :equal_height
 
       # Creates a new ColumnBox object for the given child boxes in +children+.
