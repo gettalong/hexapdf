@@ -27,11 +27,11 @@ describe HexaPDF::Layout::ColumnBox do
     assert_equal(width, box.width, "box width")
     assert_equal(height, box.height, "box height")
     if fit_pos
-      multi_frame = box.instance_variable_get(:@multi_frame)
-      assert_equal(fit_pos.size, multi_frame.fit_results.size)
+      box_fitter = box.instance_variable_get(:@box_fitter)
+      assert_equal(fit_pos.size, box_fitter.fit_results.size)
       fit_pos.each_with_index do |(x, y), index|
-        assert_equal(x, multi_frame.fit_results[index].x, "result[#{index}].x")
-        assert_equal(y, multi_frame.fit_results[index].y, "result[#{index}].y")
+        assert_equal(x, box_fitter.fit_results[index].x, "result[#{index}].x")
+        assert_equal(y, box_fitter.fit_results[index].y, "result[#{index}].y")
       end
     end
   end

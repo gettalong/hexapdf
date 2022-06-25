@@ -50,7 +50,7 @@ module HexaPDF
     autoload(:TextLayouter, 'hexapdf/layout/text_layouter')
     autoload(:Box, 'hexapdf/layout/box')
     autoload(:Frame, 'hexapdf/layout/frame')
-    autoload(:MultiFrame, 'hexapdf/layout/multi_frame')
+    autoload(:BoxFitter, 'hexapdf/layout/box_fitter')
     autoload(:WidthFromPolygon, 'hexapdf/layout/width_from_polygon')
     autoload(:TextBox, 'hexapdf/layout/text_box')
     autoload(:ImageBox, 'hexapdf/layout/image_box')

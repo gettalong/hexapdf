@@ -37,22 +37,23 @@
 module HexaPDF
   module Layout
 
-    # A MultiFrame contains an array of Frame objects and allows placing boxes one after the other
-    # in them. Such functionality is useful for boxes that provide multiple frames for content.
+    # A BoxFitter instance contains an array of Frame objects and allows placing boxes one after the
+    # other in them. Such functionality is useful, for example, for boxes that provide multiple
+    # frames for content.
     #
     # == Usage
     #
     # * First one needs to add the frame objects via #<< or provide them on initialization.
     #
-    # * Then use the #fit method to fit boxes one after the other.
+    # * Then use the #fit method to fit boxes one after the other. No drawing is done.
     #
-    # * Once all boxes have been fitted inside the MultiFrame, the #fit_results, #remaining_boxes
-    #   and #fit_successful? methods can be used to get the result:
+    # * Once all boxes have been fitted, the #fit_results, #remaining_boxes and #fit_successful?
+    #   methods can be used to get the result:
     #
-    #   - If there are no remaining boxes, all boxes were successfully fitted.
+    #   - If there are no remaining boxes, all boxes were successfully fitted into the frames.
     #   - If there are remaining boxes but no fit results, the first box could not be fitted.
     #   - If there are remaining boxes and fit results, some boxes were able to fit.
-    class MultiFrame
+    class BoxFitter
 
       # The array of frames inside of which the boxes should be laid out.
       #
@@ -66,7 +67,7 @@ module HexaPDF
       # The boxes that could not be fitted into the frames.
       attr_reader :remaining_boxes
 
-      # Creates a new MultiFrame object for the given +frames+.
+      # Creates a new BoxFitter object for the given +frames+.
       def initialize(frames = [])
         @frames = []
         @min_frame_content_y = []
@@ -83,7 +84,7 @@ module HexaPDF
         @min_frame_content_y << frame.y
       end
 
-      # Fits the given box into the current location.
+      # Fits the given box at the current location.
       def fit(box)
         unless @remaining_boxes.empty?
           @remaining_boxes << box

@@ -34,7 +34,7 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 require 'hexapdf/layout/box'
-require 'hexapdf/layout/multi_frame'
+require 'hexapdf/layout/box_fitter'
 
 module HexaPDF
   module Layout
@@ -154,7 +154,7 @@ module HexaPDF
         unsuccessful_height = 0
 
         while true
-          @multi_frame = MultiFrame.new
+          @box_fitter = BoxFitter.new
 
           columns.each do |col_x, column_width|
             column_left = left + col_x
@@ -167,12 +167,12 @@ module HexaPDF
               shape = Geom2D::Algorithms::PolygonOperation.run(frame.shape, rect, :intersection)
             end
             column_frame = Frame.new(column_left, column_bottom, column_width, height, shape: shape)
-            @multi_frame << column_frame
+            @box_fitter << column_frame
           end
 
-          children.each {|box| @multi_frame.fit(box) }
+          children.each {|box| @box_fitter.fit(box) }
 
-          fit_successful = @multi_frame.fit_successful?
+          fit_successful = @box_fitter.fit_successful?
           initial_fit_successful = fit_successful if initial_fit_successful.nil?
 
           if fit_successful
@@ -193,9 +193,9 @@ module HexaPDF
         end
 
         @width = columns[-1].sum + reserved_width
-        @height = @multi_frame.content_heights.max + reserved_height
+        @height = @box_fitter.content_heights.max + reserved_height
 
-        @multi_frame.fit_successful?
+        @box_fitter.fit_successful?
       end
 
       private
@@ -226,7 +226,7 @@ module HexaPDF
 
       # Draws the child boxes onto the canvas at position [x, y].
       def draw_content(canvas, _x, _y)
-        @multi_frame.fit_results.each {|result| result.draw(canvas) }
+        @box_fitter.fit_results.each {|result| result.draw(canvas) }
       end
 
     end
