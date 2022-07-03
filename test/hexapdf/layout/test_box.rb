@@ -57,6 +57,10 @@ describe HexaPDF::Layout::Box do
     end
   end
 
+  it "doesn't support the position :flow" do
+    refute(create_box.supports_position_flow?)
+  end
+
   describe "fit" do
     before do
       @frame = Object.new

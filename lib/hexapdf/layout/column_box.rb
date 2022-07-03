@@ -127,6 +127,11 @@ module HexaPDF
         @equal_height = equal_height
       end
 
+      # Returns +true+ as the 'position' style property value :flow is supported.
+      def supports_position_flow?
+        true
+      end
+
       # Fits the column box into the available space.
       #
       # If the style property 'position' is set to :flow, the columns might not be rectangles but

@@ -54,6 +54,11 @@ module HexaPDF
         @result = nil
       end
 
+      # Returns +true+ as the 'position' style property value :flow is supported.
+      def supports_position_flow?
+        true
+      end
+
       # Fits the text box into the Frame.
       #
       # Depending on the 'position' style property, the text is either fit into the rectangular area

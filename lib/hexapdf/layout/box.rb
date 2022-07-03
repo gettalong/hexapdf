@@ -116,6 +116,11 @@ module HexaPDF
         @draw_block = block
       end
 
+      # Returns +false+ since a basic box doesn't support the 'position' style property value :flow.
+      def supports_position_flow?
+        false
+      end
+
       # The width of the content box, i.e. without padding and/or borders.
       def content_width
         width = @width - reserved_width

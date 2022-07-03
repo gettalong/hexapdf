@@ -1145,6 +1145,10 @@ module HexaPDF
       #
       # :flow:: Flows the content of the box inside the frame around objects.
       #
+      #         A box needs to indicate whether it supports this value by implementing the
+      #         #supports_position_flow? method and returning +true+ if it does or +false+ if it
+      #         doesn't.
+      #
       # :absolute:: Position the box at an absolute position relative to the frame. The coordinates
       #             are given via the position hint.
       #

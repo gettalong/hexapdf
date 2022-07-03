@@ -207,7 +207,13 @@ module HexaPDF
         fit_result = FitResult.new(box)
         return fit_result if full?
 
-        if box.style.position == :absolute
+        position = if box.style.position != :flow || box.supports_position_flow?
+                     box.style.position
+                   else
+                     :default
+                   end
+
+        if position == :absolute
           x, y = box.style.position_hint
 
           aw = width - x
@@ -242,7 +248,7 @@ module HexaPDF
           width = box.width
           height = box.height
 
-          case box.style.position
+          case position
           when :flow
             x = 0
             y = @y - height
@@ -264,7 +270,7 @@ module HexaPDF
                   end
                 end
             y = @y - height - margin_top
-            rectangle = if box.style.position == :float
+            rectangle = if position == :float
                           create_rectangle([left, x - (margin&.left || 0)].max,
                                            [bottom, y - (margin&.bottom || 0)].max,
                                            [left + self.width, x + width + (margin&.right || 0)].min,

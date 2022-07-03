@@ -20,6 +20,10 @@ describe HexaPDF::Layout::TextBox do
       box = create_box([], width: 100)
       assert_equal(100, box.width)
     end
+
+    it "supports flowing text around other content" do
+      assert(create_box([]).supports_position_flow?)
+    end
   end
 
   describe "fit" do

@@ -43,6 +43,7 @@ describe HexaPDF::Layout::ColumnBox do
       assert_equal([-1, -1, -1], box.columns)
       assert_equal([10], box.gaps)
       assert_equal(false, box.equal_height)
+      assert(box.supports_position_flow?)
     end
   end
 

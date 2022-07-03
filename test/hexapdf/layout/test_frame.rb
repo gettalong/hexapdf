@@ -82,7 +82,9 @@ describe HexaPDF::Layout::Frame do
     # checked whether the box coordinates are pos and whether the frame has the shape given by
     # points.
     def check_box(box_opts, pos, mask, points)
+      flow_supported = !box_opts.delete(:doesnt_support_position_flow)
       @box = HexaPDF::Layout::Box.create(**box_opts) {}
+      @box.define_singleton_method(:supports_position_flow?) { true } if flow_supported
       @canvas.expect(:translate, nil, pos)
       fit_result = @frame.fit(@box)
       refute_nil(fit_result)
@@ -308,6 +310,13 @@ describe HexaPDF::Layout::Frame do
       it "flows inside the frame's outline" do
         check_box({width: 10, height: 20, margin: 10, position: :flow},
                   [0, 90],
+                  [10, 80, 110, 110],
+                  [[[10, 10], [110, 10], [110, 80], [10, 80]]])
+      end
+
+      it "uses position=default if the box indicates it doesn't support flowing contents" do
+        check_box({width: 10, height: 20, margin: 10, position: :flow, doesnt_support_position_flow: true},
+                  [10, 90],
                   [10, 80, 110, 110],
                   [[[10, 10], [110, 10], [110, 80], [10, 80]]])
       end
