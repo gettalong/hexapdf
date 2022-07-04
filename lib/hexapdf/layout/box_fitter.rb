@@ -70,7 +70,8 @@ module HexaPDF
       # Creates a new BoxFitter object for the given +frames+.
       def initialize(frames = [])
         @frames = []
-        @min_frame_content_y = []
+        @content_heights = []
+        @initial_frame_y = []
         @frame_index = 0
         @fit_results = []
         @remaining_boxes = []
@@ -81,7 +82,8 @@ module HexaPDF
       # Add the given frame to the list of frames.
       def <<(frame)
         @frames << frame
-        @min_frame_content_y << frame.y
+        @initial_frame_y << frame.y
+        @content_heights << 0
       end
 
       # Fits the given box at the current location.
@@ -95,7 +97,8 @@ module HexaPDF
           result = current_frame.fit(box)
           if result.success?
             current_frame.remove_area(result.mask)
-            @min_frame_content_y[@frame_index] = [@min_frame_content_y[@frame_index], result.mask[0].y].min
+            @content_heights[@frame_index] = [@content_heights[@frame_index],
+                                              @initial_frame_y[@frame_index] - result.mask[0].y].max
             @fit_results << result
             box = nil
             break
@@ -105,7 +108,8 @@ module HexaPDF
             draw_box, box = current_frame.split(result)
             if draw_box
               current_frame.remove_area(result.mask)
-              @min_frame_content_y[@frame_index] = [@min_frame_content_y[@frame_index], result.mask[0].y].min
+              @content_heights[@frame_index] = [@content_heights[@frame_index],
+                                                @initial_frame_y[@frame_index] - result.mask[0].y].max
               @fit_results << result
             elsif !current_frame.find_next_region
               @frame_index += 1
@@ -118,9 +122,7 @@ module HexaPDF
 
       # Returns an array with the heights of the content of each frame.
       def content_heights
-        @min_frame_content_y.map.with_index do |y, index|
-          @frames[index].bottom + @frames[index].height - y
-        end
+        @content_heights
       end
 
       # Returns +true+ if all boxes were successfully fitted.

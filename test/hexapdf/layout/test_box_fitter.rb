@@ -1,13 +1,15 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require 'geom2d/polygon'
 require 'hexapdf/layout/box_fitter'
 require 'hexapdf/layout'
 
 describe HexaPDF::Layout::BoxFitter do
   before do
+    shape = Geom2D::Polygon([0, 0], [100, 0], [100, 90], [10, 90], [10, 80], [0, 80])
     frames = [
-      HexaPDF::Layout::Frame.new(0, 0, 100, 100),
+      HexaPDF::Layout::Frame.new(0, 0, 100, 100, shape: shape),
       HexaPDF::Layout::Frame.new(100, 100, 50, 50),
     ]
     @box_fitter = HexaPDF::Layout::BoxFitter.new(frames)
@@ -20,8 +22,8 @@ describe HexaPDF::Layout::BoxFitter do
 
   def check_result(*pos, content_heights:, successful: true, boxes_remain: false)
     pos.each_slice(2).with_index do |(x, y), index|
-      assert_equal(x, @box_fitter.fit_results[index].x)
-      assert_equal(y, @box_fitter.fit_results[index].y)
+      assert_equal(x, @box_fitter.fit_results[index].x, "x #{index}")
+      assert_equal(y, @box_fitter.fit_results[index].y, "y #{index}")
     end
     assert_equal(content_heights, @box_fitter.content_heights)
     successful ? assert(@box_fitter.fit_successful?) : refute(@box_fitter.fit_successful?)
@@ -29,32 +31,32 @@ describe HexaPDF::Layout::BoxFitter do
     boxes_remain ? refute(rboxes) : assert(rboxes)
   end
 
-  it "successfully places boxes only in one column" do
+  it "successfully places boxes only in one frame" do
     fit_box(20)
     fit_box(20)
-    check_result(0, 80, 0, 60, content_heights: [40, 0])
+    check_result(10, 60, 0, 40, content_heights: [50, 0])
   end
 
-  it "successfully places boxes in multiple columns, without splitting" do
+  it "successfully places boxes in multiple frames, without splitting" do
     fit_box(1, height: 80)
     fit_box(1, height: 40)
-    check_result(0, 20, 100, 110, content_heights: [80, 40])
+    check_result(10, 10, 100, 110, content_heights: [80, 40])
   end
 
-  it "successfully places boxes in multiple columns, with splitting" do
-    fit_box(80)
+  it "successfully places boxes in multiple framess, with splitting" do
+    fit_box(63)
     fit_box(30)
     fit_box(10)
-    check_result(0, 20, 0, 0, 100, 130, 100, 110, content_heights: [100, 40])
+    check_result(10, 20, 0, 0, 100, 130, 100, 110, content_heights: [90, 40])
   end
 
   it "fails when some boxes can't be fitted" do
-    fit_box(80)
+    fit_box(9)
+    fit_box(70)
     fit_box(40)
     fit_box(20)
-    fit_box(20)
-    check_result(0, 20, 0, 0, 100, 110, 100, 100, successful: false, boxes_remain: true,
-                 content_heights: [100, 50])
+    check_result(10, 80, 0, 10, 0, 0, 100, 100, successful: false, boxes_remain: true,
+                 content_heights: [90, 50])
     assert_equal(2, @box_fitter.remaining_boxes.size)
   end
 end
