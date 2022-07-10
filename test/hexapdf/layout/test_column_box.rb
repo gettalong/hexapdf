@@ -124,6 +124,15 @@ describe HexaPDF::Layout::ColumnBox do
     end
   end
 
+  it "splits the children if they are too big to fill the colums" do
+    box = create_box(children: @fixed_size_boxes, width: 50, height: 50)
+    box.fit(100, 100, @frame)
+    box_a, box_b = box.split(100, 100, @frame)
+    assert_same(box, box_a)
+    assert(box_b.split_box?)
+    assert_equal(5, box_b.children.size)
+  end
+
   it "draws the result onto the canvas" do
     box = create_box(children: @fixed_size_boxes)
     box.fit(100, 100, @frame)

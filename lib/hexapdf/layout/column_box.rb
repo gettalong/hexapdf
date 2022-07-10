@@ -229,6 +229,13 @@ module HexaPDF
         end
       end
 
+      # Splits the content of the column box. This method is called from Box#split.
+      def split_content(_available_width, _available_height, _frame)
+        box = create_split_box
+        box.instance_variable_set(:@children, @box_fitter.remaining_boxes)
+        [self, box]
+      end
+
       # Draws the child boxes onto the canvas at position [x, y].
       def draw_content(canvas, _x, _y)
         @box_fitter.fit_results.each {|result| result.draw(canvas) }
