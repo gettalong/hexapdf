@@ -114,6 +114,12 @@ module HexaPDF
         @height = @initial_height = height
         @style = Style.create(style)
         @draw_block = block
+        @split_box = false
+      end
+
+      # Returns +true+ if this is a split box, i.e. the rest of another box after it was split.
+      def split_box?
+        @split_box
       end
 
       # Returns +false+ since a basic box doesn't support the 'position' style property value :flow.

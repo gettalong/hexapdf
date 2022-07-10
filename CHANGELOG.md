@@ -7,6 +7,8 @@
 * New configuration option 'debug' for enabling debug output
 * [HexaPDF::Document::Pages#move] for moving pages around the same document
 * [HexaPDF::Composer#box] for drawing arbitrary, registered boxes
+* [HexaPDF::Layout::Box#split_box?] for determining whether a box is a split
+  box, i.e. the continuation of another box
 
 ### Changed
 

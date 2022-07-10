@@ -57,6 +57,10 @@ describe HexaPDF::Layout::Box do
     end
   end
 
+  it "returns false when asking whether it is a split box by default" do
+    refute(create_box.split_box?)
+  end
+
   it "doesn't support the position :flow" do
     refute(create_box.supports_position_flow?)
   end
