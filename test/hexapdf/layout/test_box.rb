@@ -97,9 +97,51 @@ describe HexaPDF::Layout::Box do
     end
   end
 
-  it "can't be split into two parts" do
-    box = create_box(width: 100, height: 100)
-    assert_equal([nil, box], box.split(50, 50, nil))
+  describe "split" do
+    before do
+      @box = create_box(width: 100, height: 100)
+      @box.fit(100, 100, nil)
+    end
+
+    it "doesn't need to be split if it completely fits" do
+      assert_equal([@box, nil], @box.split(100, 100, nil))
+    end
+
+    it "can't be split if it doesn't (completely) fit and its width is greater than the available width" do
+      @box.fit(90, 100, nil)
+      assert_equal([nil, @box], @box.split(50, 150, nil))
+    end
+
+    it "can't be split if it doesn't (completely) fit and its height is greater than the available height" do
+      @box.fit(90, 100, nil)
+      assert_equal([nil, @box], @box.split(150, 50, nil))
+    end
+
+    it "can't be split if it doesn't (completely) fit and its content width is zero" do
+      box = create_box(width: 0, height: 100)
+      assert_equal([nil, box], box.split(150, 150, nil))
+    end
+
+    it "can't be split if it doesn't (completely) fit and its content height is zero" do
+      box = create_box(width: 100, height: 0)
+      assert_equal([nil, box], box.split(150, 150, nil))
+    end
+
+    it "can't be split if it doesn't (completely) fit as the default implementation knows nothing about the content" do
+      @box.style.position = :flow # make sure we would generally be splitable
+      @box.fit(90, 100, nil)
+      assert_equal([nil, @box], @box.split(150, 150, nil))
+    end
+  end
+
+  it "can create a cloned box for splitting" do
+    box = create_box
+    box.fit(100, 100, nil)
+    cloned_box = box.send(:create_split_box)
+    assert(cloned_box.split_box?)
+    refute(cloned_box.instance_variable_get(:@fit_successful))
+    assert_equal(0, cloned_box.width)
+    assert_equal(0, cloned_box.height)
   end
 
   describe "draw" do

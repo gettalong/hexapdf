@@ -349,7 +349,7 @@ describe HexaPDF::Layout::Frame do
   describe "split" do
     it "splits the box if necessary" do
       box = HexaPDF::Layout::Box.create(width: 10, height: 10)
-      assert_equal([nil, box], @frame.split(@frame.fit(box)))
+      assert_equal([box, nil], @frame.split(@frame.fit(box)))
     end
   end
 

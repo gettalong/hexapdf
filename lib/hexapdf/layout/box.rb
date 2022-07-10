@@ -114,6 +114,7 @@ module HexaPDF
         @height = @initial_height = height
         @style = Style.create(style)
         @draw_block = block
+        @fit_successful = false
         @split_box = false
       end
 
@@ -146,7 +147,7 @@ module HexaPDF
       def fit(available_width, available_height, _frame)
         @width = (@initial_width > 0 ? @initial_width : available_width)
         @height = (@initial_height > 0 ? @initial_height : available_height)
-        @width <= available_width && @height <= available_height
+        @fit_successful = (@width <= available_width && @height <= available_height)
       end
 
       # Tries to split the box into two, the first of which needs to fit into the available space,
@@ -164,9 +165,18 @@ module HexaPDF
       # [nil, self]:: The box can't be split or no part of the box fits into the available space.
       # [self, new_box]:: A part of the box fits and a new box is returned for the rest.
       #
-      # This default implementation provides no splitting functionality.
-      def split(_available_width, _available_height, _frame)
-        [nil, self]
+      # This default implementation provides the basic functionality based on the #fit result that
+      # should be sufficient for most subclasses; only #split_content needs to be implemented if
+      # necessary.
+      def split(available_width, available_height, frame)
+        if @fit_successful
+          [self, nil]
+        elsif (style.position != :flow && (@width > available_width || @height > available_height)) ||
+            content_height == 0 || content_width == 0
+          [nil, self]
+        else
+          split_content(available_width, available_height, frame)
+        end
       end
 
       # Draws the content of the box onto the canvas at the position (x, y).
@@ -257,6 +267,33 @@ module HexaPDF
         if @draw_block
           canvas.translate(x, y) { @draw_block.call(canvas, self) }
         end
+      end
+
+      # Splits the content of the box.
+      #
+      # This is just a stub implementation, returning [nil, self] since we can't know how to split
+      # the content when it didn't fit.
+      #
+      # Subclasses that support splitting content need to provide an appropriate implementation and
+      # use #create_split_box to create a cloned box to supply as the second argument.
+      def split_content(_available_width, _available_height, _frame)
+        [nil, self]
+      end
+
+      # Creates a new box based on this one and resets the data back to their original values.
+      #
+      # The variable +@split_box+ is set to +split_box_value+ (defaults to +true+) to make the new
+      # box aware that it is a split box. If needed, subclasses can set the variable to other truthy
+      # values to convey more meaning.
+      #
+      # This method should be used by subclasses to create their split box.
+      def create_split_box(split_box_value: true)
+        box = clone
+        box.instance_variable_set(:@width, @initial_width)
+        box.instance_variable_set(:@height, @initial_height)
+        box.instance_variable_set(:@fit_successful, nil)
+        box.instance_variable_set(:@split_box, split_box_value)
+        box
       end
 
     end
