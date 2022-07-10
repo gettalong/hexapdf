@@ -59,8 +59,21 @@ module HexaPDF
     # instantiated from the common convenience method HexaPDF::Document::Layout#box. To use this
     # facility subclasses need to be registered with the configuration option 'layout.boxes.map'.
     #
-    # The methods #fit, #split and either #draw or #draw_content need to be customized according to
-    # the subclass's use case.
+    # The methods #fit, #split or #split_content, and #draw or #draw_content need to be customized
+    # according to the subclass's use case.
+    #
+    # #fit:: This method should return +true+ if fitting was successful. Additionally, the
+    #        @fit_successful instance variable needs to be set to the fit result as it is used in
+    #        #split.
+    #
+    # #split:: This method splits the content so that the available space is used as good as
+    #          possible. The default implementation should be fine for most use-cases, so only
+    #          #split_content needs to be implemented. The method #create_split_box should be used
+    #          for getting a basic cloned box.
+    #
+    # #draw:: This method draws the content and the default implementation already handles things
+    #         like drawing the border and background. Therefore it's best to implement #draw_content
+    #         which should just draw the content.
     class Box
 
       # Creates a new Box object, using the provided block as drawing block (see ::new).
@@ -153,11 +166,10 @@ module HexaPDF
       # Tries to split the box into two, the first of which needs to fit into the available space,
       # and returns the parts as array.
       #
-      # In many cases the first box in the list will be this box, meaning that even when #fit fails,
-      # a part of the box may still fit. Note that #fit may not be called before #draw on the first
-      # box if the first box is this box since it is assumed that it is already fitted. If not even
-      # a part of this box fits into the available space, +nil+ should be returned as the first
-      # array element.
+      # If the first item in the result array is not +nil+, it needs to be this box and it means
+      # that even when #fit fails, a part of the box may still fit. Note that #fit should not be
+      # called before #draw on the first box since it is already fitted. If not even a part of this
+      # box fits into the available space, +nil+ should be returned as the first array element.
       #
       # Possible return values:
       #
@@ -182,7 +194,7 @@ module HexaPDF
       # Draws the content of the box onto the canvas at the position (x, y).
       #
       # The coordinate system is translated so that the origin is at the bottom left corner of the
-      # **content box** during the drawing operations.
+      # **content box** during the drawing operations when +@draw_block+ is used.
       #
       # The block specified when creating the box is invoked with the canvas and the box as
       # arguments. Subclasses can specify an on-demand drawing method by setting the +@draw_block+
