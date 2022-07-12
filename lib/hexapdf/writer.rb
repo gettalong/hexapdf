@@ -72,7 +72,8 @@ module HexaPDF
       @use_xref_streams = false
     end
 
-    # Writes the document to the IO object and returns the last XRefSection written.
+    # Writes the document to the IO object and returns the file position of the start of the last
+    # cross-reference section and the last XRefSection written.
     def write
       move_modified_objects_into_current_revision
       write_file_header
@@ -83,11 +84,12 @@ module HexaPDF
         pos, xref_section = write_revision(rev, pos)
       end
 
-      xref_section
+      [pos, xref_section]
     end
 
     # Writes the complete source document unmodified to the IO and then one revision containing all
-    # changes. Returns the XRefSection of that one revision.
+    # changes. Returns the file position of the start of the cross-reference section and the
+    # XRefSection object of that one revision.
     #
     # For this method to work the document must have been created from an existing file.
     def write_incremental
@@ -110,9 +112,8 @@ module HexaPDF
       @document.revisions.each do |rev|
         rev.each_modified_object {|obj| revision.send(:add_without_check, obj) }
       end
-      _pos, xref_section = write_revision(revision, parser.startxref_offset)
 
-      xref_section
+      write_revision(revision, parser.startxref_offset)
     end
 
     private

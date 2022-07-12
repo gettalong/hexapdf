@@ -247,8 +247,9 @@ module HexaPDF
         # Save the current state so that we can determine the correct /ByteRange value and set the
         # values
         handler.finalize_objects(signature_field, signature)
-        section = @document.write(io, incremental: true, **write_options)
-        data = section.map {|oid, _gen, entry| [entry.pos, oid] if entry.in_use? }.compact.sort
+        start_xref_position, section = @document.write(io, incremental: true, **write_options)
+        data = section.map {|oid, _gen, entry| [entry.pos, oid] if entry.in_use? }.compact.sort <<
+          [start_xref_position, nil]
         index = data.index {|_pos, oid| oid == signature.oid }
         signature_offset = data[index][0]
         signature_length = data[index + 1][0] - data[index][0]

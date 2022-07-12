@@ -94,8 +94,9 @@ describe HexaPDF::Writer do
     document = HexaPDF::Document.new(io: input_io)
     document.trailer.info[:Producer] = "unknown"
     output_io = StringIO.new(''.force_encoding(Encoding::BINARY))
-    xref_section = HexaPDF::Writer.write(document, output_io)
+    start_xref_offset, xref_section = HexaPDF::Writer.write(document, output_io)
     assert_kind_of(HexaPDF::XRefSection, xref_section)
+    assert_kind_of(Integer, start_xref_offset)
     assert_equal(input_io.string, output_io.string)
   end
 

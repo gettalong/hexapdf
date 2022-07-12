@@ -46,6 +46,8 @@
   moved node doesn't change
 * [HexaPDF::Type::PageTreeNode#move_page] to use the correct target position
   when the moved node is before the target position
+* [HexaPDF::Document::Signatures#add] to work in case the signature object is
+  the last object written
 
 
 ## 0.23.0 - 2022-05-26
