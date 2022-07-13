@@ -266,8 +266,8 @@ module HexaPDF
     #   composer.box(:image, image: composer.document.images.add(machu_picchu))
     #
     # See: HexaPDF::Document::Layout#box
-    def box(name, width: 0, height: 0, style: nil, **box_options)
-      draw_box(@document.layout.box(name, width: width, height: height, style: style, **box_options))
+    def box(name, width: 0, height: 0, style: nil, **box_options, &block)
+      draw_box(@document.layout.box(name, width: width, height: height, style: style, **box_options, &block))
     end
 
     # Draws the given HexaPDF::Layout::Box.

@@ -254,9 +254,9 @@ describe HexaPDF::Composer do
       box = nil
       @composer.define_singleton_method(:draw_box) {|arg| box = arg }
       image = @composer.document.images.add(File.join(TEST_DATA_DIR, 'images', 'gray.jpg'))
-      @composer.box(:image, image: image, width: 20)
+      @composer.box(:list, width: 20) {|list| list.image(image) }
       assert_equal(20, box.width)
-      assert_same(image, box.image)
+      assert_same(image, box.children[0].image)
     end
   end
 

@@ -85,6 +85,72 @@ module HexaPDF
     #
     class Layout
 
+      # This class is used when a box can contain child boxes and the creation of such boxes should
+      # be seemlessly doable when creating the parent node. It is yieled, for example, by Layout#box
+      # to collect the children for the created box.
+      #
+      # A box can be added to the list of collected children in the following ways:
+      #
+      # #<<:: This appends the given box to the list.
+      #
+      # text_box, formatted_text_box, image_box, ...:: Any method accepted by the Layout class.
+      #
+      # text, formatted_text, image, ...:: Any method accepted by the Layout class without the _box
+      #                                    suffix.
+      #
+      # list, column, ...:: Any name registered for the configuration option +layout.boxes.map+.
+      #
+      # Example:
+      #
+      #   document.layout.box(:list) do |list|
+      #     list.text_box("Some text here")     # layout method
+      #     list.image(image_path)              # layout method without _box suffix
+      #     list.column(columns: 3) do |column| # registered box name
+      #       column.text("Text in column")
+      #       column << document.layout.lorem_ipsum_box   # adding a Box instance
+      #     end
+      #   end
+      class ChildrenCollector
+
+        # The collected children
+        attr_reader :children
+
+        # Create a new ChildrenCollector for the given +layout+ (a HexaPDF::Document::Layout)
+        # instance.
+        def initialize(layout)
+          @layout = layout
+          @layout_boxes_map = layout.instance_variable_get(:@document).config['layout.boxes.map']
+          @children = []
+        end
+
+        # :nodoc:
+        def method_missing(name, *args, **kwargs, &block)
+          if @layout.respond_to?(name)
+            @children << @layout.send(name, *args, **kwargs, &block)
+          elsif @layout.respond_to?("#{name}_box")
+            @children << @layout.send("#{name}_box", *args, **kwargs, &block)
+          elsif @layout_boxes_map.key?(name)
+            @children << @layout.box(name, *args, **kwargs, &block)
+          else
+            super
+          end
+        end
+
+        # :nodoc:
+        def respond_to_missing?(name, _private)
+          @layout.respond_to?(name) ||
+            @layout.respond_to?("#{name}_box") ||
+            @layout_boxes_map.key?(name) ||
+            super
+        end
+
+        # Appends the given box to the list of collected children.
+        def <<(box)
+          @children << box
+        end
+
+      end
+
       # The mapping of style name (a Symbol) to HexaPDF::Layout::Style instance.
       attr_reader :styles
 
@@ -135,13 +201,24 @@ module HexaPDF
       # 'layout.boxes.map' configuration option. The +box_options+ are passed as-is to the
       # initialization method of that box class
       #
+      # If a block is provided, a ChildrenCollector is yielded and the collected children are passed
+      # to the box initialization method via the :children keyword argument.
+      #
       # See #text_box for details on +width+, +height+ and +style+ (note that there is no
       # +style_properties+ argument).
       #
       # Example:
       #
       #   doc.layout.box(:column, columns: 2, gap: 15)   # => column_box_instance
+      #   doc.layout.box(:column) do |column|            # column box with one child
+      #     column.lorem_ipsum
+      #   end
       def box(name, width: 0, height: 0, style: nil, **box_options)
+        if block_given? && !box_options.key?(:children)
+          children_collector = ChildrenCollector.new(self)
+          yield(children_collector)
+          box_options[:children] = children_collector.children
+        end
         box_class_for_name(name).new(width: width, height: height,
                                      style: retrieve_style(style), **box_options)
       end

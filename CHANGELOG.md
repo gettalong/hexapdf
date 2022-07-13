@@ -9,6 +9,8 @@
 * [HexaPDF::Composer#box] for drawing arbitrary, registered boxes
 * [HexaPDF::Layout::Box#split_box?] for determining whether a box is a split
   box, i.e. the continuation of another box
+* [HexaPDF::Document::Layout::ChildrenCollector] to provide an easy method for
+  defining children boxes of a container box
 
 ### Changed
 

@@ -3,6 +3,48 @@
 require 'test_helper'
 require 'hexapdf/document'
 
+describe HexaPDF::Document::Layout::ChildrenCollector do
+  before do
+    @doc = HexaPDF::Document.new
+    @collector = HexaPDF::Document::Layout::ChildrenCollector.new(@doc.layout)
+  end
+
+  it "allows appending existing boxes" do
+    box = @doc.layout.lorem_ipsum_box
+    @collector << box
+    assert_equal([box], @collector.children)
+  end
+
+  it "allows appending boxes through method names of the Layout class" do
+    @collector.lorem_ipsum_box
+    assert_equal(1, @collector.children.size)
+    assert_kind_of(HexaPDF::Layout::TextBox, @collector.children[0])
+  end
+
+  it "allows appending boxes through method names without the _box suffix of the Layout class" do
+    @collector.lorem_ipsum
+    assert_equal(1, @collector.children.size)
+    assert_kind_of(HexaPDF::Layout::TextBox, @collector.children[0])
+  end
+
+  it "allows appending boxes through their registered names" do
+    @collector.column
+    assert_equal(1, @collector.children.size)
+    assert_kind_of(HexaPDF::Layout::ColumnBox, @collector.children[0])
+  end
+
+  it "can be asked which methods it supports" do
+    assert(@collector.respond_to?(:text_box))
+    assert(@collector.respond_to?(:text))
+    assert(@collector.respond_to?(:column))
+    refute(@collector.respond_to?(:unknown))
+  end
+
+  it "raises an error on an unknown method name" do
+    assert_raises(NameError) { @collector.unknown_box }
+  end
+end
+
 describe HexaPDF::Document::Layout do
   before do
     @doc = HexaPDF::Document.new
@@ -35,6 +77,14 @@ describe HexaPDF::Document::Layout do
       assert_equal([-1, -1, -1], box.columns)
       assert_equal([20], box.gaps)
       assert_equal(10, box.style.font_size)
+    end
+
+    it "allows specifying the box's children via a provided block" do
+      box = @layout.box(:column) do |column|
+        column.lorem_ipsum
+        column.lorem_ipsum
+      end
+      assert_equal(2, box.children.size)
     end
 
     it "fails if the name is not registered" do
