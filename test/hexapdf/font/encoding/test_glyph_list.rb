@@ -21,6 +21,10 @@ describe HexaPDF::Font::Encoding::GlyphList do
       assert_equal("\u05da\u05b8", @list.name_to_unicode(:finalkafqamats))
     end
 
+    it "parses the whole file" do
+      assert_equal("ズ", @list.name_to_unicode(:zukatakana))
+    end
+
     it "maps special uniXXXX names to unicode values" do
       assert_equal("A", @list.name_to_unicode(:uni0041))
       assert_equal("\u1234", @list.name_to_unicode(:uni1234))
