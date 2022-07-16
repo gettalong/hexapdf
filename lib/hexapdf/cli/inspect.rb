@@ -354,7 +354,7 @@ module HexaPDF
             buffer = ''.b
             while io.pos < startxrefs[index + 1]
               buffer << io.read(1_000)
-              if (buffer_index = buffer.index(/(?:\n|\r\n?)\s*%%EOF\s*(?:\n|\r\n?)/))
+              if (buffer_index = buffer.index(/(?:\n|\r\n?)\s*%%EOF\s*(?:\n|\r\n?)?/))
                 end_index = io.pos - buffer.size + buffer_index + $~[0].size
                 break
               end

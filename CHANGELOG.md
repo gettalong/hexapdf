@@ -50,6 +50,7 @@
   when the moved node is before the target position
 * [HexaPDF::Document::Signatures#add] to work in case the signature object is
   the last object written
+* CLI command `hexapdf inspect` to show correct byte range of the last revision
 
 
 ## 0.23.0 - 2022-05-26
