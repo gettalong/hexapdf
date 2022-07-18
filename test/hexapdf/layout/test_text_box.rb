@@ -113,6 +113,8 @@ describe HexaPDF::Layout::TextBox do
       boxes = box.split(50, 10, @frame)
       assert_equal(2, boxes.length)
       assert_equal(box, boxes[0])
+      refute(boxes[0].split_box?)
+      assert(boxes[1].split_box?)
       assert_equal(5, boxes[1].instance_variable_get(:@items).length)
     end
 

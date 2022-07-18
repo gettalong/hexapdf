@@ -129,7 +129,7 @@ module HexaPDF
 
       # Creates a new TextBox instance for the items remaining after fitting the box.
       def create_box_for_remaining_items
-        box = clone
+        box = create_split_box
         box.instance_variable_set(:@result, nil)
         box.instance_variable_set(:@items, @result.remaining_items)
         box
