@@ -2,6 +2,7 @@
 
 ### Added
 
+* [HexaPDF::Layout::ListBox] for rendering ordered and unordered lists
 * [HexaPDF::Layout::ColumnBox] for rendering content inside columns
 * [HexaPDF::Layout::BoxFitter] for placing boxes into multiple frames
 * New configuration option 'debug' for enabling debug output

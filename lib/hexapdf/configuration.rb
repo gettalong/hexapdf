@@ -475,6 +475,7 @@ module HexaPDF
                         text: 'HexaPDF::Layout::TextBox',
                         image: 'HexaPDF::Layout::ImageBox',
                         column: 'HexaPDF::Layout::ColumnBox',
+                        list: 'HexaPDF::Layout::ListBox',
                       },
                       'page.default_media_box' => :A4,
                       'page.default_media_orientation' => :portrait,

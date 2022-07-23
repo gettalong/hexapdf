@@ -55,6 +55,7 @@ module HexaPDF
     autoload(:TextBox, 'hexapdf/layout/text_box')
     autoload(:ImageBox, 'hexapdf/layout/image_box')
     autoload(:ColumnBox, 'hexapdf/layout/column_box')
+    autoload(:ListBox, 'hexapdf/layout/list_box')
 
   end
 
