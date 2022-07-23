@@ -28,6 +28,8 @@
 * Layout box implementations to provide a `#supports_position_flow?` method that
   indicates whether the box supports flowing its content around other content.
 * `hexapdf info --check` to only check the current version of each object
+* [HexaPDF::Writer] to make sure the producer information is written when
+  writing the file incrementally
 
 ### Fixed
 

@@ -109,6 +109,7 @@ module HexaPDF
       @use_xref_streams = parser.contains_xref_streams?
 
       revision = Revision.new(@document.revisions.current.trailer)
+      @document.trailer.info[:Producer] = "HexaPDF version #{HexaPDF::VERSION}"
       @document.revisions.each do |rev|
         rev.each_modified_object {|obj| revision.send(:add_without_check, obj) }
       end
