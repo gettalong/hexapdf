@@ -25,6 +25,15 @@ describe HexaPDF::Document::Layout::ChildrenCollector do
     assert_equal([box], @collector.children)
   end
 
+  it "allows appending an array of boxes created through another children collector" do
+    @collector.multiple do |collector|
+      collector.lorem_ipsum_box
+      collector.lorem_ipsum_box
+    end
+    assert_equal(1, @collector.children.size)
+    assert_equal(2, @collector.children[0].size)
+  end
+
   it "allows appending boxes through method names of the Layout class" do
     @collector.lorem_ipsum_box
     assert_equal(1, @collector.children.size)

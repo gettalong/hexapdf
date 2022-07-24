@@ -156,6 +156,12 @@ module HexaPDF
           @children << box
         end
 
+        # Yields a ChildrenCollector instance and adds the collected children as a single array to
+        # the list of collected children.
+        def multiple(&block)
+          @children << self.class.collect(@layout, &block)
+        end
+
       end
 
       # The mapping of style name (a Symbol) to HexaPDF::Layout::Style instance.
