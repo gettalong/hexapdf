@@ -9,6 +9,16 @@ describe HexaPDF::Document::Layout::ChildrenCollector do
     @collector = HexaPDF::Document::Layout::ChildrenCollector.new(@doc.layout)
   end
 
+  it "provides a convenient ::collect method which just returns the collected children" do
+    children = HexaPDF::Document::Layout::ChildrenCollector.collect(@doc.layout) do |collector|
+      collector.lorem_ipsum_box
+      collector.lorem_ipsum_box
+    end
+    assert_equal(2, children.size)
+    assert_kind_of(HexaPDF::Layout::TextBox, children[0])
+    assert_kind_of(HexaPDF::Layout::TextBox, children[1])
+  end
+
   it "allows appending existing boxes" do
     box = @doc.layout.lorem_ipsum_box
     @collector << box

@@ -112,6 +112,13 @@ module HexaPDF
       #   end
       class ChildrenCollector
 
+        # Creates a children collector, yields it and then returns the collected children.
+        def self.collect(layout)
+          collector = new(layout)
+          yield(collector)
+          collector.children
+        end
+
         # The collected children
         attr_reader :children
 
@@ -213,11 +220,9 @@ module HexaPDF
       #   doc.layout.box(:column) do |column|            # column box with one child
       #     column.lorem_ipsum
       #   end
-      def box(name, width: 0, height: 0, style: nil, **box_options)
+      def box(name, width: 0, height: 0, style: nil, **box_options, &block)
         if block_given? && !box_options.key?(:children)
-          children_collector = ChildrenCollector.new(self)
-          yield(children_collector)
-          box_options[:children] = children_collector.children
+          box_options[:children] = ChildrenCollector.collect(self, &block)
         end
         box_class_for_name(name).new(width: width, height: height,
                                      style: retrieve_style(style), **box_options)
