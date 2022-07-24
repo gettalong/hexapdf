@@ -106,7 +106,7 @@ module HexaPDF
       @io << "\n"
 
       @rev_size = @document.revisions.current.next_free_oid
-      @use_xref_streams = parser.contains_xref_streams?
+      @use_xref_streams = @document.revisions.any? {|rev| rev.trailer[:Type] == :XRef }
 
       revision = Revision.new(@document.revisions.current.trailer)
       @document.trailer.info[:Producer] = "HexaPDF version #{HexaPDF::VERSION}"

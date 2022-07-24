@@ -62,13 +62,7 @@ module HexaPDF
       @object_stream_data = {}
       @reconstructed_revision = nil
       @in_reconstruct_revision = false
-      @contains_xref_streams = false
       retrieve_pdf_header_offset_and_version
-    end
-
-    # Returns +true+ if the PDF file contains cross-reference streams.
-    def contains_xref_streams?
-      @contains_xref_streams
     end
 
     # Returns +true+ if the PDF file was damaged and could be reconstructed.
@@ -241,7 +235,6 @@ module HexaPDF
           maybe_raise("Cross-reference stream doesn't contain entry for itself", pos: pos)
           xref_section.add_in_use_entry(obj.oid, obj.gen, pos)
         end
-        @contains_xref_streams = true
       end
       xref_section.delete(0)
       [xref_section, trailer]

@@ -543,14 +543,12 @@ describe HexaPDF::Parser do
       xref_section, trailer = @parser.load_revision(@parser.startxref_offset)
       assert_equal({Test: 'now'}, trailer)
       assert(xref_section[1].in_use?)
-      refute(@parser.contains_xref_streams?)
     end
 
     it "works for a cross-reference stream" do
       xref_section, trailer = @parser.load_revision(212)
       assert_equal({Size: 2, Type: :XRef}, trailer)
       assert(xref_section[1].in_use?)
-      assert(@parser.contains_xref_streams?)
     end
 
     it "fails if another object is found instead of a cross-reference stream" do

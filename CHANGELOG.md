@@ -54,6 +54,8 @@
 * [HexaPDF::Document::Signatures#add] to work in case the signature object is
   the last object written
 * CLI command `hexapdf inspect` to show correct byte range of the last revision
+* [HexaPDF::Writer#write_incremental] to only use a cross-reference stream if a
+  revision directly used one and not through an `/XRefStm` entry
 
 
 ## 0.23.0 - 2022-05-26

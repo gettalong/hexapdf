@@ -191,6 +191,60 @@ describe HexaPDF::Writer do
     assert(document.revisions.all[2].one? {|obj| obj.type == :XRef })
   end
 
+  it "doesn't create an xref stream if one was just used for an XRefStm entry" do
+    # The following document's structure is built like a typical MS Word created PDF
+    input = StringIO.new(<<~EOF.force_encoding(Encoding::BINARY))
+      %PDF-1.2
+      %\xCF\xEC\xFF\xE8\xD7\xCB\xCD
+      1 0 obj
+      <</Type/Catalog/Pages 2 0 R>>
+      endobj
+      2 0 obj
+      <</Type/Pages/Kids[3 0 R]/Count 1>>
+      endobj
+      3 0 obj
+      <</Type/Page/MediaBox[0 0 595 842]/Parent 2 0 R/Resources<<>>>>
+      endobj
+      5 0 obj
+      <</Producer(HexaPDF version 0.23.0)>>
+      endobj
+      4 0 obj
+      <</Root 1 0 R/Info 5 0 R/Size 6/Type/XRef/W[1 1 2]/Index[0 6]/Filter/FlateDecode/DecodeParms<</Columns 4/Predictor 12>>/Length 33>>stream
+      x\xDAcb`\xF8\xFF\x9F\x89Q\x88\x91\x91\x89A\x97\x81\x81\x89\xC1\x18D\xB4\x80\x88\xD3\f\f\x00C\xDE\x03\xCF
+      endstream
+      endobj
+      xref
+      0 6
+      0000000000 65535 f
+      0000000018 00000 n
+      0000000063 00000 n
+      0000000114 00000 n
+      0000000246 00000 n
+      0000000193 00000 n
+      trailer
+      <</Root 1 0 R/Info 5 0 R/Size 6>>
+      startxref
+      443
+      %%EOF
+
+      xref
+      0 0
+      trailer
+      <</Root 1 0 R/Info 5 0 R/Prev 443/XRefStm 246>>
+      startxref
+      629
+      %%EOF
+    EOF
+
+    document = HexaPDF::Document.new(io: input)
+    document.pages.add
+    io = StringIO.new
+    HexaPDF::Writer.new(document, io).write_incremental
+
+    document = HexaPDF::Document.new(io: io)
+    refute(document.trailer.key?(:Type))
+  end
+
   it "raises an error if the class is misused and an xref section contains invalid entries" do
     document = HexaPDF::Document.new
     io = StringIO.new
