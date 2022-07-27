@@ -3,6 +3,7 @@
 begin
   require 'simplecov'
   SimpleCov.start do
+    minimum_coverage line: 100
     add_filter '/test/'
   end
 rescue LoadError
