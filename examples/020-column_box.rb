@@ -1,4 +1,4 @@
-# ## Column Box
+# # Column Box
 #
 # This example shows how [HexaPDF::Layout::ColumnBox] can be used to place
 # contents into columns.
