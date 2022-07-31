@@ -58,6 +58,8 @@
   revision directly used one and not through an `/XRefStm` entry
 * [HexaPDF::Encryption::FastARC4] to use RubyARC4 as fallback if OpenSSL has RC4
   disabled
+* [HexaPDF::Font::Encoding::GlyphList] to use binary reading to avoid problems
+  on Windows
 
 
 ## 0.23.0 - 2022-05-26

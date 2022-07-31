@@ -131,7 +131,7 @@ module HexaPDF
         def load_file(file)
           name2uni = {}
           uni2name = {}
-          File.open(file, 'r:UTF-8') do |f|
+          File.open(file, 'rb:UTF-8') do |f|
             25.times { f.gets } # Skip comments
             while (line = f.gets)
               name, codes = line.split(';', 2)
