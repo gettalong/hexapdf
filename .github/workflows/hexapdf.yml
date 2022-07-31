@@ -1,0 +1,21 @@
+name: HexaPDF Tests
+on: [push]
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        ruby: ['2.6', '2.7', '3.0', '3.1', head]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: false
+    - name: Only install needed PNG packages on Ubuntu
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: sudo apt install netpbm pngcheck
+    - run: gem install minitest geom2d cmdparse
+    - run: rake
