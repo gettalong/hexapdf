@@ -31,7 +31,7 @@ describe HexaPDF::Document::Images do
       it "adds an image using an IO" do
         File.open(__FILE__, 'rb') do |file|
           image = @doc.images.add(file)
-          assert_equal(File.read(__FILE__), image.stream)
+          assert_equal(File.binread(__FILE__), image.stream)
           assert_equal(File.absolute_path(__FILE__), image.source_path)
         end
       end

@@ -16,7 +16,7 @@ require 'fiber'
 require 'zlib'
 
 TEST_DATA_DIR = File.join(__dir__, 'data')
-MINIMAL_PDF = File.read(File.join(TEST_DATA_DIR, 'minimal.pdf')).freeze
+MINIMAL_PDF = File.binread(File.join(TEST_DATA_DIR, 'minimal.pdf')).freeze
 
 Minitest::Test.make_my_diffs_pretty!
 

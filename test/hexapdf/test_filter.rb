@@ -62,7 +62,7 @@ describe HexaPDF::Filter do
 
   describe "source_from_file" do
     before do
-      @file = Tempfile.new('hexapdf-filter')
+      @file = Tempfile.new('hexapdf-filter', binmode: true)
       @file.write(@str)
       @file.close
     end

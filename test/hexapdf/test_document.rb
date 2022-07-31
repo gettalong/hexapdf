@@ -328,7 +328,7 @@ describe HexaPDF::Document do
 
     it "doesn't decrypt the document if document.auto_encrypt=false" do
       test_file = File.join(TEST_DATA_DIR, 'standard-security-handler', 'nopwd-arc4-40bit-V1.pdf')
-      doc = HexaPDF::Document.new(io: StringIO.new(File.read(test_file)),
+      doc = HexaPDF::Document.new(io: StringIO.new(File.binread(test_file)),
                                   config: {'document.auto_decrypt' => false})
       assert_kind_of(String, doc.trailer[:Info][:ModDate])
       handler = HexaPDF::Encryption::SecurityHandler.set_up_decryption(doc)
