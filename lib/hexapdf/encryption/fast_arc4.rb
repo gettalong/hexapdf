@@ -40,30 +40,39 @@ require 'hexapdf/encryption/arc4'
 module HexaPDF
   module Encryption
 
-    # Implementation of the general encryption algorithm ARC4 using OpenSSL as backend.
-    #
-    # See: PDF1.7 s7.6.2
-    class FastARC4
+    begin
+      OpenSSL::Cipher.new('rc4')
 
-      prepend ARC4
-
-      # Creates a new FastARC4 object using the given encryption key.
-      def initialize(key)
-        @cipher = OpenSSL::Cipher.new('rc4')
-        @cipher.key_len = key.length
-        @cipher.key = key
-      end
-
-      # Processes the given data.
+      # Implementation of the general encryption algorithm ARC4 using OpenSSL as backend.
       #
-      # Since this is a symmetric algorithm, the same method can be used for encryption and
-      # decryption.
-      def process(data)
-        @cipher.update(data)
-      end
-      alias decrypt process
-      alias encrypt process
+      # See: PDF1.7 s7.6.2
+      class FastARC4
 
+        prepend ARC4
+
+        # Creates a new FastARC4 object using the given encryption key.
+        def initialize(key)
+          @cipher = OpenSSL::Cipher.new('rc4')
+          @cipher.key_len = key.length
+          @cipher.key = key
+        end
+
+        # Processes the given data.
+        #
+        # Since this is a symmetric algorithm, the same method can be used for encryption and
+        # decryption.
+        def process(data)
+          @cipher.update(data)
+        end
+        alias decrypt process
+        alias encrypt process
+
+      end
+    rescue OpenSSL::Cipher::CipherError
+      # Ruby OpenSSL 3.0 needs a special configuration file that enables the legacy provider so that
+      # RC4 works. This would need to be done by each user. So we need the fallback.
+      require 'hexapdf/encryption/ruby_arc4'
+      FastARC4 = RubyARC4
     end
 
   end

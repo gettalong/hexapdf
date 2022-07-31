@@ -56,6 +56,8 @@
 * CLI command `hexapdf inspect` to show correct byte range of the last revision
 * [HexaPDF::Writer#write_incremental] to only use a cross-reference stream if a
   revision directly used one and not through an `/XRefStm` entry
+* [HexaPDF::Encryption::FastARC4] to use RubyARC4 as fallback if OpenSSL has RC4
+  disabled
 
 
 ## 0.23.0 - 2022-05-26
