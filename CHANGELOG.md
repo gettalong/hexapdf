@@ -60,6 +60,8 @@
   disabled
 * [HexaPDF::Font::Encoding::GlyphList] to use binary reading to avoid problems
   on Windows
+* [HexaPDF::Document::Signatures#add] to use binary writing to avoid problems on
+  Windows
 
 
 ## 0.23.0 - 2022-05-26

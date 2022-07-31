@@ -239,7 +239,7 @@ module HexaPDF
         signature[:M] = Time.now
 
         io = if file_or_io.kind_of?(String)
-               File.open(file_or_io, 'w+')
+               File.open(file_or_io, 'wb+')
              else
                file_or_io
              end

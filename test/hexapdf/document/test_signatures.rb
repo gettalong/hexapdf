@@ -138,7 +138,7 @@ describe HexaPDF::Document::Signatures do
   describe "add" do
     before do
       @doc = HexaPDF::Document.new(io: StringIO.new(MINIMAL_PDF))
-      @io = StringIO.new
+      @io = StringIO.new(''.b)
     end
 
     it "uses the provided signature dictionary" do
