@@ -25,7 +25,7 @@ describe HexaPDF::Type::Trailer do
 
   it "returns the catalog object, creating it if needed" do
     doc = Minitest::Mock.new
-    doc.expect(:add, :val, [{Type: :Catalog}])
+    doc.expect(:add, :val, [{Type: :Catalog}], type: :Catalog)
     trailer = HexaPDF::Type::Trailer.new({}, document: doc)
     assert_equal(:val, trailer.catalog)
     doc.verify
@@ -34,7 +34,7 @@ describe HexaPDF::Type::Trailer do
 
   it "returns the info object, creating it if needed" do
     doc = Minitest::Mock.new
-    doc.expect(:add, :val, [{}, type: :XXInfo])
+    doc.expect(:add, :val, [{}], type: :XXInfo)
     trailer = HexaPDF::Type::Trailer.new({}, document: doc)
     assert_equal(:val, trailer.info)
     doc.verify
@@ -89,7 +89,7 @@ describe HexaPDF::Type::Trailer do
     it "corrects a missing Catalog entry" do
       @obj.delete(:Root)
       @obj.set_random_id
-      def (@doc).add(val) HexaPDF::Object.new(val, oid: 3) end
+      def (@doc).add(val, type:); type.to_s; HexaPDF::Object.new(val, oid: 3) end
 
       message = ''
       refute(@obj.validate(auto_correct: false) {|m, _| message = m })

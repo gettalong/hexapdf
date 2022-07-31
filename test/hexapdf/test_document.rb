@@ -302,7 +302,7 @@ describe HexaPDF::Document do
 
   it "defers to @revisions for iterating over all objects" do
     revs = Minitest::Mock.new
-    revs.expect(:each_object, :retval, [{only_current: true, only_loaded: true}])
+    revs.expect(:each_object, :retval, only_current: true, only_loaded: true)
     doc = HexaPDF::Document.new
     doc.instance_variable_set(:@revisions, revs)
     doc.each(only_current: true, only_loaded: true)
@@ -510,8 +510,8 @@ describe HexaPDF::Document do
 
     it "allows to conveniently sign a document" do
       mock = Minitest::Mock.new
-      mock.expect(:handler, :handler, [{name: :handler, opt: :key}])
-      mock.expect(:add, :added, [:io, :handler, {signature: :sig, write_options: :write_options}])
+      mock.expect(:handler, :handler, name: :handler, opt: :key)
+      mock.expect(:add, :added, [:io, :handler], signature: :sig, write_options: :write_options)
       @doc.instance_variable_set(:@signatures, mock)
       result = @doc.sign(:io, handler: :handler, write_options: :write_options, signature: :sig, opt: :key)
       assert_equal(:added, result)

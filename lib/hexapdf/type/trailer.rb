@@ -69,7 +69,7 @@ module HexaPDF
 
       # Returns the document's Catalog (see Type::Catalog), creating it if needed.
       def catalog
-        self[:Root] ||= document.add({Type: :Catalog})
+        self[:Root] ||= document.add({Type: :Catalog}, type: :Catalog)
       end
 
       # Returns the document's information dictionary (see Type::Info), creating it if needed.
