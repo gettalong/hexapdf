@@ -185,8 +185,8 @@ describe HexaPDF::Revisions do
     end
 
     it "iterates over all objects" do
-      assert_equal([10, 400, 200, 20, @obj3, @obj3],
-                   @revisions.each_object(only_current: false).sort.map(&:value))
+      assert_equal([@obj3, 400, 200, @obj3, 10, 20],
+                   @revisions.each_object(only_current: false).map(&:value))
     end
 
     it "iterates over all loaded objects" do
