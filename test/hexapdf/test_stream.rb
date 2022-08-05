@@ -72,8 +72,6 @@ describe HexaPDF::StreamData do
 end
 
 describe HexaPDF::Stream do
-  include TestHelper
-
   before do
     @document = OpenStruct.new
     @document.config = HexaPDF::Configuration.with_defaults

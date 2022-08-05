@@ -3,7 +3,6 @@
 require 'test_helper'
 require 'hexapdf/layout'
 require 'hexapdf/document'
-require_relative "../content/common"
 
 module TestTextLayouterHelpers
   def boxes(*dims)
@@ -707,7 +706,7 @@ describe HexaPDF::Layout::TextLayouter do
 
   describe "Result#draw" do
     def assert_positions(content, positions)
-      processor = TestHelper::OperatorRecorder.new
+      processor = HexaPDF::TestUtils::OperatorRecorder.new
       HexaPDF::Content::Parser.new.parse(content, processor)
       result = processor.recorded_ops
       leading = (result.select {|name, _| name == :set_leading } || [0]).map(&:last).flatten.first

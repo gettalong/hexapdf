@@ -86,19 +86,19 @@ describe HexaPDF::Parser do
     it "handles keyword stream followed only by CR without LF" do
       create_parser("1 0 obj<</Length 2>> stream\r12\nendstream endobj")
       *, stream = @parser.parse_indirect_object
-      assert_equal('12', TestHelper.collector(stream.fiber))
+      assert_equal('12', collector(stream.fiber))
     end
 
     it "handles keyword stream followed by space and CR or LF" do
       create_parser("1 0 obj<</Length 2>> stream \n12\nendstream endobj")
       *, stream = @parser.parse_indirect_object
-      assert_equal('12', TestHelper.collector(stream.fiber))
+      assert_equal('12', collector(stream.fiber))
     end
 
     it "handles keyword stream followed by space and CR LF" do
       create_parser("1 0 obj<</Length 2>> stream \r\n12\nendstream endobj")
       *, stream = @parser.parse_indirect_object
-      assert_equal('12', TestHelper.collector(stream.fiber))
+      assert_equal('12', collector(stream.fiber))
     end
 
     it "handles invalid indirect object value consisting of number followed by endobj without space" do
@@ -117,7 +117,7 @@ describe HexaPDF::Parser do
       create_parser("1 0 obj<</Length 4>> stream\n12endstream endobj")
       obj, _, _, stream = @parser.parse_indirect_object
       assert_equal(2, obj[:Length])
-      assert_equal('12', TestHelper.collector(stream.fiber))
+      assert_equal('12', collector(stream.fiber))
     end
 
     it "recovers from an invalid stream length value" do
@@ -125,7 +125,7 @@ describe HexaPDF::Parser do
       @document.add([5], oid: 2)
       obj, _, _, stream = @parser.parse_indirect_object
       assert_equal(2, obj[:Length])
-      assert_equal('12', TestHelper.collector(stream.fiber))
+      assert_equal('12', collector(stream.fiber))
     end
 
     it "works even if the keyword endobj is missing or mangled" do

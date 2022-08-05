@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require_relative '../content/common'
 require 'stringio'
 require 'hexapdf/document'
 require 'hexapdf/type/page'
@@ -27,7 +26,7 @@ describe HexaPDF::Type::Page do
 
   # Asserts that the page's contents contains the operators.
   def assert_page_operators(page, operators)
-    processor = TestHelper::OperatorRecorder.new
+    processor = HexaPDF::TestUtils::OperatorRecorder.new
     page.process_contents(processor)
     assert_equal(operators, processor.recorded_ops)
   end

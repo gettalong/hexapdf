@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require_relative '../common'
 require 'hexapdf/document'
 require 'hexapdf/content'
 require 'hexapdf/content/graphic_object'
@@ -40,13 +39,6 @@ describe HexaPDF::Content::GraphicObject::SolidArc do
   end
 
   describe "draw" do
-    def operators(content)
-      processor = TestHelper::OperatorRecorder.new
-      parser = HexaPDF::Content::Parser.new
-      parser.parse(content, processor)
-      processor.recorded_ops
-    end
-
     before do
       @doc = HexaPDF::Document.new
       @doc.config['graphic_object.arc.max_curves'] = 4
@@ -56,31 +48,29 @@ describe HexaPDF::Content::GraphicObject::SolidArc do
 
     it "draws a disk" do
       @canvas.draw(:solid_arc)
-      ops = operators(@canvas.contents)
-      assert_equal([:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
-                   ops.map(&:first))
+      assert_operators(@canvas.contents,
+                       [:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
+                       only_names: true)
     end
 
     it "draws a sector" do
       @canvas.draw(:solid_arc, end_angle: 90)
-      ops = operators(@canvas.contents)
-      assert_equal([:move_to, :line_to, :curve_to, :close_subpath],
-                   ops.map(&:first))
+      assert_operators(@canvas.contents, [:move_to, :line_to, :curve_to, :close_subpath],
+                       only_names: true)
     end
 
     it "draws an annulus" do
       @canvas.draw(:solid_arc, inner_a: 5, inner_b: 5)
-      ops = operators(@canvas.contents)
-      assert_equal([:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath,
-                    :move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
-                   ops.map(&:first))
+      assert_operators(@canvas.contents,
+                       [:move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath,
+                        :move_to, :curve_to, :curve_to, :curve_to, :curve_to, :close_subpath],
+                       only_names: true)
     end
 
     it "draws an annular sector" do
       @canvas.draw(:solid_arc, inner_a: 5, inner_b: 5, end_angle: 90)
-      ops = operators(@canvas.contents)
-      assert_equal([:move_to, :curve_to, :line_to, :curve_to, :close_subpath],
-                   ops.map(&:first))
+      assert_operators(@canvas.contents, [:move_to, :curve_to, :line_to, :curve_to, :close_subpath],
+                       only_names: true)
     end
   end
 end

@@ -4,7 +4,6 @@ require_relative 'common'
 require 'hexapdf/filter/predictor'
 
 describe HexaPDF::Filter::Predictor do
-  include TestHelper
 
   module CommonPredictorTests
     def test_decoding_through_decoder_method

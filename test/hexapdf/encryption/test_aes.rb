@@ -67,7 +67,7 @@ describe HexaPDF::Encryption::AES do
     it "returns the padded result with IV on encryption_fiber" do
       @padding_data.each do |data|
         result = @algorithm_class.encryption_fiber('some key' * 2, Fiber.new { data[:plain] })
-        result = TestHelper.collector(result)
+        result = collector(result)
         assert_equal(data[:length], result.length)
         assert_equal(data[:cipher_padding][-16, 16], result[-16, 16])
       end
@@ -77,14 +77,14 @@ describe HexaPDF::Encryption::AES do
       @padding_data.each do |data|
         result = @algorithm_class.decryption_fiber('some key' * 2,
                                                    Fiber.new { 'iv' * 8 + data[:cipher_padding] })
-        result = TestHelper.collector(result)
+        result = collector(result)
         assert_equal(data[:plain], result)
       end
     end
 
     it "encryption works with multiple yielded strings" do
       f = Fiber.new { Fiber.yield('a' * 40); Fiber.yield('test'); "b" * 20 }
-      result = TestHelper.collector(@algorithm_class.encryption_fiber('some key' * 2, f))
+      result = collector(@algorithm_class.encryption_fiber('some key' * 2, f))
       assert_equal('a' * 40 << 'test' << 'b' * 20, result[16..-17])
     end
 
@@ -96,32 +96,32 @@ describe HexaPDF::Encryption::AES do
         Fiber.yield('a' * 20)
         8.chr * 8
       end
-      result = TestHelper.collector(@algorithm_class.decryption_fiber('some key' * 2, f))
+      result = collector(@algorithm_class.decryption_fiber('some key' * 2, f))
       assert_equal('a' * 40, result)
     end
 
     it "decryption works if the padding is invalid" do
       f = Fiber.new { 'a' * 16 }
-      result = TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, f))
+      result = collector(@algorithm_class.decryption_fiber('some' * 4, f))
       assert_equal('', result)
 
       f = Fiber.new { 'a' * 32 }
-      result = TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, f))
+      result = collector(@algorithm_class.decryption_fiber('some' * 4, f))
       assert_equal('a' * 16, result)
 
       f = Fiber.new { 'a' * 31 << "\x00" }
-      result = TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, f))
+      result = collector(@algorithm_class.decryption_fiber('some' * 4, f))
       assert_equal('a' * 15 << "\x00", result)
 
       f = Fiber.new { 'a' * 29 << "\x00\x01\x03" }
-      result = TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4, f))
+      result = collector(@algorithm_class.decryption_fiber('some' * 4, f))
       assert_equal('a' * 13 << "\x00\x01\x03", result)
     end
 
     it "fails on decryption if not enough bytes are provided" do
       [4, 20, 40].each do |length|
         assert_raises(HexaPDF::EncryptionError) do
-          TestHelper.collector(@algorithm_class.decryption_fiber('some' * 4,
+          collector(@algorithm_class.decryption_fiber('some' * 4,
                                                                  Fiber.new { 'a' * length }))
         end
       end

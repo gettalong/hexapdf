@@ -31,9 +31,9 @@ describe HexaPDF::Encryption::ARC4 do
   it "correctly uses klass.encryption_fiber and klass.decryption_fiber" do
     f = Fiber.new { Fiber.yield('first'); Fiber.yield(''); 'second' }
     assert_equal('mykeyfirstsecond',
-                 TestHelper.collector(@algorithm_class.encryption_fiber('mykey', f)))
+                 collector(@algorithm_class.encryption_fiber('mykey', f)))
     f = Fiber.new { Fiber.yield('first'); 'second' }
     assert_equal('mykeyfirstsecond',
-                 TestHelper.collector(@algorithm_class.decryption_fiber('mykey', f)))
+                 collector(@algorithm_class.decryption_fiber('mykey', f)))
   end
 end

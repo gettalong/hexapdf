@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::TestUtils] module that contains helper methods useful for testing
+  various parts of HexaPDF
+
+
 ## 0.24.0 - 2022-08-01
 
 ### Added

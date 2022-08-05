@@ -10,7 +10,7 @@ describe HexaPDF::Font::TrueType::Font do
     @io = StringIO.new("TEST\x00\x01\x00\x00\x00\x00\x00\x00" \
                        "TEST----\x00\x00\x00\x1C\x00\x00\x00\x05ENTRY".b)
     @font = HexaPDF::Font::TrueType::Font.new(@io)
-    @font.config['font.true_type.table_mapping'][:TEST] = TestHelper::TrueTypeTestTable.name
+    @font.config['font.true_type.table_mapping'][:TEST] = TrueTypeTestTable.name
   end
 
   describe "[]" do

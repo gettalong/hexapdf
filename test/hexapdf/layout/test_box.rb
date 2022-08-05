@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require_relative '../content/common'
 require 'hexapdf/document'
 require 'hexapdf/layout/box'
 

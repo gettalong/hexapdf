@@ -344,7 +344,7 @@ describe HexaPDF::Encryption::SecurityHandler do
     end
 
     it "encrypts streams" do
-      result = TestHelper.collector(@handler.encrypt_stream(@stream))
+      result = collector(@handler.encrypt_stream(@stream))
       @stream.stream = HexaPDF::StreamData.new(proc { result })
       assert_equal('string', @handler.decrypt(@stream).stream)
     end

@@ -7,7 +7,6 @@ require 'test_helper'
 # The filter object needs to be available in the @obj variable and the @all_test_cases variable
 # needs to hold an array of test cases, i.e. [decoded, encoded] objects.
 module CommonFilterTests
-  include TestHelper
 
   TEST_BIG_STR = ''.b
   TEST_BIG_STR << [rand(2**32)].pack('N') while TEST_BIG_STR.length < 2**16

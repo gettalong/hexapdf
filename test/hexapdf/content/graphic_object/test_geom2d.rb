@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require_relative '../common'
 require 'hexapdf/document'
 require 'hexapdf/content'
 require 'hexapdf/content/graphic_object'

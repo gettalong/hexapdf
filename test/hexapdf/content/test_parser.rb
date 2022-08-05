@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/content/parser'
 require 'hexapdf/content/processor'
 require_relative '../common_tokenizer_tests'
-require_relative 'common'
 
 describe HexaPDF::Content::Tokenizer do
   include CommonTokenizerTests
@@ -16,7 +15,7 @@ end
 
 describe HexaPDF::Content::Parser do
   before do
-    @processor = TestHelper::OperatorRecorder.new
+    @processor = HexaPDF::TestUtils::OperatorRecorder.new
     @parser = HexaPDF::Content::Parser.new
   end
 

@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require_relative '../content/common'
 require 'hexapdf/document'
 require 'hexapdf/type/form'
 
@@ -70,7 +69,7 @@ describe HexaPDF::Type::Form do
   describe "process_contents" do
     it "parses the contents and processes it" do
       @form.stream = '10 w'
-      processor = TestHelper::OperatorRecorder.new
+      processor = HexaPDF::TestUtils::OperatorRecorder.new
       @form.process_contents(processor)
       assert_equal([[:set_line_width, [10]]], processor.recorded_ops)
       assert_nil(@form[:Resources])
@@ -82,7 +81,7 @@ describe HexaPDF::Type::Form do
 
     it "uses the provided resources if it has no resources itself" do
       resources = @doc.wrap({}, type: :XXResources)
-      processor = TestHelper::OperatorRecorder.new
+      processor = HexaPDF::TestUtils::OperatorRecorder.new
       @form.process_contents(processor, original_resources: resources)
       assert_same(resources, processor.resources)
     end
@@ -91,7 +90,7 @@ describe HexaPDF::Type::Form do
   describe "canvas" do
     # Asserts that the form's contents contains the operators.
     def assert_operators(form, operators)
-      processor = TestHelper::OperatorRecorder.new
+      processor = HexaPDF::TestUtils::OperatorRecorder.new
       form.process_contents(processor)
       assert_equal(operators, processor.recorded_ops)
     end
