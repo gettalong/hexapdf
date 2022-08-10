@@ -386,8 +386,10 @@ module HexaPDF
     #
     # Yields every object and the revision it is in.
     #
-    # If +only_current+ is +true+, only the current version of each object is yielded, otherwise
-    # all objects from all revisions.
+    # If +only_current+ is +true+, only the current version of each object is yielded, otherwise all
+    # objects from all revisions. *Note* that it is normally not necessary or useful to retrieve all
+    # objects from all revisions and if it is still done that care has to be taken to avoid an
+    # invalid document state.
     #
     # If +only_loaded+ is +true+, only the already loaded objects are yielded.
     #
@@ -602,15 +604,15 @@ module HexaPDF
       signatures.add(file_or_io, handler, signature: signature, write_options: write_options)
     end
 
-    # Validates all objects, or, if +only_loaded+ is +true+, only loaded objects, with optional
-    # auto-correction, and returns +true+ if everything is fine.
+    # Validates all current objects, or, if +only_loaded+ is +true+, only loaded objects, with
+    # optional auto-correction, and returns +true+ if everything is fine.
     #
     # If a block is given, it is called on validation problems.
     #
     # See HexaPDF::Object#validate for more information.
     def validate(auto_correct: true, only_loaded: false, &block) #:yield: msg, correctable, object
       result = trailer.validate(auto_correct: auto_correct, &block)
-      each(only_current: false, only_loaded: only_loaded) do |obj|
+      each(only_loaded: only_loaded) do |obj|
         result &&= obj.validate(auto_correct: auto_correct, &block)
       end
       result

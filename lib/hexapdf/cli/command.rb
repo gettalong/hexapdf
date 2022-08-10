@@ -244,7 +244,7 @@ module HexaPDF
                  compress_pages: @out_options.compress_pages,
                  prune_page_resources: @out_options.prune_page_resources)
         if @out_options.streams != :preserve || @out_options.optimize_fonts
-          doc.each(only_current: false) do |obj|
+          doc.each do |obj|
             optimize_stream(obj)
             optimize_font(obj)
           end
@@ -352,7 +352,7 @@ module HexaPDF
       def remove_unused_pages(doc)
         retained = doc.pages.each_with_object({}) {|page, h| h[page.data] = true }
         retained[doc.pages.root.data] = true
-        doc.each(only_current: false) do |obj|
+        doc.each do |obj|
           next unless obj.kind_of?(HexaPDF::Dictionary)
           if (obj.type == :Pages || obj.type == :Page) && !retained.key?(obj.data)
             doc.delete(obj)

@@ -90,7 +90,7 @@ module HexaPDF
         end
         doc.catalog[:Pages] = page_tree
 
-        doc.each(only_current: false) do |obj, revision|
+        doc.each do |obj, revision|
           next unless obj.kind_of?(HexaPDF::Dictionary)
           if (obj.type == :Pages || obj.type == :Page) && !retained.key?(obj.data)
             revision.delete(obj)

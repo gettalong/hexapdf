@@ -233,6 +233,9 @@ module HexaPDF
     # * Additionally, there may also be objects with the same object number but different
     #   generation numbers in different revisions, e.g. one object with oid/gen [3,0] and one with
     #   oid/gen [3,1].
+    #
+    # *Note* that setting +only_current+ to +false+ is normally not necessary and should not be
+    # done. If it is still done, one has to take care to avoid an invalid document state.
     def each_object(only_current: true, only_loaded: false, &block)
       unless block_given?
         return to_enum(__method__, only_current: only_current, only_loaded: only_loaded)

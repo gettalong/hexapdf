@@ -103,7 +103,7 @@ module HexaPDF
                 "#{correctable ? '(correctable)' : ''}"
             end
             doc.trailer.validate(auto_correct: true, &validation_block)
-            doc.each(only_current: true, only_loaded: false) do |obj|
+            doc.each(only_loaded: false) do |obj|
               indirect_object = obj
               obj.validate(auto_correct: true, &validation_block)
             end

@@ -5,6 +5,12 @@
 * [HexaPDF::TestUtils] module that contains helper methods useful for testing
   various parts of HexaPDF
 
+### Changed
+
+* All applicable places to only load the current version of PDF objects, to
+  avoid possible inconsistencies when working with files containing multiple
+  revisions
+
 ### Fixed
 
 * Parsing of streams with an invalid length value that led to a parsing error
