@@ -5,6 +5,10 @@
 * [HexaPDF::TestUtils] module that contains helper methods useful for testing
   various parts of HexaPDF
 
+### Fixed
+
+* Parsing of streams with an invalid length value that led to a parsing error
+
 
 ## 0.24.0 - 2022-08-01
 

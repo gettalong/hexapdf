@@ -120,6 +120,13 @@ describe HexaPDF::Parser do
       assert_equal('12', collector(stream.fiber))
     end
 
+    it "recovers from an incorrect stream length value which leads to a parsing error" do
+      create_parser("1 0 obj<</Length 2>> stream\n12(ab\nendstream endobj")
+      obj, _, _, stream = @parser.parse_indirect_object
+      assert_equal(5, obj[:Length])
+      assert_equal('12(ab', collector(stream.fiber))
+    end
+
     it "recovers from an invalid stream length value" do
       create_parser("1 0 obj<</Length 2 0 R>> stream\n12endstream endobj")
       @document.add([5], oid: 2)

@@ -172,7 +172,7 @@ module HexaPDF
                  end
         @tokenizer.pos = pos + length rescue pos
 
-        tok = @tokenizer.next_token
+        tok = @tokenizer.next_token rescue nil
         unless tok.kind_of?(Tokenizer::Token) && tok == 'endstream'
           maybe_raise("Invalid stream length, keyword endstream not found", pos: @tokenizer.pos)
           @tokenizer.pos = pos
