@@ -14,6 +14,8 @@
 ### Fixed
 
 * Parsing of streams with an invalid length value that led to a parsing error
+* [HexaPDF::Object#==] to only allow comparing simple values to non-indirect
+  objects and not also other HexaPDF::Object instances
 
 
 ## 0.24.0 - 2022-08-01

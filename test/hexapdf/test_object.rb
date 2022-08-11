@@ -196,7 +196,7 @@ describe HexaPDF::Object do
     refute_equal(obj, 5)
     obj.data.oid = 0
     assert_equal(obj, 5)
-    assert_equal(obj, HexaPDF::Object.new(5))
+    refute_equal(obj, HexaPDF::Object.new(5))
   end
 
   it "works correctly as hash key, is interchangable in this regard with Reference objects" do
