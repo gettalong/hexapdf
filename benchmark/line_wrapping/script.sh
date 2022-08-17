@@ -38,6 +38,7 @@ for ttf in "${TTFS[@]}"; do
     bench_cmd "hexapdf C   | ${key} ${ttf: -3}" ruby $BMDIR/hexapdf_composer.rb $IN_FILE $key ${OUT_FILE} $ttf
     bench_cmd "prawn       | ${key} ${ttf: -3}" ruby $BMDIR/prawn.rb $IN_FILE $key ${OUT_FILE} $ttf
     bench_cmd "reportlab/C | ${key} ${ttf: -3}" python3 $BMDIR/rlcli.py $IN_FILE $key ${OUT_FILE} $ttf
+    bench_cmd "fpdf2       | ${key} ${ttf: -3}" python3 $BMDIR/fpdf2.py $IN_FILE $key ${OUT_FILE} $ttf
     bench_cmd "tcpdf       | ${key} ${ttf: -3}" php $BMDIR/tcpdf.php $IN_FILE $key ${OUT_FILE} $ttf
     bench_separator
   done

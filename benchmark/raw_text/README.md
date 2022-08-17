@@ -45,6 +45,12 @@ The list of the benchmarked libraries:
   ReportLab has a module that implements some features in C to speed up the execution. This module
   is used in the benchmark.
 
+**fpdf2**
+
+: Homepage: <https://pyfpdf.github.io/fpdf2/>\\
+  Language: Python\\
+  Version: 2.5.5
+
 **jPDFWriter**
 
 : Homepage: <https://www.qoppa.com/pdfwriter/>\\
