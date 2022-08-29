@@ -26,6 +26,7 @@ describe HexaPDF::Importer do
     @obj = @source.add({hash: @hash, array: ["one", "two"],
                         ref: HexaPDF::Reference.new(obj.oid, obj.gen),
                         others: [:symbol, 5, 5.5, nil, true, false]})
+    @obj[:MySelf] = @obj
     @source.pages.add
     @source.pages.root[:Rotate] = 90
     @dest = HexaPDF::Document.new

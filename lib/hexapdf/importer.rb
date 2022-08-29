@@ -117,6 +117,8 @@ module HexaPDF
       when HexaPDF::Object
         if object.type == :Catalog || object.type == :Pages
           @mapper[object.data] = nil
+        elsif (mapped_object = @mapper[object.data]) && !mapped_object.null?
+          mapped_object
         else
           obj = object.dup
           @mapper[object.data] = NullableWeakRef.new(obj)

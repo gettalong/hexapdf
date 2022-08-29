@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Importer] to detect loops in a fully-loaded document
+
+
 ## 0.24.1 - 2022-08-11
 
 ### Added
