@@ -34,6 +34,7 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 require 'hexapdf/layout/style'
+require 'geom2d/utils'
 
 module HexaPDF
   module Layout
@@ -75,6 +76,8 @@ module HexaPDF
     #         like drawing the border and background. Therefore it's best to implement #draw_content
     #         which should just draw the content.
     class Box
+
+      include Geom2D::Utils
 
       # Creates a new Box object, using the provided block as drawing block (see ::new).
       #
@@ -183,7 +186,9 @@ module HexaPDF
       def split(available_width, available_height, frame)
         if @fit_successful
           [self, nil]
-        elsif (style.position != :flow && (@width > available_width || @height > available_height)) ||
+        elsif (style.position != :flow &&
+               (float_compare(@width, available_width) > 0 ||
+                float_compare(@height, available_height) > 0)) ||
             content_height == 0 || content_width == 0
           [nil, self]
         else

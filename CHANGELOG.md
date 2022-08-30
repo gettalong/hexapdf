@@ -7,6 +7,7 @@
   the document's root page tree node
 * HexaPDF::Type::Page#perform_validation to only do the validation if the page
   is part of the document's page tree
+* Box layouting to take small floating point differences into account
 
 
 ## 0.24.1 - 2022-08-11

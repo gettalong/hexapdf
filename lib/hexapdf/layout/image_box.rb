@@ -98,7 +98,8 @@ module HexaPDF
           @height = image_height * ratio + rh
         end
 
-        @width <= available_width && @height <= available_height
+        @fit_successful = float_compare(@width, available_width) <= 0 &&
+          float_compare(@height, available_height) <= 0
       end
 
       private
