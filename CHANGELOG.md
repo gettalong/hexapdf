@@ -5,6 +5,8 @@
 * [HexaPDF::Importer] to detect loops in a fully-loaded document
 * HexaPDF::Type::PageTreeNode#perform_validation to only do the validation for
   the document's root page tree node
+* HexaPDF::Type::Page#perform_validation to only do the validation if the page
+  is part of the document's page tree
 
 
 ## 0.24.1 - 2022-08-11

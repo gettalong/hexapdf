@@ -71,8 +71,17 @@ describe HexaPDF::Type::Page do
   end
 
   describe "validation" do
+    it "only does validation if the page is in the document's page tree" do
+      page = @doc.add({Type: :Page})
+      assert(page.validate)
+      page[:Parent] = @doc.add({Type: :Pages, Kids: [page]})
+      assert(page.validate)
+      page[:Parent] = @doc.catalog.pages
+      refute(page.validate)
+    end
+
     it "fails if a required inheritable field is not set" do
-      root = @doc.add({Type: :Pages})
+      root = @doc.catalog[:Pages] = @doc.add({Type: :Pages})
       page = @doc.add({Type: :Page, Parent: root})
       message = ''
       refute(page.validate {|m, _| message = m })

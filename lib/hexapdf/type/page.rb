@@ -564,6 +564,11 @@ module HexaPDF
 
       # Ensures that the required inheritable fields are set.
       def perform_validation(&block)
+        root_node = document.catalog.pages
+        parent_node = self[:Parent]
+        parent_node = parent_node[:Parent] while parent_node && parent_node != root_node
+        return unless parent_node
+
         super
         REQUIRED_INHERITABLE_FIELDS.each do |name|
           next if self[name]
