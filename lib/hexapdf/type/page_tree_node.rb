@@ -265,7 +265,7 @@ module HexaPDF
       # page tree!
       def perform_validation(&block)
         super
-        return if key?(:Parent)
+        return unless document.catalog[:Pages] == self
 
         validate_node = lambda do |node|
           count = 0

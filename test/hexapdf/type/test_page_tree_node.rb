@@ -7,7 +7,7 @@ require 'hexapdf/type/page_tree_node'
 describe HexaPDF::Type::PageTreeNode do
   before do
     @doc = HexaPDF::Document.new
-    @root = @doc.add({Type: :Pages})
+    @root = @doc.catalog[:Pages] = @doc.add({Type: :Pages})
   end
 
   # Defines the following page tree:
@@ -283,6 +283,12 @@ describe HexaPDF::Type::PageTreeNode do
   end
 
   describe "validation" do
+    it "only does validation on the document's root node" do
+      @doc.catalog.delete(:Pages)
+      assert(@root.validate)
+      assert_equal(0, @root.page_count)
+    end
+
     it "corrects faulty /Count entries" do
       define_multilevel_page_tree
       root_count = @root.page_count

@@ -3,6 +3,8 @@
 ### Fixed
 
 * [HexaPDF::Importer] to detect loops in a fully-loaded document
+* HexaPDF::Type::PageTreeNode#perform_validation to only do the validation for
+  the document's root page tree node
 
 
 ## 0.24.1 - 2022-08-11
