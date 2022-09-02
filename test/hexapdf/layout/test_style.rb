@@ -671,6 +671,7 @@ describe HexaPDF::Layout::Style do
     @style = HexaPDF::Layout::Style.new
     assert_raises(HexaPDF::Error) { @style.font }
     assert_equal(10, @style.font_size)
+    assert_nil(@style.line_height)
     assert_equal(0, @style.character_spacing)
     assert_equal(0, @style.word_spacing)
     assert_equal(100, @style.horizontal_scaling)

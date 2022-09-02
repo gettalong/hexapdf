@@ -614,6 +614,24 @@ module HexaPDF
       #   composer.text("Larger size", font_size: 20)
 
       ##
+      # :method: line_height
+      # :call-seq:
+      #   line_height(size = nil)
+      #
+      # The font size used for line height calculations, default is +nil+ meaing it defaults to
+      # #font_size.
+      #
+      # This value should never be smaller than the font size since this would lead to overlapping
+      # text.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Line 1")
+      #   composer.text("Larger line height", line_height: 30)
+      #   composer.text("Line 3")
+
+      ##
       # :method: character_spacing
       # :call-seq:
       #   character_spacing(amount = nil)
@@ -1212,6 +1230,7 @@ module HexaPDF
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
         [:font_size, 10],
+        [:line_height, nil],
         [:character_spacing, 0],
         [:word_spacing, 0],
         [:horizontal_scaling, 100],
@@ -1397,14 +1416,18 @@ module HexaPDF
         @scaled_font_descender ||= font.wrapped_font.descender * font.scaling_factor * font_size / 1000
       end
 
-      # The minimum y-coordinate, calculated using the scaled descender of the font.
+      # The minimum y-coordinate, calculated using the scaled descender of the font and the line
+      # height or font size.
       def scaled_y_min
-        @scaled_y_min ||= scaled_font_descender + calculated_text_rise
+        @scaled_y_min ||= scaled_font_descender * (line_height || font_size) / font_size.to_f +
+          calculated_text_rise
       end
 
-      # The maximum y-coordinate, calculated using the scaled descender of the font.
+      # The maximum y-coordinate, calculated using the scaled ascender of the font and the line
+      # height or font size.
       def scaled_y_max
-        @scaled_y_max ||= scaled_font_ascender + calculated_text_rise
+        @scaled_y_max ||= scaled_font_ascender * (line_height || font_size) / font_size.to_f +
+          calculated_text_rise
       end
 
       # Returns the width of the item scaled appropriately (by taking font size, characters spacing,
