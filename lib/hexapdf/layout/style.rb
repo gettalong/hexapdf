@@ -1364,25 +1364,29 @@ module HexaPDF
       # Returns the correct offset from the baseline for the underline.
       def calculated_underline_position
         calculated_text_rise +
-          calculated_font_size / 1000.0 * font.wrapped_font.underline_position *
-          font.scaling_factor - calculated_underline_thickness / 2.0
+          font.wrapped_font.underline_position * font.scaling_factor *
+          font.pdf_object.glyph_scaling_factor * calculated_font_size -
+          calculated_underline_thickness / 2.0
       end
 
       # Returns the correct thickness for the underline.
       def calculated_underline_thickness
-        calculated_font_size / 1000.0 * font.wrapped_font.underline_thickness * font.scaling_factor
+        font.wrapped_font.underline_thickness * font.scaling_factor *
+          font.pdf_object.glyph_scaling_factor * calculated_font_size
       end
 
       # Returns the correct offset from the baseline for the strikeout line.
       def calculated_strikeout_position
         calculated_text_rise +
-          calculated_font_size / 1000.0 * font.wrapped_font.strikeout_position *
-          font.scaling_factor - calculated_strikeout_thickness / 2.0
+          font.wrapped_font.strikeout_position * font.scaling_factor *
+          font.pdf_object.glyph_scaling_factor * calculated_font_size -
+          calculated_strikeout_thickness / 2.0
       end
 
       # Returns the correct thickness for the strikeout line.
       def calculated_strikeout_thickness
-        calculated_font_size / 1000.0 * font.wrapped_font.strikeout_thickness * font.scaling_factor
+        font.wrapped_font.strikeout_thickness * font.scaling_factor *
+          font.pdf_object.glyph_scaling_factor * calculated_font_size
       end
 
       # The font size scaled appropriately.
@@ -1408,12 +1412,14 @@ module HexaPDF
 
       # The ascender of the font scaled appropriately.
       def scaled_font_ascender
-        @scaled_font_ascender ||= font.wrapped_font.ascender * font.scaling_factor * font_size / 1000
+        @scaled_font_ascender ||= font.wrapped_font.ascender * font.scaling_factor *
+          font.pdf_object.glyph_scaling_factor * font_size
       end
 
       # The descender of the font scaled appropriately.
       def scaled_font_descender
-        @scaled_font_descender ||= font.wrapped_font.descender * font.scaling_factor * font_size / 1000
+        @scaled_font_descender ||= font.wrapped_font.descender * font.scaling_factor *
+          font.pdf_object.glyph_scaling_factor * font_size
       end
 
       # The minimum y-coordinate, calculated using the scaled descender of the font and the line

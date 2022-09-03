@@ -5,6 +5,10 @@
 * [HexaPDF::Layout::Style#line_height] for setting a custom line height
   independent of the font size
 
+### Fixed
+
+* Calculation of text related [HexaPDF::Layout::Style] values for Type3 fonts
+
 
 ## 0.24.2 - 2022-08-31
 
