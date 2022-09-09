@@ -4,6 +4,8 @@
 
 * [HexaPDF::Layout::Style#line_height] for setting a custom line height
   independent of the font size
+* [HexaPDF::Document::Destinations#create] as unified interface for creating
+  destinations
 
 ### Fixed
 

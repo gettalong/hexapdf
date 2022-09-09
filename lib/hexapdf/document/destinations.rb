@@ -67,7 +67,8 @@ module HexaPDF
       # There are eight different types of destinations, each taking different arguments. The
       # arguments are marked up in the list below and are in the correct order for use in the
       # destination array. The first name in the list is the PDF internal name, the second one the
-      # explicit, more descriptive one used by HexaPDF:
+      # explicit, more descriptive one used by HexaPDF (though the PDF internal name can also be
+      # used):
       #
       # :XYZ, :xyz::
       #     Display the page with the given (+left+, +top+) coordinate at the upper-left corner of
@@ -206,6 +207,26 @@ module HexaPDF
       # Creates a new Destinations object for the given PDF document.
       def initialize(document)
         @document = document
+      end
+
+      # :call-seq:
+      #   destinations.create(type, page, **options)      -> dest or name
+      #   destinations.create(dest, name: nil)      -> dest or name
+      #
+      # If +type+ is a symbol, creates a new destination array with the given +type+ (see
+      # Destination for all available type names; PDF internal type names are also allowed) by
+      # calling the respective +create_type+ method.
+      #
+      # Otherwise, +dest+ needs to be a valid destination array and the method just returns it. If
+      # +name+ is provided, the destination array is added to the destinations name tree and the
+      # +name+ is returned.
+      def create(type, page = nil, **options)
+        if type.kind_of?(Symbol)
+          raise ArgumentError, "Argument page not set" unless page
+          send("create_#{Destination::TYPE_MAPPING.fetch(type, type)}", page, **options)
+        else
+          (name = options[:name]) ? (add(name, type); name) : type
+        end
       end
 
       # :call-seq:

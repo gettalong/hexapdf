@@ -201,6 +201,31 @@ describe HexaPDF::Document::Destinations do
     @page = @doc.pages.add
   end
 
+  describe "create" do
+    it "creates the destination using a HexaDPF destination name" do
+      dest = @doc.destinations.create(:fit_page_horizontal, @page, top: 5, name: 'fph')
+      assert_equal('fph', dest)
+      dest = @doc.destinations['fph']
+      assert_equal(:FitH, dest[1])
+      assert_equal(5, dest[2])
+    end
+
+    it "creates the destination using a PDF internal name" do
+      dest = @doc.destinations.create(:FitH, @page, top: 5)
+      assert_equal(:FitH, dest[1])
+      assert_equal(5, dest[2])
+    end
+
+    it "returns the given destination array" do
+      dest = [@page, :Fit]
+      assert_same(dest, @doc.destinations.create(dest))
+    end
+
+    it "returns the name for the given destination array" do
+      assert_equal("page", @doc.destinations.create([@page, :Fit], name: "page"))
+    end
+  end
+
   describe "create_xyz" do
     it "creates the destination" do
       dest = @doc.destinations.create_xyz(@page, left: 1, top: 2, zoom: 3)
