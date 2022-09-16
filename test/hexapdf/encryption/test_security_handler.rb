@@ -351,8 +351,10 @@ describe HexaPDF::Encryption::SecurityHandler do
 
     it "doesn't encrypt strings in a document's Encrypt dictionary" do
       @document.trailer[:Encrypt] = @handler.dict
-      @document.trailer[:Encrypt][:Mine] = 'string'
-      assert_equal('string', @handler.encrypt_string('string', @document.trailer[:Encrypt]))
+      str = 'string'
+      result = @handler.encrypt_string(str, @document.trailer[:Encrypt])
+      assert_equal('string', result)
+      refute_same(str, result)
     end
 
     it "doesn't encrypt XRef streams" do

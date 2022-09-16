@@ -286,9 +286,12 @@ module HexaPDF
 
       # Returns the encrypted version of the string that resides in the given indirect object.
       #
+      # Note that some strings won't be encrypted as per the specification. The returned string,
+      # however, is always a different object.
+      #
       # See: PDF1.7 s7.6.2
       def encrypt_string(str, obj)
-        return str if str.empty? || obj == document.trailer[:Encrypt] || obj.type == :XRef ||
+        return str.dup if str.empty? || obj == document.trailer[:Encrypt] || obj.type == :XRef ||
           (obj.type == :Sig && obj[:Contents].equal?(str))
 
         key = object_key(obj.oid, obj.gen, string_algorithm)
