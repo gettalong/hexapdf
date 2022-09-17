@@ -12,6 +12,8 @@
 * Calculation of text related [HexaPDF::Layout::Style] values for Type3 fonts
 * [HexaPDF::Encryption::SecurityHandler#encrypt_string] to either return a
   dupped or encrypted string
+* [HexaPDF::Layout::TextLayouter#fit] to avoid infinite loop when encountering
+  a non-zero width breakpoint penalty
 
 
 ## 0.24.2 - 2022-08-31

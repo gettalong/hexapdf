@@ -461,6 +461,12 @@ describe HexaPDF::Layout::TextLayouter do
       assert_equal(20 + 20 + 9 + 20 + 9, result.height)
     end
 
+    it "handles penalties with non-zero width at end of line if they don't fit" do
+      items = boxes([17.21, 9]) + [penalty(50, boxes([3.33]).first)] + boxes([30, 9])
+      result = @layouter.fit(items, 20.5, 100)
+      assert_equal(3, result.remaining_items.size)
+    end
+
     it "handles line breaks in combination with multiple parts per line" do
       items = boxes([20, 20]) + [penalty(-5000)] +
         boxes([20, 20], [20, 20], [20, 20]) + [penalty(-5000)] +
