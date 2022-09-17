@@ -83,9 +83,10 @@ module HexaPDF
         define_field :DA,              type: String
         define_field :XFA,             type: [Stream, PDFArray], version: '1.5'
 
-        bit_field(:raw_signature_flags, {signatures_exist: 0, append_only: 1},
+        bit_field(:signature_flags, {signatures_exist: 0, append_only: 1},
                   lister: "signature_flags", getter: "signature_flag?", setter: "signature_flag",
-                  unsetter: "signature_unflag")
+                  unsetter: "signature_unflag", value_getter: "self[:SigFlags]",
+                  value_setter: "self[:SigFlags]")
 
         # Returns the PDFArray containing the root fields.
         def root_fields
@@ -410,16 +411,6 @@ module HexaPDF
         end
 
         private
-
-        # Helper method for bit field getter access.
-        def raw_signature_flags
-          self[:SigFlags]
-        end
-
-        # Helper method for bit field setter access.
-        def raw_signature_flags=(value)
-          self[:SigFlags] = value
-        end
 
         # Creates a new field with the full name +name+ and the field type +type+.
         def create_field(name, type)

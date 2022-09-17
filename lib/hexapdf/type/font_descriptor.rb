@@ -81,21 +81,12 @@ module HexaPDF
       define_field :FD,           type: Dictionary
       define_field :CIDSet,       type: Stream
 
-      bit_field(:raw_flags, {fixed_pitch: 0, serif: 1, symbolic: 2, script: 3, nonsymbolic: 5,
-                             italic: 6, all_cap: 16, small_cap: 17, force_bold: 18},
-                lister: "flags", getter: "flagged?", setter: "flag", unsetter: 'unflag')
+      bit_field(:flags, {fixed_pitch: 0, serif: 1, symbolic: 2, script: 3, nonsymbolic: 5,
+                         italic: 6, all_cap: 16, small_cap: 17, force_bold: 18},
+                lister: "flags", getter: "flagged?", setter: "flag", unsetter: 'unflag',
+                value_getter: "self[:Flags]", value_setter: "self[:Flags]")
 
       private
-
-      # Helper method for bit field getter access.
-      def raw_flags
-        self[:Flags]
-      end
-
-      # Helper method for bit field setter access.
-      def raw_flags=(value)
-        self[:Flags] = value
-      end
 
       ALLOWED_FONT_WEIGHTS = [100, 200, 300, 400, 500, 600, 700, 800, 900] #:nodoc:
 
