@@ -4,8 +4,8 @@
 
 * [HexaPDF::Layout::Style#line_height] for setting a custom line height
   independent of the font size
-* [HexaPDF::Document::Destinations#create] as unified interface for creating
-  destinations
+* [HexaPDF::Document::Destinations#use_or_create] as unified interface for
+  using or creating destinations
 * [HexaPDF::Document::Destinations::Destination#valid?] and class method for
   checking whether a destination array is valid
 

@@ -222,23 +222,69 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   destinations.create(type, page, **options)      -> dest or name
-      #   destinations.create(dest, name: nil)      -> dest or name
+      #   destinations.use_or_create(name)           -> name
+      #   destinations.use_or_create(destination)    -> destination
+      #   destinations.use_or_create(page)           -> destination
+      #   destinations.use_or_create(type:, page, **options)           -> destination
       #
-      # If +type+ is a symbol, creates a new destination array with the given +type+ (see
-      # Destination for all available type names; PDF internal type names are also allowed) by
-      # calling the respective +create_type+ method.
+      # Uses the given destination name/array or creates a destination array based on the given
+      # +value+.
       #
-      # Otherwise, +dest+ needs to be a valid destination array and the method just returns it. If
-      # +name+ is provided, the destination array is added to the destinations name tree and the
-      # +name+ is returned.
-      def create(type, page = nil, **options)
-        if type.kind_of?(Symbol)
-          raise ArgumentError, "Argument page not set" unless page
-          send("create_#{Destination::TYPE_MAPPING.fetch(type, type)}", page, **options)
+      # This is the main utility method for other parts of HexaPDF for getting a valid destination
+      # array based on various different types of the given +value+:
+      #
+      # String::
+      #
+      #     If a string is provided, it is assumed to be a named destination. If the named
+      #     destination exists, the value itself is returned. Otherwise an error is raised.
+      #
+      # Array::
+      #
+      #     If a valid destination array is provided, it is returned. Otherwise an error is raised.
+      #
+      # Page dictionary::
+      #
+      #     If the value is a valid page dictionary object, a fit to page (#create_fit_page)
+      #     destination array is created and returned.
+      #
+      # Hash containing at least :type and :page::
+      #
+      #     If the value is a hash, the :type key specifies the type of the destination that should
+      #     be created and the :page key the target page. Which other keys are allowed depends on
+      #     the destination type, so see the various create_XXX methods. Uses #create to do the job.
+      def use_or_create(value)
+        case value
+        when String
+          if self[value]
+            value
+          else
+            raise HexaPDF::Error, "Named destination '#{value}' doesn't exist"
+          end
+        when Array
+          raise HexaPDF::Error, "Invalid destination array" unless Destination.new(value).valid?
+          value
+        when HexaPDF::Dictionary
+          if value.type != :Page
+            raise HexaPDF::Error, "Invalid dictionary type '#{value.type}' given, needs to be a page"
+          end
+          create_fit_page(value)
+        when Hash
+          type = value.delete(:type) { raise ArgumentError, "Missing keyword argument :type" }
+          page = value.delete(:page) { raise ArgumentError, "Missing keyword argument :page" }
+          create(type, page, **value)
         else
-          (name = options[:name]) ? (add(name, type); name) : type
+          raise ArgumentError, "Invalid argument type '#{value.class}'"
         end
+      end
+
+      # :call-seq:
+      #   destinations.create(type, page, **options)      -> dest or name
+      #
+      # Creates a new destination array with the given +type+ (see Destination for all available
+      # type names; PDF internal type names are also allowed) and +page+ by calling the respective
+      # +create_type+ method.
+      def create(type, page, **options)
+        send("create_#{Destination::TYPE_MAPPING.fetch(type, type)}", page, **options)
       end
 
       # :call-seq:

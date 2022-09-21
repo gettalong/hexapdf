@@ -226,28 +226,56 @@ describe HexaPDF::Document::Destinations do
     @page = @doc.pages.add
   end
 
-  describe "create" do
-    it "creates the destination using a HexaDPF destination name" do
-      dest = @doc.destinations.create(:fit_page_horizontal, @page, top: 5, name: 'fph')
-      assert_equal('fph', dest)
-      dest = @doc.destinations['fph']
-      assert_equal(:FitH, dest[1])
-      assert_equal(5, dest[2])
+  describe "use_or_create" do
+    it "uses the given destination name if it exists" do
+      @doc.destinations.create(:fit_page, @page, name: "test")
+      assert_equal("test", @doc.destinations.use_or_create("test"))
     end
 
-    it "creates the destination using a PDF internal name" do
-      dest = @doc.destinations.create(:FitH, @page, top: 5)
-      assert_equal(:FitH, dest[1])
-      assert_equal(5, dest[2])
+    it "fails if the given destination name doesn't exist" do
+      assert_raises(HexaPDF::Error) { @doc.destinations.use_or_create("test") }
     end
 
-    it "returns the given destination array" do
+    it "uses the given destination array" do
       dest = [@page, :Fit]
-      assert_same(dest, @doc.destinations.create(dest))
+      assert_same(dest, @doc.destinations.use_or_create(dest))
     end
 
-    it "returns the name for the given destination array" do
-      assert_equal("page", @doc.destinations.create([@page, :Fit], name: "page"))
+    it "fails if the given destination array is not valid" do
+      assert_raises(HexaPDF::Error) { @doc.destinations.use_or_create([@page, :FitNone]) }
+    end
+
+    it "creates a fit page destination for a given page" do
+      assert_equal([@page, :Fit], @doc.destinations.use_or_create(@page))
+    end
+
+    it "fails if the given dictionary object is not a page object" do
+      assert_raises(HexaPDF::Error) { @doc.destinations.use_or_create(@doc.catalog) }
+    end
+
+    it "creates the destination using the provided details" do
+      dest = @doc.destinations.use_or_create(type: :fit_page_horizontal, page: @page, top: 10)
+      assert_equal([@page, :FitH, 10], dest)
+    end
+
+    it "fails creating a destination if the :type key is missing" do
+      assert_raises(ArgumentError) { @doc.destinations.use_or_create(page: @page) }
+    end
+
+    it "fails creating a destination if the :page key is missing" do
+      assert_raises(ArgumentError) { @doc.destinations.use_or_create(type: :fit_page) }
+    end
+
+    it "fails if the provided argument has an invalid type" do
+      assert_raises(ArgumentError) { @doc.destinations.use_or_create(5) }
+    end
+  end
+
+  describe "create" do
+    it "creates the destination based on the given type" do
+      @doc.destinations.stub(:create_fit_page, [5, :Fit]) do
+        assert_equal([5, :Fit], @doc.destinations.create(:fit_page, 5))
+      end
     end
   end
 
