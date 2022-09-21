@@ -8,6 +8,27 @@ describe HexaPDF::Document::Destinations::Destination do
     HexaPDF::Document::Destinations::Destination.new(dest)
   end
 
+  describe "self.valid?" do
+    before do
+      @klass = HexaPDF::Document::Destinations::Destination
+    end
+
+    it "validates the type" do
+      assert(@klass.valid?([5, :Fit]))
+      refute(@klass.valid?([5, :FitNone]))
+    end
+
+    it "validates the page entry" do
+      assert(@klass.valid?([5, :Fit]))
+      refute(@klass.valid?([HexaPDF::Dictionary.new({Type: :Page}), :FitNone]))
+    end
+
+    it "validates the arguments" do
+      assert(@klass.valid?([5, :FitH, 5]))
+      refute(@klass.valid?([5, :FitH, :other]))
+    end
+  end
+
   it "can be asked whether the referenced page is in a remote document" do
     assert(destination([5, :Fit]).remote?)
     refute(destination([HexaPDF::Dictionary.new({}), :Fit]).remote?)
@@ -15,6 +36,10 @@ describe HexaPDF::Document::Destinations::Destination do
 
   it "returns the page object" do
     assert_equal(:page, destination([:page, :Fit]).page)
+  end
+
+  it "can validate a destination" do
+    assert(destination([5, :Fit]).valid?)
   end
 
   describe "type :xyz" do

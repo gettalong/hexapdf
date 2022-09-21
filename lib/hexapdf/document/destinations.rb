@@ -122,6 +122,13 @@ module HexaPDF
         # :nodoc:
         REVERSE_TYPE_MAPPING = Hash[*TYPE_MAPPING.flatten.reverse]
 
+        # Returns +true+ if the destination is valid.
+        def self.valid?(destination)
+          TYPE_MAPPING.key?(destination[1]) &&
+            (destination[0].kind_of?(Integer) || destination[0]&.type == :Page) &&
+            destination[2..-1].all? {|item| item.nil? || item.kind_of?(Numeric) }
+        end
+
         # Creates a new Destination for the given +destination+ which may be an explicit destination
         # array or a dictionary with a /D entry (as allowed for a named destination).
         def initialize(destination)
@@ -198,6 +205,11 @@ module HexaPDF
           else
             raise HexaPDF::Error, "No such argument for destination type #{type}"
           end
+        end
+
+        # Returns +true+ if the destination is valid.
+        def valid?
+          self.class.valid?(@destination)
         end
 
       end

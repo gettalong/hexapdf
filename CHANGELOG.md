@@ -6,6 +6,8 @@
   independent of the font size
 * [HexaPDF::Document::Destinations#create] as unified interface for creating
   destinations
+* [HexaPDF::Document::Destinations::Destination#valid?] and class method for
+  checking whether a destination array is valid
 
 ### Fixed
 
