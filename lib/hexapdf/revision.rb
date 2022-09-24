@@ -59,6 +59,9 @@ module HexaPDF
     # The callable object responsible for loading objects.
     attr_accessor :loader
 
+    # The associated XRefSection object.
+    attr_reader :xref_section
+
     # :call-seq:
     #   Revision.new(trailer)                                           -> revision
     #   Revision.new(trailer, xref_section: section, loader: loader)    -> revision

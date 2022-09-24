@@ -267,6 +267,49 @@ describe HexaPDF::Revisions do
     assert_equal(2, doc.revisions.count)
   end
 
+  it "merges a completely empty revision with just a /XRefStm with the previous revision" do
+    io = StringIO.new(<<~EOF) # 2 28 3 47
+      %PDF-1.7
+      1 0 obj
+      10
+      endobj
+
+      2 0 obj
+      20
+      endobj
+
+      3 0 obj
+      << /Type /XRef /Size 3 /Index [2 1] /W [1 1 1] /Filter /ASCIIHexDecode /Length 6
+      >>stream
+      011C00
+      endstream
+      endobj
+
+      xref
+      0 4
+      0000000000 65535 f 
+      0000000009 00000 n 
+      0000000000 65535 f 
+      0000000047 00000 n 
+      trailer
+      << /Size 3 >>
+      startxref
+      170
+      %%EOF
+
+      xref
+      0 0
+      trailer
+      << /Size 3 /Prev 170 /XRefStm 47>>
+      startxref
+      302
+      %%EOF
+    EOF
+    doc = HexaPDF::Document.new(io: io)
+    assert_equal(1, doc.revisions.count)
+    assert_equal(20, doc.object(2).value)
+  end
+
   it "uses the reconstructed revision if errors are found when loading from an IO" do
     io = StringIO.new(<<~EOF)
       %PDF-1.7

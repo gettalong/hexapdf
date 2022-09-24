@@ -18,6 +18,8 @@
   a non-zero width breakpoint penalty
 * [HexaPDF::Type::ObjectStream] to parse the initial stream data right after
   initialization to avoid access errors
+* [HexaPDF::Revisions::from_io] to merge a completely empty revision with just a
+  /XRefStm pointing into the previous one with the latter
 
 
 ## 0.24.2 - 2022-08-31

@@ -83,10 +83,20 @@ module HexaPDF
 
             stm = trailer[:XRefStm]
             if stm && !seen_xref_offsets.key?(stm)
+              if xref_section.max_oid == 0 && trailer[:Prev] > stm
+                # Revision is completely empty, with xref stream in previous revision
+                merge_revision = trailer[:Prev]
+              end
               stm_xref_section, = parser.load_revision(stm)
               stm_xref_section.merge!(xref_section)
               xref_section = stm_xref_section
               seen_xref_offsets[stm] = true
+            end
+
+            if merge_revision == offset
+              xref_section.merge!(revisions.first.xref_section)
+              trailer = revisions.first.trailer
+              revisions.shift
             end
 
             revisions.unshift(Revision.new(document.wrap(trailer, type: :XXTrailer),
