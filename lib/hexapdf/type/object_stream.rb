@@ -111,10 +111,11 @@ module HexaPDF
       # The object references are also added to this object stream so that they are included when
       # the object gets written.
       def parse_stream
+        return @stream_data if defined?(@stream_data)
         data = stream
         oids, offsets = parse_oids_and_offsets(data)
         oids.each {|oid| add_object(Reference.new(oid, 0)) }
-        Data.new(data, oids, offsets)
+        @stream_data = Data.new(data, oids, offsets)
       end
 
       # Adds the given object to the list of objects that should be stored in this object stream.
@@ -201,6 +202,13 @@ module HexaPDF
       end
 
       private
+
+      # Parses the stream data after the object is first initialized. Since the parsed stream data
+      # is cached, it is only parsed on initialization and not again if e.g. the stream is changed.
+      def after_data_change
+        super
+        parse_stream
+      end
 
       # Parses the object numbers and their offsets from the start of the stream data.
       def parse_oids_and_offsets(data)

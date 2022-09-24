@@ -16,6 +16,8 @@
   dupped or encrypted string
 * [HexaPDF::Layout::TextLayouter#fit] to avoid infinite loop when encountering
   a non-zero width breakpoint penalty
+* [HexaPDF::Type::ObjectStream] to parse the initial stream data right after
+  initialization to avoid access errors
 
 
 ## 0.24.2 - 2022-08-31

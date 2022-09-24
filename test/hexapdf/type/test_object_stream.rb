@@ -26,39 +26,40 @@ describe HexaPDF::Type::ObjectStream do
     def (@doc).trailer
       @trailer ||= {Encrypt: HexaPDF::Object.new({}, oid: 9)}
     end
-    @obj = HexaPDF::Type::ObjectStream.new({}, oid: 1, document: @doc)
+    @obj = HexaPDF::Type::ObjectStream.new({N: 2, First: 8}, oid: 1, document: @doc,
+                                           stream: "1 0 5 2 5 [1 2]")
   end
 
   it "correctly parses stream data" do
-    @obj.value = {N: 2, First: 8}
-    @obj.stream = "1 0 5 2 5 [1 2]"
     data = @obj.parse_stream
     assert_equal([5, 1], data.object_by_index(0))
     assert_equal([[1, 2], 5], data.object_by_index(1))
   end
 
-  it "allows adding and deleting object as well as determining their index" do
+  it "allows adding and deleting objects as well as determining their index" do
     @obj.add_object(5)
     @obj.add_object(7)
     @obj.add_object(9)
     @obj.add_object(5)
-    assert_equal(0, @obj.object_index(5))
-    assert_equal(1, @obj.object_index(7))
-    assert_equal(2, @obj.object_index(9))
+    assert_equal(2, @obj.object_index(5))
+    assert_equal(3, @obj.object_index(7))
+    assert_equal(4, @obj.object_index(9))
 
     @obj.delete_object(5)
     @obj.delete_object(5)
-    assert_equal(0, @obj.object_index(9))
-    assert_equal(1, @obj.object_index(7))
+    assert_equal(2, @obj.object_index(9))
+    assert_equal(3, @obj.object_index(7))
     assert_nil(@obj.object_index(5))
 
     @obj.delete_object(7)
     @obj.delete_object(9)
-    assert_nil(@obj.object_index(5))
+    assert_nil(@obj.object_index(7))
   end
 
   describe "write objects to stream" do
     before do
+      @obj.delete_object(HexaPDF::Reference.new(1))
+      @obj.delete_object(HexaPDF::Reference.new(5))
       @revision = Object.new
       def @revision.object(obj); obj; end
     end
