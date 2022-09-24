@@ -343,5 +343,9 @@ describe HexaPDF::Revisions do
     doc = HexaPDF::Document.new(io: io)
     assert_equal(2, doc.revisions.count)
     assert_same(doc.revisions.all[0].trailer.value, doc.revisions.all[1].trailer.value)
+
+    assert_raises(HexaPDF::MalformedPDFError) do
+      HexaPDF::Document.new(io: io, config: {'parser.try_xref_reconstruction' => false})
+    end
   end
 end

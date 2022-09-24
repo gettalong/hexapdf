@@ -20,6 +20,8 @@
   initialization to avoid access errors
 * [HexaPDF::Revisions::from_io] to merge a completely empty revision with just a
   /XRefStm pointing into the previous one with the latter
+* [HexaPDF::Revisions::from_io] to handle the case of the configuration option
+  'parser.try_xref_reconstruction' being false
 
 
 ## 0.24.2 - 2022-08-31

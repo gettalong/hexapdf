@@ -104,7 +104,7 @@ module HexaPDF
             offset = trailer[:Prev]
           end
         rescue HexaPDF::MalformedPDFError
-          reconstructed_revision = parser.reconstructed_revision
+          raise unless (reconstructed_revision = parser.reconstructed_revision)
           unless revisions.empty?
             reconstructed_revision.trailer.data.value = revisions.last.trailer.data.value
           end
