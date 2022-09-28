@@ -29,6 +29,13 @@ describe HexaPDF::Type::Catalog do
     assert_same(other, names)
   end
 
+  it "creates the document outline on access" do
+    assert_nil(@catalog[:Outlines])
+    outline = @catalog.outline
+    assert_equal(:Outlines, outline.type)
+    assert_same(outline, @catalog.outline)
+  end
+
   describe "acro_form" do
     it "returns an existing form object" do
       @catalog[:AcroForm] = :test

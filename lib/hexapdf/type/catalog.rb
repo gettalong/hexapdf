@@ -105,6 +105,13 @@ module HexaPDF
         self[:Names] ||= document.add({}, type: :XXNames)
       end
 
+      # Returns the document outline, creating it if needed.
+      #
+      # See: Outline
+      def outline
+        self[:Outlines] ||= document.add({}, type: :Outlines)
+      end
+
       # Returns the main AcroForm object.
       #
       # * If an AcroForm object exists, the +create+ argument is not used.

@@ -562,6 +562,10 @@ describe HexaPDF::Document do
     end
   end
 
+  it "returns the document outline" do
+    assert_kind_of(HexaPDF::Type::Outline, @doc.outline)
+  end
+
   it "can be inspected and the output is not too large" do
     assert_match(/HexaPDF::Document:\d+/, @doc.inspect)
   end

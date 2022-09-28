@@ -585,6 +585,8 @@ module HexaPDF
                         DocTimeStamp: 'HexaPDF::Type::Signature',
                         SigRef: 'HexaPDF::Type::Signature::SignatureReference',
                         TransformParams: 'HexaPDF::Type::Signature::TransformParams',
+                        Outlines: 'HexaPDF::Type::Outline',
+                        XXOutlineItem: 'HexaPDF::Type::OutlineItem',
                       },
                       'object.subtype_map' => {
                         nil => {

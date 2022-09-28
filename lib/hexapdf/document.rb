@@ -494,6 +494,13 @@ module HexaPDF
       catalog.acro_form(create: create)
     end
 
+    # Returns the main document outline object.
+    #
+    # See HexaPDF::Type::Outline for details.
+    def outline
+      catalog.outline
+    end
+
     # Executes the given task and returns its result.
     #
     # Tasks provide an extensible way for performing operations on a PDF document without

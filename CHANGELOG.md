@@ -2,6 +2,7 @@
 
 ### Added
 
+* Support for the document outline
 * [HexaPDF::Layout::Style#line_height] for setting a custom line height
   independent of the font size
 * [HexaPDF::Document::Destinations#use_or_create] as unified interface for
