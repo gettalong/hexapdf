@@ -1,7 +1,10 @@
 # HexaPDF - A Versatile PDF Creation and Manipulation Library For Ruby
 
-HexaPDF is a pure Ruby library with an accompanying application for working with PDF files. In
-short, it allows
+HexaPDF is a pure Ruby library with an accompanying application for working with PDF files. It was
+designed with ease of use and performance in mind. It uses lazy loading and lazy computing when
+possible and tries to produce small PDF files by default.
+
+In short, it allows
 
 * **creating** new PDF files,
 * **manipulating** existing PDF files,
@@ -10,8 +13,51 @@ short, it allows
 * **securing** PDF files by encrypting or signing them and
 * **optimizing** PDF files for smaller file size or other criteria.
 
-HexaPDF was designed with ease of use and performance in mind. It uses lazy loading and lazy
-computing when possible and tries to produce small PDF files by default.
+
+## Features
+
+* Pure Ruby
+* Minimal dependencies ('cmdparse' for `hexapdf` binary, 'geom2d' for document layout)
+* Easy to use, Ruby-esque API
+* Fully tested with 100% code coverage
+* Low-level API with high-level convenience interface on top
+* Complete [canvas API] which directly maps to PDF internal operators
+* Path drawing operations like lines, polylines, rectangles, bézier curves, arcs, ...
+* Embedding images in JPEG (lossy), PNG (lossless) and PDF (vector) format with support for
+  transparency
+* UTF-8 text via TrueType fonts and support for font subsetting
+* High-level [document composition engine] with automatic content layout
+  * [Flowing text] around other content
+  * Pre-define [styles] and assign to multiple content boxes
+  * Automatic page breaks
+  * [(Un)ordered lists]
+  * [Multi-column layout]
+* [PDF forms] (AcroForm) with Adobe Reader like appearance generation
+* Annotations
+* [Document outline]
+* [Attaching files] to the whole PDF or individual pages, extracting files
+* Image extraction
+* [Encryption] including PDF 2.0 features (e.g. AES256)
+* [Digital signatures]
+* [File size optimization]
+* PDF object validation
+* [`hexapdf` binary][hp] for most common PDF manipulation tasks
+
+
+[canvas API]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Content/Canvas.html
+[document composition engine]: https://hexapdf.gettalong.org/documentation/key-topics/document-layout.html
+[flowing text]: https://hexapdf.gettalong.org/examples/frame_text_flow.html
+[styles]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Layout/Style/index.html
+[(un)ordered lists]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Layout/ListBox.html
+[multi-column layout]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Layout/ColumnBox.html
+[PDF forms]: https://hexapdf.gettalong.org/documentation/key-topics/forms.html
+[Document outline]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Type/Outline.html
+[attaching files]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Document/Files.html
+[Encryption]: https://hexapdf.gettalong.org/documentation/key-topics/encryption.html
+[Digital Signatures]: https://hexapdf.gettalong.org/documentation/key-topics/digital-signatures.html
+[File size optimization]: https://hexapdf.gettalong.org/documentation/benchmarks/optimization.html
+[hp]: https://hexapdf.gettalong.org/documentation/reference/hexapdf.1.html
+
 
 ## Usage
 
@@ -39,7 +85,7 @@ documentation, example code and more.
 It is recommend to use the HTML API documentation provided by the HexaPDF website as it is enhanced
 with example graphics and PDF files and tightly integrated into the rest of the website.
 
-[website]: http://hexapdf.gettalong.org
+[website]: https://hexapdf.gettalong.org
 
 
 ## Requirements and Installation
@@ -74,18 +120,21 @@ Prawn has no such functionality. There is basic support for using a PDF as a tem
 `pdf-reader` and `prawn-template` gems but support is very limited. However, Prawn has a very
 featureful API when it comes to creating content, for individual pages as well as across pages.
 
-Such functionality will be incorporated into HexaPDF in the near future. The main functionality for
-providing such a feature is already available in HexaPDF (the [page canvas API]). Additionally,
-laying out text inside a box with line wrapping and such is also supported. What's missing (and this
-is still quite a big chunk) is support for advanced features like tables, page breaking and so on.
+If you want to migrate from Prawn to HexaPDF, there is the [migration guide] with detailed
+information and examples, comparing the Prawn API to HexaPDF's equivalents.
 
-So why use HexaPDF?
+[migration guide]: https://hexapdf.gettalong.org/documentation/howtos/migrating-from-prawn.html
+
+Why use HexaPDF?
+
+* It has many more [features](#features) beside content creation that might come in handy (e.g. PDF
+  form creation, encryption, digital signatures, ...).
 
 * The architecture of HexaPDF is based on the object model of the PDF standard. This makes extending
   HexaPDF very easy and allows for **reading PDF files for templating purposes**.
 
-* HexaPDF will provide a high level layer for **composing a document of individual elements** that
-  are automatically layouted. Such elements can be headers, paragraphs, code blocks, ... or links,
+* HexaPDF provides a high level API for **composing a document of individual elements** that are
+  automatically layouted. Such elements can be headers, paragraphs, code blocks, ... or links,
   emphasized text and so on. These elements can be customized and additional element types easily
   added.
 
@@ -123,9 +172,9 @@ Some included files have a different license:
 
 ## Contributing
 
-See <http://hexapdf.gettalong.org/contributing.html> for more information.
+See <https://hexapdf.gettalong.org/contributing.html> for more information.
 
 
 ## Author
 
-Thomas Leitner, <http://gettalong.org>
+Thomas Leitner, <https://gettalong.org>
