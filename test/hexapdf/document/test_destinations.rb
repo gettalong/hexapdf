@@ -253,6 +253,15 @@ describe HexaPDF::Document::Destinations do
       assert_raises(HexaPDF::Error) { @doc.destinations.use_or_create(@doc.catalog) }
     end
 
+    it "creates a fit page destination for a given page index" do
+      assert_equal([@page, :Fit], @doc.destinations.use_or_create(0))
+    end
+
+    it "fails if the given index is no a valid page index" do
+      assert_raises(ArgumentError) { @doc.destinations.use_or_create(-1) }
+      assert_raises(ArgumentError) { @doc.destinations.use_or_create(1) }
+    end
+
     it "creates the destination using the provided details" do
       dest = @doc.destinations.use_or_create(type: :fit_page_horizontal, page: @page, top: 10)
       assert_equal([@page, :FitH, 10], dest)
@@ -267,7 +276,7 @@ describe HexaPDF::Document::Destinations do
     end
 
     it "fails if the provided argument has an invalid type" do
-      assert_raises(ArgumentError) { @doc.destinations.use_or_create(5) }
+      assert_raises(ArgumentError) { @doc.destinations.use_or_create(:value) }
     end
   end
 

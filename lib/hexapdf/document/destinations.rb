@@ -247,6 +247,11 @@ module HexaPDF
       #     If the value is a valid page dictionary object, a fit to page (#create_fit_page)
       #     destination array is created and returned.
       #
+      # Integer::
+      #
+      #     If the value is an integer, it is interpreted as a zero-based page index and a fit to
+      #     page (#create_fit_page) destination array is created and returned.
+      #
       # Hash containing at least :type and :page::
       #
       #     If the value is a hash, the :type key specifies the type of the destination that should
@@ -268,6 +273,11 @@ module HexaPDF
             raise HexaPDF::Error, "Invalid dictionary type '#{value.type}' given, needs to be a page"
           end
           create_fit_page(value)
+        when Integer
+          if value < 0 || value >= @document.pages.count
+            raise ArgumentError, "Page index #{value} out of bounds"
+          end
+          create_fit_page(@document.pages[value])
         when Hash
           type = value.delete(:type) { raise ArgumentError, "Missing keyword argument :type" }
           page = value.delete(:page) { raise ArgumentError, "Missing keyword argument :page" }
