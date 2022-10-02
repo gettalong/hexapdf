@@ -472,6 +472,7 @@ module HexaPDF
                       'image_loader.pdf.use_stringio' => true,
                       'io.chunk_size' => 2**16,
                       'layout.boxes.map' => {
+                        base: 'HexaPDF::Layout::Box',
                         text: 'HexaPDF::Layout::TextBox',
                         image: 'HexaPDF::Layout::ImageBox',
                         column: 'HexaPDF::Layout::ColumnBox',
