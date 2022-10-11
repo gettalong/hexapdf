@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* Support for page labels
+
+
 ## 0.25.0 - 2022-10-02
 
 ### Added

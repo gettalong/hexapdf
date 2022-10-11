@@ -54,6 +54,23 @@ describe HexaPDF::Type::Catalog do
     end
   end
 
+  describe "page_labels" do
+    it "returns an existing page labels number tree" do
+      @catalog[:PageLabels] = {Nums: []}
+      assert_equal({Nums: []}, @catalog.page_labels.value)
+    end
+
+    it "returns an existing page labels number tree even if create: true" do
+      obj = @catalog[:PageLabels] = {Nums: []}
+      assert_same(obj, @catalog.page_labels(create: true).value)
+    end
+
+    it "creates a new page labels number tree if create: true" do
+      tree = @catalog.page_labels(create: true)
+      assert_kind_of(HexaPDF::NumberTreeNode, tree)
+    end
+  end
+
   describe "validation" do
     it "creates the page tree if necessary" do
       refute(@catalog.validate(auto_correct: false))

@@ -327,6 +327,14 @@ describe HexaPDF::Type::Page do
     end
   end
 
+  describe "label" do
+    it "returns the label for the page" do
+      5.times { @doc.pages.add }
+      @doc.pages.add_labelling_range(0, numbering_style: :uppercase_letters)
+      assert_equal(%w[A B C D E], @doc.pages.each.map(&:label))
+    end
+  end
+
   it "returns all ancestor page tree nodes of a page" do
     root = @doc.add({Type: :Pages})
     kid = @doc.add({Type: :Pages, Parent: root})

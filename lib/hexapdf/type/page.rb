@@ -353,6 +353,14 @@ module HexaPDF
         idx
       end
 
+      # Returns the label of the page which is an optional, alternative description of the page
+      # index.
+      #
+      # See HexaPDF::Document::Pages for details.
+      def label
+        document.pages.page_label(index)
+      end
+
       # Returns all parent nodes of the page up to the root of the page tree.
       #
       # The direct parent is the first node in the array and the root node the last.

@@ -588,6 +588,7 @@ module HexaPDF
                         TransformParams: 'HexaPDF::Type::Signature::TransformParams',
                         Outlines: 'HexaPDF::Type::Outline',
                         XXOutlineItem: 'HexaPDF::Type::OutlineItem',
+                        PageLabel: 'HexaPDF::Type::PageLabel',
                       },
                       'object.subtype_map' => {
                         nil => {

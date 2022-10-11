@@ -75,6 +75,7 @@ module HexaPDF
     autoload(:Signature, 'hexapdf/type/signature')
     autoload(:Outline, 'hexapdf/type/outline')
     autoload(:OutlineItem, 'hexapdf/type/outline_item')
+    autoload(:PageLabel, 'hexapdf/type/page_label')
 
   end
 

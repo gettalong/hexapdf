@@ -41,8 +41,26 @@ module HexaPDF
 
     # This class provides methods for managing the pages of a PDF file.
     #
-    # It uses the methods of HexaPDF::Type::PageTreeNode underneath but provides a more convenient
-    # interface.
+    # For page manipulation it uses the methods of HexaPDF::Type::PageTreeNode underneath but
+    # provides a more convenient interface.
+    #
+    # == Page Labels
+    #
+    # In addition to page manipulation, the class provides methods for managing the page labels
+    # which are alternative descriptions for the pages. In contrast to the page indices which are
+    # fixed the page labels can be freely defined.
+    #
+    # The way this works is that one can assign page label objects (HexaPDF::Type::PageLabel) to
+    # page ranges via the /PageLabels number tree in the catalog. The page label objects specify how
+    # the pages in their range shall be labeled. See HexaPDF::Type::PageLabel for examples of page
+    # labels.
+    #
+    # To facilitate the easy use of page labels the following methods are provided:
+    #
+    # * #page_label
+    # * #each_labelling_range
+    # * #add_labelling_range
+    # * #delete_labelling_range
     class Pages
 
       include Enumerable
@@ -153,6 +171,85 @@ module HexaPDF
       end
       alias size count
       alias length count
+
+      # Returns the constructed page label for the given page index.
+      #
+      # If no page labels are defined, +nil+ is returned.
+      #
+      # See HexaPDF::Type::PageLabel for examples.
+      def page_label(page_index)
+        raise(ArgumentError, 'Page index out of range') if page_index < 0 || page_index >= count
+        each_labelling_range do |index, count, label|
+          if page_index < index + count
+            return label.construct_label(page_index - index)
+          end
+        end
+      end
+
+      # :call-seq:
+      #   pages.each_labelling_range {|first_index, count, page_label| block }   -> pages
+      #   pages.each_labelling_range                                             -> Enumerator
+      #
+      # Iterates over all defined labelling ranges inorder, yielding the page index of the first
+      # page in the labelling range, the number of pages in the range, and the associated page label
+      # object.
+      #
+      # The last yielded count might be equal or lower than zero in case the document has fewer
+      # pages than anticipated by the labelling ranges.
+      def each_labelling_range
+        return to_enum(__method__) unless block_given?
+        return unless @document.catalog.page_labels
+
+        last_start = nil
+        last_label = nil
+        @document.catalog.page_labels.each_entry do |s1, p1|
+          yield(last_start, s1 - last_start, @document.wrap(last_label, type: :PageLabel)) if last_start
+          last_start = s1
+          last_label = p1
+        end
+        if last_start
+          yield(last_start, count - last_start, @document.wrap(last_label, type: :PageLabel))
+        end
+
+        self
+      end
+
+      # Adds a new labelling range starting at +start_index+ and returns it.
+      #
+      # See HexaPDF::Type::PageLabel for information on the arguments +numbering_style+, +prefix+,
+      # and +start_number+.
+      #
+      # If a labelling range already exists for the given +start_index+, its value will be
+      # overwritten.
+      #
+      # If there are no existing labelling ranges and the given +start_index+ isn't 0, a default
+      # labelling range using start index 0 and numbering style :decimal is added.
+      def add_labelling_range(start_index, numbering_style: nil, prefix: nil, start_number: nil)
+        page_label = @document.wrap({}, type: :PageLabel)
+        page_label.numbering_style(numbering_style) if numbering_style
+        page_label.prefix(prefix) if prefix
+        page_label.start_number(start_number) if start_number
+
+        labels = @document.catalog.page_labels(create: true)
+        labels.add_entry(start_index, page_label)
+        labels.add_entry(0, {S: :d}) unless labels.find_entry(0)
+
+        page_label
+      end
+
+      # Deletes the page labelling range starting at +start_index+ and returns the associated page
+      # label object.
+      #
+      # Note: The page label for the range starting at zero can only be deleted last!
+      def delete_labelling_range(start_index)
+        return unless (labels = @document.catalog.page_labels)
+        if start_index == 0 && labels.each_entry.first(2).size == 2
+          raise HexaPDF::Error, "Page labelling range starting at 0 must be deleted last"
+        end
+        page_label = labels.delete_entry(start_index)
+        @document.catalog.delete(:PageLabels) if start_index == 0
+        page_label
+      end
 
     end
 

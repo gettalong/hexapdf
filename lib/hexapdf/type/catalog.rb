@@ -132,6 +132,23 @@ module HexaPDF
         end
       end
 
+      # Returns the page labels number tree.
+      #
+      # * If a page labels number tree exists, the +create+ argument is not used.
+      #
+      # * If no page labels number tree exists and +create+ is +true+, a new one is created.
+      #
+      # * If no page labels number tree exists and +create+ is +false+, +nil+ is returned.
+      #
+      # See: HexaPDF::Document::Pages
+      def page_labels(create: false)
+        if (object = self[:PageLabels])
+          object
+        elsif create
+          self[:PageLabels] = document.wrap({}, type: NumberTreeNode)
+        end
+      end
+
       private
 
       # Ensures that there is a valid page tree.
