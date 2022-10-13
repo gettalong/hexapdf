@@ -4,6 +4,11 @@
 
 * Support for page labels
 
+### Fixed
+
+* [HexaPDF::DictionaryFields::PDFByteStringConverter] to duplicate the string
+  before conversion
+
 
 ## 0.25.0 - 2022-10-02
 

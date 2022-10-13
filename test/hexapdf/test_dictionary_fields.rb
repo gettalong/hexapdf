@@ -156,8 +156,10 @@ describe HexaPDF::DictionaryFields do
     it "allows conversion to a binary string" do
       refute(@field.convert('test'.b, self))
 
-      str = @field.convert("test", self)
+      input = "test"
+      str = @field.convert(input, self)
       assert_equal('test', str)
+      refute_same(input, str)
       assert_equal(Encoding::BINARY, str.encoding)
     end
   end

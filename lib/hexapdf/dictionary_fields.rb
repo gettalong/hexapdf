@@ -268,7 +268,7 @@ module HexaPDF
       # returns +nil+.
       def self.convert(str, _type, _document)
         return if !str.kind_of?(String) || str.encoding == Encoding::BINARY
-        str.force_encoding(Encoding::BINARY)
+        str.dup.force_encoding(Encoding::BINARY)
       end
 
     end
