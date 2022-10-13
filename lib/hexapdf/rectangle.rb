@@ -116,12 +116,19 @@ module HexaPDF
 
     private
 
+    #:nodoc:
+    RECTANGLE_ERROR_MSG = "A PDF rectangle structure must contain an array of four numbers"
+
     # Ensures that the value is an array containing four numbers that specify the bottom left and
     # top right corner.
     def after_data_change
       super
       unless value.size == 4 && all? {|v| v.kind_of?(Numeric) }
-        raise ArgumentError, "A PDF rectangle structure must contain an array of four numbers"
+        if !document? ||
+            document.config['parser.on_correctable_error'].call(document, RECTANGLE_ERROR_MSG, 0)
+          raise ArgumentError, RECTANGLE_ERROR_MSG
+        end
+        value.replace([0, 0, 0, 0])
       end
       self[0], self[2] = self[2], self[0] if self[0] > self[2]
       self[1], self[3] = self[3], self[1] if self[1] > self[3]
@@ -130,7 +137,9 @@ module HexaPDF
     def perform_validation #:nodoc:
       super
       unless value.size == 4 && all? {|v| v.kind_of?(Numeric) }
-        yield("A PDF rectangle structure must contain an array of four numbers", false)
+        yield("A PDF rectangle structure must contain an array of four numbers; replacing " \
+          "it with [0, 0, 0, 0]", true)
+        value.replace([0, 0, 0, 0])
       end
     end
 

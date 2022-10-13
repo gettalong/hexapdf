@@ -5,6 +5,11 @@
 * Support for page labels
 * [HexaPDF::Type::MarkInformation]
 
+### Changed
+
+* [HexaPDF::Rectangle] to recover from invalid values by defaulting to
+  `[0, 0, 0, 0]`
+
 ### Fixed
 
 * [HexaPDF::DictionaryFields::PDFByteStringConverter] to duplicate the string

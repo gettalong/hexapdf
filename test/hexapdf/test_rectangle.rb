@@ -6,9 +6,21 @@ require 'hexapdf/document'
 
 describe HexaPDF::Rectangle do
   describe "after_data_change" do
-    it "fails if the rectangle doesn't contain four numbers" do
+    it "fails if the rectangle doesn't contain four numbers, without document" do
       assert_raises(ArgumentError) { HexaPDF::Rectangle.new([1, 2, 3]) }
       assert_raises(ArgumentError) { HexaPDF::Rectangle.new([1, 2, 3, :a]) }
+    end
+
+    it "fails if the rectangle doesn't contain four numbers, with document and strict mode" do
+      doc = HexaPDF::Document.new(config: {'parser.on_correctable_error' => lambda { true }})
+      assert_raises(ArgumentError) { HexaPDF::Rectangle.new([1, 2, 3], document: doc) }
+      assert_raises(ArgumentError) { HexaPDF::Rectangle.new([1, 2, 3, :a], document: doc) }
+    end
+
+    it "recovers if the rectangle doesn't contain four numbers, with document default mode" do
+      doc = HexaPDF::Document.new
+      assert_equal([0, 0, 0, 0], HexaPDF::Rectangle.new([1, 2, 3], document: doc).value)
+      assert_equal([0, 0, 0, 0], HexaPDF::Rectangle.new([1, 2, 3, :a], document: doc).value)
     end
 
     it "normalizes the array values" do
@@ -57,10 +69,12 @@ describe HexaPDF::Rectangle do
       assert(rect.validate)
 
       rect.value.shift
-      refute(rect.validate)
+      assert(rect.validate)
+      assert_equal([0, 0, 0, 0], rect.value)
 
-      rect.value.unshift(:A)
-      refute(rect.validate)
+      rect.value[-1] = :A
+      assert(rect.validate)
+      assert_equal([0, 0, 0, 0], rect.value)
     end
   end
 end
