@@ -8,6 +8,8 @@
 
 * [HexaPDF::DictionaryFields::PDFByteStringConverter] to duplicate the string
   before conversion
+* [HexaPDF::Type::FileSpecification#path=] to duplicate the given string value
+  due to using it for two different fields
 
 
 ## 0.25.0 - 2022-10-02

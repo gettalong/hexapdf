@@ -37,6 +37,7 @@ describe HexaPDF::Type::FileSpecification do
     it "only sets /UF and /F, deleting /Mac, /Unix, /DOS entries if they exist" do
       @obj[:Unix] = @obj[:Mac] = @obj[:DOS] = 'a'
       @obj.path = 'file/test'
+      refute_same(@obj.value[:UF], @obj.value[:F])
       assert_equal('file/test', @obj[:UF])
       assert_equal('file/test', @obj[:F])
       refute(@obj.key?(:Unix))

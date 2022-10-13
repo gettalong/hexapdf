@@ -116,7 +116,8 @@ module HexaPDF
       #
       # Since the /Unix, /Mac and /DOS fields are obsolescent, only the /F and /UF fields are set.
       def path=(filename)
-        self[:UF] = self[:F] = filename
+        self[:UF] = filename
+        self[:F] = filename.b
         delete(:FS)
         delete(:Unix)
         delete(:Mac)
