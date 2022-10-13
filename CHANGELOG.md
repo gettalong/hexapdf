@@ -3,6 +3,7 @@
 ### Added
 
 * Support for page labels
+* [HexaPDF::Type::MarkInformation]
 
 ### Fixed
 

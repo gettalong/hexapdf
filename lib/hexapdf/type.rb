@@ -76,6 +76,7 @@ module HexaPDF
     autoload(:Outline, 'hexapdf/type/outline')
     autoload(:OutlineItem, 'hexapdf/type/outline_item')
     autoload(:PageLabel, 'hexapdf/type/page_label')
+    autoload(:MarkInformation, 'hexapdf/type/mark_information')
 
   end
 

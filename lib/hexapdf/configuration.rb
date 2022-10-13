@@ -589,6 +589,7 @@ module HexaPDF
                         Outlines: 'HexaPDF::Type::Outline',
                         XXOutlineItem: 'HexaPDF::Type::OutlineItem',
                         PageLabel: 'HexaPDF::Type::PageLabel',
+                        XXMarkInformation: 'HexaPDF::Type::MarkInformation',
                       },
                       'object.subtype_map' => {
                         nil => {
