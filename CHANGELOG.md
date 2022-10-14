@@ -5,6 +5,10 @@
 * [HexaPDF::Serializer] to provide better error messages when encountering
   unserializable objects
 
+### Fixed
+
+* [HexaPDF::Importer] to correctly expose previously mapped objects
+
 
 ## 0.26.0 - 2022-10-14
 

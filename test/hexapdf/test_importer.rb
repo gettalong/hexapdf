@@ -78,6 +78,14 @@ describe HexaPDF::Importer do
       assert_equal(["one", "two"], @obj[:array])
     end
 
+    it "uses already mapped HexaPDF::Object instances instead of mapping them again" do
+      hash = @importer.import(@hash)
+      assert_kind_of(HexaPDF::Dictionary, hash)
+      obj = @importer.import(@obj)
+      assert_kind_of(HexaPDF::Dictionary, obj[:hash])
+      assert_same(hash, obj[:hash])
+    end
+
     it "duplicates the stream if it is a string" do
       src_obj = @source.add({}, stream: 'data')
       dst_obj = @importer.import(src_obj)
