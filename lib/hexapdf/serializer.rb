@@ -151,6 +151,16 @@ module HexaPDF
       @io = nil
     end
 
+    # Raises an error to provide better failure messages.
+    def serialize_basicobject(obj)
+      object_message = if @object.kind_of?(HexaPDF::Object)
+                         "#{obj} (part of #{@object.oid},#{@object.gen})"
+                       else
+                         obj.inspect
+                       end
+      raise HexaPDF::Error, "No serialization method for #{object_message}"
+    end
+
     # Serializes the +nil+ value.
     #
     # See: PDF1.7 s7.3.9

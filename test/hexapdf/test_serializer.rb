@@ -31,6 +31,14 @@ describe HexaPDF::Serializer do
     assert_serialized("(test)", s)
   end
 
+  it "raises an error for unknown objects" do
+    obj = HexaPDF::Dictionary.new({x: 5, y: Object.new}, oid: 5, gen: 1)
+    error = assert_raises(HexaPDF::Error) { @serializer.serialize(obj) }
+    assert_match(/\(part of 5,1\)/, error.message)
+    error = assert_raises(HexaPDF::Error) { @serializer.serialize(Object.new) }
+    assert_match(/Object/, error.message)
+  end
+
   it "serializes nil" do
     assert_serialized("null", nil)
   end

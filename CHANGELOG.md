@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::Serializer] to provide better error messages when encountering
+  unserializable objects
+
+
 ## 0.26.0 - 2022-10-14
 
 ### Added
