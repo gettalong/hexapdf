@@ -249,6 +249,10 @@ module HexaPDF
       #     +style_properties+ are specified, the style is duplicated and the additional styles are
       #     applied.
       #
+      # +properties+::
+      #     This can be used to set custom properties on the created text box. See Box#properties
+      #     for details and usage.
+      #
       # +box_style+::
       #     Sometimes it is necessary for the box to have a different style than the text, e.g. when
       #     using overlays. In such a case use +box_style+ for specifiying the style of the box (a
@@ -266,11 +270,13 @@ module HexaPDF
       #   })
       #
       # See: #formatted_text_box, HexaPDF::Layout::TextBox, HexaPDF::Layout::TextFragment
-      def text_box(text, width: 0, height: 0, style: nil, box_style: nil, **style_properties)
+      def text_box(text, width: 0, height: 0, style: nil, properties: nil, box_style: nil,
+                   **style_properties)
         style = retrieve_style(style, style_properties)
         box_style = (box_style ? retrieve_style(box_style) : style)
         box_class_for_name(:text).new(items: [HexaPDF::Layout::TextFragment.create(text, style)],
-                                      width: width, height: height, style: box_style)
+                                      width: width, height: height, properties: properties,
+                                      style: box_style)
       end
 
       # Creates a HexaPDF::Layout::TextBox like #text_box but allows parts of the text to be
@@ -294,7 +300,8 @@ module HexaPDF
       #   If any style properties are set, the used style is duplicated and the additional
       #   properties applied.
       #
-      # See #text_box for details on +width+, +height+, +style+, +style_properties+ and +box_style+.
+      # See #text_box for details on +width+, +height+, +style+, +style_properties+, +properties+
+      # and +box_style+.
       #
       # Examples:
       #
@@ -305,7 +312,8 @@ module HexaPDF
       #   layout.formatted_text_box(["Some ", {text: "string", style: {font_size: 20}}])
       #
       # See: #text_box, HexaPDF::Layout::TextBox, HexaPDF::Layout::TextFragment
-      def formatted_text_box(data, width: 0, height: 0, style: nil, box_style: nil, **style_properties)
+      def formatted_text_box(data, width: 0, height: 0, style: nil, properties: nil, box_style: nil,
+                             **style_properties)
         style = retrieve_style(style, style_properties)
         box_style = (box_style ? retrieve_style(box_style) : style)
         data.map! do |hash|
@@ -315,10 +323,15 @@ module HexaPDF
             link = hash.delete(:link)
             (hash[:overlays] ||= []) << [:link, {uri: link}] if link
             text = hash.delete(:text) || link || ""
-            HexaPDF::Layout::TextFragment.create(text, retrieve_style(hash.delete(:style) || style, hash))
+            properties = hash.delete(:properties)
+            frag_style = retrieve_style(hash.delete(:style) || style, hash)
+            fragment = HexaPDF::Layout::TextFragment.create(text, frag_style)
+            fragment.properties.update(properties) if properties
+            fragment
           end
         end
-        box_class_for_name(:text).new(items: data, width: width, height: height, style: box_style)
+        box_class_for_name(:text).new(items: data, width: width, height: height,
+                                      properties: properties, style: box_style)
       end
 
       # Creates a HexaPDF::Layout::ImageBox for the given image.
@@ -326,7 +339,8 @@ module HexaPDF
       # The +file+ argument can be anything that is accepted by HexaPDF::Document::Images#add or a
       # HexaPDF::Type::Form object.
       #
-      # See #text_box for details on +width+, +height+, +style+ and +style_properties+.
+      # See #text_box for details on +width+, +height+, +style+, +style_properties+ and
+      # +properties+.
       #
       # Examples:
       #
@@ -334,10 +348,11 @@ module HexaPDF
       #   layout.image_box(machu_picchu, height: 30)
       #
       # See: HexaPDF::Layout::ImageBox
-      def image_box(file, width: 0, height: 0, style: nil, **style_properties)
+      def image_box(file, width: 0, height: 0, properties: nil, style: nil, **style_properties)
         style = retrieve_style(style, style_properties)
         image = file.kind_of?(HexaPDF::Stream) ? file : @document.images.add(file)
-        box_class_for_name(:image).new(image: image, width: width, height: height, style: style)
+        box_class_for_name(:image).new(image: image, width: width, height: height,
+                                       properties: properties, style: style)
       end
 
       # :nodoc:

@@ -54,6 +54,11 @@ describe HexaPDF::Layout::Box do
       box = create_box(style: HexaPDF::Layout::Style.new(padding: 20))
       assert_equal(20, box.style.padding.top)
     end
+
+    it "allows setting custom properties" do
+      box = create_box(properties: {'key' => :value})
+      assert_equal({'key' => :value}, box.properties)
+    end
   end
 
   it "returns false when asking whether it is a split box by default" do

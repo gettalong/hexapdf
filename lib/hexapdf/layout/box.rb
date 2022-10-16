@@ -116,8 +116,14 @@ module HexaPDF
       # * Style#underlays
       attr_reader :style
 
+      # Hash with custom properties. The keys should be strings and can be arbitrary.
+      #
+      # This can be used to store arbitrary information on boxes for later use. For example, a
+      # generic style layer could use one or more custom properties for its work.
+      attr_reader :properties
+
       # :call-seq:
-      #    Box.new(width: 0, height: 0, style: nil) {|canv, box| block} -> box
+      #    Box.new(width: 0, height: 0, style: nil, properties: {}) {|canv, box| block} -> box
       #
       # Creates a new Box object with the given width and height that uses the provided block when
       # it is asked to draw itself on a canvas (see #draw).
@@ -125,10 +131,11 @@ module HexaPDF
       # Since the final location of the box is not known beforehand, the drawing operations inside
       # the block should draw inside the rectangle (0, 0, content_width, content_height) - note that
       # the width and height of the box may not be known beforehand.
-      def initialize(width: 0, height: 0, style: nil, &block)
+      def initialize(width: 0, height: 0, style: nil, properties: {}, &block)
         @width = @initial_width = width
         @height = @initial_height = height
         @style = Style.create(style)
+        @properties = properties
         @draw_block = block
         @fit_successful = false
         @split_box = false

@@ -110,6 +110,13 @@ module HexaPDF
         @style = Style.create(style)
       end
 
+      # Returns the properties hash for the text fragment.
+      #
+      # See Box#properties for usage details.
+      def properties
+        @properties ||= {}
+      end
+
       # The precision used to determine whether two floats represent the same value.
       PRECISION = 0.000001 # :nodoc:
 

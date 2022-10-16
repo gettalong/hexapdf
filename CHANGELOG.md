@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+* Support for setting custom properties on [HexaPDF::Layout::Box] and
+  [HexaPDF::Layout::TextFragment]
+
+
 ## 0.26.1 - 2022-10-14
 
 ### Changed

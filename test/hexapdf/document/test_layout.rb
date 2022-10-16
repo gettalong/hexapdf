@@ -90,12 +90,14 @@ describe HexaPDF::Document::Layout do
 
   describe "box" do
     it "creates the request box" do
-      box = @layout.box(:column, columns: 3, gaps: 20, width: 15, height: 30, style: {font_size: 10})
+      box = @layout.box(:column, columns: 3, gaps: 20, width: 15, height: 30, style: {font_size: 10},
+                        properties: {key: :value})
       assert_equal(15, box.width)
       assert_equal(30, box.height)
       assert_equal([-1, -1, -1], box.columns)
       assert_equal([20], box.gaps)
       assert_equal(10, box.style.font_size)
+      assert_equal({key: :value}, box.properties)
     end
 
     it "allows specifying the box's children via a provided block" do
@@ -113,13 +115,14 @@ describe HexaPDF::Document::Layout do
 
   describe "text_box" do
     it "creates a text box" do
-      box = @layout.text_box("Test", width: 10, height: 15)
+      box = @layout.text_box("Test", width: 10, height: 15, properties: {key: :value})
       assert_equal(10, box.width)
       assert_equal(15, box.height)
       assert_same(@doc.fonts.add("Times"), box.style.font)
       items = box.instance_variable_get(:@items)
       assert_equal(1, items.length)
       assert_same(box.style, items.first.style)
+      assert_equal({key: :value}, box.properties)
     end
 
     it "allows setting of a custom style" do
@@ -160,6 +163,11 @@ describe HexaPDF::Document::Layout do
       assert_equal(10, box.width)
       assert_equal(15, box.height)
       assert_equal(1, box.instance_variable_get(:@items).length)
+    end
+
+    it "allows setting custom properties on the whole box" do
+      box = @layout.formatted_text_box(["Test"], properties: {key: :value})
+      assert_equal({key: :value}, box.properties)
     end
 
     it "allows using a hash with :text key instead of a simple string" do
@@ -218,18 +226,26 @@ describe HexaPDF::Document::Layout do
       assert_equal([:link, {uri: 'URI'}], items[0].style.overlays.instance_variable_get(:@layers)[0])
       refute(items[2].style.overlays?)
     end
+
+    it "allows setting custom properties" do
+      box = @layout.formatted_text_box([{text: 'test', properties: {named_dest: 'test'}}])
+      items = box.instance_variable_get(:@items)
+      assert_equal({named_dest: 'test'}, items[0].properties)
+    end
   end
 
   describe "image_box" do
     it "creates an image box" do
       image_path = File.join(TEST_DATA_DIR, 'images', 'gray.jpg')
 
-      box = @layout.image_box(image_path, width: 10, height: 15, style: {font_size: 20}, subscript: true)
+      box = @layout.image_box(image_path, width: 10, height: 15, style: {font_size: 20},
+                              properties: {key: :value}, subscript: true)
       assert_equal(10, box.width)
       assert_equal(15, box.height)
       assert_equal(20, box.style.font_size)
       assert(box.style.subscript)
       assert_same(@doc.images.add(image_path), box.image)
+      assert_equal({key: :value}, box.properties)
     end
 
     it "allows using a form XObject" do

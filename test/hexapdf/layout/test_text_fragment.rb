@@ -51,6 +51,12 @@ describe HexaPDF::Layout::TextFragment do
     end
   end
 
+  it "allows setting custom properties" do
+    setup_fragment([])
+    @fragment.properties[:key] = :value
+    assert_equal({key: :value}, @fragment.properties)
+  end
+
   it "returns :text for valign" do
     assert_equal(:text, setup_fragment([]).valign)
   end
