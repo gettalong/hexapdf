@@ -590,6 +590,13 @@ describe HexaPDF::Layout::Style::LinkLayer do
       assert_equal({S: :Launch, F: "local-file.pdf", NewWindow: true}, annot[:A].value)
       assert_nil(annot[:Dest])
     end
+
+    it "works for destinations set via the 'link' custom box property" do
+      @box.properties['link'] = [@canvas.context, :FitH]
+      annot = call_link({})
+      assert_equal([@canvas.context, :FitH], annot[:Dest].value)
+      assert_nil(annot[:A])
+    end
   end
 end
 

@@ -5,6 +5,11 @@
 * Support for setting custom properties on [HexaPDF::Layout::Box] and
   [HexaPDF::Layout::TextFragment]
 
+### Changed
+
+* [HexaPDF::Layout::Style::LinkLayer] to use the 'link' custom box property if
+  no target is set
+
 
 ## 0.26.1 - 2022-10-14
 

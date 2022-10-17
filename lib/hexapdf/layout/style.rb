@@ -452,7 +452,9 @@ module HexaPDF
         # be specified):
         #
         # +dest+::
-        #   The destination array or a name of a named destination for in-document links.
+        #   The destination array or a name of a named destination for in-document links. If neither
+        #   +dest+ nor +uri+ nor +file+ is specified, it is assumed that the box has a custom
+        #   property named 'link' which is used for the destination.
         #
         # +uri+::
         #   The URI to link to.
@@ -473,6 +475,7 @@ module HexaPDF
         # Examples:
         #   LinkLayer.new(dest: [page, :XYZ, nil, nil, nil], border: true)
         #   LinkLayer.new(uri: "https://my.example.com/path", border: [5 5 2])
+        #   LinkLayer.new     # use 'link' custom box property for dest
         def initialize(dest: nil, uri: nil, file: nil, border: false, border_color: nil)
           if dest && (uri || file) || uri && file
             raise ArgumentError, "Only one of dest, uri and file is allowed"
@@ -496,6 +499,8 @@ module HexaPDF
         # page.
         def call(canvas, box)
           return unless canvas.context.type == :Page
+          @dest = box.properties['link'] unless @dest || @action
+
           page = canvas.context
           matrix = canvas.graphics_state.ctm
           quad_points = [*matrix.evaluate(0, 0), *matrix.evaluate(box.width, 0),
