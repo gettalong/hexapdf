@@ -243,43 +243,38 @@ module HexaPDF
                 box_items << glyph if glyph && !glyph.kind_of?(Numeric) && glyph.str == '-'
 
                 unless box_items.empty?
-                  result << Box.new(TextFragment.new(box_items.freeze, item.style))
+                  result << Box.new(item.dup_attributes(box_items.freeze))
                 end
 
                 if glyph
                   case glyph.str
                   when ' '
-                    glues[item.style] ||=
-                      Glue.new(TextFragment.new([glyph].freeze, item.style))
-                    result << glues[item.style]
+                    result << (glues[item.attributes_hash] ||=
+                               Glue.new(item.dup_attributes([glyph].freeze)))
                   when "\n", "\v", "\f", "\u{85}", "\u{2029}"
-                    penalties[item.style] ||=
-                      Penalty.new(Penalty::PARAGRAPH_BREAK, 0,
-                                  item: TextFragment.new([].freeze, item.style))
-                    result << penalties[item.style]
+                    result << (penalties[item.attributes_hash] ||=
+                               Penalty.new(Penalty::PARAGRAPH_BREAK, 0,
+                                           item: item.dup_attributes([].freeze)))
                   when "\u{2028}"
                     result << Penalty.new(Penalty::LINE_BREAK, 0,
-                                          item: TextFragment.new([].freeze, item.style))
+                                          item: item.dup_attributes([].freeze))
                   when "\r"
                     if !item.items[i + 1] || item.items[i + 1].kind_of?(Numeric) ||
                         item.items[i + 1].str != "\n"
-                      penalties[item.style] ||=
-                        Penalty.new(Penalty::PARAGRAPH_BREAK, 0,
-                                    item: TextFragment.new([].freeze, item.style))
-                      result << penalties[item.style]
+                      result << (penalties[item.attributes_hash] ||=
+                                 Penalty.new(Penalty::PARAGRAPH_BREAK, 0,
+                                             item: item.dup_attributes([].freeze)))
                     end
                   when '-'
                     result << Penalty::Standard
                   when "\t"
                     spaces = [item.style.font.decode_utf8(" ").first] * 8
-                    result << Glue.new(TextFragment.new(spaces.freeze, item.style))
+                    result << Glue.new(item.dup_attributes(spaces.freeze))
                   when "\u{00AD}"
-                    hyphen = item.style.font.decode_utf8("-").first
-                    frag = TextFragment.new([hyphen].freeze, item.style)
+                    frag = item.dup_attributes([item.style.font.decode_utf8("-").first].freeze)
                     result << Penalty.new(Penalty::Standard.penalty, frag.width, item: frag)
                   when "\u{00A0}"
-                    space = item.style.font.decode_utf8(" ").first
-                    frag = TextFragment.new([space].freeze, item.style)
+                    frag = item.dup_attributes([item.style.font.decode_utf8(" ").first].freeze)
                     result << Penalty.new(Penalty::ProhibitedBreak.penalty, frag.width, item: frag)
                   when "\u{200B}"
                     result << Penalty.new(0)
@@ -835,7 +830,7 @@ module HexaPDF
           if too_wide_box && (too_wide_box.item.kind_of?(TextFragment) &&
                               too_wide_box.item.items.size > 1)
             rest[0..rest.index(too_wide_box)] = too_wide_box.item.items.map do |item|
-              Box.new(TextFragment.new([item].freeze, too_wide_box.item.style))
+              Box.new(too_wide_box.item.dup_attributes([item].freeze))
             end
             too_wide_box = nil
           else
@@ -939,8 +934,7 @@ module HexaPDF
             frag = line.items[indexes[i]]
             value = -frag.items[indexes[i + 1]].width * adjustment
             if frag.items.frozen?
-              value = HexaPDF::Layout::TextFragment.new([value], frag.style)
-              line.items.insert(indexes[i], value)
+              line.items.insert(indexes[i], frag.dup_attributes([value]))
             else
               frag.items.insert(indexes[i + 1], value)
               frag.clear_cache

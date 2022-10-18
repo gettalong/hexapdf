@@ -192,13 +192,14 @@ module HexaPDF
 
       # Adds the given item at the end of the item list.
       #
-      # If both the item and the last item in the item list are TextFragment objects and they have
-      # the same style, they are combined.
+      # If both the item and the last item in the item list are TextFragment objects with the same
+      # attributes, they are combined.
       #
       # Note: The cache is not cleared!
       def add(item)
         last = @items.last
-        if last.instance_of?(item.class) && item.kind_of?(TextFragment) && last.style == item.style
+        if last.instance_of?(item.class) && item.kind_of?(TextFragment) &&
+            last.attributes_hash == item.attributes_hash
           if last.items.frozen?
             @items[-1] = last = last.dup
             last.items = last.items.dup

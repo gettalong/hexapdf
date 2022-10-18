@@ -46,9 +46,28 @@ describe HexaPDF::Layout::TextFragment do
     end
 
     it "can use style options" do
-      frag = HexaPDF::Layout::TextFragment.new(@items, font: @font, font_size: 20)
+      frag = HexaPDF::Layout::TextFragment.new(@items, {font: @font, font_size: 20})
       assert_equal(20, frag.style.font_size)
     end
+  end
+
+  it "allows duplicating with only its attributes while also setting new items" do
+    setup_fragment([20])
+    @fragment.properties['key'] = :value
+    frag = @fragment.dup_attributes([21])
+    assert_equal([21], frag.items)
+    assert_same(frag.style, @fragment.style)
+    assert_equal(:value, frag.properties['key'])
+  end
+
+  it "creates an attributes hash for storing the fragment based on the attributes without the items" do
+    setup_fragment([20])
+    hash = @fragment.attributes_hash
+    @fragment.properties['key'] = :value
+    new_hash = @fragment.attributes_hash
+    refute_equal(hash, new_hash)
+    @fragment.items << [21]
+    assert_equal(new_hash, @fragment.attributes_hash)
   end
 
   it "allows setting custom properties" do

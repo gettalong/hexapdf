@@ -31,12 +31,14 @@ module TestTextLayouterHelpers
     else
       assert_same(item.style, obj.item.style)
       assert_equal(item.items, obj.item.items)
+      assert_equal(item.properties, obj.item.properties)
     end
   end
 
   def assert_glue(obj, fragment)
     assert_kind_of(HexaPDF::Layout::TextLayouter::Glue, obj)
     assert_same(fragment.style, obj.item.style)
+    assert_equal(fragment.properties, obj.item.properties)
   end
 
   def assert_penalty(obj, penalty, item = nil)
@@ -45,6 +47,7 @@ module TestTextLayouterHelpers
     if item
       assert_same(item.style, obj.item.style)
       assert_equal(item.items, obj.item.items)
+      assert_equal(item.properties, obj.item.properties)
     end
   end
 
@@ -83,12 +86,10 @@ describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
     @obj = HexaPDF::Layout::TextLayouter::SimpleTextSegmentation
   end
 
-  def setup_fragment(text, style = nil)
-    if style
-      HexaPDF::Layout::TextFragment.create(text, style)
-    else
-      HexaPDF::Layout::TextFragment.create(text, font: @font)
-    end
+  def setup_fragment(text, style = {font: @font})
+    fragment = HexaPDF::Layout::TextFragment.create(text, style)
+    fragment.properties['key'] = :value
+    fragment
   end
 
   it "handles InlineBox objects" do
@@ -138,11 +139,13 @@ describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
       assert_equal([], result[index].item.items)
       assert(result[index].item.items.frozen?)
       assert_same(frag.style, result[index].item.style)
+      assert_equal(frag.properties, result[index].item.properties)
     end
     assert_penalty(result[15], HexaPDF::Layout::TextLayouter::Penalty::LINE_BREAK)
     assert_equal([], result[15].item.items)
     assert(result[15].item.items.frozen?)
     assert_same(frag.style, result[15].item.style)
+    assert_equal(frag.properties, result[15].item.properties)
   end
 
   it "insert a standard penalty after a hyphen" do

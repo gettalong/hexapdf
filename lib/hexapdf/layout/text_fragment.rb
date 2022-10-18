@@ -105,16 +105,29 @@ module HexaPDF
       #
       # The argument +style+ can either be a Style object or a hash of style properties, see
       # Style::create for details.
-      def initialize(items, style)
+      def initialize(items, style, properties: nil)
         @items = items
         @style = Style.create(style)
+        @properties = properties
       end
 
-      # Returns the properties hash for the text fragment.
+      # Creates a new TextFragment with the same style and custom properties as this one but with
+      # the given +items+.
+      def dup_attributes(items)
+        self.class.new(items, @style, properties: @properties.dup)
+      end
+
+      # Returns the custom properties hash for the text fragment.
       #
       # See Box#properties for usage details.
       def properties
         @properties ||= {}
+      end
+
+      # Returns the value that should be used as hash key when only the fragment's attributes -
+      # without the items - should play a role.
+      def attributes_hash
+        @style.hash ^ @properties.hash
       end
 
       # The precision used to determine whether two floats represent the same value.

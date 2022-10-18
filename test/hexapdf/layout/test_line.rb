@@ -50,10 +50,12 @@ describe HexaPDF::Layout::Line do
 
     it "combines text fragments if possible" do
       frag1 = setup_fragment("Home")
-      frag2 = HexaPDF::Layout::TextFragment.new(frag1.items.slice!(2, 2), frag1.style)
-      @line << setup_fragment("o") << :other << frag1 << frag2
-      assert_equal(3, @line.items.length)
-      assert_equal(4, @line.items.last.items.length)
+      frag2 = HexaPDF::Layout::TextFragment.new(frag1.items[2, 2], frag1.style)
+      frag3 = HexaPDF::Layout::TextFragment.new(frag1.items[2, 2], frag1.style,
+                                                properties: {'key' => :value})
+      @line << setup_fragment("o") << :other << frag1 << frag2 << frag3
+      assert_equal(4, @line.items.length)
+      assert_equal(6, @line.items[-2].items.length)
     end
 
     it "duplicates the first of two combinable text fragments if its items are frozen" do
