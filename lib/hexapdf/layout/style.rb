@@ -559,7 +559,7 @@ module HexaPDF
       # Duplicates the complex properties that can be modified, as well as the cache.
       def initialize_copy(other)
         super
-        @scaled_item_widths = {}
+        @scaled_item_widths = {}.compare_by_identity
         clear_cache
 
         @font_features = @font_features.dup if defined?(@font_features)
