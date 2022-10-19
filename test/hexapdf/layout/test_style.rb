@@ -448,12 +448,16 @@ end
 describe HexaPDF::Layout::Style::Layers do
   before do
     @layers = HexaPDF::Layout::Style::Layers.new
+    value = Object.new
+    value.define_singleton_method(:new) {|*| :new }
+    @config = Object.new
+    @config.define_singleton_method(:constantize) {|*| value }
   end
 
   it "can be initialized with an array of layers" do
-    data = [lambda {}]
+    data = [lambda {}, [:test]]
     layers = HexaPDF::Layout::Style::Layers.new(data)
-    assert_equal(data, layers.enum_for(:each, {}).to_a)
+    assert_equal([data[0], :new], layers.enum_for(:each, @config).to_a)
   end
 
   it "can be duplicated" do
@@ -469,13 +473,15 @@ describe HexaPDF::Layout::Style::Layers do
       assert_equal([block], @layers.enum_for(:each, {}).to_a)
     end
 
+    it "can use a given proc" do
+      block = proc { true }
+      @layers.add(block)
+      assert_equal([block], @layers.enum_for(:each, {}).to_a)
+    end
+
     it "can store a reference" do
       @layers.add(:link, option: :value)
-      value = Object.new
-      value.define_singleton_method(:new) {|*| :new }
-      config = Object.new
-      config.define_singleton_method(:constantize) {|*| value }
-      assert_equal([:new], @layers.enum_for(:each, config).to_a)
+      assert_equal([:new], @layers.enum_for(:each, @config).to_a)
     end
 
     it "fails if neither a block nor a name is given when adding a layer" do

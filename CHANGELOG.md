@@ -10,6 +10,10 @@
 * [HexaPDF::Layout::Style::LinkLayer] to use the 'link' custom box property if
   no target is set
 
+### Fixed
+
+* [HexaPDF::Layout::Style::Layers] to allow named layers without options
+
 
 ## 0.26.1 - 2022-10-14
 

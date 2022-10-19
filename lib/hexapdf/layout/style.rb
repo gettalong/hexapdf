@@ -382,8 +382,9 @@ module HexaPDF
       class Layers
 
         # Creates a new Layers object popuplated with the given +layers+.
-        def initialize(layers = [])
-          @layers = layers
+        def initialize(layers = nil)
+          @layers = []
+          layers&.each {|name, options| add(name, **(options || {})) }
         end
 
         # Duplicates the array holding the layers.
@@ -402,8 +403,8 @@ module HexaPDF
         # object in 'style.layers_map'. In this case +name+ is used as the reference and the options
         # are passed to layer object if it needs initialization.
         def add(name = nil, **options, &block)
-          if block_given?
-            @layers << block
+          if block_given? || name.kind_of?(Proc)
+            @layers << (block || name)
           elsif name
             @layers << [name, options]
           else
