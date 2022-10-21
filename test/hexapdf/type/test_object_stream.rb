@@ -30,6 +30,12 @@ describe HexaPDF::Type::ObjectStream do
                                            stream: "1 0 5 2 5 [1 2]")
   end
 
+  it "parses an associated stream the first time the stored objects are accessed" do
+    assert_nil(@obj.instance_variable_get(:@objects))
+    assert_equal(0, @obj.object_index(HexaPDF::Reference.new(1, 0)))
+    assert_equal(1, @obj.object_index(HexaPDF::Reference.new(5, 0)))
+  end
+
   it "correctly parses stream data" do
     data = @obj.parse_stream
     assert_equal([5, 1], data.object_by_index(0))

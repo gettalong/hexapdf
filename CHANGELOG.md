@@ -15,6 +15,7 @@
 * [HexaPDF::Layout::Style::Layers] to allow named layers without options
 * [HexaPDF::Revision#each_modified_object] to not yield signature objects
 * [HexaPDF::Revision#each_modified_object] to force comparison of direct objects
+* [HexaPDF::Type::ObjectStream] to work for encrypted documents again
 
 
 ## 0.26.1 - 2022-10-14

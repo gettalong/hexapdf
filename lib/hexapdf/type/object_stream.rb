@@ -203,13 +203,6 @@ module HexaPDF
 
       private
 
-      # Parses the stream data after the object is first initialized. Since the parsed stream data
-      # is cached, it is only parsed on initialization and not again if e.g. the stream is changed.
-      def after_data_change
-        super
-        parse_stream
-      end
-
       # Parses the object numbers and their offsets from the start of the stream data.
       def parse_oids_and_offsets(data)
         oids = []
@@ -227,7 +220,12 @@ module HexaPDF
 
       # Returns the container with the to-be-stored objects.
       def objects
-        @objects ||= {}
+        @objects ||= 
+          begin
+            @objects = {}
+            parse_stream
+            @objects
+          end
       end
 
       # Validates that the generation number of the object stream is zero.
