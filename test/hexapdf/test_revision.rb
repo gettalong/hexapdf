@@ -25,10 +25,13 @@ describe HexaPDF::Revision do
         HexaPDF::Object.new(nil, oid: entry.oid, gen: entry.gen)
       else
         case entry.oid
+        when 2 then HexaPDF::Dictionary.new({Type: :Sig}, oid: entry.oid, gen: entry.gen)
         when 4 then HexaPDF::Dictionary.new({Type: :XRef}, oid: entry.oid, gen: entry.gen)
         when 5 then HexaPDF::Dictionary.new({Type: :ObjStm}, oid: entry.oid, gen: entry.gen)
         when 7 then HexaPDF::Type::Catalog.new({Type: :Catalog}, oid: entry.oid, gen: entry.gen,
                                               document: self)
+        when 6 then HexaPDF::Dictionary.new({Array: HexaPDF::PDFArray.new([1, 2])},
+                                            oid: entry.oid, gen: entry.gen)
         else HexaPDF::Object.new(:Test, oid: entry.oid, gen: entry.gen)
         end
       end
@@ -43,7 +46,7 @@ describe HexaPDF::Revision do
 
   it "takes an xref section and/or a parser on initialization" do
     rev = HexaPDF::Revision.new({}, loader: @loader, xref_section: @xref_section)
-    assert_equal(:Test, rev.object(2).value)
+    assert_equal({Type: :Sig}, rev.object(2).value)
   end
 
   it "returns the next free object number" do
@@ -100,7 +103,7 @@ describe HexaPDF::Revision do
 
     it "loads an object that is defined in the cross-reference section" do
       obj = @rev.object(HexaPDF::Reference.new(2, 0))
-      assert_equal(:Test, obj.value)
+      assert_equal({Type: :Sig}, obj.value)
       assert_equal(2, obj.oid)
       assert_equal(0, obj.gen)
     end
@@ -190,7 +193,7 @@ describe HexaPDF::Revision do
 
   describe "each_modified_object" do
     it "returns modified objects" do
-      obj = @rev.object(2)
+      obj = @rev.object(3)
       obj.value = :Other
       @rev.add(@obj)
       deleted = @rev.object(6)
@@ -212,6 +215,18 @@ describe HexaPDF::Revision do
     it "doesn't return objects that have modified values just because of reading" do
       obj = @rev.object(7)
       obj.delete(:Type)
+      assert_equal([], @rev.each_modified_object.to_a)
+    end
+
+    it "doesn't return dictionaries that have direct HexaPDF::Object child objects" do
+      obj = @rev.object(6)
+      obj[:Array] = HexaPDF::PDFArray.new([1, 2]) # same value but differen #data instance
+      assert_equal([], @rev.each_modified_object.to_a)
+    end
+
+    it "doesn't return signature objects" do
+      obj = @rev.object(2)
+      obj[:x] = :y
       assert_equal([], @rev.each_modified_object.to_a)
     end
   end

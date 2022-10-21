@@ -13,6 +13,8 @@
 ### Fixed
 
 * [HexaPDF::Layout::Style::Layers] to allow named layers without options
+* [HexaPDF::Revision#each_modified_object] to not yield signature objects
+* [HexaPDF::Revision#each_modified_object] to force comparison of direct objects
 
 
 ## 0.26.1 - 2022-10-14

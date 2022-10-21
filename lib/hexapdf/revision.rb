@@ -243,14 +243,21 @@ module HexaPDF
       @objects.each do |oid, gen, obj|
         if @xref_section.entry?(oid, gen)
           stored_obj = @loader.call(@xref_section[oid, gen])
-          next if (stored_obj.type == :ObjStm || stored_obj.type == :XRef) && obj.null?
+          next if (stored_obj.type == :ObjStm || stored_obj.type == :XRef) && obj.null? ||
+            stored_obj.type == :Sig || stored_obj.type == :DocTimeStamp
 
           streams_are_same = (obj.data.stream == stored_obj.data.stream)
           next if obj.value == stored_obj.value && streams_are_same
 
           if obj.value.kind_of?(Hash) && stored_obj.value.kind_of?(Hash)
             keys = obj.value.keys | stored_obj.value.keys
-            next if keys.all? {|key| obj[key] == stored_obj[key] } && streams_are_same
+            values_unchanged = keys.all? do |key|
+              other = stored_obj[key]
+              # Force comparison of values if both are indirect objects
+              other = other.value if other.kind_of?(Object) && !other.indirect?
+              obj[key] == other
+            end
+            next if values_unchanged && streams_are_same
           end
         end
 
