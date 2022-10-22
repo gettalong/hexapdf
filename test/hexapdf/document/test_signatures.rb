@@ -26,6 +26,8 @@ describe HexaPDF::Document::Signatures do
 
     it "returns the sub filter algorithm name" do
       assert_equal(:'adbe.pkcs7.detached', @handler.sub_filter_name)
+      @handler.signature_type = :etsi
+      assert_equal(:'ETSI.CAdES.detached', @handler.sub_filter_name)
     end
 
     it "returns the size of serialized signature" do

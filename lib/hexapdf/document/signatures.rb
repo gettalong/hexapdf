@@ -44,7 +44,7 @@ module HexaPDF
     class Signatures
 
       # This is the default signing handler which provides the ability to sign a document with a
-      # provided certificate using the adb.pkcs7.detached algorithm.
+      # provided certificate using the adbe.pkcs7.detached or ETSI.CAdES.detached algorithms.
       #
       # Additional functionality:
       #
@@ -81,6 +81,12 @@ module HexaPDF
         # The contact information. If used, will be set on the signature object.
         attr_accessor :contact_info
 
+        # The type of signature to be written (i.e. the value of the /SubFilter key).
+        #
+        # The value can either be :adobe (the default; uses a detached PKCS7 signature) or :etsi
+        # (uses an ETSI CAdES compatible signature).
+        attr_accessor :signature_type
+
         # The DocMDP permissions that should be set on the document.
         #
         # See #doc_mdp_permissions=
@@ -98,7 +104,7 @@ module HexaPDF
 
         # Returns the name to be set on the /SubFilter key when using this signing handler.
         def sub_filter_name
-          :'adbe.pkcs7.detached'
+          signature_type == :etsi ? :'ETSI.CAdES.detached' : :'adbe.pkcs7.detached'
         end
 
         # Sets the DocMDP permissions that should be applied to the document.

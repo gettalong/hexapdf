@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::Document::Signatures::DefaultHandler] to allow setting the used
+  signature method
+
+
 ## 0.26.2 - 2022-10-22
 
 ### Added
