@@ -136,7 +136,7 @@ module HexaPDF
 
         # Returns the size of the signature that would be created.
         def signature_size
-          sign("").size
+          sign(StringIO.new, [0, 0, 0, 0]).size
         end
 
         # Finalizes the signature field as well as the signature dictionary before writing.
@@ -159,8 +159,12 @@ module HexaPDF
         end
 
         # Returns the DER serialized OpenSSL::PKCS7 structure containing the signature for the given
-        # data.
-        def sign(data)
+        # IO byte ranges.
+        def sign(io, byte_range)
+          io.pos = byte_range[0]
+          data = io.read(byte_range[1])
+          io.pos = byte_range[2]
+          data << io.read(byte_range[3])
           OpenSSL::PKCS7.sign(@certificate, @key, data, @certificate_chain,
                               OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY).to_der
         end
@@ -262,13 +266,13 @@ module HexaPDF
         io.pos = signature_offset
         signature_data = io.read(signature_length)
 
-        io.rewind
-        file_data = io.read
+        io.seek(0, IO::SEEK_END)
+        file_size = io.pos
 
         # Calculate the offsets for the /ByteRange
         contents_offset = signature_offset + signature_data.index('Contents(') + 8
         offset2 = contents_offset + signature[:Contents].size + 2 # +2 because of the needed < and >
-        length2 = file_data.size - offset2
+        length2 = file_size - offset2
         signature[:ByteRange] = [0, contents_offset, offset2, length2]
 
         # Set the correct /ByteRange value
@@ -280,9 +284,9 @@ module HexaPDF
 
         # Now everything besides the /Contents value is correct, so we can read the contents for
         # signing
-        file_data[signature_offset, signature_length] = signature_data
-        signed_contents = file_data[0, contents_offset] << file_data[offset2, length2]
-        signature[:Contents] = handler.sign(signed_contents)
+        io.pos = signature_offset
+        io.write(signature_data)
+        signature[:Contents] = handler.sign(io, signature[:ByteRange].value)
 
         # Set the correct /Contents value as hexstring
         signature_data.sub!(/Contents\(0+\)/) do |match|
