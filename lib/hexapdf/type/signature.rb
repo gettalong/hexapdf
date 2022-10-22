@@ -230,6 +230,16 @@ module HexaPDF
         signature_handler.verify(store, allow_self_signed: allow_self_signed)
       end
 
+      private
+
+      def perform_validation #:nodoc:
+        if (self[:SubFilter] == :'ETSI.CAdES.detached' || self[:SubFilter] == :'ETSI.RFC3161') &&
+            document.version < '2.0'
+          yield("Signature handler needs at least PDF version 2.0", true)
+          document.version = '2.0'
+        end
+      end
+
     end
 
   end

@@ -128,4 +128,12 @@ describe HexaPDF::Type::Signature do
     assert_kind_of(OpenSSL::X509::Store, store)
     assert(kwargs[:allow_self_signed])
   end
+
+  describe "perform_validation" do
+    it "upgrades the version to 2.0 if the /SubFilter needs it" do
+      refute(@sig.validate(auto_correct: false))
+      assert(@sig.validate(auto_correct: true))
+      assert_equal('2.0', @doc.version)
+    end
+  end
 end
