@@ -132,7 +132,11 @@ module HexaPDF
         # Creates a new Destination for the given +destination+ which may be an explicit destination
         # array or a dictionary with a /D entry (as allowed for a named destination).
         def initialize(destination)
-          @destination = (destination.kind_of?(HexaPDF::Dictionary) ? destination[:D] : destination)
+          @destination = if destination.kind_of?(HexaPDF::Dictionary) || destination.kind_of?(Hash)
+                           destination[:D]
+                         else
+                           destination
+                         end
         end
 
         # Returns +true+ if the destination references a destination in a remote document.

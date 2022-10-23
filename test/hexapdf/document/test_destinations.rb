@@ -29,6 +29,12 @@ describe HexaPDF::Document::Destinations::Destination do
     end
   end
 
+  it "accepts an array or a dictionary containing a /D entry as value" do
+    assert(destination([5, :Fit]).valid?)
+    assert(destination({D: [5, :Fit]}).valid?)
+    assert(destination(HexaPDF::Dictionary.new({D: [5, :Fit]})).valid?)
+  end
+
   it "can be asked whether the referenced page is in a remote document" do
     assert(destination([5, :Fit]).remote?)
     refute(destination([HexaPDF::Dictionary.new({}), :Fit]).remote?)

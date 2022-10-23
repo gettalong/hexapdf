@@ -7,6 +7,10 @@
 * **Breaking change**: [HexaPDF::Document::Signatures::DefaultHandler#sign]
   needs to accept the IO object and the byte range instead of just the data
 
+### Fixed
+
+* [HexaPDF::Document::Destinations::Destination::new] to also accept a hash
+
 
 ## 0.26.2 - 2022-10-22
 
