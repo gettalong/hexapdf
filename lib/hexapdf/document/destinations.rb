@@ -457,6 +457,36 @@ module HexaPDF
       end
 
       # :call-seq:
+      #   destinations.resolve(string_name)    -> destination or nil
+      #   destinations.resolve(symbol_name)    -> destination or nil
+      #   destinations.resolve(dest_array)     -> destination or nil
+      #
+      # Resolves the given value to a valid destination object, if possible, or otherwise returns
+      # +nil+.
+      #
+      # * If the given value is a string, it is treated as a destination name and looked up in the
+      #   destination name tree.
+      #
+      # * If the given value is a symbol, it is treated as an old-style destination name and looked
+      #   up in the destination dictionary.
+      #
+      # * If the given value is an array, it is treated as a destination array itself.
+      def resolve(value)
+        result = case value
+                 when String
+                   destinations.find_entry(value)
+                 when PDFArray
+                   value.value
+                 when Array
+                   value
+                 when Symbol
+                   @document.catalog[:Dests]&.[](value)
+                 end
+        result = Destination.new(result) if result
+        result&.valid? ? result : nil
+      end
+
+      # :call-seq:
       #   destinations[name]    -> destination
       #
       # Returns the destination registered under the given +name+ or +nil+ if no destination was

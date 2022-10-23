@@ -2,6 +2,7 @@
 
 ### Added
 
+* [HexaPDF::Document::Destinations#resolve] for resolving destination values
 * [HexaPDF::Document::Destinations::Destination#value] to return the destination
   array
 

@@ -406,6 +406,37 @@ describe HexaPDF::Document::Destinations do
     refute(@doc.destinations['abc'])
   end
 
+  describe "resolve" do
+    it "resolves the named destination" do
+      @doc.catalog.names.destinations.add_entry("arr", [@page, :Fit])
+      @doc.catalog.names.destinations.add_entry("dict", {D: [@page, :Fit]})
+      assert_equal([@page, :Fit], @doc.destinations.resolve("arr").value)
+      assert_equal([@page, :Fit], @doc.destinations.resolve("dict").value)
+    end
+
+    it "returns nil if the named destination is not found" do
+      assert_nil(@doc.destinations.resolve("arr"))
+    end
+
+    it "resolves the old-style named destination" do
+      @doc.catalog[:Dests] = {arr: [@page, :Fit]}
+      assert_equal([@page, :Fit], @doc.destinations.resolve(:arr).value)
+    end
+
+    it "returns nil if the old-style named destination is not found" do
+      assert_nil(@doc.destinations.resolve(:arr))
+    end
+
+    it "uses a PDFArray or array argument directly" do
+      assert_equal([@page, :Fit], @doc.destinations.resolve([@page, :Fit]).value)
+      assert_equal([@page, :Fit], @doc.destinations.resolve(HexaPDF::PDFArray.new([@page, :Fit])).value)
+    end
+
+    it "returns nil if the resolved destination is not valid" do
+      assert_nil(@doc.destinations.resolve([@page, :Fitd]))
+    end
+  end
+
   describe "each" do
     before do
       3.times {|i| @doc.destinations.add("abc#{i}", [:page, :Fit]) }
