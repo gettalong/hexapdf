@@ -48,6 +48,10 @@ describe HexaPDF::Document::Destinations::Destination do
     assert(destination([5, :Fit]).valid?)
   end
 
+  it "returns the destination array" do
+    assert_equal([5, :Fit], destination([5, :Fit]).value)
+  end
+
   describe "type :xyz" do
     before do
       @dest = destination([:page, :XYZ, :left, :top, :zoom])

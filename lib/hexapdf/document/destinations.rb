@@ -216,6 +216,11 @@ module HexaPDF
           self.class.valid?(@destination)
         end
 
+        # Returns the wrapped destination array.
+        def value
+          @destination
+        end
+
       end
 
       include Enumerable

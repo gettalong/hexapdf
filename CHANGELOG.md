@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Document::Destinations::Destination#value] to return the destination
+  array
+
 ### Changed
 
 * [HexaPDF::Document::Signatures::DefaultHandler] to allow setting the used
