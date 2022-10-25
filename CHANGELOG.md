@@ -12,6 +12,8 @@
   signature method
 * **Breaking change**: [HexaPDF::Document::Signatures::DefaultHandler#sign]
   needs to accept the IO object and the byte range instead of just the data
+* **Breaking change**: Enhanced support for outline items with new methods
+  `#level` and `#destination_page` as well as changes to `#add` and `#each_item`
 
 ### Fixed
 

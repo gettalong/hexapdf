@@ -78,6 +78,43 @@ describe HexaPDF::Type::OutlineItem do
     end
   end
 
+  describe "level" do
+    it "returns 0 for the outline dictionary when treated as an item" do
+      assert_equal(0, @item.level)
+    end
+
+    it "returns 1 for the root level items" do
+      @item[:Parent] = {Type: :Outlines}
+      assert_equal(1, @item.level)
+    end
+
+    it "returns the correct level for items in the hierarchy" do
+      @item[:Parent] = {Title: 'Root elem', Parent: {Type: :Outlines}}
+      assert_equal(2, @item.level)
+    end
+  end
+
+  describe "destination_page" do
+    it "returns the page of a set destination" do
+      @item[:Dest] = [5, :Fit]
+      assert_equal(5, @item.destination_page)
+    end
+
+    it "returns the page of a set GoTO action" do
+      @item[:A] = {S: :GoTo, D: [5, :Fit]}
+      assert_equal(5, @item.destination_page)
+    end
+
+    it "returns nil if no destination or action is set" do
+      assert_nil(@item.destination_page)
+    end
+
+    it "returns nil if an action besides GoTo is set" do
+      @item[:A] = {S: :GoToR}
+      assert_nil(@item.destination_page)
+    end
+  end
+
   describe "add" do
     it "returns the created item" do
       new_item = @item.add_item("Test")
@@ -116,6 +153,24 @@ describe HexaPDF::Type::OutlineItem do
       yielded_item = nil
       new_item = @item.add_item("Test") {|i| yielded_item = i }
       assert_same(new_item, yielded_item)
+    end
+
+    it "uses the provided outline item instead of creating a new one" do
+      item = @doc.wrap({Dest: [1, :Fit], flags: 1, First: 5, Count: 2}, type: :XXOutlineItem)
+      new_item = @item.add_item(item, destination: [2, :Fit])
+      assert_same(item, new_item)
+      assert_equal([1, :Fit], new_item.destination)
+      assert_same(@item, new_item[:Parent])
+      refute(new_item.key?(:First))
+      assert_equal(0, new_item[:Count])
+
+      item = @doc.wrap({Count: nil}, type: :XXOutlineItem)
+      new_item = @item.add_item(item)
+      refute(new_item.key?(:Count))
+
+      item = @doc.wrap({Count: -1}, type: :XXOutlineItem)
+      new_item = @item.add_item(item)
+      refute(new_item.key?(:Count))
     end
 
     describe "position" do
@@ -211,7 +266,8 @@ describe HexaPDF::Type::OutlineItem do
       end
       item1.add_item("Item5")
     end
-    assert_equal(%w[Item1 Item2 Item3 Item4 Item5], @item.each_item.map(&:title))
+    assert_equal(['Item1', 1, 'Item2', 2, 'Item3', 2, 'Item4', 3, 'Item5', 2],
+                 @item.each_item.map {|i, l| [i.title, l] }.flatten)
   end
 
   describe "perform_validation" do

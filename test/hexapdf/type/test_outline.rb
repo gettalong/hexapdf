@@ -25,7 +25,7 @@ describe HexaPDF::Type::Outline do
       end
       item1.add_item("Item5")
     end
-    assert_equal(%w[Item1 Item2 Item3 Item4 Item5], @outline.each_item.map(&:title))
+    assert_equal(%w[Item1 Item2 Item3 Item4 Item5], @outline.each_item.map {|i, _| i.title })
   end
 
   describe "perform_validation" do

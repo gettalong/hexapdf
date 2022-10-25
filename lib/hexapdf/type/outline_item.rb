@@ -198,8 +198,45 @@ module HexaPDF
         end
       end
 
+      # Returns the outline level this item is one.
+      #
+      # The level of the items in the main outline dictionary, the root level, is 1.
+      #
+      # Here is an illustrated example of items contained in a document outline with their
+      # associated level:
+      #
+      #  Outline dictionary          0
+      #    Outline item 1            1
+      #    |- Sub item 1             2
+      #    |- Sub item 2             2
+      #       |- Sub sub item 1      3
+      #    |- Sub item 3             2
+      #    Outline item 2            1
+      def level
+        count = 0
+        temp = self
+        count += 1 while (temp = temp[:Parent])
+        count
+      end
+
+      # Returns the destination page if there is any.
+      #
+      # * If a destination is set, the associated page is returned.
+      # * If an action is set and it is a GoTo action, the associated page is returned.
+      # * Otherwise +nil+ is returned.
+      def destination_page
+        dest = self[:Dest]
+        dest = action[:D] if !dest && (action = self[:A]) && action[:S] == :GoTo
+        document.destinations.resolve(dest)&.page
+      end
+
       # Adds, as child to this item, a new outline item with the given title that performs the
       # provided action on clicking. Returns the newly added item.
+      #
+      # Alternatively, it is possible to provide an already initialized outline item instead of the
+      # title. If so, the only other argument that is used is +position+. Existing fields /Prev,
+      # /Next, /First, /Last, /Parent and /Count are deleted from the given item and set
+      # appropriately.
       #
       # If neither :destination nor :action is specified, the outline item has no associated action.
       # This is only meaningful if the new item will have children as it then acts just as a
@@ -251,16 +288,30 @@ module HexaPDF
       #   end
       def add_item(title, destination: nil, action: nil, position: :last, open: true,
                    text_color: nil, flags: nil) # :yield: item
-        item = document.add({Parent: self}, type: :XXOutlineItem)
-        item.title(title)
-        if action
-          item.action(action)
+        if title.kind_of?(HexaPDF::Object) && title.type == :XXOutlineItem
+          item = title
+          item.delete(:Prev)
+          item.delete(:Next)
+          item.delete(:First)
+          item.delete(:Last)
+          if item[:Count] && item[:Count] >= 0
+            item[:Count] = 0
+          else
+            item.delete(:Count)
+          end
+          item[:Parent] = self
         else
-          item.destination(destination)
+          item = document.add({Parent: self}, type: :XXOutlineItem)
+          item.title(title)
+          if action
+            item.action(action)
+          else
+            item.destination(destination)
+          end
+          item.text_color(text_color) if text_color
+          item.flag(*flags) if flags
+          item[:Count] = 0 if open # Count=0 means open if items are later added
         end
-        item.text_color(text_color) if text_color
-        item.flag(*flags) if flags
-        item[:Count] = 0 if open # Count=0 means open if items are later added
 
         unless position == :last || position == :first || position.kind_of?(Integer)
           raise ArgumentError, "position must be :first, :last, or an integer"
@@ -311,18 +362,20 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   item.each_item {|descendant_item| block }   -> item
-      #   item.each_item                              -> Enumerator
+      #   item.each_item {|descendant_item, level| block }   -> item
+      #   item.each_item                                     -> Enumerator
       #
       # Iterates over all descendant items of this one.
       #
-      # The items are yielded in-order, yielding first the item itself and then its descendants.
+      # The descendant items are yielded in-order, yielding first the item itself and then its
+      # descendants.
       def each_item(&block)
         return to_enum(__method__) unless block_given?
+        return self unless (item = self[:First])
 
-        item = self[:First]
+        level = self.level + 1
         while item
-          yield(item)
+          yield(item, level)
           item.each_item(&block)
           item = item[:Next]
         end
