@@ -65,7 +65,7 @@ module HexaPDF
                          :TwoPageLeft, :TwoPageRight]
       define_field :PageMode,          type: Symbol,     default: :UseNone,
         allowed_values: [:UseNone, :UseOutlines, :UseThumbs, :FullScreen, :UseOC, :UseAttachments]
-      define_field :Outlines,          type: Dictionary, indirect: true
+      define_field :Outlines,          type: :Outlines,  indirect: true
       define_field :Threads,           type: PDFArray,   version: '1.1'
       define_field :OpenAction,        type: [Dictionary, PDFArray], version: '1.1'
       define_field :AA,                type: Dictionary, version: '1.4'

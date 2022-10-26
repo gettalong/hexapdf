@@ -29,8 +29,11 @@ describe HexaPDF::Type::Catalog do
     assert_same(other, names)
   end
 
-  it "creates the document outline on access" do
-    assert_nil(@catalog[:Outlines])
+  it "uses or creates the document outline on access" do
+    @catalog[:Outlines] = {}
+    assert_equal(:Outlines, @catalog.outline.type)
+
+    @catalog.delete(:Outlines)
     outline = @catalog.outline
     assert_equal(:Outlines, outline.type)
     assert_same(outline, @catalog.outline)

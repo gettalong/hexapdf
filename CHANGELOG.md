@@ -18,6 +18,7 @@
 ### Fixed
 
 * [HexaPDF::Document::Destinations::Destination::new] to also accept a hash
+* [HexaPDF::Type::Catalog] auto-conversion of /Outlines to correct class
 
 
 ## 0.26.2 - 2022-10-22
