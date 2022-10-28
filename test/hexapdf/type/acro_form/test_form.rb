@@ -327,6 +327,12 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal(1, result.size)
       assert(@doc.catalog.key?(:AcroForm))
     end
+
+    it "returns the fields that could not be flattened" do
+      @cb.create_appearances
+      result = @acro_form.flatten(create_appearances: false)
+      assert_equal([@tf], result)
+    end
   end
 
   describe "perform_validation" do

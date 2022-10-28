@@ -395,7 +395,8 @@ module HexaPDF
 
           not_flattened = fields.map {|field| field.each_widget.to_a }.flatten
           document.pages.each {|page| not_flattened = page.flatten_annotations(not_flattened) }
-          fields -= not_flattened.map(&:form_field)
+          not_flattened.map!(&:form_field)
+          fields -= not_flattened
 
           fields.each do |field|
             (field[:Parent]&.[](:Kids) || self[:Fields]).delete(field)
