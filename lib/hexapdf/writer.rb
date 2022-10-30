@@ -110,6 +110,9 @@ module HexaPDF
 
       revision = Revision.new(@document.revisions.current.trailer)
       @document.trailer.info[:Producer] = "HexaPDF version #{HexaPDF::VERSION}"
+      if parser.file_header_version < @document.version
+        @document.catalog[:Version] = @document.version.to_sym
+      end
       @document.revisions.each do |rev|
         rev.each_modified_object {|obj| revision.send(:add_without_check, obj) }
       end

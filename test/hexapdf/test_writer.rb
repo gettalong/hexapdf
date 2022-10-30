@@ -125,6 +125,14 @@ describe HexaPDF::Writer do
       refute_match(/^trailer/, output_io.string)
     end
 
+    it "updates the PDF version using the catalog's /Version entry if necessary" do
+      doc = HexaPDF::Document.new(io: @std_input_io)
+      doc.version = '2.0'
+      output_io = StringIO.new
+      HexaPDF::Writer.write(doc, output_io, incremental: true)
+      assert_equal('2.0', HexaPDF::Document.new(io: output_io).version)
+    end
+
     it "raises an error if the used encryption was changed" do
       io = StringIO.new
       doc = HexaPDF::Document.new

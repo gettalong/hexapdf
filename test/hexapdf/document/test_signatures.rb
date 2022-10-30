@@ -166,7 +166,7 @@ describe HexaPDF::Document::Signatures do
       sig = @doc.signatures.first
       assert_equal(:'Adobe.PPKLite', sig[:Filter])
       assert_equal(:'adbe.pkcs7.detached', sig[:SubFilter])
-      assert_equal([0, 968, 3590, 2517], sig[:ByteRange].value)
+      assert_equal([0, 968, 3590, 2529], sig[:ByteRange].value)
       assert_equal(:sig, sig[:key])
       assert_equal(:sig_field, @doc.acro_form.each_field.first[:key])
       assert(sig.key?(:Contents))
@@ -207,14 +207,14 @@ describe HexaPDF::Document::Signatures do
     it "handles different xref section types correctly when determing the offsets" do
       @doc.delete(7)
       sig = @doc.signatures.add(@io, @handler, write_options: {update_fields: false})
-      assert_equal([0, 968, 3590, 2491], sig[:ByteRange].value)
+      assert_equal([0, 968, 3590, 2503], sig[:ByteRange].value)
     end
 
     it "works if the signature object is the last object of the xref section" do
       field = @doc.acro_form(create: true).create_signature_field('Signature2')
       field.create_widget(@doc.pages[0], Rect: [0, 0, 0, 0])
       sig = @doc.signatures.add(@io, @handler, signature: field, write_options: {update_fields: false})
-      assert_equal([0, 3063, 5685, 400], sig[:ByteRange].value)
+      assert_equal([0, 3075, 5697, 400], sig[:ByteRange].value)
     end
 
     it "allows writing to a file in addition to writing to an IO" do

@@ -21,6 +21,8 @@
 * [HexaPDF::Type::Catalog] auto-conversion of /Outlines to correct class
 * [HexaPDF::Type::AcroForm::Form#flatten] to return the unflattened form fields
   instead of the widgets
+* [HexaPDF::Writer#write_incremental] to set the /Version in the catalog
+  dictionary when necessary
 
 
 ## 0.26.2 - 2022-10-22
