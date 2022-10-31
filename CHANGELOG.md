@@ -23,6 +23,8 @@
   instead of the widgets
 * [HexaPDF::Writer#write_incremental] to set the /Version in the catalog
   dictionary when necessary
+* [HexaPDF::Importer#import] to always return an imported object with the same
+  class as the argument
 
 
 ## 0.26.2 - 2022-10-22

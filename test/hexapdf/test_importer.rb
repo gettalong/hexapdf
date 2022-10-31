@@ -19,6 +19,7 @@ describe HexaPDF::Importer::NullableWeakRef do
 end
 
 describe HexaPDF::Importer do
+  class TestClass < HexaPDF::Dictionary; end
   before do
     @source = HexaPDF::Document.new
     obj = @source.add("test")
@@ -84,6 +85,19 @@ describe HexaPDF::Importer do
       obj = @importer.import(@obj)
       assert_kind_of(HexaPDF::Dictionary, obj[:hash])
       assert_same(hash, obj[:hash])
+    end
+
+    it "uses the class of the argument when directly importing a HexaPDF::Object" do
+      src_obj = @source.wrap(@hash, type: TestClass)
+      dest_obj = @importer.import(src_obj)
+      assert_instance_of(TestClass, dest_obj)
+    end
+
+    it "uses the class of the argument when importing an already mapped HexaPDF::Object" do
+      @importer.import(@obj) # also maps @hash
+      src_obj = @source.wrap(@hash, type: TestClass)
+      dest_obj = @importer.import(src_obj)
+      assert_instance_of(TestClass, dest_obj)
     end
 
     it "duplicates the stream if it is a string" do
