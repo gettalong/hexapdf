@@ -10,6 +10,10 @@ describe HexaPDF::Type::OutlineItem do
     @item = @doc.add({Title: "root", Count: 0}, type: :XXOutlineItem)
   end
 
+  it "must be an indirect object" do
+    assert(@item.must_be_indirect?)
+  end
+
   describe "title" do
     it "returns the set title" do
       @item[:Title] = 'Test'

@@ -126,6 +126,11 @@ module HexaPDF
                 lister: "flags", getter: "flagged?", setter: "flag", unsetter: "unflag",
                 value_getter: "self[:F]", value_setter: "self[:F]")
 
+      # Returns +true+ since outline items must always be indirect objects.
+      def must_be_indirect?
+        true
+      end
+
       # :call-seq:
       #   item.title          -> title
       #   item.title(value)   -> title
