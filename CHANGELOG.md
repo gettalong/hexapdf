@@ -26,6 +26,7 @@
 * [HexaPDF::Importer#import] to always return an imported object with the same
   class as the argument
 * [HexaPDF::Type::OutlineItem] to always be an indirect object
+* [HexaPDF::Tokenizer#parse_number] to handle references correctly in all cases
 
 
 ## 0.26.2 - 2022-10-22
