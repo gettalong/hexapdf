@@ -274,7 +274,7 @@ module HexaPDF
       TOKEN_CACHE[str]
     end
 
-    REFERENCE_RE = /[#{WHITESPACE}]+([+-]?\d+)[#{WHITESPACE}]+R#{WHITESPACE_OR_DELIMITER_RE}/ # :nodoc:
+    REFERENCE_RE = /[#{WHITESPACE}]+([+]?\d+)[#{WHITESPACE}]+R#{WHITESPACE_OR_DELIMITER_RE}/ # :nodoc:
 
     # Parses the number (integer or real) at the current position.
     #
@@ -285,7 +285,7 @@ module HexaPDF
         tmp = val.to_i
         # Handle object references, see PDF1.7 s7.3.10
         prepare_string_scanner(10)
-        tmp = Reference.new(tmp, @ss[1].to_i) if @ss.scan(REFERENCE_RE)
+        tmp = Reference.new(tmp, @ss[1].to_i) if tmp > 0 && @ss.scan(REFERENCE_RE)
         tmp
       elsif val.match?(/\A[+-]?(?:\d+\.\d*|\.\d+)\z/)
         val << '0' if val.getbyte(-1) == 46 # dot '.'
