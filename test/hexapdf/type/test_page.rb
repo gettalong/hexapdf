@@ -204,18 +204,17 @@ describe HexaPDF::Type::Page do
 
     describe "flatten" do
       it "adjust all page boxes" do
-        @page.box(:crop, @page.box)
-        @page.box(:bleed, @page.box)
-        @page.box(:trim, @page.box)
-        @page.box(:art, @page.box)
+        @page.box(:crop, [0, 0, 1, 2])
+        @page.box(:bleed, [0, 0, 2, 3])
+        @page.box(:trim, [0, 0, 3, 4])
+        @page.box(:art, [0, 0, 4, 5])
 
         @page.rotate(90, flatten: true)
-        box = [-300, 50, -100, 200]
-        assert_equal(box, @page.box(:media).value)
-        assert_equal(box, @page.box(:crop).value)
-        assert_equal(box, @page.box(:bleed).value)
-        assert_equal(box, @page.box(:trim).value)
-        assert_equal(box, @page.box(:art).value)
+        assert_equal([-300, 50, -100, 200], @page.box(:media).value)
+        assert_equal([-2, 0, 0, 1], @page.box(:crop).value)
+        assert_equal([-3, 0, 0, 2], @page.box(:bleed).value)
+        assert_equal([-4, 0, 0, 3], @page.box(:trim).value)
+        assert_equal([-5, 0, 0, 4], @page.box(:art).value)
       end
 
       it "works correctly for 90 degrees" do

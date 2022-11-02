@@ -27,6 +27,7 @@
   class as the argument
 * [HexaPDF::Type::OutlineItem] to always be an indirect object
 * [HexaPDF::Tokenizer#parse_number] to handle references correctly in all cases
+* [HexaPDF::Type::Page#rotate] to correctly flatten all page boxes
 
 
 ## 0.26.2 - 2022-10-22
