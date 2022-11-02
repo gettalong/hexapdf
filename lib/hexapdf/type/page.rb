@@ -272,21 +272,28 @@ module HexaPDF
           delete(:Rotate)
           return if cw_angle == 0
 
-          matrix, llx, lly, urx, ury = \
-            case cw_angle
-            when 90
-              [HexaPDF::Content::TransformationMatrix.new(0, -1, 1, 0),
-               box.right, box.bottom, box.left, box.top]
-            when 180
-              [HexaPDF::Content::TransformationMatrix.new(-1, 0, 0, -1),
-               box.right, box.top, box.left, box.bottom]
-            when 270
-              [HexaPDF::Content::TransformationMatrix.new(0, 1, -1, 0),
-               box.left, box.top, box.right, box.bottom]
-            end
-          [:MediaBox, :CropBox, :BleedBox, :TrimBox, :ArtBox].each do |box|
-            next unless key?(box)
-            self[box].value = matrix.evaluate(llx, lly).concat(matrix.evaluate(urx, ury))
+          matrix = case cw_angle
+                   when 90
+                     HexaPDF::Content::TransformationMatrix.new(0, -1, 1, 0)
+                   when 180
+                     HexaPDF::Content::TransformationMatrix.new(-1, 0, 0, -1)
+                   when 270
+                     HexaPDF::Content::TransformationMatrix.new(0, 1, -1, 0)
+                   end
+
+          [:MediaBox, :CropBox, :BleedBox, :TrimBox, :ArtBox].each do |box_name|
+            next unless key?(box_name)
+            box = self[box_name]
+            llx, lly, urx, ury = \
+              case cw_angle
+              when 90
+                [box.right, box.bottom, box.left, box.top]
+              when 180
+                [box.right, box.top, box.left, box.bottom]
+              when 270
+                [box.left, box.top, box.right, box.bottom]
+              end
+            self[box_name].value = matrix.evaluate(llx, lly).concat(matrix.evaluate(urx, ury))
           end
 
           before_contents = document.add({}, stream: " q #{matrix.to_a.join(' ')} cm ")
