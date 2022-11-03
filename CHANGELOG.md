@@ -8,6 +8,8 @@
 
 ### Changed
 
+* **Breaking change**: The crop box is now used instead of the media box in most
+  cases to be in line with the specification
 * [HexaPDF::Document::Signatures::DefaultHandler] to allow setting the used
   signature method
 * **Breaking change**: [HexaPDF::Document::Signatures::DefaultHandler#sign]

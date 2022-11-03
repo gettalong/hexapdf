@@ -114,7 +114,7 @@ module HexaPDF
         end
 
         doc.pages.each do |page|
-          out = out_files[page_size_name(page.box(:media).value)]
+          out = out_files[page_size_name(page.box.value)]
           out.pages.add(out.import(page))
         end
 
@@ -125,18 +125,18 @@ module HexaPDF
         end
       end
 
-      # Tries to retrieve a page size name based on the media box. If this is not possible, the
+      # Tries to retrieve a page size name based on the given page box. If this is not possible, the
       # returned page size name consists of width x height.
-      def page_size_name(media_box)
+      def page_size_name(box)
         @page_name_cache ||= {}
-        return @page_name_cache[media_box] if @page_name_cache.key?(media_box)
+        return @page_name_cache[box] if @page_name_cache.key?(box)
 
         paper_size = HexaPDF::Type::Page::PAPER_SIZE.find do |_name, box|
-          box.each_with_index.all? {|entry, index| (entry - media_box[index]).abs < 5 }
+          box.each_with_index.all? {|entry, index| (entry - box[index]).abs < 5 }
         end
 
-        @page_name_cache[media_box] =
-          paper_size ? paper_size[0] : sprintf("%.0fx%.0f", *media_box.values_at(2, 3))
+        @page_name_cache[box] =
+          paper_size ? paper_size[0] : sprintf("%.0fx%.0f", *box.values_at(2, 3))
       end
 
     end

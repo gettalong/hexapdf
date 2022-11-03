@@ -95,8 +95,8 @@ module HexaPDF
           doc.pages.each do |page|
             index = indices.next
             xobject = xobject_map[index] ||= doc.import(watermark.pages[index].to_form_xobject)
-            pw = page.box(:media).width.to_f
-            ph = page.box(:media).height.to_f
+            pw = page.box.width.to_f
+            ph = page.box.height.to_f
             xw = xobject.width.to_f
             xh = xobject.height.to_f
             canvas = page.canvas(type: @type)
