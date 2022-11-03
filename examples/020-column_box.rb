@@ -15,9 +15,9 @@ require 'hexapdf'
 
 doc = HexaPDF::Document.new
 page = doc.pages.add
-media_box = page.box(:media)
-frame = HexaPDF::Layout::Frame.new(media_box.left + 20, media_box.bottom + 20,
-                                   media_box.width - 40, media_box.height - 40)
+page_box = page.box
+frame = HexaPDF::Layout::Frame.new(page_box.left + 20, page_box.bottom + 20,
+                                   page_box.width - 40, page_box.height - 40)
 
 boxes = []
 5.times do

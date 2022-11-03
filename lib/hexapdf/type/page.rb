@@ -187,8 +187,8 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   page.box(type = :media)              -> box
-      #   page.box(type = :media, rectangle)   -> rectangle
+      #   page.box(type = :crop)              -> box
+      #   page.box(type = :crop, rectangle)   -> rectangle
       #
       # If no +rectangle+ is given, returns the rectangle defining a certain kind of box for the
       # page. Otherwise sets the value for the given box type to +rectangle+ (an array with four
@@ -219,7 +219,7 @@ module HexaPDF
       #     author. The default is the crop box.
       #
       # See: PDF1.7 s14.11.2
-      def box(type = :media, rectangle = nil)
+      def box(type = :crop, rectangle = nil)
         if rectangle
           case type
           when :media, :crop, :bleed, :trim, :art
@@ -240,9 +240,10 @@ module HexaPDF
         end
       end
 
-      # Returns the orientation of the media box, either :portrait or :landscape.
-      def orientation
-        box = self[:MediaBox]
+      # Returns the orientation of the specified box (default is the crop box), either :portrait or
+      # :landscape.
+      def orientation(type = :crop)
+        box = self.box(type)
         rotation = self[:Rotate]
         if (box.height > box.width && (rotation == 0 || rotation == 180)) ||
             (box.height < box.width && (rotation == 90 || rotation == 270))
@@ -380,20 +381,33 @@ module HexaPDF
 
       # Returns the requested type of canvas for the page.
       #
-      # The canvas object is cached once it is created so that its graphics state is correctly
-      # retained without the need for parsing its contents.
-      #
-      # If the media box of the page doesn't have its origin at (0, 0), the canvas origin is
-      # translated into the bottom left corner so that this detail doesn't matter when using the
-      # canvas. This means that the canvas' origin is always at the bottom left corner of the media
-      # box.
+      # There are potentially three different canvas objects, one for each of the types :underlay,
+      # :page, and :overlay. The canvas objects are cached once they are created so that their
+      # graphics states are correctly retained without the need for parsing the contents. This also
+      # means that on subsequent invocations the graphic states of the canvases might already be
+      # changed.
       #
       # type::
       #    Can either be
       #    * :page for getting the canvas for the page itself (only valid for initially empty pages)
       #    * :overlay for getting the canvas for drawing over the page contents
       #    * :underlay for getting the canvas for drawing unter the page contents
-      def canvas(type: :page)
+      #
+      # translate_origin::
+      #    Specifies whether the origin should automatically be translated into the lower-left
+      #    corner of the crop box.
+      #
+      #    Note that this argument is only used for the first invocation for every canvas type. So
+      #    if a canvas was initially requested with this argument set to false and then with true,
+      #    it won't have any effect as the cached canvas is returned.
+      #
+      #    To check whether the origin has been translated or not, use
+      #
+      #      canvas.graphics_state.ctm.evaluate(0, 0)
+      #
+      #    and check whether the result is [0, 0]. If it is, then the origin has not been
+      #    translated.
+      def canvas(type: :page, translate_origin: true)
         unless [:page, :overlay, :underlay].include?(type)
           raise ArgumentError, "Invalid value for 'type', expected: :page, :underlay or :overlay"
         end
@@ -406,9 +420,10 @@ module HexaPDF
 
         create_canvas = lambda do
           Content::Canvas.new(self).tap do |canvas|
-            media_box = box(:media)
-            if media_box.left != 0 || media_box.bottom != 0
-              canvas.translate(media_box.left, media_box.bottom)
+            next unless translate_origin
+            crop_box = box(:crop)
+            if crop_box.left != 0 || crop_box.bottom != 0
+              canvas.translate(crop_box.left, crop_box.bottom)
             end
           end
         end
@@ -512,9 +527,8 @@ module HexaPDF
 
         canvas = self.canvas(type: :overlay)
         canvas.save_graphics_state
-        media_box = box(:media)
-        if media_box.left != 0 || media_box.bottom != 0
-          canvas.translate(-media_box.left, -media_box.bottom) # revert initial translation of origin
+        if (pos = canvas.graphics_state.ctm.evaluate(0, 0)) != [0, 0]
+          canvas.translate(-pos[0], -pos[1])
         end
 
         to_delete = []

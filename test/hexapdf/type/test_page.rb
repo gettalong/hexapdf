@@ -94,6 +94,11 @@ describe HexaPDF::Type::Page do
       @page = @doc.pages.add
     end
 
+    it "returns the crop box by default" do
+      @page[:CropBox] = [0, 0, 100, 200]
+      assert_equal([0, 0, 100, 200], @page.box)
+    end
+
     it "returns the correct media box" do
       @page[:MediaBox] = :media
       assert_equal(:media, @page.box(:media))
@@ -150,15 +155,25 @@ describe HexaPDF::Type::Page do
       @page = @doc.pages.add
     end
 
-    it "returns :portrait for appropriate media boxes and rotation values" do
-      @page.box(:media, [0, 0, 100, 300])
+    it "uses the crop box by default" do
+      @page[:CropBox] = [0, 0, 200, 100]
+      assert_equal(:landscape, @page.orientation)
+    end
+
+    it "uses the specified box for determining the orientation" do
+      @page[:ArtBox] = [0, 0, 200, 100]
+      assert_equal(:landscape, @page.orientation(:art))
+    end
+
+    it "returns :portrait for appropriate boxes and rotation values" do
+      @page.box(:crop, [0, 0, 100, 300])
       assert_equal(:portrait, @page.orientation)
       @page[:Rotate] = 0
       assert_equal(:portrait, @page.orientation)
       @page[:Rotate] = 180
       assert_equal(:portrait, @page.orientation)
 
-      @page.box(:media, [0, 0, 300, 100])
+      @page.box(:crop, [0, 0, 300, 100])
       @page[:Rotate] = 90
       assert_equal(:portrait, @page.orientation)
       @page[:Rotate] = 270
@@ -166,14 +181,14 @@ describe HexaPDF::Type::Page do
     end
 
     it "returns :landscape for appropriate media boxes and rotation values" do
-      @page.box(:media, [0, 0, 300, 100])
+      @page.box(:crop, [0, 0, 300, 100])
       assert_equal(:landscape, @page.orientation)
       @page[:Rotate] = 0
       assert_equal(:landscape, @page.orientation)
       @page[:Rotate] = 180
       assert_equal(:landscape, @page.orientation)
 
-      @page.box(:media, [0, 0, 100, 300])
+      @page.box(:crop, [0, 0, 100, 300])
       @page[:Rotate] = 90
       assert_equal(:landscape, @page.orientation)
       @page[:Rotate] = 270
@@ -404,8 +419,8 @@ describe HexaPDF::Type::Page do
                                     [:restore_graphics_state]])
     end
 
-    it "works correctly if the page has its origin not at (0,0)" do
-      @page.box(:media, [-10, -5, 100, 300])
+    it "works correctly if the page has its crop box origin not at (0,0)" do
+      @page.box(:crop, [-10, -5, 100, 300])
       @page.canvas(type: :underlay).line_width = 2
       @page.canvas(type: :page).line_width = 2
       @page.canvas(type: :overlay).line_width = 2
@@ -424,6 +439,13 @@ describe HexaPDF::Type::Page do
                                     [:concatenate_matrix, [1, 0, 0, 1, -10, -5]],
                                     [:set_line_width, [2]],
                                     [:restore_graphics_state]])
+    end
+
+    it "allows disabling the origin translation" do
+      @page.box(:crop, [-10, -5, 100, 300])
+      @page.canvas(translate_origin: false).line_width = 2
+
+      assert_page_operators(@page, [[:set_line_width, [2]]])
     end
 
     it "fails if the page canvas is requested for a page with existing contents" do
@@ -553,10 +575,10 @@ describe HexaPDF::Type::Page do
                                           [:restore_graphics_state]])
     end
 
-    it "adjusts the position to counter the translation in #canvas based on the page's media box" do
-      @page[:MediaBox] = [-15, -15, 100, 100]
+    it "potentially adjusts the origin so that it is always in (0,0)" do
+      @canvas.translate(-15, -15)
       @page.flatten_annotations
-      assert_operators(@canvas.contents, [:concatenate_matrix, [1, 0, 0, 1, 15, 15]], range: 1)
+      assert_operators(@canvas.contents, [:concatenate_matrix, [1, 0, 0, 1, 15, 15]], range: 2)
     end
 
     it "adjusts the position in case the form /Matrix has an offset" do
