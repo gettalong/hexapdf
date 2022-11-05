@@ -50,6 +50,8 @@ module HexaPDF
     # The outline dictionary is linked via the /Outlines entry from the Type::Catalog and can
     # directly be accessed via HexaPDF::Document#outline.
     #
+    # == Examples
+    #
     # Here is an example for creating an outline:
     #
     #   doc = HexaPDF::Document.new
@@ -61,6 +63,22 @@ module HexaPDF
     #       sec11.add_item("Page 4", destination: 3)
     #     end
     #   end
+    #
+    # Here is one for copying the complete outline from one PDF to another:
+    #
+    #   doc = HexaPDF::Document.open(ARGV[0])
+    #   target = HexaPDF::Document.new
+    #   stack = [target.outline]
+    #   doc.outline.each_item do |item, level|
+    #     if stack.size < level
+    #       stack << stack.last[:Last]
+    #     elsif stack.size > level
+    #       (stack.size - level).times { stack.pop }
+    #     end
+    #     stack.last.add_item(target.import(item))
+    #   end
+    #   # Copying all the pages so that the references work.
+    #   doc.pages.each {|page| target.pages << target.import(page) }
     #
     # See: PDF1.7 s12.3.3
     class Outline < Dictionary
