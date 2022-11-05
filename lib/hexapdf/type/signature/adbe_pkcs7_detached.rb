@@ -104,8 +104,22 @@ module HexaPDF
             result.log(:error, "Certificate key usage is missing 'Digital Signature'")
           end
 
-          if @pkcs7.verify(certificate_chain, store, signature_dict.signed_data,
-                           OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY)
+          if signature_dict.signature_type == 'ETSI.RFC3161'
+            # Getting the needed values is not directly supported by Ruby OpenSSL
+            p7 = OpenSSL::ASN1.decode(signature_dict.contents.sub(/\x00*\z/, ''))
+            signed_data = p7.value[1].value[0]
+            content_info = signed_data.value[2]
+            content = OpenSSL::ASN1.decode(content_info.value[1].value[0].value)
+            digest_algorithm = content.value[2].value[0].value[0].value
+            original_hash = content.value[2].value[1].value
+            recomputed_hash = OpenSSL::Digest.digest(digest_algorithm, signature_dict.signed_data)
+            hash_valid = (original_hash == recomputed_hash)
+          else
+            data = signature_dict.signed_data
+            hash_valid = true # hash will be checked by @pkcs7.verify
+          end
+          if hash_valid && @pkcs7.verify(certificate_chain, store, data,
+                                         OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY)
             result.log(:info, "Signature valid")
           else
             result.log(:error, "Signature verification failed")

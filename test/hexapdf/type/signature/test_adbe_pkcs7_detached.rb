@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+require 'digest'
 require 'test_helper'
 require_relative 'common'
 require 'hexapdf/type/signature'
@@ -94,6 +95,26 @@ describe HexaPDF::Type::Signature::AdbePkcs7Detached do
       result = @handler.verify(@store)
       assert_equal(:error, result.messages.last.type)
       assert_match(/Signature verification failed/, result.messages.last.content)
+    end
+
+    it "verifies a timestamp signature" do
+      req = OpenSSL::Timestamp::Request.new
+      req.algorithm = 'SHA256'
+      req.message_imprint = Digest::SHA256.digest(@data)
+      req.policy_id = "1.2.3.4.5"
+      req.nonce = 42
+      fac = OpenSSL::Timestamp::Factory.new
+      fac.gen_time = Time.now
+      fac.serial_number = 1
+      fac.allowed_digests = ["sha256", "sha512"]
+      res = fac.create_timestamp(CERTIFICATES.signer_key, CERTIFICATES.timestamp_certificate, req)
+      @dict.contents = res.token.to_der
+      @dict.signature_type = 'ETSI.RFC3161'
+      @handler = HexaPDF::Type::Signature::AdbePkcs7Detached.new(@dict)
+
+      result = @handler.verify(@store)
+      assert_equal(:info, result.messages.last.type)
+      assert_match(/Signature valid/, result.messages.last.content)
     end
   end
 end

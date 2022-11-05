@@ -493,6 +493,7 @@ module HexaPDF
                         'adbe.x509.rsa_sha1': 'HexaPDF::Type::Signature::AdbeX509RsaSha1',
                         'adbe.pkcs7.detached': 'HexaPDF::Type::Signature::AdbePkcs7Detached',
                         'ETSI.CAdES.detached': 'HexaPDF::Type::Signature::AdbePkcs7Detached',
+                        'ETSI.RFC3161': 'HexaPDF::Type::Signature::AdbePkcs7Detached',
                       },
                       'task.map' => {
                         optimize: 'HexaPDF::Task::Optimize',
