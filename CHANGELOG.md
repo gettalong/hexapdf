@@ -17,6 +17,9 @@
   needs to accept the IO object and the byte range instead of just the data
 * **Breaking change**: Enhanced support for outline items with new methods
   `#level` and `#destination_page` as well as changes to `#add` and `#each_item`
+* **Breaking change**: Removed `#filter_name` and `#sub_filter_name` from
+  [HexaPDF::Document::Signatures::DefaultHandler]
+
 
 ### Fixed
 

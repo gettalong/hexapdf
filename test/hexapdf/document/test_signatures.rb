@@ -20,16 +20,6 @@ describe HexaPDF::Document::Signatures do
   end
 
   describe "DefaultHandler" do
-    it "returns the filter name" do
-      assert_equal(:'Adobe.PPKLite', @handler.filter_name)
-    end
-
-    it "returns the sub filter algorithm name" do
-      assert_equal(:'adbe.pkcs7.detached', @handler.sub_filter_name)
-      @handler.signature_type = :etsi
-      assert_equal(:'ETSI.CAdES.detached', @handler.sub_filter_name)
-    end
-
     it "returns the size of serialized signature" do
       assert_equal(1310, @handler.signature_size)
     end
@@ -80,6 +70,12 @@ describe HexaPDF::Document::Signatures do
         @handler.finalize_objects(@field, @obj)
         assert(@field.empty?)
         assert(@obj.empty?)
+      end
+
+      it "adjust the /SubFilter if signature type is etsi" do
+        @handler.signature_type = :etsi
+        @handler.finalize_objects(@field, @obj)
+        assert_equal(:'ETSI.CAdES.detached', @obj[:SubFilter])
       end
 
       it "sets the reason, location and contact info fields" do
@@ -166,7 +162,7 @@ describe HexaPDF::Document::Signatures do
       sig = @doc.signatures.first
       assert_equal(:'Adobe.PPKLite', sig[:Filter])
       assert_equal(:'adbe.pkcs7.detached', sig[:SubFilter])
-      assert_equal([0, 968, 3590, 2529], sig[:ByteRange].value)
+      assert_equal([0, 996, 3618, 2501], sig[:ByteRange].value)
       assert_equal(:sig, sig[:key])
       assert_equal(:sig_field, @doc.acro_form.each_field.first[:key])
       assert(sig.key?(:Contents))
@@ -207,14 +203,14 @@ describe HexaPDF::Document::Signatures do
     it "handles different xref section types correctly when determing the offsets" do
       @doc.delete(7)
       sig = @doc.signatures.add(@io, @handler, write_options: {update_fields: false})
-      assert_equal([0, 968, 3590, 2503], sig[:ByteRange].value)
+      assert_equal([0, 988, 3610, 2483], sig[:ByteRange].value)
     end
 
     it "works if the signature object is the last object of the xref section" do
       field = @doc.acro_form(create: true).create_signature_field('Signature2')
       field.create_widget(@doc.pages[0], Rect: [0, 0, 0, 0])
       sig = @doc.signatures.add(@io, @handler, signature: field, write_options: {update_fields: false})
-      assert_equal([0, 3075, 5697, 400], sig[:ByteRange].value)
+      assert_equal([0, 3095, 5717, 380], sig[:ByteRange].value)
     end
 
     it "allows writing to a file in addition to writing to an IO" do
