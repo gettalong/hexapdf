@@ -54,8 +54,7 @@ module HexaPDF
       # == Implementing a Signing Handler
       #
       # This class also serves as an example on how to create a custom handler: The public methods
-      # #filter_name, #sub_filter_name, #signature_size, #finalize_objects and #sign are used by the
-      # digital signature algorithm.
+      # #signature_size, #finalize_objects and #sign are used by the digital signature algorithm.
       #
       # Once a custom signing handler has been created, it can be registered under the
       # 'signature.signing_handler' configuration option for easy use. It has to take keyword
@@ -97,16 +96,6 @@ module HexaPDF
           arguments.each {|name, value| send("#{name}=", value) }
         end
 
-        # Returns the name to be set on the /Filter key when using this signing handler.
-        def filter_name
-          :'Adobe.PPKLite'
-        end
-
-        # Returns the name to be set on the /SubFilter key when using this signing handler.
-        def sub_filter_name
-          signature_type == :etsi ? :'ETSI.CAdES.detached' : :'adbe.pkcs7.detached'
-        end
-
         # Sets the DocMDP permissions that should be applied to the document.
         #
         # Valid values for +permissions+ are:
@@ -135,12 +124,15 @@ module HexaPDF
         end
 
         # Returns the size of the signature that would be created.
+        #
+        # The size is determined by using #sign to sign an empty string.
         def signature_size
           sign(StringIO.new, [0, 0, 0, 0]).size
         end
 
         # Finalizes the signature field as well as the signature dictionary before writing.
         def finalize_objects(_signature_field, signature)
+          signature[:SubFilter] = :'ETSI.CAdES.detached' if signature_type == :etsi
           signature[:Reason] = reason if reason
           signature[:Location] = location if location
           signature[:ContactInfo] = contact_info if contact_info
@@ -221,6 +213,14 @@ module HexaPDF
       #     The key-value pairs of this hash will be passed on to the HexaPDF::Document#write
       #     command. Note that +incremental+ will be automatically set if signing an already
       #     existing file.
+      #
+      # The used signature object will have the following default values set:
+      #
+      # /Filter::    /Adobe.PPKLite
+      # /SubFilter:: /adbe.pkcs7.detached
+      # /M::         The current time.
+      #
+      # These values can be overridden in the #finalize_objects method of the signature handler.
       def add(file_or_io, handler, signature: nil, write_options: {})
         if signature && signature.type != :Sig
           signature_field = signature
@@ -242,11 +242,12 @@ module HexaPDF
         end
 
         # Prepare signature object
-        signature[:Filter] = handler.filter_name
-        signature[:SubFilter] = handler.sub_filter_name
+        signature[:Filter] = :'Adobe.PPKLite'
+        signature[:SubFilter] = :'adbe.pkcs7.detached'
+        signature[:M] = Time.now
+        handler.finalize_objects(signature_field, signature)
         signature[:ByteRange] = [0, 1_000_000_000_000, 1_000_000_000_000, 1_000_000_000_000]
         signature[:Contents] = '00' * handler.signature_size # twice the size due to hex encoding
-        signature[:M] = Time.now
 
         io = if file_or_io.kind_of?(String)
                File.open(file_or_io, 'wb+')
@@ -256,7 +257,6 @@ module HexaPDF
 
         # Save the current state so that we can determine the correct /ByteRange value and set the
         # values
-        handler.finalize_objects(signature_field, signature)
         start_xref_position, section = @document.write(io, incremental: true, **write_options)
         data = section.map {|oid, _gen, entry| [entry.pos, oid] if entry.in_use? }.compact.sort <<
           [start_xref_position, nil]
