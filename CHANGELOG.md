@@ -36,6 +36,8 @@
 * [HexaPDF::Type::OutlineItem] to always be an indirect object
 * `HexaPDF::Tokenizer#parse_number` to handle references correctly in all cases
 * [HexaPDF::Type::Page#rotate] to correctly flatten all page boxes
+* [HexaPDF::Document::Signatures#add] to raise an error if the reserved space
+  for the signature is not enough
 
 
 ## 0.26.2 - 2022-10-22
