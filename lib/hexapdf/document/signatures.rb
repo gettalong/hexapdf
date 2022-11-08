@@ -380,6 +380,11 @@ module HexaPDF
         signature_data.sub!(/Contents\(0+\)/) do |match|
           length = match.size
           result = "Contents<#{signature[:Contents].unpack1('H*')}"
+          if length < result.size
+            raise HexaPDF::Error, "The reserved space for the signature was too small " \
+              "(#{(length - 10) / 2} vs #{(result.size - 10) / 2}) - use the handlers " \
+              "#signature_size method to increase the reserved space"
+          end
           "#{result.ljust(length - 1, '0')}>"
         end
 

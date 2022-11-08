@@ -311,5 +311,11 @@ describe HexaPDF::Document::Signatures do
       signed_doc = HexaPDF::Document.new(io: @io)
       assert(signed_doc.signatures.first.verify)
     end
+
+    it "fails if the reserved signature space is too small" do
+      def @handler.signature_size; 200; end
+      msg = assert_raises(HexaPDF::Error) { @doc.signatures.add(@io, @handler) }
+      assert_match(/space.*too small.*200 vs/, msg.message)
+    end
   end
 end
