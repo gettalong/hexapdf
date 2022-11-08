@@ -91,6 +91,32 @@ module HexaPDF
             signer_cert
           end
       end
+
+      def start_tsa_server
+        return if defined?(@tsa_server)
+        require 'webrick'
+        port = 34567
+        @tsa_server = WEBrick::HTTPServer.new(Port: port, BindAddress: '127.0.0.1',
+                                              Logger: WEBrick::Log.new(StringIO.new), AccessLog: [])
+        @tsa_server.mount_proc('/') do |request, response|
+          @tsr = OpenSSL::Timestamp::Request.new(request.body)
+          case (@tsr.policy_id || '1.2.3.4.0')
+          when '1.2.3.4.0', '1.2.3.4.2'
+            fac = OpenSSL::Timestamp::Factory.new
+            fac.gen_time = Time.now
+            fac.serial_number = 1
+            fac.default_policy_id = '1.2.3.4.5'
+            fac.allowed_digests = ["sha256", "sha512"]
+            tsr = fac.create_timestamp(CERTIFICATES.signer_key, CERTIFICATES.timestamp_certificate,
+                                       @tsr)
+            response.body = tsr.to_der
+          when '1.2.3.4.1'
+            response.status = 403
+            response.body = "Invalid"
+          end
+        end
+        Thread.new { @tsa_server.start }
+      end
     end
 
   end

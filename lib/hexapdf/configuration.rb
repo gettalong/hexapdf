@@ -488,6 +488,7 @@ module HexaPDF
                       },
                       'signature.signing_handler' => {
                         default: 'HexaPDF::Document::Signatures::DefaultHandler',
+                        timestamp: 'HexaPDF::Document::Signatures::TimestampHandler',
                       },
                       'signature.sub_filter_map' => {
                         'adbe.x509.rsa_sha1': 'HexaPDF::Type::Signature::AdbeX509RsaSha1',
