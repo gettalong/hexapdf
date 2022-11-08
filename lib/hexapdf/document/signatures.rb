@@ -35,6 +35,7 @@
 #++
 
 require 'openssl'
+require 'net/http'
 require 'hexapdf/error'
 
 module HexaPDF
@@ -159,6 +160,93 @@ module HexaPDF
           data << io.read(byte_range[3])
           OpenSSL::PKCS7.sign(@certificate, @key, data, @certificate_chain,
                               OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY).to_der
+        end
+
+      end
+
+      # This is a signing handler for adding a timestamp signature (a PDF2.0 feature) to a PDF
+      # document.
+      #
+      # The timestamp is provided by a timestamp authority and establishes the document contents at
+      # the time indicated in the timestamp. Timestamping a PDF document is usually done in context
+      # of long term validation but can also be done standalone.
+      #
+      # One has to provide at least the URL of the timestamp authority server (TSA), everything else
+      # is optional and uses default values. The TSA server must not use authentication to be
+      # usable.
+      class TimestampHandler
+
+        # The URL of the timestamp authority server.
+        attr_accessor :tsa_url
+
+        # The hash algorithm to use for timestamping. Defaults to SHA512.
+        attr_accessor :tsa_hash_algorithm
+
+        # The policy OID to use for timestamping. Defaults to +nil+.
+        attr_accessor :tsa_policy_id
+
+        # The binary size of the signature.
+        #
+        # If this attribute has not been set, an empty string will be signed using #sign to
+        # determine the signature size which will contact the TSA server.
+        attr_writer :signature_size
+
+        # The reason for timestamping. If used, will be set on the signature object.
+        attr_accessor :reason
+
+        # The timestamping location. If used, will be set on the signature object.
+        attr_accessor :location
+
+        # The contact information. If used, will be set on the signature object.
+        attr_accessor :contact_info
+
+        # Creates a new TimestampHandler with the given attributes.
+        def initialize(**arguments)
+          arguments.each {|name, value| send("#{name}=", value) }
+        end
+
+        # Returns the size of the signature that would be created.
+        def signature_size
+          @signature_size || (sign(StringIO.new, [0, 0, 0, 0]).size * 1.5).to_i
+        end
+
+        # Finalizes the signature field as well as the signature dictionary before writing.
+        def finalize_objects(_signature_field, signature)
+          signature.document.version = '2.0'
+          signature[:Type] = :DocTimeStamp
+          signature[:SubFilter] = :'ETSI.RFC3161'
+          signature[:Reason] = reason if reason
+          signature[:Location] = location if location
+          signature[:ContactInfo] = contact_info if contact_info
+        end
+
+        # Returns the DER serialized OpenSSL::PKCS7 structure containing the timestamp token for the
+        # given IO byte ranges.
+        def sign(io, byte_range)
+          hash_algorithm = tsa_hash_algorithm || 'SHA512'
+          digest = OpenSSL::Digest.new(hash_algorithm)
+          io.pos = byte_range[0]
+          digest << io.read(byte_range[1])
+          io.pos = byte_range[2]
+          digest << io.read(byte_range[3])
+
+          req = OpenSSL::Timestamp::Request.new
+          req.algorithm = hash_algorithm
+          req.message_imprint = digest.digest
+          req.policy_id = tsa_policy_id if tsa_policy_id
+
+          http_response = Net::HTTP.post(URI(tsa_url), req.to_der,
+                                         'content-type' => 'application/timestamp-query')
+          if http_response.kind_of?(Net::HTTPOK)
+            response = OpenSSL::Timestamp::Response.new(http_response.body)
+            if response.status == 0
+              response.token.to_der
+            else
+              raise HexaPDF::Error, "Timestamp token could not be created: #{response.failure_info}"
+            end
+          else
+            raise HexaPDF::Error, "Invalid TSA server response: #{http_response.body}"
+          end
         end
 
       end

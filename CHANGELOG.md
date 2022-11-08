@@ -2,6 +2,8 @@
 
 ### Added
 
+* Support for timestamp signatures through the
+  [HexaPDF::Document::Signatures::TimestampHandler]
 * [HexaPDF::Document::Destinations#resolve] for resolving destination values
 * [HexaPDF::Document::Destinations::Destination#value] to return the destination
   array
