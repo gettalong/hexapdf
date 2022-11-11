@@ -91,7 +91,7 @@ with example graphics and PDF files and tightly integrated into the rest of the 
 ## Requirements and Installation
 
 Since HexaPDF is written in Ruby, a working Ruby installation is needed - see the
-[official installation documentation][rbinstall] for details. Note that you need Ruby version 2.5 or
+[official installation documentation][rbinstall] for details. Note that you need Ruby version 2.6 or
 higher as prior versions are not supported!
 
 HexaPDF works on all Ruby implementations that are CRuby compatible, e.g. TruffleRuby, and on any
