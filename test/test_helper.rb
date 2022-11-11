@@ -3,7 +3,7 @@
 begin
   require 'simplecov'
   SimpleCov.start do
-    minimum_coverage line: 100
+    minimum_coverage line: 100 unless ENV['NO_SIMPLECOV']
     add_filter '/test/'
     add_filter '/fast_arc4.rb'
   end
