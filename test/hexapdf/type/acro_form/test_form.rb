@@ -355,6 +355,47 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal("0.0 g /F1 0 Tf", @acro_form[:DA])
     end
 
+    describe "field hierarchy validation" do
+      before do
+        @acro_form[:Fields] = [
+          nil,
+          HexaPDF::Object.new(nil),
+          5,
+          HexaPDF::Object.new(5),
+          @doc.add({T: :Tx1}),
+          @doc.add({T: :Tx2, Kids: [nil, @doc.add({Subtype: :Widget})]}),
+          @doc.add({T: :Tx3, FT: :Tx, Kids: [@doc.add({T: :Tx4}),
+                                             [:nothing],
+                                             @doc.add({T: :Tx5, Kids: [@doc.add({T: :Tx6})]})]}),
+        ]
+        @acro_form[:Fields][6][:Kids][0][:Parent] = @acro_form[:Fields][6]
+        @acro_form[:Fields][6][:Kids][2][:Parent] = @acro_form[:Fields][6]
+        @acro_form[:Fields][6][:Kids][2][:Kids][0][:Parent] = @acro_form[:Fields][6][:Kids][2]
+      end
+
+      it "removes invalid objects from the field hierarchy" do
+        assert(@acro_form.validate)
+        assert_equal([:Tx1, :Tx2, :Tx3, :Tx4, :Tx5, :Tx6],
+                     @acro_form.each_field(terminal_only: false).map {|f| f[:T] })
+      end
+
+      it "handles missing /Parent fields" do
+        @acro_form[:Fields][6][:Kids][0].delete(:Parent)
+        assert(@acro_form.validate)
+        assert_equal(1, @acro_form[:Fields][2][:Kids].size)
+        assert_equal(:Tx5, @acro_form[:Fields][2][:Kids][0][:T])
+        assert_equal(:Tx4, @acro_form[:Fields][3][:T])
+      end
+
+      it "handles /Parent field pointing to somewhere else" do
+        @acro_form[:Fields][6][:Kids][0][:Parent] = @acro_form[:Fields][4]
+        assert(@acro_form.validate)
+        assert_equal(2, @acro_form[:Fields][2][:Kids].size)
+        assert_equal(:Tx4, @acro_form[:Fields][2][:Kids][0][:T])
+        assert_equal(@acro_form[:Fields][2], @acro_form[:Fields][2][:Kids][0][:Parent])
+      end
+    end
+
     describe "automatically creates the terminal fields; appearances" do
       before do
         @cb = @acro_form.create_check_box('test2')

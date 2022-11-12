@@ -38,6 +38,8 @@
 * [HexaPDF::Type::Page#rotate] to correctly flatten all page boxes
 * [HexaPDF::Document::Signatures#add] to raise an error if the reserved space
   for the signature is not enough
+* `HexaPDF::Type::AcroForm::Form#perform_validation` to fix broken /Parent
+  entries and to remove invalid objects from the field hierarchy
 
 
 ## 0.26.2 - 2022-10-22

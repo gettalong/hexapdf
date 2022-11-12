@@ -449,6 +449,32 @@ module HexaPDF
         def perform_validation # :nodoc:
           super
 
+          validate_array = lambda do |parent, container|
+            container.reject! do |field|
+              if !field.kind_of?(HexaPDF::Object) || !field.kind_of?(HexaPDF::Dictionary) || field.null?
+                yield("Invalid object in AcroForm field hierarchy", true)
+                next true
+              end
+              next false unless field.key?(:T) # Skip widgets
+
+              field = document.wrap(field, type: :XXAcroFormField,
+                                    subtype: Field.inherited_value(field, :FT))
+              reject = false
+              if field[:Parent] != parent
+                yield("Parent entry of field (#{field.oid},#{field.gen}) invalid", true)
+                if field[:Parent].nil?
+                  root_fields << field
+                  reject = true
+                else
+                  field[:Parent] = parent
+                end
+              end
+              validate_array.call(field, field[:Kids]) if field.key?(:Kids)
+              reject
+            end
+          end
+          validate_array.call(nil, root_fields)
+
           if (da = self[:DA])
             unless self[:DR]
               yield("When the field /DA is present, the field /DR must also be present")
