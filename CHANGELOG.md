@@ -21,7 +21,8 @@
   `#level` and `#destination_page` as well as changes to `#add` and `#each_item`
 * **Breaking change**: Removed `#filter_name` and `#sub_filter_name` from
   [HexaPDF::Document::Signatures::DefaultHandler]
-
+* `HexaPDF::Type::Resources#perform_validation` to not add a default procedure
+  set since this feature is deprecated
 
 ### Fixed
 
