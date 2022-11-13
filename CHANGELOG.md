@@ -40,6 +40,8 @@
   for the signature is not enough
 * `HexaPDF::Type::AcroForm::Form#perform_validation` to fix broken /Parent
   entries and to remove invalid objects from the field hierarchy
+* `HexaPDF::Type::OutlineItem#perform_validation` bug where a missing /Count key
+  was deemed invalid
 
 
 ## 0.26.2 - 2022-10-22
