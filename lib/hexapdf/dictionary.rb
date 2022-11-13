@@ -259,22 +259,13 @@ module HexaPDF
       end
     end
 
-    # Iterates over all currently set fields and those that are required.
-    def each_set_key_or_required_field #:yields: name, field
-      value.keys.each {|name| yield(name, self.class.field(name)) }
-      self.class.each_field do |name, field|
-        yield(name, field) if field.required? && !value.key?(name)
-      end
-    end
-
     # Performs validation tasks based on the currently set keys and defined fields.
     def perform_validation(&block)
       super
-      each_set_key_or_required_field do |name, field|
-        obj = key?(name) ? self[name] : nil
+      self.class.each_field do |name, field|
+        next unless field.required? || value.key?(name)
 
-        # The checks below need a valid field definition
-        next if field.nil?
+        obj = key?(name) ? self[name] : nil
 
         # Check that required fields are set
         if field.required? && obj.nil?
