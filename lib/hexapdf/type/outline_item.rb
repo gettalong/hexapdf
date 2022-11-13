@@ -399,7 +399,7 @@ module HexaPDF
           node, dir = first ? [first, :Next] : [last, :Prev]
           node = node[dir] while node.key?(dir)
           self[dir == :Next ? :Last : :First] = node
-        elsif !first && !last && self[:Count] != 0
+        elsif !first && !last && self[:Count] && self[:Count] != 0
           yield('Outline item dictionary key /Count set but no descendants exist', true)
           delete(:Count)
         end

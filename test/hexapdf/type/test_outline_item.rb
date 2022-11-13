@@ -311,6 +311,7 @@ describe HexaPDF::Type::OutlineItem do
         assert(correctable)
       end
       refute(@item.key?(:Count))
+      assert(@item.validate(auto_correct: false))
     end
 
     it "fails validation if the previous item's /Next points somewhere else" do
