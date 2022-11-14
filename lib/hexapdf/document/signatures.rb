@@ -286,6 +286,54 @@ module HexaPDF
 
       end
 
+      # Embeds the given +signature+ into the /Contents value of the newest signature dictionary of
+      # the PDF document given by the +io+ argument.
+      #
+      # This functionality can be used together with the support for external signing (see
+      # DefaultHandler and DefaultHandler#external_signing) to implement asynchronous signing.
+      #
+      # Note: This will, most probably, only work on documents prepared for external signing by
+      # HexaPDF and not by other libraries.
+      def self.embed_signature(io, signature)
+        doc = HexaPDF::Document.new(io: io)
+        signature_dict = doc.signatures.find {|sig| doc.revisions.current.object(sig) == sig }
+        signature_dict_offset, signature_dict_length = locate_signature_dict(
+          doc.revisions.current.xref_section,
+          doc.revisions.parser.startxref_offset,
+          signature_dict.oid
+        )
+        io.pos = signature_dict_offset
+        signature_data = io.read(signature_dict_length)
+        replace_signature_contents(signature_data, signature)
+        io.pos = signature_dict_offset
+        io.write(signature_data)
+      end
+
+      # Uses the information in the given cross-reference section as well as the byte offset of the
+      # cross-reference section to calculate the offset and length of the signature dictionary with
+      # the given object id.
+      def self.locate_signature_dict(xref_section, start_xref_position, signature_oid)
+        data = xref_section.map {|oid, _gen, entry| [entry.pos, oid] if entry.in_use? }.compact.sort <<
+          [start_xref_position, nil]
+        index = data.index {|_pos, oid| oid == signature_oid }
+        [data[index][0], data[index + 1][0] - data[index][0]]
+      end
+
+      # Replaces the value of the /Contents key in the serialized +signature_data+ with the value of
+      # +contents+.
+      def self.replace_signature_contents(signature_data, contents)
+        signature_data.sub!(/Contents(?:\(.*?\)|<.*?>)/) do |match|
+          length = match.size
+          result = "Contents<#{contents.unpack1('H*')}"
+          if length < result.size
+            raise HexaPDF::Error, "The reserved space for the signature was too small " \
+              "(#{(length - 10) / 2} vs #{(result.size - 10) / 2}) - use the handlers " \
+              "#signature_size method to increase the reserved space"
+          end
+          "#{result.ljust(length - 1, '0')}>"
+        end
+      end
+
       include Enumerable
 
       # Creates a new Signatures object for the given PDF document.
@@ -380,12 +428,9 @@ module HexaPDF
 
         # Save the current state so that we can determine the correct /ByteRange value and set the
         # values
-        start_xref_position, section = @document.write(io, incremental: true, **write_options)
-        data = section.map {|oid, _gen, entry| [entry.pos, oid] if entry.in_use? }.compact.sort <<
-          [start_xref_position, nil]
-        index = data.index {|_pos, oid| oid == signature.oid }
-        signature_offset = data[index][0]
-        signature_length = data[index + 1][0] - data[index][0]
+        start_xref, section = @document.write(io, incremental: true, **write_options)
+        signature_offset, signature_length = self.class.locate_signature_dict(section, start_xref,
+                                                                              signature.oid)
         io.pos = signature_offset
         signature_data = io.read(signature_length)
 
@@ -411,18 +456,8 @@ module HexaPDF
         io.write(signature_data)
         signature[:Contents] = handler.sign(io, signature[:ByteRange].value)
 
-        # Set the correct /Contents value as hexstring
-        signature_data.sub!(/Contents\(0+\)/) do |match|
-          length = match.size
-          result = "Contents<#{signature[:Contents].unpack1('H*')}"
-          if length < result.size
-            raise HexaPDF::Error, "The reserved space for the signature was too small " \
-              "(#{(length - 10) / 2} vs #{(result.size - 10) / 2}) - use the handlers " \
-              "#signature_size method to increase the reserved space"
-          end
-          "#{result.ljust(length - 1, '0')}>"
-        end
-
+        # And now replace the /Contents value
+        self.class.replace_signature_contents(signature_data, signature[:Contents])
         io.pos = signature_offset
         io.write(signature_data)
 
