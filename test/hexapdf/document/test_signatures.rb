@@ -22,6 +22,8 @@ describe HexaPDF::Document::Signatures do
   describe "DefaultHandler" do
     it "returns the size of serialized signature" do
       assert_equal(1310, @handler.signature_size)
+      @handler.signature_size = 100
+      assert_equal(100, @handler.signature_size)
     end
 
     it "allows setting the DocMDP permissions" do

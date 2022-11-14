@@ -8,6 +8,8 @@
 * [HexaPDF::Document::Destinations::Destination#value] to return the destination
   array
 * Support for verifying document timestamp signatures
+* [HexaPDF::Document::Signatures::DefaultHandler#signature_size] to support
+  setting custom signature sizes
 
 ### Changed
 
