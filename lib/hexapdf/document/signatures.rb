@@ -37,6 +37,7 @@
 require 'openssl'
 require 'net/http'
 require 'hexapdf/error'
+require 'stringio'
 
 module HexaPDF
   class Document
