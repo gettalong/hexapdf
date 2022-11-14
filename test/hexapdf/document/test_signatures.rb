@@ -19,6 +19,32 @@ describe HexaPDF::Document::Signatures do
     )
   end
 
+  it "allows embedding an external signature value" do
+    doc = HexaPDF::Document.new(io: StringIO.new(MINIMAL_PDF))
+    io = StringIO.new(''.b)
+    doc.signatures.add(io, @handler)
+    doc = HexaPDF::Document.new(io: io)
+    io = StringIO.new(''.b)
+
+    byte_range = nil
+    @handler.signature_size = 5000
+    @handler.external_signing = proc {|_, br| byte_range = br; "" }
+    doc.signatures.add(io, @handler)
+
+    io.pos = byte_range[0]
+    data = io.read(byte_range[1])
+    io.pos = byte_range[2]
+    data << io.read(byte_range[3])
+    contents = OpenSSL::PKCS7.sign(@handler.certificate, @handler.key, data, @handler.certificate_chain,
+                                   OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY).to_der
+    HexaPDF::Document::Signatures.embed_signature(io, contents)
+    doc = HexaPDF::Document.new(io: io)
+    assert_equal(2, doc.signatures.each.count)
+    doc.signatures.each do |signature|
+      assert(signature.verify(allow_self_signed: true).messages.find {|m| m.content == 'Signature valid' })
+    end
+  end
+
   describe "DefaultHandler" do
     it "returns the size of serialized signature" do
       assert_equal(1310, @handler.signature_size)

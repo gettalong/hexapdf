@@ -12,6 +12,8 @@
   setting custom signature sizes
 * [HexaPDF::Document::Signatures::DefaultHandler#external_signing] to support
   signing via custom mechanisms
+* [HexaPDF::Document::Signatures::embed_signature] to enable asynchronous
+  external signing
 
 ### Changed
 
