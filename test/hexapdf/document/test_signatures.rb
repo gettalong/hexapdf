@@ -50,16 +50,23 @@ describe HexaPDF::Document::Signatures do
       assert_raises(ArgumentError) { @handler.doc_mdp_permissions = :other }
     end
 
-    it "can sign the data using PKCS7" do
-      data = StringIO.new("data")
-      store = OpenSSL::X509::Store.new
-      store.add_cert(CERTIFICATES.ca_certificate)
+    describe "sign" do
+      it "can sign the data using PKCS7" do
+        data = StringIO.new("data")
+        store = OpenSSL::X509::Store.new
+        store.add_cert(CERTIFICATES.ca_certificate)
 
-      pkcs7 = OpenSSL::PKCS7.new(@handler.sign(data, [0, 4, 0, 0]))
-      assert(pkcs7.detached?)
-      assert_equal([CERTIFICATES.signer_certificate, CERTIFICATES.ca_certificate],
-                   pkcs7.certificates)
-      assert(pkcs7.verify([], store, data.string, OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY))
+        pkcs7 = OpenSSL::PKCS7.new(@handler.sign(data, [0, 4, 0, 0]))
+        assert(pkcs7.detached?)
+        assert_equal([CERTIFICATES.signer_certificate, CERTIFICATES.ca_certificate],
+                     pkcs7.certificates)
+        assert(pkcs7.verify([], store, data.string, OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY))
+      end
+
+      it "can use external signing" do
+        @handler.external_signing = proc { "hallo" }
+        assert_equal("hallo", @handler.sign(StringIO.new, [0, 0, 0, 0]))
+      end
     end
 
     describe "finalize_objects" do

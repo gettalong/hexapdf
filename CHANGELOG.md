@@ -10,6 +10,8 @@
 * Support for verifying document timestamp signatures
 * [HexaPDF::Document::Signatures::DefaultHandler#signature_size] to support
   setting custom signature sizes
+* [HexaPDF::Document::Signatures::DefaultHandler#external_signing] to support
+  signing via custom mechanisms
 
 ### Changed
 
