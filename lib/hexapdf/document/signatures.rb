@@ -45,8 +45,25 @@ module HexaPDF
     # This class provides methods for interacting with digital signatures of a PDF file.
     class Signatures
 
-      # This is the default signing handler which provides the ability to sign a document with a
-      # provided certificate using the adbe.pkcs7.detached or ETSI.CAdES.detached algorithms.
+      # This is the default signing handler which provides the ability to sign a document with the
+      # adbe.pkcs7.detached or ETSI.CAdES.detached algorithms.
+      #
+      # There are two ways to create the necessary PKCS#7 structure:
+      #
+      # * By providing the signing certificate together with the signing key and the certificate
+      #   chain. This way HexaPDF itself does the signing. It is the preferred way if all the needed
+      #   information is available.
+      #
+      #   Assign the respective data to the #certificate, #key and #certificate_chain attributes.
+      #
+      # * By using an external signing mechanism. Here the actual signing happens "outside" of
+      #   HexaPDF, for example, in custom code or even asynchronously. This is needed in case the
+      #   signing certificate plus key are not available but only an interface to them (e.g. when
+      #   dealing with a HSM).
+      #
+      #   Assign a callable object to #external_signing. If the signing process needs to be
+      #   asynchronous, make sure to set the #signature_size appropriately, return an empty string
+      #   during signing and later use Signatures.embed_signature to embed the actual signature.
       #
       # Additional functionality:
       #
@@ -72,6 +89,13 @@ module HexaPDF
         # The certificate chain that should be embedded in the PDF; normally contains all
         # certificates up to the root certificate.
         attr_accessor :certificate_chain
+
+        # A callable object fulfilling the same role as the #sign method that is used instead of the
+        # default mechanism for signing.
+        #
+        # If this attribute is set, the attributes #certificate, #key and #certificate_chain are not
+        # used.
+        attr_accessor :external_signing
 
         # The reason for signing. If used, will be set on the signature object.
         attr_accessor :reason
@@ -161,12 +185,16 @@ module HexaPDF
         # Returns the DER serialized OpenSSL::PKCS7 structure containing the signature for the given
         # IO byte ranges.
         def sign(io, byte_range)
-          io.pos = byte_range[0]
-          data = io.read(byte_range[1])
-          io.pos = byte_range[2]
-          data << io.read(byte_range[3])
-          OpenSSL::PKCS7.sign(@certificate, @key, data, @certificate_chain,
-                              OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY).to_der
+          if @external_signing
+            @external_signing.call(io, byte_range)
+          else
+            io.pos = byte_range[0]
+            data = io.read(byte_range[1])
+            io.pos = byte_range[2]
+            data << io.read(byte_range[3])
+            OpenSSL::PKCS7.sign(@certificate, @key, data, @certificate_chain,
+                                OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY).to_der
+          end
         end
 
       end
