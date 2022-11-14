@@ -82,6 +82,12 @@ module HexaPDF
         # The contact information. If used, will be set on the signature object.
         attr_accessor :contact_info
 
+        # The binary size of the signature.
+        #
+        # If this attribute has not been set, an empty string will be signed using #sign to
+        # determine the signature size.
+        attr_writer :signature_size
+
         # The type of signature to be written (i.e. the value of the /SubFilter key).
         #
         # The value can either be :adobe (the default; uses a detached PKCS7 signature) or :etsi
@@ -129,7 +135,7 @@ module HexaPDF
         #
         # The size is determined by using #sign to sign an empty string.
         def signature_size
-          sign(StringIO.new, [0, 0, 0, 0]).size
+          @signature_size || sign(StringIO.new, [0, 0, 0, 0]).size
         end
 
         # Finalizes the signature field as well as the signature dictionary before writing.
