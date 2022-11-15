@@ -46,9 +46,16 @@ module HexaPDF
     class Signatures
 
       # This is the default signing handler which provides the ability to sign a document with the
-      # adbe.pkcs7.detached or ETSI.CAdES.detached algorithms.
+      # adbe.pkcs7.detached or ETSI.CAdES.detached algorithms. It is registered under the :default
+      # name.
       #
-      # There are two ways to create the necessary PKCS#7 structure:
+      # == Usage
+      #
+      # The signing handler is used by default by all methods that need a signing handler. Therefore
+      # it is usually only necessary to provide the actual attribute values.
+      #
+      # This handler provides two ways to create the PKCS#7 signed-data structure required by
+      # Signatures#add:
       #
       # * By providing the signing certificate together with the signing key and the certificate
       #   chain. This way HexaPDF itself does the signing. It is the preferred way if all the needed
@@ -58,8 +65,8 @@ module HexaPDF
       #
       # * By using an external signing mechanism. Here the actual signing happens "outside" of
       #   HexaPDF, for example, in custom code or even asynchronously. This is needed in case the
-      #   signing certificate plus key are not available but only an interface to them (e.g. when
-      #   dealing with a HSM).
+      #   signing certificate plus key are not directly available but only an interface to them
+      #   (e.g. when dealing with a HSM).
       #
       #   Assign a callable object to #external_signing. If the signing process needs to be
       #   asynchronous, make sure to set the #signature_size appropriately, return an empty string
@@ -70,10 +77,27 @@ module HexaPDF
       # * Optionally setting the reason, location and contact information.
       # * Making the signature a certification signature by applying the DocMDP transform method.
       #
+      # Example:
+      #
+      #   # Signing using certificate + key
+      #   document.sign("output.pdf", certificate: my_cert, key: my_key,
+      #                 certificate_chain: my_chain)
+      #
+      #   # Signing using an external mechanism:
+      #   signing_proc = lambda do |io, byte_range|
+      #     io.pos = byte_range[0]
+      #     data = io.read(byte_range[1])
+      #     io.pos = byte_range[2]
+      #     data << io.read(byte_range[3])
+      #     signing_service.pkcs7_sign(data)
+      #   end
+      #   document.sign("output.pdf", signature_size: 10_000, external_signing: signing_proc)
+      #
       # == Implementing a Signing Handler
       #
       # This class also serves as an example on how to create a custom handler: The public methods
       # #signature_size, #finalize_objects and #sign are used by the digital signature algorithm.
+      # See their descriptions for details.
       #
       # Once a custom signing handler has been created, it can be registered under the
       # 'signature.signing_handler' configuration option for easy use. It has to take keyword
@@ -106,10 +130,13 @@ module HexaPDF
         # The contact information. If used, will be set on the signature object.
         attr_accessor :contact_info
 
-        # The binary size of the signature.
+        # The size of the serialized signature that should be reserved.
         #
         # If this attribute has not been set, an empty string will be signed using #sign to
         # determine the signature size.
+        #
+        # The size needs to be at least as big as the final signature, otherwise signing results in
+        # an error.
         attr_writer :signature_size
 
         # The type of signature to be written (i.e. the value of the /SubFilter key).
@@ -155,9 +182,10 @@ module HexaPDF
           end
         end
 
-        # Returns the size of the signature that would be created.
+        # Returns the size of the serialized signature that should be reserved.
         #
-        # The size is determined by using #sign to sign an empty string.
+        # If a custom size is set using #signature_size=, it used. Otherwise the size is determined
+        # by using #sign to sign an empty string.
         def signature_size
           @signature_size || sign(StringIO.new, [0, 0, 0, 0]).size
         end
@@ -184,6 +212,10 @@ module HexaPDF
 
         # Returns the DER serialized OpenSSL::PKCS7 structure containing the signature for the given
         # IO byte ranges.
+        #
+        # The +byte_range+ argument is an array containing four numbers [offset1, length1, offset2,
+        # length2]. The offset numbers are byte positions in the +io+ argument and the to-be-signed
+        # data can be determined by reading length bytes at the offsets.
         def sign(io, byte_range)
           if @external_signing
             @external_signing.call(io, byte_range)
@@ -200,18 +232,26 @@ module HexaPDF
       end
 
       # This is a signing handler for adding a timestamp signature (a PDF2.0 feature) to a PDF
-      # document.
+      # document. It is registered under the :timestamp name.
       #
       # The timestamp is provided by a timestamp authority and establishes the document contents at
       # the time indicated in the timestamp. Timestamping a PDF document is usually done in context
       # of long term validation but can also be done standalone.
       #
-      # One has to provide at least the URL of the timestamp authority server (TSA), everything else
-      # is optional and uses default values. The TSA server must not use authentication to be
-      # usable.
+      # == Usage
+      #
+      # It is necessary to provide at least the URL of the timestamp authority server (TSA) via
+      # #tsa_url, everything else is optional and uses default values. The TSA server must not use
+      # authentication to be usable.
+      #
+      # Example:
+      #
+      #   document.sign("output.pdf", handler: :timestamp, tsa_url: 'https://freetsa.org/tsr')
       class TimestampHandler
 
         # The URL of the timestamp authority server.
+        #
+        # This value is required.
         attr_accessor :tsa_url
 
         # The hash algorithm to use for timestamping. Defaults to SHA512.
@@ -220,10 +260,13 @@ module HexaPDF
         # The policy OID to use for timestamping. Defaults to +nil+.
         attr_accessor :tsa_policy_id
 
-        # The binary size of the signature.
+        # The size of the serialized signature that should be reserved.
         #
         # If this attribute has not been set, an empty string will be signed using #sign to
-        # determine the signature size which will contact the TSA server.
+        # determine the signature size which will contact the TSA server
+        #
+        # The size needs to be at least as big as the final signature, otherwise signing results in
+        # an error.
         attr_writer :signature_size
 
         # The reason for timestamping. If used, will be set on the signature object.
@@ -240,7 +283,7 @@ module HexaPDF
           arguments.each {|name, value| send("#{name}=", value) }
         end
 
-        # Returns the size of the signature that would be created.
+        # Returns the size of the serialized signature that should be reserved.
         def signature_size
           @signature_size || (sign(StringIO.new, [0, 0, 0, 0]).size * 1.5).to_i
         end
@@ -341,15 +384,15 @@ module HexaPDF
         @document = document
       end
 
-      # Creates a signing handler with the given options and returns it.
+      # Creates a signing handler with the given attributes and returns it.
       #
       # A signing handler name is mapped to a class via the 'signature.signing_handler'
       # configuration option. The default signing handler is DefaultHandler.
-      def handler(name: :default, **options)
+      def handler(name: :default, **attributes)
         handler = @document.config.constantize('signature.signing_handler', name) do
           raise HexaPDF::Error, "No signing handler named '#{name}' is available"
         end
-        handler.new(**options)
+        handler.new(**attributes)
       end
 
       # Adds a signature to the document and returns the corresponding signature object.
@@ -382,8 +425,7 @@ module HexaPDF
       #
       # +write_options+::
       #     The key-value pairs of this hash will be passed on to the HexaPDF::Document#write
-      #     command. Note that +incremental+ will be automatically set if signing an already
-      #     existing file.
+      #     method. Note that +incremental+ will be automatically set to ensure proper behaviour.
       #
       # The used signature object will have the following default values set:
       #
