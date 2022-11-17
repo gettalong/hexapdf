@@ -49,8 +49,9 @@ These options are available on every command (except if they are overridden):
 `--strict`
 
 : Enable strict parsing and validation. By default, correctable parse error and validation problems
-  are treated as warnings which allows processing most PDF files. If this option is used,
-  correctable parse errors and uncorrectable validation problems are treated as errors.
+  are treated as warnings which allows processing most PDF files, even many corrupt ones and ones
+  not strictly following the PDF specifcation. If this option is used, correctable parse errors and
+  uncorrectable validation problems are treated as errors.
 
   Note that a PDF file may have validation errors and still be usable since most viewing
   applications are very forgiving.
