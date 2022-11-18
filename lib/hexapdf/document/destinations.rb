@@ -107,8 +107,7 @@ module HexaPDF
       #     not changing it from the current value.
       class Destination
 
-        # :nodoc:
-        TYPE_MAPPING = {
+        TYPE_MAPPING = { #:nodoc:
           XYZ: :xyz,
           Fit: :fit_page,
           FitH: :fit_page_horizontal,
@@ -119,8 +118,7 @@ module HexaPDF
           FitBV: :fit_bounding_box_vertical,
         }
 
-        # :nodoc:
-        REVERSE_TYPE_MAPPING = Hash[*TYPE_MAPPING.flatten.reverse]
+        REVERSE_TYPE_MAPPING = Hash[*TYPE_MAPPING.flatten.reverse] #:nodoc:
 
         # Returns +true+ if the destination is valid.
         def self.valid?(destination)
