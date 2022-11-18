@@ -95,13 +95,15 @@ module HexaPDF
 
             if merge_revision == offset
               xref_section.merge!(revisions.first.xref_section)
+              offset = trailer[:Prev] # Get possible next offset before overwriting trailer
               trailer = revisions.first.trailer
               revisions.shift
+            else
+              offset = trailer[:Prev]
             end
 
             revisions.unshift(Revision.new(document.wrap(trailer, type: :XXTrailer),
                                            xref_section: xref_section, loader: object_loader))
-            offset = trailer[:Prev]
           end
         rescue HexaPDF::MalformedPDFError
           raise unless (reconstructed_revision = parser.reconstructed_revision)
