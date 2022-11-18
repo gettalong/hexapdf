@@ -149,10 +149,6 @@ describe HexaPDF::Document::Signatures do
       @handler = HexaPDF::Document::Signatures::TimestampHandler.new
     end
 
-    after do
-      @tsa_server&.shutdown
-    end
-
     it "allows setting the attributes in the constructor" do
       handler = HexaPDF::Document::Signatures::TimestampHandler.new(
         tsa_url: "url", tsa_hash_algorithm: "MD5", tsa_policy_id: "5",

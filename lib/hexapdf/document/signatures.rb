@@ -152,6 +152,7 @@ module HexaPDF
 
         # Creates a new DefaultHandler with the given attributes.
         def initialize(**arguments)
+          @signature_size = nil
           arguments.each {|name, value| send("#{name}=", value) }
         end
 
@@ -217,8 +218,8 @@ module HexaPDF
         # length2]. The offset numbers are byte positions in the +io+ argument and the to-be-signed
         # data can be determined by reading length bytes at the offsets.
         def sign(io, byte_range)
-          if @external_signing
-            @external_signing.call(io, byte_range)
+          if external_signing
+            external_signing.call(io, byte_range)
           else
             io.pos = byte_range[0]
             data = io.read(byte_range[1])
@@ -280,6 +281,7 @@ module HexaPDF
 
         # Creates a new TimestampHandler with the given attributes.
         def initialize(**arguments)
+          @signature_size = nil
           arguments.each {|name, value| send("#{name}=", value) }
         end
 
