@@ -108,7 +108,7 @@ describe HexaPDF::Parser do
     end
 
     it "treats indirect objects with invalid values as null objects" do
-      create_parser("1 0 obj <</test ( /other (end)>> endobj")
+      create_parser("1 0 obj <</test <end)> > endobj")
       object, * = @parser.parse_indirect_object
       assert_nil(object)
     end
@@ -210,7 +210,7 @@ describe HexaPDF::Parser do
       end
 
       it "fails for invalid values" do
-        create_parser("1 0 obj <</test ( /other (end)>> endobj")
+        create_parser("1 0 obj <</test <end)> >endobj")
         exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
         assert_match(/Invalid value after '1 0 obj'/, exp.message)
       end

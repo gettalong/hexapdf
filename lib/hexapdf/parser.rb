@@ -137,6 +137,7 @@ module HexaPDF
             @tokenizer.pos -= 6
           else
             maybe_raise("Invalid value after '#{oid} #{gen} obj', treating as null", pos: @tokenizer.pos)
+            return [nil, oid, gen, nil]
           end
         end
       end

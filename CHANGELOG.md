@@ -51,6 +51,7 @@
   was deemed invalid
 * [HexaPDF::Revisions::from_io] to use the correct /Prev offset when revisions
   have been merged
+* Handling of indirect objects with invalid values for more situations
 
 
 ## 0.26.2 - 2022-10-22
