@@ -49,6 +49,8 @@
   entries and to remove invalid objects from the field hierarchy
 * `HexaPDF::Type::OutlineItem#perform_validation` bug where a missing /Count key
   was deemed invalid
+* [HexaPDF::Revisions::from_io] to use the correct /Prev offset when revisions
+  have been merged
 
 
 ## 0.26.2 - 2022-10-22

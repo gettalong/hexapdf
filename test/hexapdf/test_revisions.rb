@@ -273,40 +273,48 @@ describe HexaPDF::Revisions do
       1 0 obj
       10
       endobj
+      xref
+      0 2
+      0000000000 65535 f 
+      0000000009 00000 n 
+      trailer
+      << /Size 2 >>
+      startxref
+      27
+      %%EOF
 
       2 0 obj
       20
       endobj
 
       3 0 obj
-      << /Type /XRef /Size 3 /Index [2 1] /W [1 1 1] /Filter /ASCIIHexDecode /Length 6
+      << /Type /XRef /Size 4 /Index [2 1] /W [1 1 1] /Filter /ASCIIHexDecode /Length 6
       >>stream
-      011C00
+      017600
       endstream
       endobj
 
       xref
-      0 4
+      2 2
       0000000000 65535 f 
-      0000000009 00000 n 
-      0000000000 65535 f 
-      0000000047 00000 n 
+      0000000137 00000 n 
       trailer
-      << /Size 3 >>
+      << /Size 4 /Prev 27>>
       startxref
-      170
+      260
       %%EOF
 
       xref
       0 0
       trailer
-      << /Size 3 /Prev 170 /XRefStm 47>>
+      << /Size 4 /Prev 260 /XRefStm 137>>
       startxref
-      302
+      360
       %%EOF
     EOF
-    doc = HexaPDF::Document.new(io: io)
-    assert_equal(1, doc.revisions.count)
+    doc = HexaPDF::Document.new(io: io, config: {'parser.try_xref_reconstruction' => false})
+    assert_equal(2, doc.revisions.count)
+    assert_equal(10, doc.object(1).value)
     assert_equal(20, doc.object(2).value)
   end
 
