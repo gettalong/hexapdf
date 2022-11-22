@@ -213,7 +213,15 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
       it "updates the widgets' /AS entry to point to the selected appearance" do
         @generator.create_appearances
-        assert_equal(@field[:V], @widget[:AS])
+        assert_equal(:Off, @widget[:AS])
+
+        @field.field_value = :Yes
+        @generator.create_appearances
+        assert_equal(:Yes, @widget[:AS])
+
+        @field.delete(:V)
+        @generator.create_appearances
+        assert_equal(:Off, @widget[:AS])
       end
 
       it "set the print flag on the widgets" do

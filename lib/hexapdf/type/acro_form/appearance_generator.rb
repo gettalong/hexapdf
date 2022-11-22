@@ -132,7 +132,7 @@ module HexaPDF
           border_style = @widget.border_style
           border_width = border_style.width
 
-          rect = update_widget(@field[:V], border_width)
+          rect = update_widget(@field[:V] == on_name ? on_name : :Off, border_width)
 
           off_form = @widget.appearance_dict.normal_appearance[:Off] =
             @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})

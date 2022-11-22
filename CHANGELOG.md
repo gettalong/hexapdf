@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Type::AcroForm::AppearanceGenerator#create_check_box_appearances] to
+  correctly handle a field value of `nil`
+
+
 ## 0.27.0 - 2022-11-18
 
 ### Added
