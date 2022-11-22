@@ -73,6 +73,8 @@ module HexaPDF
       # See: PDF1.7 s12.7.4.3
       class TextField < VariableTextField
 
+        define_type :XXAcroFormField
+
         define_field :MaxLen, type: Integer
 
         # All inheritable dictionary fields for text fields.

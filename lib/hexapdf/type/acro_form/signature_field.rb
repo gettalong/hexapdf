@@ -192,6 +192,8 @@ module HexaPDF
 
         end
 
+        define_type :XXAcroFormField
+
         define_field :Lock, type: :SigFieldLock, indirect: true, version: '1.5'
         define_field :SV, type: :SV, indirect: true, version: '1.5'
 

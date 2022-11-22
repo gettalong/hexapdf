@@ -10,6 +10,10 @@ describe HexaPDF::Type::AcroForm::TextField do
     @field = @doc.add({FT: :Tx}, type: :XXAcroFormField, subtype: :Tx)
   end
 
+  it "identifies as an :XXAcroFormField type" do
+    assert_equal(:XXAcroFormField, @field.type)
+  end
+
   it "resolves /MaxLen as inheritable field" do
     assert_nil(@field[:MaxLen])
 

@@ -10,6 +10,10 @@ describe HexaPDF::Type::AcroForm::ButtonField do
     @field = @doc.add({FT: :Btn, T: 'button'}, type: :XXAcroFormField, subtype: :Btn)
   end
 
+  it "identifies as an :XXAcroFormField type" do
+    assert_equal(:XXAcroFormField, @field.type)
+  end
+
   it "can be initialized as push button" do
     @field.initialize_as_push_button
     assert_nil(@field[:V])

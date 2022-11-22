@@ -10,6 +10,10 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
     @field = @doc.add({FT: :Ch, T: 'choice'}, type: :XXAcroFormField, subtype: :Ch)
   end
 
+  it "identifies as an :XXAcroFormField type" do
+    assert_equal(:XXAcroFormField, @field.type)
+  end
+
   it "can be initialized as list box" do
     @field.initialize_as_list_box
     assert_nil(@field[:V])

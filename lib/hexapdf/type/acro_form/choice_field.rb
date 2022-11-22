@@ -69,6 +69,8 @@ module HexaPDF
       # See: PDF1.7 s12.7.4.4
       class ChoiceField < VariableTextField
 
+        define_type :XXAcroFormField
+
         define_field :Opt, type: PDFArray
         define_field :TI, type: Integer, default: 0
         define_field :I, type: PDFArray, version: '1.4'

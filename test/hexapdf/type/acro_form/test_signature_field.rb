@@ -20,6 +20,10 @@ describe HexaPDF::Type::AcroForm::SignatureField do
     @field = @doc.wrap({}, type: :XXAcroFormField, subtype: :Sig)
   end
 
+  it "identifies as an :XXAcroFormField type" do
+    assert_equal(:XXAcroFormField, @field.type)
+  end
+
   it "sets the field value" do
     @field.field_value = {Empty: :True}
     assert_equal({Empty: :True}, @field[:V].value)

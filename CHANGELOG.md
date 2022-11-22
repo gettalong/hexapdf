@@ -4,6 +4,7 @@
 
 * [HexaPDF::Type::AcroForm::AppearanceGenerator#create_check_box_appearances] to
   correctly handle a field value of `nil`
+* Return value of `#type` method for all AcroForm field classes
 
 
 ## 0.27.0 - 2022-11-18

@@ -84,6 +84,8 @@ module HexaPDF
       # See: PDF1.7 s12.7.4.2
       class ButtonField < Field
 
+        define_type :XXAcroFormField
+
         define_field :Opt, type: PDFArray, version: '1.4'
 
         # All inheritable dictionary fields for button fields.
