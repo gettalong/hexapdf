@@ -401,7 +401,7 @@ module HexaPDF
             fields.each {|field| field.create_appearances if field.respond_to?(:create_appearances) }
           end
 
-          not_flattened = fields.map {|field| field.each_widget.to_a }.flatten
+          not_flattened = fields.map {|field| field.each_widget(direct_only: true).to_a }.flatten
           document.pages.each {|page| not_flattened = page.flatten_annotations(not_flattened) }
           not_flattened.map!(&:form_field)
           fields -= not_flattened
