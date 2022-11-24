@@ -125,14 +125,22 @@ module HexaPDF
         def each_field(terminal_only: true)
           return to_enum(__method__, terminal_only: terminal_only) unless block_given?
 
-          process_field = lambda do |field|
-            field = document.wrap(field, type: :XXAcroFormField,
-                                  subtype: Field.inherited_value(field, :FT))
-            yield(field) if field.terminal_field? || !terminal_only
-            field[:Kids].each(&process_field) unless field.terminal_field?
+          process_field_array = lambda do |array|
+            array.each_with_index do |field, index|
+              unless field.respond_to?(:type) && field.type == :XXAcroFormField
+                array[index] = field = document.wrap(field, type: :XXAcroFormField,
+                                                     subtype: Field.inherited_value(field, :FT))
+              end
+              if field.terminal_field?
+                yield(field)
+              else
+                yield(field) unless terminal_only
+                process_field_array.call(field[:Kids])
+              end
+            end
           end
 
-          root_fields.each(&process_field)
+          process_field_array.call(root_fields)
           self
         end
 
