@@ -159,6 +159,11 @@ module HexaPDF
       object
     end
 
+    # Returns +nil+ to end the recursion for field searching in Dictionary.field.
+    def self.field(_name)
+      nil
+    end
+
     # The wrapped HexaPDF::PDFData value.
     #
     # This attribute is not part of the public API!

@@ -108,11 +108,7 @@ module HexaPDF
     # The ancestor classes are also searched for such a field entry if none is found for the
     # current class.
     def self.field(name)
-      if defined?(@fields) && @fields.key?(name)
-        @fields[name]
-      elsif superclass.respond_to?(:field)
-        superclass.field(name)
-      end
+      @fields&.[](name) || superclass.field(name)
     end
 
     # :call-seq:
