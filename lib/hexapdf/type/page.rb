@@ -519,9 +519,9 @@ module HexaPDF
       # If an annotation is a form field widget, only the widget will be deleted but not the form
       # field itself.
       def flatten_annotations(annotations = self[:Annots])
-        return [] unless key?(:Annots)
+        not_flattened = (annotations || []).to_ary
+        return not_flattened unless key?(:Annots)
 
-        not_flattened = annotations.to_ary
         annotations = not_flattened & self[:Annots] if annotations != self[:Annots]
         return not_flattened if annotations.empty?
 

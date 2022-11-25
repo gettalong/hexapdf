@@ -5,6 +5,8 @@
 * [HexaPDF::Type::AcroForm::AppearanceGenerator#create_check_box_appearances] to
   correctly handle a field value of `nil`
 * Return value of `#type` method for all AcroForm field classes
+* [HexaPDF::Type::Page#flatten_annotations] to work correctly in case no
+  annotations are on the page
 
 
 ## 0.27.0 - 2022-11-18

@@ -494,10 +494,17 @@ describe HexaPDF::Type::Page do
       @canvas = @page.canvas(type: :overlay)
     end
 
-    it "does nothing if the page doesn't have any annotations" do
+    it "does nothing and returns the argument as array if the page doesn't have any annotations" do
+      annots = @page[:Annots]
+
       @page.delete(:Annots)
       result = @page.flatten_annotations
       assert(result.empty?)
+      assert_operators(@canvas.contents, [])
+
+      result = @page.flatten_annotations(annots)
+      assert_kind_of(Array, result)
+      assert_equal([@annot1, @annot2], result)
       assert_operators(@canvas.contents, [])
     end
 
