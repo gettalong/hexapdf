@@ -164,6 +164,8 @@ module HexaPDF
     def initialize(io: nil, decryption_opts: {}, config: {})
       @config = Configuration.with_defaults(config)
       @version = '1.2'
+      @cache = Hash.new {|h, k| h[k] = {} }
+      @listeners = {}
 
       @revisions = Revisions.from_io(self, io)
       @security_handler = if encrypted? && @config['document.auto_decrypt']
@@ -171,9 +173,6 @@ module HexaPDF
                           else
                             nil
                           end
-
-      @listeners = {}
-      @cache = Hash.new {|h, k| h[k] = {} }
     end
 
     # :call-seq:
