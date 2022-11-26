@@ -236,6 +236,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       @field.create_appearances
       yes = widget.appearance_dict.normal_appearance[:Yes]
       off = widget.appearance_dict.normal_appearance[:Off]
+      widget.appearance_dict.normal_appearance[:Yes] = HexaPDF::Reference.new(yes.oid)
       @field.create_appearances
       assert_same(yes, widget.appearance_dict.normal_appearance[:Yes])
       assert_same(off, widget.appearance_dict.normal_appearance[:Off])

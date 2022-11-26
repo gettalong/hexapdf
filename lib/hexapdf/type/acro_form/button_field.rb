@@ -256,7 +256,7 @@ module HexaPDF
             normal_appearance = widget.appearance_dict&.normal_appearance
             next if !force && normal_appearance &&
               ((!push_button? && normal_appearance.value.length == 2 &&
-                normal_appearance.value.each_value.all?(HexaPDF::Stream)) ||
+                normal_appearance.each.all? {|_, v| v.kind_of?(HexaPDF::Stream) }) ||
                (push_button? && normal_appearance.kind_of?(HexaPDF::Stream)))
             if check_box?
               appearance_generator_class.new(widget).create_check_box_appearances

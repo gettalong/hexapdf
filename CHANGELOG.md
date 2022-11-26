@@ -7,6 +7,8 @@
 * Return value of `#type` method for all AcroForm field classes
 * [HexaPDF::Type::Page#flatten_annotations] to work correctly in case no
   annotations are on the page
+* [HexaPDF::Type::AcroForm::ButtonField#create_appearances] to avoid creating
+  appearances in case of as-yet unresolved references to existing appearances
 
 
 ## 0.27.0 - 2022-11-18
