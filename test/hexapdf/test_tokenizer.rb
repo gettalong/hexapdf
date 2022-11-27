@@ -14,15 +14,14 @@ describe HexaPDF::Tokenizer do
 
   it "handles object references" do
     #HexaPDF::Reference.new(1, 0), HexaPDF::Reference.new(1, 2), 2, -1, 'R', 0, 0, 'R', -1, 0, 'R',
-    create_tokenizer("1 0 R +2 +15 R 2 -1 R 0 0 R -1 0 R")
+    create_tokenizer("1 0 R +2 +15 R 2 -1 R 0 0 R 0 10 R -1 0 R")
     assert_equal(HexaPDF::Reference.new(1, 0), @tokenizer.next_token)
     assert_equal(HexaPDF::Reference.new(2, 15), @tokenizer.next_token)
     assert_equal(2, @tokenizer.next_token)
     assert_equal(-1, @tokenizer.next_token)
     assert_equal('R', @tokenizer.next_token)
-    assert_equal(0, @tokenizer.next_token)
-    assert_equal(0, @tokenizer.next_token)
-    assert_equal('R', @tokenizer.next_token)
+    assert_nil(@tokenizer.next_token)
+    assert_nil(@tokenizer.next_token)
     assert_equal(-1, @tokenizer.next_token)
     assert_equal(0, @tokenizer.next_token)
     assert_equal('R', @tokenizer.next_token)

@@ -285,7 +285,14 @@ module HexaPDF
         tmp = val.to_i
         # Handle object references, see PDF1.7 s7.3.10
         prepare_string_scanner(10)
-        tmp = Reference.new(tmp, @ss[1].to_i) if tmp > 0 && @ss.scan(REFERENCE_RE)
+        if @ss.scan(REFERENCE_RE)
+          tmp = if tmp > 0
+                  Reference.new(tmp, @ss[1].to_i)
+                else
+                  maybe_raise("Invalid indirect object reference (#{tmp},#{@ss[1].to_i})")
+                  nil
+                end
+        end
         tmp
       elsif val.match?(/\A[+-]?(?:\d+\.\d*|\.\d+)\z/)
         val << '0' if val.getbyte(-1) == 46 # dot '.'
