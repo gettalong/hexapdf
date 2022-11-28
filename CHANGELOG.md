@@ -1,5 +1,11 @@
 ## Unreleased
 
+### Changed
+
+* **Breaking change**: `HexaPDF::Revision#reset_objects` has been removed
+* [HexaPDF::Revision#each_modified_object] to allow deleting the modified
+  objects from the active objects' container
+
 ### Fixed
 
 * [HexaPDF::Type::AcroForm::AppearanceGenerator#create_check_box_appearances] to
@@ -13,6 +19,7 @@
   with an object number of 0 as null values
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] to handle empty appearance
   characteristics dictionary marker style strings
+* Writing of encrypted files containing two or more revisions
 
 
 ## 0.27.0 - 2022-11-18

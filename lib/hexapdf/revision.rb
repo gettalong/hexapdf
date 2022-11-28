@@ -229,16 +229,19 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   revision.each_modified_object {|obj| block }   -> revision
-    #   revision.each_modified_object                  -> Enumerator
+    #   revision.each_modified_object(delete: false) {|obj| block }   -> revision
+    #   revision.each_modified_object(delete: false)                  -> Enumerator
     #
     # Calls the given block once for each object that has been modified since it was loaded. Deleted
     # object and cross-reference streams are ignored.
     #
+    # If the +delete+ argument is set to +true+, each modified object is deleted from the active
+    # objects.
+    #
     # Note that this also means that for revisions without an associated cross-reference section all
     # loaded objects will be yielded.
-    def each_modified_object
-      return to_enum(__method__) unless block_given?
+    def each_modified_object(delete: false)
+      return to_enum(__method__, delete: delete) unless block_given?
 
       @objects.each do |oid, gen, obj|
         if @xref_section.entry?(oid, gen)
@@ -262,15 +265,10 @@ module HexaPDF
         end
 
         yield(obj)
+        @objects.delete(oid) if delete
       end
 
       self
-    end
-
-    # Resets the revision by deleting all loaded and added objects from it.
-    def reset_objects
-      @objects = HexaPDF::Utils::ObjectHash.new
-      @all_objects_loaded = false
     end
 
     private

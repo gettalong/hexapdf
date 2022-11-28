@@ -199,6 +199,14 @@ describe HexaPDF::Revision do
       deleted = @rev.object(6)
       @rev.delete(6)
       assert_equal([obj, @obj, deleted], @rev.each_modified_object.to_a)
+      assert_same(obj, @rev.object(3))
+    end
+
+    it "optionally deletes the modified objects from the revision" do
+      obj = @rev.object(3)
+      obj.value = :other
+      assert_equal([obj], @rev.each_modified_object(delete: true).to_a)
+      refute_same(obj, @rev.object(3))
     end
 
     it "ignores object and xref streams that were deleted" do
@@ -228,20 +236,6 @@ describe HexaPDF::Revision do
       obj = @rev.object(2)
       obj[:x] = :y
       assert_equal([], @rev.each_modified_object.to_a)
-    end
-  end
-
-  describe "reset_objects" do
-    it "deletes loaded objects" do
-      @rev.object(2)
-      @rev.reset_objects
-      assert(@rev.instance_variable_get(:@objects).oids.empty?)
-    end
-
-    it "deletes added objects" do
-      @rev.add(@obj)
-      @rev.reset_objects
-      assert(@rev.instance_variable_get(:@objects).oids.empty?)
     end
   end
 end

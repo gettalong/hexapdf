@@ -135,8 +135,7 @@ module HexaPDF
 
       revision = @document.revisions.add
       @document.revisions.all[0..-2].each do |rev|
-        rev.each_modified_object {|obj| revision.send(:add_without_check, obj) }
-        rev.reset_objects
+        rev.each_modified_object(delete: true) {|obj| revision.send(:add_without_check, obj) }
       end
       @document.revisions.merge(-2..-1)
     end
