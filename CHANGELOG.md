@@ -11,6 +11,8 @@
   appearances in case of as-yet unresolved references to existing appearances
 * `HexaPDF::Tokenizer#parse_number` to treat invalid indirect object references
   with an object number of 0 as null values
+* [HexaPDF::Type::AcroForm::AppearanceGenerator] to handle empty appearance
+  characteristics dictionary marker style strings
 
 
 ## 0.27.0 - 2022-11-18

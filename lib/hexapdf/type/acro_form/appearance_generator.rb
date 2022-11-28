@@ -371,7 +371,8 @@ module HexaPDF
               stroke
           else
             font = @document.fonts.add('ZapfDingbats')
-            mark = font.decode_utf8(@widget[:MK]&.[](:CA) || '4').first
+            marker_string = @widget[:MK]&.[](:CA).to_s
+            mark = font.decode_utf8(marker_string.empty? ? '4' : marker_string).first
             square_width = [rect.width, rect.height].min - 2 * border_width
             font_size = (marker_style.size == 0 ? square_width : marker_style.size)
             mark_width = mark.width * font.scaling_factor * font_size / 1000.0

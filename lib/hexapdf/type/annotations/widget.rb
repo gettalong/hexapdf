@@ -224,6 +224,9 @@ module HexaPDF
           # The kind of marker that is shown inside the widget. Can either be one of the symbols
           # +:check+, +:circle+, +:cross+, +:diamond+, +:square+ or +:star+, or a one character
           # string. The latter is interpreted using the ZapfDingbats font.
+          #
+          # If an empty string is set, it is treated as if +nil+ was set, i.e. it shows the default
+          # marker for the field type.
           attr_reader :style
 
           # The size of the marker in PDF points that is shown inside the widget. The special value

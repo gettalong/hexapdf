@@ -196,6 +196,18 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:show_text, ["4"]],
                           [:end_text]])
       end
+
+      it "draws the default marker if an empty string is specified as marker" do
+        @widget.marker_style(style: '', color: 0.5, size: 5)
+        execute
+        assert_operators(@xform.stream,
+                         [[:set_font_and_size, [:F1, 5]],
+                          [:set_device_gray_non_stroking_color, [0.5]],
+                          [:begin_text],
+                          [:set_text_matrix, [1, 0, 0, 1, 2.885, 8.2725]],
+                          [:show_text, ["4"]],
+                          [:end_text]])
+      end
     end
   end
 
