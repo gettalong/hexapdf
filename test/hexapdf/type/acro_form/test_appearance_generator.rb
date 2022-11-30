@@ -18,12 +18,6 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
     end
 
-    it "fails for unsupported button fields" do
-      @field.flag(:push_button)
-      @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
-      assert_raises(HexaPDF::Error) { @generator.create_appearances }
-    end
-
     it "fails for unsupported field types" do
       @field[:FT] = :Unknown
       assert_raises(HexaPDF::Error) { @generator.create_appearances }
@@ -367,6 +361,18 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
       it "fails if the appearance dictionaries are not set up" do
         @widget[:AP][:N].delete(:radio)
+        assert_raises(HexaPDF::Error) { @generator.create_appearances }
+      end
+    end
+
+    describe "push buttons" do
+      before do
+        @field.initialize_as_push_button
+        @widget = @field.create_widget(@page, Rect: [0, 0, 0, 0])
+        @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
+      end
+
+      it "fails because it is not implemented yet" do
         assert_raises(HexaPDF::Error) { @generator.create_appearances }
       end
     end

@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Type::AcroForm::AppearanceGenerator#create_push_button_appearances]
+  to allow customizing the behaviour
+
 ### Changed
 
 * **Breaking change**: `HexaPDF::Revision#reset_objects` has been removed

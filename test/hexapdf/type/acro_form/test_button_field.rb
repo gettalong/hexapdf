@@ -257,7 +257,7 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       refute_same(yes, widget.appearance_dict.normal_appearance[:Yes])
     end
 
-    it "fails for unsupported button types" do
+    it "fails for push buttons as they are not implemented yet" do
       @field.flag(:push_button)
       @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       assert_raises(HexaPDF::Error) { @field.create_appearances }

@@ -79,7 +79,7 @@ module HexaPDF
             elsif @field.radio_button?
               create_radio_button_appearances
             else
-              raise HexaPDF::Error, "Unsupported button field type"
+              create_push_button_appearances
             end
           when :Tx, :Ch
             create_text_appearances
@@ -199,6 +199,13 @@ module HexaPDF
           canvas.save_graphics_state do
             draw_marker(canvas, rect, border_style.width, @widget.marker_style)
           end
+        end
+
+        # Creates the appropriate appearances for push buttons.
+        #
+        # This is currently a dummy implementation raising an error.
+        def create_push_button_appearances
+          raise HexaPDF::Error, "Push button appearance generation not yet supported"
         end
 
         # Creates the appropriate appearances for text fields.

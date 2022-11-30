@@ -263,7 +263,7 @@ module HexaPDF
             elsif radio_button?
               appearance_generator_class.new(widget).create_radio_button_appearances
             else
-              raise HexaPDF::Error, "Push buttons not yet supported"
+              appearance_generator_class.new(widget).create_push_button_appearances
             end
           end
         end
