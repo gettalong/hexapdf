@@ -168,11 +168,20 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert_same(stream, @field[:AP][:N].raw_stream)
       @field.field_value = 'test'
       refute_same(stream, @field[:AP][:N].raw_stream)
+      stream = @field[:AP][:N].raw_stream
 
       widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       assert_nil(widget[:AP])
       @field.create_appearances
       refute_nil(widget[:AP][:N])
+
+      @doc.clear_cache
+      @field.create_appearances
+      assert_same(stream, @field[:Kids][0][:AP][:N].raw_stream)
+
+      @doc.clear_cache
+      @field.field_value = 'other'
+      refute_same(stream, @field[:Kids][0][:AP][:N].raw_stream)
     end
 
     it "always creates a new appearance stream if force is true" do

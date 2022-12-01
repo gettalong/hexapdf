@@ -222,7 +222,15 @@ module HexaPDF
           current_value = field_value
           appearance_generator_class = document.config.constantize('acro_form.appearance_generator')
           each_widget do |widget|
-            next if !force && widget.cached?(:last_value) && widget.cache(:last_value) == current_value
+            is_cached = widget.cached?(:last_value)
+            unless force
+              if is_cached && widget.cache(:last_value) == current_value
+                next
+              elsif !is_cached && widget.appearance?
+                widget.cache(:last_value, current_value, update: true)
+                next
+              end
+            end
             widget.cache(:last_value, current_value, update: true)
             appearance_generator_class.new(widget).create_text_appearances
           end
@@ -230,7 +238,7 @@ module HexaPDF
 
         # Updates the widgets so that they reflect the current field value.
         def update_widgets
-          create_appearances
+          create_appearances(force: true)
         end
 
         private

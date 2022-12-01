@@ -20,6 +20,8 @@
   annotations are on the page
 * [HexaPDF::Type::AcroForm::ButtonField#create_appearances] to avoid creating
   appearances in case of as-yet unresolved references to existing appearances
+* [HexaPDF::Type::AcroForm::TextField#create_appearances] to avoid creating
+  appearances in case of pre-existing ones
 * `HexaPDF::Tokenizer#parse_number` to treat invalid indirect object references
   with an object number of 0 as null values
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] to handle empty appearance
