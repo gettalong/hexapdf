@@ -27,6 +27,8 @@
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] to handle empty appearance
   characteristics dictionary marker style strings
 * Writing of encrypted files containing two or more revisions
+* Generation of object streams to never allow storing the catalog object to
+  avoid problems with certain viewers
 
 
 ## 0.27.0 - 2022-11-18

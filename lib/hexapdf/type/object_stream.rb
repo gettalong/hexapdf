@@ -179,7 +179,7 @@ module HexaPDF
           # Due to a bug in Adobe Acrobat, the Catalog may not be in an object stream if the
           # document is encrypted
           if obj.nil? || obj.null? || obj.gen != 0 || obj.kind_of?(Stream) || obj == encrypt_dict ||
-              (encrypt_dict && obj.type == :Catalog) ||
+              obj.type == :Catalog ||
               obj.type == :Sig || obj.type == :DocTimeStamp ||
               (obj.respond_to?(:key?) && obj.key?(:ByteRange) && obj.key?(:Contents))
             delete_object(objects[index])
