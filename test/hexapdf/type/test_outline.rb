@@ -64,6 +64,9 @@ describe HexaPDF::Type::Outline do
         assert(correctable)
       end
       refute(@outline.key?(:Count))
+
+      @outline[:Count] = 0
+      assert(@outline.validate(auto_correct: false))
     end
   end
 end

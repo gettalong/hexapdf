@@ -29,6 +29,8 @@
 * Writing of encrypted files containing two or more revisions
 * Generation of object streams to never allow storing the catalog object to
   avoid problems with certain viewers
+* `HexaPDF::Type::Outline#perform_validation` to not show validation error when
+  `/Count` is zero
 
 
 ## 0.27.0 - 2022-11-18
