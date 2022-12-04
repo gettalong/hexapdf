@@ -61,8 +61,9 @@ describe HexaPDF::Importer do
     end
 
     it "can import a direct object" do
-      obj = @importer.import(key: @obj)
-      assert(@dest.object?(obj[:key]))
+      assert_nil(@importer.import(nil))
+      assert_equal(5, @importer.import(5))
+      assert(@dest.object?(@importer.import(key: @obj)[:key]))
     end
 
     it "copies the data of the imported objects" do
