@@ -229,19 +229,22 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   revision.each_modified_object(delete: false) {|obj| block }   -> revision
-    #   revision.each_modified_object(delete: false)                  -> Enumerator
+    #   revision.each_modified_object(delete: false, all: all) {|obj| block }   -> revision
+    #   revision.each_modified_object(delete: false, all: all)                  -> Enumerator
     #
-    # Calls the given block once for each object that has been modified since it was loaded. Deleted
-    # object and cross-reference streams as well as signature dictionaries are ignored.
+    # Calls the given block once for each object that has been modified since it was loaded. Added
+    # or eleted object and cross-reference streams as well as signature dictionaries are ignored.
     #
-    # If the +delete+ argument is set to +true+, each modified object is deleted from the active
-    # objects.
+    # +delete+:: If the +delete+ argument is set to +true+, each modified object is deleted from the
+    #            active objects.
+    #
+    # +all+:: If the +all+ argument is set to +true+, added object and cross-reference streams are
+    #         also yielded.
     #
     # Note that this also means that for revisions without an associated cross-reference section all
     # loaded objects will be yielded.
-    def each_modified_object(delete: false)
-      return to_enum(__method__, delete: delete) unless block_given?
+    def each_modified_object(delete: false, all: false)
+      return to_enum(__method__, delete: delete, all: all) unless block_given?
 
       @objects.each do |oid, gen, obj|
         if @xref_section.entry?(oid, gen)
@@ -262,6 +265,8 @@ module HexaPDF
             end
             next if values_unchanged && streams_are_same
           end
+        elsif !all && (obj.type == :XRef || obj.type == :ObjStm)
+          next
         end
 
         yield(obj)

@@ -10,6 +10,8 @@
 * **Breaking change**: `HexaPDF::Revision#reset_objects` has been removed
 * [HexaPDF::Revision#each_modified_object] to allow deleting the modified
   objects from the active objects' container
+* [HexaPDF::Revision#each_modified_object] to allow ignoring added object and
+  cross-reference stream objects
 
 ### Fixed
 
@@ -31,6 +33,8 @@
   avoid problems with certain viewers
 * `HexaPDF::Type::Outline#perform_validation` to not show validation error when
   `/Count` is zero
+* Writing of documents with two or more revisions in non-incremental mode when
+  `optimize: true` is used and the original document used cross-reference tables
 
 
 ## 0.27.0 - 2022-11-18

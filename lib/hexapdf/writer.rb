@@ -114,7 +114,7 @@ module HexaPDF
         @document.catalog[:Version] = @document.version.to_sym
       end
       @document.revisions.each do |rev|
-        rev.each_modified_object {|obj| revision.send(:add_without_check, obj) }
+        rev.each_modified_object(all: true) {|obj| revision.send(:add_without_check, obj) }
       end
 
       write_revision(revision, parser.startxref_offset)

@@ -215,6 +215,13 @@ describe HexaPDF::Revision do
       assert_equal([], @rev.each_modified_object.to_a)
     end
 
+    it "handles object and xref streams that were added appropriately depending on the 'all' arg" do
+      xref = @rev.add(HexaPDF::Dictionary.new({Type: :XRef}, oid: 8))
+      objstm = @rev.add(HexaPDF::Dictionary.new({Type: :ObjStm}, oid: 9))
+      assert_equal([], @rev.each_modified_object.to_a)
+      assert_equal([xref, objstm], @rev.each_modified_object(all: true).to_a)
+    end
+
     it "doesn't return non-modified objects" do
       @rev.object(2)
       assert_equal([], @rev.each_modified_object.to_a)
