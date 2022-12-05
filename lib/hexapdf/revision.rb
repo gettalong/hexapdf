@@ -233,7 +233,7 @@ module HexaPDF
     #   revision.each_modified_object(delete: false)                  -> Enumerator
     #
     # Calls the given block once for each object that has been modified since it was loaded. Deleted
-    # object and cross-reference streams are ignored.
+    # object and cross-reference streams as well as signature dictionaries are ignored.
     #
     # If the +delete+ argument is set to +true+, each modified object is deleted from the active
     # objects.
