@@ -54,6 +54,23 @@ describe HexaPDF::Parser do
     @parser = HexaPDF::Parser.new(@parse_io, @document)
   end
 
+  describe "linearized?" do
+    it "can determine whether a document is linearized" do
+      create_parser("%PDF-1.7\n%abcdefgh\n1 0 obj\n<</Linearized 1/H [2 4]/O 1/E 1/N 1/T 1>>\nendobj")
+      assert(@parser.linearized?)
+    end
+
+    it "returns false if the first object is not a linearization dictionary" do
+      create_parser("%PDF-1.7\n%abcdefgh\n1 0 obj\n<</Length 2 0 R>>\nstream\nhallo\nendstream\nendobj")
+      refute(@parser.linearized?)
+    end
+
+    it "returns false if there is a parse error" do
+      create_parser("%PDF-1.7\n%abcdefgh\n1 a obj thing")
+      refute(@parser.linearized?)
+    end
+  end
+
   describe "parse_indirect_object" do
     it "reads indirect objects sequentially" do
       object, oid, gen, stream = @parser.parse_indirect_object

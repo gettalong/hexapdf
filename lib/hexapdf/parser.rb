@@ -70,6 +70,19 @@ module HexaPDF
       !@reconstructed_revision.nil?
     end
 
+    # Returns +true+ if the PDF file is a linearized file.
+    def linearized?
+      @linearized ||=
+        begin
+          @tokenizer.pos = @header_offset
+          3.times { @tokenizer.next_token } # parse: oid gen obj
+          obj = @tokenizer.next_object
+          obj.kind_of?(Hash) && obj.key?(:Linearized)
+        rescue MalformedPDFError
+          false
+        end
+    end
+
     # Loads the indirect (potentially compressed) object specified by the given cross-reference
     # entry.
     #
