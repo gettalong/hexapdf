@@ -5,6 +5,7 @@
 * [HexaPDF::Type::AcroForm::AppearanceGenerator#create_push_button_appearances]
   to allow customizing the behaviour
 * [HexaPDF::Parser#linearized?] for determining whether a document is linearized
+* Information on linearization to `hexapdf info` output
 
 ### Changed
 

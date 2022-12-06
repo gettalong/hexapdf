@@ -131,6 +131,10 @@ module HexaPDF
             output_line("Encrypted", "yes (no or wrong password given)")
           end
 
+          if doc.revisions.parser.linearized?
+            output_line("Linearized", "yes")
+          end
+
           signatures = doc.signatures.to_a
           unless signatures.empty?
             nr_sigs = signatures.count
