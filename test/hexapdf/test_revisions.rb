@@ -356,4 +356,47 @@ describe HexaPDF::Revisions do
       HexaPDF::Document.new(io: io, config: {'parser.try_xref_reconstruction' => false})
     end
   end
+
+  it "merges the two revisions of a linearized PDF into one" do
+    io = StringIO.new(<<~EOF)
+      %PDF-1.2
+      5 0 obj
+      <</Linearized 1>>
+      endobj
+      xref
+      5 1
+      0000000009 00000 n
+      trailer
+      <</ID[(a)(b)]/Info 1 0 R/Root 2 0 R/Size 6/Prev 394>>
+      %
+      1 0 obj
+      <</ModDate(D:20221205233910+01'00')/Producer(HexaPDF version 0.27.0)>>
+      endobj
+      2 0 obj
+      <</Type/Catalog/Pages 3 0 R>>
+      endobj
+      3 0 obj
+      <</Type/Pages/Kids[4 0 R]/Count 1>>
+      endobj
+      4 0 obj
+      <</Type/Page/MediaBox[0 0 595 842]/Parent 3 0 R/Resources<<>>>>
+      endobj
+      xref
+      0 5
+      0000000000 65535 f 
+      0000000133 00000 n 
+      0000000219 00000 n 
+      0000000264 00000 n 
+      0000000315 00000 n 
+      trailer
+      <</ID[(a)(b)]/Info 1 0 R/Root 2 0 R/Size 5>>
+      startxref
+      41
+      %%EOF
+    EOF
+    doc = HexaPDF::Document.new(io: io, config: {'parser.try_xref_reconstruction' => false})
+    assert(doc.revisions.parser.linearized?)
+    assert_equal(1, doc.revisions.count)
+    assert_same(5, doc.revisions.current.xref_section.max_oid)
+  end
 end

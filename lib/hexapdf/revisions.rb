@@ -93,6 +93,10 @@ module HexaPDF
               seen_xref_offsets[stm] = true
             end
 
+            if parser.linearized? && !trailer.key?(:Prev)
+              merge_revision = offset
+            end
+
             if merge_revision == offset
               xref_section.merge!(revisions.first.xref_section)
               offset = trailer[:Prev] # Get possible next offset before overwriting trailer

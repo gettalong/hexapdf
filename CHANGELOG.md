@@ -14,6 +14,7 @@
   objects from the active objects' container
 * [HexaPDF::Revision#each_modified_object] to allow ignoring added object and
   cross-reference stream objects
+* [HexaPDF::Revisions::from_io] to merge the two revisions of a linearized PDF
 
 ### Fixed
 
