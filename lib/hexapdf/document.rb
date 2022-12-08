@@ -250,19 +250,16 @@ module HexaPDF
     # :call-seq:
     #   doc.import(obj)     -> imported_object
     #
-    # Imports the given, with a different document associated PDF object and returns the imported
+    # Imports the given object from a different HexaPDF::Document instance and returns the imported
     # object.
     #
     # If the same argument is provided in multiple invocations, the import is done only once and
-    # the previously imoprted object is returned.
+    # the previously imported object is returned.
     #
     # See: Importer
     def import(obj)
-      if !obj.kind_of?(HexaPDF::Object) || !obj.document? || obj.document == self
-        raise ArgumentError, "Importing only works for PDF objects associated " \
-          "with another document"
-      end
-      HexaPDF::Importer.for(source: obj.document, destination: self).import(obj)
+      source = (obj.kind_of?(HexaPDF::Object) ? obj.document : nil)
+      HexaPDF::Importer.for(self).import(obj, source: source)
     end
 
     # Wraps the given object inside a HexaPDF::Object class which allows one to use

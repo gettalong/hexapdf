@@ -10,11 +10,15 @@
 ### Changed
 
 * **Breaking change**: `HexaPDF::Revision#reset_objects` has been removed
+* **Breaking change**: Method signature of [HexaPDF::Importer::for] has been
+  changed
 * [HexaPDF::Revision#each_modified_object] to allow deleting the modified
   objects from the active objects' container
 * [HexaPDF::Revision#each_modified_object] to allow ignoring added object and
   cross-reference stream objects
 * [HexaPDF::Revisions::from_io] to merge the two revisions of a linearized PDF
+* [HexaPDF::Importer] and [HexaPDF::Document#import] to make working with them
+  easier by allowing the import of arbitrary objects
 
 ### Fixed
 

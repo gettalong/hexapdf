@@ -31,12 +31,12 @@ describe HexaPDF::Importer do
     @source.pages.add
     @source.pages.root[:Rotate] = 90
     @dest = HexaPDF::Document.new
-    @importer = HexaPDF::Importer.for(source: @source, destination: @dest)
+    @importer = HexaPDF::Importer.for(@dest)
   end
 
   describe "::for" do
     it "caches the importer" do
-      assert_same(@importer, HexaPDF::Importer.for(source: @source, destination: @dest))
+      assert_same(@importer, HexaPDF::Importer.for(@dest))
     end
   end
 
@@ -63,7 +63,12 @@ describe HexaPDF::Importer do
     it "can import a direct object" do
       assert_nil(@importer.import(nil))
       assert_equal(5, @importer.import(5))
-      assert(@dest.object?(@importer.import(key: @obj)[:key]))
+      assert(@dest.object?(@importer.import({key: @obj})[:key]))
+    end
+
+    it "determines the source document dynamically" do
+      obj = @importer.import(@obj.value)
+      assert_equal("test", obj[:ref].value)
     end
 
     it "copies the data of the imported objects" do
@@ -121,10 +126,11 @@ describe HexaPDF::Importer do
       assert_equal(90, page[:Rotate])
     end
 
-    it "raise an error if the given object doesn't belong to the source document" do
+    it "works for importing objects from different documents" do
       other_doc = HexaPDF::Document.new
       other_obj = other_doc.add("test")
-      assert_raises(HexaPDF::Error) { @importer.import(other_obj) }
+      imported = @importer.import(other_obj)
+      assert_equal("test", imported.value)
     end
   end
 end

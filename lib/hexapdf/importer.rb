@@ -60,64 +60,69 @@ module HexaPDF
 
     end
 
-    # Returns the Importer object for copying objects from the +source+ to the +destination+
-    # document.
-    def self.for(source:, destination:)
+    # Returns the Importer object for copying objects to the +destination+ document.
+    def self.for(destination)
       @map ||= {}
-      @map.keep_if {|_, v| v.source.weakref_alive? && v.destination.weakref_alive? }
-      source = NullableWeakRef.new(source)
+      @map.keep_if {|_, v| v.destination.weakref_alive? }
       destination = NullableWeakRef.new(destination)
-      @map[[source.hash, destination.hash]] ||= new(source: source, destination: destination)
+      @map[destination.hash] ||= new(destination)
     end
 
     private_class_method :new
 
-    attr_reader :source, :destination #:nodoc:
+    attr_reader :destination #:nodoc:
 
-    # Initializes a new importer that can import objects from the +source+ document to the
-    # +destination+ document.
-    def initialize(source:, destination:)
-      @source = source
+    # Initializes a new importer that can import objects to the +destination+ document.
+    def initialize(destination)
       @destination = destination
       @mapper = {}
     end
 
-    # Imports the given +object+ from the source to the destination object and returns the
-    # imported object.
+    SourceWrapper = Struct.new(:source) #:nodoc:
+
+    # Imports the given +object+ to the destination object and returns the imported object.
     #
     # Note: Indirect objects are automatically added to the destination document but direct or
     # simple objects are not.
     #
-    # An error is raised if the object doesn't belong to the +source+ document.
-    def import(object)
+    # The +source+ argument should be +nil+ or set to the source document of the imported object. If
+    # it is +nil+, the source document is dynamically identified. If this identification is not
+    # possible and the source document would be needed, an error is raised.
+    def import(object, source: nil)
+      internal_import(object, SourceWrapper.new(source))
+    end
+
+    private
+
+    # Does the actual importing of the given +object+, using +wrapper+ to store/use the source
+    # document.
+    def internal_import(object, wrapper)
       mapped_object = @mapper[object.data]&.__getobj__ if object.kind_of?(HexaPDF::Object)
-      if object.kind_of?(HexaPDF::Object) && object.document? && @source != object.document
-        raise HexaPDF::Error, "Import error: Incorrect document object for importer"
-      elsif mapped_object && !mapped_object.null?
+      if mapped_object && !mapped_object.null?
         if object.class != mapped_object.class
           mapped_object = @destination.wrap(mapped_object, type: object.class)
         end
         mapped_object
       else
-        duplicate(object)
+        duplicate(object, wrapper)
       end
     end
-
-    private
 
     # Recursively duplicates the object.
     #
     # PDF objects are automatically added to the destination document if they are indirect objects
     # in the source document.
-    def duplicate(object)
+    def duplicate(object, wrapper)
       case object
       when Hash
-        object.transform_values {|v| duplicate(v) }
+        object.transform_values {|v| duplicate(v, wrapper) }
       when Array
-        object.map {|v| duplicate(v) }
+        object.map {|v| duplicate(v, wrapper) }
       when HexaPDF::Reference
-        import(@source.object(object))
+        raise HexaPDF::Error, "Import error: No source document specified" unless wrapper.source
+        internal_import(wrapper.source.object(object), wrapper)
       when HexaPDF::Object
+        wrapper.source ||= object.document
         if object.type == :Catalog || object.type == :Pages
           @mapper[object.data] = nil
         elsif (mapped_object = @mapper[object.data]&.__getobj__) && !mapped_object.null?
@@ -132,8 +137,8 @@ module HexaPDF
           @destination.add(obj) if object.indirect?
 
           obj.data.stream = obj.data.stream.dup if obj.data.stream.kind_of?(String)
-          obj.data.value = duplicate(obj.data.value)
-          obj.data.value.update(duplicate(object.copy_inherited_values)) if object.type == :Page
+          obj.data.value = duplicate(obj.data.value, wrapper)
+          obj.data.value.update(duplicate(object.copy_inherited_values, wrapper)) if object.type == :Page
           obj
         end
       when String

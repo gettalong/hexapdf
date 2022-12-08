@@ -163,14 +163,8 @@ describe HexaPDF::Document do
       refute_equal(0, obj.oid)
     end
 
-    it "fails if the given object is not a PDF object" do
-      assert_raises(ArgumentError) { @doc.import(5) }
-    end
-
-    it "fails if the given object is associated with no or the destination document" do
-      assert_raises(ArgumentError) { @doc.import(HexaPDF::Object.new(5)) }
-      obj = @doc.add(5)
-      assert_raises(ArgumentError) { @doc.import(obj) }
+    it "works if the given object is not a PDF object" do
+      assert_equal(5, @doc.import(5))
     end
   end
 
