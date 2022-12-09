@@ -322,21 +322,20 @@ module HexaPDF
       parentheses = 1
 
       while parentheses != 0
-        data = scan_until(/([()\\\r])/)
-        char = @ss[1]
+        data = scan_until(/[()\\\r]/)
         unless data
           raise HexaPDF::MalformedPDFError.new("Unclosed literal string found", pos: pos)
         end
 
         str << data
         prepare_string_scanner if @ss.eos?
-        case char
-        when '(' then parentheses += 1
-        when ')' then parentheses -= 1
-        when "\r"
+        case @ss.string.getbyte(@ss.pos - 1)
+        when 41 then parentheses -= 1 # )
+        when 40 then parentheses += 1 # (
+        when 13 # \r
           str[-1] = "\n"
           @ss.pos += 1 if @ss.peek(1) == "\n"
-        when '\\'
+        when 92 # \\
           str.chop!
           byte = @ss.get_byte
           if (data = LITERAL_STRING_ESCAPE_MAP[byte])
