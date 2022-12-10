@@ -19,6 +19,8 @@
 * [HexaPDF::Revisions::from_io] to merge the two revisions of a linearized PDF
 * [HexaPDF::Importer] and [HexaPDF::Document#import] to make working with them
   easier by allowing the import of arbitrary objects
+* `HexaPDF::Type::AcroForm::Form#perform_validation` to combine fields with the
+  same name
 
 ### Fixed
 

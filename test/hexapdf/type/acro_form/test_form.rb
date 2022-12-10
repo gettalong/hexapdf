@@ -396,6 +396,24 @@ describe HexaPDF::Type::AcroForm::Form do
       end
     end
 
+    describe "combining fields with the same name" do
+      before do
+        @acro_form[:Fields] = [
+          @doc.add({T: 'e', Subtype: :Widget, Rect: [0, 0, 0, 1]}),
+          @doc.add({T: 'e', Subtype: :Widget, Rect: [0, 0, 0, 2]}),
+          @doc.add({T: 'Tx2'}),
+          @doc.add({T: 'e', Kids: [{Subtype: :Widget, Rect: [0, 0, 0, 3]}]}),
+        ]
+      end
+
+      it "merges fields with the same name into the first one" do
+        assert(@acro_form.validate)
+        assert_equal(2, @acro_form.root_fields.size)
+        assert_equal([[0, 0, 0, 1], [0, 0, 0, 2], [0, 0, 0, 3]],
+                     @acro_form.field_by_name('e').each_widget.map {|w| w[:Rect] })
+      end
+    end
+
     describe "automatically creates the terminal fields; appearances" do
       before do
         @cb = @acro_form.create_check_box('test2')

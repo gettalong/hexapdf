@@ -457,6 +457,8 @@ module HexaPDF
         def perform_validation # :nodoc:
           super
 
+          seen = {} # used for combining field
+
           validate_array = lambda do |parent, container|
             container.reject! do |field|
               if !field.kind_of?(HexaPDF::Object) || !field.kind_of?(HexaPDF::Dictionary) || field.null?
@@ -477,6 +479,22 @@ module HexaPDF
                   field[:Parent] = parent
                 end
               end
+
+              # Combine fields with same name
+              name = field.full_field_name
+              if (other_field = seen[name])
+                kids = other_field[:Kids] ||= []
+                kids << other_field.send(:extract_widget) if other_field.embedded_widget?
+                widgets = field.embedded_widget? ? [field.send(:extract_widget)] : field.each_widget.to_a
+                widgets.each do |widget|
+                  widget[:Parent] = other_field
+                  kids << widget
+                end
+                reject = true
+              elsif !reject
+                seen[name] = field
+              end
+
               validate_array.call(field, field[:Kids]) if field.key?(:Kids)
               reject
             end
