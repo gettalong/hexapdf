@@ -111,14 +111,14 @@ describe HexaPDF::Type::AcroForm::Field do
       @field[:Subtype] = :Widget
       @field[:Rect] = [0, 0, 0, 0]
       widgets = @field.each_widget.to_a
-      assert_kind_of(HexaPDF::Type::Annotations::Widget, *widgets)
+      assert_kind_of(HexaPDF::Type::Annotations::Widget, widgets.first)
       assert_same(@field.data, widgets.first.data)
     end
 
     it "yields all widgets in the /Kids array" do
       @field[:Kids] = [{Subtype: :Widget, Rect: [0, 0, 0, 0], X: 1}]
       widgets = @field.each_widget.to_a
-      assert_kind_of(HexaPDF::Type::Annotations::Widget, *widgets)
+      assert_kind_of(HexaPDF::Type::Annotations::Widget, widgets.first)
       assert_equal(1, widgets.first[:X])
     end
 
@@ -128,8 +128,8 @@ describe HexaPDF::Type::AcroForm::Field do
         @doc.add({T: "b", Subtype: :Widget, Rect: [0, 0, 0, 0]}, type: :XXAcroFormField) <<
         @doc.add({T: "a", X: 1, Subtype: :Widget, Rect: [0, 0, 0, 0]}, type: :XXAcroFormField)
 
-      widgets = @field.each_widget.to_a
-      assert_kind_of(HexaPDF::Type::Annotations::Widget, *widgets)
+      widgets = @field.each_widget(direct_only: false).to_a
+      assert_kind_of(HexaPDF::Type::Annotations::Widget, widgets.first)
       assert_equal(1, widgets.first[:X])
     end
 

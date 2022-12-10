@@ -12,6 +12,8 @@
 * **Breaking change**: `HexaPDF::Revision#reset_objects` has been removed
 * **Breaking change**: Method signature of [HexaPDF::Importer::for] has been
   changed
+* **Breaking change**: [HexaPDF::Type::AcroForm::Field#each_widget] now has the
+  default value of the argument `direct_only` set to `true` instead of `false`
 * [HexaPDF::Revision#each_modified_object] to allow deleting the modified
   objects from the active objects' container
 * [HexaPDF::Revision#each_modified_object] to allow ignoring added object and

@@ -242,8 +242,8 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   field.each_widget {|widget| block}    -> field
-        #   field.each_widget                     -> Enumerator
+        #   field.each_widget(direct_only: true) {|widget| block}    -> field
+        #   field.each_widget(direct_only: true)                     -> Enumerator
         #
         # Yields each widget, i.e. visual representation, of this field.
         #
@@ -253,11 +253,17 @@ module HexaPDF
         # 2. One or more widgets are defined as children of this field.
         # 3. Widgets of *another field instance with the same full field name*.
         #
-        # Because of possibility 3 all fields of the form have to be searched to check whether there
-        # is another field with the same full field name.
+        # With the default of +direct_only+ being +true+, only the usual cases 1 and 2 are handled/
+        # If case 3 also needs to be handled, set +direct_only+ to +false+ or run the validation on
+        # the main AcroForm object (HexaPDF::Document#acro_form) before using this method (this will
+        # reduce case 3 to case 2).
+        #
+        # *Note*: Setting +direct_only+ to +false+ will have a severe performance impact since all
+        # fields of the form have to be searched to check whether there is another field with the
+        # same full field name.
         #
         # See: HexaPDF::Type::Annotations::Widget
-        def each_widget(direct_only: false, &block) # :yields: widget
+        def each_widget(direct_only: true, &block) # :yields: widget
           return to_enum(__method__, direct_only: direct_only) unless block_given?
 
           if embedded_widget?
