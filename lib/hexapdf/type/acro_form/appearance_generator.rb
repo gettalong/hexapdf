@@ -74,12 +74,10 @@ module HexaPDF
         def create_appearances
           case @field.field_type
           when :Btn
-            if @field.check_box?
-              create_check_box_appearances
-            elsif @field.radio_button?
-              create_radio_button_appearances
-            else
+            if @field.push_button?
               create_push_button_appearances
+            else
+              create_check_box_appearances
             end
           when :Tx, :Ch
             create_text_appearances
@@ -88,78 +86,23 @@ module HexaPDF
           end
         end
 
-        # Creates the appropriate appearances for check boxes.
+        # Creates the appropriate appearances for check boxes and radio buttons.
         #
-        # The unchecked box is always represented by the appearance with the key /Off. If there is
-        # more than one other key besides the /Off key, the first one is used for the appearance of
-        # the checked box.
+        # The unchecked box or unselected radio button is always represented by the appearance with
+        # the key /Off. If there is more than one other key besides the /Off key, the first one is
+        # used for the appearance of the checked box or selected radio button.
         #
-        # For unchecked boxes an empty rectangle is drawn. When checked, a symbol from the
-        # ZapfDingbats font is placed inside the rectangle. How this is exactly done depends on the
-        # following values:
+        # For unchecked boxes an empty rectangle is drawn. Similarly, for unselected radio buttons
+        # an empty circle (if the marker is :circle) or rectangle is drawn. When checked or
+        # selected, a symbol from the ZapfDingbats font is placed inside. How this is exactly done
+        # depends on the following values:
         #
         # * The widget's rectangle /Rect must be defined. If the height and/or width of the
         #   rectangle are zero, they are based on the configuration option
         #   +acro_form.default_font_size+ and widget's border width. In such a case the rectangle is
         #   appropriately updated.
         #
-        # * The line width, style and color of the rectangle are taken from the widget's border
-        #   style. See HexaPDF::Type::Annotations::Widget#border_style.
-        #
-        # * The background color is determined by the widget's background color. See
-        #   HexaPDF::Type::Annotations::Widget#background_color.
-        #
-        # * The symbol (marker) as well as its size and color are determined by the marker style of
-        #   the widget. See HexaPDF::Type::Annotations::Widget#marker_style for details.
-        #
-        # Examples:
-        #
-        #   widget.border_style(color: 0)
-        #   widget.background_color(1)
-        #   widget.marker_style(style: :check, size: 0, color: 0)
-        #   # => default appearance
-        #
-        #   widget.border_style(color: :transparent, width: 2)
-        #   widget.background_color(0.7)
-        #   widget.marker_style(style: :cross)
-        #   # => no visible rectangle, gray background, cross mark when checked
-        def create_check_box_appearances
-          appearance_keys = @widget.appearance_dict&.normal_appearance&.value&.keys || []
-          on_name = (appearance_keys - [:Off]).first
-          unless on_name
-            raise HexaPDF::Error, "Widget of check box doesn't define name for on state"
-          end
-          border_style = @widget.border_style
-          border_width = border_style.width
-
-          rect = update_widget(@field[:V] == on_name ? on_name : :Off, border_width)
-
-          off_form = @widget.appearance_dict.normal_appearance[:Off] =
-            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
-          apply_background_and_border(border_style, off_form.canvas)
-
-          on_form = @widget.appearance_dict.normal_appearance[on_name] =
-            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
-          canvas = on_form.canvas
-          apply_background_and_border(border_style, canvas)
-          canvas.save_graphics_state do
-            draw_marker(canvas, rect, border_width, @widget.marker_style)
-          end
-        end
-
-        # Creates the appropriate appearances for radio buttons.
-        #
-        # For unselected radio buttons an empty circle (if the marker is :circle) or rectangle is
-        # drawn inside the widget annotation's rectangle. When selected, a symbol from the
-        # ZapfDingbats font is placed inside. How this is exactly done depends on the following
-        # values:
-        #
-        # * The widget's rectangle /Rect must be defined. If the height and/or width of the
-        #   rectangle are zero, they are based on the configuration option
-        #   +acro_form.default_font_size+ and the widget's border width. In such a case the
-        #   rectangle is appropriately updated.
-        #
-        # * The line width, style and color of the circle/rectangle are taken from the widget's
+        # * The line width, style and color of the cirle/rectangle are taken from the widget's
         #   border style. See HexaPDF::Type::Annotations::Widget#border_style.
         #
         # * The background color is determined by the widget's background color. See
@@ -170,36 +113,53 @@ module HexaPDF
         #
         # Examples:
         #
+        #   # check box: default appearance
+        #   widget.border_style(color: 0)
+        #   widget.background_color(1)
+        #   widget.marker_style(style: :check, size: 0, color: 0)
+        #
+        #   # check box: no visible rectangle, gray background, cross mark when checked
+        #   widget.border_style(color: :transparent, width: 2)
+        #   widget.background_color(0.7)
+        #   widget.marker_style(style: :cross)
+        #
+        #   # radio button: default appearance
         #   widget.border_style(color: 0)
         #   widget.background_color(1)
         #   widget.marker_style(style: :circle, size: 0, color: 0)
-        #   # => default appearance
-        def create_radio_button_appearances
+        def create_check_box_appearances
           appearance_keys = @widget.appearance_dict&.normal_appearance&.value&.keys || []
           on_name = (appearance_keys - [:Off]).first
           unless on_name
-            raise HexaPDF::Error, "Widget of radio button doesn't define name for on state"
+            raise HexaPDF::Error, "Widget of button field doesn't define name for on state"
           end
+
+          @widget[:AS] = (@field[:V] == on_name ? on_name : :Off)
+          @widget.flag(:print)
 
           border_style = @widget.border_style
           marker_style = @widget.marker_style
+          circular = (@field.radio_button? && marker_style.style == :circle)
 
-          rect = update_widget(@field[:V] == on_name ? on_name : :Off, border_style.width)
+          default_font_size = @document.config['acro_form.default_font_size']
+          rect = @widget[:Rect]
+          rect.width = default_font_size + 2 * border_style.width if rect.width == 0
+          rect.height = default_font_size + 2 * border_style.width if rect.height == 0
 
           off_form = @widget.appearance_dict.normal_appearance[:Off] =
             @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
-          apply_background_and_border(border_style, off_form.canvas,
-                                      circular: marker_style.style == :circle)
+          apply_background_and_border(border_style, off_form.canvas, circular: circular)
 
           on_form = @widget.appearance_dict.normal_appearance[on_name] =
             @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
           canvas = on_form.canvas
-          apply_background_and_border(border_style, canvas,
-                                      circular: marker_style.style == :circle)
+          apply_background_and_border(border_style, canvas, circular: circular)
           canvas.save_graphics_state do
-            draw_marker(canvas, rect, border_style.width, @widget.marker_style)
+            draw_marker(canvas, rect, border_style.width, marker_style)
           end
         end
+
+        alias create_radio_button_appearances create_check_box_appearances
 
         # Creates the appropriate appearances for push buttons.
         #
@@ -284,25 +244,6 @@ module HexaPDF
         alias create_list_box_appearances create_text_appearances
 
         private
-
-        # Updates the widget and returns its (possibly modified) rectangle.
-        #
-        # The following changes are made:
-        #
-        # * Sets the appearance state to +appearance_state+.
-        # * Sets the :print flag.
-        # * Adjusts the rectangle based on the default font size and the given border width if its
-        #   width and/or height are zero.
-        def update_widget(appearance_state, border_width)
-          @widget[:AS] = appearance_state
-          @widget.flag(:print)
-
-          default_font_size = @document.config['acro_form.default_font_size']
-          rect = @widget[:Rect]
-          rect.width = default_font_size + 2 * border_width if rect.width == 0
-          rect.height = default_font_size + 2 * border_width if rect.height == 0
-          rect
-        end
 
         # Applies the background and border style of the widget annotation to the appearances.
         #

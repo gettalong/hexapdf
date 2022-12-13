@@ -135,8 +135,8 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
     end
 
     def execute
-      @generator.send(:draw_marker, @xform.canvas, @widget[:Rect], @widget.border_style.width,
-                      @widget.marker_style)
+      @generator.send(:draw_marker, @xform.canvas, @widget[:Rect].width, @widget[:Rect].height,
+                      @widget.border_style.width, @widget.marker_style)
     end
 
     it "handles the marker :circle specially for radio button widgets" do
@@ -306,62 +306,10 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         assert_equal(:Off, @widget[:AS])
       end
 
-      it "set the print flag on the widgets" do
-        @generator.create_appearances
-        assert(@widget.flagged?(:print))
-      end
-
-      it "adjusts the /Rect if width is zero" do
-        @generator.create_appearances
-        assert_equal(12, @widget[:Rect].width)
-      end
-
-      it "adjusts the /Rect if height is zero" do
-        @generator.create_appearances
-        assert_equal(12, @widget[:Rect].height)
-      end
-
       it "creates the needed appearance streams" do
         @generator.create_appearances
         assert_equal(:XObject, @widget[:AP][:N][:Off].type)
         assert_equal(:XObject, @widget[:AP][:N][:radio].type)
-      end
-
-      it "creates the /Off appearance stream" do
-        @widget.marker_style(style: :cross)
-        @generator.create_appearances
-        assert_operators(@widget[:AP][:N][:Off].stream,
-                         [[:save_graphics_state],
-                          [:set_device_gray_non_stroking_color, [1.0]],
-                          [:append_rectangle, [0, 0, 12, 12]],
-                          [:fill_path_non_zero],
-                          [:append_rectangle, [0.5, 0.5, 11, 11]],
-                          [:stroke_path], [:restore_graphics_state]])
-      end
-
-      it "creates the appearance stream according to the set value" do
-        @widget.marker_style(style: :check)
-        @generator.create_appearances
-        assert_operators(@widget[:AP][:N][:radio].stream,
-                         [[:save_graphics_state],
-                          [:set_device_gray_non_stroking_color, [1.0]],
-                          [:append_rectangle, [0, 0, 12, 12]],
-                          [:fill_path_non_zero],
-                          [:append_rectangle, [0.5, 0.5, 11, 11]],
-                          [:stroke_path], [:restore_graphics_state],
-
-                          [:save_graphics_state],
-                          [:set_font_and_size, [:F1, 10]],
-                          [:begin_text],
-                          [:set_text_matrix, [1, 0, 0, 1, 1.77, 2.545]],
-                          [:show_text, ["4"]],
-                          [:end_text],
-                          [:restore_graphics_state]])
-      end
-
-      it "fails if the appearance dictionaries are not set up" do
-        @widget[:AP][:N].delete(:radio)
-        assert_raises(HexaPDF::Error) { @generator.create_appearances }
       end
     end
 
