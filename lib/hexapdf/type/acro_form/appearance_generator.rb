@@ -208,7 +208,7 @@ module HexaPDF
           raise HexaPDF::Error, "Push button appearance generation not yet supported"
         end
 
-        # Creates the appropriate appearances for text fields.
+        # Creates the appropriate appearances for text fields, combo box fields and list box fields.
         #
         # The following describes how the appearance is built:
         #
