@@ -46,6 +46,8 @@
   `/Count` is zero
 * Writing of documents with two or more revisions in non-incremental mode when
   `optimize: true` is used and the original document used cross-reference tables
+* [HexaPDF::Type::AcroForm::AppearanceGenerator] to take a widget's rotation
+  value into account
 
 
 ## 0.27.0 - 2022-11-18

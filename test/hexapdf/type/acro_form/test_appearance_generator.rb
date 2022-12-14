@@ -245,6 +245,33 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         assert_equal(12, @widget[:Rect].height)
       end
 
+      describe "takes the rotation into account" do
+        def check_rotation(angle, width, height, matrix)
+          @widget[:MK] = {R: angle}
+          @field[:V] = :Yes
+          @generator.create_appearances
+          form = @widget[:AP][:N][@widget[:AS]]
+          assert_equal([0, 0, width, height], form[:BBox].value)
+          assert_equal(matrix, form[:Matrix].value)
+        end
+
+        it "works for 0 degrees" do
+          check_rotation(-360, @widget[:Rect].width, @widget[:Rect].height, [1, 0, 0, 1, 0, 0])
+        end
+
+        it "works for 90 degrees" do
+          check_rotation(450, @widget[:Rect].height, @widget[:Rect].width, [0, 1, -1, 0, 0, 0])
+        end
+
+        it "works for 180 degrees" do
+          check_rotation(180, @widget[:Rect].width, @widget[:Rect].height, [0, -1, -1, 0, 0, 0])
+        end
+
+        it "works for 270 degrees" do
+          check_rotation(-90, @widget[:Rect].height, @widget[:Rect].width, [0, -1, 1, 0, 0, 0])
+        end
+      end
+
       it "creates the needed appearance streams" do
         @widget[:AP][:N].delete(:Off)
         @generator.create_appearances
@@ -389,6 +416,37 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       assert_equal(form, @widget[:AP][:N])
       refute(form.key?(:key))
       assert_match(/test1/, form.contents)
+    end
+
+    describe "takes the rotation into account" do
+      before do
+        @widget[:Rect] = [0, 0, 100, 20]
+      end
+
+      def check_rotation(angle, width, height, matrix)
+        @widget[:MK] = {R: angle}
+        @field[:V] = 'test'
+        @generator.create_appearances
+        form = @widget[:AP][:N]
+        assert_equal([0, 0, width, height], form[:BBox].value)
+        assert_equal(matrix, form[:Matrix].value)
+      end
+
+      it "works for 0 degrees" do
+        check_rotation(-360, @widget[:Rect].width, @widget[:Rect].height, [1, 0, 0, 1, 0, 0])
+      end
+
+      it "works for 90 degrees" do
+        check_rotation(450, @widget[:Rect].height, @widget[:Rect].width, [0, 1, -1, 0, 0, 0])
+      end
+
+      it "works for 180 degrees" do
+        check_rotation(180, @widget[:Rect].width, @widget[:Rect].height, [0, -1, -1, 0, 0, 0])
+      end
+
+      it "works for 270 degrees" do
+        check_rotation(-90, @widget[:Rect].height, @widget[:Rect].width, [0, -1, 1, 0, 0, 0])
+      end
     end
 
     describe "font size calculation" do

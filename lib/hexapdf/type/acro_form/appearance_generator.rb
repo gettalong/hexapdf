@@ -146,16 +146,20 @@ module HexaPDF
           rect.width = default_font_size + 2 * border_style.width if rect.width == 0
           rect.height = default_font_size + 2 * border_style.width if rect.height == 0
 
+          width, height, matrix = perform_rotation(rect.width, rect.height)
+
           off_form = @widget.appearance_dict.normal_appearance[:Off] =
-            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
+            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, width, height],
+                           Matrix: matrix})
           apply_background_and_border(border_style, off_form.canvas, circular: circular)
 
           on_form = @widget.appearance_dict.normal_appearance[on_name] =
-            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
+            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, width, height],
+                           Matrix: matrix})
           canvas = on_form.canvas
           apply_background_and_border(border_style, canvas, circular: circular)
           canvas.save_graphics_state do
-            draw_marker(canvas, rect, border_style.width, marker_style)
+            draw_marker(canvas, width, height, border_style.width, marker_style)
           end
         end
 
@@ -209,31 +213,33 @@ module HexaPDF
             rect.height = style.scaled_y_max - style.scaled_y_min + 2 * padding
           end
 
+          width, height, matrix = perform_rotation(rect.width, rect.height)
+
           form = (@widget[:AP] ||= {})[:N] ||= @document.add({Type: :XObject, Subtype: :Form})
           # Wrap existing object in Form class in case the PDF writer didn't include the /Subtype
           # key; we can do this since we know this has to be a Form object
           form = @document.wrap(form, type: :XObject, subtype: :Form) unless form[:Subtype] == :Form
-          form.value.replace({Type: :XObject, Subtype: :Form, BBox: [0, 0, rect.width, rect.height]})
+          form.value.replace({Type: :XObject, Subtype: :Form, BBox: [0, 0, width, height],
+                              Matrix: matrix, Resources: HexaPDF::Object.deep_copy(default_resources)})
           form.contents = ''
-          form[:Resources] = HexaPDF::Object.deep_copy(default_resources)
 
           canvas = form.canvas
           apply_background_and_border(border_style, canvas)
-          style.font_size = calculate_font_size(font, font_size, rect, border_style)
+          style.font_size = calculate_font_size(font, font_size, height, border_style)
           style.clear_cache
 
           canvas.marked_content_sequence(:Tx) do
             if @field.field_value || @field.concrete_field_type == :list_box
               canvas.save_graphics_state do
-                canvas.rectangle(padding, padding, rect.width - 2 * padding,
-                                 rect.height - 2 * padding).clip_path.end_path
+                canvas.rectangle(padding, padding, width - 2 * padding,
+                                 height - 2 * padding).clip_path.end_path
                 case @field.concrete_field_type
                 when :multiline_text_field
-                  draw_multiline_text(canvas, rect, style, padding)
+                  draw_multiline_text(canvas, width, height, style, padding)
                 when :list_box
-                  draw_list_box(canvas, rect, style, padding)
+                  draw_list_box(canvas, width, height, style, padding)
                 else
-                  draw_single_line_text(canvas, rect, style, padding)
+                  draw_single_line_text(canvas, width, height, style, padding)
                 end
               end
             end
@@ -244,6 +250,22 @@ module HexaPDF
         alias create_list_box_appearances create_text_appearances
 
         private
+
+        # Performs the rotation specified in /R of the appearance characteristics dictionary and
+        # returns the correct width, height and Form XObject matrix.
+        def perform_rotation(width, height)
+          matrix = case (@widget[:MK]&.[](:R) || 0) % 360
+                   when 90
+                     width, height = height, width
+                     [0, 1, -1, 0, 0, 0]
+                   when 270
+                     width, height = height, width
+                     [0, -1, 1, 0, 0, 0]
+                   when 180
+                     [0, -1, -1, 0, 0, 0]
+                   end
+          [width, height, matrix]
+        end
 
         # Applies the background and border style of the widget annotation to the appearances.
         #
@@ -301,32 +323,32 @@ module HexaPDF
         # Draws the marker defined by the marker style inside the widget's rectangle.
         #
         # This method can only used for check boxes and radio buttons!
-        def draw_marker(canvas, rect, border_width, marker_style)
+        def draw_marker(canvas, width, height, border_width, marker_style)
           if @field.radio_button? && marker_style.style == :circle
             # Acrobat handles this specially
             canvas.
               fill_color(marker_style.color).
-              circle(rect.width / 2.0, rect.height / 2.0,
-                     ([rect.width / 2.0, rect.height / 2.0].min - border_width) / 2).
+              circle(width / 2.0, height / 2.0,
+                     ([width / 2.0, height / 2.0].min - border_width) / 2).
               fill
           elsif marker_style.style == :cross # Acrobat just places a cross inside
             canvas.
               stroke_color(marker_style.color).
-              line(border_width, border_width, rect.width - border_width,
-                   rect.height - border_width).
-              line(border_width, rect.height - border_width, rect.width - border_width,
+              line(border_width, border_width, width - border_width,
+                   height - border_width).
+              line(border_width, height - border_width, width - border_width,
                    border_width).
               stroke
           else
             font = @document.fonts.add('ZapfDingbats')
             marker_string = @widget[:MK]&.[](:CA).to_s
             mark = font.decode_utf8(marker_string.empty? ? '4' : marker_string).first
-            square_width = [rect.width, rect.height].min - 2 * border_width
+            square_width = [width, height].min - 2 * border_width
             font_size = (marker_style.size == 0 ? square_width : marker_style.size)
             mark_width = mark.width * font.scaling_factor * font_size / 1000.0
             mark_height = (mark.y_max - mark.y_min) * font.scaling_factor * font_size / 1000.0
-            x_offset = (rect.width - square_width) / 2.0 + (square_width - mark_width) / 2.0
-            y_offset = (rect.height - square_width) / 2.0 + (square_width - mark_height) / 2.0 -
+            x_offset = (width - square_width) / 2.0 + (square_width - mark_width) / 2.0
+            y_offset = (height - square_width) / 2.0 + (square_width - mark_height) / 2.0 -
               (mark.y_min * font.scaling_factor * font_size / 1000.0)
 
             canvas.font(font, size: font_size)
@@ -336,7 +358,7 @@ module HexaPDF
         end
 
         # Draws a single line of text inside the widget's rectangle.
-        def draw_single_line_text(canvas, rect, style, padding)
+        def draw_single_line_text(canvas, width, height, style, padding)
           value = @field.field_value
           fragment = HexaPDF::Layout::TextFragment.create(value, style)
 
@@ -345,7 +367,7 @@ module HexaPDF
               raise HexaPDF::Error, "Missing or invalid dictionary field /MaxLen for comb text field"
             end
             new_items = []
-            cell_width = rect.width.to_f / @field[:MaxLen]
+            cell_width = width.to_f / @field[:MaxLen]
             scaled_cell_width = cell_width / style.scaled_font_size.to_f
             fragment.items.each_cons(2) do |a, b|
               new_items << a << -(scaled_cell_width - a.width / 2.0 - b.width / 2.0)
@@ -364,8 +386,8 @@ module HexaPDF
             # Adobe seems to be left/right-aligning based on twice the border width
             x = case @field.text_alignment
                 when :left then 2 * padding
-                when :right then [rect.width - 2 * padding - fragment.width, 2 * padding].max
-                when :center then [(rect.width - fragment.width) / 2.0, 2 * padding].max
+                when :right then [width - 2 * padding - fragment.width, 2 * padding].max
+                when :center then [(width - fragment.width) / 2.0, 2 * padding].max
                 end
           end
 
@@ -373,13 +395,13 @@ module HexaPDF
           # available
           cap_height = style.font.wrapped_font.cap_height * style.font.scaling_factor / 1000.0 *
             style.font_size
-          y = padding + (rect.height - 2 * padding - cap_height) / 2.0
+          y = padding + (height - 2 * padding - cap_height) / 2.0
           y = padding - style.scaled_font_descender if y < 0
           fragment.draw(canvas, x, y)
         end
 
         # Draws multiple lines  of text inside the widget's rectangle.
-        def draw_multiline_text(canvas, rect, style, padding)
+        def draw_multiline_text(canvas, width, height, style, padding)
           items = [Layout::TextFragment.create(@field.field_value, style)]
           layouter = Layout::TextLayouter.new(style)
           layouter.style.align(@field.text_alignment).line_spacing(:proportional, 1.25)
@@ -389,22 +411,22 @@ module HexaPDF
             style.font_size = 12 # Adobe seems to use this as starting point
             style.clear_cache
             loop do
-              result = layouter.fit(items, rect.width - 4 * padding, rect.height - 4 * padding)
+              result = layouter.fit(items, width - 4 * padding, height - 4 * padding)
               break if result.status == :success || style.font_size <= 4 # don't make text too small
               style.font_size -= 1
               style.clear_cache
             end
           else
-            result = layouter.fit(items, rect.width - 4 * padding, 2**20)
+            result = layouter.fit(items, width - 4 * padding, 2**20)
           end
 
           unless result.lines.empty?
-            result.draw(canvas, 2 * padding, rect.height - 2 * padding - result.lines[0].height / 2.0)
+            result.draw(canvas, 2 * padding, height - 2 * padding - result.lines[0].height / 2.0)
           end
         end
 
         # Draws the visible option items of the list box in the widget's rectangle.
-        def draw_list_box(canvas, rect, style, padding)
+        def draw_list_box(canvas, width, height, style, padding)
           option_items = @field.option_items
           top_index = @field.list_box_top_index
           items = [Layout::TextFragment.create(option_items[top_index..-1].join("\n"), style)]
@@ -413,18 +435,18 @@ module HexaPDF
 
           layouter = Layout::TextLayouter.new(style)
           layouter.style.align(@field.text_alignment).line_spacing(:proportional, 1.25)
-          result = layouter.fit(items, rect.width - 4 * padding, rect.height)
+          result = layouter.fit(items, width - 4 * padding, height)
 
           unless result.lines.empty?
             top_gap = style.line_spacing.gap(result.lines[0], result.lines[0])
             line_height = style.line_spacing.baseline_distance(result.lines[0], result.lines[0])
             canvas.fill_color(153, 193, 218) # Adobe's color for selection highlighting
-            indices.map! {|i| rect.height - padding - (i - top_index + 1) * line_height }.each do |y|
-              next if y + line_height > rect.height || y + line_height < padding
-              canvas.rectangle(padding, y, rect.width - 2 * padding, line_height)
+            indices.map! {|i| height - padding - (i - top_index + 1) * line_height }.each do |y|
+              next if y + line_height > height || y + line_height < padding
+              canvas.rectangle(padding, y, width - 2 * padding, line_height)
             end
             canvas.fill if canvas.graphics_object == :path
-            result.draw(canvas, 2 * padding, rect.height - padding - top_gap)
+            result.draw(canvas, 2 * padding, height - padding - top_gap)
           end
         end
 
@@ -450,8 +472,8 @@ module HexaPDF
         end
 
         # Calculates the font size for text fields based on the font and font size of the default
-        # appearance string, the annotation rectangle and the border style.
-        def calculate_font_size(font, font_size, rect, border_style)
+        # appearance string, the annotation rectangle's height and the border style.
+        def calculate_font_size(font, font_size, height, border_style)
           if font_size == 0
             case @field.concrete_field_type
             when :multiline_text_field
@@ -462,7 +484,7 @@ module HexaPDF
               unit_font_size = (font.wrapped_font.bounding_box[3] - font.wrapped_font.bounding_box[1]) *
                 font.scaling_factor / 1000.0
               # The constant factor was found empirically by checking what Adobe Reader etc. do
-              (rect.height - 2 * border_style.width) / unit_font_size * 0.83
+              (height - 2 * border_style.width) / unit_font_size * 0.83
             end
           else
             font_size
