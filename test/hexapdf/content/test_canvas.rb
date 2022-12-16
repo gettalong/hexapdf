@@ -934,6 +934,11 @@ describe HexaPDF::Content::Canvas do
                                         [:restore_graphics_state]])
     end
 
+    it "correctly serializes the form when no transformation is needed" do
+      @canvas.image(@form, at: [100, 50])
+      assert_operators(@page.contents, [[:paint_xobject, [:XO1]]])
+    end
+
     it "doesn't do anything if the form's width or height is zero" do
       @form[:BBox] = [100, 50, 100, 200]
       @canvas.xobject(@form, at: [0, 0])

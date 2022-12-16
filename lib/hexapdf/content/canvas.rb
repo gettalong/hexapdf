@@ -1626,17 +1626,22 @@ module HexaPDF
         end
         return obj if obj.width == 0 || obj.height == 0
 
+        left, bottom = *at
         width, height = calculate_dimensions(obj.width, obj.height,
                                              rwidth: width, rheight: height)
         if obj[:Subtype] != :Image
           width /= obj.box.width.to_f
           height /= obj.box.height.to_f
-          at[0] -= obj.box.left
-          at[1] -= obj.box.bottom
+          left -= obj.box.left
+          bottom -= obj.box.bottom
         end
 
-        transform(width, 0, 0, height, at[0], at[1]) do
+        if left == 0 && bottom == 0 && width == 1 && height == 1
           invoke1(:Do, resources.add_xobject(obj))
+        else
+          transform(width, 0, 0, height, left, bottom) do
+            invoke1(:Do, resources.add_xobject(obj))
+          end
         end
 
         obj
