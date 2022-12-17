@@ -48,6 +48,8 @@
   `optimize: true` is used and the original document used cross-reference tables
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] to take a widget's rotation
   value into account
+* [HexaPDF::Type::Page#flatten_annotations] to correctly flatten all
+  annotations, including ones with custom rotations
 
 
 ## 0.27.0 - 2022-11-18

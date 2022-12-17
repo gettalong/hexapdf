@@ -526,8 +526,8 @@ module HexaPDF
         return not_flattened if annotations.empty?
 
         canvas = self.canvas(type: :overlay)
-        canvas.save_graphics_state
         if (pos = canvas.graphics_state.ctm.evaluate(0, 0)) != [0, 0]
+          canvas.save_graphics_state
           canvas.translate(-pos[0], -pos[1])
         end
 
@@ -546,36 +546,31 @@ module HexaPDF
 
           rect = annotation[:Rect]
           box = appearance.box
-          matrix = appearance[:Matrix]
 
-          # Adjust position based on matrix
-          pos = [rect.left - matrix[4], rect.bottom - matrix[5]]
+          # PDF1.7 12.5.5 algorithm
+          # Step a) Calculate smallest rectangle containing transformed bounding box
+          matrix = HexaPDF::Content::TransformationMatrix.new(*appearance[:Matrix].value)
+          llx, lly = matrix.evaluate(box.left, box.bottom)
+          ulx, uly = matrix.evaluate(box.left, box.top)
+          lrx, lry = matrix.evaluate(box.right, box.bottom)
+          left, right = [llx, ulx, lrx, lrx + (ulx - llx)].minmax
+          bottom, top = [lly, uly, lry, lry + (uly - lly)].minmax
 
-          # In case of a rotation we need to counter the default translation in #xobject by adding
-          # box.left and box.bottom, and then translate the origin for the rotation
-          angle = (-Math.atan2(matrix[2], matrix[0]) * 180 / Math::PI).to_i
-          case angle
-          when 0
-            # Nothing to do, no rotation
-          when 90
-            pos[0] += box.top + box.left
-            pos[1] += -box.left + box.bottom
-          when -90
-            pos[0] += -box.bottom + box.left
-            pos[1] += box.right + box.bottom
-          when 180, -180
-            pos[0] += box.right + box.left
-            pos[1] += box.top + box.bottom
-          else
-            not_flattened << annotation
-            next
+          # Step b) Fit calculated rectangle to annotation rectangle by translating/scaling
+          a = HexaPDF::Content::TransformationMatrix.new
+          a.translate(rect.left - left, rect.bottom - bottom)
+          a.scale(rect.width.fdiv(right - left), rect.height.fdiv(top - bottom))
+
+          # Step c) Premultiply form matrix - done implicitly when drawing the XObject
+
+          canvas.transform(*a) do
+            # Use [box.left, box.bottom] to counter default translation in #xobject since that
+            # is already taken care of in matrix a
+            canvas.xobject(appearance, at: [box.left, box.bottom])
           end
-
-          width, height = (angle.abs == 90 ? [rect.height, rect.width] : [rect.width, rect.height])
-          canvas.xobject(appearance, at: pos, width: width, height: height)
           to_delete << annotation
         end
-        canvas.restore_graphics_state
+        canvas.restore_graphics_state unless pos == [0, 0]
 
         to_delete.each do |annotation|
           if annotation[:Subtype] == :Widget

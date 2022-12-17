@@ -512,14 +512,12 @@ describe HexaPDF::Type::Page do
       result = @page.flatten_annotations
       assert(result.empty?)
       assert_operators(@canvas.contents, [[:save_graphics_state],
-                                          [:save_graphics_state],
                                           [:concatenate_matrix, [1.0, 0, 0, 1.0, 110, 105]],
                                           [:paint_xobject, [:XO1]],
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
                                           [:concatenate_matrix, [1.0, 0, 0, 1.0, 20, 15]],
                                           [:paint_xobject, [:XO1]],
-                                          [:restore_graphics_state],
                                           [:restore_graphics_state]])
       assert(@annot1.null?)
       assert(@annot2.null?)
@@ -549,10 +547,8 @@ describe HexaPDF::Type::Page do
       assert(result.empty?)
       assert(@annot1.null?)
       assert_operators(@canvas.contents, [[:save_graphics_state],
-                                          [:save_graphics_state],
                                           [:concatenate_matrix, [1.0, 0, 0, 1.0, 20, 15]],
                                           [:paint_xobject, [:XO1]],
-                                          [:restore_graphics_state],
                                           [:restore_graphics_state]])
     end
 
@@ -562,10 +558,8 @@ describe HexaPDF::Type::Page do
       assert(result.empty?)
       assert(@annot1.null?)
       assert_operators(@canvas.contents, [[:save_graphics_state],
-                                          [:save_graphics_state],
                                           [:concatenate_matrix, [1.0, 0, 0, 1.0, 20, 15]],
                                           [:paint_xobject, [:XO1]],
-                                          [:restore_graphics_state],
                                           [:restore_graphics_state]])
     end
 
@@ -575,10 +569,8 @@ describe HexaPDF::Type::Page do
       assert_equal([@annot1], result)
       refute(@annot1.empty?)
       assert_operators(@canvas.contents, [[:save_graphics_state],
-                                          [:save_graphics_state],
                                           [:concatenate_matrix, [1.0, 0, 0, 1.0, 20, 15]],
                                           [:paint_xobject, [:XO1]],
-                                          [:restore_graphics_state],
                                           [:restore_graphics_state]])
     end
 
@@ -591,40 +583,41 @@ describe HexaPDF::Type::Page do
     it "adjusts the position in case the form /Matrix has an offset" do
       @appearance[:Matrix] = [1, 0, 0, 1, 15, 15]
       @page.flatten_annotations
-      assert_operators(@canvas.contents, [:concatenate_matrix, [1, 0, 0, 1, 95, 90]], range: 2)
+      assert_operators(@canvas.contents, [:concatenate_matrix, [1, 0, 0, 1, 95, 90]], range: 1)
     end
 
     it "adjusts the position for an appearance with a 90 degree rotation" do
       @appearance[:Matrix] = [0, 1, -1, 0, 0, 0]
       @annot1[:Rect] = [100, 100, 125, 160]
       @page.flatten_annotations
-      assert_operators(@canvas.contents, [:concatenate_matrix, [1, 0, 0, 1, 120, 110]], range: 2)
+      assert_operators(@canvas.contents, [:concatenate_matrix, [1, 0, 0, 1, 120, 110]], range: 1)
     end
 
     it "adjusts the position for an appearance with a -90 degree rotation" do
       @appearance[:Matrix] = [0, -1, 1, 0, 0, 0]
       @annot1[:Rect] = [100, 100, 125, 160]
       @page.flatten_annotations
-      assert_operators(@canvas.contents, [:concatenate_matrix, [1, 0, 0, 1, 105, 150]], range: 2)
+      assert_operators(@canvas.contents, [:concatenate_matrix, [1, 0, 0, 1, 105, 150]], range: 1)
     end
 
     it "adjusts the position for an appearance with a 180 degree rotation" do
       @appearance[:Matrix] = [-1, 0, 0, -1, 0, 0]
       @page.flatten_annotations
-      assert_operators(@canvas.contents, [:concatenate_matrix, [1, 0, 0, 1, 150, 120]], range: 2)
+      assert_operators(@canvas.contents, [:concatenate_matrix, [1, 0, 0, 1, 150, 120]], range: 1)
     end
 
-    it "ignores an appearance with a rotation that is not a mulitple of 90" do
-      @appearance[:Matrix] = [-1, 0.5, 0.5, -1, 0, 0]
-      result = @page.flatten_annotations
-      assert_equal([@annot1, @annot2], result)
-      assert_operators(@canvas.contents, [[:save_graphics_state], [:restore_graphics_state]])
+    it "correctly positions and scales an appearance with a custom rotation" do
+      @appearance[:Matrix] = [0.707106, 0.707106, -0.707106, 0.707106, 10, 30]
+      @page.flatten_annotations
+      assert_operators(@canvas.contents,
+                       [:concatenate_matrix, [0.998269, 0.0, 0.0, 0.415946, 111.21318, 80.60659]],
+                       range: 1)
     end
 
     it "scales the appearance to fit into the annotations's rectangle" do
       @annot1[:Rect] = [100, 100, 130, 150]
       @page.flatten_annotations
-      assert_operators(@canvas.contents, [:concatenate_matrix, [0.5, 0, 0, 2, 110, 105]], range: 2)
+      assert_operators(@canvas.contents, [:concatenate_matrix, [0.5, 0, 0, 2, 110, 105]], range: 1)
     end
   end
 
