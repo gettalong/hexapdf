@@ -267,6 +267,7 @@ module HexaPDF
           raise ArgumentError, "Page rotation has to be multiple of 90 degrees"
         end
 
+        # /Rotate and therefore cw_angle is angle in clockwise orientation
         cw_angle = (self[:Rotate] - angle) % 360
 
         if flatten
@@ -274,27 +275,41 @@ module HexaPDF
           return if cw_angle == 0
 
           matrix = case cw_angle
-                   when 90
-                     HexaPDF::Content::TransformationMatrix.new(0, -1, 1, 0)
-                   when 180
-                     HexaPDF::Content::TransformationMatrix.new(-1, 0, 0, -1)
-                   when 270
-                     HexaPDF::Content::TransformationMatrix.new(0, 1, -1, 0)
+                   when 90  then Content::TransformationMatrix.new(0, -1, 1, 0, -box.bottom, box.right)
+                   when 180 then Content::TransformationMatrix.new(-1, 0, 0, -1, box.right, box.top)
+                   when 270 then Content::TransformationMatrix.new(0, 1, -1, 0, box.top, -box.left)
                    end
+
+          rotate_box = lambda do |box|
+            llx, lly, urx, ury = \
+              case cw_angle
+              when 90  then [box.right, box.bottom, box.left, box.top]
+              when 180 then [box.right, box.top, box.left, box.bottom]
+              when 270 then [box.left, box.top, box.right, box.bottom]
+              end
+            box.value.replace(matrix.evaluate(llx, lly).concat(matrix.evaluate(urx, ury)))
+          end
 
           [:MediaBox, :CropBox, :BleedBox, :TrimBox, :ArtBox].each do |box_name|
             next unless key?(box_name)
-            box = self[box_name]
-            llx, lly, urx, ury = \
-              case cw_angle
-              when 90
-                [box.right, box.bottom, box.left, box.top]
-              when 180
-                [box.right, box.top, box.left, box.bottom]
-              when 270
-                [box.left, box.top, box.right, box.bottom]
-              end
-            self[box_name].value = matrix.evaluate(llx, lly).concat(matrix.evaluate(urx, ury))
+            rotate_box.call(self[box_name])
+          end
+
+          each_annotation do |annot|
+            rotate_box.call(annot[:Rect])
+            if (quad_points = annot[:QuadPoints])
+              quad_points = quad_points.value if quad_points.respond_to?(:value)
+              result = []
+              quad_points.each_slice(2) {|x, y| result.concat(matrix.evaluate(x, y)) }
+              quad_points.replace(result)
+            end
+            if (appearance = annot.appearance)
+              appearance[:Matrix] = matrix.dup.premultiply(*appearance[:Matrix].value).to_a
+            end
+            if annot[:Subtype] == :Widget
+              app_ch = annot[:MK] ||= document.wrap({}, type: :XXAppearanceCharacteristics)
+              app_ch[:R] = (app_ch[:R] + 360 - cw_angle) % 360
+            end
           end
 
           before_contents = document.add({}, stream: " q #{matrix.to_a.join(' ')} cm ")

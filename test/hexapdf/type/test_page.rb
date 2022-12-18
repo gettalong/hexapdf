@@ -225,29 +225,66 @@ describe HexaPDF::Type::Page do
         @page.box(:art, [0, 0, 4, 5])
 
         @page.rotate(90, flatten: true)
-        assert_equal([-300, 50, -100, 200], @page.box(:media).value)
-        assert_equal([-2, 0, 0, 1], @page.box(:crop).value)
-        assert_equal([-3, 0, 0, 2], @page.box(:bleed).value)
-        assert_equal([-4, 0, 0, 3], @page.box(:trim).value)
-        assert_equal([-5, 0, 0, 4], @page.box(:art).value)
+        assert_equal([-298, 50, -98, 200], @page.box(:media).value)
+        assert_equal([0, 0, 2, 1], @page.box(:crop).value)
+        assert_equal([-1, 0, 2, 2], @page.box(:bleed).value)
+        assert_equal([-2, 0, 2, 3], @page.box(:trim).value)
+        assert_equal([-3, 0, 2, 4], @page.box(:art).value)
       end
 
       it "works correctly for 90 degrees" do
         @page.rotate(90, flatten: true)
-        assert_equal([-300, 50, -100, 200], @page.box(:media).value)
-        assert_equal(" q 0 1 -1 0 0 0 cm   Q ", @page.contents)
+        assert_equal([0, 0, 200, 150], @page.box(:media).value)
+        assert_equal(" q 0 1 -1 0 300 -50 cm   Q ", @page.contents)
       end
 
       it "works correctly for 180 degrees" do
         @page.rotate(180, flatten: true)
-        assert_equal([-200, -300, -50, -100], @page.box(:media).value)
-        assert_equal(" q -1 0 0 -1 0 0 cm   Q ", @page.contents)
+        assert_equal([0, 0, 150, 200], @page.box(:media).value)
+        assert_equal(" q -1 0 0 -1 200 300 cm   Q ", @page.contents)
       end
 
       it "works correctly for 270 degrees" do
         @page.rotate(270, flatten: true)
-        assert_equal([100, -200, 300, -50], @page.box(:media).value)
-        assert_equal(" q 0 -1 1 0 0 0 cm   Q ", @page.contents)
+        assert_equal([0, 0, 200, 150], @page.box(:media).value)
+        assert_equal(" q 0 -1 1 0 -100 200 cm   Q ", @page.contents)
+      end
+
+      describe "annotations" do
+        before do
+          @appearance = @doc.add({Type: :XObject, Subtype: :Form, BBox: [-10, -5, 50, 20]}, stream: "")
+          @annot = @doc.add({Type: :Annot, Subtype: :Widget, Rect: [100, 100, 160, 125],
+                             QuadPoints: [0, 0, 100, 200, 300, 400, 500, 600],
+                             AP: {N: @appearance}})
+          @page[:Annots] = [@annot]
+        end
+
+        it "rotates the /Rect entry" do
+          @page.rotate(90, flatten: true)
+          assert_equal([175, 50, 200, 110], @annot[:Rect].value)
+        end
+
+        it "rotates all (x,y) pairs in the /QuadPoints entry" do
+          @page.rotate(90, flatten: true)
+          assert_equal([300, -50, 100, 50, -100, 250, -300, 450],
+                       @annot[:QuadPoints])
+        end
+
+        it "applies the needed matrix to the annotation's appearance stream's /Matrix entry" do
+          @page.rotate(90, flatten: true)
+          assert_equal([0, 1, -1, 0, 300, -50], @appearance[:Matrix])
+
+          @page.rotate(90, flatten: true)
+          assert_equal([-1, 0, 0, -1, 200, 300], @appearance[:Matrix])
+        end
+
+        it "modified the /R entry in the appearance characteristics dictionary of a widget annotation" do
+          @page.rotate(90, flatten: true)
+          assert_equal(90, @annot[:MK][:R])
+
+          @page.rotate(90, flatten: true)
+          assert_equal(180, @annot[:MK][:R])
+        end
       end
     end
 

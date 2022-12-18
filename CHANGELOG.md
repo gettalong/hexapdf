@@ -50,6 +50,7 @@
   value into account
 * [HexaPDF::Type::Page#flatten_annotations] to correctly flatten all
   annotations, including ones with custom rotations
+* [HexaPDF::Type::Page#rotate] to also rotate annotations
 
 
 ## 0.27.0 - 2022-11-18
