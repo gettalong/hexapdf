@@ -6,6 +6,8 @@
   to allow customizing the behaviour
 * [HexaPDF::Parser#linearized?] for determining whether a document is linearized
 * Information on linearization to `hexapdf info` output
+* Support for `AFNumber_Format` Javascript method to the form field appearance
+  generator
 
 ### Changed
 
