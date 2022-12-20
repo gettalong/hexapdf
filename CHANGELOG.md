@@ -8,6 +8,7 @@
 * Information on linearization to `hexapdf info` output
 * Support for `AFNumber_Format` Javascript method to the form field appearance
   generator
+* Support for using fully embedded, simple TrueType fonts for drawing operations
 
 ### Changed
 

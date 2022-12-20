@@ -35,6 +35,7 @@
 #++
 
 require 'hexapdf/type/font_simple'
+require 'hexapdf/font/true_type_wrapper'
 
 module HexaPDF
   module Type
@@ -44,6 +45,19 @@ module HexaPDF
 
       define_field :Subtype, type: Symbol, required: true, default: :TrueType
       define_field :BaseFont, type: Symbol, required: true
+
+      # Overrides the default to provide a font wrapper in case none is set and a complete TrueType
+      # is embedded.
+      #
+      # See: Font#font_wrapper
+      def font_wrapper
+        if (tmp = super)
+          tmp
+        elsif (font_file = self.font_file) && self[:BaseFont].to_s !~ /\A[A-Z]{6}\+/
+          font = HexaPDF::Font::TrueType::Font.new(StringIO.new(font_file.stream))
+          @font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(document, font, subset: true)
+        end
+      end
 
       private
 

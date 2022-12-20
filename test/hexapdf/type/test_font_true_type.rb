@@ -15,6 +15,26 @@ describe HexaPDF::Type::FontTrueType do
                       BaseFont: :Something, FontDescriptor: font_descriptor})
   end
 
+  describe "font_wrapper" do
+    it "returns the default value if the font is subset" do
+      @font[:BaseFont] = :'ABCDEF+Something'
+      assert_nil(@font.font_wrapper)
+    end
+
+    it "returns the default value if the font has no embedded font file" do
+      assert_nil(@font.font_wrapper)
+    end
+
+    it "uses a fully embedded TrueType font file" do
+      font_file = File.binread(File.join(TEST_DATA_DIR, "fonts", "Ubuntu-Title.ttf"))
+      @font[:FontDescriptor][:FontFile2] = @doc.add({}, stream: font_file)
+      font_wrapper = @font.font_wrapper
+      assert(font_wrapper)
+      assert_equal(font_file, font_wrapper.wrapped_font.io.string)
+      assert_same(font_wrapper, @font.font_wrapper)
+    end
+  end
+
   describe "validation" do
     it "ignores some missing fields if the font name is one of the standard PDF fonts" do
       @font[:BaseFont] = :'Arial,Bold'
