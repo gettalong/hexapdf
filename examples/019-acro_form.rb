@@ -6,6 +6,9 @@
 # This example show-cases how to create the various form field types and their
 # possible standard appearances.
 #
+# Note the 'number format' text field which uses a JavaScript function for
+# formatting a number.
+#
 # Usage:
 # : `ruby acro_form.rb`
 #
@@ -42,12 +45,20 @@ rb = form.create_radio_button("Radio")
 end
 rb.field_value = :button0
 
-canvas.text("Text fields", at: [50, 450])
+canvas.text("Text fields", at: [50, 480])
 
-canvas.text("Single line", at: [70, 420])
+canvas.text("Single line", at: [70, 450])
 tx = form.create_text_field("Single Line", font_size: 16)
-widget = tx.create_widget(page, Rect: [200, 415, 500, 435])
+widget = tx.create_widget(page, Rect: [200, 445, 500, 465])
 tx.field_value = "A sample test string!"
+
+canvas.text("Number format", at: [70, 420])
+tx = form.create_text_field("Number format", font_size: 16)
+widget = tx.create_widget(page, Rect: [200, 415, 500, 435])
+widget[:AA] = {
+  F: {S: :JavaScript, JS: 'AFNumber_Format(2, 2, 0, 0, "EUR ", true);'},
+}
+tx.field_value = "123456,789"
 
 canvas.text("Multiline", at: [70, 390])
 tx = form.create_multiline_text_field("Multiline", font_size: 0, align: :right)
