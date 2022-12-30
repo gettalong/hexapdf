@@ -122,7 +122,7 @@ describe HexaPDF::Encryption::AES do
       [4, 20, 40].each do |length|
         assert_raises(HexaPDF::EncryptionError) do
           collector(@algorithm_class.decryption_fiber('some' * 4,
-                                                                 Fiber.new { 'a' * length }))
+                                                      Fiber.new { 'a' * length }))
         end
       end
     end

@@ -222,7 +222,7 @@ describe HexaPDF::Layout::ListBox do
     end
 
     it "allows drawing custom markers" do
-      marker = lambda do |doc, list_box, index|
+      marker = lambda do |_doc, _list_box, _index|
         HexaPDF::Layout::Box.create(width: 10, height: 10) {}
       end
       box = create_box(children: @fixed_size_boxes[0, 1], item_type: marker)

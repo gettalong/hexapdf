@@ -422,8 +422,7 @@ module HexaPDF
                       'encryption.filter_map' => {
                         Standard: 'HexaPDF::Encryption::StandardSecurityHandler',
                       },
-                      'encryption.sub_filter_map' => {
-                      },
+                      'encryption.sub_filter_map' => {},
                       'filter.map' => {
                         ASCIIHexDecode: 'HexaPDF::Filter::ASCIIHexDecode',
                         AHx: 'HexaPDF::Filter::ASCIIHexDecode',

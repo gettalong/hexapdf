@@ -11,7 +11,7 @@ describe HexaPDF::Layout::ColumnBox do
     @text_boxes = 5.times.map do
       HexaPDF::Layout::TextBox.new(items: [inline_box] * 15, style: {position: :default})
     end
-    draw_block = lambda do |canvas, box|
+    draw_block = lambda do |canvas, _box|
       canvas.move_to(0, 0).end_path
     end
     @fixed_size_boxes = 15.times.map { HexaPDF::Layout::Box.new(width: 20, height: 10, &draw_block) }

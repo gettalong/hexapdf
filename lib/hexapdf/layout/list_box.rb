@@ -207,7 +207,7 @@ module HexaPDF
         @results = []
         @results_item_marker_x = []
 
-        @children.each_with_index do |child, index|
+        @children.each do |child|
           shape = Geom2D::Polygon([left, top - height],
                                   [left + width, top - height],
                                   [left + width, top],
@@ -217,11 +217,7 @@ module HexaPDF
             remove_indent_from_frame_shape(shape) unless shape.polygons.empty?
           end
 
-          #p [:list, left, width, shape]
-
           item_frame = Frame.new(item_frame_left, top - height, item_frame_width, height, shape: shape)
-
-          #p [index, item_frame.x, @results_item_marker_x]
           @results_item_marker_x << item_frame.x - content_indentation
 
           box_fitter = BoxFitter.new([item_frame])

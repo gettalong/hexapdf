@@ -142,7 +142,7 @@ describe HexaPDF::Stream do
   def encoded_data(str, encoders = [])
     map = @document.config['filter.map']
     tmp = feeder(str)
-    encoders.each {|e| tmp = ::Object.const_get(map[e]).encoder(tmp) }
+    encoders.each {|e| tmp = Object.const_get(map[e]).encoder(tmp) }
     collector(tmp)
   end
 

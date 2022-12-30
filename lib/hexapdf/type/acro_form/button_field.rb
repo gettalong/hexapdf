@@ -208,7 +208,7 @@ module HexaPDF
         # Note that this will only return useful values if there is at least one correctly set-up
         # widget.
         def allowed_values
-          (each_widget.each_with_object([]) do |widget, result|
+          (each_widget.with_object([]) do |widget, result|
              keys = widget.appearance_dict&.normal_appearance&.value&.keys
              result.concat(keys) if keys
            end - [:Off]).uniq

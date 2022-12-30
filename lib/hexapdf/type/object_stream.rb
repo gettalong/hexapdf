@@ -220,7 +220,7 @@ module HexaPDF
 
       # Returns the container with the to-be-stored objects.
       def objects
-        @objects ||= 
+        @objects ||=
           begin
             @objects = {}
             parse_stream

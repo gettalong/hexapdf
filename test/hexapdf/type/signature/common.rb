@@ -85,7 +85,8 @@ module HexaPDF
             signer_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
             signer_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:FALSE'))
             signer_cert.add_extension(extension_factory.create_extension('keyUsage', 'digitalSignature'))
-            signer_cert.add_extension(extension_factory.create_extension('extendedKeyUsage', 'timeStamping', true))
+            signer_cert.add_extension(extension_factory.create_extension('extendedKeyUsage',
+                                                                         'timeStamping', true))
             signer_cert.sign(ca_key, OpenSSL::Digest.new('SHA1'))
 
             signer_cert
@@ -117,6 +118,7 @@ module HexaPDF
         end
         Thread.new { @tsa_server.start }
       end
+
     end
 
   end

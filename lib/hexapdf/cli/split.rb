@@ -131,8 +131,8 @@ module HexaPDF
         @page_name_cache ||= {}
         return @page_name_cache[box] if @page_name_cache.key?(box)
 
-        paper_size = HexaPDF::Type::Page::PAPER_SIZE.find do |_name, box|
-          box.each_with_index.all? {|entry, index| (entry - box[index]).abs < 5 }
+        paper_size = HexaPDF::Type::Page::PAPER_SIZE.find do |_name, paper_box|
+          paper_box.each_with_index.all? {|entry, index| (entry - paper_box[index]).abs < 5 }
         end
 
         @page_name_cache[box] =

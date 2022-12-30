@@ -49,7 +49,7 @@ module HexaPDF
     module ASCII85Decode
 
       VALUE_TO_CHAR = {} #:nodoc:
-      (0..84).each do |i|
+      85.times do |i|
         VALUE_TO_CHAR[i] = (i + 33).chr
       end
 

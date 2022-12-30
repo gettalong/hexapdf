@@ -166,7 +166,7 @@ describe HexaPDF::Document::Pages do
     it "works for a single page label entry" do
       @doc.catalog[:PageLabels] = {Nums: [0, {S: :r}]}
       result = @doc.pages.each_labelling_range.to_a
-      assert_equal([[0, 10, {S: :r}]], result.map {|s, c, l| [s, c, l.value]})
+      assert_equal([[0, 10, {S: :r}]], result.map {|s, c, l| [s, c, l.value] })
       assert_equal(:lowercase_roman, result[0].last.numbering_style)
     end
 
@@ -174,7 +174,7 @@ describe HexaPDF::Document::Pages do
       @doc.catalog[:PageLabels] = {Nums: [0, {S: :r}, 2, {S: :d}, 7, {S: :A}]}
       result = @doc.pages.each_labelling_range.to_a
       assert_equal([[0, 2, {S: :r}], [2, 5, {S: :d}], [7, 3, {S: :A}]],
-                   result.map {|s, c, l| [s, c, l.value]})
+                   result.map {|s, c, l| [s, c, l.value] })
     end
 
     it "returns a zero or negative count for the last range if there aren't enough pages" do

@@ -335,9 +335,9 @@ module HexaPDF
       # - The signature dictionary if this revision was signed
       # - The byte offset from the start of the file to the end of the revision
       def revision_information
-        signatures = @doc.signatures.map do |sig|
+        signatures = @doc.signatures.to_h do |sig|
           [@doc.revisions.find {|rev| rev.object(sig) == sig }, sig]
-        end.to_h
+        end
         io = @doc.revisions.parser.io
 
         startxrefs = @doc.revisions.map {|rev| rev.trailer[:Prev] }

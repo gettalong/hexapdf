@@ -131,7 +131,8 @@ describe HexaPDF::Layout::Box do
       assert_equal([nil, box], box.split(150, 150, nil))
     end
 
-    it "can't be split if it doesn't (completely) fit as the default implementation knows nothing about the content" do
+    it "can't be split if it doesn't (completely) fit as the default implementation " \
+      "knows nothing about the content" do
       @box.style.position = :flow # make sure we would generally be splitable
       @box.fit(90, 100, nil)
       assert_equal([nil, @box], @box.split(150, 150, nil))
