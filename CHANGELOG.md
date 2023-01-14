@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::DictionaryFields::DateConverter] to handle invalid timezone hour and
+  minute values
+
+
 ## 0.28.0 - 2022-12-30
 
 ### Added

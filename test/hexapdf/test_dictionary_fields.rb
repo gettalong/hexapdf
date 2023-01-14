@@ -175,7 +175,6 @@ describe HexaPDF::DictionaryFields do
 
     it "allows conversion to a Time object from a binary string" do
       refute(@field.convert('test'.b, self))
-      refute(@field.convert('D:01211016165909+00\'64'.b, self))
 
       [
         ["D:1998", [1998, 01, 01, 00, 00, 00, "-00:00"]],
@@ -191,6 +190,8 @@ describe HexaPDF::DictionaryFields do
         ["D:1998-08'00'", [1998, 01, 01, 00, 00, 00, "-08:00"]],
         ["D:19981223195210-08", [1998, 12, 23, 19, 52, 10, "-08:00"]], # non-standard, missing '
         ["D:19981223195210-08'00", [1998, 12, 23, 19, 52, 10, "-08:00"]], # non-standard, missing '
+        ["D:19981223195210-54'00", [1998, 12, 23, 19, 52, 10, "-23:59:59"]], # non-standard, TZ hour to large
+        ["D:19981223195210+10'65", [1998, 12, 23, 19, 52, 10, "+11:05"]], # non-standard, TZ min to large
       ].each do |str, data|
         obj = @field.convert(str, self)
         assert_equal(Time.new(*data), obj, "date str used: #{str}")
