@@ -52,6 +52,7 @@ require 'hexapdf/importer'
 require 'hexapdf/image_loader'
 require 'hexapdf/font_loader'
 require 'hexapdf/layout'
+require 'hexapdf/digital_signature'
 
 begin
   require 'hexapdf/cext'
@@ -105,7 +106,6 @@ module HexaPDF
     autoload(:Fonts, 'hexapdf/document/fonts')
     autoload(:Images, 'hexapdf/document/images')
     autoload(:Files, 'hexapdf/document/files')
-    autoload(:Signatures, 'hexapdf/document/signatures')
     autoload(:Destinations, 'hexapdf/document/destinations')
     autoload(:Layout, 'hexapdf/document/layout')
 
@@ -585,25 +585,28 @@ module HexaPDF
       acro_form&.signature_flag?(:signatures_exist)
     end
 
-    # Returns an array with the digital signatures of this document.
+    # Returns a DigitalSignature::Signatures object that allows working with the digital signatures
+    # of this document.
     def signatures
-      @signatures ||= Signatures.new(self)
+      @signatures ||= DigitalSignature::Signatures.new(self)
     end
 
     # Signs the document and writes it to the given file or IO object.
     #
     # For details on the arguments +file_or_io+, +signature+ and +write_options+ see
-    # HexaPDF::Document::Signatures#add.
+    # HexaPDF::DigitalSignature::Signatures#add.
     #
     # The signing handler to be used is determined by the +handler+ argument together with the rest
-    # of the keyword arguments (see HexaPDF::Document::Signatures#handler for details).
+    # of the keyword arguments (see HexaPDF::DigitalSignature::Signatures#signing_handler for
+    # details).
     #
-    # If not changed, the default signing handler is HexaPDF::Document::Signatures::DefaultHandler.
+    # If not changed, the default signing handler is
+    # HexaPDF::DigitalSignature::Signing::DefaultHandler.
     #
     # *Note*: Once signing is done the document cannot be changed anymore since it was written. If a
     # document needs to be signed multiple times, it needs to be loaded again after writing.
     def sign(file_or_io, handler: :default, signature: nil, write_options: {}, **handler_options)
-      handler = signatures.handler(name: handler, **handler_options)
+      handler = signatures.signing_handler(name: handler, **handler_options)
       signatures.add(file_or_io, handler, signature: signature, write_options: write_options)
     end
 

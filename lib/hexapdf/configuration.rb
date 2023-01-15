@@ -393,8 +393,8 @@ module HexaPDF
   #
   # signature.sub_filter_map::
   #    A mapping from a PDF name (a Symbol) to a signature handler class (see
-  #    HexaPDF::Type::Signature::Handler). If the value is a String, it should contain the name of a
-  #    constant to such a class.
+  #    HexaPDF::DigitalSignature::Handler). If the value is a String, it should contain the name of
+  #    a constant to such a class.
   #
   #    The sub filter map is used for mapping specific signature algorithms to handler classes. The
   #    filter value of a signature dictionary is ignored since we only support the standard
@@ -486,14 +486,14 @@ module HexaPDF
                         link: 'HexaPDF::Layout::Style::LinkLayer',
                       },
                       'signature.signing_handler' => {
-                        default: 'HexaPDF::Document::Signatures::DefaultHandler',
-                        timestamp: 'HexaPDF::Document::Signatures::TimestampHandler',
+                        default: 'HexaPDF::DigitalSignature::Signing::DefaultHandler',
+                        timestamp: 'HexaPDF::DigitalSignature::Signing::TimestampHandler',
                       },
                       'signature.sub_filter_map' => {
-                        'adbe.x509.rsa_sha1': 'HexaPDF::Type::Signature::AdbeX509RsaSha1',
-                        'adbe.pkcs7.detached': 'HexaPDF::Type::Signature::AdbePkcs7Detached',
-                        'ETSI.CAdES.detached': 'HexaPDF::Type::Signature::AdbePkcs7Detached',
-                        'ETSI.RFC3161': 'HexaPDF::Type::Signature::AdbePkcs7Detached',
+                        'adbe.x509.rsa_sha1': 'HexaPDF::DigitalSignature::PKCS1Handler',
+                        'adbe.pkcs7.detached': 'HexaPDF::DigitalSignature::CMSHandler',
+                        'ETSI.CAdES.detached': 'HexaPDF::DigitalSignature::CMSHandler',
+                        'ETSI.RFC3161': 'HexaPDF::DigitalSignature::CMSHandler',
                       },
                       'task.map' => {
                         optimize: 'HexaPDF::Task::Optimize',
@@ -583,10 +583,10 @@ module HexaPDF
                         SigFieldLock: 'HexaPDF::Type::AcroForm::SignatureField::LockDictionary',
                         SV: 'HexaPDF::Type::AcroForm::SignatureField::SeedValueDictionary',
                         SVCert: 'HexaPDF::Type::AcroForm::SignatureField::CertificateSeedValueDictionary',
-                        Sig: 'HexaPDF::Type::Signature',
-                        DocTimeStamp: 'HexaPDF::Type::Signature',
-                        SigRef: 'HexaPDF::Type::Signature::SignatureReference',
-                        TransformParams: 'HexaPDF::Type::Signature::TransformParams',
+                        Sig: 'HexaPDF::DigitalSignature::Signature',
+                        DocTimeStamp: 'HexaPDF::DigitalSignature::Signature',
+                        SigRef: 'HexaPDF::DigitalSignature::Signature::SignatureReference',
+                        TransformParams: 'HexaPDF::DigitalSignature::Signature::TransformParams',
                         Outlines: 'HexaPDF::Type::Outline',
                         XXOutlineItem: 'HexaPDF::Type::OutlineItem',
                         PageLabel: 'HexaPDF::Type::PageLabel',

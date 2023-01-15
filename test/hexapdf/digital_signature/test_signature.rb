@@ -2,11 +2,11 @@
 
 require 'test_helper'
 require 'hexapdf/document'
-require 'hexapdf/type/signature'
-require_relative 'signature/common'
+require 'hexapdf/digital_signature'
+require_relative 'common'
 require 'stringio'
 
-describe HexaPDF::Type::Signature::TransformParams do
+describe HexaPDF::DigitalSignature::Signature::TransformParams do
   before do
     @doc = HexaPDF::Document.new
     @params = @doc.add({Type: :TransformParams})
@@ -36,7 +36,7 @@ describe HexaPDF::Type::Signature::TransformParams do
   end
 end
 
-describe HexaPDF::Type::Signature::SignatureReference do
+describe HexaPDF::DigitalSignature::Signature::SignatureReference do
   before do
     @doc = HexaPDF::Document.new
     @sigref = @doc.add({Type: :SigRef})
@@ -52,7 +52,7 @@ describe HexaPDF::Type::Signature::SignatureReference do
   end
 end
 
-describe HexaPDF::Type::Signature do
+describe HexaPDF::DigitalSignature::Signature do
   before do
     @doc = HexaPDF::Document.new
     @sig = @doc.add({Type: :Sig, Filter: :'Adobe.PPKLite', SubFilter: :'ETSI.CAdES.detached'})
@@ -88,7 +88,7 @@ describe HexaPDF::Type::Signature do
 
   describe "signature_handler" do
     it "returns the signature handler" do
-      assert_kind_of(HexaPDF::Type::Signature::Handler, @sig.signature_handler)
+      assert_kind_of(HexaPDF::DigitalSignature::Handler, @sig.signature_handler)
     end
 
     it "fails if the required handler is not available" do

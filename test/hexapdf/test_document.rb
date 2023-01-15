@@ -504,7 +504,7 @@ describe HexaPDF::Document do
 
     it "allows to conveniently sign a document" do
       mock = Minitest::Mock.new
-      mock.expect(:handler, :handler, name: :handler, opt: :key)
+      mock.expect(:signing_handler, :handler, name: :handler, opt: :key)
       mock.expect(:add, :added, [:io, :handler], signature: :sig, write_options: :write_options)
       @doc.instance_variable_set(:@signatures, mock)
       result = @doc.sign(:io, handler: :handler, write_options: :write_options, signature: :sig, opt: :key)

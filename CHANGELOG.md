@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Changed
+
+* **Breaking change**: Refactored digital signature support and moved all
+  related code under the [HexaPDF::DigitalSignature] module
+
 ### Fixed
 
 * [HexaPDF::DictionaryFields::DateConverter] to handle invalid timezone hour and

@@ -3,10 +3,10 @@
 require 'digest'
 require 'test_helper'
 require_relative 'common'
-require 'hexapdf/type/signature'
+require 'hexapdf/digital_signature'
 require 'ostruct'
 
-describe HexaPDF::Type::Signature::AdbePkcs7Detached do
+describe HexaPDF::DigitalSignature::CMSHandler do
   before do
     @data = 'Some data'
     @dict = OpenStruct.new
@@ -15,7 +15,7 @@ describe HexaPDF::Type::Signature::AdbePkcs7Detached do
                                  OpenSSL::PKCS7::DETACHED)
     @dict.contents = @pkcs7.to_der
     @dict.signed_data = @data
-    @handler = HexaPDF::Type::Signature::AdbePkcs7Detached.new(@dict)
+    @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
   end
 
   it "returns the signer name" do
@@ -60,7 +60,7 @@ describe HexaPDF::Type::Signature::AdbePkcs7Detached do
       @pkcs7.add_signer(OpenSSL::PKCS7::SignerInfo.new(CERTIFICATES.signer_certificate,
                                                        CERTIFICATES.signer_key, 'SHA1'))
       @dict.contents = @pkcs7.to_der
-      @handler = HexaPDF::Type::Signature::AdbePkcs7Detached.new(@dict)
+      @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
       result = @handler.verify(@store)
       assert_equal(2, result.messages.size)
       assert_equal(:error, result.messages.first.type)
@@ -80,7 +80,7 @@ describe HexaPDF::Type::Signature::AdbePkcs7Detached do
                                    @data, [CERTIFICATES.ca_certificate],
                                    OpenSSL::PKCS7::DETACHED)
       @dict.contents = @pkcs7.to_der
-      @handler = HexaPDF::Type::Signature::AdbePkcs7Detached.new(@dict)
+      @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
       result = @handler.verify(@store)
       assert_equal(:error, result.messages.first.type)
       assert_match(/key usage is missing 'Digital Signature'/, result.messages.first.content)
@@ -110,7 +110,7 @@ describe HexaPDF::Type::Signature::AdbePkcs7Detached do
       res = fac.create_timestamp(CERTIFICATES.signer_key, CERTIFICATES.timestamp_certificate, req)
       @dict.contents = res.token.to_der
       @dict.signature_type = 'ETSI.RFC3161'
-      @handler = HexaPDF::Type::Signature::AdbePkcs7Detached.new(@dict)
+      @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
 
       result = @handler.verify(@store)
       assert_equal(:info, result.messages.last.type)

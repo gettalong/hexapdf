@@ -2,10 +2,10 @@
 
 require 'test_helper'
 require_relative 'common'
-require 'hexapdf/type/signature'
+require 'hexapdf/digital_signature'
 require 'ostruct'
 
-describe HexaPDF::Type::Signature::AdbeX509RsaSha1 do
+describe HexaPDF::DigitalSignature::PKCS1Handler do
   before do
     @data = 'Some data'
     @dict = OpenStruct.new
@@ -14,7 +14,7 @@ describe HexaPDF::Type::Signature::AdbeX509RsaSha1 do
     @dict.contents = OpenSSL::ASN1::OctetString.new(encoded_data).to_der
     @dict.Cert = [CERTIFICATES.signer_certificate.to_der]
     def @dict.key?(*); true; end
-    @handler = HexaPDF::Type::Signature::AdbeX509RsaSha1.new(@dict)
+    @handler = HexaPDF::DigitalSignature::PKCS1Handler.new(@dict)
   end
 
   it "returns the certificate chain" do

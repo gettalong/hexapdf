@@ -1,17 +1,17 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/type/signature'
+require 'hexapdf/digital_signature'
 require 'hexapdf/document'
 require 'time'
 require 'ostruct'
 
-describe HexaPDF::Type::Signature::Handler do
+describe HexaPDF::DigitalSignature::Handler do
   before do
     @time = Time.parse("2021-11-14 7:00")
     @dict = {Name: "handler", M: @time}
-    @handler = HexaPDF::Type::Signature::Handler.new(@dict)
-    @result = HexaPDF::Type::Signature::VerificationResult.new
+    @handler = HexaPDF::DigitalSignature::Handler.new(@dict)
+    @result = HexaPDF::DigitalSignature::VerificationResult.new
   end
 
   it "returns the signer name" do

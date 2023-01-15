@@ -34,59 +34,23 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
-require 'hexapdf/type/signature'
-
 module HexaPDF
-  module Type
-    class Signature
 
-      # Holds the result information when verifying a signature.
-      class VerificationResult
+  # PDF documents can be signed using digital signatures. Such a signature can be used to
+  # authenticate the identity of the signer and the contents of the documents.
+  #
+  # This module contains all code related to digital signatures in PDF.
+  #
+  # See: PDF1.7/2.0 s12.8
+  module DigitalSignature
 
-        # :nodoc:
-        MESSAGE_SORT_MAP = {
-          info: {warning: 1, error: 1, info: 0},
-          warning: {info: -1, error: 1, warning: 0},
-          error: {info: -1, warning: -1, error: 0},
-        }
+    autoload(:Signatures, 'hexapdf/digital_signature/signatures')
+    autoload(:Signature, "hexapdf/digital_signature/signature")
+    autoload(:Handler, 'hexapdf/digital_signature/handler')
+    autoload(:CMSHandler, "hexapdf/digital_signature/cms_handler")
+    autoload(:PKCS1Handler, "hexapdf/digital_signature/pkcs1_handler")
+    autoload(:VerificationResult, 'hexapdf/digital_signature/verification_result')
+    autoload(:Signing, 'hexapdf/digital_signature/signing')
 
-        # This structure represents a single status message, containing the type (:info, :warning,
-        # :error) and the content of the message.
-        Message = Struct.new(:type, :content) do
-          def <=>(other)
-            MESSAGE_SORT_MAP[type][other.type]
-          end
-        end
-
-        # An array with all result messages.
-        attr_reader :messages
-
-        # Creates an empty result object.
-        def initialize
-          @messages = []
-        end
-
-        # Returns +true+ if there are no error messages.
-        def success?
-          @messages.none? {|message| message.type == :error }
-        end
-
-        # Returns +true+ if there is at least one error message.
-        def failure?
-          !success?
-        end
-
-        # Adds a new message of the given type to this result object.
-        #
-        # +type+:: One of :info, :warning or :error.
-        #
-        # +content+:: The log message.
-        def log(type, content)
-          @messages << Message.new(type, content)
-        end
-
-      end
-
-    end
   end
 end

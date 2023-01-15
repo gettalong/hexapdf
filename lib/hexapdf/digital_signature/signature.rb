@@ -39,7 +39,7 @@ require 'hexapdf/dictionary'
 require 'hexapdf/error'
 
 module HexaPDF
-  module Type
+  module DigitalSignature
 
     # Represents a digital signature that is used to authenticate a user and the contents of the
     # document.
@@ -53,13 +53,8 @@ module HexaPDF
     # By defining a custom signature handler one is able to also customize the signature
     # verification.
     #
-    # See: PDF1.7 s12.8.1, PDF2.0 s12.8.1, HexaPDF::Type::AcroForm::SignatureField
+    # See: PDF1.7/2.0 s12.8.1, HexaPDF::Type::AcroForm::SignatureField
     class Signature < Dictionary
-
-      autoload :Handler, 'hexapdf/type/signature/handler'
-      autoload :AdbeX509RsaSha1, 'hexapdf/type/signature/adbe_x509_rsa_sha1'
-      autoload :AdbePkcs7Detached, 'hexapdf/type/signature/adbe_pkcs7_detached'
-      autoload :VerificationResult, 'hexapdf/type/signature/verification_result'
 
       # Represents a transform parameters dictionary.
       #
@@ -122,7 +117,7 @@ module HexaPDF
 
       # Represents a signature reference dictionary.
       #
-      # See: PDF1.7 s12.8.1, PDF2.0 s12.8.1, HexaPDF::Type::Signature
+      # See: PDF1.7/2.0 s12.8.1, HexaPDF::DigitalSignature::Signature
       class SignatureReference < Dictionary
 
         define_type :SigRef

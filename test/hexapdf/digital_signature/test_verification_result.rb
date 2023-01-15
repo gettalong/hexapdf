@@ -1,26 +1,26 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/type/signature'
+require 'hexapdf/digital_signature'
 
-describe HexaPDF::Type::Signature::VerificationResult do
+describe HexaPDF::DigitalSignature::VerificationResult do
   describe "Message" do
     it "accepts a type and a content argument on creation" do
-      m = HexaPDF::Type::Signature::VerificationResult::Message.new(:type, 'content')
+      m = HexaPDF::DigitalSignature::VerificationResult::Message.new(:type, 'content')
       assert_equal(:type, m.type)
       assert_equal('content', m.content)
     end
 
     it "allows sorting by type" do
-      info =  HexaPDF::Type::Signature::VerificationResult::Message.new(:info, 'c')
-      warning = HexaPDF::Type::Signature::VerificationResult::Message.new(:warning, 'c')
-      error = HexaPDF::Type::Signature::VerificationResult::Message.new(:error, 'c')
+      info =  HexaPDF::DigitalSignature::VerificationResult::Message.new(:info, 'c')
+      warning = HexaPDF::DigitalSignature::VerificationResult::Message.new(:warning, 'c')
+      error = HexaPDF::DigitalSignature::VerificationResult::Message.new(:error, 'c')
       assert_equal([error, warning, info], [info, error, warning].sort)
     end
   end
 
   before do
-    @result = HexaPDF::Type::Signature::VerificationResult.new
+    @result = HexaPDF::DigitalSignature::VerificationResult.new
   end
 
   it "can add new messages" do

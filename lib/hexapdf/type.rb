@@ -72,7 +72,6 @@ module HexaPDF
     autoload(:FontType3, 'hexapdf/type/font_type3')
     autoload(:IconFit, 'hexapdf/type/icon_fit')
     autoload(:AcroForm, 'hexapdf/type/acro_form')
-    autoload(:Signature, 'hexapdf/type/signature')
     autoload(:Outline, 'hexapdf/type/outline')
     autoload(:OutlineItem, 'hexapdf/type/outline_item')
     autoload(:PageLabel, 'hexapdf/type/page_label')
