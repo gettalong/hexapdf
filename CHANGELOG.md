@@ -4,6 +4,8 @@
 
 * **Breaking change**: Refactored digital signature support and moved all
   related code under the [HexaPDF::DigitalSignature] module
+* Moved setting of signature entries /Filter, /SubFilter and /M fields to the
+  signing handlers
 
 ### Fixed
 

@@ -69,10 +69,12 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
       @obj = @doc.wrap({})
     end
 
-    it "does nothing if no finalization tasks need to be done" do
+    it "only sets the mandatory values if no concrete finalization tasks need to be done" do
       @handler.finalize_objects(@field, @obj)
       assert(@field.empty?)
-      assert(@obj.empty?)
+      assert_equal(:'Adobe.PPKLite', @obj[:Filter])
+      assert_equal(:'adbe.pkcs7.detached', @obj[:SubFilter])
+      assert_kind_of(Time, @obj[:M])
     end
 
     it "adjust the /SubFilter if signature type is etsi" do
@@ -87,7 +89,7 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
       @handler.contact_info = 'Contact'
       @handler.finalize_objects(@field, @obj)
       assert(@field.empty?)
-      assert_equal({Reason: 'Reason', Location: 'Location', ContactInfo: 'Contact'}, @obj.value)
+      assert_equal(['Reason', 'Location', 'Contact'], @obj.value.values_at(:Reason, :Location, :ContactInfo))
     end
 
     it "applies the specified DocMDP permissions" do

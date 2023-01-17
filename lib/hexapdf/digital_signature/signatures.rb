@@ -124,9 +124,6 @@ module HexaPDF
         end
 
         # Prepare signature object
-        signature[:Filter] = :'Adobe.PPKLite'
-        signature[:SubFilter] = :'adbe.pkcs7.detached'
-        signature[:M] = Time.now
         handler.finalize_objects(signature_field, signature)
         signature[:ByteRange] = [0, 1_000_000_000_000, 1_000_000_000_000, 1_000_000_000_000]
         signature[:Contents] = '00' * handler.signature_size # twice the size due to hex encoding

@@ -105,6 +105,7 @@ module HexaPDF
         def finalize_objects(_signature_field, signature)
           signature.document.version = '2.0'
           signature[:Type] = :DocTimeStamp
+          signature[:Filter] = :'Adobe.PPKLite'
           signature[:SubFilter] = :'ETSI.RFC3161'
           signature[:Reason] = reason if reason
           signature[:Location] = location if location

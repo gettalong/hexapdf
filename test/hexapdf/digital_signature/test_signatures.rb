@@ -70,13 +70,10 @@ describe HexaPDF::DigitalSignature::Signatures do
       end
       @doc.signatures.add(@io, @handler, write_options: {update_fields: false})
       sig = @doc.signatures.first
-      assert_equal(:'Adobe.PPKLite', sig[:Filter])
-      assert_equal(:'adbe.pkcs7.detached', sig[:SubFilter])
-      assert_equal([0, 996, 3618, 2501], sig[:ByteRange].value)
+      assert_equal([0, 925, 3547, 2501], sig[:ByteRange].value)
       assert_equal(:sig, sig[:key])
       assert_equal(:sig_field, @doc.acro_form.each_field.first[:key])
       assert(sig.key?(:Contents))
-      assert(sig.key?(:M))
     end
 
     it "creates the main form dictionary if necessary" do

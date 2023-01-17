@@ -190,7 +190,9 @@ module HexaPDF
 
         # Finalizes the signature field as well as the signature dictionary before writing.
         def finalize_objects(_signature_field, signature)
-          signature[:SubFilter] = :'ETSI.CAdES.detached' if signature_type == :etsi
+          signature[:Filter] = :'Adobe.PPKLite'
+          signature[:SubFilter] = (signature_type == :etsi ? :'ETSI.CAdES.detached' : :'adbe.pkcs7.detached')
+          signature[:M] = Time.now
           signature[:Reason] = reason if reason
           signature[:Location] = location if location
           signature[:ContactInfo] = contact_info if contact_info

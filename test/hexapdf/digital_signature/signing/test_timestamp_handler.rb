@@ -35,6 +35,7 @@ describe HexaPDF::DigitalSignature::Signing::TimestampHandler do
     @handler.finalize_objects(@field, @sig)
     assert_equal('2.0', @doc.version)
     assert_equal(:DocTimeStamp, @sig[:Type])
+    assert_equal(:'Adobe.PPKLite', @sig[:Filter])
     assert_equal(:'ETSI.RFC3161', @sig[:SubFilter])
     assert_equal('Reason', @sig[:Reason])
     assert_equal('Location', @sig[:Location])
