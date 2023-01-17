@@ -97,7 +97,8 @@ module HexaPDF
     # a user is allowed to do with a PDF file.
     #
     # When a user or owner password is specified, a PDF file can only be opened when the correct
-    # password is supplied.
+    # password is supplied. To open such an encrypted PDF file, the +decryption_opts+ provided to
+    # HexaPDF::Document.new needs to contain a :password key with the password.
     #
     # See: PDF1.7 s7.6.3, PDF2.0 s7.6.3
     class StandardSecurityHandler < SecurityHandler

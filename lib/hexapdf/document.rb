@@ -152,15 +152,19 @@ module HexaPDF
     #
     # Options:
     #
-    # io:: If an IO object is provided, then this document can read PDF objects from this IO
-    #      object, otherwise it can only contain created PDF objects.
+    # io::
+    #     If an IO object is provided, then this document can read PDF objects from this IO object,
+    #     otherwise it can only contain created PDF objects.
     #
-    # decryption_opts:: A hash with options for decrypting the PDF objects loaded from the IO.
+    # decryption_opts::
+    #     A hash with options for decrypting the PDF objects loaded from the IO. The PDF standard
+    #     security handler expects a :password key to be set to either the user or owner password of
+    #     the PDF file.
     #
-    # config:: A hash with configuration options that is deep-merged into the default configuration
-    #          (see
-    #          HexaPDF::DefaultDocumentConfiguration[../index.html#DefaultDocumentConfiguration],
-    #          meaning that direct sub-hashes are merged instead of overwritten.
+    # config::
+    #     A hash with configuration options that is deep-merged into the default configuration (see
+    #     HexaPDF::DefaultDocumentConfiguration[../index.html#DefaultDocumentConfiguration], meaning
+    #     that direct sub-hashes are merged instead of overwritten.
     def initialize(io: nil, decryption_opts: {}, config: {})
       @config = Configuration.with_defaults(config)
       @version = '1.2'
