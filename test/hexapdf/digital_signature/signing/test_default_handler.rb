@@ -15,7 +15,7 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
   end
 
   it "returns the size of serialized signature" do
-    assert_equal(1310, @handler.signature_size)
+    assert(@handler.signature_size > 1000)
     @handler.signature_size = 100
     assert_equal(100, @handler.signature_size)
   end

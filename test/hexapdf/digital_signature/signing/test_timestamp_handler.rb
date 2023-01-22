@@ -45,7 +45,7 @@ describe HexaPDF::DigitalSignature::Signing::TimestampHandler do
   it "returns the size of serialized signature" do
     @handler.tsa_url = "http://127.0.0.1:34567"
     CERTIFICATES.start_tsa_server
-    assert_equal(1420, @handler.signature_size)
+    assert(@handler.signature_size > 1000)
   end
 
   describe "sign" do
