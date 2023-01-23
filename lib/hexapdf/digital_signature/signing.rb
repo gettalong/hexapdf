@@ -45,6 +45,7 @@ module HexaPDF
 
       autoload(:DefaultHandler, 'hexapdf/digital_signature/signing/default_handler')
       autoload(:TimestampHandler, 'hexapdf/digital_signature/signing/timestamp_handler')
+      autoload(:SignedDataCreator, 'hexapdf/digital_signature/signing/signed_data_creator')
 
       # Embeds the given +signature+ into the /Contents value of the newest signature dictionary of
       # the PDF document given by the +io+ argument.

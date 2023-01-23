@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::DigitalSignature::Signing::SignedDataCreator] for creating custom
+  CMS signed data objects
+
 ### Changed
 
 * **Breaking change**: Refactored digital signature support and moved all

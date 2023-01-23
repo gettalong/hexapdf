@@ -62,8 +62,8 @@ module HexaPDF
       #
       # * By using an external signing mechanism. Here the actual signing happens "outside" of
       #   HexaPDF, for example, in custom code or even asynchronously. This is needed in case the
-      #   signing certificate plus key are not directly available but only an interface to them
-      #   (e.g. when dealing with a HSM).
+      #   signing key is not directly available but only an interface to it (e.g. when dealing with
+      #   a HSM).
       #
       #   Assign a callable object to #external_signing. If the signing process needs to be
       #   asynchronous, make sure to set the #signature_size appropriately, return an empty string
@@ -224,8 +224,8 @@ module HexaPDF
             data = io.read(byte_range[1])
             io.pos = byte_range[2]
             data << io.read(byte_range[3])
-            OpenSSL::PKCS7.sign(@certificate, @key, data, @certificate_chain,
-                                OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY).to_der
+            SignedDataCreator.create(data, certificate: @certificate, key: @key,
+                                     certificates: @certificate_chain).to_der
           end
         end
 
