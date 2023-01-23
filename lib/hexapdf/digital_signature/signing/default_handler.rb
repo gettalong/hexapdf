@@ -60,14 +60,25 @@ module HexaPDF
       #
       #   Assign the respective data to the #certificate, #key and #certificate_chain attributes.
       #
-      # * By using an external signing mechanism. Here the actual signing happens "outside" of
-      #   HexaPDF, for example, in custom code or even asynchronously. This is needed in case the
-      #   signing key is not directly available but only an interface to it (e.g. when dealing with
-      #   a HSM).
+      # * By using an external signing mechanism, a callable object assigned to #external_signing.
+      #   Here the actual signing happens "outside" of HexaPDF, for example, in custom code or even
+      #   asynchronously. This is needed in case the signing key is not directly available but only
+      #   an interface to it (e.g. when dealing with a HSM).
       #
-      #   Assign a callable object to #external_signing. If the signing process needs to be
-      #   asynchronous, make sure to set the #signature_size appropriately, return an empty string
-      #   during signing and later use Signatures.embed_signature to embed the actual signature.
+      #   Depending on whether #certificate is set the signing happens differently:
+      #
+      #   * If #certificate is not set, the callable object is used instead of #sign, so it needs to
+      #     accept the same arguments as #sign and needs to return a complete, DER-serialized
+      #     PKCS#7/CMS signed data object.
+      #
+      #   * If #certificate is set, the PKCS#7/CMS signed data object is created by HexaPDF. The
+      #     callable #external_signing object is called with the used digest algorithm and the
+      #     already digested data which needs to be signed (but *not* digested) and the signature
+      #     returned.
+      #
+      #   If the signing process needs to be asynchronous, make sure to set the #signature_size
+      #   appropriately, return an empty string during signing and later use
+      #   Signatures.embed_signature to embed the actual signature.
       #
       # Additional functionality:
       #
@@ -80,7 +91,7 @@ module HexaPDF
       #   document.sign("output.pdf", certificate: my_cert, key: my_key,
       #                 certificate_chain: my_chain)
       #
-      #   # Signing using an external mechanism:
+      #   # Signing using an external mechanism without certificate set
       #   signing_proc = lambda do |io, byte_range|
       #     io.pos = byte_range[0]
       #     data = io.read(byte_range[1])
@@ -89,6 +100,13 @@ module HexaPDF
       #     signing_service.pkcs7_sign(data)
       #   end
       #   document.sign("output.pdf", signature_size: 10_000, external_signing: signing_proc)
+      #
+      #   # Signing using external mechanism with certificate set
+      #   signing_proc = lambda do |digest_method, hash|
+      #     signing_service.sign_raw(digest_method, hash)
+      #   end
+      #   document.sign("output.pdf", certificate: my_cert, certificate_chain: my_chain,
+      #                 external_signing: signing_proc)
       #
       # == Implementing a Signing Handler
       #
@@ -111,11 +129,15 @@ module HexaPDF
         # certificates up to the root certificate.
         attr_accessor :certificate_chain
 
-        # A callable object fulfilling the same role as the #sign method that is used instead of the
-        # default mechanism for signing.
+        # A callable object for custom signing mechanisms in case #key is not available.
         #
-        # If this attribute is set, the attributes #certificate, #key and #certificate_chain are not
-        # used.
+        # The callable object has two different uses depending on whether #certificate is set:
+        #
+        # * If #certificate is not set, it fulfills the same role as the #sign method and needs to
+        #   conform to that interface.
+        #
+        # * If #certificate is set, it is just used for signing. Here it needs to accept the used
+        #   digest algorithm and the already digested data as arguments and return the signature.
         attr_accessor :external_signing
 
         # The reason for signing. If used, will be set on the signature object.
@@ -217,15 +239,16 @@ module HexaPDF
         # length2]. The offset numbers are byte positions in the +io+ argument and the to-be-signed
         # data can be determined by reading length bytes at the offsets.
         def sign(io, byte_range)
-          if external_signing
-            external_signing.call(io, byte_range)
-          else
+          if certificate
             io.pos = byte_range[0]
             data = io.read(byte_range[1])
             io.pos = byte_range[2]
             data << io.read(byte_range[3])
-            SignedDataCreator.create(data, certificate: @certificate, key: @key,
-                                     certificates: @certificate_chain).to_der
+            SignedDataCreator.create(data,
+                                     certificate: certificate, key: key,
+                                     certificates: certificate_chain, &external_signing).to_der
+          else
+            external_signing.call(io, byte_range)
           end
         end
 

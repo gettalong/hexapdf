@@ -9,6 +9,9 @@
 
 * **Breaking change**: Refactored digital signature support and moved all
   related code under the [HexaPDF::DigitalSignature] module
+* **Breaking change**: New external signing mode without the need for creating
+  the PKCS#7/CMS signed data object for
+  [HexaPDF::DigitalSignature::Signing::DefaultHandler]
 * Moved setting of signature entries /Filter, /SubFilter and /M fields to the
   signing handlers
 

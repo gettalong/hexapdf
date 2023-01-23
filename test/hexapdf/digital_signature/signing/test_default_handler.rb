@@ -57,9 +57,21 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
       assert(pkcs7.verify([], store, data.string, OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY))
     end
 
-    it "can use external signing" do
+    it "can use external signing without certificate set" do
+      @handler.certificate = nil
       @handler.external_signing = proc { "hallo" }
       assert_equal("hallo", @handler.sign(StringIO.new, [0, 0, 0, 0]))
+    end
+
+    it "can use external signing with certificate set but not the key" do
+      @handler.key = nil
+      @handler.external_signing = proc do |algorithm, _hash|
+        assert_equal('sha256', algorithm)
+        "hallo"
+      end
+      result = @handler.sign(StringIO.new, [0, 0, 0, 0])
+      asn1 = OpenSSL::ASN1.decode(result)
+      assert_equal("hallo", asn1.value[1].value[0].value[4].value[0].value[5].value)
     end
   end
 

@@ -24,6 +24,7 @@ describe HexaPDF::DigitalSignature::Signing do
 
     byte_range = nil
     @handler.signature_size = 5000
+    @handler.certificate = nil
     @handler.external_signing = proc {|_, br| byte_range = br; "" }
     doc.signatures.add(io, @handler)
 
@@ -31,7 +32,8 @@ describe HexaPDF::DigitalSignature::Signing do
     data = io.read(byte_range[1])
     io.pos = byte_range[2]
     data << io.read(byte_range[3])
-    contents = OpenSSL::PKCS7.sign(@handler.certificate, @handler.key, data, @handler.certificate_chain,
+    contents = OpenSSL::PKCS7.sign(CERTIFICATES.signer_certificate, @handler.key, data,
+                                   @handler.certificate_chain,
                                    OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY).to_der
     HexaPDF::DigitalSignature::Signing.embed_signature(io, contents)
     doc = HexaPDF::Document.new(io: io)
