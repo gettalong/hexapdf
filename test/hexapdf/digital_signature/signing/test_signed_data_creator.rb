@@ -32,6 +32,14 @@ describe HexaPDF::DigitalSignature::Signing::SignedDataCreator do
     assert_match(/PAdES.*not yet implemented/, msg.message)
   end
 
+  it "doesn't allow setting attributes to nil using ::create" do
+    asn1 = @klass.create("data",
+                         certificate: CERTIFICATES.signer_certificate,
+                         key: CERTIFICATES.signer_key,
+                         digest_algorithm: nil)
+    assert_equal('2.16.840.1.101.3.4.2.1', asn1.value[1].value[1].value[0].value[0].value)
+  end
+
   describe "content info structure" do
     it "sets the correct content type value for the outer container" do
       asn1 = @signed_data.create("data")

@@ -58,11 +58,11 @@ module HexaPDF
       # See: PDF1.7/2.0 s12.8.3.3, PDF2.0 s12.8.3.4, RFC5652, ETSI TS 102 778 Parts 1-4
       class SignedDataCreator
 
-        # Creates a SignedDataCreator, sets the given attributes and then calls #create with the
-        # given data, type and block.
+        # Creates a SignedDataCreator, sets the given attributes if they are not nil and then calls
+        # #create with the given data, type and block.
         def self.create(data, type: :cms, **attributes, &block)
           instance = new
-          attributes.each {|key, value| instance.send("#{key}=", value) }
+          attributes.each {|key, value| instance.send("#{key}=", value) unless value.nil? }
           instance.create(data, type: type, &block)
         end
 
