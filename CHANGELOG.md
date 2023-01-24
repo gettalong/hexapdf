@@ -14,6 +14,8 @@
   [HexaPDF::DigitalSignature::Signing::DefaultHandler]
 * [HexaPDF::DigitalSignature::Signing::DefaultHandler] to allow specifying the
   used digest algorithm
+* [HexaPDF::DigitalSignature::Signing::DefaultHandler] to allow specifying a
+  timestamp handler for including a timestamp token in the signature
 * Moved setting of signature entries /Filter, /SubFilter and /M fields to the
   signing handlers
 

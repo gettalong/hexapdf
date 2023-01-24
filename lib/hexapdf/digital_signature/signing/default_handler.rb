@@ -134,6 +134,11 @@ module HexaPDF
         # If not set, defaults to the default of SignedDataCreator#digest_algorithm.
         attr_accessor :digest_algorithm
 
+        # The timestamp handler that should be used for timestamping the signature.
+        #
+        # If this attribute is set, the timestamp token is embedded into the PKCS#7/CMS object.
+        attr_accessor :timestamp_handler
+
         # A callable object for custom signing mechanisms in case #key is not available.
         #
         # The callable object has two different uses depending on whether #certificate is set:
@@ -252,6 +257,7 @@ module HexaPDF
             SignedDataCreator.create(data,
                                      certificate: certificate, key: key,
                                      digest_algorithm: digest_algorithm,
+                                     timestamp_handler: timestamp_handler,
                                      certificates: certificate_chain, &external_signing).to_der
           else
             external_signing.call(io, byte_range)

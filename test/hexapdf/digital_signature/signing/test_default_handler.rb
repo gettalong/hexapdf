@@ -64,6 +64,15 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
       assert_equal('SHA384', asn1.value[1].value[0].value[1].value[0].value[0].value)
     end
 
+    it "can embed a timestamp token" do
+      @handler.timestamp_handler = tsh = Object.new
+      tsh.define_singleton_method(:sign) {|_, _| OpenSSL::ASN1::OctetString.new("signed-tsh") }
+      signed = @handler.sign(StringIO.new('data'), [0, 4, 0, 0])
+      asn1 = OpenSSL::ASN1.decode(signed)
+      assert_equal('signed-tsh', asn1.value[1].value[0].value[4].value[0].
+                   value[6].value[0].value[1].value[0].value)
+    end
+
     it "can use external signing without certificate set" do
       @handler.certificate = nil
       @handler.external_signing = proc { "hallo" }
