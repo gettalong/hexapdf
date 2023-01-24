@@ -154,6 +154,14 @@ describe HexaPDF::DigitalSignature::Signing::SignedDataCreator do
       assert_equal(CERTIFICATES.signer_key.sign('SHA256', to_sign), @structure.value[5].value)
     end
 
+    it "can use a different digest algorithm" do
+      @signed_data.digest_algorithm = 'sha384'
+      structure = @signed_data.create("data").value[1].value[4].value[0]
+      to_sign = OpenSSL::ASN1::Set.new(structure.value[3].value).to_der
+      assert_equal('2.16.840.1.101.3.4.2.2', structure.value[2].value[0].value)
+      assert_equal(CERTIFICATES.signer_key.sign('SHA384', to_sign), structure.value[5].value)
+    end
+
     it "allows delegating the signature to a provided signing block" do
       @signed_data.key = nil
       digest_algorithm = nil

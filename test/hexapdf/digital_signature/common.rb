@@ -6,7 +6,7 @@ module HexaPDF
     class Certificates
 
       def ca_key
-        @ca_key ||= OpenSSL::PKey::RSA.new(512)
+        @ca_key ||= OpenSSL::PKey::RSA.new(2048)
       end
 
       def ca_certificate
@@ -36,7 +36,7 @@ module HexaPDF
       end
 
       def signer_key
-        @signer_key ||= OpenSSL::PKey::RSA.new(512)
+        @signer_key ||= OpenSSL::PKey::RSA.new(2048)
       end
 
       def signer_certificate
