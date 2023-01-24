@@ -12,6 +12,8 @@
 * **Breaking change**: New external signing mode without the need for creating
   the PKCS#7/CMS signed data object for
   [HexaPDF::DigitalSignature::Signing::DefaultHandler]
+* [HexaPDF::DigitalSignature::Signing::DefaultHandler] to allow specifying the
+  used digest algorithm
 * Moved setting of signature entries /Filter, /SubFilter and /M fields to the
   signing handlers
 

@@ -45,16 +45,23 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
   end
 
   describe "sign" do
-    it "can sign the data using PKCS7" do
+    it "can sign the data using the provided certificate and key" do
       data = StringIO.new("data")
-      store = OpenSSL::X509::Store.new
-      store.add_cert(CERTIFICATES.ca_certificate)
+      signed_data = @handler.sign(data, [0, data.string.size, 0, 0])
 
-      pkcs7 = OpenSSL::PKCS7.new(@handler.sign(data, [0, 4, 0, 0]))
+      pkcs7 = OpenSSL::PKCS7.new(signed_data)
       assert(pkcs7.detached?)
       assert_equal([CERTIFICATES.signer_certificate, CERTIFICATES.ca_certificate],
                    pkcs7.certificates)
+      store = OpenSSL::X509::Store.new
+      store.add_cert(CERTIFICATES.ca_certificate)
       assert(pkcs7.verify([], store, data.string, OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY))
+    end
+
+    it "can change the used digest algorithm" do
+      @handler.digest_algorithm = 'sha384'
+      asn1 = OpenSSL::ASN1.decode(@handler.sign(StringIO.new('data'), [0, 4, 0, 0]))
+      assert_equal('SHA384', asn1.value[1].value[0].value[1].value[0].value[0].value)
     end
 
     it "can use external signing without certificate set" do

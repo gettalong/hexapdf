@@ -129,6 +129,11 @@ module HexaPDF
         # certificates up to the root certificate.
         attr_accessor :certificate_chain
 
+        # The digest algorithm that should be used when creating the signature.
+        #
+        # If not set, defaults to the default of SignedDataCreator#digest_algorithm.
+        attr_accessor :digest_algorithm
+
         # A callable object for custom signing mechanisms in case #key is not available.
         #
         # The callable object has two different uses depending on whether #certificate is set:
@@ -246,6 +251,7 @@ module HexaPDF
             data << io.read(byte_range[3])
             SignedDataCreator.create(data,
                                      certificate: certificate, key: key,
+                                     digest_algorithm: digest_algorithm,
                                      certificates: certificate_chain, &external_signing).to_der
           else
             external_signing.call(io, byte_range)
