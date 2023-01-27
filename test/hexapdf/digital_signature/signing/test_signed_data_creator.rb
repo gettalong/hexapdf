@@ -137,8 +137,13 @@ describe HexaPDF::DigitalSignature::Signing::SignedDataCreator do
         assert_equal(OpenSSL::Digest.digest('sha256', CERTIFICATES.signer_certificate.to_der),
                      signing_cert.value[0].value[0].value[0].value)
         assert_equal(2, signing_cert.value[0].value[0].value[1].value.size)
+        assert_equal(1, signing_cert.value[0].value[0].value[1].value[0].value.size)
+        assert_equal(1, signing_cert.value[0].value[0].value[1].value[0].value[0].value.size)
+        assert_equal(4, signing_cert.value[0].value[0].value[1].value[0].value[0].tag)
+        assert_equal(:IMPLICIT, signing_cert.value[0].value[0].value[1].value[0].value[0].tagging)
+        assert_equal(:CONTEXT_SPECIFIC, signing_cert.value[0].value[0].value[1].value[0].value[0].tag_class)
         assert_equal(CERTIFICATES.signer_certificate.issuer,
-                     signing_cert.value[0].value[0].value[1].value[0])
+                     signing_cert.value[0].value[0].value[1].value[0].value[0].value[0])
         assert_equal(CERTIFICATES.signer_certificate.serial,
                      signing_cert.value[0].value[0].value[1].value[1].value)
       end

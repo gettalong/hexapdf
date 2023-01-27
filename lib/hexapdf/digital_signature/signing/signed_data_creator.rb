@@ -137,11 +137,13 @@ module HexaPDF
                 sequence( # Seq of ESSCertIDv2
                   sequence( # ESSCertIDv2
                     #TODO: Does not validate on ETSI checker if used, doesn't matter if SHA256 or 512
-                    #oid('sha256')
+                    #oid('sha512'),
                     binary(OpenSSL::Digest.digest('sha256', @certificate.to_der)), # certHash
-                    sequence(                       # issuerSerial
-                      @certificate.issuer,          #   issuer
-                      integer(@certificate.serial)  #   serial
+                    sequence(                                      # issuerSerial
+                      sequence(                                    #  issuer
+                        implicit(4, sequence(@certificate.issuer)) #   choice 4 directoryName
+                      ),
+                      integer(@certificate.serial)                 #  serial
                     )
                   )
                 )
