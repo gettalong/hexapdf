@@ -36,6 +36,7 @@
 
 require 'openssl'
 require 'hexapdf/error'
+require 'hexapdf/version'
 require 'stringio'
 
 module HexaPDF
@@ -229,6 +230,7 @@ module HexaPDF
           signature[:Reason] = reason if reason
           signature[:Location] = location if location
           signature[:ContactInfo] = contact_info if contact_info
+          signature[:Prop_Build] = {App: {Name: :HexaPDF, REx: HexaPDF::VERSION}}
 
           if doc_mdp_permissions
             doc = signature.document

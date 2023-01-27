@@ -110,14 +110,14 @@ describe HexaPDF::DigitalSignature::Signatures do
     it "handles different xref section types correctly when determing the offsets" do
       @doc.delete(7)
       sig = @doc.signatures.add(@io, @handler, write_options: {update_fields: false})
-      assert_equal([0, 988, 988 + sig[:Contents].size * 2 + 2, 2483], sig[:ByteRange].value)
+      assert_equal([0, 1036, 1036 + sig[:Contents].size * 2 + 2, 2483], sig[:ByteRange].value)
     end
 
     it "works if the signature object is the last object of the xref section" do
       field = @doc.acro_form(create: true).create_signature_field('Signature2')
       field.create_widget(@doc.pages[0], Rect: [0, 0, 0, 0])
       sig = @doc.signatures.add(@io, @handler, signature: field, write_options: {update_fields: false})
-      assert_equal([0, 3095, 3095 + sig[:Contents].size * 2  + 2, 380], sig[:ByteRange].value)
+      assert_equal([0, 3143, 3143 + sig[:Contents].size * 2 + 2, 380], sig[:ByteRange].value)
     end
 
     it "allows writing to a file in addition to writing to an IO" do

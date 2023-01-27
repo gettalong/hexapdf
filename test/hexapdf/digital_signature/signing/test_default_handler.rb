@@ -124,6 +124,12 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
       assert_equal(['Reason', 'Location', 'Contact'], @obj.value.values_at(:Reason, :Location, :ContactInfo))
     end
 
+    it "fills the build properties dictionary with appropriate application information" do
+      @handler.finalize_objects(@field, @obj)
+      assert_equal(:HexaPDF, @obj[:Prop_Build][:App][:Name])
+      assert_equal(HexaPDF::VERSION, @obj[:Prop_Build][:App][:REx])
+    end
+
     it "applies the specified DocMDP permissions" do
       @handler.doc_mdp_permissions = :no_changes
       @handler.finalize_objects(@field, @obj)
