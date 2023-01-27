@@ -170,7 +170,7 @@ module HexaPDF
 
         # The type of signature to be written (i.e. the value of the /SubFilter key).
         #
-        # The value can either be :adobe (the default; uses a detached PKCS7 signature) or :etsi
+        # The value can either be :cms (the default; uses a detached PKCS7 signature) or :pades
         # (uses an ETSI CAdES compatible signature).
         attr_accessor :signature_type
 
@@ -182,6 +182,7 @@ module HexaPDF
         # Creates a new DefaultHandler with the given attributes.
         def initialize(**arguments)
           @signature_size = nil
+          @signature_type = :cms
           arguments.each {|name, value| send("#{name}=", value) }
         end
 
@@ -223,7 +224,7 @@ module HexaPDF
         # Finalizes the signature field as well as the signature dictionary before writing.
         def finalize_objects(_signature_field, signature)
           signature[:Filter] = :'Adobe.PPKLite'
-          signature[:SubFilter] = (signature_type == :etsi ? :'ETSI.CAdES.detached' : :'adbe.pkcs7.detached')
+          signature[:SubFilter] = (signature_type == :pades ? :'ETSI.CAdES.detached' : :'adbe.pkcs7.detached')
           signature[:M] = Time.now
           signature[:Reason] = reason if reason
           signature[:Location] = location if location

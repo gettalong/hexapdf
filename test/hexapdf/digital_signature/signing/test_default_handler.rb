@@ -14,6 +14,10 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
     )
   end
 
+  it "defaults to standard CMS signatures" do
+    assert_equal(:cms, @handler.signature_type)
+  end
+
   it "returns the size of serialized signature" do
     assert(@handler.signature_size > 1000)
     @handler.signature_size = 100
@@ -105,8 +109,8 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
       assert_kind_of(Time, @obj[:M])
     end
 
-    it "adjust the /SubFilter if signature type is etsi" do
-      @handler.signature_type = :etsi
+    it "adjust the /SubFilter if signature type is pades" do
+      @handler.signature_type = :pades
       @handler.finalize_objects(@field, @obj)
       assert_equal(:'ETSI.CAdES.detached', @obj[:SubFilter])
     end
