@@ -108,10 +108,7 @@ module HexaPDF
         #     The type can either be :cms when creating standard PDF CMS signatures or :pades when
         #     creating PAdES compatible signatures. PAdES signatures are part of PDF 2.0.
         def create(data, type: :cms, &block) # :yield: digested_data
-          if type != :cms
-            raise HexaPDF::Error, "PAdES signature are not yet implemented"
-          end
-          signed_attrs = create_signed_attrs(data, signing_time: true)
+          signed_attrs = create_signed_attrs(data, signing_time: (type == :cms))
           signature = digest_and_sign_data(set(*signed_attrs.value).to_der, &block)
           unsigned_attrs = create_unsigned_attrs(signature)
 

@@ -27,11 +27,6 @@ describe HexaPDF::DigitalSignature::Signing::SignedDataCreator do
     assert_equal(:tsh, obj.timestamp_handler)
   end
 
-  it "fails if the as-of-yet unimplemented PAdES signature is requested" do
-    msg = assert_raises(HexaPDF::Error) { @klass.create("data", type: :pades) }
-    assert_match(/PAdES.*not yet implemented/, msg.message)
-  end
-
   it "doesn't allow setting attributes to nil using ::create" do
     asn1 = @klass.create("data",
                          certificate: CERTIFICATES.signer_certificate,
@@ -212,6 +207,13 @@ describe HexaPDF::DigitalSignature::Signing::SignedDataCreator do
           find {|obj| obj.value[0].value == 'signingTime' }
         assert_equal(Time.now.utc, attr.value[1].value[0].value)
       end
+    end
+  end
+
+  describe "pades signature" do
+    it "doesn't include the signing-time attribute" do
+      signer_info = @signed_data.create("data", type: :pades).value[1].value[4].value[0]
+      refute(signer_info.value[3].value.find {|obj| obj.value[0].value == 'signingTime' })
     end
   end
 end
