@@ -52,16 +52,33 @@ module HexaPDF
       # The signing handler is used by default by all methods that need a signing handler. Therefore
       # it is usually only necessary to provide the actual attribute values.
       #
-      # This handler provides two ways to create the PKCS#7/CMS signed-data structure required by
+      # *Note*: Currently only RSA is supported, DSA and ECDSA are not. See the examples below for
+      # how to handle them using external signing.
+      #
+      #
+      # == CMS and PAdES Signatures
+      #
+      # The handler supports the older standard of CMS signatures as well as the newer PAdES
+      # signatures specified in PDF 2.0. By default, CMS signatures are created but this can be
+      # changed by setting #signature_type to :pades.
+      #
+      # When creating PAdES signatures the following two PAdES baseline signatures are supported:
+      # B-B and B-T. The difference between those two is that a timestamp handler was defined for
+      # B-T compatibility.
+      #
+      #
+      # == Signing Modes - Internal, External, External/Asynchronous
+      #
+      # This handler provides two ways to create the CMS signed-data structure required by
       # Signatures#add:
       #
       # * By providing the signing certificate together with the signing key and the certificate
-      #   chain. This way HexaPDF itself does the signing. It is the preferred way if all the needed
-      #   information is available.
+      #   chain, HexaPDF itself does the signing *internally*. It is the preferred way if all the
+      #   needed information is available.
       #
       #   Assign the respective data to the #certificate, #key and #certificate_chain attributes.
       #
-      # * By using an external signing mechanism, a callable object assigned to #external_signing.
+      # * By using an *external signing mechanism*, a callable object assigned to #external_signing.
       #   Here the actual signing happens "outside" of HexaPDF, for example, in custom code or even
       #   asynchronously. This is needed in case the signing key is not directly available but only
       #   an interface to it (e.g. when dealing with a HSM).
@@ -69,24 +86,29 @@ module HexaPDF
       #   Depending on whether #certificate is set the signing happens differently:
       #
       #   * If #certificate is not set, the callable object is used instead of #sign, so it needs to
-      #     accept the same arguments as #sign and needs to return a complete, DER-serialized
-      #     PKCS#7/CMS signed data object.
+      #     accept the same arguments as #sign and needs to return a complete, DER-serialized CMS
+      #     signed data object.
       #
-      #   * If #certificate is set, the PKCS#7/CMS signed data object is created by HexaPDF. The
+      #   * If #certificate is set, the CMS signed data object is created by HexaPDF. The
       #     callable #external_signing object is called with the used digest algorithm and the
       #     already digested data which needs to be signed (but *not* digested) and the signature
       #     returned.
       #
-      #   If the signing process needs to be asynchronous, make sure to set the #signature_size
+      #   If the signing process needs to be *asynchronous*, make sure to set the #signature_size
       #   appropriately, return an empty string during signing and later use
       #   Signatures.embed_signature to embed the actual signature.
       #
-      # Additional functionality:
       #
-      # * Optionally setting the reason, location and contact information.
-      # * Making the signature a certification signature by applying the DocMDP transform method.
+      # == Optional Data
       #
-      # Example:
+      # Besides the required data, some optional attributes can also be specified:
+      #
+      # * Reason, location and contact information
+      # * Making the signature a certification signature by applying the DocMDP transform method and
+      #   a DoCMDP permission
+      #
+      #
+      # == Examples
       #
       #   # Signing using certificate + key
       #   document.sign("output.pdf", certificate: my_cert, key: my_key,
@@ -98,7 +120,7 @@ module HexaPDF
       #     data = io.read(byte_range[1])
       #     io.pos = byte_range[2]
       #     data << io.read(byte_range[3])
-      #     signing_service.pkcs7_sign(data)
+      #     signing_service.pkcs7_sign(data).to_der
       #   end
       #   document.sign("output.pdf", signature_size: 10_000, external_signing: signing_proc)
       #
@@ -108,6 +130,18 @@ module HexaPDF
       #   end
       #   document.sign("output.pdf", certificate: my_cert, certificate_chain: my_chain,
       #                 external_signing: signing_proc)
+      #
+      #   # Signing with DSA or ECDSA certificate/keys
+      #   signing_proc = lambda do |io, byte_range|
+      #     io.pos = byte_range[0]
+      #     data = io.read(byte_range[1])
+      #     io.pos = byte_range[2]
+      #     data << io.read(byte_range[3])
+      #     OpenSSL::PKCS7.sign(certificate, key, data, certificate_chain,
+      #                         OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY).to_der
+      #   end
+      #   document.sign("output.pdf", signature_size: 10_000, external_signing: signing_proc)
+      #
       #
       # == Implementing a Signing Handler
       #
@@ -121,34 +155,42 @@ module HexaPDF
       class DefaultHandler
 
         # The certificate with which to sign the PDF.
+        #
+        # If the certificate is provided, HexaPDF creates the signature object. Otherwise the
+        # #external_signing callable object has to create it.
         attr_accessor :certificate
 
         # The private key for the #certificate.
+        #
+        # If the key is provided, HexaPDF does the signing. Otherwise the #external_signing callable
+        # object has to sign the data.
         attr_accessor :key
 
-        # The certificate chain that should be embedded in the PDF; normally contains all
+        # The certificate chain that should be embedded in the PDF; usually contains all
         # certificates up to the root certificate.
         attr_accessor :certificate_chain
 
         # The digest algorithm that should be used when creating the signature.
         #
-        # If not set, defaults to the default of SignedDataCreator#digest_algorithm.
+        # See SignedDataCreator#digest_algorithm for the default value (if nothing is set) and for
+        # the allowed values.
         attr_accessor :digest_algorithm
 
         # The timestamp handler that should be used for timestamping the signature.
         #
-        # If this attribute is set, the timestamp token is embedded into the PKCS#7/CMS object.
+        # If this attribute is set, a timestamp token is embedded into the CMS object.
         attr_accessor :timestamp_handler
 
-        # A callable object for custom signing mechanisms in case #key is not available.
+        # A callable object for custom signing mechanisms.
         #
         # The callable object has two different uses depending on whether #certificate is set:
         #
         # * If #certificate is not set, it fulfills the same role as the #sign method and needs to
         #   conform to that interface.
         #
-        # * If #certificate is set, it is just used for signing. Here it needs to accept the used
-        #   digest algorithm and the already digested data as arguments and return the signature.
+        # * If #certificate is set and #key is not, it is just used for signing. Here it needs to
+        #   accept the used digest algorithm and the already digested data as arguments and return
+        #   the signature.
         attr_accessor :external_signing
 
         # The reason for signing. If used, will be set on the signature object.
@@ -171,7 +213,7 @@ module HexaPDF
 
         # The type of signature to be written (i.e. the value of the /SubFilter key).
         #
-        # The value can either be :cms (the default; uses a detached PKCS7 signature) or :pades
+        # The value can either be :cms (the default; uses a detached CMS signature) or :pades
         # (uses an ETSI CAdES compatible signature).
         attr_accessor :signature_type
 
@@ -180,7 +222,7 @@ module HexaPDF
         # See #doc_mdp_permissions=
         attr_reader :doc_mdp_permissions
 
-        # Creates a new DefaultHandler with the given attributes.
+        # Creates a new DefaultHandler instance with the given attributes.
         def initialize(**arguments)
           @signature_size = nil
           @signature_type = :cms
@@ -245,7 +287,7 @@ module HexaPDF
           end
         end
 
-        # Returns the DER serialized OpenSSL::PKCS7 structure containing the signature for the given
+        # Returns the DER serialized CMS signed data object containing the signature for the given
         # IO byte ranges.
         #
         # The +byte_range+ argument is an array containing four numbers [offset1, length1, offset2,
