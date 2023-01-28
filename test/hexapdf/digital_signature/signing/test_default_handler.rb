@@ -77,6 +77,15 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
                    value[6].value[0].value[1].value[0].value)
     end
 
+    it "creates PAdES compatible signatures" do
+      @handler.signature_type = :pades
+      signed = @handler.sign(StringIO.new('data'), [0, 4, 0, 0])
+      asn1 = OpenSSL::ASN1.decode(signed)
+      # check by absence of signing-time signed attribute
+      refute(asn1.value[1].value[0].value[4].value[0].value[3].value.
+             find {|obj| obj.value[0].value == 'signingTime' })
+    end
+
     it "can use external signing without certificate set" do
       @handler.certificate = nil
       @handler.external_signing = proc { "hallo" }

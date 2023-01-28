@@ -14,6 +14,8 @@
   [HexaPDF::DigitalSignature::Signing::DefaultHandler]
 * **Breaking change**: Use value :pades instead of :etsi for
   [HexaPDF::DigitalSignature::Signing::DefaultHandler#signature_type]
+* [HexaPDF::DigitalSignature::Signing::DefaultHandler] to allow creating PAdES
+  level B-B and B-T signatures
 * [HexaPDF::DigitalSignature::Signing::DefaultHandler] to allow specifying the
   used digest algorithm
 * [HexaPDF::DigitalSignature::Signing::DefaultHandler] to allow specifying a

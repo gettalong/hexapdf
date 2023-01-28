@@ -258,6 +258,7 @@ module HexaPDF
             io.pos = byte_range[2]
             data << io.read(byte_range[3])
             SignedDataCreator.create(data,
+                                     type: signature_type,
                                      certificate: certificate, key: key,
                                      digest_algorithm: digest_algorithm,
                                      timestamp_handler: timestamp_handler,
