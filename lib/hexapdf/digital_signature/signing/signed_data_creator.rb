@@ -81,7 +81,7 @@ module HexaPDF
 
         # The digest algorithm that should be used. Defaults to 'sha256'.
         #
-        # Allowed values: sha1, sha256, sha384, sha512.
+        # Allowed values: sha256, sha384, sha512.
         attr_accessor :digest_algorithm
 
         # The timestamp handler instance that should be used for timestamping.
