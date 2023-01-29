@@ -19,7 +19,7 @@ describe HexaPDF::DigitalSignature::CMSHandler do
   end
 
   it "returns the signer name" do
-    assert_equal("signer", @handler.signer_name)
+    assert_equal("RSA signer", @handler.signer_name)
   end
 
   it "returns the signing time" do

@@ -65,7 +65,7 @@ describe HexaPDF::DigitalSignature::Signature do
   end
 
   it "returns the signer name" do
-    assert_equal('signer', @sig.signer_name)
+    assert_equal('RSA signer', @sig.signer_name)
   end
 
   it "returns the signing time" do

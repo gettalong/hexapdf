@@ -39,10 +39,14 @@ module HexaPDF
         @signer_key ||= OpenSSL::PKey::RSA.new(2048)
       end
 
+      def dsa_signer_key
+        @dsa_signer_key ||= OpenSSL::PKey::DSA.new(2048)
+      end
+
       def signer_certificate
         @signer_certificate ||=
           begin
-            name = OpenSSL::X509::Name.parse('/CN=signer/DC=gettalong')
+            name = OpenSSL::X509::Name.parse('/CN=RSA signer/DC=gettalong')
 
             signer_cert = OpenSSL::X509::Certificate.new
             signer_cert.serial = 2
@@ -51,6 +55,30 @@ module HexaPDF
             signer_cert.not_after = Time.now + 86400
             signer_cert.public_key = signer_key.public_key
             signer_cert.subject = name
+            signer_cert.issuer = ca_certificate.subject
+
+            extension_factory = OpenSSL::X509::ExtensionFactory.new
+            extension_factory.subject_certificate = signer_cert
+            extension_factory.issuer_certificate = ca_certificate
+            signer_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
+            signer_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:FALSE'))
+            signer_cert.add_extension(extension_factory.create_extension('keyUsage', 'digitalSignature'))
+            signer_cert.sign(ca_key, OpenSSL::Digest.new('SHA1'))
+
+            signer_cert
+          end
+      end
+
+      def dsa_signer_certificate
+        @dsa_signer_certificate ||=
+          begin
+            signer_cert = OpenSSL::X509::Certificate.new
+            signer_cert.serial = 3
+            signer_cert.version = 2
+            signer_cert.not_before = Time.now - 86400
+            signer_cert.not_after = Time.now + 86400
+            signer_cert.public_key = dsa_signer_key.public_key
+            signer_cert.subject = OpenSSL::X509::Name.parse('/CN=DSA signer/DC=gettalong')
             signer_cert.issuer = ca_certificate.subject
 
             extension_factory = OpenSSL::X509::ExtensionFactory.new
