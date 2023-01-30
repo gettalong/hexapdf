@@ -92,30 +92,30 @@
 ### Added
 
 * Support for timestamp signatures through the
-  [HexaPDF::Document::Signatures::TimestampHandler]
+  `HexaPDF::Document::Signatures::TimestampHandler`
 * [HexaPDF::Document::Destinations#resolve] for resolving destination values
 * [HexaPDF::Document::Destinations::Destination#value] to return the destination
   array
 * Support for verifying document timestamp signatures
-* [HexaPDF::Document::Signatures::DefaultHandler#signature_size] to support
+* `HexaPDF::Document::Signatures::DefaultHandler#signature_size` to support
   setting custom signature sizes
-* [HexaPDF::Document::Signatures::DefaultHandler#external_signing] to support
+* `HexaPDF::Document::Signatures::DefaultHandler#external_signing` to support
   signing via custom mechanisms
-* [HexaPDF::Document::Signatures::embed_signature] to enable asynchronous
+* `HexaPDF::Document::Signatures::embed_signature` to enable asynchronous
   external signing
 
 ### Changed
 
 * **Breaking change**: The crop box is now used instead of the media box in most
   cases to be in line with the specification
-* [HexaPDF::Document::Signatures::DefaultHandler] to allow setting the used
+* `HexaPDF::Document::Signatures::DefaultHandler` to allow setting the used
   signature method
-* **Breaking change**: [HexaPDF::Document::Signatures::DefaultHandler#sign]
+* **Breaking change**: `HexaPDF::Document::Signatures::DefaultHandler#sign`
   needs to accept the IO object and the byte range instead of just the data
 * **Breaking change**: Enhanced support for outline items with new methods
   `#level` and `#destination_page` as well as changes to `#add` and `#each_item`
 * **Breaking change**: Removed `#filter_name` and `#sub_filter_name` from
-  [HexaPDF::Document::Signatures::DefaultHandler]
+  `HexaPDF::Document::Signatures::DefaultHandler`
 * `HexaPDF::Type::Resources#perform_validation` to not add a default procedure
   set since this feature is deprecated
 
@@ -132,7 +132,7 @@
 * [HexaPDF::Type::OutlineItem] to always be an indirect object
 * `HexaPDF::Tokenizer#parse_number` to handle references correctly in all cases
 * [HexaPDF::Type::Page#rotate] to correctly flatten all page boxes
-* [HexaPDF::Document::Signatures#add] to raise an error if the reserved space
+* `HexaPDF::Document::Signatures#add` to raise an error if the reserved space
   for the signature is not enough
 * `HexaPDF::Type::AcroForm::Form#perform_validation` to fix broken /Parent
   entries and to remove invalid objects from the field hierarchy
@@ -307,7 +307,7 @@
   moved node doesn't change
 * [HexaPDF::Type::PageTreeNode#move_page] to use the correct target position
   when the moved node is before the target position
-* [HexaPDF::Document::Signatures#add] to work in case the signature object is
+* `HexaPDF::Document::Signatures#add` to work in case the signature object is
   the last object written
 * CLI command `hexapdf inspect` to show correct byte range of the last revision
 * [HexaPDF::Writer#write_incremental] to only use a cross-reference stream if a
@@ -316,7 +316,7 @@
   disabled
 * [HexaPDF::Font::Encoding::GlyphList] to use binary reading to avoid problems
   on Windows
-* [HexaPDF::Document::Signatures#add] to use binary writing to avoid problems on
+* `HexaPDF::Document::Signatures#add` to use binary writing to avoid problems on
   Windows
 
 
