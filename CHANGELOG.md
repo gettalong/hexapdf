@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::Document::Pages#create] for creating a page object without adding it
+  to the page tree
+
+
 ## 0.29.0 - 2023-01-30
 
 ### Added

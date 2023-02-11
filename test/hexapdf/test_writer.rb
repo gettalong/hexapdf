@@ -164,9 +164,9 @@ describe HexaPDF::Writer do
 
     document = HexaPDF::Document.new(io: io)
     assert_equal(3, document.revisions.count)
-    assert_equal(1, document.revisions.all[0].object(2)[:Kids].length)
-    assert_equal(2, document.revisions.all[1].object(2)[:Kids].length)
-    assert_equal(3, document.revisions.all[2].object(2)[:Kids].length)
+    assert_equal(1, document.revisions.all[0].object(3)[:Kids].length)
+    assert_equal(2, document.revisions.all[1].object(3)[:Kids].length)
+    assert_equal(3, document.revisions.all[2].object(3)[:Kids].length)
   end
 
   it "creates an xref stream if no xref stream is in a revision but object streams are" do

@@ -75,28 +75,45 @@ module HexaPDF
         @document.catalog.pages
       end
 
+      # Creates a page object and returns it *without* adding it to the page tree.
+      #
+      # +media_box+::
+      #     If this argument is +nil+/not specified, the value is taken from the configuration
+      #     option 'page.default_media_box'.
+      #
+      #     If the resulting value is an array with four numbers (specifying the media box), the new
+      #     page will have these exact dimensions.
+      #
+      #     If the value is a symbol, it is taken as a reference to a pre-defined media box in
+      #     HexaPDF::Type::Page::PAPER_SIZE. The +orientation+ can then be used to specify the page
+      #     orientation.
+      #
+      # +orientation+::
+      #     If this argument is not specified, it is taken from 'page.default_media_orientation'. It
+      #     is only used if +media_box+ is a symbol and not an array.
+      def create(media_box: nil, orientation: nil)
+        media_box ||= @document.config['page.default_media_box']
+        orientation ||= @document.config['page.default_media_orientation']
+        box = if media_box.kind_of?(Array)
+                media_box
+              else
+                Type::Page.media_box(media_box, orientation: orientation)
+              end
+        @document.add({Type: :Page, MediaBox: box})
+      end
+
       # :call-seq:
-      #   pages.add                                     -> new_page
-      #   pages.add(media_box, orientation: :portrait)  -> new_page
-      #   pages.add(page)                               -> page
+      #   pages.add                               -> new_page
+      #   pages.add(page)                         -> page
+      #   pages.add(media_box, orientation: nil)  -> new_page
       #
-      # Adds the page or a new empty page at the end and returns it.
+      # Adds the given page or a new empty page at the end and returns it.
       #
-      # If no argument is given, a new page with the default dimensions (see configuration option
-      # 'page.default_media_box') is used.
-      #
-      # If the single argument is an array with four numbers (specifying the media box), the new
-      # page will have these dimensions.
-      #
-      # If the single argument is a symbol, it is taken as referencing a pre-defined media box in
-      # HexaPDF::Type::Page::PAPER_SIZE for the new page. The optional argument +orientation+ can be
-      # used to change the orientation to :landscape if needed.
-      def add(page = nil, orientation: :portrait)
-        if page.kind_of?(Array)
-          page = @document.add({Type: :Page, MediaBox: page})
-        elsif page.kind_of?(Symbol)
-          box = Type::Page.media_box(page, orientation: orientation)
-          page = @document.add({Type: :Page, MediaBox: box})
+      # If called with a page object as argument, that page object is used. Otherwise #create is
+      # called with the arguments +media_box+ and +orientation+ to create a new page.
+      def add(page = nil, orientation: nil)
+        unless page.kind_of?(HexaPDF::Type::Page)
+          page = create(media_box: page, orientation: orientation)
         end
         @document.catalog.pages.add_page(page)
       end
