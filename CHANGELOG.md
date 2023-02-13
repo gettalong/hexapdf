@@ -5,6 +5,11 @@
 * [HexaPDF::Document::Pages#create] for creating a page object without adding it
   to the page tree
 
+### Changed
+
+* `HexaPDF::Type::FontSimple#perform_validation` to correct /Widths fields in
+  case it has an invalid number of entries
+
 ### Fixed
 
 * [HexaPDF::DictionaryFields::DateConverter] to handle invalid months, day,

@@ -171,9 +171,21 @@ module HexaPDF
           yield("Required field #{field} is not set", false) if self[field].nil?
         end
 
+        widths = self[:Widths]
         if key?(:Widths) && key?(:LastChar) && key?(:FirstChar) &&
-            self[:Widths].length != (self[:LastChar] - self[:FirstChar] + 1)
-          yield("Invalid number of entries in field Widths", false)
+            widths.length != (self[:LastChar] - self[:FirstChar] + 1)
+          yield("Invalid number of entries in field Widths", true)
+          difference = self[:LastChar] - self[:FirstChar] + 1 - widths.length
+          if difference > 0
+            missing_value = if widths.count(widths[0]) == widths.length
+                              widths[0]
+                            else
+                              self[:FontDescriptor]&.[](:MissingWidth) || 0
+                            end
+            difference.times { widths << missing_value }
+          else
+            widths.slice!(difference, -difference)
+          end
         end
       end
 

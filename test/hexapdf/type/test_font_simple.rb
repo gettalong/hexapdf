@@ -15,7 +15,7 @@ describe HexaPDF::Type::FontSimple do
     EOF
     font_descriptor = @doc.add({Type: :FontDescriptor, FontName: :Embedded, Flags: 0b100,
                                 FontBBox: [0, 1, 2, 3], ItalicAngle: 0, Ascent: 900,
-                                Descent: -100, CapHeight: 800, StemV: 20})
+                                MissingWidth: 500, Descent: -100, CapHeight: 800, StemV: 20})
     @font = @doc.add({Type: :Font, Encoding: :WinAnsiEncoding,
                       BaseFont: :Embedded, FontDescriptor: font_descriptor, ToUnicode: cmap,
                       FirstChar: 32, LastChar: 34, Widths: [600, 0, 700]},
@@ -130,9 +130,7 @@ describe HexaPDF::Type::FontSimple do
     end
 
     it "returns the /MissingWidth of a /FontDescriptor if available and the width was not found" do
-      assert_equal(0, @font.width(0))
-      @font[:FontDescriptor][:MissingWidth] = 99
-      assert_equal(99, @font.width(0))
+      assert_equal(500, @font.width(0))
     end
 
     it "returns 0 for a missing code point when FontDescriptor is not available" do
@@ -169,8 +167,22 @@ describe HexaPDF::Type::FontSimple do
     end
 
     it "validates the lengths of the /Widths field" do
-      @font[:Widths] = [65]
-      refute(@font.validate)
+      @font[:Widths] = [65, 65]
+      assert(@font.validate)
+      assert_equal([65, 65, 65], @font[:Widths])
+
+      @font[:Widths] = [65, 70]
+      assert(@font.validate)
+      assert_equal([65, 70, 500], @font[:Widths])
+
+      @font[:Widths] = [65, 70]
+      @font.delete(:FontDescriptor)
+      assert(@font.validate)
+      assert_equal([65, 70, 0], @font[:Widths])
+
+      @font[:Widths] = [65, 65, 70, 90, 100]
+      assert(@font.validate)
+      assert_equal([65, 65, 70], @font[:Widths])
     end
   end
 end
