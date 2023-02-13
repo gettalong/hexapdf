@@ -5,6 +5,11 @@
 * [HexaPDF::Document::Pages#create] for creating a page object without adding it
   to the page tree
 
+### Fixed
+
+* [HexaPDF::DictionaryFields::DateConverter] to handle invalid months, day,
+  hour, minute and second values
+
 
 ## 0.29.0 - 2023-01-30
 

@@ -305,8 +305,13 @@ module HexaPDF
                      else
                        (m[7] == '-' ? -1 : 1) * (m[8].to_i * 3600 + m[9].to_i * 60).clamp(0, 86399)
                      end
-        Time.new(m[1].to_i, (m[2] ? m[2].to_i : 1), (m[3] ? m[3].to_i : 1),
-                 m[4].to_i, m[5].to_i, m[6].to_i, utc_offset)
+        begin
+          Time.new(m[1].to_i, (m[2] ? m[2].to_i : 1), (m[3] ? m[3].to_i : 1),
+                   m[4].to_i, m[5].to_i, m[6].to_i, utc_offset)
+        rescue ArgumentError
+          Time.new(m[1].to_i, m[2].to_i.clamp(1, 12), m[3].to_i.clamp(1, 31),
+                   m[4].to_i.clamp(0, 23), m[5].to_i.clamp(0, 59), m[6].to_i.clamp(0, 59), utc_offset)
+        end
       end
 
     end
