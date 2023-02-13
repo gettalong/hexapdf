@@ -324,10 +324,10 @@ module HexaPDF
       def prepare_decryption(password: '', check_permissions: true)
         if dict[:Filter] != :Standard
           raise(HexaPDF::UnsupportedEncryptionError,
-                "Invalid /Filter value for standard security handler")
+                "Invalid /Filter value #{dict[:Filter]} for standard security handler")
         elsif ![2, 3, 4, 6].include?(dict[:R])
           raise(HexaPDF::UnsupportedEncryptionError,
-                "Invalid /R value for standard security handler")
+                "Invalid /R value #{dict[:R]} for standard security handler")
         elsif dict[:R] <= 4 && !document.trailer[:ID].kind_of?(PDFArray)
           document.trailer[:ID] = ['', '']
         end

@@ -213,14 +213,14 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
         @handler.set_up_decryption({Filter: :NonStandard, V: 2})
       end
-      assert_match(/Invalid \/Filter/i, exp.message)
+      assert_match(/Invalid \/Filter value NonStandard/i, exp.message)
     end
 
     it "fails if the /R value is incorrect" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
         @handler.set_up_decryption({Filter: :Standard, V: 2, R: 5})
       end
-      assert_match(/Invalid \/R/i, exp.message)
+      assert_match(/Invalid \/R value 5/i, exp.message)
     end
 
     it "fails if the supplied password is invalid" do
