@@ -106,6 +106,13 @@ module HexaPDF
             doc.each(only_loaded: false) do |obj|
               indirect_object = obj
               obj.validate(auto_correct: true, &validation_block)
+              if obj.data.stream
+                begin
+                  obj.stream
+                rescue
+                  puts "ERROR: Stream of object (#{obj.oid},#{obj.gen}) invalid: #{$!.message}"
+                end
+              end
             end
           end
 

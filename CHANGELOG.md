@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+* CLI command `hexapdf info --check` to process streams to reveal stream errors
+
+
 ## 0.30.0 - 2023-01-13
 
 ### Added
