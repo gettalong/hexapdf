@@ -106,6 +106,14 @@ module HexaPDF
 
     # Creates a new Composer object and optionally yields it to the given block.
     #
+    # skip_page_creation::
+    #     If this argument is +true+ (the default), the arguments +page_size+, +page_orientation+
+    #     and +margin+ are used to create a page style with the name :default and an initial page is
+    #     created as well.
+    #
+    #     Otherwise, i.e. when this argument is +false+, no initial page or default page style is
+    #     created. This has to be done manually using the #page_style and #new_page methods.
+    #
     # page_size::
     #     Can be any valid predefined page size (see Type::Page::PAPER_SIZE) or an array [llx, lly,
     #     urx, ury] specifying a custom page size.
@@ -120,36 +128,53 @@ module HexaPDF
     # Example:
     #
     #   composer = HexaPDF::Composer.new            # uses the default values
+    #
     #   HexaPDF::Composer.new(page_size: :Letter, margin: 72) do |composer|
     #     #...
     #   end
-    def initialize(page_size: :A4, page_orientation: :portrait, margin: 36) #:yields: composer
+    #
+    #   HexaPDF::Composer.new(skip_page_creation: true) do |composer|
+    #     page_template = lambda {|canvas, style| style.create_frame(canvas.context, 36) }
+    #     page_style(:default, template: page_template)
+    #     new_page
+    #     # ...
+    #   end
+    def initialize(skip_page_creation: false, page_size: :A4, page_orientation: :portrait,
+                   margin: 36) #:yields: composer
       @document = HexaPDF::Document.new
-      @page_size = page_size
-      @page_orientation = page_orientation
-      @margin = Layout::Style::Quad.new(margin)
-
-      new_page
+      @page_styles = {}
+      @page_style = :default
+      unless skip_page_creation
+        page_style(:default, page_size: page_size, orientation: page_orientation) do |canvas, style|
+          style.frame = style.create_frame(canvas.context, margin)
+        end
+        new_page
+      end
       yield(self) if block_given?
     end
 
     # Creates a new page, making it the current one.
     #
-    # If any of +page_size+, +page_orientation+ or +margin+ are set, they will be used instead of
-    # the default values and will become the default values.
+    # The page style to use for the new page can be set via the +style+ argument. If not provided,
+    # the currently set page style is used.
+    #
+    # The used page style determines the page style that should be used for the following new pages.
+    # If this information is not provided, the used page style is used again.
     #
     # Examples:
     #
-    #   composer.new_page  # uses the default values
-    #   composer.new_page(page_size: :A5, margin: [72, 36])
-    def new_page(page_size: nil, page_orientation: nil, margin: nil)
-      @page_size = page_size if page_size
-      @page_orientation = page_orientation if page_orientation
-      @margin = Layout::Style::Quad.new(margin) if margin
-
-      @page = @document.pages.add(@page_size, orientation: @page_orientation)
+    #   composer.page_style(:cover, page_size: :A4).next_style = :content
+    #   composer.page_style(:content, page_size: :A4)
+    #   composer.new_page(:cover)           # uses the :cover style, set next style to :content
+    #   composer.new_page                   # uses the :content style, next style again :content
+    def new_page(style = @page_style)
+      page_style = @page_styles.fetch(style) do |key|
+        raise ArgumentError, "Page style #{key} has not been defined"
+      end
+      @page = @document.pages.add(page_style.create_page(@document))
       @canvas = @page.canvas
-      create_frame
+      @frame = page_style.frame
+      @page_style = page_style.next_style || style
     end
 
     # The x-position of the cursor inside the current frame.
@@ -188,6 +213,40 @@ module HexaPDF
     # See: HexaPDF::Layout::Style
     def style(name, base: :base, **properties)
       @document.layout.style(name, base: base, **properties)
+    end
+
+    # :call-seq:
+    #    composer.page_style(name)                                 -> page_style
+    #    composer.page_style(name, **attributes, &template_block)  -> page_style
+    #
+    # Creates and/or returns the page style +name+.
+    #
+    # If no attributes are given, the page style +name+ is returned. In case it does not exist,
+    # +nil+ is returned.
+    #
+    # If one or more page style attributes are given, a new HexaPDF::Layout::PageStyle object with
+    # those attribute values is created, stored under +name+ and returned. If a block is provided,
+    # it is used to define the page template.
+    #
+    # Example:
+    #
+    #   composer.page_style(:default)
+    #   composer.page_style(:cover, page_size: :A4) do |canvas, style|
+    #     page_box = canvas.context.box
+    #     canvas.fill_color("fd0") do
+    #       canvas.rectangle(0, 0, page_box.width, page_box.height).
+    #         fill
+    #     end
+    #     style.frame = style.create_frame(canvas.context, 36)
+    #   end
+    #
+    # See: HexaPDF::Layout::PageStyle
+    def page_style(name, **attributes, &block)
+      if attributes.empty?
+        @page_styles[name]
+      else
+        @page_styles[name] = HexaPDF::Layout::PageStyle.new(**attributes, &block)
+      end
     end
 
     # Draws the given text at the current position into the current frame.
@@ -323,17 +382,6 @@ module HexaPDF
       stamp = @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, width, height]})
       yield(stamp.canvas) if block_given?
       stamp
-    end
-
-    private
-
-    # Creates the frame into which boxes are layed out when a new page is created.
-    def create_frame
-      media_box = @page.box
-      @frame = Layout::Frame.new(media_box.left + @margin.left,
-                                 media_box.bottom + @margin.bottom,
-                                 media_box.width - @margin.left - @margin.right,
-                                 media_box.height - @margin.bottom - @margin.top)
     end
 
   end

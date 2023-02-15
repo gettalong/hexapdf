@@ -1,7 +1,14 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Layout::PageStyle] for collecting all styling information for pages
+* [HexaPDF::Composer#page_style] for configuring different page styles
+
 ### Changed
 
+* **Breaking change**: [HexaPDF::Composer] uses page styles underneath
+* [HexaPDF::Composer::new] to allow skipping the initial page creation
 * CLI command `hexapdf info --check` to process streams to reveal stream errors
 
 

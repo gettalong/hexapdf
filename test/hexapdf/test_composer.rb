@@ -39,6 +39,14 @@ describe HexaPDF::Composer do
       assert_equal(682, composer.frame.height)
     end
 
+    it "allows skipping the initial page creation" do
+      composer = HexaPDF::Composer.new(skip_page_creation: true)
+      assert_nil(composer.page)
+      assert_nil(composer.canvas)
+      assert_nil(composer.frame)
+      assert_nil(composer.page_style(:default))
+    end
+
     it "yields itself" do
       yielded = nil
       composer = HexaPDF::Composer.new {|c| yielded = c }
@@ -56,7 +64,7 @@ describe HexaPDF::Composer do
   end
 
   describe "new_page" do
-    it "creates a new page with the stored information" do
+    it "creates a new page" do
       c = HexaPDF::Composer.new(page_size: [0, 0, 50, 100], margin: 10)
       c.new_page
       assert_equal([0, 0, 50, 100], c.page.box.value)
@@ -64,16 +72,33 @@ describe HexaPDF::Composer do
       assert_equal(10, c.frame.bottom)
     end
 
-    it "uses the provided information for the new and all following pages" do
-      @composer.new_page(page_size: [0, 0, 50, 100], margin: 10)
-      assert_equal([0, 0, 50, 100], @composer.page.box.value)
-      assert_equal(10, @composer.frame.left)
-      assert_equal(10, @composer.frame.bottom)
+    it "uses the named page style for the new page" do
+      @composer.page_style(:other, page_size: [0, 0, 100, 100])
+      @composer.new_page(:other)
+      assert_equal([0, 0, 100, 100], @composer.page.box.value)
+    end
+
+    it "sets the next page's style to the next_style value of the used page style" do
+      @composer.page_style(:one, page_size: [0, 0, 1, 1]).next_style = :two
+      @composer.page_style(:two, page_size: [0, 0, 2, 2]).next_style = :one
+      @composer.new_page(:one)
+      assert_equal([0, 0, 1, 1], @composer.page.box.value)
       @composer.new_page
-      assert_same(@composer.document.pages[2], @composer.page)
-      assert_equal([0, 0, 50, 100], @composer.page.box.value)
-      assert_equal(10, @composer.frame.left)
-      assert_equal(10, @composer.frame.bottom)
+      assert_equal([0, 0, 2, 2], @composer.page.box.value)
+      @composer.new_page
+      assert_equal([0, 0, 1, 1], @composer.page.box.value)
+    end
+
+    it "uses the current page style for new pages if no next_style value is set" do
+      @composer.page_style(:one, page_size: [0, 0, 1, 1])
+      @composer.new_page(:one)
+      assert_equal([0, 0, 1, 1], @composer.page.box.value)
+      @composer.new_page
+      assert_equal([0, 0, 1, 1], @composer.page.box.value)
+    end
+
+    it "fails if the specified page style has not been defined" do
+      assert_raises(ArgumentError) { @composer.new_page(:unknown) }
     end
   end
 
