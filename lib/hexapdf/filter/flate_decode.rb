@@ -55,21 +55,33 @@ module HexaPDF
       def self.decoder(source, options = nil)
         fib = Fiber.new do
           inflater = Zlib::Inflate.new
+          error_raised = nil
+
           while source.alive? && (data = source.resume)
             next if data.empty?
             begin
-              data = inflater.inflate(data)
-            rescue StandardError => e
-              raise FilterError, "Problem while decoding Flate encoded stream: #{e}"
+              Fiber.yield(inflater.inflate(data))
+            rescue Zlib::DataError, Zlib::BufError => e
+              # Only swallow the error if it appears at the end of the stream
+              if error_raised || HexaPDF::GlobalConfiguration['filter.flate.on_error'].call(inflater, e)
+                raise FilterError, "Problem while decoding Flate encoded stream: #{e}"
+              else
+                Fiber.yield(inflater.flush_next_out)
+                error_raised = e
+              end
             end
-            Fiber.yield(data)
           end
+
           begin
             data = inflater.total_in == 0 || (data = inflater.finish).empty? ? nil : data
             inflater.close
             data
-          rescue StandardError => e
-            raise FilterError, "Problem while decoding Flate encoded stream: #{e}"
+          rescue Zlib::DataError, Zlib::BufError => e
+            if HexaPDF::GlobalConfiguration['filter.flate.on_error'].call(inflater, e)
+              raise FilterError, "Problem while decoding Flate encoded stream: #{e}"
+            else
+              Fiber.yield(inflater.flush_next_out)
+            end
           end
         end
 

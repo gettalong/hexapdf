@@ -101,6 +101,17 @@ module HexaPDF
       def pdf_options(password)
         hash = {decryption_opts: {password: password}, config: {}}
         HexaPDF::GlobalConfiguration['filter.predictor.strict'] = command_parser.strict
+        HexaPDF::GlobalConfiguration['filter.flate.on_error'] =
+          if command_parser.strict
+            proc { true }
+          else
+            proc do |_, error|
+              if command_parser.verbosity_info?
+                $stderr.puts "Ignoring error in flate encoded stream: #{error}"
+              end
+              false
+            end
+          end
         hash[:config]['parser.try_xref_reconstruction'] = !command_parser.strict
         hash[:config]['parser.on_correctable_error'] =
           if command_parser.strict

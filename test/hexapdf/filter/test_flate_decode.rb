@@ -26,12 +26,26 @@ describe HexaPDF::Filter::FlateDecode do
       assert_equal(@decoded, collector(@obj.decoder(feeder(@encoded_predictor), @predictor_opts)))
     end
 
-    it "fails on invalid input" do
-      assert_raises(HexaPDF::FilterError) do
-        collector(@obj.decoder(feeder(@encoded[0..-2], @encoded.length - 3)))
+    describe "invalid input is handled as good as possible" do
+      def strict_mode
+        HexaPDF::GlobalConfiguration['filter.flate.on_error'] = proc { true }
+        yield
+      ensure
+        HexaPDF::GlobalConfiguration['filter.flate.on_error'] = proc { false }
       end
-      assert_raises(HexaPDF::FilterError) do
-        collector(@obj.decoder(feeder("some data")))
+
+      it "handles completely invalid data" do
+        assert_equal('', collector(@obj.decoder(feeder("some data"))))
+        assert_raises(HexaPDF::FilterError) do
+          strict_mode { collector(@obj.decoder(feeder("some data"))) }
+        end
+      end
+
+      it "handles missing data" do
+        assert_equal('abcdefg', collector(@obj.decoder(feeder(@encoded[0..-2]))))
+        assert_raises(HexaPDF::FilterError) do
+          strict_mode { collector(@obj.decoder(feeder(@encoded[0..-2]))) }
+        end
       end
     end
   end

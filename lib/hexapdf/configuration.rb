@@ -515,6 +515,15 @@ module HexaPDF
   #    Specifies the compression level that should be used with the FlateDecode filter. The level
   #    can range from 0 (no compression), 1 (best speed) to 9 (best compression, default).
   #
+  # filter.flate.on_error::
+  #    Callback hook when a potentially recoverable Zlib error occurs in the FlateDecode filter.
+  #
+  #    The value needs to be an object that responds to \#call(stream, error) where stream is the
+  #    Zlib stream object and error is the thrown error. The method needs to return +true+ if an
+  #    error should be raised.
+  #
+  #    The default implementation prevents errors from being raised.
+  #
   # filter.flate.memory::
   #    Specifies the memory level that should be used with the FlateDecode filter. The level can
   #    range from 1 (minimum memory usage; slow, reduces compression) to 9 (maximum memory usage).
@@ -544,6 +553,7 @@ module HexaPDF
   #    method.
   GlobalConfiguration =
     Configuration.new('filter.flate.compression' => 9,
+                      'filter.flate.on_error' => proc { false },
                       'filter.flate.memory' => 6,
                       'filter.predictor.strict' => false,
                       'color_space.map' => {

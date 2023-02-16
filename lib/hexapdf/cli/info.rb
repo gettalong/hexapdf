@@ -109,7 +109,7 @@ module HexaPDF
               if obj.data.stream
                 begin
                   obj.stream
-                rescue
+                rescue StandardError
                   puts "ERROR: Stream of object (#{obj.oid},#{obj.gen}) invalid: #{$!.message}"
                 end
               end
@@ -184,7 +184,8 @@ module HexaPDF
       def pdf_options(password)
         if @check_file
           options = {decryption_opts: {password: password}, config: {}}
-          HexaPDF::GlobalConfiguration['filter.predictor.strict'] = false
+          HexaPDF::GlobalConfiguration['filter.predictor.strict'] = true
+          HexaPDF::GlobalConfiguration['filter.flate.on_error'] = proc { true }
           options[:config]['parser.try_xref_reconstruction'] = true
           options[:config]['parser.on_correctable_error'] = lambda do |_, msg, pos|
             puts "WARNING: Parse error at position #{pos}: #{msg}"
