@@ -8,6 +8,9 @@
 ### Changed
 
 * **Breaking change**: [HexaPDF::Composer] uses page styles underneath
+* **Breaking change**: Configuration options `filter.flate_compression` and
+  `filter.flate_memory` are changed to `filter.flate.compression` and
+  `filter.flate.memory`
 * [HexaPDF::Composer::new] to allow skipping the initial page creation
 * CLI command `hexapdf info --check` to process streams to reveal stream errors
 

@@ -511,11 +511,11 @@ module HexaPDF
   #
   #    See PDF1.7 s8.6
   #
-  # filter.flate_compression::
+  # filter.flate.compression::
   #    Specifies the compression level that should be used with the FlateDecode filter. The level
   #    can range from 0 (no compression), 1 (best speed) to 9 (best compression, default).
   #
-  # filter.flate_memory::
+  # filter.flate.memory::
   #    Specifies the memory level that should be used with the FlateDecode filter. The level can
   #    range from 1 (minimum memory usage; slow, reduces compression) to 9 (maximum memory usage).
   #
@@ -543,8 +543,8 @@ module HexaPDF
   #    This mapping is used to provide automatic wrapping of objects in the HexaPDF::Document#wrap
   #    method.
   GlobalConfiguration =
-    Configuration.new('filter.flate_compression' => 9,
-                      'filter.flate_memory' => 6,
+    Configuration.new('filter.flate.compression' => 9,
+                      'filter.flate.memory' => 6,
                       'filter.predictor.strict' => false,
                       'color_space.map' => {
                         DeviceRGB: 'HexaPDF::Content::ColorSpace::DeviceRGB',
