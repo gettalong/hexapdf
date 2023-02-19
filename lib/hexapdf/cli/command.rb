@@ -342,7 +342,7 @@ module HexaPDF
             rotation = ROTATE_MAP[$4]
             start_nr.step(to: end_nr, by: step) {|n| arr << [n, rotation] }
           else
-            raise OptionParser::InvalidArgument, "invalid page range format: #{str}"
+            raise OptionParser::InvalidArgument, "invalid page range format: #{str.inspect}"
           end
         end
       end

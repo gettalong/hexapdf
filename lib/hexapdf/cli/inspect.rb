@@ -166,8 +166,8 @@ module HexaPDF
           when 'p', 'pages'
             begin
               pages = parse_pages_specification(data.shift || '1-e', @doc.pages.count)
-            rescue StandardError
-              $stderr.puts("Error: Invalid page range argument")
+            rescue StandardError => e
+              $stderr.puts("Error: #{e}")
               next
             end
             page_list = @doc.pages.to_a
