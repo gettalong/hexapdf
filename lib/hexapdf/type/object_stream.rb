@@ -101,8 +101,8 @@ module HexaPDF
       define_type :ObjStm
 
       define_field :Type,    type: Symbol, required: true, default: type, version: '1.5'
-      define_field :N,       type: Integer # not required, will be auto-filled on #write_objects
-      define_field :First,   type: Integer # not required, will be auto-filled on #write_objects
+      define_field :N,       type: Integer, required: true
+      define_field :First,   type: Integer, required: true
       define_field :Extends, type: Stream
 
       # Parses the stream and returns an ObjectStream::Data object that can be used for retrieving
@@ -230,6 +230,11 @@ module HexaPDF
 
       # Validates that the generation number of the object stream is zero.
       def perform_validation
+        # Assign dummy values so that the validation for required values works since those values
+        # are only set on #write_objects
+        self[:N] ||= 0
+        self[:First] ||= 0
+
         super
         yield("Object stream has invalid generation number > 0", false) if gen != 0
       end

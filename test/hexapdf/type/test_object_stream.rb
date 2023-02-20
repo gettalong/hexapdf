@@ -123,12 +123,21 @@ describe HexaPDF::Type::ObjectStream do
     end
   end
 
-  it "fails validation if gen != 0" do
-    assert(@obj.validate(auto_correct: false))
-    @obj.gen = 1
-    refute(@obj.validate(auto_correct: false) do |msg, correctable|
-             assert_match(/invalid generation/, msg)
-             refute(correctable)
-           end)
+  describe "perform_validation" do
+    it "fails validation if gen != 0" do
+      assert(@obj.validate(auto_correct: false))
+      @obj.gen = 1
+      refute(@obj.validate(auto_correct: false) do |msg, correctable|
+        assert_match(/invalid generation/, msg)
+        refute(correctable)
+      end)
+    end
+
+    it "sets the /N and /First entries to dummy values so that validation works" do
+      @obj = HexaPDF::Type::ObjectStream.new({}, oid: 1, document: @doc)
+      assert(@obj.validate(auto_correct: false))
+      assert_equal(0, @obj[:N])
+      assert_equal(0, @obj[:First])
+    end
   end
 end

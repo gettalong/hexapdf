@@ -6,9 +6,10 @@ require 'hexapdf/type/xref_stream'
 describe HexaPDF::Type::XRefStream do
   before do
     @doc = Object.new
+    @doc.instance_variable_set(:@version, '1.5')
     def (@doc).deref(obj); obj; end
     def (@doc).wrap(obj, **); obj; end
-    @obj = HexaPDF::Type::XRefStream.new({}, oid: 1, document: @doc)
+    @obj = HexaPDF::Type::XRefStream.new({}, oid: 1, document: @doc, stream: '')
   end
 
   describe "xref_section" do
@@ -140,5 +141,9 @@ describe HexaPDF::Type::XRefStream do
       @section.send(:[]=, 3, 0, HexaPDF::XRefSection::Entry.new(:unknown, 3, 0))
       assert_raises(HexaPDF::Error) { @obj.update_with_xref_section_and_trailer(@section, {}) }
     end
+  end
+
+  it "sets /Size and /W to dummy values to make validation work" do
+    assert(@obj.validate(auto_correct: false))
   end
 end

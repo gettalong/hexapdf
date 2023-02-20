@@ -72,12 +72,10 @@ module HexaPDF
 
       define_field :Type,  type: Symbol, default: type, required: true, indirect: false,
                            version: '1.5'
-      # Size is not required because it will be auto-filled before the object is written
-      define_field :Size,  type: Integer, indirect: false
+      define_field :Size,  type: Integer, indirect: false, required: true
       define_field :Index, type: PDFArray, indirect: false
       define_field :Prev,  type: Integer, indirect: false
-      # W is not required because it will be auto-filled on #update_with_xref_section_and_trailer
-      define_field :W,     type: PDFArray, indirect: false
+      define_field :W,     type: PDFArray, indirect: false, required: true
 
       # Returns an XRefSection that represents the content of this cross-reference stream.
       #
@@ -217,6 +215,15 @@ module HexaPDF
         middle = 4 if middle == 3
         pack_string = "C#{'-CnNN'[middle]}n"
         [[1, middle, 2], pack_string]
+      end
+
+      def perform_validation #:nodoc
+        # Size is not required because it will be auto-filled before the object is written
+        # W is not required because it will be auto-filled on #update_with_xref_section_and_trailer
+        # Set both here to dummy values to make validation work for the required values
+        self[:Size] ||= 1
+        self[:W] ||= [1, 1, 1]
+        super
       end
 
     end
