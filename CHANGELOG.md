@@ -16,6 +16,11 @@
 * [HexaPDF::Composer::new] to allow skipping the initial page creation
 * CLI command `hexapdf info --check` to process streams to reveal stream errors
 
+### Fixed
+
+* Validation of document outline items in case the first or last item got
+  deleted
+
 
 ## 0.30.0 - 2023-01-13
 

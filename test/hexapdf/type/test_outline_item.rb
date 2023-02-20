@@ -276,12 +276,13 @@ describe HexaPDF::Type::OutlineItem do
 
   describe "perform_validation" do
     before do
-      5.times { @item.add_item("Test1") }
+      @outline_items = 5.times.map { @item.add_item("Test1") }
       @item[:Parent] = @doc.add({})
     end
 
     it "fixes a missing /First entry" do
       @item.delete(:First)
+      @outline_items[0][:Prev] = HexaPDF::Reference.new(100)
       called = false
       @item.validate do |msg, correctable, _|
         called = true
@@ -293,6 +294,7 @@ describe HexaPDF::Type::OutlineItem do
 
     it "fixes a missing /Last entry" do
       @item.delete(:Last)
+      @outline_items[4][:Next] = HexaPDF::Reference.new(100)
       called = false
       @item.validate do |msg, correctable, _|
         called = true

@@ -126,7 +126,7 @@ module HexaPDF
         if (first && !last) || (!first && last)
           yield('Outline dictionary is missing an endpoint reference', true)
           node, dir = first ? [first, :Next] : [last, :Prev]
-          node = node[dir] while node.key?(dir)
+          node = node[dir] while node[dir]
           self[dir == :Next ? :Last : :First] = node
         elsif !first && !last && self[:Count] && self[:Count] != 0
           yield('Outline dictionary key /Count set but no items exist', true)
