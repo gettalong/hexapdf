@@ -81,8 +81,10 @@ describe HexaPDF::Task::Optimize do
     end
 
     it "compacts and deletes xref streams" do
-      @doc.revisions.all[0].add(@doc.wrap({Type: :XRef}, oid: @doc.revisions.next_oid))
-      @doc.revisions.all[1].add(@doc.wrap({Type: :XRef}, oid: @doc.revisions.next_oid))
+      @doc.revisions.all[0].add(@doc.wrap({}, type: HexaPDF::Type::XRefStream,
+                                          oid: @doc.revisions.next_oid))
+      @doc.revisions.all[1].add(@doc.wrap({}, type: HexaPDF::Type::XRefStream,
+                                          oid: @doc.revisions.next_oid))
       @doc.task(:optimize, compact: true, xref_streams: :delete)
       assert_no_xrefstms
       assert_default_deleted
@@ -92,8 +94,8 @@ describe HexaPDF::Task::Optimize do
   describe "object_streams" do
     def reload_document_with_objstm_from_io
       io = StringIO.new
-      objstm = @doc.add({Type: :ObjStm})
-      @doc.add({Type: :XRef})
+      objstm = @doc.add({}, type: HexaPDF::Type::ObjectStream)
+      @doc.add({}, type: HexaPDF::Type::XRefStream)
       objstm.add_object(@doc.add({Type: :Test}))
       @doc.write(io)
       io.rewind
@@ -102,7 +104,7 @@ describe HexaPDF::Task::Optimize do
 
     it "generates object streams" do
       210.times { @doc.add(5) }
-      objstm = @doc.add({Type: :ObjStm})
+      objstm = @doc.add({}, type: HexaPDF::Type::ObjectStream)
       reload_document_with_objstm_from_io
       @doc.task(:optimize, object_streams: :generate)
       assert_objstms_generated
@@ -122,8 +124,8 @@ describe HexaPDF::Task::Optimize do
     end
 
     it "deletes object and generates xref streams" do
-      @doc.add({Type: :ObjStm})
-      xref = @doc.add({Type: :XRef})
+      @doc.add({}, type: HexaPDF::Type::ObjectStream)
+      xref = @doc.add({}, type: HexaPDF::Type::XRefStream)
       @doc.task(:optimize, object_streams: :delete, xref_streams: :generate)
       assert_no_objstms
       assert_xrefstms_generated
@@ -140,13 +142,13 @@ describe HexaPDF::Task::Optimize do
     end
 
     it "reuses an xref stream in generatation mode" do
-      @doc.add({Type: :XRef})
+      @doc.add({}, type: HexaPDF::Type::XRefStream)
       @doc.task(:optimize, xref_streams: :generate)
       assert_xrefstms_generated
     end
 
     it "deletes xref streams" do
-      @doc.add({Type: :XRef})
+      @doc.add({}, type: HexaPDF::Type::XRefStream)
       @doc.task(:optimize, xref_streams: :delete)
       assert_no_xrefstms
       assert_default_deleted

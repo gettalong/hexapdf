@@ -325,7 +325,14 @@ module HexaPDF
         type = (klass <= HexaPDF::Dictionary ? klass.type : nil)
       else
         type ||= deref(data.value[:Type]) if data.value.kind_of?(Hash)
-        klass = GlobalConfiguration.constantize('object.type_map', type) { nil } if type
+        if type
+          klass = GlobalConfiguration.constantize('object.type_map', type) { nil }
+          if (type == :ObjStm || type == :XRef) &&
+              klass.each_field.any? {|name, field| field.required? && !data.value.key?(name) }
+            data.value.delete(:Type)
+            klass = nil
+          end
+        end
       end
 
       if data.value.kind_of?(Hash)

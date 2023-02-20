@@ -171,7 +171,7 @@ describe HexaPDF::Writer do
 
   it "creates an xref stream if no xref stream is in a revision but object streams are" do
     document = HexaPDF::Document.new
-    document.add({Type: :ObjStm})
+    document.add({}, type: HexaPDF::Type::ObjectStream)
     HexaPDF::Writer.new(document, StringIO.new).write
     assert_equal(:XRef, document.object(4).type)
   end
@@ -184,7 +184,7 @@ describe HexaPDF::Writer do
 
     document = HexaPDF::Document.new(io: io)
     document.pages.add
-    document.add({Type: :ObjStm})
+    document.add({}, type: HexaPDF::Type::ObjectStream)
     io2 = StringIO.new
     HexaPDF::Writer.new(document, io2).write_incremental
 

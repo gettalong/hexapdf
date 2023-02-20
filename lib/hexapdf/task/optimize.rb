@@ -38,6 +38,8 @@ require 'set'
 require 'hexapdf/serializer'
 require 'hexapdf/content/parser'
 require 'hexapdf/content/operator'
+require 'hexapdf/type/xref_stream'
+require 'hexapdf/type/object_stream'
 
 module HexaPDF
   module Task
@@ -124,7 +126,7 @@ module HexaPDF
         if object_streams == :generate
           process_object_streams(doc, :generate, xref_streams)
         elsif xref_streams == :generate
-          doc.add({Type: :XRef})
+          doc.add({}, type: Type::XRefStream)
         end
       end
 
@@ -150,14 +152,14 @@ module HexaPDF
             end
             objects_to_delete.each {|obj| rev.delete(obj) }
             if xref_streams == :generate && !xref_stream
-              rev.add(doc.wrap({Type: :XRef}, oid: doc.revisions.next_oid))
+              rev.add(doc.wrap({}, type: Type::XRefStream, oid: doc.revisions.next_oid))
             end
           end
         when :generate
           doc.revisions.each do |rev|
             xref_stream = false
             count = 0
-            objstms = [doc.wrap({Type: :ObjStm})]
+            objstms = [doc.wrap({}, type: Type::ObjectStream)]
             old_objstms = []
             rev.each do |obj|
               case obj.type
@@ -173,7 +175,7 @@ module HexaPDF
               objstms[-1].add_object(obj)
               count += 1
               if count == 200
-                objstms << doc.wrap({Type: :ObjStm})
+                objstms << doc.wrap({}, type: Type::ObjectStream)
                 count = 0
               end
             end
@@ -182,7 +184,7 @@ module HexaPDF
               objstm.data.oid = doc.revisions.next_oid
               rev.add(objstm)
             end
-            rev.add(doc.wrap({Type: :XRef}, oid: doc.revisions.next_oid)) unless xref_stream
+            rev.add(doc.wrap({}, type: Type::XRefStream, oid: doc.revisions.next_oid)) unless xref_stream
           end
         end
       end
@@ -207,7 +209,7 @@ module HexaPDF
               xref_stream = true if obj.type == :XRef
               delete_fields_with_defaults(obj)
             end
-            rev.add(doc.wrap({Type: :XRef}, oid: doc.revisions.next_oid)) unless xref_stream
+            rev.add(doc.wrap({}, type: Type::XRefStream, oid: doc.revisions.next_oid)) unless xref_stream
           end
         end
       end
