@@ -15,6 +15,7 @@
   object stream specially to avoid problems with invalid PDFs
 * [HexaPDF::Composer::new] to allow skipping the initial page creation
 * CLI command `hexapdf info --check` to process streams to reveal stream errors
+* CLI commands to output the name of created PDF files in verbose mode
 
 ### Fixed
 
