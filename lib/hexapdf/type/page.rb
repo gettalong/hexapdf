@@ -104,8 +104,16 @@ module HexaPDF
         Executive: [0, 0, 522, 756].freeze,
       }.freeze
 
-      # Returns the media box for the given paper size. See PAPER_SIZE for the defined paper sizes.
+      # Returns the media box for the given paper size or array.
+      #
+      # If an array is specified, it needs to contain exactly four numbers. The +orientation+
+      # argument is not used in this case.
+      #
+      # See PAPER_SIZE for the defined paper sizes.
       def self.media_box(paper_size, orientation: :portrait)
+        return paper_size if paper_size.kind_of?(Array) && paper_size.size == 4 &&
+          paper_size.all?(Numeric)
+
         unless PAPER_SIZE.key?(paper_size)
           raise HexaPDF::Error, "Invalid paper size specified: #{paper_size}"
         end

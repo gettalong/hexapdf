@@ -19,8 +19,20 @@ describe HexaPDF::Type::Page do
       assert_equal([0, 0, 842, 595], HexaPDF::Type::Page.media_box(:A4, orientation: :landscape))
     end
 
+    it "works with a paper size array" do
+      assert_equal([0, 0, 842, 595], HexaPDF::Type::Page.media_box([0, 0, 842, 595]))
+    end
+
     it "fails if the paper size is unknown" do
       assert_raises(HexaPDF::Error) { HexaPDF::Type::Page.media_box(:Unknown) }
+    end
+
+    it "fails if the array doesn't contain four numbers" do
+      assert_raises(HexaPDF::Error) { HexaPDF::Type::Page.media_box([0, 1, 2]) }
+    end
+
+    it "fails if the array doesn't contain only numbers" do
+      assert_raises(HexaPDF::Error) { HexaPDF::Type::Page.media_box([0, 1, 2, 'a']) }
     end
   end
 

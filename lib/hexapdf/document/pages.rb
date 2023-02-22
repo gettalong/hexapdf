@@ -94,11 +94,7 @@ module HexaPDF
       def create(media_box: nil, orientation: nil)
         media_box ||= @document.config['page.default_media_box']
         orientation ||= @document.config['page.default_media_orientation']
-        box = if media_box.kind_of?(Array)
-                media_box
-              else
-                Type::Page.media_box(media_box, orientation: orientation)
-              end
+        box = Type::Page.media_box(media_box, orientation: orientation)
         @document.add({Type: :Page, MediaBox: box})
       end
 
