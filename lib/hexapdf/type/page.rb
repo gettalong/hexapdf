@@ -126,9 +126,6 @@ module HexaPDF
       # The inheritable fields.
       INHERITABLE_FIELDS = [:Resources, :MediaBox, :CropBox, :Rotate].freeze
 
-      # The required inheritable fields.
-      REQUIRED_INHERITABLE_FIELDS = [:Resources, :MediaBox].freeze
-
       define_type :Page
 
       define_field :Type,                 type: Symbol, required: true, default: type
@@ -617,10 +614,26 @@ module HexaPDF
         return unless parent_node
 
         super
-        REQUIRED_INHERITABLE_FIELDS.each do |name|
-          next if self[name]
-          yield("Inheritable page field #{name} not set", name == :Resources)
-          resources.validate(&block) if name == :Ressources
+
+        unless self[:Resources]
+          yield("Required inheritable page field Resources not set", true)
+          resources.validate(&block)
+        end
+
+        unless self[:MediaBox]
+          yield("Required inheritable page field MediaBox not set", true)
+          index = self.index
+          box_before = index == 0 ? nil : document.pages[index - 1][:MediaBox]
+          box_after = index == document.pages.count - 1 ? nil : document.pages[index + 1]&.[](:MediaBox)
+          self[:MediaBox] =
+            if box_before && (box_before&.value == box_after&.value || box_after.nil?)
+              box_before.dup
+            elsif box_after && box_before.nil?
+              box_after
+            else
+              self.class.media_box(document.config['page.default_media_box'],
+                                   orientation: document.config['page.default_media_orientation'])
+            end
         end
       end
 

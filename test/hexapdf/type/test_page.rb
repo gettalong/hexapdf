@@ -82,22 +82,41 @@ describe HexaPDF::Type::Page do
     end
   end
 
-  describe "validation" do
+  describe "perform_validation" do
     it "only does validation if the page is in the document's page tree" do
       page = @doc.add({Type: :Page})
-      assert(page.validate)
-      page[:Parent] = @doc.add({Type: :Pages, Kids: [page]})
-      assert(page.validate)
-      page[:Parent] = @doc.catalog.pages
-      refute(page.validate)
+      assert(page.validate(auto_correct: false))
+      page[:Parent] = @doc.add({Type: :Pages, Kids: [page], Count: 1})
+      assert(page.validate(auto_correct: false))
+      @doc.pages.add(page)
+      refute(page.validate(auto_correct: false))
     end
 
-    it "fails if a required inheritable field is not set" do
-      root = @doc.catalog[:Pages] = @doc.add({Type: :Pages})
-      page = @doc.add({Type: :Page, Parent: root})
-      message = ''
-      refute(page.validate {|m, _| message = m })
-      assert_match(/inheritable.*MediaBox/i, message)
+    it "validates that the required inheritable field /Resources is set" do
+      page = @doc.pages.add
+      page.delete(:Resources)
+      refute(page.validate(auto_correct: false))
+      assert(page.validate)
+      assert_kind_of(HexaPDF::Dictionary, page[:Resources])
+    end
+
+    it "validates that the required inheritable field /MediaBox is set" do
+      page1 = @doc.pages.add(:Letter)
+      page2 = @doc.pages.add(:Letter)
+      page3 = @doc.pages.add(:Letter)
+
+      [page1, page2, page3].each do |page|
+        page.delete(:MediaBox)
+        refute(page.validate(auto_correct: false))
+        assert(page.validate)
+        assert_equal([0, 0, 612, 792], page[:MediaBox])
+      end
+
+      page2.delete(:MediaBox)
+      page1[:MediaBox] = [0, 0, 1, 1]
+      refute(page2.validate(auto_correct: false))
+      assert(page2.validate)
+      assert_equal([0, 0, 595, 842], page2[:MediaBox])
     end
   end
 

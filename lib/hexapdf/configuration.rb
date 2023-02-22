@@ -350,6 +350,9 @@ module HexaPDF
   #    The media box that is used for new pages that don't define a media box. Default value is
   #    A4. See HexaPDF::Type::Page::PAPER_SIZE for a list of predefined paper sizes.
   #
+  #    This configuration option (together with 'page.default_media_orientation') is also used when
+  #    validating pages and a page without a media box is found.
+  #
   #    The value can either be a rectangle defining the paper size or a Symbol referencing one of
   #    the predefined paper sizes.
   #

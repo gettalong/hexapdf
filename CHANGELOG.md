@@ -21,6 +21,8 @@
 
 * Validation of document outline items in case the first or last item got
   deleted
+* `HexaPDF::Type::Page#perform_validation` to set a /MediaBox for invalid pages
+  that don't have one
 
 
 ## 0.30.0 - 2023-01-13
