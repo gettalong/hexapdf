@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::Type::OutlineItem#open?] for getting the open state of an outline
+  item
+
+
 ## 0.31.0 - 2023-02-22
 
 ### Added

@@ -98,6 +98,24 @@ describe HexaPDF::Type::OutlineItem do
     end
   end
 
+  describe "open?" do
+    it "returns true if the outline item is open" do
+      refute(@item.open?)
+      @item.add_item("test")
+      assert_equal(true, @item.open?)
+    end
+
+    it "returns false if the outline item is closed" do
+      @item.delete(:Count)
+      @item.add_item("test")
+      assert_equal(false, @item.open?)
+    end
+
+    it "returns nil if the outline item doesn't have any child items" do
+      assert_nil(@item.open?)
+    end
+  end
+
   describe "destination_page" do
     it "returns the page of a set destination" do
       @item[:Dest] = [5, :Fit]

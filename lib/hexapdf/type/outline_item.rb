@@ -224,6 +224,15 @@ module HexaPDF
         count
       end
 
+      # Returns the open state of the item.
+      #
+      # +true+::  If this item is open, i.e. showing its child items.
+      # +false+:: If this item is closed, i.e. not showing its child items.
+      # +nil+::   If this item doesn't (yet) have any child items.
+      def open?
+        self[:First] && key?(:Count) && self[:Count] >= 0
+      end
+
       # Returns the destination page if there is any.
       #
       # * If a destination is set, the associated page is returned.
