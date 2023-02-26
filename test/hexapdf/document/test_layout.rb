@@ -34,29 +34,24 @@ describe HexaPDF::Document::Layout::ChildrenCollector do
     assert_equal(2, @collector.children[0].size)
   end
 
-  it "allows appending boxes through method names of the Layout class" do
-    @collector.lorem_ipsum_box
-    assert_equal(1, @collector.children.size)
-    assert_kind_of(HexaPDF::Layout::TextBox, @collector.children[0])
-  end
-
-  it "allows appending boxes through method names without the _box suffix of the Layout class" do
+  it "allows appending boxes created by the Layout class" do
     @collector.lorem_ipsum
-    assert_equal(1, @collector.children.size)
-    assert_kind_of(HexaPDF::Layout::TextBox, @collector.children[0])
-  end
-
-  it "allows appending boxes through their registered names" do
+    @collector.lorem_ipsum_box
     @collector.column
-    assert_equal(1, @collector.children.size)
-    assert_kind_of(HexaPDF::Layout::ColumnBox, @collector.children[0])
+    @collector.column_box
+    assert_equal(4, @collector.children.size)
+    assert_kind_of(HexaPDF::Layout::TextBox, @collector.children[0])
+    assert_kind_of(HexaPDF::Layout::TextBox, @collector.children[1])
+    assert_kind_of(HexaPDF::Layout::ColumnBox, @collector.children[2])
+    assert_kind_of(HexaPDF::Layout::ColumnBox, @collector.children[3])
   end
 
   it "can be asked which methods it supports" do
-    assert(@collector.respond_to?(:text_box))
-    assert(@collector.respond_to?(:text))
-    assert(@collector.respond_to?(:column))
-    refute(@collector.respond_to?(:unknown))
+    assert(@collector.respond_to?(:lorem_ipsum))
+  end
+
+  it "only allows using box creation methods from the Layout class" do
+    assert_raises(NameError) { @collector.style }
   end
 
   it "raises an error on an unknown method name" do
@@ -275,6 +270,35 @@ describe HexaPDF::Document::Layout do
       box = @layout.lorem_ipsum_box(sentences: 2, count: 2)
       items = box.instance_variable_get(:@items)
       assert_equal(HexaPDF::Document::Layout::LOREM_IPSUM[0, 2].join(" ").size * 2 + 2, items[0].items.length)
+    end
+  end
+
+  describe "method_missing" do
+    it "resolves to internal methods with the _box suffix, e.g. text_box" do
+      box = @layout.text("Test", width: 10, height: 15, properties: {key: :value})
+      assert_kind_of(HexaPDF::Layout::TextBox, box)
+      assert_equal(10, box.width)
+      assert_equal(15, box.height)
+      assert_equal({key: :value}, box.properties)
+    end
+
+    it "resolves to the box method when a configured name is used" do
+      box = @layout.column
+      assert_kind_of(HexaPDF::Layout::ColumnBox, box)
+      box = @layout.column_box
+      assert_kind_of(HexaPDF::Layout::ColumnBox, box)
+    end
+
+    it "fails if nothing could be resolved" do
+      assert_raises(NameError) { @layout.unknown }
+    end
+  end
+
+  describe "respond_to_missing?" do
+    it "can be asked which methods it supports" do
+      assert(@layout.respond_to?(:text))
+      assert(@layout.respond_to?(:column))
+      refute(@layout.respond_to?(:unknown))
     end
   end
 end

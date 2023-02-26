@@ -44,7 +44,7 @@ module HexaPDF
     # Often times the layout related classes are used through HexaPDF::Composer which makes it easy
     # to create documents. However, sometimes one wants to have a bit more control or do something
     # special and use the HexaPDF::Layout classes directly. This is possible but it is better to use
-    # those classes through an instance of this classs because it makes it more convenient and ties
+    # those classes through an instance of this class because it makes it more convenient and ties
     # everything together. Incidentally, HexaPDF::Composer relies on this class for a good part of
     # its work.
     #
@@ -52,11 +52,21 @@ module HexaPDF
     # == Boxes
     #
     # The main focus of the class is on providing convenience methods for creating box objects. The
-    # most often used box classes like HexaPDF::Layout::TextBox or HexaPDF::Layout::ImagebBox can be
-    # created through dedicated methods.
+    # most often used box classes like HexaPDF::Layout::TextBox or HexaPDF::Layout::ImageBox can be
+    # created through dedicated methods:
+    #
+    # * #text_box
+    # * #formatted_text_box
+    # * #image_box
+    # * #lorem_ipsum_box
     #
     # Other, more general boxes don't have their own method but can be created through the general
-    # #box method.
+    # #box method. This method uses the 'layout.boxes.map' configuration option.
+    #
+    # Additionally, the +_box+ suffix can be omitted, so calling #text, #formatted_text and #image
+    # also works. Furthermore, all box names defined in the 'layout.boxes.map' configuration option
+    # can be used as method names (with or without a +_box+ suffix) and will invoke #box, i.e.
+    # #column and #column_box will also work.
     #
     #
     # == Box Styles
@@ -126,18 +136,13 @@ module HexaPDF
         # instance.
         def initialize(layout)
           @layout = layout
-          @layout_boxes_map = layout.instance_variable_get(:@document).config['layout.boxes.map']
           @children = []
         end
 
         # :nodoc:
         def method_missing(name, *args, **kwargs, &block)
-          if @layout.respond_to?(name)
+          if @layout.box_creation_method?(name)
             @children << @layout.send(name, *args, **kwargs, &block)
-          elsif @layout.respond_to?("#{name}_box")
-            @children << @layout.send("#{name}_box", *args, **kwargs, &block)
-          elsif @layout_boxes_map.key?(name)
-            @children << @layout.box(name, *args, **kwargs, &block)
           else
             super
           end
@@ -145,10 +150,7 @@ module HexaPDF
 
         # :nodoc:
         def respond_to_missing?(name, _private)
-          @layout.respond_to?(name) ||
-            @layout.respond_to?("#{name}_box") ||
-            @layout_boxes_map.key?(name) ||
-            super
+          @layout.box_creation_method?(name) || super
         end
 
         # Appends the given box to the list of collected children.
@@ -222,8 +224,8 @@ module HexaPDF
       #
       # Example:
       #
-      #   doc.layout.box(:column, columns: 2, gap: 15)   # => column_box_instance
-      #   doc.layout.box(:column) do |column|            # column box with one child
+      #   layout.box(:column, columns: 2, gap: 15)   # => column_box_instance
+      #   layout.box(:column) do |column|            # column box with one child
       #     column.lorem_ipsum
       #   end
       def box(name, width: 0, height: 0, style: nil, **box_options, &block)
@@ -262,10 +264,10 @@ module HexaPDF
       #
       # Examples:
       #
-      #   layout.text("Test " * 15)
-      #   layout.text("Now " * 7, width: 100)
-      #   layout.text("Another test", font_size: 15, fill_color: "green")
-      #   layout.text("Different box style", fill_color: 'white', box_style: {
+      #   layout.text_box("Test " * 15)
+      #   layout.text_box("Now " * 7, width: 100)
+      #   layout.text_box("Another test", font_size: 15, fill_color: "green")
+      #   layout.text_box("Different box style", fill_color: 'white', box_style: {
       #     underlays: [->(c, b) { c.rectangle(0, 0, b.content_width, b.content_height).fill }]
       #   })
       #
@@ -355,8 +357,7 @@ module HexaPDF
                                        properties: properties, style: style)
       end
 
-      # :nodoc:
-      LOREM_IPSUM = [
+      LOREM_IPSUM = [ # :nodoc:
         "Lorem ipsum dolor sit amet, con\u{00AD}sectetur adipis\u{00AD}cing elit, sed " \
           "do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
         "Ut enim ad minim veniam, quis nostrud exer\u{00AD}citation ullamco laboris nisi ut " \
@@ -372,6 +373,39 @@ module HexaPDF
       # The +text_box_properties+ arguments are passed as is to #text_box.
       def lorem_ipsum_box(sentences: 4, count: 1, **text_box_properties)
         text_box(([LOREM_IPSUM[0, sentences].join(" ")] * count).join("\n\n"), **text_box_properties)
+      end
+
+      BOX_METHOD_NAMES = [:text, :formatted_text, :image, :lorem_ipsum] #:nodoc:
+
+      # Allows creating boxes using more convenient method names:
+      #
+      # * #text for #text_box
+      # * #formatted_text for #formatted_text_box
+      # * #image for #image_box
+      # * #lorem_ipsum for #lorem_ipsum_box
+      # * The name of a pre-defined box class like #column will invoke #box appropriately. Same if
+      #   used with a '_box' suffix.
+      def method_missing(name, *args, **kwargs, &block)
+        name_without_box = name.to_s.sub(/_box$/, '').intern
+        if BOX_METHOD_NAMES.include?(name)
+          send("#{name}_box", *args, **kwargs, &block)
+        elsif @document.config['layout.boxes.map'].key?(name_without_box)
+          box(name_without_box, *args, **kwargs, &block)
+        else
+          super
+        end
+      end
+
+      # :nodoc:
+      def respond_to_missing?(name, _private)
+        box_creation_method?(name) || super
+      end
+
+      # :nodoc:
+      def box_creation_method?(name)
+        name = name.to_s.sub(/_box$/, '').intern
+        BOX_METHOD_NAMES.include?(name) || @document.config['layout.boxes.map'].key?(name) ||
+          name == :box
       end
 
       private

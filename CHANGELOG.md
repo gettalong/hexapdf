@@ -2,6 +2,7 @@
 
 ### Added
 
+* [HexaPDF::Document::Layout#method_missing] for more convenient box creation
 * [HexaPDF::Type::OutlineItem#open?] for getting the open state of an outline
   item
 
