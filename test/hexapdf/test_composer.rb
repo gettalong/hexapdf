@@ -119,7 +119,7 @@ describe HexaPDF::Composer do
     end
   end
 
-  describe "text/formatted_text/image/box" do
+  describe "text/formatted_text/image/box/method_missing" do
     before do
       test_self = self
       @composer.define_singleton_method(:draw_box) do |arg|
@@ -157,6 +157,19 @@ describe HexaPDF::Composer do
       @composer.box(:list, width: 20) {|list| list.image(image) }
       assert_equal(20, @box.width)
       assert_same(image, @box.children[0].image)
+    end
+
+    it "delegates missing methods to layout if they are box creation methods" do
+      @composer.column(width: 10)
+      assert_equal(10, @box.width)
+    end
+
+    it "fails for missing methods that can't be delegated to layout" do
+      assert_raises(NameError) { @composer.unknown_box }
+    end
+
+    it "can be asked whether a missing method is supported" do
+      assert(@composer.respond_to?(:column))
     end
   end
 

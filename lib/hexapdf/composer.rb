@@ -329,6 +329,26 @@ module HexaPDF
       draw_box(@document.layout.box(name, width: width, height: height, style: style, **box_options, &block))
     end
 
+    # Draws any custom box that can be created using HexaPDF::Document::Layout.
+    #
+    # Examples:
+    #
+    #   #>pdf-composer
+    #   composer.lorem_ipsum
+    #   composer.column {|column| column.lorem_ipsum }
+    def method_missing(name, *args, **kwargs, &block)
+      if @document.layout.box_creation_method?(name)
+        draw_box(@document.layout.send(name, *args, **kwargs, &block))
+      else
+        super
+      end
+    end
+
+    # :nodoc:
+    def respond_to_missing?(name, _private)
+      @document.layout.box_creation_method?(name) || super
+    end
+
     # Draws the given HexaPDF::Layout::Box.
     #
     # The box is drawn into the current frame if possible. If it doesn't fit, the box is split. If
