@@ -282,6 +282,9 @@ module HexaPDF
         end
 
         obj
+      rescue EncryptionError => e
+        e.pdf_object = obj
+        raise
       end
 
       # Returns the encrypted version of the string that resides in the given indirect object.

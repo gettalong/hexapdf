@@ -325,6 +325,12 @@ describe HexaPDF::Encryption::SecurityHandler do
       assert_equal("test", @handler.decrypt(@obj)[:Contents])
     end
 
+    it "enhances a thrown EncryptionError by setting the PDF object" do
+      @handler.set_up_encryption(key_length: 256)
+      error = assert_raises(HexaPDF::EncryptionError) { @handler.decrypt(@obj) }
+      assert_match(/Object \(1,0\):/, error.message)
+    end
+
     it "fails if V < 5 and the object number changes" do
       @obj.oid = 55
       @handler.decrypt(@obj)

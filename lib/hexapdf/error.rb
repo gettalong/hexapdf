@@ -67,7 +67,17 @@ module HexaPDF
   class InvalidPDFObjectError < Error; end
 
   # Raised when there are problems while encrypting or decrypting a document.
-  class EncryptionError < Error; end
+  class EncryptionError < Error
+
+    # The PDF object that caused the problem. May not be set in case of general problems unrelated
+    # to a specific PDF object.
+    attr_accessor :pdf_object
+
+    def message # :nodoc:
+      pdf_object ? "Object (#{pdf_object.oid},#{pdf_object.gen}): #{super}" : super
+    end
+
+  end
 
   # Raised when the encryption method is not supported.
   class UnsupportedEncryptionError < EncryptionError; end
