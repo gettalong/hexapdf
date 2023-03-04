@@ -48,6 +48,10 @@ describe HexaPDF::Encryption::AES do
       end
     end
 
+    it "handles invalid files with empty strings" do
+      assert_equal('', @algorithm_class.decrypt('key', ''))
+    end
+
     it "handles invalid files with missing 16 byte padding" do
       assert_equal('', @algorithm_class.decrypt('some key' * 2, 'iv' * 8))
     end
@@ -116,6 +120,10 @@ describe HexaPDF::Encryption::AES do
       f = Fiber.new { 'a' * 29 << "\x00\x01\x03" }
       result = collector(@algorithm_class.decryption_fiber('some' * 4, f))
       assert_equal('a' * 13 << "\x00\x01\x03", result)
+    end
+
+    it "handles invalid files with empty streams" do
+      assert_equal('', collector(@algorithm_class.decryption_fiber('key', Fiber.new { '' })))
     end
 
     it "fails on decryption if not enough bytes are provided" do

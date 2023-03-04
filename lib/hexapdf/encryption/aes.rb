@@ -114,6 +114,7 @@ module HexaPDF
         #
         # See: PDF1.7 s7.6.2.
         def decrypt(key, data)
+          return data if data.empty? # Handle invalid files with empty strings
           if data.length % BLOCK_SIZE != 0 || data.length < BLOCK_SIZE
             raise HexaPDF::EncryptionError, "Invalid data for decryption, need 32 + 16*n bytes"
           end
@@ -132,6 +133,7 @@ module HexaPDF
             while data.length < BLOCK_SIZE && source.alive? && (new_data = source.resume)
               data << new_data
             end
+            next data if data.empty? # Handle invalid files with empty stream
 
             algorithm = new(key, data.slice!(0, BLOCK_SIZE), :decrypt)
 

@@ -84,4 +84,8 @@ module ARC4EncryptionTests
                  small.process('some') << small.process(' big') << small.process(' data chunk'))
   end
 
+  def test_works_with_empty_strings
+    assert_equal('', @algorithm_class.new('key').process(''))
+  end
+
 end
