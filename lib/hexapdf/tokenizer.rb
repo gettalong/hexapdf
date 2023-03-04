@@ -337,6 +337,7 @@ module HexaPDF
           @ss.pos += 1 if @ss.peek(1) == "\n"
         when 92 # \\
           str.chop!
+          prepare_string_scanner(3)
           byte = @ss.get_byte
           if (data = LITERAL_STRING_ESCAPE_MAP[byte])
             str << data

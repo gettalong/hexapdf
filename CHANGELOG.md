@@ -13,6 +13,8 @@
   algorithm
 * [HexaPDF::Type::Page#flatten_annotations] to work for annotations having
   appearances with degenerate bounding boxes
+* `HexaPDF::Tokenizer#parse_literal_string` to make sure enough bytes are in the
+  buffer for correctly reading escape sequences
 
 
 ## 0.31.0 - 2023-02-22

@@ -37,6 +37,11 @@ describe HexaPDF::Tokenizer do
     end
   end
 
+  it "next_token: should not fail for strings due to use of an internal buffer" do
+    create_tokenizer("(" << ("a" * 8189) << "\\006)")
+    assert_equal("a" * 8189 << "\x06", @tokenizer.next_token)
+  end
+
   it "has a special token scanning method for use with xref reconstruction" do
     create_tokenizer(<<-EOF.chomp.gsub(/^ {8}/, ''))
         % Comment
