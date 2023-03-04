@@ -11,6 +11,8 @@
 
 * Decryption of invalid files having empty strings or streams when using the AES
   algorithm
+* [HexaPDF::Type::Page#flatten_annotations] to work for annotations having
+  appearances with degenerate bounding boxes
 
 
 ## 0.31.0 - 2023-02-22

@@ -642,6 +642,22 @@ describe HexaPDF::Type::Page do
                                           [:restore_graphics_state]])
     end
 
+    it "handles degenerate cases when the appearance's bounding box has zero width" do
+      @appearance[:BBox] = [10, 10, 10, 20]
+      result = @page.flatten_annotations
+      assert(result.empty?)
+      assert(@annot1.null?)
+      assert_operators(@canvas.contents, [])
+    end
+
+    it "handles degenerate cases when the appearance's bounding box has zero height" do
+      @appearance[:BBox] = [10, 10, 20, 10]
+      result = @page.flatten_annotations
+      assert(result.empty?)
+      assert(@annot1.null?)
+      assert_operators(@canvas.contents, [])
+    end
+
     it "potentially adjusts the origin so that it is always in (0,0)" do
       @canvas.translate(-15, -15)
       @page.flatten_annotations

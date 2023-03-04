@@ -576,6 +576,12 @@ module HexaPDF
           left, right = [llx, ulx, lrx, lrx + (ulx - llx)].minmax
           bottom, top = [lly, uly, lry, lry + (uly - lly)].minmax
 
+          # Handle degenerate case of the transformed bounding box being a line or point
+          if right - left == 0 || top - bottom == 0
+            to_delete << annotation
+            next
+          end
+
           # Step b) Fit calculated rectangle to annotation rectangle by translating/scaling
           a = HexaPDF::Content::TransformationMatrix.new
           a.translate(rect.left - left, rect.bottom - bottom)
