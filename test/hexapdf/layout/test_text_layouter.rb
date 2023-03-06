@@ -136,16 +136,8 @@ describe HexaPDF::Layout::TextLayouter::SimpleTextSegmentation do
     [1, 3, 5, 7, 9, 11, 13, 17, 19].each do |index|
       assert_penalty(result[index],
                      HexaPDF::Layout::TextLayouter::Penalty::PARAGRAPH_BREAK)
-      assert_equal([], result[index].item.items)
-      assert(result[index].item.items.frozen?)
-      assert_same(frag.style, result[index].item.style)
-      assert_equal(frag.properties, result[index].item.properties)
     end
     assert_penalty(result[15], HexaPDF::Layout::TextLayouter::Penalty::LINE_BREAK)
-    assert_equal([], result[15].item.items)
-    assert(result[15].item.items.frozen?)
-    assert_same(frag.style, result[15].item.style)
-    assert_equal(frag.properties, result[15].item.properties)
   end
 
   it "insert a standard penalty after a hyphen" do
@@ -624,7 +616,7 @@ describe HexaPDF::Layout::TextLayouter do
 
     describe "horizontal alignment" do
       before do
-        @items = boxes(*[[20, 20]] * 4) + [glue(10), penalty(-5000, boxes(0).first.item)]
+        @items = boxes(*[[20, 20]] * 4) + [glue(10), penalty(-5000)]
       end
 
       it "aligns the contents to the left" do

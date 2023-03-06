@@ -253,17 +253,14 @@ module HexaPDF
                                Glue.new(item.dup_attributes([glyph].freeze)))
                   when "\n", "\v", "\f", "\u{85}", "\u{2029}"
                     result << (penalties[item.attributes_hash] ||=
-                               Penalty.new(Penalty::PARAGRAPH_BREAK, 0,
-                                           item: item.dup_attributes([].freeze)))
+                               Penalty.new(Penalty::PARAGRAPH_BREAK, 0))
                   when "\u{2028}"
-                    result << Penalty.new(Penalty::LINE_BREAK, 0,
-                                          item: item.dup_attributes([].freeze))
+                    result << Penalty.new(Penalty::LINE_BREAK, 0)
                   when "\r"
                     if !item.items[i + 1] || item.items[i + 1].kind_of?(Numeric) ||
                         item.items[i + 1].str != "\n"
                       result << (penalties[item.attributes_hash] ||=
-                                 Penalty.new(Penalty::PARAGRAPH_BREAK, 0,
-                                             item: item.dup_attributes([].freeze)))
+                                 Penalty.new(Penalty::PARAGRAPH_BREAK, 0))
                     end
                   when '-'
                     result << Penalty::Standard
