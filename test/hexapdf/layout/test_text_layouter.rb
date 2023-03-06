@@ -7,13 +7,13 @@ require 'hexapdf/document'
 module TestTextLayouterHelpers
   def boxes(*dims)
     dims.map do |width, height|
-      box = HexaPDF::Layout::InlineBox.create(width: width, height: height || 0) {}
+      box = HexaPDF::Layout::InlineBox.create(width: width, height: height || 10) {}
       HexaPDF::Layout::TextLayouter::Box.new(box)
     end
   end
 
   def glue(width)
-    HexaPDF::Layout::TextLayouter::Glue.new(HexaPDF::Layout::InlineBox.create(width: width) {})
+    HexaPDF::Layout::TextLayouter::Glue.new(HexaPDF::Layout::InlineBox.create(width: width, height: 10) {})
   end
 
   def penalty(penalty, item = nil)
@@ -781,7 +781,10 @@ describe HexaPDF::Layout::TextLayouter do
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
                                           [:concatenate_matrix, [1, 0, 0, 1, 10, -40]],
+                                          [:save_graphics_state],
+                                          [:concatenate_matrix, [1, 0, 0, 1, 0, 0]],
                                           [:set_line_width, [2]],
+                                          [:restore_graphics_state],
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
                                           [:restore_graphics_state]])

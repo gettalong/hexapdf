@@ -35,6 +35,7 @@
 #++
 
 require 'hexapdf/layout/box'
+require 'hexapdf/layout/frame'
 
 module HexaPDF
   module Layout
@@ -42,7 +43,13 @@ module HexaPDF
     # An InlineBox wraps a regular Box so that it can be used as an item for a Line. This enables
     # inline graphics.
     #
-    # The wrapped box *must* have a fixed size!
+    # Complete box auto-sizing is not possible since the available space cannot be determined
+    # beforehand! This means the box *must* have at least its width set. The height may either also
+    # be set or determined during fitting.
+    #
+    # Fitting of the wrapped box is done immediately after creating a InlineBox instance. For this,
+    # a frame is used that has the width of the wrapped box and its height, or if not set, a
+    # practically infinite height. In the latter case the height *must* be set during fitting.
     class InlineBox
 
       # Creates an InlineBox that wraps a basic Box. All arguments (except +valign+) and the block
@@ -68,6 +75,12 @@ module HexaPDF
       def initialize(box, valign: :baseline)
         @box = box
         @valign = valign
+        @fit_result = Frame.new(0, 0, box.width, box.height == 0 ? 100_000 : box.height).fit(box)
+        if !@fit_result.success?
+          raise HexaPDF::Error, "Box for inline use could not be fit"
+        elsif box.height > 99_000
+          raise HexaPDF::Error, "Box for inline use has no valid height set after fitting"
+        end
       end
 
       # Returns +true+ if this inline box is just a placeholder without drawing operations.
@@ -88,7 +101,8 @@ module HexaPDF
       # Draws the wrapped box. If the box has margins specified, the x and y offsets are correctly
       # adjusted.
       def draw(canvas, x, y)
-        box.draw(canvas, x + box.style.margin.left, y + box.style.margin.bottom)
+        canvas.translate(x - @fit_result.x + box.style.margin.left,
+                         y - @fit_result.y + box.style.margin.bottom) { @fit_result.draw(canvas) }
       end
 
       # The minimum x-coordinate which is always 0.

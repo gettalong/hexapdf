@@ -15,6 +15,7 @@
   appearances with degenerate bounding boxes
 * `HexaPDF::Tokenizer#parse_literal_string` to make sure enough bytes are in the
   buffer for correctly reading escape sequences
+* [HexaPDF::Layout::InlineBox] to correctly work for all kinds of wrapped boxes
 
 
 ## 0.31.0 - 2023-02-22
