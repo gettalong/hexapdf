@@ -8,6 +8,11 @@
 * [HexaPDF::Type::OutlineItem#open?] for getting the open state of an outline
   item
 
+### Changed
+
+* [HexaPDF::Document::Layout#formatted_text_box] to allow using and/or creating
+  inline boxes
+
 ### Fixed
 
 * Decryption of invalid files having empty strings or streams when using the AES

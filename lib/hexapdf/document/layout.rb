@@ -306,23 +306,37 @@ module HexaPDF
       # Creates a HexaPDF::Layout::TextBox like #text_box but allows parts of the text to be
       # formatted differently.
       #
-      # The argument +data+ needs to be an array of String and/or Hash objects:
+      # The argument +data+ needs to be an array of String, HexaPDF::Layout::InlineBox and/or Hash
+      # objects and is transformed so that it is suitable as argument for the text box:
       #
       # * A String object is treated like {text: data}.
       #
+      # * A HexaPDF::Layout::InlineBox is used without modification.
+      #
       # * Hashes can contain any style properties and the following special keys:
       #
-      #   text:: The text to be formatted.
+      #   text:: The text to be formatted. If this is set and :box is not, the hash will be
+      #          transformed into a text fragment.
       #
       #   link:: A URL that should be linked to. If no text is provided but a link, the link is used
-      #          as text.
+      #          for the text. If this is set and :box is not, the hash will be transformed into a
+      #          text fragment with an appropriate link overlay.
       #
       #   style:: The style to be use as base style instead of the style created from the +style+
       #           and +style_properties+ arguments. See HexaPDF::Layout::Style::create for allowed
       #           values.
       #
-      #   If any style properties are set, the used style is duplicated and the additional
-      #   properties applied.
+      #           If any style properties are set, the used style is duplicated and the additional
+      #           properties applied.
+      #
+      #           The final style is used for a created text fragment.
+      #
+      #   box:: An inline box to be used. If this is set, the hash will be transformed into an
+      #         inline box.
+      #
+      #         The value must be one or more (as an array) positional arguments to be used with the
+      #         #inline_box method. The rest of the hash keys are passed as keyword arguments to
+      #         #inline_box except for :block that value of which would be passed as the block.
       #
       # See #text_box for details on +width+, +height+, +style+, +style_properties+, +properties+
       # and +box_style+.
@@ -334,24 +348,37 @@ module HexaPDF
       #   layout.formatted_text_box(["Some ", {link: "https://example.com",
       #                                        fill_color: 'blue', text: "Example"}])
       #   layout.formatted_text_box(["Some ", {text: "string", style: {font_size: 20}}])
+      #   layout.formatted_text_box(["Some ", {box: [:text, "string"], valign: :top}])
+      #   block = lambda {|list| list.text("First item"); list.text("Second item") }
+      #   layout.formatted_text_box(["Some ", {box: :list, item_spacing: 10, block: block}])
       #
       # See: #text_box, HexaPDF::Layout::TextBox, HexaPDF::Layout::TextFragment
       def formatted_text_box(data, width: 0, height: 0, style: nil, properties: nil, box_style: nil,
                              **style_properties)
         style = retrieve_style(style, style_properties)
         box_style = (box_style ? retrieve_style(box_style) : style)
-        data.map! do |hash|
-          if hash.kind_of?(String)
-            HexaPDF::Layout::TextFragment.create(hash, style)
+        data.map! do |item|
+          case item
+          when String
+            HexaPDF::Layout::TextFragment.create(item, style)
+          when Hash
+            if (args = item.delete(:box))
+              block = item.delete(:block)
+              inline_box(*args, **item, &block)
+            else
+              link = item.delete(:link)
+              (item[:overlays] ||= []) << [:link, {uri: link}] if link
+              text = item.delete(:text) || link || ""
+              properties = item.delete(:properties)
+              frag_style = retrieve_style(item.delete(:style) || style, item)
+              fragment = HexaPDF::Layout::TextFragment.create(text, frag_style)
+              fragment.properties.update(properties) if properties
+              fragment
+            end
+          when HexaPDF::Layout::InlineBox
+            item
           else
-            link = hash.delete(:link)
-            (hash[:overlays] ||= []) << [:link, {uri: link}] if link
-            text = hash.delete(:text) || link || ""
-            properties = hash.delete(:properties)
-            frag_style = retrieve_style(hash.delete(:style) || style, hash)
-            fragment = HexaPDF::Layout::TextFragment.create(text, frag_style)
-            fragment.properties.update(properties) if properties
-            fragment
+            raise ArgumentError, "Invalid item of class #{item.class} in data array"
           end
         end
         box_class_for_name(:text).new(items: data, width: width, height: height,

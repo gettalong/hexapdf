@@ -248,6 +248,24 @@ describe HexaPDF::Document::Layout do
       items = box.instance_variable_get(:@items)
       assert_equal({named_dest: 'test'}, items[0].properties)
     end
+
+    it "allows adding an inline box" do
+      ibox = @layout.inline_box(:base, width: 10, height: 10)
+      box = @layout.formatted_text_box([ibox])
+      assert_equal(ibox, box.instance_variable_get(:@items).first)
+    end
+
+    it "allows creating an inline box through a hash with a :box key" do
+      block = lambda {|item| item.box(:base, width: 5, height: 15) }
+      box = @layout.formatted_text_box([{box: :list, width: 10, block: block}])
+      ibox = box.instance_variable_get(:@items).first
+      assert_equal(10, ibox.width)
+      assert_equal(15, ibox.height)
+    end
+
+    it "fails if the data array contains unsupported items" do
+      assert_raises(ArgumentError) { @layout.formatted_text_box([5]) }
+    end
   end
 
   describe "image_box" do
