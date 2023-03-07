@@ -83,6 +83,27 @@ describe HexaPDF::Document::Layout do
     end
   end
 
+  describe "inline_box" do
+    it "takes a box as argument" do
+      box = HexaPDF::Layout::Box.create(width: 10, height: 10)
+      ibox = @layout.inline_box(box)
+      assert_same(box, ibox.box)
+    end
+
+    it "correctly passes on the valign argument" do
+      box = HexaPDF::Layout::Box.create(width: 10, height: 10)
+      ibox = @layout.inline_box(box, valign: :top)
+      assert_equal(:top, ibox.valign)
+    end
+
+    it "can create a box using any box creation method of the Layout class" do
+      ibox = @layout.inline_box(:text, "Some text", valign: :bottom, width: 10, background_color: "red")
+      assert_equal(:bottom, ibox.valign)
+      assert_equal(10, ibox.width)
+      assert_equal("red", ibox.box.style.background_color)
+    end
+  end
+
   describe "box" do
     it "creates the request box" do
       box = @layout.box(:column, columns: 3, gaps: 20, width: 15, height: 30, style: {font_size: 10},

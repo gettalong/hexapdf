@@ -210,6 +210,28 @@ module HexaPDF
         style
       end
 
+      # Creates an inline box for use together with text fragments.
+      #
+      # The +valign+ argument ist used to specify the vertical alignment of the box within the text
+      # line. See HexaPDF::Layout::Line for details.
+      #
+      # If a box instance is provided as first argument, it is used. Otherwise the first argument
+      # has to be the name of a box creation method and +args+, +kwargs+ and +block+ are passed to
+      # it.
+      #
+      # Example:
+      #
+      #   layout.inline_box(:text, "Hallo")
+      #   layout.inline_box(:list) {|list| list.text("Hallo") }
+      def inline_box(box_or_name, *args, valign: :baseline, **kwargs, &block)
+        box = if box_or_name.kind_of?(HexaPDF::Layout::Box)
+                box_or_name
+              else
+                send(box_or_name, *args, **kwargs, &block)
+              end
+        HexaPDF::Layout::InlineBox.new(box, valign: valign)
+      end
+
       # Creates the named box and returns it.
       #
       # The +name+ argument refers to the registered name of the box class that is looked up in the
