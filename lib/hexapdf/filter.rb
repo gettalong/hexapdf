@@ -99,10 +99,31 @@ module HexaPDF
 
     autoload(:PassThrough, 'hexapdf/filter/pass_through')
 
+    class DummyYielder
+      def initialize(str)
+        @str = str
+      end
+
+      def length
+        @str.length
+      end
+
+      def alive?
+        !@str.nil?
+      end
+
+      def resume
+        str = @str
+        @str = nil
+        str
+      end
+    end
+
     # Returns a Fiber that can be used as a source for decoders/encoders and that is based on a
     # String object.
     def self.source_from_string(str)
-      FiberWithLength.new(str.length) { str.dup }
+      DummyYielder.new(str.dup)
+      #FiberWithLength.new(str.length) { str.dup }
     end
 
     # Returns a Fiber that can be used as a source for decoders/encoders and that reads chunks of

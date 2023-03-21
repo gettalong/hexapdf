@@ -89,7 +89,7 @@ module HexaPDF
     # Returns a Fiber for getting at the data of the stream represented by this object.
     def fiber(chunk_size = 0)
       if @source.kind_of?(Proc)
-        FiberWithLength.new(@length, &@source)
+        HexaPDF::Filter::DummyYielder.new(@source.call)
       elsif @source.kind_of?(String)
         HexaPDF::Filter.source_from_file(@source, pos: @offset || 0, length: @length || -1,
                                          chunk_size: chunk_size)
