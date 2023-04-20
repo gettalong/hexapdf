@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* AES 128bit encryption to include unnecessary field in encryption dictionary to
+  work around buggy PDF libraries
+
+
 ## 0.32.0 - 2023-03-08
 
 ### Added

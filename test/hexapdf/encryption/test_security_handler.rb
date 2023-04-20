@@ -141,6 +141,11 @@ describe HexaPDF::Encryption::SecurityHandler do
         @handler.set_up_encryption(key_length: key_length, algorithm: algorithm)
         assert(result == @handler.dict[:Length])
       end
+
+      # Work-around buggy software
+      @handler.set_up_encryption(key_length: 128, algorithm: :aes)
+      assert_equal(4, @handler.dict[:V])
+      assert_equal(128, @handler.dict[:Length])
     end
 
     it "calls the prepare_encryption method" do

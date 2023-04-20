@@ -358,7 +358,7 @@ module HexaPDF
             raise(HexaPDF::UnsupportedEncryptionError,
                   "Invalid key length #{key_length} specified")
           end
-        dict[:Length] = key_length if dict[:V] == 2
+        dict[:Length] = key_length if dict[:V] == 4 || dict[:V] == 2
 
         if ![:aes, :arc4].include?(algorithm)
           raise(HexaPDF::UnsupportedEncryptionError,
