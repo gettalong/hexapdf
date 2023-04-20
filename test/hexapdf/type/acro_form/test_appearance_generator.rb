@@ -519,6 +519,19 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                            range: 7)
         end
 
+        it "falls back to the cap height in the font descriptor for vertical alignment" do
+          font_metrics = @form.default_resources.font(:F1).font_wrapper.wrapped_font.metrics
+          cap_height = font_metrics.cap_height
+          font_metrics.cap_height = nil
+
+          @generator.create_appearances
+          assert_operators(@widget[:AP][:N].stream,
+                           [:set_text_matrix, [1, 0, 0, 1, 2, 6.41]],
+                           range: 7)
+        ensure
+          font_metrics.cap_height = cap_height
+        end
+
         it "vertically aligns to the font descender if the text is too high" do
           @widget[:Rect].height = 5
           @generator.create_appearances

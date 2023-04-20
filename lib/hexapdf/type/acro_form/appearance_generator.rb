@@ -395,7 +395,9 @@ module HexaPDF
 
           # Adobe seems to be vertically centering based on the cap height, if enough space is
           # available
-          cap_height = style.font.wrapped_font.cap_height * style.font.scaling_factor / 1000.0 *
+          tmp_cap_height = style.font.wrapped_font.cap_height ||
+            style.font.pdf_object.font_descriptor&.[](:CapHeight)
+          cap_height = tmp_cap_height * style.font.scaling_factor / 1000.0 *
             style.font_size
           y = padding + (height - 2 * padding - cap_height) / 2.0
           y = padding - style.scaled_font_descender if y < 0

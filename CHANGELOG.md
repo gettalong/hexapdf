@@ -16,6 +16,8 @@
 * AES 128bit encryption to include unnecessary field in encryption dictionary to
   work around buggy PDF libraries
 * [HexaPDF::Layout::Style::LinkLayer] to correctly process the border color
+* [HexaPDF::Type::AcroForm::AppearanceGenerator] to use fallback for font cap
+  height value when necessary
 
 
 ## 0.32.0 - 2023-03-08
