@@ -573,10 +573,19 @@ describe HexaPDF::Layout::Style::LinkLayer do
       assert_equal([0, 0, 1], annot[:Border].value)
     end
 
-    it "uses the specified border and border color" do
-      annot = call_link(dest: true, border: [10, 10, 2], border_color: [255])
+    it "uses the specified border" do
+      annot = call_link(dest: true, border: [10, 10, 2])
       assert_equal([10, 10, 2], annot[:Border].value)
-      assert_equal([1.0], annot[:C].value)
+    end
+
+    it "uses the specified border color" do
+      annot = call_link(dest: true, border_color: "red")
+      assert_equal([1.0, 0, 0], annot[:C].value)
+    end
+
+    it "works when the border color is transparent" do
+      annot = call_link(dest: true, border_color: [])
+      assert_equal([], annot[:C].value)
     end
 
     it "works for simple destinations" do

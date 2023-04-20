@@ -508,6 +508,12 @@ module HexaPDF
                          *matrix.evaluate(box.width, box.height), *matrix.evaluate(0, box.height)]
           x_minmax = quad_points.values_at(0, 2, 4, 6).minmax
           y_minmax = quad_points.values_at(1, 3, 5, 7).minmax
+          border_color = case @border_color
+                         when [], nil
+                           @border_color
+                         else
+                           canvas.color_from_specification(@border_color).components
+                         end
           annot = {
             Subtype: :Link,
             Rect: [x_minmax[0], y_minmax[0], x_minmax[1], y_minmax[1]],
@@ -515,7 +521,7 @@ module HexaPDF
             Dest: @dest,
             A: @action,
             Border: @border,
-            C: @border_color && canvas.color_from_specification(@border_color).components,
+            C: border_color,
           }
           (page[:Annots] ||= []) << page.document.add(annot)
         end
