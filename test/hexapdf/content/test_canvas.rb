@@ -1280,4 +1280,30 @@ describe HexaPDF::Content::Canvas do
       end
     end
   end
+
+  describe "color_from_specification "do
+    it "accepts a color string" do
+      assert_equal([1, 0, 0], @canvas.color_from_specification("red").components)
+    end
+
+    it "accepts a color string wrapped in an array" do
+      assert_equal([1, 0, 0], @canvas.color_from_specification(["red"]).components)
+    end
+
+    it "accepts a color object" do
+      color = @canvas.color_from_specification("red")
+      assert_equal(color, @canvas.color_from_specification(color))
+    end
+
+    it "accepts a color object wrapped in an array" do
+      color = @canvas.color_from_specification("red")
+      assert_equal(color, @canvas.color_from_specification([color]))
+    end
+
+    it "accepts an array with 1, 3, or 4 color values" do
+      assert_equal([1], @canvas.color_from_specification([255]).components)
+      assert_equal([1, 0, 0], @canvas.color_from_specification([255, 0, 0]).components)
+      assert_equal([1, 0, 0, 0], @canvas.color_from_specification([100, 0, 0, 0]).components)
+    end
+  end
 end

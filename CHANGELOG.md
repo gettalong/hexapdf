@@ -6,6 +6,11 @@
   [HexaPDF::Type::FontSimple#font_descriptor] for easy access to the font
   descriptor
 
+### Changed
+
+* [HexaPDF::Content::Canvas#color_from_specification] to allow strings and color
+  objects without a wrapping array
+
 ### Fixed
 
 * AES 128bit encryption to include unnecessary field in encryption dictionary to

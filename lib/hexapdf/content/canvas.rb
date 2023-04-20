@@ -2363,6 +2363,7 @@ module HexaPDF
       # This utility method is meant for use by higher-level methods that need to convert a color
       # specification into a color object for this Canvas object.
       def color_from_specification(spec)
+        spec = Array(spec)
         if spec.length == 1 && spec[0].kind_of?(String)
           ColorSpace.device_color_from_specification(spec)
         elsif spec.length == 1 && spec[0].respond_to?(:color_space)
