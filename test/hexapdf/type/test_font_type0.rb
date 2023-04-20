@@ -7,8 +7,8 @@ require 'hexapdf/type/font_type0'
 describe HexaPDF::Type::FontType0 do
   before do
     @doc = HexaPDF::Document.new
-    fd = @doc.add({Type: :FontDescriptor, FontBBox: [0, 1, 2, 3]})
-    @cid_font = @doc.wrap({Type: :Font, Subtype: :CIDFontType2, W: [633, [100]], FontDescriptor: fd,
+    @fd = @doc.add({Type: :FontDescriptor, FontBBox: [0, 1, 2, 3]})
+    @cid_font = @doc.wrap({Type: :Font, Subtype: :CIDFontType2, W: [633, [100]], FontDescriptor: @fd,
                            CIDSystemInfo: {Registry: 'Adobe', Ordering: 'Japan1', Supplement: 1}})
     @font = @doc.wrap({Type: :Font, Subtype: :Type0, Encoding: :H, DescendantFonts: [@cid_font]})
   end
@@ -24,6 +24,10 @@ describe HexaPDF::Type::FontType0 do
     @doc.clear_cache
     @font[:DescendantFonts] = [@cid_font.value]
     assert_equal(@cid_font.value, @font.descendant_font.value)
+  end
+
+  it "returns the font descriptor of the descendant font" do
+    assert_same(@fd, @font.font_descriptor)
   end
 
   it "uses the descendant font for getting the width of a code point" do

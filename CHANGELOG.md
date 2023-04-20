@@ -1,5 +1,11 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Type::FontType0#font_descriptor] and
+  [HexaPDF::Type::FontSimple#font_descriptor] for easy access to the font
+  descriptor
+
 ### Fixed
 
 * AES 128bit encryption to include unnecessary field in encryption dictionary to

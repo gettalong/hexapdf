@@ -53,6 +53,13 @@ module HexaPDF
       define_field :FontDescriptor, type: :FontDescriptor, indirect: true
       define_field :Encoding, type: [Dictionary, Symbol]
 
+      # Returns the font descriptor. May be +nil+ for a standard 14 font.
+      #
+      # The font descriptor is required except for the standard 14 fonts in PDF version up to 1.7.
+      def font_descriptor
+        self[:FontDescriptor]
+      end
+
       # Returns the encoding object used for this font.
       #
       # Note that the encoding is cached internally when accessed the first time.

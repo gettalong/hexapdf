@@ -63,6 +63,11 @@ module HexaPDF
         end
       end
 
+      # Returns the font descriptor of the descendant font.
+      def font_descriptor
+        descendant_font[:FontDescriptor]
+      end
+
       # Returns the writing mode which is either :horizontal or :vertical.
       def writing_mode
         cmap.wmode == 0 ? :horizontal : :vertical
