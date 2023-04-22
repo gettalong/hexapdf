@@ -300,7 +300,8 @@ module HexaPDF
                  elsif CSS_COLOR_NAMES.key?(first_item)
                    CSS_COLOR_NAMES[first_item]
                  else
-                   raise ArgumentError, "Given string is neither a hex color nor a color name"
+                   raise ArgumentError, "Given string '#{first_item}' is neither a hex color " \
+                     "nor a color name"
                  end
         end
         GlobalConfiguration.constantize('color_space.map', for_components(spec)).new.color(*spec)
