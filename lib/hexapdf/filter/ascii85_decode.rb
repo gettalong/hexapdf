@@ -45,7 +45,7 @@ module HexaPDF
     # This filter module implements the ASCII-85 filter which can encode arbitrary data into an
     # ASCII compatible format that expands the original data only by a factor of 4:5.
     #
-    # See: HexaPDF::Filter, PDF1.7 s7.4.2
+    # See: HexaPDF::Filter, PDF2.0 s7.4.2
     module ASCII85Decode
 
       VALUE_TO_CHAR = {} #:nodoc:

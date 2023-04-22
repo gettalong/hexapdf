@@ -43,7 +43,7 @@ module HexaPDF
       # Text annotations are "sticky notes" attached to a point in a PDF document. They act as if
       # the NoZoom and NoRotate flags were always set.
       #
-      # See: PDF1.7 s12.5.6.4, HexaPDF::Type::MarkupAnnotation
+      # See: PDF2.0 s12.5.6.4, HexaPDF::Type::MarkupAnnotation
       class Text < MarkupAnnotation
 
         define_field :Subtype,    type: Symbol, required: true, default: :Text

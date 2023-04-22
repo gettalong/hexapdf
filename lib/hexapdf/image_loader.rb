@@ -59,7 +59,7 @@ module HexaPDF
   # The image XObject may use any implemented filter. For example, an image loader for JPEG files
   # would typically use the DCTDecode filter instead of decoding the image itself.
   #
-  # See: PDF1.7 s8.9
+  # See: PDF2.0 s8.9
   module ImageLoader
 
     autoload(:JPEG, 'hexapdf/image_loader/jpeg')

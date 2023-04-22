@@ -75,7 +75,7 @@ module HexaPDF
     # Defines all available line cap styles as constants. Each line cap style is an instance of
     # NamedValue, see ::normalize. For use with e.g. Content::Canvas#line_cap_style.
     #
-    # See: PDF1.7 s8.4.3.3
+    # See: PDF2.0 s8.4.3.3
     module LineCapStyle
 
       # Returns the argument normalized to a valid line cap style.
@@ -129,7 +129,7 @@ module HexaPDF
     # Defines all available line join styles as constants. Each line join style is an instance of
     # NamedValue, see ::normalize For use with e.g. Content::Canvas#line_join_style.
     #
-    # See: PDF1.7 s8.4.3.4
+    # See: PDF2.0 s8.4.3.4
     module LineJoinStyle
 
       # Returns the argument normalized to a valid line join style.
@@ -204,7 +204,7 @@ module HexaPDF
     #   [3 5] 6                   2 unit gap, 3 unit dash, 5 unit gap, 3 unit dash, ...
     #   [2 3] 6                   1 unit dash, 3 unit gap, 2 unit dash, 3 unit gap, ...
     #
-    # See: PDF1.7 s8.4.3.6
+    # See: PDF2.0 s8.4.3.6
     class LineDashPattern
 
       # :call-seq:
@@ -263,7 +263,7 @@ module HexaPDF
     # Defines all available rendering intents as constants. For use with e.g.
     # Content::Canvas#rendering_intent.
     #
-    # See: PDF1.7 s8.6.5.8
+    # See: PDF2.0 s8.6.5.8
     module RenderingIntent
 
       # Returns the argument normalized to a valid rendering intent.
@@ -297,7 +297,7 @@ module HexaPDF
     # Defines all available text rendering modes as constants. Each text rendering mode is an
     # instance of NamedValue. For use with e.g. Content::Canvas#text_rendering_mode.
     #
-    # See: PDF1.7 s9.3.6
+    # See: PDF2.0 s9.3.6
     module TextRenderingMode
 
       # Returns the argument normalized to a valid text rendering mode.
@@ -429,7 +429,7 @@ module HexaPDF
     #
     # The device-dependent graphics state parameters have not been implemented!
     #
-    # See: PDF1.7 s8.4.1
+    # See: PDF2.0 s8.4.1
     class GraphicsState
 
       # The current transformation matrix.
@@ -540,14 +540,14 @@ module HexaPDF
       #
       # This returns the character spacing multiplied by #scaled_horizontal_scaling.
       #
-      # See PDF1.7 s9.4.4
+      # See PDF2.0 s9.4.4
       attr_reader :scaled_character_spacing
 
       # The scaled word spacing used in glyph displacement calculations.
       #
       # This returns the word spacing  multiplied by #scaled_horizontal_scaling.
       #
-      # See PDF1.7 s9.4.4
+      # See PDF2.0 s9.4.4
       attr_reader :scaled_word_spacing
 
       # The scaled font size used in glyph displacement calculations.
@@ -556,7 +556,7 @@ module HexaPDF
       # (0.001 for all fonts except Type3 fonts or the scaling specified in /FontMatrix for Type3
       # fonts) and multiplied by #scaled_horizontal_scaling.
       #
-      # See PDF1.7 s9.4.4, HexaPDF::Type::FontType3
+      # See PDF2.0 s9.4.4, HexaPDF::Type::FontType3
       attr_reader :scaled_font_size
 
       # The scaled horizontal scaling used in glyph displacement calculations.
@@ -564,7 +564,7 @@ module HexaPDF
       # Since the horizontal scaling attribute is stored in percent of 100, this method returns the
       # correct value for calculations.
       #
-      # See PDF1.7 s9.4.4
+      # See PDF2.0 s9.4.4
       attr_reader :scaled_horizontal_scaling
 
       # Initializes the graphics state parameters to their default values.

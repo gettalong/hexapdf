@@ -44,7 +44,7 @@ module HexaPDF
 
     # Represents the resources needed by a content stream.
     #
-    # See: PDF1.7 s7.8.3
+    # See: PDF2.0 s7.8.3
     class Resources < Dictionary
 
       define_type :XXResources

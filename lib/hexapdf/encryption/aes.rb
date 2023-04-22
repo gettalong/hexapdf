@@ -79,7 +79,7 @@ module HexaPDF
         # The data is padded using the PKCS#5 padding scheme and the initialization vector is
         # prepended to the encrypted data,
         #
-        # See: PDF1.7 s7.6.2.
+        # See: PDF2.0 s7.6.3
         def encrypt(key, data)
           iv = random_bytes(BLOCK_SIZE)
           iv << new(key, iv, :encrypt).process(pad(data))
@@ -112,7 +112,7 @@ module HexaPDF
         # It is assumed that the initialization vector is included in the first BLOCK_SIZE bytes
         # of the data. After the decryption the PKCS#5 padding is removed.
         #
-        # See: PDF1.7 s7.6.2.
+        # See: PDF2.0 s7.6.3
         def decrypt(key, data)
           return data if data.empty? # Handle invalid files with empty strings
           if data.length % BLOCK_SIZE != 0 || data.length < BLOCK_SIZE
@@ -167,7 +167,7 @@ module HexaPDF
         # Pads the data to a muliple of BLOCK_SIZE using the PKCS#5 padding scheme and returns the
         # result.
         #
-        # See: PDF1.7 s7.6.2
+        # See: PDF2.0 s7.6.3
         def pad(data)
           padding_length = BLOCK_SIZE - data.size % BLOCK_SIZE
           data + padding_length.chr * padding_length
@@ -179,7 +179,7 @@ module HexaPDF
         # In case the padding is not correct as per the specification, it is assumed that there is
         # no padding and the input is returned as is.
         #
-        # See: PDF1.7 s7.6.2
+        # See: PDF2.0 s7.6.3
         def unpad(data)
           padding_length = data.getbyte(-1)
           if padding_length > BLOCK_SIZE || padding_length == 0 ||

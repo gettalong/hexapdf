@@ -45,7 +45,7 @@ module HexaPDF
       # Widget annotations are used by interactive forms to represent the appearance of fields and
       # to manage user interactions.
       #
-      # See: PDF1.7 s12.5.6.19, HexaPDF::Type::Annotation
+      # See: PDF2.0 s12.5.6.19, HexaPDF::Type::Annotation
       class Widget < Annotation
 
         # The dictionary used by the /MK key of the widget annotation.
@@ -264,7 +264,7 @@ module HexaPDF
         # the /DA key on the widget (although /DA is not defined for widget, this is how Acrobat
         # does it).
         #
-        # See: PDF1.7 s12.5.6.19 and s17.7.3.3
+        # See: PDF2.0 s12.5.6.19 and s12.7.4.3
         def marker_style(style: nil, size: nil, color: nil)
           field = form_field
           if style || size || color

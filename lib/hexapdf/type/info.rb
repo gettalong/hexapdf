@@ -44,7 +44,7 @@ module HexaPDF
     # The info dictionary is linked via the /Info entry from the Trailer and contains metadata for
     # the document.
     #
-    # See: PDF1.7 s14.3.3, Trailer
+    # See: PDF2.0 s14.3.3, Trailer
     class Info < Dictionary
 
       define_type :XXInfo

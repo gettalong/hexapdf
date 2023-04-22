@@ -41,7 +41,7 @@ module HexaPDF
 
     # Namespace module for all PDF annotation dictionary types.
     #
-    # See: PDF1.7 s12.5.6, Annotation
+    # See: PDF2.0 s12.5.6, Annotation
     module Annotations
 
       autoload(:MarkupAnnotation, 'hexapdf/type/annotations/markup_annotation')

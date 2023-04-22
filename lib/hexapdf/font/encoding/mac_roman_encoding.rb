@@ -42,7 +42,7 @@ module HexaPDF
 
       # The Mac Roman standard encoding for Latin texts.
       #
-      # See: PDF1.7 sD.1, sD.2
+      # See: PDF2.0 sD.1, sD.2
       class MacRomanEncoding < Base
 
         def initialize #:nodoc:
@@ -256,7 +256,7 @@ module HexaPDF
             0264 => :yen,
             0172 => :z,
             0060 => :zero,
-            # additions due to PDF1.7 sD.2 footnote 6
+            # additions due to PDF2.0 sD.2 footnote 6
             0312 => :space,
           }
         end

@@ -49,13 +49,13 @@ module HexaPDF
       # If the signature should not be visible, the associated widget annotation should have zero
       # width and height; and/or the 'hidden' or 'no_view' flags of the annotation should be set.
       #
-      # See: PDF1.7 s12.7.4.5
+      # See: PDF2.0 s12.7.5.5
       class SignatureField < Field
 
         # A signature field lock dictionary specifies a set of form fields that should be locked
         # once the associated signature field is signed.
         #
-        # See: PDF1.7 s12.7.4.5
+        # See: PDF2.0 s12.7.5.5
         class LockDictionary < Dictionary
 
           define_type :SigFieldLock
@@ -86,7 +86,7 @@ module HexaPDF
         # The available flags are: filter, sub_filter, v, reasons, legal_attestation, add_rev_info
         # and digest_method.
         #
-        # See: PDF1.7 s12.7.4.5
+        # See: PDF2.0 s12.7.5.5
         class SeedValueDictionary < Dictionary
 
           extend Utils::BitField
@@ -145,7 +145,7 @@ module HexaPDF
         #
         # The available flags are: subject, issuer, oid, subject_dn, reserved,  key_usage and url.
         #
-        # See: PDF1.7 s12.7.4.5
+        # See: PDF2.0 s12.7.5.5
         class CertificateSeedValueDictionary < Dictionary
 
           extend Utils::BitField

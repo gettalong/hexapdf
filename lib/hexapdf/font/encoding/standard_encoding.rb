@@ -42,7 +42,7 @@ module HexaPDF
 
       # The Adobe standard encoding for Latin texts.
       #
-      # See: PDF1.7 sD.1, sD.2
+      # See: PDF2.0 sD.1, sD.2
       class StandardEncoding < Base
 
         def initialize #:nodoc:

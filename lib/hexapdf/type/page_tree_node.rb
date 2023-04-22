@@ -60,7 +60,7 @@ module HexaPDF
     # value. If an inherited /Resources dictionary does *not* exist, an empty one is created for
     # the page.
     #
-    # See: PDF1.7 s7.7.3.2, Page
+    # See: PDF2.0 s7.7.3.2, Page
     class PageTreeNode < Dictionary
 
       define_type :Pages

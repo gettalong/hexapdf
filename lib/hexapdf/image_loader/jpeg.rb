@@ -41,7 +41,7 @@ module HexaPDF
 
     # This module is used for loading images in the JPEG format from files or IO streams.
     #
-    # See: PDF1.7 s7.4.8, ITU T.81 Annex B, ITU T.872
+    # See: PDF2.0 s7.4.8, ITU T.81 Annex B, ITU T.872
     module JPEG
 
       # The magic marker that tells us if the file/IO contains an image in JPEG format.
@@ -139,7 +139,7 @@ module HexaPDF
           break if components != 4 || invert_colors
         end
 
-        # PDF1.7 s8.9.5.1
+        # PDF2.0 s8.9.5.1
         if bits != 8
           raise HexaPDF::Error, "Unsupported number of bits per component: #{bits}"
         end

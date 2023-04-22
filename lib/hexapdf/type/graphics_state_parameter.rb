@@ -46,7 +46,7 @@ module HexaPDF
     # Some parameters can only be set by an operator, some only by the dictionary but most by
     # both.
     #
-    # See: PDF1.7 s8.4.5, s8.1
+    # See: PDF2.0 s8.4.5, s8.1
     class GraphicsStateParameter < Dictionary
 
       define_type :ExtGState

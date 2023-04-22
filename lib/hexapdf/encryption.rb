@@ -79,7 +79,7 @@ module HexaPDF
   #   based ones. However, these implementation can be used on any Ruby implementation.
   #
   #
-  # See: PDF1.7 s7.6
+  # See: PDF2.0 s7.6
   module Encryption
 
     autoload(:ARC4, 'hexapdf/encryption/arc4')

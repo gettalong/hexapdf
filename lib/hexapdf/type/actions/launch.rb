@@ -42,7 +42,7 @@ module HexaPDF
 
       # A Launch action dictionary launches an application, opens a document or prints a document.
       #
-      # See: PDF1.7 s12.6.4.5
+      # See: PDF2.0 s12.6.4.6
       class Launch < Action
 
         # The type used for the /Win field of a Launch action dictionary.

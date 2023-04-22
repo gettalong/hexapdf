@@ -54,7 +54,7 @@ module HexaPDF
     # HexaPDF::Revision object's trailer dictionary is always of this type. Only when a
     # cross-reference stream is written is the trailer integrated into the stream's dictionary.
     #
-    # See: PDF1.7 s7.5.5, s14.4; XRefStream
+    # See: PDF2.0 s7.5.5, s14.4; XRefStream
     class Trailer < Dictionary
 
       define_type :XXTrailer
@@ -79,7 +79,7 @@ module HexaPDF
 
       # Sets the /ID field to an array of two copies of a random string and returns this array.
       #
-      # See: PDF1.7 14.4
+      # See: PDF2.0 14.4
       def set_random_id
         value[:ID] = [Digest::MD5.digest(rand.to_s)] * 2
       end

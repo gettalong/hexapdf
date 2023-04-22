@@ -39,7 +39,7 @@ module HexaPDF
 
     # Namespace module for all AcroForm related dictionary types.
     #
-    # See: PDF1.7 s12.7
+    # See: PDF2.0 s12.7
     module AcroForm
 
       autoload(:Form, 'hexapdf/type/acro_form/form')

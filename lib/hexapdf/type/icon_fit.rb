@@ -42,7 +42,7 @@ module HexaPDF
     # An IconFit dictionary specifies how an icon should be displayed inside an annotation
     # rectangle.
     #
-    # See: PDF1.7 s12.7.7.3.2
+    # See: PDF2.0 s12.7.8.3.2
     class IconFit < Annotation
 
       define_type :XXIconFit

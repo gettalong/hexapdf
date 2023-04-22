@@ -49,7 +49,7 @@ module HexaPDF
     # When a PDF file is written, text strings are automatically encoded in either PDFDocEncoding
     # or UTF-16BE depending on the characters in the text string.
     #
-    # See: PDF1.7 s7.9.2, D.1, D.3
+    # See: PDF2.0 s7.9.2, D.1, D.3
     module PDFDocEncoding
 
       # :nodoc:

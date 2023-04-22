@@ -46,7 +46,7 @@ module HexaPDF
     # image/xobject drawing methods of HexaPDF::Content::Canvas know how to handle them correctly so
     # that this doesn't matter from a user's point of view.
     #
-    # See: PDF1.7 s8.10
+    # See: PDF2.0 s8.10
     module PDF
 
       # The magic marker that tells us if the file/IO contains an PDF file.

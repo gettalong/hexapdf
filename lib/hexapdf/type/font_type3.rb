@@ -45,7 +45,7 @@ module HexaPDF
     # If it is of a different form, things won't work correctly. This will be handled once such a
     # case is found.
     #
-    # See: PDF1.7 s9.6.5
+    # See: PDF2.0 s9.6.4
     class FontType3 < FontSimple
 
       define_field :Subtype,    type: Symbol, required: true, default: :Type3

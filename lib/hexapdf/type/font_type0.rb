@@ -48,7 +48,7 @@ module HexaPDF
     # Composite fonts also allow for vertical writing mode and support TrueType as well as OpenType
     # fonts.
     #
-    # See: PDF1.7 s9.7
+    # See: PDF2.0 s9.7
     class FontType0 < Font
 
       define_field :Subtype, type: Symbol, required: true, default: :Type0
@@ -110,7 +110,7 @@ module HexaPDF
       #
       # Note that the return value is cached when accessed the first time.
       #
-      # See: PDF1.7 s9.3.3
+      # See: PDF2.0 s9.3.3
       def word_spacing_applicable?
         @word_spacing_applicable ||= ((cmap.read_codes("\x20") && true) rescue false)
       end
@@ -138,7 +138,7 @@ module HexaPDF
       #
       # Note that the CMap is cached internally when accessed the first time.
       #
-      # See: PDF1.7 s9.10.2
+      # See: PDF2.0 s9.10.2
       def ucs2_cmap
         cache(:ucs2_cmap) do
           encoding = self[:Encoding]

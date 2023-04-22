@@ -67,7 +67,7 @@ module HexaPDF
     #
     # Details and some examples can be found in the PDF reference.
     #
-    # See: PDF1.7 s8.3
+    # See: PDF2.0 s8.3
     class TransformationMatrix
 
       include HexaPDF::Utils::MathHelpers

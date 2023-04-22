@@ -47,7 +47,7 @@ module HexaPDF
     #
     # This dictionary is linked via the /Names entry from the HexaPDF::Catalog.
     #
-    # See: PDF1.7 s7.7.4, HexaPDF::Catalog, HexaPDF::NameTreeNode
+    # See: PDF2.0 s7.7.4, HexaPDF::Catalog, HexaPDF::NameTreeNode
     class Names < Dictionary
 
       define_type :XXNames
@@ -71,7 +71,7 @@ module HexaPDF
       # provides a much easier to work with convenience interface for working with destination
       # objects.
       #
-      # See: PDF1.7 s12.3.2
+      # See: PDF2.0 s12.3.2
       def destinations
         self[:Dests] ||= document.add({}, type: NameTreeNode)
       end

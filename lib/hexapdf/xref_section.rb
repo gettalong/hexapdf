@@ -46,7 +46,7 @@ module HexaPDF
   #
   # Note that a cross-reference section may contain a single object number only once.
   #
-  # See: HexaPDF::Revision, PDF1.7 s7.5.4, s7.5.8
+  # See: HexaPDF::Revision, PDF2.0 s7.5.4, s7.5.8
   class XRefSection < Utils::ObjectHash
 
     # One entry of a cross-reference section or stream.
@@ -69,7 +69,7 @@ module HexaPDF
     #
     #               Objects in an object stream always have a generation number of 0!
     #
-    # See: PDF1.7 s7.5.4, s7.5.8
+    # See: PDF2.0 s7.5.4, s7.5.8
     Entry = Struct.new(:type, :oid, :gen, :pos, :objstm) do
       def free?
         type == :free

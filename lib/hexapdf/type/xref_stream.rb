@@ -65,7 +65,7 @@ module HexaPDF
     # cross-reference section and trailer information and then written. Otherwise a normal
     # cross-reference section plus trailer are written.
     #
-    # See: PDF1.7 s7.5.8
+    # See: PDF2.0 s7.5.8
     class XRefStream < HexaPDF::Stream
 
       define_type :XRef
@@ -161,7 +161,7 @@ module HexaPDF
             when TYPE_COMPRESSED
               xref.add_compressed_entry(oid, field2, field3)
             else
-              nil # Ignore entry as per PDF1.7 s7.5.8.3
+              nil # Ignore entry as per PDF2.0 s7.5.8.3
             end
             start_pos = end_pos
           end

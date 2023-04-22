@@ -48,7 +48,7 @@ module HexaPDF
       # value; the value is entered by the user and needs to be rendered correctly by the PDF
       # reader.
       #
-      # See: PDF1.7 s12.7.3.3
+      # See: PDF2.0 s12.7.4.3
       class VariableTextField < Field
 
         define_field :DA, type: String

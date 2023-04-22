@@ -53,7 +53,7 @@ module HexaPDF
     #
     # * Indirect object references are *not* supported by this tokenizer!
     #
-    # See: PDF1.7 s7.2
+    # See: PDF2.0 s7.2
     class Tokenizer < HexaPDF::Tokenizer #:nodoc:
 
       # The string that is tokenized.

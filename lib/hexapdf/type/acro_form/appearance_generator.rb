@@ -61,7 +61,7 @@ module HexaPDF
       # By subclassing and overriding the necessary methods it is possible to define custom
       # appearances.
       #
-      # See: PDF1.7 s12.5.5, s12.7
+      # See: PDF2.0 s12.5.5, s12.7
       class AppearanceGenerator
 
         # Creates a new instance for the given +widget+.

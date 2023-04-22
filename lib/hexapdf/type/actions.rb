@@ -41,7 +41,7 @@ module HexaPDF
 
     # Namespace module for all PDF action dictionary types.
     #
-    # See: PDF1.7 s12.6.4, Action
+    # See: PDF2.0 s12.6.4, Action
     module Actions
 
       autoload(:GoTo, 'hexapdf/type/actions/go_to')

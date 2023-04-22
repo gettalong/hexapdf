@@ -327,7 +327,7 @@ module HexaPDF
       # :clipping_path:: The current graphics object is a clipping path.
       # :text:: The current graphics object is text.
       #
-      # See: PDF1.7 s8.2
+      # See: PDF2.0 s8.2
       attr_accessor :graphics_object
 
       # Initializes a new processor that uses the resources PDF dictionary for resolving resources
@@ -417,7 +417,7 @@ module HexaPDF
       # Decodes the given array containing text and positioning information while assuming that the
       # writing direction is horizontal.
       #
-      # See: PDF1.7 s9.4.4
+      # See: PDF2.0 s9.4.4
       def decode_horizontal_text(array)
         font = graphics_state.font
         scaled_char_space = graphics_state.scaled_character_spacing

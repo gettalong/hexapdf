@@ -60,7 +60,7 @@ module HexaPDF
     # Since many dictionary keys need to be kept up-to-date when manipulating the outline item tree,
     # it is not recommended to manually do this but to rely on the provided convenience methods.
     #
-    # See: PDF1.7 s12.3.3
+    # See: PDF2.0 s12.3.3
     class OutlineItem < Dictionary
 
       extend Utils::BitField

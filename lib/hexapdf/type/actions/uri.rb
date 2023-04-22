@@ -42,7 +42,7 @@ module HexaPDF
 
       # Represents an URI action dictionary, mostly used for opening Internet pages.
       #
-      # See: PDF1.7 s12.6.4.7
+      # See: PDF2.0 s12.6.4.8
       class URI < Action
 
         define_field :S,     type: Symbol, required: true, default: :URI

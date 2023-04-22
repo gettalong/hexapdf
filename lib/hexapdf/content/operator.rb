@@ -76,7 +76,7 @@ module HexaPDF
     # #name::
     #   Returns the name of the operator as String.
     #
-    # See: PDF1.7 s8, s9
+    # See: PDF2.0 s8, s9
     module Operator
 
       # A base class for operator implementations.
@@ -148,7 +148,7 @@ module HexaPDF
 
       # Implementation of the 'q' operator.
       #
-      # See: PDF1.7 s8.4.4
+      # See: PDF2.0 s8.4.4
       class SaveGraphicsState < NoArgumentOperator
 
         # Creates the operator.
@@ -164,7 +164,7 @@ module HexaPDF
 
       # Implementation of the 'Q' operator.
       #
-      # See: PDF1.7 s8.4.4
+      # See: PDF2.0 s8.4.4
       class RestoreGraphicsState < NoArgumentOperator
 
         # Creates the operator.
@@ -180,7 +180,7 @@ module HexaPDF
 
       # Implementation of the 'cm' operator.
       #
-      # See: PDF1.7 s8.4.4
+      # See: PDF2.0 s8.4.4
       class ConcatenateMatrix < BaseOperator
 
         # Creates the operator.
@@ -202,7 +202,7 @@ module HexaPDF
 
       # Implementation of the 'w' operator.
       #
-      # See: PDF1.7 s8.4.4
+      # See: PDF2.0 s8.4.4
       class SetLineWidth < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -218,7 +218,7 @@ module HexaPDF
 
       # Implementation of the 'J' operator.
       #
-      # See: PDF1.7 s8.4.4
+      # See: PDF2.0 s8.4.4
       class SetLineCapStyle < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -234,7 +234,7 @@ module HexaPDF
 
       # Implementation of the 'j' operator.
       #
-      # See: PDF1.7 s8.4.4
+      # See: PDF2.0 s8.4.4
       class SetLineJoinStyle < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -250,7 +250,7 @@ module HexaPDF
 
       # Implementation of the 'M' operator.
       #
-      # See: PDF1.7 s8.4.4
+      # See: PDF2.0 s8.4.4
       class SetMiterLimit < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -266,7 +266,7 @@ module HexaPDF
 
       # Implementation of the 'd' operator.
       #
-      # See: PDF1.7 s8.4.4
+      # See: PDF2.0 s8.4.4
       class SetLineDashPattern < BaseOperator
 
         # Creates the operator.
@@ -287,7 +287,7 @@ module HexaPDF
 
       # Implementation of the 'ri' operator.
       #
-      # See: PDF1.7 s8.4.4
+      # See: PDF2.0 s8.4.4
       class SetRenderingIntent < BaseOperator
 
         # Creates the operator.
@@ -310,7 +310,7 @@ module HexaPDF
       # Note: Only parameters supported by the GraphicsState/TextState classes are assigned, the
       # rest are ignored!
       #
-      # See: PDF1.7 s8.4.4
+      # See: PDF2.0 s8.4.4
       class SetGraphicsStateParameters < BaseOperator
 
         # Creates the operator.
@@ -352,7 +352,7 @@ module HexaPDF
 
       # Implementation of the 'CS' operator.
       #
-      # See: PDF1.7 s8.6.8
+      # See: PDF2.0 s8.6.8
       class SetStrokingColorSpace < BaseOperator
 
         # Creates the operator.
@@ -372,7 +372,7 @@ module HexaPDF
 
       # Implementation of the 'cs' operator.
       #
-      # See: PDF1.7 s8.6.8
+      # See: PDF2.0 s8.6.8
       class SetNonStrokingColorSpace < BaseOperator
 
         # Creates the operator.
@@ -392,7 +392,7 @@ module HexaPDF
 
       # Implementation of the 'SC' and 'SCN' operator.
       #
-      # See: PDF1.7 s8.6.8
+      # See: PDF2.0 s8.6.8
       class SetStrokingColor < BaseOperator
 
         def invoke(processor, *operands) #:nodoc:
@@ -404,7 +404,7 @@ module HexaPDF
 
       # Implementation of the 'sc' and 'scn' operator.
       #
-      # See: PDF1.7 s8.6.8
+      # See: PDF2.0 s8.6.8
       class SetNonStrokingColor < BaseOperator
 
         def invoke(processor, *operands) #:nodoc:
@@ -416,7 +416,7 @@ module HexaPDF
 
       # Implementation of the 'G' operator.
       #
-      # See: PDF1.7 s8.6.8
+      # See: PDF2.0 s8.6.8
       class SetDeviceGrayStrokingColor < SingleNumericArgumentOperator
 
         def initialize #:nodoc:
@@ -432,7 +432,7 @@ module HexaPDF
 
       # Implementation of the 'g' operator.
       #
-      # See: PDF1.7 s8.6.8
+      # See: PDF2.0 s8.6.8
       class SetDeviceGrayNonStrokingColor < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -449,7 +449,7 @@ module HexaPDF
 
       # Implementation of the 'RG' operator.
       #
-      # See: PDF1.7 s8.6.8
+      # See: PDF2.0 s8.6.8
       class SetDeviceRGBStrokingColor < BaseOperator
 
         # Creates the operator.
@@ -471,7 +471,7 @@ module HexaPDF
 
       # Implementation of the 'rg' operator.
       #
-      # See: PDF1.7 s8.6.8
+      # See: PDF2.0 s8.6.8
       class SetDeviceRGBNonStrokingColor < BaseOperator
 
         # Creates the operator.
@@ -493,7 +493,7 @@ module HexaPDF
 
       # Implementation of the 'K' operator.
       #
-      # See: PDF1.7 s8.6.8
+      # See: PDF2.0 s8.6.8
       class SetDeviceCMYKStrokingColor < BaseOperator
 
         # Creates the operator.
@@ -515,7 +515,7 @@ module HexaPDF
 
       # Implementation of the 'k' operator.
       #
-      # See: PDF1.7 s8.6.8
+      # See: PDF2.0 s8.6.8
       class SetDeviceCMYKNonStrokingColor < BaseOperator
 
         # Creates the operator.
@@ -537,7 +537,7 @@ module HexaPDF
 
       # Implementation of the 'm' operator.
       #
-      # See: PDF1.7 s8.5.2.1
+      # See: PDF2.0 s8.5.2.1
       class MoveTo < BaseOperator
 
         # Creates the operator.
@@ -557,7 +557,7 @@ module HexaPDF
 
       # Implementation of the 're' operator.
       #
-      # See: PDF1.7 s8.5.2.1
+      # See: PDF2.0 s8.5.2.1
       class AppendRectangle < BaseOperator
 
         # Creates the operator.
@@ -578,7 +578,7 @@ module HexaPDF
 
       # Implementation of the 'l' operator.
       #
-      # See: PDF1.7 s8.5.2.1
+      # See: PDF2.0 s8.5.2.1
       class LineTo < BaseOperator
 
         # Creates the operator.
@@ -597,7 +597,7 @@ module HexaPDF
 
       # Implementation of the 'c' operators.
       #
-      # See: PDF1.7 s8.5.2.1
+      # See: PDF2.0 s8.5.2.1
       class CurveTo < BaseOperator
 
         # Creates the operator.
@@ -615,7 +615,7 @@ module HexaPDF
 
       # Implementation of the 'v' operators.
       #
-      # See: PDF1.7 s8.5.2.1
+      # See: PDF2.0 s8.5.2.1
       class CurveToNoFirstControlPoint < BaseOperator
 
         # Creates the operator.
@@ -632,7 +632,7 @@ module HexaPDF
 
       # Implementation of the 'y' operators.
       #
-      # See: PDF1.7 s8.5.2.1
+      # See: PDF2.0 s8.5.2.1
       class CurveToNoSecondControlPoint < BaseOperator
 
         # Creates the operator.
@@ -649,7 +649,7 @@ module HexaPDF
 
       # Implementation of the 'S', 's', 'f', 'F', 'f*', 'B', 'B*', 'b', 'b*' and 'n' operators.
       #
-      # See: PDF1.7 s8.5.3.1
+      # See: PDF2.0 s8.5.3.1
       class EndPath < NoArgumentOperator
 
         def invoke(processor) #:nodoc:
@@ -660,7 +660,7 @@ module HexaPDF
 
       # Implementation of the 'W' and 'W*' operators.
       #
-      # See: PDF1.7 s8.5.4
+      # See: PDF2.0 s8.5.4
       class ClipPath < NoArgumentOperator
 
         def invoke(processor) #:nodoc:
@@ -672,7 +672,7 @@ module HexaPDF
       # Implementation of the 'BI' operator which handles the *complete* inline image, i.e. the
       # 'ID' and 'EI' operators are never encountered.
       #
-      # See: PDF1.7 s8.9.7
+      # See: PDF2.0 s8.9.7
       class InlineImage < BaseOperator
 
         # Creates the operator.
@@ -693,7 +693,7 @@ module HexaPDF
 
       # Implementation of the 'Tc' operator.
       #
-      # See: PDF1.7 s9.3.1
+      # See: PDF2.0 s9.3.1
       class SetCharacterSpacing < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -709,7 +709,7 @@ module HexaPDF
 
       # Implementation of the 'Tw' operator.
       #
-      # See: PDF1.7 s9.3.1
+      # See: PDF2.0 s9.3.1
       class SetWordSpacing < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -725,7 +725,7 @@ module HexaPDF
 
       # Implementation of the 'Tz' operator.
       #
-      # See: PDF1.7 s9.3.1
+      # See: PDF2.0 s9.3.1
       class SetHorizontalScaling < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -741,7 +741,7 @@ module HexaPDF
 
       # Implementation of the 'TL' operator.
       #
-      # See: PDF1.7 s9.3.1
+      # See: PDF2.0 s9.3.1
       class SetLeading < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -757,7 +757,7 @@ module HexaPDF
 
       # Implementation of the 'Tf' operator.
       #
-      # See: PDF1.7 s9.3.1
+      # See: PDF2.0 s9.3.1
       class SetFontAndSize < BaseOperator
 
         # Creates the operator.
@@ -778,7 +778,7 @@ module HexaPDF
 
       # Implementation of the 'Tr' operator.
       #
-      # See: PDF1.7 s9.3.1
+      # See: PDF2.0 s9.3.1
       class SetTextRenderingMode < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -794,7 +794,7 @@ module HexaPDF
 
       # Implementation of the 'Ts' operator.
       #
-      # See: PDF1.7 s9.3.1
+      # See: PDF2.0 s9.3.1
       class SetTextRise < SingleNumericArgumentOperator
 
         # Creates the operator.
@@ -810,7 +810,7 @@ module HexaPDF
 
       # Implementation of the 'BT' operator.
       #
-      # See: PDF1.7 s9.4.1
+      # See: PDF2.0 s9.4.1
       class BeginText < NoArgumentOperator
 
         def initialize #:nodoc:
@@ -827,7 +827,7 @@ module HexaPDF
 
       # Implementation of the 'ET' operator.
       #
-      # See: PDF1.7 s9.4.1
+      # See: PDF2.0 s9.4.1
       class EndText < NoArgumentOperator
 
         # Creates the operator.
@@ -845,7 +845,7 @@ module HexaPDF
 
       # Implementation of the 'Td' operator.
       #
-      # See: PDF1.7 s9.4.2
+      # See: PDF2.0 s9.4.2
       class MoveText < BaseOperator
 
         # Creates the operator.
@@ -866,7 +866,7 @@ module HexaPDF
 
       # Implementation of the 'TD' operator.
       #
-      # See: PDF1.7 s9.4.2
+      # See: PDF2.0 s9.4.2
       class MoveTextAndSetLeading < BaseOperator
 
         # Creates the operator.
@@ -887,7 +887,7 @@ module HexaPDF
 
       # Implementation of the 'Tm' operator.
       #
-      # See: PDF1.7 s9.4.2
+      # See: PDF2.0 s9.4.2
       class SetTextMatrix < BaseOperator
 
         # Creates the operator.
@@ -910,7 +910,7 @@ module HexaPDF
 
       # Implementation of the 'T*' operator.
       #
-      # See: PDF1.7 s9.4.2
+      # See: PDF2.0 s9.4.2
       class MoveTextNextLine < NoArgumentOperator
 
         # Creates the operator.
@@ -927,7 +927,7 @@ module HexaPDF
 
       # Implementation of the 'Tj' operator.
       #
-      # See: PDF1.7 s9.4.3
+      # See: PDF2.0 s9.4.3
       class ShowText < BaseOperator
 
         # Creates the operator.
@@ -943,7 +943,7 @@ module HexaPDF
 
       # Implementation of the ' operator.
       #
-      # See: PDF1.7 s9.4.3
+      # See: PDF2.0 s9.4.3
       class MoveTextNextLineAndShowText < BaseOperator
 
         def initialize #:nodoc:
@@ -963,7 +963,7 @@ module HexaPDF
 
       # Implementation of the " operator.
       #
-      # See: PDF1.7 s9.4.3
+      # See: PDF2.0 s9.4.3
       class SetSpacingMoveTextNextLineAndShowText < BaseOperator
 
         # Creates the operator.
@@ -987,7 +987,7 @@ module HexaPDF
 
       # Implementation of the 'TJ' operator.
       #
-      # See: PDF1.7 s9.4.3
+      # See: PDF2.0 s9.4.3
       class ShowTextWithPositioning < BaseOperator
 
         # Creates the operator.

@@ -41,7 +41,7 @@ module HexaPDF
   #
   # This module contains all code related to digital signatures in PDF.
   #
-  # See: PDF1.7/2.0 s12.8
+  # See: PDF2.0/2.0 s12.8
   module DigitalSignature
 
     autoload(:Signatures, 'hexapdf/digital_signature/signatures')

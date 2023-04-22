@@ -42,7 +42,7 @@ module HexaPDF
 
       # The difference encoding uses a base encoding that can be overlayed with additional mappings.
       #
-      # See: PDF1.7 s9.6.6.1
+      # See: PDF2.0 s9.6.5.1
       class DifferenceEncoding < Base
 
         # The base encoding.

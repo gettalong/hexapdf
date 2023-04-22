@@ -70,7 +70,7 @@ module HexaPDF
     #
     #   "", "", "", ... (i.e. always the empty string)
     #
-    # See: PDF1.7 s12.4.2, HexaPDF::Document::Pages, HexaPDF::Type::Catalog
+    # See: PDF2.0 s12.4.2, HexaPDF::Document::Pages, HexaPDF::Type::Catalog
     class PageLabel < Dictionary
 
       define_type :PageLabel

@@ -44,7 +44,7 @@ module HexaPDF
     # Action dictionaries are used, for example, by annotations or outline items to specify the
     # action that should be performed. Each action class should be defined under the Actions module.
     #
-    # See: PDF1.7 s12.6
+    # See: PDF2.0 s12.6
     class Action < Dictionary
 
       define_type :Action

@@ -83,7 +83,7 @@ module HexaPDF
   #
   # Such a fiber should *not* return +nil+ unless this signifies that no more data is coming!
   #
-  # See: PDF1.7 s7.4
+  # See: PDF2.0 s7.4
   module Filter
 
     autoload(:ASCII85Decode, 'hexapdf/filter/ascii85_decode')

@@ -146,10 +146,10 @@ module HexaPDF
         # Parses the "bfrange" operator at the current position.
         #
         #--
-        # PDF1.7 s9.10.3 and Adobe Technical Note #5411 have different views as to how "bfrange"
+        # PDF2.0 s9.10.3 and Adobe Technical Note #5411 have different views as to how "bfrange"
         # operators of the form "startCode endCode codePoint" should be handled.
         #
-        # PDF1.7 mentions that the last byte of "codePoint" should be incremented, up to a maximum
+        # PDF2.0 mentions that the last byte of "codePoint" should be incremented, up to a maximum
         # of 255. However #5411 has the range "<1379> <137B> <90FE>" as example which contradicts
         # this.
         #

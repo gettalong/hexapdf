@@ -79,7 +79,7 @@ module HexaPDF
   #
   # If no serialization method for a specific class is found, the ancestors classes are tried.
   #
-  # See: PDF1.7 s7.3
+  # See: PDF2.0 s7.3
   class Serializer
 
     # The encrypter to use for encrypting strings and streams. If +nil+, strings and streams are not
@@ -163,21 +163,21 @@ module HexaPDF
 
     # Serializes the +nil+ value.
     #
-    # See: PDF1.7 s7.3.9
+    # See: PDF2.0 s7.3.9
     def serialize_nilclass(_obj)
       "null"
     end
 
     # Serializes the +true+ value.
     #
-    # See: PDF1.7 s7.3.2
+    # See: PDF2.0 s7.3.2
     def serialize_trueclass(_obj)
       "true"
     end
 
     # Serializes the +false+ value.
     #
-    # See: PDF1.7 s7.3.2
+    # See: PDF2.0 s7.3.2
     def serialize_falseclass(_obj)
       "false"
     end
@@ -187,21 +187,21 @@ module HexaPDF
     # This method should be used for cases where it is known that the object is either an Integer
     # or a Float.
     #
-    # See: PDF1.7 s7.3.3
+    # See: PDF2.0 s7.3.3
     def serialize_numeric(obj)
       obj.kind_of?(Integer) ? obj.to_s : serialize_float(obj)
     end
 
     # Serializes an Integer object.
     #
-    # See: PDF1.7 s7.3.3
+    # See: PDF2.0 s7.3.3
     def serialize_integer(obj)
       obj.to_s
     end
 
     # Serializes a Float object.
     #
-    # See: PDF1.7 s7.3.3
+    # See: PDF2.0 s7.3.3
     def serialize_float(obj)
       if -0.0001 < obj && obj < 0.0001 && obj != 0
         sprintf("%.6f", obj)
@@ -215,7 +215,7 @@ module HexaPDF
     # The regexp matches all characters that need to be escaped and the substs hash contains the
     # mapping from these characters to their escaped form.
     #
-    # See PDF1.7 s7.3.5
+    # See PDF2.0 s7.3.5
     NAME_SUBSTS = {} # :nodoc:
     [0..32, 127..255, Tokenizer::DELIMITER.bytes, Tokenizer::WHITESPACE.bytes, [35]].each do |a|
       a.each {|c| NAME_SUBSTS[c.chr] = "##{c.to_s(16).rjust(2, '0')}" }
@@ -225,7 +225,7 @@ module HexaPDF
 
     # Serializes a Symbol object (i.e. a PDF name object).
     #
-    # See: PDF1.7 s7.3.5
+    # See: PDF2.0 s7.3.5
     def serialize_symbol(obj)
       NAME_CACHE[obj] ||=
         begin
@@ -240,7 +240,7 @@ module HexaPDF
 
     # Serializes an Array object.
     #
-    # See: PDF1.7 s7.3.6
+    # See: PDF2.0 s7.3.6
     def serialize_array(obj)
       str = +"["
       index = 0
@@ -256,7 +256,7 @@ module HexaPDF
 
     # Serializes a Hash object (i.e. a PDF dictionary object).
     #
-    # See: PDF1.7 s7.3.7
+    # See: PDF2.0 s7.3.7
     def serialize_hash(obj)
       str = +"<<"
       obj.each do |k, v|
@@ -274,7 +274,7 @@ module HexaPDF
 
     # Serializes a String object.
     #
-    # See: PDF1.7 s7.3.4
+    # See: PDF2.0 s7.3.4
     def serialize_string(obj)
       obj = if @encrypter && @object.kind_of?(HexaPDF::Object) && @object.indirect?
               encrypter.encrypt_string(obj, @object)
@@ -294,7 +294,7 @@ module HexaPDF
     # The ISO PDF specification differs in respect to the supported date format. When converting
     # to a date string, a format suitable for both is output.
     #
-    # See: PDF1.7 s7.9.4, ADB1.7 3.8.3
+    # See: PDF2.0 s7.9.4, ADB1.7 3.8.3
     def serialize_time(obj)
       zone = obj.strftime("%z'")
       if zone == "+0000'"
@@ -330,14 +330,14 @@ module HexaPDF
       end
     end
 
-    # See: PDF1.7 s7.3.10
+    # See: PDF2.0 s7.3.10
     def serialize_hexapdf_reference(obj)
       "#{obj.oid} #{obj.gen} R"
     end
 
     # Serializes the streams dictionary and its stream.
     #
-    # See: PDF1.7 s7.3.8
+    # See: PDF2.0 s7.3.8
     def serialize_hexapdf_stream(obj)
       if !obj.indirect?
         raise HexaPDF::Error, "Can't serialize PDF stream without object identifier"

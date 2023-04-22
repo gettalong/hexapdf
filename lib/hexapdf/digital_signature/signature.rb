@@ -53,7 +53,7 @@ module HexaPDF
     # By defining a custom signature handler one is able to also customize the signature
     # verification.
     #
-    # See: PDF1.7/2.0 s12.8.1, HexaPDF::Type::AcroForm::SignatureField
+    # See: PDF2.0/2.0 s12.8.1, HexaPDF::Type::AcroForm::SignatureField
     class Signature < Dictionary
 
       # Represents a transform parameters dictionary.
@@ -61,7 +61,7 @@ module HexaPDF
       # The allowed fields depend on the transform method, so not all fields are available all the
       # time.
       #
-      # See: PDF1.7 s12.8.2.2, s12.8.2.3, s12.8.2.4
+      # See: PDF2.0 s12.8.2.2, s12.8.2.3, s12.8.2.4
       class TransformParams < Dictionary
 
         define_type :TransformParams
@@ -117,7 +117,7 @@ module HexaPDF
 
       # Represents a signature reference dictionary.
       #
-      # See: PDF1.7/2.0 s12.8.1, HexaPDF::DigitalSignature::Signature
+      # See: PDF2.0/2.0 s12.8.1, HexaPDF::DigitalSignature::Signature
       class SignatureReference < Dictionary
 
         define_type :SigRef

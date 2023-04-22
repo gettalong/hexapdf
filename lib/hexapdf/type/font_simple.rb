@@ -44,7 +44,7 @@ module HexaPDF
     #
     # A simple font has only single-byte character codes and only supports horizontal metrics.
     #
-    # See: PDF1.7 s9.6
+    # See: PDF2.0 s9.6
     class FontSimple < Font
 
       define_field :FirstChar, type: Integer
@@ -129,7 +129,7 @@ module HexaPDF
       #
       # Always returns +true+ for simple fonts.
       #
-      # See: PDF1.7 s9.3.3
+      # See: PDF2.0 s9.3.3
       def word_spacing_applicable?
         true
       end

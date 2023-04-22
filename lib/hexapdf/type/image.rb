@@ -45,7 +45,7 @@ module HexaPDF
 
     # Represents an image XObject of a PDF document.
     #
-    # See: PDF1.7 s8.8
+    # See: PDF2.0 s8.8
     class Image < Stream
 
       # The structure that is returned by the Image#info method.

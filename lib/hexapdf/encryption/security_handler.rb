@@ -47,7 +47,7 @@ module HexaPDF
     # Contains entries common to all encryption dictionaries. If a specific security handler
     # needs further fields it should derive a new subclass and add the new fields there.
     #
-    # See: PDF1.7 s7.6.1
+    # See: PDF2.0 s7.6.2
     class EncryptionDictionary < Dictionary
 
       define_field :Filter,    type: Symbol, required: true
@@ -264,7 +264,7 @@ module HexaPDF
       # Decrypts the strings and the possibly attached stream of the given indirect object in
       # place.
       #
-      # See: PDF1.7 s7.6.2
+      # See: PDF2.0 s7.6.3
       def decrypt(obj)
         return obj if @is_encrypt_dict[obj] || obj.type == :XRef
 
@@ -292,7 +292,7 @@ module HexaPDF
       # Note that some strings won't be encrypted as per the specification. The returned string,
       # however, is always a different object.
       #
-      # See: PDF1.7 s7.6.2
+      # See: PDF2.0 s7.6.3
       def encrypt_string(str, obj)
         return str.dup if str.empty? || obj == document.trailer[:Encrypt] || obj.type == :XRef ||
           (obj.type == :Sig && obj[:Contents].equal?(str))
@@ -340,7 +340,7 @@ module HexaPDF
       # force_v4::
       #   Forces the use of protocol version 4 when key_length=128 and algorithm=:arc4.
       #
-      # See: PDF1.7 s7.6.1, PDF2.0 s7.6.1
+      # See: PDF2.0 s7.6.2
       def set_up_encryption(key_length: 128, algorithm: :aes, force_v4: false, **options)
         @dict = document.wrap({}, type: encryption_dictionary_class)
 
@@ -382,7 +382,7 @@ module HexaPDF
       #
       # The security handler specific +options+ are passed on to the #prepare_decryption method.
       #
-      # See: PDF1.7 s7.6.1, PDF2.0 s7.6.1
+      # See: PDF2.0 s7.6.2
       def set_up_decryption(dictionary, **options)
         @dict = document.wrap(dictionary, type: encryption_dictionary_class)
 
@@ -495,7 +495,7 @@ module HexaPDF
 
       # Computes the key for decrypting the indirect object with the given algorithm.
       #
-      # See: PDF1.7 s7.6.2 (algorithm 1), PDF2.0 s7.6.2.2 (algorithm 1.A)
+      # See: PDF2.0 s7.6.3.2 (algorithm 1), PDF2.0 s7.6.3.3 (algorithm 1.A)
       def object_key(oid, gen, algorithm)
         key = encryption_key
         return key if dict[:V] == 5
@@ -508,13 +508,13 @@ module HexaPDF
 
       # Returns the length of the encryption key in bytes based on the security handlers version.
       #
-      # See: PDF1.7 s7.6.1, PDF2.0 s7.6.1
+      # See: PDF2.0 s7.6.2
       def key_length
         case dict[:V]
         when 1 then 5
         when 2 then dict[:Length] / 8
-        when 4 then 16 # PDF2.0 s7.6.1 specifies that a /V of 4 is equal to length of 128bit
-        when 5 then 32 # PDF2.0 s7.6.1 specifies that a /V of 5 is equal to length of 256bit
+        when 4 then 16 # PDF2.0 s7.6.2 specifies that a /V of 4 is equal to length of 128bit
+        when 5 then 32 # PDF2.0 s7.6.2 specifies that a /V of 5 is equal to length of 256bit
         end
       end
 

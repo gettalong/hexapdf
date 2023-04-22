@@ -46,7 +46,7 @@ module HexaPDF
     # Since PKCS#1 signatures are deprecated with PDF 2.0, the handler only provides the
     # implementation for reading and verifying signatures.
     #
-    # See: PDF1.7/2.0 s12.8.3.2
+    # See: PDF2.0/2.0 s12.8.3.2
     class PKCS1Handler < Handler
 
       # Returns the certificate chain.

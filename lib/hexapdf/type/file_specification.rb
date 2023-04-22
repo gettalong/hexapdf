@@ -60,7 +60,7 @@ module HexaPDF
     # is useful to provide embedding/unembedding operations in this class, see #embed and
     # #unembed.
     #
-    # See: PDF1.7 s7.11
+    # See: PDF2.0 s7.11
     class FileSpecification < Dictionary
 
       # The type used for the /EF field of a FileSpecification
@@ -107,7 +107,7 @@ module HexaPDF
       # /Unix, /Mac and /DOS).
       def path
         tmp = (self[:UF] || self[:F] || self[:Unix] || self[:Mac] || self[:DOS] || '').dup
-        tmp.gsub!(/\\\//, "/") # PDF1.7 s7.11.2.1 but / in filename is interpreted as separator!
+        tmp.gsub!(/\\\//, "/") # PDF2.0 s7.11.2.1 but / in filename is interpreted as separator!
         tmp.tr!("\\", "/") # always use slashes instead of back-slashes!
         tmp
       end

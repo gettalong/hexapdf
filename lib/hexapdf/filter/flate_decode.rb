@@ -45,7 +45,7 @@ module HexaPDF
 
     # Implements the Deflate filter using the Zlib library.
     #
-    # See: HexaPDF::Filter, PDF1.7 s7.4.4
+    # See: HexaPDF::Filter, PDF2.0 s7.4.4
     module FlateDecode
 
       # See HexaPDF::Filter

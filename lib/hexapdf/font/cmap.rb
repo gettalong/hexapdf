@@ -43,7 +43,7 @@ module HexaPDF
     # Represents a CMap, a mapping from character codes to CIDs (character IDs) or to their Unicode
     # value.
     #
-    # See: PDF1.7 s9.7.5, s9.10.3; Adobe Technical Notes #5014 and #5411
+    # See: PDF2.0 s9.7.5, s9.10.3; Adobe Technical Notes #5014 and #5411
     class CMap
 
       autoload(:Parser, 'hexapdf/font/cmap/parser')

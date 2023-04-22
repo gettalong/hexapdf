@@ -42,7 +42,7 @@ module HexaPDF
     # Represents a generic CIDFont which can only be used as a descendant font of a composite PDF
     # font.
     #
-    # See: PDF1.7 s9.7.4
+    # See: PDF2.0 s9.7.4
     class CIDFont < Font
 
       DEFAULT_WIDTH = 1000 # :nodoc:
@@ -66,7 +66,7 @@ module HexaPDF
       # Sets the /W and /DW keys using the given array of [CID, width] pairs and an optional default
       # width.
       #
-      # See: PDF1.7 s9.7.4.3
+      # See: PDF2.0 s9.7.4.3
       def set_widths(widths, default_width: DEFAULT_WIDTH)
         if widths.empty?
           (default_width == DEFAULT_WIDTH ? delete(:DW) : self[:DW] = default_width)
@@ -93,7 +93,7 @@ module HexaPDF
       #
       # Note that the hash is cached internally when accessed the first time.
       #
-      # See: PDF1.7 s9.7.4.3
+      # See: PDF2.0 s9.7.4.3
       def widths
         cache(:widths) do
           result = {}

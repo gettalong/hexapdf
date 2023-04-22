@@ -42,7 +42,7 @@ module HexaPDF
     # Represents the mark information dictionary which provides some general information related to
     # structured PDF documents.
     #
-    # See: PDF1.7 s14.7.1
+    # See: PDF2.0 s14.7.1
     class MarkInformation < Dictionary
 
       define_type :XXMarkInformation

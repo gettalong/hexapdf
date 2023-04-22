@@ -44,7 +44,7 @@ module HexaPDF
     #
     # This dictionary is linked via the /ViewerPreferences entry from the Type::Catalog.
     #
-    # See: PDF1.7 s12.2, Catalog
+    # See: PDF2.0 s12.2, Catalog
     class ViewerPreferences < Dictionary
 
       define_type :XXViewerPreferences

@@ -43,7 +43,7 @@ module HexaPDF
 
     # Implements the run length filter.
     #
-    # See: HexaPDF::Filter, PDF1.7 s7.4.5
+    # See: HexaPDF::Filter, PDF2.0 s7.4.5
     module RunLengthDecode
 
       EOD = 128.chr #:nodoc:

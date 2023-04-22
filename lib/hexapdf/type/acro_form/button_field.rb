@@ -81,7 +81,7 @@ module HexaPDF
       # :radios_in_unison:: A group of radio buttons with the same value for the on state will turn
       #                     on or off in unison.
       #
-      # See: PDF1.7 s12.7.4.2
+      # See: PDF2.0 s12.7.4.2
       class ButtonField < Field
 
         define_type :XXAcroFormField

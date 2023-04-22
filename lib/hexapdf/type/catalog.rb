@@ -46,7 +46,7 @@ module HexaPDF
     #
     # The catalog dictionary is linked via the /Root entry from the Trailer.
     #
-    # See: PDF1.7 s7.7.2, Trailer
+    # See: PDF2.0 s7.7.2, Trailer
     class Catalog < Dictionary
 
       define_type :Catalog

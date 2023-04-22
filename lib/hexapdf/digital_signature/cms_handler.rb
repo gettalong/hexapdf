@@ -43,7 +43,7 @@ module HexaPDF
     # The signature handler for PKCS#7 a.k.a. CMS signatures. Those include, for example, the
     # adbe.pkcs7.detached sub-filter.
     #
-    # See: PDF1.7/2.0 s12.8.3.3
+    # See: PDF2.0/2.0 s12.8.3.3
     class CMSHandler < Handler
 
       # Creates a new signature handler for the given signature dictionary.

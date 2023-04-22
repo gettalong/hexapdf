@@ -42,7 +42,7 @@ module HexaPDF
 
       # The built-in encoding of the Symbol font.
       #
-      # See: PDF1.7 sD.5
+      # See: PDF2.0 sD.5
       class SymbolEncoding < Base
 
         def initialize #:nodoc:

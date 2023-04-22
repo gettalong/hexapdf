@@ -70,7 +70,7 @@ module HexaPDF
     # However, only objects that can be written to the object stream are actually written. The
     # other objects are deleted from the object stream (#delete_object) and written normally.
     #
-    # See PDF1.7 s7.5.7
+    # See PDF2.0 s7.5.7
     class ObjectStream < HexaPDF::Stream
 
       # Holds all necessary information to load objects for an object stream.

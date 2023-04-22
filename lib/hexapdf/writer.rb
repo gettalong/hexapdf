@@ -124,7 +124,7 @@ module HexaPDF
 
     # Writes the PDF file header.
     #
-    # See: PDF1.7 s7.5.2
+    # See: PDF2.0 s7.5.2
     def write_file_header
       @io << "%PDF-#{@document.version}\n%\xCF\xEC\xFF\xE8\xD7\xCB\xCD\n"
     end
@@ -225,7 +225,7 @@ module HexaPDF
 
     # Writes the cross-reference section.
     #
-    # See: PDF1.7 s7.5.4
+    # See: PDF2.0 s7.5.4
     def write_xref_section(xref_section)
       @io << "xref\n"
       xref_section.each_subsection do |entries|
@@ -245,14 +245,14 @@ module HexaPDF
 
     # Writes the trailer dictionary.
     #
-    # See: PDF1.7 s7.5.5
+    # See: PDF2.0 s7.5.5
     def write_trailer(trailer)
       @io << "trailer\n#{@serializer.serialize(trailer)}\n"
     end
 
     # Writes the startxref line needed for cross-reference sections and cross-reference streams.
     #
-    # See: PDF1.7 s7.5.5, s7.5.8
+    # See: PDF2.0 s7.5.5, s7.5.8
     def write_startxref(startxref)
       @io << "startxref\n#{startxref}\n%%EOF\n"
     end

@@ -48,7 +48,7 @@ module HexaPDF
   # If a revision doesn't have an associated cross-reference section, it wasn't created from a PDF
   # file.
   #
-  # See: PDF1.7 s7.5.6, Revisions
+  # See: PDF2.0 s7.5.6, Revisions
   class Revision
 
     include Enumerable

@@ -50,7 +50,7 @@ module HexaPDF
   # Fields defined in superclasses are inherited by their subclasses. This avoids duplicating
   # basic field information.
   #
-  # See: PDF1.7 s7.3.7
+  # See: PDF2.0 s7.3.7
   class Dictionary < HexaPDF::Object
 
     include DictionaryFields

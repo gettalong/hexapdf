@@ -95,7 +95,7 @@ module HexaPDF
     # #components::
     #   Returns an array of components that uniquely identifies this color within the color space.
     #
-    # See: PDF1.7 s8.6
+    # See: PDF2.0 s8.6
     module ColorSpace
 
       # Mapping of color names (CSS Color Module Level 3 names and HexaPDF design color names) to
@@ -490,7 +490,7 @@ module HexaPDF
 
         # A color in the DeviceRGB color space.
         #
-        # See: PDF1.7 s8.6.4.3
+        # See: PDF2.0 s8.6.4.3
         class Color
 
           include ColorUtils
@@ -560,7 +560,7 @@ module HexaPDF
 
         # A color in the DeviceCMYK color space.
         #
-        # See: PDF1.7 s8.6.4.4
+        # See: PDF2.0 s8.6.4.4
         class Color
 
           include ColorUtils
@@ -630,7 +630,7 @@ module HexaPDF
 
         # A color in the DeviceGray color space.
         #
-        # See: PDF1.7 s8.6.4.2
+        # See: PDF2.0 s8.6.4.2
         class Color
 
           include ColorUtils

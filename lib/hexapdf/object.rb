@@ -117,7 +117,7 @@ module HexaPDF
   #
   # See: HexaPDF::Dictionary, HexaPDF::Stream, HexaPDF::Reference, HexaPDF::Document
   #
-  # See: PDF1.7 s7.3.10, s7.3.8
+  # See: PDF2.0 s7.3.10, s7.3.8
   class Object
 
     include Comparable
@@ -255,7 +255,7 @@ module HexaPDF
     # type.
     #
     # However, the Type and Subtype fields can easily be used for this. Subclasses for PDF objects
-    # that don't have such fields may use a unique name that has to begin with XX (see PDF1.7 sE.2)
+    # that don't have such fields may use a unique name that has to begin with XX (see PDF2.0 sE.2)
     # and therefore doesn't clash with names defined by the PDF specification.
     #
     # For basic objects this always returns +:Unknown+.

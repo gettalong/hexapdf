@@ -50,7 +50,7 @@ module HexaPDF
   # keys. Furthermore the implementation is compatible to the one of Object, i.e. the hash of a
   # Reference object is the same as the hash of an indirect Object.
   #
-  # See: PDF1.7 s7.3.10, Object
+  # See: PDF2.0 s7.3.10, Object
   class Reference
 
     include Comparable

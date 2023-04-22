@@ -444,7 +444,7 @@ module HexaPDF
       # Style objects using link annotations. Typical use cases would be linking to a (named)
       # destination on a different page or executing a URI action.
       #
-      # See: PDF1.7 s12.5.6.6, Layers, HexaPDF::Type::Annotations::Link
+      # See: PDF2.0 s12.5.6.5, Layers, HexaPDF::Type::Annotations::Link
       class LinkLayer
 
         # Creates a new LinkLayer object.

@@ -42,7 +42,7 @@ module HexaPDF
 
     # Represents a form XObject of a PDF document.
     #
-    # See: PDF1.7 s8.10
+    # See: PDF2.0 s8.10
     class Form < Stream
 
       define_type :XObject

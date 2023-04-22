@@ -66,7 +66,7 @@ module HexaPDF
       # :commit_on_sel_change:: If set, a new value should be commited as soon as a selection is
       #                         made.
       #
-      # See: PDF1.7 s12.7.4.4
+      # See: PDF2.0 s12.7.5.4
       class ChoiceField < VariableTextField
 
         define_type :XXAcroFormField

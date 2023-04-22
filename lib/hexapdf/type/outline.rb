@@ -80,7 +80,7 @@ module HexaPDF
     #   # Copying all the pages so that the references work.
     #   doc.pages.each {|page| target.pages << target.import(page) }
     #
-    # See: PDF1.7 s12.3.3
+    # See: PDF2.0 s12.3.3
     class Outline < Dictionary
 
       define_type :Outlines

@@ -48,7 +48,7 @@ module HexaPDF
     #
     # This implementation is using AES in Cipher Block Chaining (CBC) mode.
     #
-    # See: PDF1.7 s7.6.2
+    # See: PDF2.0 s7.6.3
     class FastAES
 
       prepend AES

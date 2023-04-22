@@ -42,7 +42,7 @@ module HexaPDF
 
       # The Windows Code Page 1252, the standard Windows encoding for Latin texts.
       #
-      # See: PDF1.7 sD.1, sD.2
+      # See: PDF2.0 sD.1, sD.2
       class WinAnsiEncoding < Base
 
         def initialize #:nodoc:
@@ -265,11 +265,11 @@ module HexaPDF
             0172 => :z,
             0236 => :zcaron,
             0060 => :zero,
-            # additions due to PDF1.7 sD.2 footnote 5,6
+            # additions due to PDF2.0 sD.2 footnote 5,6
             0240 => :space,
             0255 => :hyphen,
           }
-          # additions due to PDF1.7 sD.2 footnote 3
+          # additions due to PDF2.0 sD.2 footnote 3
           041.upto(255) do |i|
             next if @code_to_name.key?(i)
             @code_to_name[i] = :bullet

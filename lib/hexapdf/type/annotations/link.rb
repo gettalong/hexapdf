@@ -43,7 +43,7 @@ module HexaPDF
       # Link annotations represent a link to a destination elsewhere in the PDF document or an
       # action to be performed.
       #
-      # See: PDF1.7 s12.5.6.5, HexaPDF::Type::Annotation
+      # See: PDF2.0 s12.5.6.5, HexaPDF::Type::Annotation
       class Link < Annotation
 
         define_field :Subtype,    type: Symbol, required: true, default: :Link

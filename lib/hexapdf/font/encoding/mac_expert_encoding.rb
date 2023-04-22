@@ -42,7 +42,7 @@ module HexaPDF
 
       # The MacExpertEncoding for Latin texts.
       #
-      # See: PDF1.7 sD.4
+      # See: PDF2.0 sD.4
       class MacExpertEncoding < Base
 
         def initialize #:nodoc:

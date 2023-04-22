@@ -46,7 +46,7 @@ module HexaPDF
     #
     # For reference: This implementation is about 250 times slower than the FastARC4 version.
     #
-    # See: PDF1.7 s7.6.2
+    # See: PDF2.0 s7.6.3
     class RubyARC4
 
       prepend ARC4

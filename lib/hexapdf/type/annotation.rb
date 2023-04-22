@@ -43,7 +43,7 @@ module HexaPDF
     # Annotations are used to associate objects like notes, sounds or movies with a location on a
     # PDF page or allow the user to interact with a PDF document using a keyboard or mouse.
     #
-    # See: PDF1.7 s12.5
+    # See: PDF2.0 s12.5
     class Annotation < Dictionary
 
       # The appearance dictionary references appearance streams for various use cases.
@@ -52,7 +52,7 @@ module HexaPDF
       # latter is used when the appearance depends on the state of the annotation, e.g. a check box
       # widget that can be checked or unchecked.
       #
-      # See: PDF1.7 s12.5.5
+      # See: PDF2.0 s12.5.5
       class AppearanceDictionary < Dictionary
 
         define_type :XXAppearanceDictionary
@@ -101,7 +101,7 @@ module HexaPDF
 
       # Border style dictionary used by various annotation types.
       #
-      # See: PDF1.7 s12.5.4
+      # See: PDF2.0 s12.5.4
       class Border < Dictionary
 
         define_type :Border

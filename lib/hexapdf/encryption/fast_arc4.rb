@@ -45,7 +45,7 @@ module HexaPDF
 
       # Implementation of the general encryption algorithm ARC4 using OpenSSL as backend.
       #
-      # See: PDF1.7 s7.6.2
+      # See: PDF2.0 s7.6.3
       class FastARC4
 
         prepend ARC4

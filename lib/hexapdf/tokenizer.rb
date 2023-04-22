@@ -42,7 +42,7 @@ module HexaPDF
 
   # Tokenizes the content of an IO object following the PDF rules.
   #
-  # See: PDF1.7 s7.2
+  # See: PDF2.0 s7.2
   class Tokenizer
 
     # Represents a keyword in a PDF file.
@@ -61,12 +61,12 @@ module HexaPDF
 
     # Characters defined as whitespace.
     #
-    # See: PDF1.7 s7.2.2
+    # See: PDF2.0 s7.2.2
     WHITESPACE = " \n\r\0\t\f"
 
     # Characters defined as delimiters.
     #
-    # See: PDF1.7 s7.2.2
+    # See: PDF2.0 s7.2.2
     DELIMITER = "()<>{}/[]%"
 
     WHITESPACE_MULTI_RE = /[#{WHITESPACE}]+/ # :nodoc:
@@ -171,7 +171,7 @@ module HexaPDF
     # If the +allow_end_array_token+ argument is +true+, the ']' token is permitted to facilitate
     # the use of this method during array parsing.
     #
-    # See: PDF1.7 s7.3
+    # See: PDF2.0 s7.3
     def next_object(allow_end_array_token: false, allow_keyword: false)
       token = next_token
 
@@ -231,7 +231,7 @@ module HexaPDF
     # If a problem is detected, yields to caller where the argument +recoverable+ is truthy if the
     # problem is recoverable.
     #
-    # See: PDF1.7 7.5.4
+    # See: PDF2.0 7.5.4
     def next_xref_entry #:yield: recoverable
       prepare_string_scanner(20)
       if !@ss.skip(/(\d{10}) (\d{5}) ([nf])(?: \r| \n|\r\n|(\r\r|\r|\n))/) || @ss[4]
@@ -242,7 +242,7 @@ module HexaPDF
 
     # Skips all whitespace at the current position.
     #
-    # See: PDF1.7 s7.2.2
+    # See: PDF2.0 s7.2.2
     def skip_whitespace
       prepare_string_scanner
       prepare_string_scanner while @ss.skip(WHITESPACE_MULTI_RE)
@@ -268,7 +268,7 @@ module HexaPDF
 
     # Parses the keyword at the current position.
     #
-    # See: PDF1.7 s7.2
+    # See: PDF2.0 s7.2
     def parse_keyword
       str = scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
       TOKEN_CACHE[str]
@@ -278,12 +278,12 @@ module HexaPDF
 
     # Parses the number (integer or real) at the current position.
     #
-    # See: PDF1.7 s7.3.3
+    # See: PDF2.0 s7.3.3
     def parse_number
       val = scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
       if val.match?(/\A[+-]?\d++(?!\.)\z/)
         tmp = val.to_i
-        # Handle object references, see PDF1.7 s7.3.10
+        # Handle object references, see PDF2.0 s7.3.10
         prepare_string_scanner(10)
         if @ss.scan(REFERENCE_RE)
           tmp = if tmp > 0
@@ -315,7 +315,7 @@ module HexaPDF
 
     # Parses the literal string at the current position.
     #
-    # See: PDF1.7 s7.3.4.2
+    # See: PDF2.0 s7.3.4.2
     def parse_literal_string
       @ss.pos += 1
       str = "".b
@@ -358,7 +358,7 @@ module HexaPDF
 
     # Parses the hex string at the current position.
     #
-    # See: PDF1.7 s7.3.4.3
+    # See: PDF2.0 s7.3.4.3
     def parse_hex_string
       @ss.pos += 1
       data = scan_until(/(?=>)/)
@@ -373,7 +373,7 @@ module HexaPDF
 
     # Parses the name at the current position.
     #
-    # See: PDF1.7 s7.3.5
+    # See: PDF2.0 s7.3.5
     def parse_name
       @ss.pos += 1
       str = scan_until(WHITESPACE_OR_DELIMITER_RE) || @ss.scan(/.*/)
@@ -389,7 +389,7 @@ module HexaPDF
     #
     # It is assumed that the initial '[' has already been scanned.
     #
-    # See: PDF1.7 s7.3.6
+    # See: PDF2.0 s7.3.6
     def parse_array
       result = []
       while true
@@ -408,7 +408,7 @@ module HexaPDF
     #
     # It is assumed that the initial '<<' has already been scanned.
     #
-    # See: PDF1.7 s7.3.7
+    # See: PDF2.0 s7.3.7
     def parse_dictionary
       result = {}
       while true

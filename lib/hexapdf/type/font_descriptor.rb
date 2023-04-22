@@ -44,7 +44,7 @@ module HexaPDF
     # This class specifies metrics and other attributes of a simple font or a CID font as a
     # whole.
     #
-    # See: PDF1.7 s9.8
+    # See: PDF2.0 s9.8
     class FontDescriptor < Dictionary
 
       extend Utils::BitField

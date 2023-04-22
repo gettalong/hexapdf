@@ -161,7 +161,7 @@ module HexaPDF
     # showing operators, and such groups of operators are allowed to be used only in certain
     # graphics objects or the page description level.
     #
-    # Have a look at the PDF specification (PDF1.7 s8.2) for more details.
+    # Have a look at the PDF specification (PDF2.0 s8.2) for more details.
     #
     # HexaPDF tries to ensure the proper use of the operators and graphics objects and if it
     # cannot do it, an error is raised. So if you don't modify a content stream directly but via
@@ -200,7 +200,7 @@ module HexaPDF
     # In addition filling may be done using either the nonzero winding number rule or the even-odd
     # rule.
     #
-    # See: PDF1.7 s8, s9
+    # See: PDF2.0 s8, s9
     class Canvas
 
       include HexaPDF::Utils::MathHelpers
@@ -246,7 +246,7 @@ module HexaPDF
       # :clipping_path:: The current graphics object is a clipping path.
       # :text:: The current graphics object is a text object.
       #
-      # See: PDF1.7 s8.2
+      # See: PDF2.0 s8.2
       attr_accessor :graphics_object
 
       # The current point [x, y] of the path.
@@ -332,7 +332,7 @@ module HexaPDF
       #     restore_graphics_state
       #   canvas.line(140, 20, 190, 180).stroke
       #
-      # See: PDF1.7 s8.4.2, #restore_graphics_state
+      # See: PDF2.0 s8.4.2, #restore_graphics_state
       def save_graphics_state
         raise_unless_at_page_description_level
         invoke0(:q)
@@ -351,7 +351,7 @@ module HexaPDF
       #
       # Must not be invoked more times than #save_graphics_state.
       #
-      # See: PDF1.7 s8.4.2, #save_graphics_state
+      # See: PDF2.0 s8.4.2, #save_graphics_state
       def restore_graphics_state
         raise_unless_at_page_description_level
         invoke0(:Q)
@@ -384,7 +384,7 @@ module HexaPDF
       #   end
       #   canvas.line(0, 0, 100, 50).stroke          # Really from (0, 0) to (100, 50)
       #
-      # See: PDF1.7 s8.3, s8.4.4
+      # See: PDF2.0 s8.3, s8.4.4
       def transform(a, b, c, d, e, f)
         raise_unless_at_page_description_level
         save_graphics_state if block_given?
@@ -576,7 +576,7 @@ module HexaPDF
       #   canvas.line_width          # => 5
       #   canvas.line(160, 10, 160, 190).stroke
       #
-      # See: PDF1.7 s8.4.3.2
+      # See: PDF2.0 s8.4.3.2
       def line_width(width = nil, &block)
         gs_getter_setter(:line_width, :w, width, &block)
       end
@@ -628,7 +628,7 @@ module HexaPDF
       #        line(50 + index * 50, 30, 50 + index * 50, 170).stroke
       #   end
       #
-      # See: PDF1.7 s8.4.3.3, Content::LineCapStyle
+      # See: PDF2.0 s8.4.3.3, Content::LineCapStyle
       def line_cap_style(style = nil, &block)
         gs_getter_setter(:line_cap_style, :J, style && LineCapStyle.normalize(style), &block)
       end
@@ -681,7 +681,7 @@ module HexaPDF
       #        polyline(20 + index * 60, 30, 40 + index * 60, 170, 60 + index * 60, 30).stroke
       #   end
       #
-      # See: PDF1.7 s8.4.3.4, Content::LineJoinStyle
+      # See: PDF2.0 s8.4.3.4, Content::LineJoinStyle
       def line_join_style(style = nil, &block)
         gs_getter_setter(:line_join_style, :j, style && LineJoinStyle.normalize(style), &block)
       end
@@ -722,7 +722,7 @@ module HexaPDF
       #                                     60 + index * 80, 30).stroke
       #   end
       #
-      # See: PDF1.7 s8.4.3.5
+      # See: PDF2.0 s8.4.3.5
       def miter_limit(limit = nil, &block)
         gs_getter_setter(:miter_limit, :M, limit, &block)
       end
@@ -778,7 +778,7 @@ module HexaPDF
       #        stroke
       #   end
       #
-      # See: PDF1.7 s8.4.3.5, LineDashPattern
+      # See: PDF2.0 s8.4.3.5, LineDashPattern
       def line_dash_pattern(value = nil, phase = 0, &block)
         gs_getter_setter(:line_dash_pattern, :d, value && LineDashPattern.normalize(value, phase),
                          &block)
@@ -817,7 +817,7 @@ module HexaPDF
       #   end
       #   canvas.rendering_intent                      # => :Saturation
       #
-      # See: PDF1.7 s8.6.5.8, RenderingIntent
+      # See: PDF2.0 s8.6.5.8, RenderingIntent
       def rendering_intent(intent = nil, &bk)
         gs_getter_setter(:rendering_intent, :ri, intent && RenderingIntent.normalize(intent), &bk)
       end
@@ -896,7 +896,7 @@ module HexaPDF
       #     canvas.stroke_color                      # => ColorSpace::DeviceGray.color(0.4)
       #   end
       #
-      # See: PDF1.7 s8.6, ColorSpace
+      # See: PDF2.0 s8.6, ColorSpace
       def stroke_color(*color, &block)
         color_getter_setter(:stroke_color, color, :RG, :G, :K, :CS, :SCN, &block)
       end
@@ -952,7 +952,7 @@ module HexaPDF
       #     fill_color("red").stroke_color("blue").           # inside of the rectangle, creating
       #     rectangle(20, 20, 160, 160).fill_stroke           # multiple shadings due to opacity
       #
-      # See: PDF1.7 s11.6.4.4
+      # See: PDF2.0 s11.6.4.4
       def opacity(fill_alpha: nil, stroke_alpha: nil)
         if !fill_alpha.nil? || !stroke_alpha.nil?
           raise_unless_at_page_description_level_or_in_text
@@ -988,7 +988,7 @@ module HexaPDF
       #   canvas.move_to(10, 50)
       #   canvas.current_point         # => [10, 50]
       #
-      # See: PDF1.7 s8.5.2.1
+      # See: PDF2.0 s8.5.2.1
       def move_to(x, y)
         raise_unless_at_page_description_level_or_in_path
         invoke2(:m, x, y)
@@ -1011,7 +1011,7 @@ module HexaPDF
       #   canvas.current_point          # => [80, 80]
       #   canvas.stroke
       #
-      # See: PDF1.7 s8.5.2.1
+      # See: PDF2.0 s8.5.2.1
       def line_to(x, y)
         raise_unless_in_path
         invoke2(:l, x, y)
@@ -1047,7 +1047,7 @@ module HexaPDF
       #   canvas.current_point                        # => [-30, 60]
       #   canvas.stroke
       #
-      # See: PDF1.7 s8.5.2.2
+      # See: PDF2.0 s8.5.2.2
       def curve_to(x, y, p1: nil, p2: nil)
         raise_unless_in_path
         if p1 && p2
@@ -1086,7 +1086,7 @@ module HexaPDF
       #   canvas.rectangle(10, 10, 80, 0).stroke      # Degraded: Just a line
       #   canvas.rectangle(110, 10, 0, 0).stroke      # Degraded: Draws nothing
       #
-      # See: PDF1.7 s8.5.2.1
+      # See: PDF2.0 s8.5.2.1
       def rectangle(x, y, width, height, radius: 0)
         raise_unless_at_page_description_level_or_in_path
         if radius == 0
@@ -1114,7 +1114,7 @@ module HexaPDF
       #     close_subpath.           # Draws the line from (60, 60) to (10, 10)
       #     stroke
       #
-      # See: PDF1.7 s8.5.2.1
+      # See: PDF2.0 s8.5.2.1
       def close_subpath
         raise_unless_in_path
         invoke0(:h)
@@ -1412,7 +1412,7 @@ module HexaPDF
       #   canvas.polyline(10, 10, 120, 40, 50, 160)
       #   canvas.stroke
       #
-      # See: PDF1.7 s8.5.3.1, s8.5.3.2
+      # See: PDF2.0 s8.5.3.1, s8.5.3.2
       def stroke
         raise_unless_in_path_or_clipping_path
         invoke0(:S)
@@ -1430,7 +1430,7 @@ module HexaPDF
       #   canvas.polyline(10, 10, 120, 40, 50, 160)      # No line from the top to the left
       #   canvas.close_stroke
       #
-      # See: PDF1.7 s8.5.3.1, s8.5.3.2
+      # See: PDF2.0 s8.5.3.1, s8.5.3.2
       def close_stroke
         raise_unless_in_path_or_clipping_path
         invoke0(:s)
@@ -1458,7 +1458,7 @@ module HexaPDF
       #   canvas.polyline(120, 110, 190, 160, 110, 160, 180, 110, 150, 190)
       #   canvas.fill(:even_odd)
       #
-      # See: PDF1.7 s8.5.3.1, s8.5.3.3
+      # See: PDF2.0 s8.5.3.1, s8.5.3.3
       def fill(rule = :nonzero)
         raise_unless_in_path_or_clipping_path
         invoke0(rule == :nonzero ? :f : :'f*')
@@ -1487,7 +1487,7 @@ module HexaPDF
       #   canvas.polyline(120, 110, 190, 160, 110, 160, 180, 110, 150, 190)
       #   canvas.fill_stroke(:even_odd)      # Note the missing stroke from the top corner
       #
-      # See: PDF1.7 s8.5.3.1, s8.5.3.3
+      # See: PDF2.0 s8.5.3.1, s8.5.3.3
       def fill_stroke(rule = :nonzero)
         raise_unless_in_path_or_clipping_path
         invoke0(rule == :nonzero ? :B : :'B*')
@@ -1514,7 +1514,7 @@ module HexaPDF
       #   canvas.polyline(120, 110, 190, 160, 110, 160, 180, 110, 150, 190)
       #   canvas.close_fill_stroke(:even_odd)
       #
-      # See: PDF1.7 s8.5.3
+      # See: PDF2.0 s8.5.3
       def close_fill_stroke(rule = :nonzero)
         raise_unless_in_path_or_clipping_path
         invoke0(rule == :nonzero ? :b : :'b*')
@@ -1534,7 +1534,7 @@ module HexaPDF
       #   canvas.line(10, 10, 100, 100)
       #   canvas.end_path                    # Nothing to see here!
       #
-      # See: PDF1.7 s8.5.3.1, #clip_path
+      # See: PDF2.0 s8.5.3.1, #clip_path
       def end_path
         raise_unless_in_path_or_clipping_path
         invoke0(:n)
@@ -1566,7 +1566,7 @@ module HexaPDF
       #     clip_path(:even_odd).end_path
       #   canvas.rectangle(0, 0, 200, 200).fill     # Fills everything inside the clipping path
       #
-      # See: PDF1.7 s8.5.4
+      # See: PDF2.0 s8.5.4
       def clip_path(rule = :nonzero)
         raise_unless_in_path
         invoke0(rule == :nonzero ? :W : :'W*')
@@ -1619,7 +1619,7 @@ module HexaPDF
       #   canvas.line_width = 20
       #   canvas.xobject(form, at: [100, 100])                         # top right
       #
-      # See: PDF1.7 s8.8, s.8.10.1
+      # See: PDF2.0 s8.8, s.8.10.1
       def xobject(obj, at:, width: nil, height: nil)
         unless obj.kind_of?(HexaPDF::Stream)
           obj = context.document.images.add(obj)
@@ -1684,7 +1684,7 @@ module HexaPDF
       #   canvas.character_spacing = 3
       #   canvas.text("This is an example text.", at: [10, 100])
       #
-      # See: PDF1.7 s9.3.2
+      # See: PDF2.0 s9.3.2
       def character_spacing(amount = nil, &bk)
         gs_getter_setter(:character_spacing, :Tc, amount, &bk)
       end
@@ -1729,7 +1729,7 @@ module HexaPDF
       #   canvas.word_spacing = 10
       #   canvas.text("This is an example text.", at: [10, 100])
       #
-      # See: PDF1.7 s9.3.3
+      # See: PDF2.0 s9.3.3
       def word_spacing(amount = nil, &bk)
         gs_getter_setter(:word_spacing, :Tw, amount, &bk)
       end
@@ -1771,7 +1771,7 @@ module HexaPDF
       #   canvas.horizontal_scaling = 50
       #   canvas.text("This is an example text.", at: [10, 100])
       #
-      # See: PDF1.7 s9.3.4
+      # See: PDF2.0 s9.3.4
       def horizontal_scaling(amount = nil, &bk)
         gs_getter_setter(:horizontal_scaling, :Tz, amount, &bk)
       end
@@ -1813,7 +1813,7 @@ module HexaPDF
       #   canvas.leading = 15
       #   canvas.text("This is an example text.\nwith a second\nand thrid line", at: [10, 150])
       #
-      # See: PDF1.7 s9.3.5, #move_text_cursor
+      # See: PDF2.0 s9.3.5, #move_text_cursor
       def leading(amount = nil, &bk)
         gs_getter_setter(:leading, :TL, amount, &bk)
       end
@@ -1858,7 +1858,7 @@ module HexaPDF
       #     canvas.text("#{trm} text.", at: [20, 150 - 30 * index])
       #   end
       #
-      # See: PDF1.7 s9.3.6, Content::GraphicsState::TextRenderingMode
+      # See: PDF2.0 s9.3.6, Content::GraphicsState::TextRenderingMode
       def text_rendering_mode(m = nil, &bk)
         gs_getter_setter(:text_rendering_mode, :Tr, m && TextRenderingMode.normalize(m), &bk)
       end
@@ -1900,7 +1900,7 @@ module HexaPDF
       #   canvas.text_rise = -10
       #   canvas.text("and also down here")
       #
-      # See: PDF1.7 s9.3.7
+      # See: PDF2.0 s9.3.7
       def text_rise(amount = nil, &bk)
         gs_getter_setter(:text_rise, :Ts, amount, &bk)
       end
@@ -1917,7 +1917,7 @@ module HexaPDF
       # It is not necessary to invoke this method manually in most cases since it is automatically
       # called when needed by other methods, i.e. the #text method.
       #
-      # See: PDF1.7 s9.4.1
+      # See: PDF2.0 s9.4.1
       def begin_text(force_new: false)
         raise_unless_at_page_description_level_or_in_text
         end_text if force_new
@@ -1933,7 +1933,7 @@ module HexaPDF
       # It is not necessary to invoke this method manually in most cases since it is automatically
       # called when needed by other methods, i.e. when creating a new path.
       #
-      # See: PDF1.7 s9.4.1
+      # See: PDF2.0 s9.4.1
       def end_text
         raise_unless_at_page_description_level_or_in_text
         invoke0(:ET) if graphics_object == :text
@@ -1965,7 +1965,7 @@ module HexaPDF
       #   canvas.text_matrix(2, 1, 3, 0.5, 50, 50)
       #   canvas.text("This is some text")
       #
-      # See: PDF1.7 s9.4.2
+      # See: PDF2.0 s9.4.2
       def text_matrix(a, b, c, d, e, f)
         begin_text
         invoke(:Tm, a, b, c, d, e, f)
@@ -2010,7 +2010,7 @@ module HexaPDF
       #   canvas.move_text_cursor
       #   canvas.text("Text on next line with leading=30")
       #
-      # See: PDF1.7 s9.4.2, #show_glyphs
+      # See: PDF2.0 s9.4.2, #show_glyphs
       def move_text_cursor(offset: nil, absolute: true)
         begin_text
         if offset
@@ -2080,7 +2080,7 @@ module HexaPDF
       #   canvas.font("Times", variant: :bold_italic, size: 15)
       #   canvas.text("Times bold+italic at size 15", at: [10, 100])
       #
-      # See: PDF1.7 s9.2.2, #font_size
+      # See: PDF2.0 s9.2.2, #font_size
       def font(name = nil, size: nil, **options)
         if name
           @font = (name.respond_to?(:pdf_object) ? name : context.document.fonts.add(name, **options))
@@ -2124,7 +2124,7 @@ module HexaPDF
       #     canvas.text("Text in size #{size}", at: [15, 180 - index * 20])
       #   end
       #
-      # See: PDF1.7 s9.2.2, #font
+      # See: PDF2.0 s9.2.2, #font
       def font_size(size = nil)
         if size
           unless @font
@@ -2284,7 +2284,7 @@ module HexaPDF
       #   canvas.marked_content_point(:Divider)
       #   canvas.marked_content_point(:Divider, property_list: {Key: 'value'})
       #
-      # See: PDF1.7 s14.6
+      # See: PDF2.0 s14.6
       def marked_content_point(tag, property_list: nil)
         raise_unless_at_page_description_level_or_in_text
         if property_list
@@ -2327,7 +2327,7 @@ module HexaPDF
       #     # Other instructions
       #   end
       #
-      # See: PDF1.7 s14.6, #end_marked_content_sequence
+      # See: PDF2.0 s14.6, #end_marked_content_sequence
       def marked_content_sequence(tag, property_list: nil)
         raise_unless_at_page_description_level
         if property_list
@@ -2350,7 +2350,7 @@ module HexaPDF
       #
       # See #marked_content_sequence for details.
       #
-      # See: PDF1.7 s14.6, #marked_content_sequence
+      # See: PDF2.0 s14.6, #marked_content_sequence
       def end_marked_content_sequence
         raise_unless_at_page_description_level
         invoke0(:EMC)

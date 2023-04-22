@@ -68,7 +68,7 @@ module HexaPDF
       # HexaPDF uses the configuration option +acro_form.create_appearance_streams+ to determine
       # whether appearances should automatically be generated.
       #
-      # See: PDF1.7 s12.7.2, Field, HexaPDF::Type::Annotations::Widget
+      # See: PDF2.0 s12.7.3, Field, HexaPDF::Type::Annotations::Widget
       class Form < Dictionary
 
         extend Utils::BitField

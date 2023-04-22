@@ -44,7 +44,7 @@ module HexaPDF
     # This filter module implements the ASCII hex decode/encode filter which can encode arbitrary
     # data into the two byte ASCII hex format that expands the original data by a factor of 1:2.
     #
-    # See: HexaPDF::Filter, PDF1.7 s7.4.2
+    # See: HexaPDF::Filter, PDF2.0 s7.4.2
     module ASCIIHexDecode
 
       # See HexaPDF::Filter

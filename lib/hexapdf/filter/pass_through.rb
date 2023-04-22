@@ -40,7 +40,7 @@ module HexaPDF
     # The PassThrough filter just passes the source on unmodified. This is enough for basic
     # read-write capabilities but not if the unfiltered bytes are needed.
     #
-    # See: HexaPDF::Filter, PDF1.7 s7.4
+    # See: HexaPDF::Filter, PDF2.0 s7.4
     module PassThrough
 
       # See HexaPDF::Filter

@@ -134,7 +134,7 @@ module HexaPDF
   #
   # Note that support for external streams (/F, /FFilter, /FDecodeParms) is not yet implemented!
   #
-  # See: PDF1.7 s7.3.8, Dictionary
+  # See: PDF2.0 s7.3.8, Dictionary
   class Stream < Dictionary
 
     define_field :Length,       type: Integer # not required, will be auto-filled when writing

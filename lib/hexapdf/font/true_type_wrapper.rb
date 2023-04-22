@@ -51,7 +51,7 @@ module HexaPDF
     #
     # * By using a composite font more than 256 characters can be encoded with one font object.
     # * Fonts for vertical writing can potentially be used.
-    # * The PDF specification recommends using a composite font (see PDF1.7 s9.9 at the end).
+    # * The PDF specification recommends using a composite font (see PDF2.0 s9.9.1 at the end).
     #
     # Additionally, TrueType fonts are *always* embedded.
     class TrueTypeWrapper

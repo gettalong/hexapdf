@@ -41,11 +41,11 @@ require 'hexapdf/xref_section'
 
 module HexaPDF
 
-  # Parses an IO stream according to PDF1.7 to get at the contained objects.
+  # Parses an IO stream according to PDF2.0 to get at the contained objects.
   #
   # This class also contains higher-level methods for getting indirect objects and revisions.
   #
-  # See: PDF1.7 s7
+  # See: PDF2.0 s7
   class Parser
 
     # The IO stream which is parsed.
@@ -125,7 +125,7 @@ module HexaPDF
     #
     # Returns an array containing [object, oid, gen, stream].
     #
-    # See: PDF1.7 s7.3.10, s7.3.8
+    # See: PDF2.0 s7.3.10, s7.3.8
     def parse_indirect_object(offset = nil)
       @tokenizer.pos = offset + @header_offset if offset
       oid = @tokenizer.next_token
@@ -267,7 +267,7 @@ module HexaPDF
     #
     # This method can only parse cross-reference sections, not cross-reference streams!
     #
-    # See: PDF1.7 s7.5.4, s7.5.5; ADB1.7 sH.3-3.4.3
+    # See: PDF2.0 s7.5.4, s7.5.5; ADB1.7 sH.3-3.4.3
     def parse_xref_section_and_trailer(offset)
       @tokenizer.pos = offset + @header_offset
       token = @tokenizer.next_token
@@ -346,7 +346,7 @@ module HexaPDF
     #
     # If strict parsing is disabled, the whole file is searched for the offset.
     #
-    # See: PDF1.7 s7.5.5, ADB1.7 sH.3-3.4.4
+    # See: PDF2.0 s7.5.5, ADB1.7 sH.3-3.4.4
     def startxref_offset
       return @startxref_offset if defined?(@startxref_offset)
 
@@ -397,7 +397,7 @@ module HexaPDF
 
     # Returns the PDF version number that is stored in the file header.
     #
-    # See: PDF1.7 s7.5.2
+    # See: PDF2.0 s7.5.2
     def file_header_version
       unless @header_version
         raise_malformed("PDF file header is missing or corrupt", pos: 0)
@@ -413,7 +413,7 @@ module HexaPDF
     # restriction so that the header may appear in the first 1024 bytes. We follow the Adobe
     # convention.
     #
-    # See: PDF1.7 s7.5.2, ADB1.7 sH.3-3.4.1
+    # See: PDF2.0 s7.5.2, ADB1.7 sH.3-3.4.1
     def retrieve_pdf_header_offset_and_version
       @io.seek(0)
       @header_offset = (@io.read(1024) || '').index(/%PDF-(\d\.\d)/) || 0

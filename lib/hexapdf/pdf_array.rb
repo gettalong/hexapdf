@@ -44,7 +44,7 @@ module HexaPDF
   # #[] method. Therefore not all Array methods are implemented - use the #value directly if other
   # methods are needed.
   #
-  # See: PDF1.7 s7.3.6
+  # See: PDF2.0 s7.3.6
   class PDFArray < HexaPDF::Object
 
     include Enumerable

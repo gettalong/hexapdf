@@ -86,7 +86,7 @@ module HexaPDF
       # to combination of the superclass value of the constant and the mapping of flag names to bit
       # indices.
       #
-      # See: PDF1.7 s12.7.3.1
+      # See: PDF2.0 s12.7.4.1
       class Field < Dictionary
 
         # Provides a #value method for hash that returns self so that a Hash can be used
@@ -367,7 +367,7 @@ module HexaPDF
           document.pages.each do |page|
             if page.key?(:Annots) && (index = page[:Annots].index(self))
               page[:Annots][index] = widget
-              break # Each annotation dictionary may only appear on one page, see PDF1.7 12.5.2
+              break # Each annotation dictionary may only appear on one page, see PDF2.0 12.5.2
             end
           end
           widget

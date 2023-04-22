@@ -248,7 +248,7 @@ module HexaPDF
   #
   #    The most often used filters are implemented and readily available.
   #
-  #    See PDF1.7 s7.4.1, ADB sH.3 3.3
+  #    See PDF2.0 s7.4.1, ADB sH.3 3.3
   #
   # font.map::
   #    Defines a mapping from font names and variants to font files.
@@ -512,7 +512,7 @@ module HexaPDF
   #
   #    Classes for the most often used color space families are implemented and readily available.
   #
-  #    See PDF1.7 s8.6
+  #    See PDF2.0 s8.6
   #
   # filter.flate.compression::
   #    Specifies the compression level that should be used with the FlateDecode filter. The level

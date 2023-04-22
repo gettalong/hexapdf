@@ -42,7 +42,7 @@ module HexaPDF
 
       # The built-in encoding of the ZapfDingbats font.
       #
-      # See: PDF1.7 sD.6
+      # See: PDF2.0 sD.6
       class ZapfDingbatsEncoding < Base
 
         def initialize #:nodoc:

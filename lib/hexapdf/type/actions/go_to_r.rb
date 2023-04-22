@@ -42,7 +42,7 @@ module HexaPDF
 
       # A remote Go-To action dictionary jumps to a destination in a different PDF file.
       #
-      # See: PDF1.7 s12.6.4.3
+      # See: PDF2.0 s12.6.4.3
       class GoToR < Action
 
         define_field :S,         type: Symbol, required: true, default: :GoToR

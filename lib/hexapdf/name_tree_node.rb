@@ -55,7 +55,7 @@ module HexaPDF
   # HexaPDF::Utils::SortedTreeNode) to add or retrieve entries. They ensure that the name tree stays
   # valid.
   #
-  # See: PDF1.7 s7.9.6
+  # See: PDF2.0 s7.9.6
   class NameTreeNode < Dictionary
 
     include Utils::SortedTreeNode

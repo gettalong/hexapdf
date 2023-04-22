@@ -537,7 +537,7 @@ module HexaPDF
     # version has been set manually and the catalog's /Version key refers to a later version, the
     # later version is used.
     #
-    # See: PDF1.7 s7.2.2
+    # See: PDF2.0 s7.2.2
     def version
       catalog_version = (catalog[:Version] || '1.0').to_s
       (@version < catalog_version ? catalog_version : @version)
@@ -651,7 +651,7 @@ module HexaPDF
     #   This is needed, for example, when modifying a signed PDF and the original signature should
     #   stay valid.
     #
-    #   See: PDF1.7 s7.5.6
+    #   See: PDF2.0 s7.5.6
     #
     # validate::
     #   Validates the document and raises an error if an uncorrectable problem is found.

@@ -259,7 +259,7 @@ module HexaPDF
       # The width of the text fragment.
       #
       # It is the sum of the widths of its items and is calculated by using the algorithm presented
-      # in PDF1.7 s9.4.4. By using kerning values as the first and/or last items, the text contained
+      # in PDF2.0 s9.4.4. By using kerning values as the first and/or last items, the text contained
       # in the fragment may spill over the left and/or right boundary.
       def width
         @width ||= @items.sum {|item| style.scaled_item_width(item) }

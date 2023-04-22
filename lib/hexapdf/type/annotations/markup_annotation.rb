@@ -43,7 +43,7 @@ module HexaPDF
       # Markup annotations are used to "mark up" a PDF document, most of the available PDF
       # annotations are actually markup annotations.
       #
-      # See: PDF1.7 s12.5.6.2, HexaPDF::Type::Annotation
+      # See: PDF2.0 s12.5.6.2, HexaPDF::Type::Annotation
       class MarkupAnnotation < Annotation
 
         define_field :T,            type: String, version: '1.1'

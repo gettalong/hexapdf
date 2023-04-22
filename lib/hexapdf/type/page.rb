@@ -54,7 +54,7 @@ module HexaPDF
     # Field inheritance means that if a field is not set on the page object itself, the value is
     # taken from the nearest page tree ancestor that has this value set.
     #
-    # See: PDF1.7 s7.7.3.3, s7.7.3.4, Pages
+    # See: PDF2.0 s7.7.3.3, s7.7.3.4, Pages
     class Page < Dictionary
 
       # The predefined paper sizes in points (1/72 inch):
@@ -223,7 +223,7 @@ module HexaPDF
       #     The art box defines the region of the page's meaningful content as intended by the
       #     author. The default is the crop box.
       #
-      # See: PDF1.7 s14.11.2
+      # See: PDF2.0 s14.11.2
       def box(type = :crop, rectangle = nil)
         if rectangle
           case type
@@ -567,8 +567,8 @@ module HexaPDF
           rect = annotation[:Rect]
           box = appearance.box
 
-          # PDF1.7 12.5.5 algorithm
-          # Step a) Calculate smallest rectangle containing transformed bounding box
+          # PDF2.0 12.5.5 algorithm
+          # Step 1) Calculate smallest rectangle containing transformed bounding box
           matrix = HexaPDF::Content::TransformationMatrix.new(*appearance[:Matrix].value)
           llx, lly = matrix.evaluate(box.left, box.bottom)
           ulx, uly = matrix.evaluate(box.left, box.top)
@@ -582,12 +582,12 @@ module HexaPDF
             next
           end
 
-          # Step b) Fit calculated rectangle to annotation rectangle by translating/scaling
+          # Step 2) Fit calculated rectangle to annotation rectangle by translating/scaling
           a = HexaPDF::Content::TransformationMatrix.new
           a.translate(rect.left - left, rect.bottom - bottom)
           a.scale(rect.width.fdiv(right - left), rect.height.fdiv(top - bottom))
 
-          # Step c) Premultiply form matrix - done implicitly when drawing the XObject
+          # Step 3) Premultiply form matrix - done implicitly when drawing the XObject
 
           canvas.transform(*a) do
             # Use [box.left, box.bottom] to counter default translation in #xobject since that

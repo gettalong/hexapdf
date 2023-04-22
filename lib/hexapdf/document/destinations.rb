@@ -49,7 +49,7 @@ module HexaPDF
     # may be named and later referenced through the name. This class allows to create destinations
     # with or without a name.
     #
-    # See: PDF1.7 s12.3.2
+    # See: PDF2.0 s12.3.2
     class Destinations
 
       # Wraps an explicit destination array to allow easy access to query its properties.

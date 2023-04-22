@@ -55,7 +55,7 @@ module HexaPDF
       #
       # Additionally, only RSA signatures are currently supported!
       #
-      # See: PDF1.7/2.0 s12.8.3.3, PDF2.0 s12.8.3.4, RFC5652, ETSI TS 102 778 Parts 1-4
+      # See: PDF2.0/2.0 s12.8.3.3, PDF2.0 s12.8.3.4, RFC5652, ETSI TS 102 778 Parts 1-4
       class SignedDataCreator
 
         # Creates a SignedDataCreator, sets the given attributes if they are not nil and then calls

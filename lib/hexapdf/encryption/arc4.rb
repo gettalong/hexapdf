@@ -65,7 +65,7 @@ module HexaPDF
 
         # Encrypts the given +data+ with the +key+.
         #
-        # See: PDF1.7 s7.6.2.
+        # See: PDF2.0 s7.6.3
         def encrypt(key, data)
           new(key).process(data)
         end

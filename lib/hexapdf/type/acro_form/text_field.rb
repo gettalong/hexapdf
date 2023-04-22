@@ -70,7 +70,7 @@ module HexaPDF
       #
       # :rich_text:: The field is a rich text field.
       #
-      # See: PDF1.7 s12.7.4.3
+      # See: PDF2.0 s12.7.5.3
       class TextField < VariableTextField
 
         define_type :XXAcroFormField

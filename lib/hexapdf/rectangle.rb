@@ -51,7 +51,7 @@ module HexaPDF
   # where +left+ is the bottom left x-coordinate, +bottom+ is the bottom left y-coordinate, +right+
   # is the top right x-coordinate and +top+ is the top right y-coordinate.
   #
-  # See: PDF1.7 s7.9.5
+  # See: PDF2.0 s7.9.5
   class Rectangle < HexaPDF::PDFArray
 
     # Returns the x-coordinate of the bottom-left corner.

@@ -48,7 +48,7 @@ module HexaPDF
     # not aligned to byte boundaries, this filter is not as fast as the other filters. If speed is
     # a concern, the FlateDecode filter should be used instead.
     #
-    # See: HexaPDF::Filter, PDF1.7 s7.4.4
+    # See: HexaPDF::Filter, PDF2.0 s7.4.4
     module LZWDecode
 
       CLEAR_TABLE = 256 # :nodoc:

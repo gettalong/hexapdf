@@ -42,7 +42,7 @@ module HexaPDF
     # This "algorithm" does nothing, i.e. it returns the given data as is without encrypting or
     # decrypting it.
     #
-    # See: PDF1.7 s7.6.5
+    # See: PDF2.0 s7.6.6
     module Identity
 
       class << self

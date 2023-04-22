@@ -279,7 +279,7 @@ module HexaPDF
     # date format. When converting from a date string to a Time object, this is taken into
     # account.
     #
-    # See: PDF1.7 s7.9.4, ADB1.7 3.8.3
+    # See: PDF2.0 s7.9.4, ADB1.7 3.8.3
     module DateConverter
 
       # This converter is usable if the +type+ is PDFDate.

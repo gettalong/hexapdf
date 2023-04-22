@@ -55,7 +55,7 @@ module HexaPDF
   # this should only be done if one is familiar with the inner workings of HexaPDF. Otherwise it is
   # best to use the convenience methods of this class to create, access or delete indirect objects.
   #
-  # See: PDF1.7 s7.5.6, HexaPDF::Revision
+  # See: PDF2.0 s7.5.6, HexaPDF::Revision
   class Revisions
 
     class << self
@@ -76,7 +76,7 @@ module HexaPDF
           seen_xref_offsets = {}
 
           while offset && !seen_xref_offsets.key?(offset)
-            # PDF1.7 s7.5.5 states that :Prev needs to be indirect, Adobe's reference 3.4.4 says it
+            # PDF2.0 s7.5.5 states that :Prev needs to be indirect, Adobe's reference 3.4.4 says it
             # should be direct. Adobe's POV is followed here. Same with :XRefStm.
             xref_section, trailer = parser.load_revision(offset)
             seen_xref_offsets[offset] = true
@@ -167,7 +167,7 @@ module HexaPDF
     # For references to unknown objects, +nil+ is returned but free objects are represented by a
     # PDF Null object, not by +nil+!
     #
-    # See: PDF1.7 s7.3.9
+    # See: PDF2.0 s7.3.9
     def object(ref)
       i = @revisions.size - 1
       while i >= 0

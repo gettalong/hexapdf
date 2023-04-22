@@ -46,7 +46,7 @@ module HexaPDF
     # Type::FileSpecification dictionary or with the document as a whole through the /EmbeddedFiles
     # entry in the document catalog's /Names dictionary.
     #
-    # See: PDF1.7 s7.11.4, FileSpecification
+    # See: PDF2.0 s7.11.4, FileSpecification
     class EmbeddedFile < Stream
 
       # The type used for the /Mac field of an EmbeddedFile::Parameters dictionary.

@@ -47,7 +47,7 @@ module HexaPDF
     # Although a predictor isn't a full PDF filter, it is implemented as one in HexaPDF terms to
     # allow easy chaining of the predictor.
     #
-    # See: PDF1.7 s7.4.4.3, s7.4.4.4, https://partners.adobe.com/public/developer/en/tiff/TIFF6.pdf
+    # See: PDF2.0 s7.4.4.3, s7.4.4.4, https://partners.adobe.com/public/developer/en/tiff/TIFF6.pdf
     # (p64f), http://www.w3.org/TR/PNG-Filters.html
     #
     #-- Implemenation notes:

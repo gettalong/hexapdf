@@ -42,7 +42,7 @@ module HexaPDF
 
       # A Go-To action changes the view to a specific destination.
       #
-      # See: PDF1.7 s12.6.4.2
+      # See: PDF2.0 s12.6.4.2
       class GoTo < Action
 
         define_field :S, type: Symbol, required: true, default: :GoTo

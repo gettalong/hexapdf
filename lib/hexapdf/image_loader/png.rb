@@ -52,7 +52,7 @@ module HexaPDF
     #
     # All PNG specification section references are in reference to http://www.w3.org/TR/PNG/.
     #
-    # See: PDF1.7 s7.4.4., s8.9
+    # See: PDF2.0 s7.4.4., s8.9
     class PNG
 
       # The magic marker that tells us if the file/IO contains an image in PNG format.
@@ -261,7 +261,7 @@ module HexaPDF
       # Returns a hash for a CalRGB color space definition using the x,y chromaticity coordinates
       # of the white point and the red, green and blue primaries.
       #
-      # See: PDF1.7 s8.6.5.3
+      # See: PDF2.0 s8.6.5.3
       def calrgb_definition_from_chrm(xw, yw, xr, yr, xg, yg, xb, yb)
         z = yw * ((xg - xb) * yr - (xr - xb) * yg + (xr - xg) * yb)
 
