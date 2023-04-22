@@ -49,7 +49,7 @@ layouter = HexaPDF::Layout::TextLayouter.new
 [30, 60, 100, 160].each do |width|
   result = layouter.fit([frag], width, 400)
   result.draw(canvas, x, y)
-  canvas.stroke_color(255, 0, 0).line_width(0.2)
+  canvas.stroke_color("hp-blue-dark").line_width(0.2)
   canvas.rectangle(x, y, width, -result.height).stroke
   y -= result.height + 5
 end

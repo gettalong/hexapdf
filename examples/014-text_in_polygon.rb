@@ -53,7 +53,7 @@ width_spec = WidthFromPolygon.new(polygon)
 result = layouter.fit(items, width_spec, polygon.bbox.height)
 result.draw(canvas, 150, 550)
 canvas.translate(150, 100).
-  stroke_color(255, 0, 0).opacity(stroke_alpha: 0.5).
+  stroke_color("hp-blue-dark").
   line_width(0.5).
   draw(:geom2d, object: polygon)
 

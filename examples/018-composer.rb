@@ -27,7 +27,7 @@ ullamco laboris nisi ut aliquip ex ea commodo consequat. ".tr("\n", " ")
 HexaPDF::Composer.create('composer.pdf') do |pdf|
   pdf.style(:base, line_spacing: 1.5, last_line_gap: true, align: :justify)
   pdf.style(:image, border: {width: 1}, padding: 5, margin: 10)
-  pdf.style(:link, fill_color: [6, 158, 224], underline: true)
+  pdf.style(:link, fill_color: "hp-blue-dark", underline: true)
   image = File.join(__dir__, 'machupicchu.jpg')
 
   pdf.text(lorem_ipsum * 2)

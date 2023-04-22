@@ -29,7 +29,8 @@ boxes << doc.layout.image_box(File.join(__dir__, 'machupicchu.jpg'),
                               width: 100, margin: [10, 30], position: :float)
 boxes << Box.create(width: 50, height: 50, margin: 20,
                     position: :float, position_hint: :right,
-                    border: {width: 1, color: [[255, 0, 0]]})
+                    background_color: "hp-blue-light2",
+                    border: {width: 1, color: "hp-blue-dark"})
 boxes << doc.layout.lorem_ipsum_box(count: 3, position: :flow, align: :justify)
 
 i = 0

@@ -31,7 +31,7 @@ doc = HexaPDF::Document.new
 page = doc.pages.add
 canvas = page.canvas
 canvas.font("Times", size: 10, variant: :bold)
-canvas.stroke_color(255, 0, 0).line_width(0.2)
+canvas.stroke_color("hp-blue-dark").line_width(0.2)
 font = doc.fonts.add("Times")
 
 sample_text = "Lorem ipsum dolor sit amet, con\u{00AD}sectetur

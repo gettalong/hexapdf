@@ -29,7 +29,8 @@ columns = doc.layout.column(columns: 2, style: {position: :flow}) do |column|
                  style: {margin: [10, 30], position: :float})
     column.box(:base, width: 50, height: 50,
                style: {margin: 20, position: :float, position_hint: :right,
-                       border: {width: 1, color: [[255, 0, 0]]}})
+                       background_color: "hp-blue-light2",
+                       border: {width: 1, color: "hp-blue-dark"}})
     column.lorem_ipsum(count: 2, position: :flow, align: :justify)
   end
 end

@@ -28,9 +28,9 @@ frame = Frame.new(page_box.left + 20, page_box.bottom + 20,
 
 box_counter = 1
 draw_box = lambda do |**args|
-  b = Box.create(**args, border: {width: 1, color: [[255, 0, 0]]}) do |canv, box|
+  b = Box.create(**args, border: {width: 1, color: "hp-blue-dark"}) do |canv, box|
     canv.save_graphics_state do
-      canv.stroke_color(255, 0, 0)
+      canv.stroke_color("hp-blue-dark")
       canv.line(0, 0, box.content_width, box.content_height).
         line(0, box.content_height, box.content_width, 0).
         stroke

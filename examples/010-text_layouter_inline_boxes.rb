@@ -42,13 +42,13 @@ items = sample_text.split(/(:-\)|;-\))/).map do |part|
   case part
   when ':-)'
     InlineBox.create(width: size * 2, height: size * 2, content_box: true,
-                     background_color: [162, 234, 247], padding: 2) do |canvas, box|
+                     background_color: "hp-blue-light", padding: 2) do |canvas, box|
       canvas.image(emoji_smile, at: [0, 0], width: box.content_width)
     end
   when ';-)'
     InlineBox.create(width: size, height: size, content_box: true,
                      valign: :top, padding: 5, margin: [0, 10],
-                     border: {width: [1, 2], color: [200, 40]}) do |canvas, box|
+                     border: {width: [1, 2], color: "hp-blue"}) do |canvas, box|
       canvas.image(emoji_wink, at: [0, 0], width: box.content_width)
     end
   else

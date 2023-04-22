@@ -44,9 +44,9 @@ base_style = {font: base_font, font_size: 12, text_indent: 20}
 styles = {
   "Fonts | Font Sizes | Colors" => [
     {font: doc.fonts.add("Times", variant: :italic),
-     font_size: 12, fill_color: [0, 0, 255]},
+     font_size: 12, fill_color: "hp-blue-light"},
     {font: doc.fonts.add("Courier"), font_size: 14,
-     fill_color: [0, 255, 0]},
+     fill_color: "hp-orange"},
     {font: doc.fonts.add("Helvetica", variant: :bold),
      font_size: 20, fill_alpha: 0.5},
   ],
@@ -72,16 +72,16 @@ styles = {
     {**base_style, text_rendering_mode: :stroke,
      stroke_width: 0.1},
     {**base_style, font_size: 20, text_rendering_mode: :fill_stroke,
-     stroke_color: [0, 255, 0], stroke_width: 0.7,
+     stroke_color: "hp-orange-light", stroke_width: 0.7,
      stroke_dash_pattern: [0.5, 1, 1.5], stroke_cap_style: :round},
   ],
   "Underlays | Overlays" => [
     {**base_style, underlays: [lambda do |canv, box|
-       canv.fill_color(240, 240, 0).opacity(fill_alpha: 0.5).
+       canv.fill_color("hp-orange-light2").opacity(fill_alpha: 0.5).
          rectangle(0, 0, box.width, box.height).fill
       end]},
     {**base_style, overlays: [lambda do |canv, box|
-       canv.line_width(1).stroke_color([0, 255, 0]).
+       canv.line_width(1).stroke_color("hp-teal-light2").
          line(0, -box.y_min, box.width, box.y_max - box.y_min).stroke
       end]},
   ],
@@ -91,7 +91,7 @@ styles = {
     ]},
     {**base_style, overlays: [
       [:link, uri: "https://hexapdf.gettalong.org",
-       border: [0, 0, 2, [3, 3]], border_color: [89, 150, 220]],
+       border: [0, 0, 2, [3, 3]], border_color: "hp-blue"],
     ]},
     {**base_style, overlays: [
       [:link, file: "text_layouter_styling.pdf", border: true],
@@ -115,7 +115,7 @@ styles.each do |desc, variations|
       fragment(str, base_style)
     end
   end
-  items.unshift(fragment(desc + ": ", fill_color: [255, 0, 0], **base_style))
+  items.unshift(fragment(desc + ": ", fill_color: "hp-blue-dark", **base_style))
   y = draw_text(layouter.fit(items, width, 400), canvas, left, y) - 20
 end
 

@@ -29,8 +29,8 @@ end
 
 # Basic transformations: translate, scale, rotate, skew
 canvas.translate(0, 710) do
-  normal_color = [0.7, 0.7, 0.3]
-  transformed_color = [0.3, 0.7, 0.7]
+  normal_color = "black"
+  transformed_color = "hp-blue"
 
   canvas.translate(50, 0) do
     transformation_shape(canvas, normal_color)
@@ -134,7 +134,7 @@ canvas.translate(0, 320) do
   canvas.arc(180, 50, a: 40, b: 20, start_angle: -60, end_angle: 115, inclination: 45)
   canvas.stroke
 
-  canvas.fill_color(0.4, 0.3, 0.4)
+  canvas.fill_color("hp-blue")
   canvas.arc(250, 50, a: 10, start_angle: -60, end_angle: 115)
   canvas.arc(300, 50, a: 40, b: 20, start_angle: -60, end_angle: 115)
   canvas.arc(380, 50, a: 40, b: 20, start_angle: -60, end_angle: 115, inclination: 45)
@@ -142,13 +142,13 @@ canvas.translate(0, 320) do
 
   arc = canvas.graphic_object(:arc, cx: 450, cy: 50, a: 30, b: 30,
                               start_angle: -30, end_angle: 105)
-  canvas.fill_color(0.4, 0.3, 0.4)
+  canvas.fill_color("hp-blue")
   canvas.move_to(450, 50)
   canvas.line_to(*arc.start_point)
   arc.curves.each {|x, y, hash| canvas.curve_to(x, y, **hash)}
   canvas.fill
   arc.configure(start_angle: 105, end_angle: -30)
-  canvas.fill_color(0.3, 0.7, 0.7)
+  canvas.fill_color("hp-orange")
   canvas.move_to(450, 50)
   canvas.line_to(*arc.start_point)
   arc.curves.each {|x, y, hash| canvas.curve_to(x, y, **hash)}
@@ -156,13 +156,13 @@ canvas.translate(0, 320) do
 
   arc = canvas.graphic_object(:arc, cx: 530, cy: 50, a: 40, b: 20,
                               start_angle: -30, end_angle: 105)
-  canvas.fill_color(0.4, 0.3, 0.4)
+  canvas.fill_color("hp-blue")
   canvas.move_to(530, 50)
   canvas.line_to(*arc.start_point)
   arc.curves.each {|x, y, hash| canvas.curve_to(x, y, **hash)}
   canvas.fill
   arc.configure(start_angle: 105, end_angle: -30)
-  canvas.fill_color(0.7, 0.7, 0.3)
+  canvas.fill_color("hp-orange")
   canvas.move_to(530, 50)
   canvas.line_to(*arc.start_point)
   arc.curves.each {|x, y, hash| canvas.curve_to(x, y, **hash)}
@@ -194,7 +194,7 @@ end
 # fill nonzero and stroke, close fill even-odd and stroke, clip even-odd, clip
 # nonzero
 canvas.translate(0, 190) do
-  canvas.fill_color(0.3, 0.7, 0.7)
+  canvas.fill_color("hp-blue")
 
   [
     [:stroke], [:close_stroke], [:fill, :nonzero], [:fill, :even_odd],
@@ -212,8 +212,6 @@ canvas.translate(0, 190) do
     end
   end
 
-  canvas.fill_color(0.7, 0.7, 0.3)
-
   [:even_odd, :nonzero].each_with_index do |op, index|
     canvas.translate(370 + 110 * index, 20) do
       canvas.circle(50, 50, 50)
@@ -228,7 +226,7 @@ end
 
 # Some composite shapes, an image and a form XObject
 canvas.translate(0, 80) do
-  canvas.fill_color(0.3, 0.7, 0.7)
+  canvas.fill_color("hp-blue")
   canvas.rectangle(50, 0, 80, 80, radius: 80)
   canvas.fill
 
@@ -237,14 +235,14 @@ canvas.translate(0, 80) do
 
   canvas.line_width(0.5)
   canvas.opacity(fill_alpha: 0.5, stroke_alpha: 0.2) do
-    canvas.fill_color('AA8888').draw(solid).fill_stroke
-    canvas.fill_color('88AA88').draw(solid, start_angle: 130, end_angle: 220).fill_stroke
-    canvas.fill_color('8888AA').draw(solid, start_angle: 220, end_angle: 10).fill_stroke
+    canvas.fill_color("hp-blue").draw(solid).fill_stroke
+    canvas.fill_color("hp-orange").draw(solid, start_angle: 130, end_angle: 220).fill_stroke
+    canvas.fill_color("hp-teal").draw(solid, start_angle: 220, end_angle: 10).fill_stroke
 
     solid.configure(inner_a: 0, inner_b: 0, outer_a: 40, outer_b: 40, cx: 290)
-    canvas.fill_color('AA8888').draw(solid, start_angle: 10, end_angle: 130).fill_stroke
-    canvas.fill_color('88AA88').draw(solid, start_angle: 130, end_angle: 220).fill_stroke
-    canvas.fill_color('8888AA').draw(solid, start_angle: 220, end_angle: 10).fill_stroke
+    canvas.fill_color("hp-blue").draw(solid, start_angle: 10, end_angle: 130).fill_stroke
+    canvas.fill_color("hp-orange").draw(solid, start_angle: 130, end_angle: 220).fill_stroke
+    canvas.fill_color("hp-teal").draw(solid, start_angle: 220, end_angle: 10).fill_stroke
 
     canvas.image(File.join(__dir__, 'machupicchu.jpg'), at: [350, 0], height: 80)
   end

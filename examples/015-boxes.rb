@@ -37,13 +37,14 @@ end
 
 canvas = doc.pages.add.canvas
 
-[[1, 140], [5, 190], [15, 240]].each_with_index do |(width, red), row|
-  [[:solid, 140], [:dashed, 177], [:dashed_round, 207],
-   [:dotted, 240]].each_with_index do |(style, green), column|
+[[1, "hp-blue-light"], [5, "hp-teal-light"],
+ [15, "hp-orange-light"]].each_with_index do |(width, color), row|
+  color = canvas.color_from_specification([color])
+  [:solid, :dashed, :dashed_round, :dotted].each_with_index do |style, column|
     box = HexaPDF::Layout::Box.create(
       width: 100, height: 100, content_box: true,
       border: {width: width, style: style},
-      background_color: [red, green, 0],
+      background_color: color.components.map {|c| c + 0.2 * column },
       &annotate_box)
     box.draw(canvas, 20 + 140 * column, 700 - 150 * row)
   end
@@ -54,9 +55,9 @@ box = HexaPDF::Layout::Box.create(
   width: 470, height: 200, content_box: true,
   padding: [20, 5, 10, 15],
   border: {width: [20, 40, 30, 15],
-           color: [[46, 185, 206], [206, 199, 46], [188, 46, 206], [59, 206, 46]],
+           color: ["hp-blue", "hp-orange", "hp-teal", "hp-blue-light"],
            style: [:solid, :dashed, :dashed_round, :dotted]},
-  background_color: [255, 255, 180],
+  background_color: "hp-orange-light2",
   underlays: [
     lambda do |canv, _|
       canv.stroke_color([255, 0, 0]).line_width(10).line_cap_style(:butt).
@@ -66,7 +67,7 @@ box = HexaPDF::Layout::Box.create(
   ],
   overlays: [
     lambda do |canv, _|
-      canv.stroke_color([0, 0, 255]).line_width(5).
+      canv.stroke_color("hp-blue-dark").line_width(5).
         rectangle(10, 10, box.width - 20, box.height - 20).stroke
     end
   ],
