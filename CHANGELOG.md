@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* Internal constant `HexaPDF::Content::ColorSpace::CSS_COLOR_NAMES` changed to
+  [HexaPDF::Content::ColorSpace::COLOR_NAMES]
+
+
 ## 0.32.2 - 2023-05-06
 
 ### Changed

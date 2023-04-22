@@ -98,13 +98,14 @@ module HexaPDF
     # See: PDF1.7 s8.6
     module ColorSpace
 
-      # Mapping of CSS Color Module Level 3 names to RGB values.
+      # Mapping of color names (CSS Color Module Level 3 names and HexaPDF design color names) to
+      # RGB and gray values.
       #
       # Visual listing of all colors:
       #
       #   #>pdf-big
       #   canvas.font("Helvetica", size: 8)
-      #   map = HexaPDF::Content::ColorSpace::CSS_COLOR_NAMES
+      #   map = HexaPDF::Content::ColorSpace::COLOR_NAMES
       #   map.each_slice(38).each_with_index do |slice, col|
       #     x = 10 + col * 100
       #     slice.each_with_index do |(name, rgb), row|
@@ -112,7 +113,7 @@ module HexaPDF
       #       canvas.fill_color("black").text(name, at: [x + 15, 380 - row * 10 + 2])
       #     end
       #   end
-      CSS_COLOR_NAMES = {
+      COLOR_NAMES = {
         "aliceblue" => [240, 248, 255],
         "antiquewhite" => [250, 235, 215],
         "aqua" => [0, 255, 255],
@@ -137,9 +138,9 @@ module HexaPDF
         "darkblue" => [0, 0, 139],
         "darkcyan" => [0, 139, 139],
         "darkgoldenrod" => [184, 134, 11],
-        "darkgray" => [169, 169, 169],
+        "darkgray" => [169],
         "darkgreen" => [0, 100, 0],
-        "darkgrey" => [169, 169, 169],
+        "darkgrey" => [169],
         "darkkhaki" => [189, 183, 107],
         "darkmagenta" => [139, 0, 139],
         "darkolivegreen" => [85, 107, 47],
@@ -155,8 +156,8 @@ module HexaPDF
         "darkviolet" => [148, 0, 211],
         "deeppink" => [255, 20, 147],
         "deepskyblue" => [0, 191, 255],
-        "dimgray" => [105, 105, 105],
-        "dimgrey" => [105, 105, 105],
+        "dimgray" => [105],
+        "dimgrey" => [105],
         "dodgerblue" => [30, 144, 255],
         "firebrick" => [178, 34, 34],
         "floralwhite" => [255, 250, 240],
@@ -166,10 +167,10 @@ module HexaPDF
         "ghostwhite" => [248, 248, 255],
         "gold" => [255, 215, 0],
         "goldenrod" => [218, 165, 32],
-        "gray" => [128, 128, 128],
+        "gray" => [128],
         "green" => [0, 128, 0],
         "greenyellow" => [173, 255, 47],
-        "grey" => [128, 128, 128],
+        "grey" => [128],
         "honeydew" => [240, 255, 240],
         "hotpink" => [255, 105, 180],
         "indianred" => [205, 92, 92],
@@ -184,7 +185,7 @@ module HexaPDF
         "lightcoral" => [240, 128, 128],
         "lightcyan" => [224, 255, 255],
         "lightgoldenrodyellow" => [250, 250, 210],
-        "lightgray" => [211, 211, 211],
+        "lightgray" => [211],
         "lightgreen" => [144, 238, 144],
         "lightgrey" => [211, 211, 211],
         "lightpink" => [255, 182, 193],
@@ -260,6 +261,24 @@ module HexaPDF
         "whitesmoke" => [245, 245, 245],
         "yellow" => [255, 255, 0],
         "yellowgreen" => [154, 205, 50],
+        "hp-blue" => [0, 128, 255],
+        "hp-blue-dark" => [28, 91, 216],
+        "hp-blue-dark2" => [34, 57, 184],
+        "hp-blue-light" => [86, 176, 255],
+        "hp-blue-light2" => [185, 220, 255],
+        "hp-orange" => [255, 128, 0],
+        "hp-orange-light" => [255, 195, 29],
+        "hp-orange-light2" => [255, 246, 153],
+        "hp-teal" => [0, 140, 130],
+        "hp-teal-dark" => [5, 100, 94],
+        "hp-teal-dark2" => [6, 70, 63],
+        "hp-teal-light" => [75, 177, 176],
+        "hp-teal-light2" => [177, 221, 221],
+        "hp-gray" => [158],
+        "hp-gray-dark" => [97],
+        "hp-gray-dark2" => [33],
+        "hp-gray-light" => [224],
+        "hp-gray-light2" => [245],
       }.freeze
 
       # :call-seq:
@@ -297,8 +316,8 @@ module HexaPDF
                    first_item.scan(/../).map!(&:hex)
                  elsif first_item.match?(/\A\h{3}\z/)
                    first_item.each_char.map {|x| (x * 2).hex }
-                 elsif CSS_COLOR_NAMES.key?(first_item)
-                   CSS_COLOR_NAMES[first_item]
+                 elsif COLOR_NAMES.key?(first_item)
+                   COLOR_NAMES[first_item]
                  else
                    raise ArgumentError, "Given string '#{first_item}' is neither a hex color " \
                      "nor a color name"
