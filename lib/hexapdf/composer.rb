@@ -143,7 +143,7 @@ module HexaPDF
                    margin: 36) #:yields: composer
       @document = HexaPDF::Document.new
       @page_styles = {}
-      @page_style = :default
+      @next_page_style = :default
       unless skip_page_creation
         page_style(:default, page_size: page_size, orientation: page_orientation) do |canvas, style|
           style.frame = style.create_frame(canvas.context, margin)
@@ -167,14 +167,14 @@ module HexaPDF
     #   composer.page_style(:content, page_size: :A4)
     #   composer.new_page(:cover)           # uses the :cover style, set next style to :content
     #   composer.new_page                   # uses the :content style, next style again :content
-    def new_page(style = @page_style)
+    def new_page(style = @next_page_style)
       page_style = @page_styles.fetch(style) do |key|
         raise ArgumentError, "Page style #{key} has not been defined"
       end
       @page = @document.pages.add(page_style.create_page(@document))
       @canvas = @page.canvas
       @frame = page_style.frame
-      @page_style = page_style.next_style || style
+      @next_page_style = page_style.next_style || style
     end
 
     # The x-position of the cursor inside the current frame.
