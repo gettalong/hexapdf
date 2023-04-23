@@ -73,6 +73,7 @@ module HexaPDF
       # The +valign+ argument can be used to specify the vertical alignment of the box relative to
       # other items in the Line.
       def initialize(box, valign: :baseline)
+        raise HexaPDF::Error, "Width of box not set" if box.width == 0
         @box = box
         @valign = valign
         @fit_result = Frame.new(0, 0, box.width, box.height == 0 ? 100_000 : box.height).fit(box)

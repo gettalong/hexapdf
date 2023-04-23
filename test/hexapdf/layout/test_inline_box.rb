@@ -30,6 +30,11 @@ describe HexaPDF::Layout::InlineBox do
       assert_equal(45, ibox.height)
     end
 
+    it "fails if the wrapped box has not width set" do
+      box = HexaPDF::Document.new.layout.text("test is not going good")
+      assert_raises(HexaPDF::Error) { inline_box(box) }
+    end
+
     it "fails if the wrapped box could not be fit" do
       box = HexaPDF::Document.new.layout.text("test is not going good", width: 1)
       assert_raises(HexaPDF::Error) { inline_box(box) }
