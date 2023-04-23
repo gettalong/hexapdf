@@ -5,11 +5,12 @@ require 'hexapdf/layout/page_style'
 require 'hexapdf/document'
 
 describe HexaPDF::Layout::PageStyle do
-  it "allows assigning the page size, orientation and template on initialization" do
+  it "allows assigning the page size, orientation, next style and template on initialization" do
     block = lambda {}
-    style = HexaPDF::Layout::PageStyle.new(page_size: :A3, orientation: :landscape, &block)
+    style = HexaPDF::Layout::PageStyle.new(page_size: :A3, orientation: :landscape, next_style: :a, &block)
     assert_equal(:A3, style.page_size)
     assert_equal(:landscape, style.orientation)
+    assert_equal(:a, style.next_style)
     assert_same(block, style.template)
   end
 

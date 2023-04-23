@@ -95,8 +95,8 @@ module HexaPDF
       # If this attribute is +nil+ (the default), it means that this style should be used again.
       attr_accessor :next_style
 
-      # Creates a new page style instance for the given page size and orientation. If a block is
-      # given, it is used as template for defining the initial content.
+      # Creates a new page style instance for the given page size, orientation and next style
+      # values. If a block is given, it is used as template for defining the initial content.
       #
       # Example:
       #
@@ -105,12 +105,12 @@ module HexaPDF
       #     style.next_style = :other
       #     canvas.fill_color("fd0") { canvas.circle(100, 100, 50).fill }
       #   end
-      def initialize(page_size: :A4, orientation: :portrait, &block)
+      def initialize(page_size: :A4, orientation: :portrait, next_style: nil, &block)
         @page_size = page_size
         @orientation = orientation
         @template = block
         @frame = nil
-        @next_style = nil
+        @next_style = next_style
       end
 
       # Creates a new page in the given document with this page style and returns it.
