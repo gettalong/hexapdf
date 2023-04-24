@@ -18,7 +18,7 @@ describe HexaPDF::Layout::ListBox do
   end
 
   def check_box(box, width, height, fit_pos = nil)
-    assert(box.fit(@frame.available_width, @frame.available_height, @frame), "box fit?")
+    assert(box.fit(@frame.available_width, @frame.available_height, @frame), "box didn't fit")
     assert_equal(width, box.width, "box width")
     assert_equal(height, box.height, "box height")
     if fit_pos
@@ -44,6 +44,18 @@ describe HexaPDF::Layout::ListBox do
       assert_equal(4, box.start_number)
       assert_equal(20, box.item_spacing)
       assert(box.supports_position_flow?)
+    end
+  end
+
+  describe "empty?" do
+    it "is empty if nothing was fit yet" do
+      assert(create_box.empty?)
+    end
+
+    it "is empty if nothing could be fit" do
+      box = create_box(children: [@text_boxes[0]], width: 5)
+      box.fit(@frame.available_width, @frame.available_height, @frame)
+      assert(create_box.empty?)
     end
   end
 

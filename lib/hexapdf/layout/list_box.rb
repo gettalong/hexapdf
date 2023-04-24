@@ -177,6 +177,11 @@ module HexaPDF
         true
       end
 
+      # Returns +true+ if no box was fitted into the list box.
+      def empty?
+        super && (!@results || @results.all? {|box_fitter| box_fitter.fit_results.empty? })
+      end
+
       # Fits the list box into the available space.
       def fit(available_width, available_height, frame)
         @width = if @initial_width > 0

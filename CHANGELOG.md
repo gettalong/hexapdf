@@ -7,6 +7,11 @@
 * Constructor of [HexaPDF::Layout::PageStyle] to allow setting `next_style`
   attribute
 
+### Fixed
+
+* [HexaPDF::Layout::ColumnBox], [HexaPDF::Layout::ListBox] and
+  [HexaPDF::Layout::ImageBox] to correctly respond to `#empty?`
+
 
 ## 0.32.2 - 2023-05-06
 

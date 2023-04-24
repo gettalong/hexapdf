@@ -132,6 +132,11 @@ module HexaPDF
         true
       end
 
+      # Returns +true+ if no box was fitted into the columns.
+      def empty?
+        super && (!@box_fitter || @box_fitter.fit_results.empty?)
+      end
+
       # Fits the column box into the available space.
       #
       # If the style property 'position' is set to :flow, the columns might not be rectangles but

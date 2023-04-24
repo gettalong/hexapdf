@@ -207,7 +207,7 @@ describe HexaPDF::Layout::Box do
   end
 
   describe "empty?" do
-    it "is only empty when no drawing operation is specified" do
+    it "is empty when no drawing operation is specified" do
       assert(create_box.empty?)
       refute(create_box {}.empty?)
       refute(create_box(style: {background_color: [5]}).empty?)

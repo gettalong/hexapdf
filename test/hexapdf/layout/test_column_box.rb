@@ -22,7 +22,7 @@ describe HexaPDF::Layout::ColumnBox do
   end
 
   def check_box(box, width, height, fit_pos = nil)
-    assert(box.fit(@frame.available_width, @frame.available_height, @frame), "box fit?")
+    assert(box.fit(@frame.available_width, @frame.available_height, @frame), "box didn't fit")
     assert_equal(width, box.width, "box width")
     assert_equal(height, box.height, "box height")
     if fit_pos
@@ -43,6 +43,24 @@ describe HexaPDF::Layout::ColumnBox do
       assert_equal([10], box.gaps)
       assert_equal(false, box.equal_height)
       assert(box.supports_position_flow?)
+    end
+  end
+
+  describe "empty?" do
+    it "is empty if nothing is fit yet" do
+      assert(create_box.empty?)
+    end
+
+    it "is empty if no box fits" do
+      box = create_box(children: [@fixed_size_boxes[0]], columns: [10])
+      box.fit(@frame.available_width, @frame.available_height, @frame)
+      assert(box.empty?)
+    end
+
+    it "is not empty if at least one box fits" do
+      box = create_box(children: [@fixed_size_boxes[0]], columns: [30])
+      check_box(box, 30, 10)
+      refute(box.empty?)
     end
   end
 

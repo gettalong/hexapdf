@@ -74,6 +74,11 @@ module HexaPDF
         @image = image
       end
 
+      # Returns +false+ since the image is always drawn if it fits.
+      def empty?
+        false
+      end
+
       # Fits the image into the available space, taking the initially set width and height into
       # account (see the class description for details).
       def fit(available_width, available_height, _frame)

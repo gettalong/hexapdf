@@ -56,6 +56,10 @@ describe HexaPDF::Layout::ImageBox do
     end
   end
 
+  it "always returns false for empty?" do
+    refute(create_box.empty?)
+  end
+
   describe "draw" do
     it "draws the image" do
       box = create_box(height: 40, style: {padding: [10, 4, 6, 2]})
