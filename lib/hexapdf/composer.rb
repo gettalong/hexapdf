@@ -51,17 +51,18 @@ module HexaPDF
   # On creation a HexaPDF::Document object is created as well the first page and an accompanying
   # HexaPDF::Layout::Frame object. The frame is used by the various methods for general document
   # layout tasks, like positioning of text, images, and so on. By default, it covers the whole page
-  # except the margin area. How the frame gets created can be customized by overriding the
-  # #create_frame method.
+  # except the margin area. How the frame gets created can be customized by defining a custom page
+  # style, see #page_style. Use the +skip_page_creation+ argument to avoid the initial page
+  # creation when creating a Composer instance.
   #
   # Once the Composer object is created, its methods can be used to draw text, images, ... on the
-  # page. Behind the scenes HexaPDF::Layout::Box (and subclass) objects are created and drawn on the
-  # page via the frame.
+  # page. Behind the scenes HexaPDF::Layout::Box (and subclass) objects are created using the
+  # HexaPDF::Document::Layout methods and drawn on the page via the frame.
   #
   # If the frame of a page is full and a box doesn't fit anymore, a new page is automatically
   # created. The box is either split into two boxes where one fits on the first page and the other
   # on the new page, or it is drawn completely on the new page. A new page can also be created by
-  # calling the #new_page method.
+  # calling the #new_page method, optionally providing a page style.
   #
   # The #x and #y methods provide the point where the next box would be drawn if it fits the
   # available space. This information can be used, for example, for custom drawing operations
@@ -75,30 +76,36 @@ module HexaPDF
   #
   # == Example
   #
-  #   HexaPDF::Composer.create('output.pdf', margin: 36) do |pdf|
-  #     pdf.base_style.font_size(20).align(:center)
+  #   #>pdf-full
+  #   HexaPDF::Composer.create('out.pdf', page_size: :A6, margin: 36) do |pdf|
+  #     pdf.style(:base, font_size: 20, align: :center)
   #     pdf.text("Hello World", valign: :center)
   #   end
+  #
+  # See: HexaPDF::Document::Layout, HexaPDF::Layout::Frame, HexaPDF::Layout::Box
   class Composer
 
-    # Creates a new PDF document and writes it to +output+. The +options+ are passed to ::new.
+    # Creates a new PDF document and writes it to +output+. The argument +options+ and +block+ are
+    # passed to ::new.
     #
     # Example:
     #
-    #   HexaPDF::Composer.create('output.pdf', margin: 36) do |pdf|
+    #   HexaPDF::Composer.create('out.pdf', margin: 36) do |pdf|
     #     ...
     #   end
     def self.create(output, **options, &block)
       new(**options, &block).write(output)
     end
 
-    # The PDF document that is created.
+    # The PDF document (HexaPDF::Document) that is created.
     attr_reader :document
 
     # The current page (a HexaPDF::Type::Page object).
     attr_reader :page
 
-    # The Content::Canvas of the current page. Can be used to perform arbitrary drawing operations.
+    # The canvas instance (a Content::Canvas object) of the current page.
+    #
+    # Can be used to perform arbitrary drawing operations.
     attr_reader :canvas
 
     # The HexaPDF::Layout::Frame for automatic box placement.
@@ -107,36 +114,46 @@ module HexaPDF
     # Creates a new Composer object and optionally yields it to the given block.
     #
     # skip_page_creation::
-    #     If this argument is +true+ (the default), the arguments +page_size+, +page_orientation+
-    #     and +margin+ are used to create a page style with the name :default and an initial page is
-    #     created as well.
+    #     If this argument is +false+ (the default), the arguments +page_size+, +page_orientation+
+    #     and +margin+ are used to create a page style with the name :default. Additionally, an
+    #     initial page/frame is created using this page style.
     #
-    #     Otherwise, i.e. when this argument is +false+, no initial page or default page style is
-    #     created. This has to be done manually using the #page_style and #new_page methods.
+    #     Otherwise, i.e. when this argument is +true+, no initial page or default page style is
+    #     created. This is useful when the first page needs a custom page style. The #page_style
+    #     method needs to be used to define a page style which is then used with the #new_page
+    #     method to create the initial page/frame.
     #
     # page_size::
     #     Can be any valid predefined page size (see Type::Page::PAPER_SIZE) or an array [llx, lly,
     #     urx, ury] specifying a custom page size.
     #
+    #     Only used if +skip_page_creation+ is +false+.
+    #
     # page_orientation::
-    #     Specifies the orientation of the page, either +:portrait+ or +:landscape+. Only used if
-    #     +page_size+ is one of the predefined page sizes.
+    #     Specifies the orientation of the page, either +:portrait+ or +:landscape+, if +page_size+
+    #     is one of the predefined page sizes.
+    #
+    #     Only used if +skip_page_creation+ is +false+.
     #
     # margin::
     #     The margin to use. See HexaPDF::Layout::Style::Quad#set for possible values.
     #
+    #     Only used if +skip_page_creation+ is +false+.
+    #
     # Example:
     #
-    #   composer = HexaPDF::Composer.new            # uses the default values
+    #   # Uses the default values
+    #   composer = HexaPDF::Composer.new
     #
     #   HexaPDF::Composer.new(page_size: :Letter, margin: 72) do |composer|
     #     #...
     #   end
     #
     #   HexaPDF::Composer.new(skip_page_creation: true) do |composer|
-    #     page_template = lambda {|canvas, style| style.create_frame(canvas.context, 36) }
-    #     page_style(:default, template: page_template)
-    #     new_page
+    #     composer.page_style(:default) do |canvas, style|
+    #       style.frame = style.create_frame(canvas.context, 36)
+    #     end
+    #     composer.new_page
     #     # ...
     #   end
     def initialize(skip_page_creation: false, page_size: :A4, page_orientation: :portrait,
@@ -155,16 +172,20 @@ module HexaPDF
 
     # Creates a new page, making it the current one.
     #
-    # The page style to use for the new page can be set via the +style+ argument. If not provided,
-    # the currently set page style is used.
+    # The page style (see #page_style) to use for the new page can be set via the +style+ argument.
+    # If not provided, the currently set page style is used (:default is the initial value for
+    # @next_page_style).
     #
-    # The used page style determines the page style that should be used for the following new pages.
-    # If this information is not provided, the used page style is used again.
+    # The applied page style determines the page style that should be used for the following new
+    # pages (see Layout::PageStyle#next_style). If this information is not provided by the applied
+    # page style, that page style is used again.
     #
     # Examples:
     #
-    #   composer.page_style(:cover, page_size: :A4).next_style = :content
+    #   # Define two page styles
+    #   composer.page_style(:cover, page_size: :A4, next_style: :content)
     #   composer.page_style(:content, page_size: :A4)
+    #
     #   composer.new_page(:cover)           # uses the :cover style, set next style to :content
     #   composer.new_page                   # uses the :content style, next style again :content
     def new_page(style = @next_page_style)
@@ -177,19 +198,35 @@ module HexaPDF
       @next_page_style = page_style.next_style || style
     end
 
-    # The x-position of the cursor inside the current frame.
+    # The x-position inside the current frame where the next box (provided it fits) will be placed.
+    #
+    # Example:
+    #
+    #   #>pdf-composer
+    #   composer.text("Hello", position: :float)
+    #   composer.canvas.stroke_color("hp-blue").
+    #     circle(composer.x, composer.y, 0.5).fill.
+    #     circle(composer.x, composer.y, 5).stroke
     def x
       @frame.x
     end
 
-    # The y-position of the cursor inside the current frame.
+    # The y-position inside the current frame.where the next box (provided it fits) will be placed.
+    #
+    # Example:
+    #
+    #   #>pdf-composer
+    #   composer.text("Hello", position: :float)
+    #   composer.canvas.stroke_color("hp-blue").
+    #     circle(composer.x, composer.y, 0.5).fill.
+    #     circle(composer.x, composer.y, 5).stroke
     def y
       @frame.y
     end
 
-    # Writes the PDF document to the given output.
+    # Writes the created PDF document to the given output.
     #
-    # See Document#write for details.
+    # See HexaPDF::Document#write for details.
     def write(output, optimize: true, **options)
       @document.write(output, optimize: optimize, **options)
     end
@@ -200,6 +237,8 @@ module HexaPDF
     #
     # Creates or updates the HexaPDF::Layout::Style object called +name+ with the given property
     # values and returns it.
+    #
+    # If neither +base+ nor any style properties are specified, the style +name+ is just returned.
     #
     # See HexaPDF::Document::Layout#style for details; this method is just a thin wrapper around
     # that method.
@@ -225,15 +264,15 @@ module HexaPDF
     # +nil+ is returned.
     #
     # If one or more page style attributes are given, a new HexaPDF::Layout::PageStyle object with
-    # those attribute values is created, stored under +name+ and returned. If a block is provided,
-    # it is used to define the page template.
+    # those attribute values is created, stored under +name+ and returned. Additionally, if a block
+    # is provided, it is used to define the page template.
     #
     # Example:
     #
     #   composer.page_style(:default)
     #   composer.page_style(:cover, page_size: :A4) do |canvas, style|
     #     page_box = canvas.context.box
-    #     canvas.fill_color("fd0") do
+    #     canvas.fill_color("green") do
     #       canvas.rectangle(0, 0, page_box.width, page_box.height).
     #         fill
     #     end
@@ -251,9 +290,9 @@ module HexaPDF
 
     # Draws the given text at the current position into the current frame.
     #
-    # The text will be positioned at the current position if possible. Otherwise the next best
-    # position is used. If the text doesn't fit onto the current page or only partially, new pages
-    # are created automatically.
+    # The text will be positioned at the current position (see #x and #y) if possible. Otherwise the
+    # next best position is used. If the text doesn't fit onto the current page or only partially,
+    # one or more new pages are created automatically.
     #
     # This method is of the two main methods for creating text boxes, the other being
     # #formatted_text. It uses HexaPDF::Document::Layout#text_box behind the scenes to create the
@@ -264,18 +303,21 @@ module HexaPDF
     # Examples:
     #
     #   #>pdf-composer
-    #   composer.text("Test " * 15)
+    #   composer.text("Test it now " * 15)
     #   composer.text("Now " * 7, width: 100)
-    #   composer.text("Another test", font_size: 15, fill_color: "green")
+    #   composer.text("Another test", font_size: 15, fill_color: "hp-blue")
     #   composer.text("Different box style", fill_color: 'white', box_style: {
     #     underlays: [->(c, b) { c.rectangle(0, 0, b.content_width, b.content_height).fill }]
     #   })
+    #
+    # See: #formatted_text, HexaPDF::Layout::TextBox, HexaPDF::Layout::TextFragment
     def text(str, width: 0, height: 0, style: nil, box_style: nil, **style_properties)
       draw_box(@document.layout.text_box(str, width: width, height: height, style: style,
                                          box_style: box_style, **style_properties))
     end
 
-    # Draws text like #text but allows parts of the text to be formatted differently.
+    # Draws text like #text but allows parts of the text to be formatted differently and
+    # interspersing with inline boxes.
     #
     # It uses HexaPDF::Document::Layout#formatted_text_box behind the scenes to create the
     # HexaPDF::Layout::TextBox that does the actual work. See that method for details on the
@@ -285,10 +327,13 @@ module HexaPDF
     #
     #   #>pdf-composer
     #   composer.formatted_text(["Some string"])
-    #   composer.formatted_text(["Some ", {text: "string", fill_color: 128}])
+    #   composer.formatted_text(["Some ", {text: "string", fill_color: "hp-orange"}])
     #   composer.formatted_text(["Some ", {link: "https://example.com",
-    #                                      fill_color: 'blue', text: "Example"}])
+    #                                      fill_color: 'hp-blue', text: "Example"}])
     #   composer.formatted_text(["Some ", {text: "string", style: {font_size: 20}}])
+    #   block = lambda {|list| list.text("First item"); list.text("Second item") }
+    #   composer.formatted_text(["Some ", {box: :list, width: 50,
+    #                                      valign: :bottom, block: block}])
     #
     # See: #text, HexaPDF::Layout::TextBox, HexaPDF::Layout::TextFragment
     def formatted_text(data, width: 0, height: 0, style: nil, box_style: nil, **style_properties)
@@ -296,7 +341,7 @@ module HexaPDF
                                                    box_style: box_style, **style_properties))
     end
 
-    # Draws the given image at the current position.
+    # Draws the given image at the current position (see #x and #y).
     #
     # It uses HexaPDF::Document::Layout#image_box behind the scenes to create the
     # HexaPDF::Layout::ImageBox that does the actual work. See that method for details on the
@@ -314,7 +359,7 @@ module HexaPDF
                                           style: style, **style_properties))
     end
 
-    # Draws the named box at the current position.
+    # Draws the named box at the current position (see #x and #y).
     #
     # It uses HexaPDF::Document::Layout#box behind the scenes to create the named box. See that
     # method for details on the arguments.
@@ -331,11 +376,19 @@ module HexaPDF
 
     # Draws any custom box that can be created using HexaPDF::Document::Layout.
     #
+    # This includes all named boxes defined in the 'layout.boxes.map' configuration option.
+    #
     # Examples:
     #
     #   #>pdf-composer
-    #   composer.lorem_ipsum
-    #   composer.column {|column| column.lorem_ipsum }
+    #   composer.lorem_ipsum(sentences: 1, margin: [0, 0, 5])
+    #   composer.list(item_spacing: 2) do |list|
+    #     composer.document.config['layout.boxes.map'].each do |name, klass|
+    #       list.formatted_text([{text: name.to_s, fill_color: "hp-blue-dark"}, "\n#{klass}"])
+    #     end
+    #   end
+    #
+    # See: HexaPDF::Document::Layout#box
     def method_missing(name, *args, **kwargs, &block)
       if @document.layout.box_creation_method?(name)
         draw_box(@document.layout.send(name, *args, **kwargs, &block))
@@ -393,7 +446,7 @@ module HexaPDF
     #
     #   #>pdf-composer
     #   stamp = composer.create_stamp(50, 50) do |canvas|
-    #     canvas.fill_color("red").line_width(5).
+    #     canvas.fill_color("hp-blue").line_width(5).
     #       rectangle(10, 10, 30, 30).fill_stroke
     #   end
     #   composer.image(stamp, width: 20, height: 20)
