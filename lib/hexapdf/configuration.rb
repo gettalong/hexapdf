@@ -44,12 +44,12 @@ module HexaPDF
   # == Overview
   #
   # HexaPDF allows detailed control over many aspects of PDF manipulation. If there is a need to
-  # use a certain default value somewhere, it is defined as configuration options so that it can
+  # use a certain default value somewhere, it is defined as a configuration option so that it can
   # easily be changed.
   #
   # Some options are defined as global options because they are needed on the class level - see
-  # HexaPDF::GlobalConfiguration[index.html#GlobalConfiguration]. Other options can be configured for
-  # individual documents as they allow to fine-tune some behavior - see
+  # HexaPDF::GlobalConfiguration[index.html#GlobalConfiguration]. Other options can be configured
+  # for individual documents as they allow to fine-tune some behavior - see
   # HexaPDF::DefaultDocumentConfiguration[index.html#DefaultDocumentConfiguration].
   #
   # A configuration option name is dot-separted to provide a hierarchy of option names. For
@@ -154,9 +154,6 @@ module HexaPDF
   # acro_form.create_appearances::
   #    A boolean specifying whether an AcroForm field's appearances should automatically be
   #    generated if they are missing.
-  #
-  # acro_form.text_field.default_width::
-  #    A number specifying the default width of AcroForm text fields which should be auto-sized.
   #
   # acro_form.default_font_size::
   #    A number specifying the default font size of AcroForm text fields which should be auto-sized.
@@ -298,17 +295,17 @@ module HexaPDF
   #
   #    See the HexaPDF::FontLoader module for information on how to implement a font loader object.
   #
-  # graphic_object.map::
-  #    A mapping from graphic object names to graphic object factories.
-  #
-  #    See HexaPDF::Content::GraphicObject for more information.
-  #
   # graphic_object.arc.max_curves::
   #    The maximum number of curves used for approximating a complete ellipse using Bezier curves.
   #
   #    The default value is 6, higher values result in better approximations but also take longer
   #    to compute. It should not be set to values lower than 4, otherwise the approximation of a
   #    complete ellipse is visibly false.
+  #
+  # graphic_object.map::
+  #    A mapping from graphic object names to graphic object factories.
+  #
+  #    See HexaPDF::Content::GraphicObject for more information.
   #
   # image_loader::
   #    An array with image loader implementations. When an image should be loaded, the array is
@@ -381,14 +378,6 @@ module HexaPDF
   #
   #    Defaults to +true+.
   #
-  # sorted_tree.max_leaf_node_size::
-  #    The maximum number of nodes that should be in a leaf node of a node tree.
-  #
-  # style.layers_map::
-  #    A mapping from style layer names to layer objects.
-  #
-  #    See HexaPDF::Layout::Style::Layers for more information.
-  #
   # signature.signing_handler::
   #   A mapping from a Symbol to a signing handler class (see
   #   HexaPDF::Document::Signatures::DefaultHandler). If the value is a String, it should contain
@@ -402,6 +391,14 @@ module HexaPDF
   #    The sub filter map is used for mapping specific signature algorithms to handler classes. The
   #    filter value of a signature dictionary is ignored since we only support the standard
   #    signature algorithms.
+  #
+  # sorted_tree.max_leaf_node_size::
+  #    The maximum number of nodes that should be in a leaf node of a node tree.
+  #
+  # style.layers_map::
+  #    A mapping from style layer names to layer objects.
+  #
+  #    See HexaPDF::Layout::Style::Layers for more information.
   #
   # task.map::
   #    A mapping from task names to callable task objects. See HexaPDF::Task for more information.
@@ -459,13 +456,13 @@ module HexaPDF
                         'HexaPDF::FontLoader::FromConfiguration',
                         'HexaPDF::FontLoader::FromFile',
                       ],
+                      'graphic_object.arc.max_curves' => 6,
                       'graphic_object.map' => {
                         arc: 'HexaPDF::Content::GraphicObject::Arc',
                         endpoint_arc: 'HexaPDF::Content::GraphicObject::EndpointArc',
                         solid_arc: 'HexaPDF::Content::GraphicObject::SolidArc',
                         geom2d: 'HexaPDF::Content::GraphicObject::Geom2D',
                       },
-                      'graphic_object.arc.max_curves' => 6,
                       'image_loader' => [
                         'HexaPDF::ImageLoader::JPEG',
                         'HexaPDF::ImageLoader::PNG',
@@ -484,10 +481,6 @@ module HexaPDF
                       'page.default_media_orientation' => :portrait,
                       'parser.on_correctable_error' => proc { false },
                       'parser.try_xref_reconstruction' => true,
-                      'sorted_tree.max_leaf_node_size' => 64,
-                      'style.layers_map' => {
-                        link: 'HexaPDF::Layout::Style::LinkLayer',
-                      },
                       'signature.signing_handler' => {
                         default: 'HexaPDF::DigitalSignature::Signing::DefaultHandler',
                         timestamp: 'HexaPDF::DigitalSignature::Signing::TimestampHandler',
@@ -497,6 +490,10 @@ module HexaPDF
                         'adbe.pkcs7.detached': 'HexaPDF::DigitalSignature::CMSHandler',
                         'ETSI.CAdES.detached': 'HexaPDF::DigitalSignature::CMSHandler',
                         'ETSI.RFC3161': 'HexaPDF::DigitalSignature::CMSHandler',
+                      },
+                      'sorted_tree.max_leaf_node_size' => 64,
+                      'style.layers_map' => {
+                        link: 'HexaPDF::Layout::Style::LinkLayer',
                       },
                       'task.map' => {
                         optimize: 'HexaPDF::Task::Optimize',
@@ -518,6 +515,13 @@ module HexaPDF
   #    Specifies the compression level that should be used with the FlateDecode filter. The level
   #    can range from 0 (no compression), 1 (best speed) to 9 (best compression, default).
   #
+  # filter.flate.memory::
+  #    Specifies the memory level that should be used with the FlateDecode filter. The level can
+  #    range from 1 (minimum memory usage; slow, reduces compression) to 9 (maximum memory usage).
+  #
+  #    The HexaPDF default value of 6 has been found in tests to be nearly equivalent to the Zlib
+  #    default of 8 in terms of speed and compression level but uses less memory.
+  #
   # filter.flate.on_error::
   #    Callback hook when a potentially recoverable Zlib error occurs in the FlateDecode filter.
   #
@@ -526,13 +530,6 @@ module HexaPDF
   #    error should be raised.
   #
   #    The default implementation prevents errors from being raised.
-  #
-  # filter.flate.memory::
-  #    Specifies the memory level that should be used with the FlateDecode filter. The level can
-  #    range from 1 (minimum memory usage; slow, reduces compression) to 9 (maximum memory usage).
-  #
-  #    The HexaPDF default value of 6 has been found in tests to be nearly equivalent to the Zlib
-  #    default of 8 in terms of speed and compression level but uses less memory.
   #
   # filter.predictor.strict::
   #    Specifies whether the predictor algorithm used by LZWDecode and FlateDecode should operate in
@@ -555,15 +552,15 @@ module HexaPDF
   #    This mapping is used to provide automatic wrapping of objects in the HexaPDF::Document#wrap
   #    method.
   GlobalConfiguration =
-    Configuration.new('filter.flate.compression' => 9,
-                      'filter.flate.on_error' => proc { false },
-                      'filter.flate.memory' => 6,
-                      'filter.predictor.strict' => false,
-                      'color_space.map' => {
+    Configuration.new('color_space.map' => {
                         DeviceRGB: 'HexaPDF::Content::ColorSpace::DeviceRGB',
                         DeviceCMYK: 'HexaPDF::Content::ColorSpace::DeviceCMYK',
                         DeviceGray: 'HexaPDF::Content::ColorSpace::DeviceGray',
                       },
+                      'filter.flate.compression' => 9,
+                      'filter.flate.memory' => 6,
+                      'filter.flate.on_error' => proc { false },
+                      'filter.predictor.strict' => false,
                       'object.type_map' => {
                         XRef: 'HexaPDF::Type::XRefStream',
                         ObjStm: 'HexaPDF::Type::ObjectStream',
