@@ -13,6 +13,9 @@ In short, it allows
 * **securing** PDF files by encrypting or signing them and
 * **optimizing** PDF files for smaller file size or other criteria.
 
+HexaPDF is available under two license, the AGPL and a commercial license, see the [License
+section](#License) for details.
+
 
 ## Features
 
@@ -155,6 +158,12 @@ dependencies as well as make sure that all applications needed for the tests are
 
 AGPL - see the LICENSE file for licensing details. Commercial licenses are available at
 <https://gettalong.at/hexapdf/>.
+
+A commercial license is needed as soon as HexaPDF is distributed with your software or remotely
+accessed via a network and you don't provide the source code of your application under the AGPL. For
+example, if you serve PDFs on the fly in a web application.
+
+Contact <sales@gettalong.at> for more information!
 
 Some included files have a different license:
 
