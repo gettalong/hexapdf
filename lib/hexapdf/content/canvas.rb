@@ -2165,8 +2165,8 @@ module HexaPDF
       def text(text, at: nil)
         raise_unless_font_set
         move_text_cursor(offset: at) if at
-        leading(font_size) if leading == 0
         lines = text.split(/\u{D A}|(?!\u{D A})[\u{A}-\u{D}\u{85}\u{2028}\u{2029}]/, -1)
+        leading(font_size) if leading == 0 && lines.length > 1
         lines.each_with_index do |str, index|
           show_glyphs(@font.decode_utf8(str))
           move_text_cursor unless index == lines.length - 1

@@ -11,6 +11,8 @@
 
 * [HexaPDF::Layout::ColumnBox], [HexaPDF::Layout::ListBox] and
   [HexaPDF::Layout::ImageBox] to correctly respond to `#empty?`
+* [HexaPDF::Content::Canvas#text] to set the leading only when multiple lines
+  are drawn
 
 
 ## 0.32.2 - 2023-05-06
