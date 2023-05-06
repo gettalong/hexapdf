@@ -62,6 +62,10 @@ module HexaPDF
       Application.new.parse(args)
     rescue StandardError => e
       $stderr.puts "Problem encountered: #{e.message}"
+      unless e.kind_of?(HexaPDF::Error)
+        $stderr.puts "--> The problem might indicate a faulty PDF or a bug in HexaPDF."
+        $stderr.puts "--> Please report this at https://github.com/gettalong/hexapdf/issues - thanks!"
+      end
       exit(1)
     end
 
