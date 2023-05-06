@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Changed
+
+* Cross-reference table reconstruction to be more relaxed concerning the
+  `endobj` keyword
+
 ### Fixed
 
 * [HexaPDF::Type::ObjectStream] to not compress any encryption dictionary

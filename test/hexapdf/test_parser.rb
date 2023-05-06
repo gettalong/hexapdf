@@ -609,7 +609,7 @@ describe HexaPDF::Parser do
     end
 
     it "serially parses the contents" do
-      create_parser("1 0 obj\n5\nendobj\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
+      create_parser("1 0 obj\n5 endobj\n1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
       assert_equal(6, @parser.load_object(@xref).value)
     end
 

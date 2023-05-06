@@ -458,7 +458,7 @@ module HexaPDF
               linearized = obj.kind_of?(Hash) && obj.key?(:Linearized)
               @tokenizer.pos = pos
             end
-            @tokenizer.scan_until(/(?:\n|\r\n?)endobj\b/)
+            @tokenizer.scan_until(/\bendobj\b/)
           end
         elsif token.kind_of?(Tokenizer::Token) && token == 'trailer'
           obj = @tokenizer.next_object rescue nil
