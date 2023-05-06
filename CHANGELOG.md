@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Type::ObjectStream] to not compress any encryption dictionary
+  instead of only the current one
+
+
 ## 0.32.1 - 2023-04-20
 
 ### Added

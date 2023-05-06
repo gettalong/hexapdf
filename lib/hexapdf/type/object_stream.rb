@@ -172,13 +172,16 @@ module HexaPDF
         serializer = Serializer.new
         obj_to_stm = {}
 
-        encrypt_dict = document.trailer[:Encrypt]
+        is_encrypt_dict = document.revisions.each.with_object({}) do |rev, hash|
+          hash[rev.trailer[:Encrypt]] = true
+        end
         while index < objects.size / 2
           obj = revision.object(objects[index])
 
           # Due to a bug in Adobe Acrobat, the Catalog may not be in an object stream if the
           # document is encrypted
-          if obj.nil? || obj.null? || obj.gen != 0 || obj.kind_of?(Stream) || obj == encrypt_dict ||
+          if obj.nil? || obj.null? || obj.gen != 0 || obj.kind_of?(Stream) ||
+              is_encrypt_dict[obj] ||
               obj.type == :Catalog ||
               obj.type == :Sig || obj.type == :DocTimeStamp ||
               (obj.respond_to?(:key?) && obj.key?(:ByteRange) && obj.key?(:Contents))

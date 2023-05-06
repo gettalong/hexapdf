@@ -23,9 +23,14 @@ describe HexaPDF::Type::ObjectStream do
   before do
     @doc = Object.new
     @doc.instance_variable_set(:@version, '1.5')
-    def (@doc).trailer
-      @trailer ||= {Encrypt: HexaPDF::Object.new({}, oid: 9)}
+    @doc.define_singleton_method(:revisions) do
+      rev1 = Object.new
+      def rev1.trailer; {Encrypt: HexaPDF::Object.new({}, oid: 10)}; end
+      rev2 = Object.new
+      def rev2.trailer; {Encrypt: HexaPDF::Object.new({}, oid: 9)}; end
+      @revisions ||= [rev1, rev2]
     end
+    @doc.define_singleton_method(:trailer) { revisions.last.trailer }
     @obj = HexaPDF::Type::ObjectStream.new({N: 2, First: 8}, oid: 1, document: @doc,
                                            stream: "1 0 5 2 5 [1 2]")
   end
@@ -96,8 +101,9 @@ describe HexaPDF::Type::ObjectStream do
       assert_equal("", @obj.stream)
     end
 
-    it "doesn't allow the encryption dictionary to be compressed" do
+    it "doesn't allow an encryption dictionary to be compressed" do
       @obj.add_object(@doc.trailer[:Encrypt])
+      @obj.add_object(@doc.revisions[0].trailer[:Encrypt])
       @obj.write_objects(@revision)
       assert_equal(0, @obj.value[:N])
       assert_equal(0, @obj.value[:First])
