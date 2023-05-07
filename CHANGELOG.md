@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Content::GraphicObject::EndpointArc#max_curves] for setting the
+  approximation accuracy
+
 ### Changed
 
 * Internal constant `HexaPDF::Content::ColorSpace::CSS_COLOR_NAMES` changed to

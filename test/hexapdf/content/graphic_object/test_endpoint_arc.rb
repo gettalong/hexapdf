@@ -16,13 +16,15 @@ describe HexaPDF::Content::GraphicObject::EndpointArc do
       assert_equal(0, arc.inclination)
       assert(arc.large_arc)
       refute(arc.clockwise)
+      assert_nil(arc.max_curves)
     end
   end
 
   describe "configure" do
     it "changes the values" do
       arc = HexaPDF::Content::GraphicObject::EndpointArc.new
-      arc.configure(x: 1, y: 2, a: 3, b: 4, inclination: 5, large_arc: false, clockwise: true)
+      arc.configure(x: 1, y: 2, a: 3, b: 4, inclination: 5, large_arc: false, clockwise: true,
+                    max_curves: 8)
       assert_equal(1, arc.x)
       assert_equal(2, arc.y)
       assert_equal(3, arc.a)
@@ -30,6 +32,7 @@ describe HexaPDF::Content::GraphicObject::EndpointArc do
       assert_equal(5, arc.inclination)
       refute(arc.large_arc)
       assert(arc.clockwise)
+      assert_equal(8, arc.max_curves)
     end
   end
 
@@ -93,6 +96,13 @@ describe HexaPDF::Content::GraphicObject::EndpointArc do
       canvas.draw(:endpoint_arc, x: 50, y: 0, a: 20, b: 10, inclination: 90, large_arc: false,
                   clockwise: false)
       assert_equal(arc_data, @page.contents)
+    end
+
+    it "assigns the max curves to the generated arc" do
+      arc = HexaPDF::Content::GraphicObject::EndpointArc.new
+      arc.configure(a: 1, b: 1, x: -1, y: 0, max_curves: 10)
+      hash = arc.send(:compute_arc_values, 1, 0)
+      assert_equal(10, hash[:max_curves])
     end
   end
 end

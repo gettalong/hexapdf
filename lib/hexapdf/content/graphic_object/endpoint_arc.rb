@@ -140,6 +140,19 @@ module HexaPDF
         #   canvas.stroke_color("red").move_to(0, 0).draw(arc, clockwise: true).stroke
         attr_reader :clockwise
 
+        # The maximal number of curves used for approximating a complete ellipse.
+        #
+        # See Arc#max_curves for details.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 20)
+        #   canvas.move_to(0, 0).draw(arc, max_curves: 1).stroke
+        #   canvas.stroke_color("hp-blue").
+        #     move_to(0, 0).draw(arc, max_curves: 2).stroke
+        attr_accessor :max_curves
+
         # Creates an endpoint arc with default values x=0, y=0, a=0, b=0, inclination=0,
         # large_arc=true, clockwise=false (a line to the origin).
         #
@@ -153,6 +166,7 @@ module HexaPDF
           @inclination = 0
           @large_arc = true
           @clockwise = false
+          @max_curves = nil
         end
 
         # Configures the endpoint arc with
@@ -183,6 +197,7 @@ module HexaPDF
           @inclination = inclination % 360 if inclination
           @large_arc = large_arc unless large_arc.nil?
           @clockwise = clockwise unless clockwise.nil?
+          @max_curves = max_curves if max_curves
 
           self
         end
@@ -257,7 +272,7 @@ module HexaPDF
           end_angle = compute_angle_to_x_axis((-x1p - cxp), (-y1p - cyp)) % 360
 
           {cx: cx, cy: cy, a: rx, b: ry, start_angle: start_angle, end_angle: end_angle,
-           inclination: @inclination, clockwise: @clockwise}
+           inclination: @inclination, clockwise: @clockwise, max_curves: @max_curves}
         end
 
         # Compares two float numbers if they are within a certain delta.
