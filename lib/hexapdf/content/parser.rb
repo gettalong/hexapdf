@@ -46,7 +46,7 @@ module HexaPDF
     #
     # Changes:
     #
-    # * Since a content stream is normally parsed front to back, a StopIteration error can be raised
+    # * Since a content stream is usually parsed front to back, a StopIteration error can be raised
     #   instead of returning +NO_MORE_TOKENS+ once the end of the string is reached to avoid costly
     #   checks in each iteration. If this behaviour is wanted, pass "raise_on_eos: true" in the
     #   constructor.

@@ -41,41 +41,43 @@ module HexaPDF
       # This graphic object represents a solid elliptical arc, i.e. an arc that has an inner and
       # an outer set of a/b values.
       #
+      # Note that only the path itself is added to the canvas. So depending on the use-case the path
+      # itself still has to be, for example, stroked.
+      #
       # This graphic object is registered under the :solid_arc key for use with the
       # HexaPDF::Content::Canvas class.
       #
-      # Thus it can be used to create
+      # It can be used to create
       #
       # * an (*elliptical*) *disk* (when the inner a/b are zero and the difference between start and
       #   end angles is greater than or equal to 360),
       #
       #     #>pdf-center
-      #     canvas.fill_color("red").
-      #       draw(:solid_arc, outer_a: 80, outer_b: 50, end_angle: 360).
+      #     canvas.fill_color("hp-blue").
+      #       draw(:solid_arc, outer_a: 80, outer_b: 50).
       #       fill_stroke
       #
       # * an (*elliptical*) *sector* (when the inner a/b are zero and the difference between start
       #   and end angles is less than 360),
       #
       #     #>pdf-center
-      #     canvas.fill_color("red").
+      #     canvas.fill_color("hp-blue").
       #       draw(:solid_arc, outer_a: 80, outer_b: 50, start_angle: 20, end_angle: 230).
       #       fill_stroke
       #
       # * an (*elliptical*) *annulus* (when the inner a/b are nonzero and the difference between
-      #   start and end angles is greater than or equal to 360), and
+      #   start and end angles is greater than or equal to 360),
       #
       #     #>pdf-center
-      #     canvas.fill_color("red").
-      #       draw(:solid_arc, outer_a: 80, outer_b: 50, inner_a: 70, inner_b: 30,
-      #            end_angle: 360).
+      #     canvas.fill_color("hp-blue").
+      #       draw(:solid_arc, outer_a: 80, outer_b: 50, inner_a: 70, inner_b: 30).
       #       fill_stroke
       #
-      # * an (*elliptical*) *annular sector* (when the inner a/b are nonzero and the difference
+      # * and an (*elliptical*) *annular sector* (when the inner a/b are nonzero and the difference
       #   between start and end angles is less than 360)
       #
       #     #>pdf-center
-      #     canvas.fill_color("red").
+      #     canvas.fill_color("hp-blue").
       #       draw(:solid_arc, outer_a: 80, outer_b: 50, inner_a: 70, inner_b: 30,
       #            start_angle: 20, end_angle: 230).
       #       fill_stroke
@@ -90,7 +92,7 @@ module HexaPDF
           new.configure(**kwargs)
         end
 
-        # x-coordinate of center point
+        # x-coordinate of center point, defaults to 0.
         #
         # Examples:
         #
@@ -98,10 +100,10 @@ module HexaPDF
         #   solid_arc = canvas.graphic_object(:solid_arc, outer_a: 30, outer_b: 20,
         #                                     inner_a: 20, inner_b: 10)
         #   canvas.draw(solid_arc).stroke
-        #   canvas.stroke_color("red").draw(solid_arc, cx: 50).stroke
+        #   canvas.stroke_color("hp-blue").draw(solid_arc, cx: 50).stroke
         attr_reader :cx
 
-        # y-coordinate of center point
+        # y-coordinate of center point, defaults to 0.
         #
         # Examples:
         #
@@ -109,91 +111,96 @@ module HexaPDF
         #   solid_arc = canvas.graphic_object(:solid_arc, outer_a: 30, outer_b: 20,
         #                                     inner_a: 20, inner_b: 10)
         #   canvas.draw(solid_arc).stroke
-        #   canvas.stroke_color("red").draw(solid_arc, cy: 50).stroke
+        #   canvas.stroke_color("hp-blue").draw(solid_arc, cy: 50).stroke
         attr_reader :cy
 
         # Length of inner semi-major axis which (without altering the #inclination) is parallel to
-        # the x-axis
+        # the x-axis, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
-        #   solid_arc = canvas.graphic_object(:solid_arc, outer_a: 30, outer_b: 20,
+        #   solid_arc = canvas.graphic_object(:solid_arc, cx: -50, outer_a: 30, outer_b: 20,
         #                                     inner_a: 20, inner_b: 10)
         #   canvas.draw(solid_arc).stroke
-        #   canvas.stroke_color("red").draw(solid_arc, inner_a: 5).stroke
+        #   canvas.stroke_color("hp-blue").draw(solid_arc, cx: 50, inner_a: 5).stroke
         attr_reader :inner_a
 
-        # Length of inner semi-minor axis which (without altering the #inclination) is parallel to the
-        # y-axis
+        # Length of inner semi-minor axis which (without altering the #inclination) is parallel to
+        # the y-axis, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
-        #   solid_arc = canvas.graphic_object(:solid_arc, outer_a: 30, outer_b: 20,
+        #   solid_arc = canvas.graphic_object(:solid_arc, cx: -50, outer_a: 30, outer_b: 20,
         #                                     inner_a: 20, inner_b: 10)
         #   canvas.draw(solid_arc).stroke
-        #   canvas.stroke_color("red").draw(solid_arc, inner_b: 20).stroke
+        #   canvas.stroke_color("hp-blue").draw(solid_arc, cx: 50, inner_b: 20).stroke
         attr_reader :inner_b
 
         # Length of outer semi-major axis which (without altering the #inclination) is parallel to
-        # the x-axis
+        # the x-axis, defaults to 1.
         #
         # Examples:
         #
         #   #>pdf-center
-        #   solid_arc = canvas.graphic_object(:solid_arc, outer_a: 30, outer_b: 20,
+        #   solid_arc = canvas.graphic_object(:solid_arc, cx: -50, outer_a: 30, outer_b: 20,
         #                                     inner_a: 20, inner_b: 10)
         #   canvas.draw(solid_arc).stroke
-        #   canvas.stroke_color("red").draw(solid_arc, outer_a: 45).stroke
+        #   canvas.stroke_color("hp-blue").draw(solid_arc, cx: 50, outer_a: 45).stroke
         attr_reader :outer_a
 
         # Length of outer semi-minor axis which (without altering the #inclination) is parallel to the
-        # y-axis
+        # y-axis, defaults to 1.
         #
         # Examples:
         #
         #   #>pdf-center
-        #   solid_arc = canvas.graphic_object(:solid_arc, outer_a: 30, outer_b: 20,
+        #   solid_arc = canvas.graphic_object(:solid_arc, cx: -50, outer_a: 30, outer_b: 20,
         #                                     inner_a: 20, inner_b: 10)
         #   canvas.draw(solid_arc).stroke
-        #   canvas.stroke_color("red").draw(solid_arc, outer_b: 40).stroke
+        #   canvas.stroke_color("hp-blue").draw(solid_arc, cx: 50, outer_b: 40).stroke
         attr_reader :outer_b
 
-        # Start angle of the solid arc in degrees
+        # Start angle of the solid arc in degrees, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
-        #   solid_arc = canvas.graphic_object(:solid_arc, outer_a: 30, outer_b: 20,
+        #   solid_arc = canvas.graphic_object(:solid_arc, cx: -50, outer_a: 30, outer_b: 20,
         #                                     inner_a: 20, inner_b: 10)
         #   canvas.draw(solid_arc).stroke
-        #   canvas.stroke_color("red").draw(solid_arc, start_angle: 60).stroke
+        #   canvas.stroke_color("hp-blue").draw(solid_arc, cx: 50, start_angle: 60).stroke
         attr_reader :start_angle
 
-        # End angle  of the solid arc in degrees
+        # End angle  of the solid arc in degrees, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
-        #   solid_arc = canvas.graphic_object(:solid_arc, outer_a: 30, outer_b: 20,
+        #   solid_arc = canvas.graphic_object(:solid_arc, cx: -50, outer_a: 30, outer_b: 20,
         #                                     inner_a: 20, inner_b: 10)
         #   canvas.draw(solid_arc).stroke
-        #   canvas.stroke_color("red").draw(solid_arc, end_angle: 120).stroke
+        #   canvas.stroke_color("hp-blue").draw(solid_arc, cx: 50, end_angle: 120).stroke
         attr_reader :end_angle
 
-        # Inclination in degrees of semi-major axis in respect to x-axis
+        # Inclination in degrees of semi-major axis in respect to x-axis, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
-        #   solid_arc = canvas.graphic_object(:solid_arc, outer_a: 30, outer_b: 20,
+        #   solid_arc = canvas.graphic_object(:solid_arc, cx: -50, outer_a: 30, outer_b: 20,
         #                                     inner_a: 20, inner_b: 10)
         #   canvas.draw(solid_arc).stroke
-        #   canvas.stroke_color("red").draw(solid_arc, inclination: 40).stroke
+        #   canvas.stroke_color("hp-blue").draw(solid_arc, cx: 50, inclination: 40).stroke
         attr_reader :inclination
 
         # Creates a solid arc with default values (a unit disk at the origin).
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   canvas.draw(:solid_arc).stroke
         def initialize
           @cx = @cy = 0
           @inner_a = @inner_b = 0
@@ -218,6 +225,13 @@ module HexaPDF
         # for the inital values.
         #
         # Returns self.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   solid_arc = canvas.graphic_object(:solid_arc)
+        #   solid_arc.configure(outer_a: 30, outer_b: 20, inner_a: 20, inner_b: 10)
+        #   canvas.draw(solid_arc).stroke
         def configure(cx: nil, cy: nil, inner_a: nil, inner_b: nil, outer_a: nil, outer_b: nil,
                       start_angle: nil, end_angle: nil, inclination: nil)
           @cx = cx if cx
@@ -234,6 +248,14 @@ module HexaPDF
         end
 
         # Draws the solid arc on the given Canvas.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   solid_arc = canvas.graphic_object(:solid_arc, outer_a: 30, outer_b: 20,
+        #                                     inner_a: 20, inner_b: 10)
+        #   solid_arc.draw(canvas)
+        #   canvas.stroke
         def draw(canvas)
           angle_difference = (@end_angle - @start_angle).abs
           if @inner_a == 0 && @inner_b == 0

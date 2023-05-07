@@ -87,6 +87,9 @@ module HexaPDF
     #   Returns the color corresponding to the given arguments without applying value normalization.
     #   The number and types of the arguments differ from one color space to another.
     #
+    #   This method should be used when the arguments are already normalized (e.g. when loaded from
+    #   a content stream).
+    #
     # The class representing a color in the color space needs to respond to the following methods:
     #
     # #color_space::
@@ -98,19 +101,20 @@ module HexaPDF
     # See: PDF2.0 s8.6
     module ColorSpace
 
-      # Mapping of color names (CSS Color Module Level 3 names and HexaPDF design color names) to
-      # RGB and gray values.
+      # Mapping of color names (CSS Color Module Level 3 names - see
+      # https://www.w3.org/TR/css-color-3/#svg-color - and HexaPDF design color names) to RGB and
+      # gray values.
       #
       # Visual listing of all colors:
       #
       #   #>pdf-big
-      #   canvas.font("Helvetica", size: 8)
+      #   canvas.font("Helvetica", size: 7.5)
       #   map = HexaPDF::Content::ColorSpace::COLOR_NAMES
-      #   map.each_slice(38).each_with_index do |slice, col|
+      #   map.each_slice(43).each_with_index do |slice, col|
       #     x = 10 + col * 100
       #     slice.each_with_index do |(name, rgb), row|
-      #       canvas.fill_color(rgb).rectangle(x, 380 - row * 10, 10, 10).fill
-      #       canvas.fill_color("black").text(name, at: [x + 15, 380 - row * 10 + 2])
+      #       canvas.fill_color(rgb).rectangle(x, 380 - row * 9, 9, 9).fill
+      #       canvas.fill_color("black").text(name, at: [x + 15, 380 - row * 9 + 2])
       #     end
       #   end
       COLOR_NAMES = {
@@ -288,7 +292,7 @@ module HexaPDF
       #   ColorSpace.device_color_from_specification(string)         => color
       #   ColorSpace.device_color_from_specification(array)          => color
       #
-      # Creates a device color object from the given color specification.
+      # Creates and returns a device color object from the given color specification.
       #
       # There are several ways to define the color that should be used:
       #
@@ -298,8 +302,8 @@ module HexaPDF
       #   for the green and "BB" for the blue color value also specifies an RGB color.
       # * As does a string in the format "RGB" where "RR", "GG" and "BB" would be used as the
       #   hexadecimal numbers for the red, green and blue color values of an RGB color.
-      # * Any other string is treated as a CSS Color Module Level 3 color name, see
-      #   https://www.w3.org/TR/css-color-3/#svg-color.
+      # * Any other string is treated as a color name (CSS Color Module Level 3 and HexaPDF design
+      #   color names are supported - see COLOR_NAMES).
       # * Four numeric arguments specify a CMYK color (see DeviceCMYK::Color).
       # * An array is treated as if its items were specified separately as arguments.
       #
@@ -307,7 +311,30 @@ module HexaPDF
       # values are first normalized (expected range by the PDF specification is 0.0 - 1.0) - see
       # DeviceGray#color, DeviceRGB#color and DeviceCMYK#color for details.
       #
-      # For examples see HexaPDF::Content::Canvas#stroke_color.
+      # Examples:
+      #
+      #   #>pdf
+      #   cs = HexaPDF::Content::ColorSpace
+      #   canvas.line_width(5)
+      #
+      #   # Note that Canvas#stroke_color implicitly uses this method, so
+      #   # explicitly using it like in this example is not needed
+      #   canvas.stroke_color(cs.device_color_from_specification(160))
+      #   canvas.line(10, 10, 10, 190).stroke
+      #   canvas.stroke_color(cs.device_color_from_specification(0, 128, 255))
+      #   canvas.line(35, 10, 35, 190).stroke
+      #   canvas.stroke_color(cs.device_color_from_specification("0088FF"))
+      #   canvas.line(60, 10, 60, 190).stroke
+      #   canvas.stroke_color(cs.device_color_from_specification("08F"))
+      #   canvas.line(85, 10, 85, 190).stroke
+      #   canvas.stroke_color(cs.device_color_from_specification("gold"))
+      #   canvas.line(110, 10, 110, 190).stroke
+      #   canvas.stroke_color(cs.device_color_from_specification("hp-blue"))
+      #   canvas.line(135, 10, 135, 190).stroke
+      #   canvas.stroke_color(cs.device_color_from_specification(10, 50, 0, 60))
+      #   canvas.line(160, 10, 160, 190).stroke
+      #   canvas.stroke_color(cs.device_color_from_specification([0, 128, 255]))
+      #   canvas.line(185, 10, 185, 190).stroke
       def self.device_color_from_specification(*spec)
         spec.flatten!
         first_item = spec[0]

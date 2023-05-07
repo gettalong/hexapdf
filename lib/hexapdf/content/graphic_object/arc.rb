@@ -45,6 +45,9 @@ module HexaPDF
       # all either in clockwise or counterclockwise direction and optionally inclined in respect to
       # the x-axis.
       #
+      # Note that only the path of the arc itself is added to the canvas. So depending on the
+      # use-case the path itself still has to be, for example, stroked.
+      #
       # This graphic object is registered under the :arc key for use with the
       # HexaPDF::Content::Canvas class.
       #
@@ -75,66 +78,64 @@ module HexaPDF
         # Examples:
         #
         #   #>pdf-center
-        #   arc = canvas.graphic_object(:arc, cx: -50, a: 40, b: 40)
-        #   arc.max_curves = 2
+        #   arc = canvas.graphic_object(:arc, cx: -50, a: 40, b: 40, max_curves: 2)
         #   canvas.draw(arc)
-        #   arc.max_curves = 10
-        #   canvas.draw(arc, cx: 50)
+        #   canvas.draw(arc, cx: 50, max_curves: 10)
         #   canvas.stroke
         attr_accessor :max_curves
 
-        # x-coordinate of center point
+        # x-coordinate of center point, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:arc, a: 30, b: 20)
         #   canvas.draw(arc).stroke
-        #   canvas.stroke_color("red").draw(arc, cx: -50).stroke
+        #   canvas.stroke_color("hp-blue").draw(arc, cx: 50).stroke
         attr_reader :cx
 
-        # y-coordinate of center point
+        # y-coordinate of center point, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:arc, a: 30, b: 20)
         #   canvas.draw(arc).stroke
-        #   canvas.stroke_color("red").draw(arc, cy: 50).stroke
+        #   canvas.stroke_color("hp-blue").draw(arc, cy: 50).stroke
         attr_reader :cy
 
         # Length of semi-major axis which (without altering the #inclination) is parallel to the
-        # x-axis
+        # x-axis, defaults to 1.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:arc, a: 30, b: 30)
         #   canvas.draw(arc).stroke
-        #   canvas.stroke_color("red").draw(arc, a: 60).stroke
+        #   canvas.stroke_color("hp-blue").draw(arc, a: 60).stroke
         attr_reader :a
 
         # Length of semi-minor axis which (without altering the #inclination) is parallel to the
-        # y-axis
+        # y-axis, defaults to 1.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:arc, a: 30, b: 30)
         #   canvas.draw(arc).stroke
-        #   canvas.stroke_color("red").draw(arc, b: 60).stroke
+        #   canvas.stroke_color("hp-blue").draw(arc, b: 60).stroke
         attr_reader :b
 
-        # Start angle of the arc in degrees
+        # Start angle of the arc in degrees, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:arc, a: 30, b: 30)
-        #   canvas.draw(arc, start_angle: 45).stroke
+        #   canvas.draw(arc, start_angle: 110).stroke
         attr_reader :start_angle
 
-        # End angle of the arc in degrees
+        # End angle of the arc in degrees, defaults to 0.
         #
         # Examples:
         #
@@ -143,7 +144,7 @@ module HexaPDF
         #   canvas.draw(arc, end_angle: 160).stroke
         attr_reader :end_angle
 
-        # Inclination in degrees of the semi-major axis with respect to the x-axis
+        # Inclination in degrees of the semi-major axis with respect to the x-axis, defaults to 0.
         #
         # Examples:
         #
@@ -153,6 +154,7 @@ module HexaPDF
         attr_reader :inclination
 
         # Direction of arc - if +true+ in clockwise direction, else in counterclockwise direction
+        # (the default).
         #
         # This is needed when filling paths using the nonzero winding number rule to achieve
         # different effects.
@@ -161,7 +163,8 @@ module HexaPDF
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:arc, a: 40, b: 40)
-        #   canvas.draw(arc, cx: -50).draw(arc, cx: 50).
+        #   canvas.fill_color("hp-blue").
+        #     draw(arc, cx: -50).draw(arc, cx: 50).
         #     draw(arc, cx: -50, b: 80).
         #     draw(arc, cx: 50, b: 80, clockwise: true).
         #     fill(:nonzero)
@@ -192,17 +195,27 @@ module HexaPDF
         # * semi-minor axis +b+,
         # * start angle of +start_angle+ degrees,
         # * end angle of +end_angle+ degrees and
-        # * an inclination in respect to the x-axis of +inclination+ degrees.
+        # * an inclination in respect to the x-axis of +inclination+ degrees,
+        # * as well as the maximal number of curves +max_curves+ used for approximation.
         #
         # The +clockwise+ argument determines if the arc is drawn in the counterclockwise direction
         # (+false+) or in the clockwise direction (+true+).
+        #
+        # For the meaning of +max_curves+ see the description of #max_curves.
         #
         # Any arguments not specified are not modified and retain their old value, see #initialize
         # for the inital values.
         #
         # Returns self.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc)
+        #   arc.configure(cx: 50, a: 40, b: 20, inclination: 10)
+        #   canvas.draw(arc).stroke
         def configure(cx: nil, cy: nil, a: nil, b: nil, start_angle: nil, end_angle: nil,
-                      inclination: nil, clockwise: nil)
+                      inclination: nil, clockwise: nil, max_curves: nil)
           @cx = cx if cx
           @cy = cy if cy
           @a = a.abs if a
@@ -214,6 +227,7 @@ module HexaPDF
           @end_angle = end_angle if end_angle
           @inclination = inclination if inclination
           @clockwise = clockwise unless clockwise.nil?
+          @max_curves = max_curves if max_curves
           calculate_cached_values
           self
         end
@@ -225,7 +239,7 @@ module HexaPDF
         #   #>pdf-center
         #   arc = canvas.graphic_object(:arc, a: 40, b: 30, start_angle: 60)
         #   canvas.draw(arc).stroke
-        #   canvas.fill_color("red").circle(*arc.start_point, 2).fill
+        #   canvas.fill_color("hp-blue").circle(*arc.start_point, 2).fill
         def start_point
           evaluate(@start_eta)
         end
@@ -237,7 +251,7 @@ module HexaPDF
         #   #>pdf-center
         #   arc = canvas.graphic_object(:arc, a: 40, b: 30, end_angle: 245)
         #   canvas.draw(arc).stroke
-        #   canvas.fill_color("red").circle(*arc.end_point, 2).fill
+        #   canvas.fill_color("hp-blue").circle(*arc.end_point, 2).fill
         def end_point
           evaluate(@end_eta)
         end
@@ -245,18 +259,37 @@ module HexaPDF
         # Returns the point at +angle+ degrees on the ellipse.
         #
         # Note that the point may not lie on the arc itself!
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 40, b: 30, end_angle: 245)
+        #   canvas.draw(arc).stroke
+        #   canvas.fill_color("hp-blue").
+        #     circle(*arc.point_at(150), 2).
+        #     circle(*arc.point_at(290), 2).
+        #     fill
         def point_at(angle)
           evaluate(angle_to_param(angle))
         end
 
         # Draws the arc on the given Canvas.
         #
-        # If the argument +move_to_start+ is +true+, a Canvas#move_to operation is executed to
-        # move the current point to the start point of the arc. Otherwise it is assumed that the
-        # current point already coincides with the start point
+        # If the argument +move_to_start+ is +true+, a Canvas#move_to operation is executed to move
+        # the current point to the start point of the arc. Otherwise it is assumed that the current
+        # point already coincides with the start point. This functionality is used, for example, by
+        # the SolidArc implementation.
         #
         # The #max_curves value, if not already changed, is set to the value of the configuration
         # option 'graphic_object.arc.max_curves' before drawing.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:arc, a: 40, b: 30)
+        #   canvas.stroke_color("hp-blue").move_to(-50, 0)
+        #   arc.draw(canvas, move_to_start: false)
+        #   canvas.stroke
         def draw(canvas, move_to_start: true)
           @max_curves ||= canvas.context.document.config['graphic_object.arc.max_curves']
           canvas.move_to(*start_point) if move_to_start

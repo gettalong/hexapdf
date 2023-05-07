@@ -43,6 +43,8 @@ module HexaPDF
   module Content
 
     # Associates a name with a value, used by various graphics state parameters.
+    #
+    # See LineCapStyle, LineJoinStyle, TextRenderingMode
     class NamedValue
 
       # The value itself.
@@ -73,12 +75,12 @@ module HexaPDF
     end
 
     # Defines all available line cap styles as constants. Each line cap style is an instance of
-    # NamedValue, see ::normalize. For use with e.g. Content::Canvas#line_cap_style.
+    # NamedValue, see ::normalize. For use with e.g. Canvas#line_cap_style.
     #
     # See: PDF2.0 s8.4.3.3
     module LineCapStyle
 
-      # Returns the argument normalized to a valid line cap style.
+      # Returns the argument normalized to a valid line cap style, i.e. a NamedValue instance.
       #
       # * 0 or +:butt+ can be used for the BUTT_CAP style.
       # * 1 or +:round+ can be used for the ROUND_CAP style.
@@ -96,7 +98,7 @@ module HexaPDF
 
       # Stroke is squared off at the endpoint of a path.
       #
-      # Specify as 0 or :butt.
+      # Specify as 0 or +:butt+.
       #
       #   #>pdf-small-hide
       #   canvas.line_cap_style(:butt)
@@ -106,7 +108,7 @@ module HexaPDF
 
       # A semicircular arc is drawn at the endpoint of a path.
       #
-      # Specify as 1 or :round.
+      # Specify as 1 or +:round+.
       #
       #   #>pdf-small-hide
       #   canvas.line_cap_style(:round)
@@ -116,7 +118,7 @@ module HexaPDF
 
       # The stroke continues half the line width beyond the endpoint of a path.
       #
-      # Specify as 2 or :projecting_square.
+      # Specify as 2 or +:projecting_square+.
       #
       #   #>pdf-small-hide
       #   canvas.line_cap_style(:projecting_square)
@@ -127,12 +129,12 @@ module HexaPDF
     end
 
     # Defines all available line join styles as constants. Each line join style is an instance of
-    # NamedValue, see ::normalize For use with e.g. Content::Canvas#line_join_style.
+    # NamedValue, see ::normalize For use with e.g. Canvas#line_join_style.
     #
     # See: PDF2.0 s8.4.3.4
     module LineJoinStyle
 
-      # Returns the argument normalized to a valid line join style.
+      # Returns the argument normalized to a valid line join style, i.e. a NamedValue instance.
       #
       # * 0 or +:miter+ can be used for the MITER_JOIN style.
       # * 1 or +:round+ can be used for the ROUND_JOIN style.
@@ -150,7 +152,7 @@ module HexaPDF
 
       # The outer lines of the two segments continue until they meet at an angle.
       #
-      # Specify as 0 or :miter.
+      # Specify as 0 or +:miter+.
       #
       #   #>pdf-small-hide
       #   canvas.line_join_style(:miter)
@@ -162,7 +164,7 @@ module HexaPDF
 
       # An arc of a circle is drawn around the point where the segments meet.
       #
-      # Specify as 1 or :round.
+      # Specify as 1 or +:round+.
       #
       #   #>pdf-small-hide
       #   canvas.line_join_style(:round)
@@ -175,7 +177,7 @@ module HexaPDF
       # The two segments are finished with butt caps and the space between the ends is filled with a
       # triangle.
       #
-      # Specify as 2 or :bevel.
+      # Specify as 2 or +:bevel+.
       #
       #   #>pdf-small-hide
       #   canvas.line_join_style(:bevel)
@@ -188,7 +190,7 @@ module HexaPDF
     end
 
     # The line dash pattern defines how a line should be dashed. For use with e.g.
-    # Content::Canvas#line_dash_pattern.
+    # Canvas#line_dash_pattern.
     #
     # A dash pattern consists of two parts: the dash array and the dash phase. The dash array
     # defines the length of alternating dashes and gaps (important: starting with dashes). And the
@@ -203,6 +205,16 @@ module HexaPDF
     #   [2 1] 0                   2 unit dash, 1 unit gap, 2 unit dash, 1 unit gap, ...
     #   [3 5] 6                   2 unit gap, 3 unit dash, 5 unit gap, 3 unit dash, ...
     #   [2 3] 6                   1 unit dash, 3 unit gap, 2 unit dash, 3 unit gap, ...
+    #
+    # And visualized it looks like this:
+    #
+    #   #>pdf-canvas-hide
+    #   canvas.line_width(2)
+    #   [[[], 0], [[3], 0], [[3], 1], [[2, 1], 0],
+    #    [[3, 5], 6], [[2, 3], 6]].each_with_index do |(arr, phase), index|
+    #     canvas.line_dash_pattern(arr, phase)
+    #     canvas.line(20, 180 - index * 30, 180, 180 - index * 30).stroke
+    #   end
     #
     # See: PDF2.0 s8.4.3.6
     class LineDashPattern
@@ -261,7 +273,7 @@ module HexaPDF
     end
 
     # Defines all available rendering intents as constants. For use with e.g.
-    # Content::Canvas#rendering_intent.
+    # Canvas#rendering_intent.
     #
     # See: PDF2.0 s8.6.5.8
     module RenderingIntent
@@ -295,12 +307,12 @@ module HexaPDF
     end
 
     # Defines all available text rendering modes as constants. Each text rendering mode is an
-    # instance of NamedValue. For use with e.g. Content::Canvas#text_rendering_mode.
+    # instance of NamedValue. For use with e.g. Canvas#text_rendering_mode.
     #
     # See: PDF2.0 s9.3.6
     module TextRenderingMode
 
-      # Returns the argument normalized to a valid text rendering mode.
+      # Returns the argument normalized to a valid text rendering mode, i.e. a NamedValue instance.
       #
       # * 0 or +:fill+ can be used for the FILL mode.
       # * 1 or +:stroke+ can be used for the STROKE mode.
@@ -328,95 +340,92 @@ module HexaPDF
 
       # Fill text.
       #
-      # Specify as 0 or :fill.
+      # Specify as 0 or +:fill+.
       #
       #   #>pdf-small-hide
       #   canvas.font("Helvetica", size: 13)
-      #   canvas.stroke_color("green").line_width(0.5)
       #   canvas.text_rendering_mode(:fill)
       #   canvas.text("#{canvas.text_rendering_mode.name}", at: [10, 50])
       FILL = NamedValue.new(:fill, 0)
 
       # Stroke text.
       #
-      # Specify as 1 or :stroke.
+      # Specify as 1 or +:stroke+.
       #
       #   #>pdf-small-hide
       #   canvas.font("Helvetica", size: 13)
-      #   canvas.stroke_color("green").line_width(0.5)
+      #   canvas.stroke_color("hp-blue").line_width(0.5)
       #   canvas.text_rendering_mode(:stroke)
       #   canvas.text("#{canvas.text_rendering_mode.name}", at: [10, 50])
       STROKE = NamedValue.new(:stroke, 1)
 
       # Fill, then stroke text.
       #
-      # Specify as 2 or :fill_stroke.
+      # Specify as 2 or +:fill_stroke+.
       #
       #   #>pdf-small-hide
       #   canvas.font("Helvetica", size: 13)
-      #   canvas.stroke_color("green").line_width(0.5)
+      #   canvas.stroke_color("hp-blue").line_width(0.5)
       #   canvas.text_rendering_mode(:fill_stroke)
       #   canvas.text("#{canvas.text_rendering_mode.name}", at: [10, 50])
       FILL_STROKE = NamedValue.new(:fill_stroke, 2)
 
       # Neither fill nor stroke text (invisible).
       #
-      # Specify as 3 or :invisible.
+      # Specify as 3 or +:invisible+.
       #
       #   #>pdf-small-hide
       #   canvas.font("Helvetica", size: 13)
-      #   canvas.stroke_color("green").line_width(0.5)
       #   canvas.text_rendering_mode(:invisible)
       #   canvas.text("#{canvas.text_rendering_mode.name}", at: [10, 50])
-      #   canvas.stroke_color("red").line_width(20).line(30, 20, 30, 80).stroke
+      #   canvas.stroke_color("hp-blue").line_width(20).line(30, 20, 30, 80).stroke
       INVISIBLE = NamedValue.new(:invisible, 3)
 
       # Fill text and add to path for clipping.
       #
-      # Specify as 4 or :fill_clip.
+      # Specify as 4 or +:fill_clip+.
       #
       #   #>pdf-small-hide
       #   canvas.font("Helvetica", size: 13)
-      #   canvas.stroke_color("green").line_width(0.5)
       #   canvas.text_rendering_mode(:fill_clip)
       #   canvas.text("#{canvas.text_rendering_mode.name}", at: [10, 50])
-      #   canvas.stroke_color("red").line_width(20).line(30, 20, 30, 80).stroke
+      #   canvas.stroke_color("hp-orange").line_width(20).line(30, 20, 30, 80).stroke
       FILL_CLIP = NamedValue.new(:fill_clip, 4)
 
       # Stroke text and add to path for clipping.
       #
-      # Specify as 5 or :stroke_clip.
+      # Specify as 5 or +:stroke_clip+.
       #
       #   #>pdf-small-hide
       #   canvas.font("Helvetica", size: 13)
-      #   canvas.stroke_color("green").line_width(0.5)
+      #   canvas.stroke_color("hp-blue").line_width(0.5)
       #   canvas.text_rendering_mode(:stroke_clip)
       #   canvas.text("#{canvas.text_rendering_mode.name}", at: [10, 50])
-      #   canvas.stroke_color("red").line_width(20).line(30, 20, 30, 80).stroke
+      #   canvas.stroke_color("hp-orange").line_width(20).line(30, 20, 30, 80).stroke
       STROKE_CLIP = NamedValue.new(:stroke_clip, 5)
 
       # Fill, then stroke text and add to path for clipping.
       #
-      # Specify as 6 or :fill_stroke_clip.
+      # Specify as 6 or +:fill_stroke_clip+.
       #
       #   #>pdf-small-hide
       #   canvas.font("Helvetica", size: 13)
-      #   canvas.stroke_color("green").line_width(0.5)
+      #   canvas.stroke_color("hp-blue").line_width(0.5)
       #   canvas.text_rendering_mode(:fill_stroke_clip)
       #   canvas.text("#{canvas.text_rendering_mode.name}", at: [10, 50])
-      #   canvas.stroke_color("red").line_width(20).line(30, 20, 30, 80).stroke
+      #   canvas.stroke_color("hp-orange").line_width(20).line(30, 20, 30, 80).stroke
       FILL_STROKE_CLIP = NamedValue.new(:fill_stroke_clip, 6)
 
       # Add text to path for clipping.
       #
-      # Specify as 7 or :clip.
+      # Specify as 7 or +:clip+.
       #
       #   #>pdf-small-hide
       #   canvas.font("Helvetica", size: 13)
-      #   canvas.stroke_color("green").line_width(0.5)
+      #   canvas.stroke_color("hp-blue").line_width(0.5)
       #   canvas.text_rendering_mode(:clip)
       #   canvas.text("#{canvas.text_rendering_mode.name}", at: [10, 50])
-      #   canvas.stroke_color("red").line_width(20).line(30, 20, 30, 80).stroke
+      #   canvas.stroke_color("hp-orange").line_width(20).line(30, 20, 30, 80).stroke
       CLIP = NamedValue.new(:clip, 7)
 
     end

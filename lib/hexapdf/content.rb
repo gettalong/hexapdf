@@ -39,6 +39,11 @@ module HexaPDF
   # == Overview
   #
   # The Content module contains everything related to working with page content streams.
+  #
+  # The most important classes are:
+  #
+  # * The Canvas class which provides an interface for drawing graphics and text.
+  # * The Parser and Processor classes for processing an existing content stream.
   module Content
 
     autoload(:Canvas, 'hexapdf/content/canvas')

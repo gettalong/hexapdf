@@ -43,6 +43,22 @@ module HexaPDF
 
       # This class provides support for drawing Geom2D objects like line segments and polygons.
       #
+      # By default, the paths for the objects are not only added to the canvas but are also stroked
+      # or filled (depending on the specific Geom2D object).
+      #
+      # Supported Geom2D objects are:
+      #
+      # * Geom2D::Point
+      # * Geom2D::Segment
+      # * Geom2D::Polygon
+      # * Geom2D::PolygonSet
+      #
+      # Examples:
+      #
+      #   #>pdf-center
+      #   canvas.draw(:geom2d, object: ::Geom2D::Point(-10, 10))
+      #   canvas.draw(:geom2d, object: ::Geom2D::Polygon([10, 10], [30, 20], [0, 50]))
+      #
       # See: Geom2D - https://github.com/gettalong/geom2d
       class Geom2D
 
@@ -53,10 +69,12 @@ module HexaPDF
           new.configure(**kwargs)
         end
 
-        # The Geom2D object that should be drawn
+        # The Geom2D object that should be drawn.
+        #
+        # This attribute *must* be set before drawing.
         attr_accessor :object
 
-        # The radius to use when drawing Geom2D::Point objects; defaults to 1
+        # The radius to use when drawing Geom2D::Point objects, defaults to 1.
         #
         # Examples:
         #
@@ -66,7 +84,7 @@ module HexaPDF
         attr_accessor :point_radius
 
         # Specifies whether only paths should be drawn or if they should be stroked/filled too
-        # (default).
+        # (the default).
         #
         # Examples:
         #
@@ -76,6 +94,8 @@ module HexaPDF
         attr_accessor :path_only
 
         # Creates a Geom2D drawing support object.
+        #
+        # A call to #configure is mandatory afterwards to set the #object to be drawn.
         def initialize
           @object = nil
           @point_radius = 1
@@ -84,7 +104,8 @@ module HexaPDF
 
         # Configures the Geom2D drawing support object. The following arguments are allowed:
         #
-        # :object:: The object that should be drawn.
+        # :object:: The object that should be drawn. If this argument has not been set before and is
+        #           also not given, an error will be raised when calling #draw.
         # :point_radius:: The radius of the points when drawing points.
         # :path_only:: Whether only the path should be drawn.
         #
@@ -92,14 +113,28 @@ module HexaPDF
         # methods for the inital values.
         #
         # Returns self.
-        def configure(object:, point_radius: nil, path_only: nil)
-          @object = object
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   obj = canvas.graphic_object(:geom2d, object: ::Geom2D::Point(0, 0))
+        #   canvas.draw(obj)
+        #   canvas.opacity(fill_alpha: 0.5).fill_color("hp-blue").
+        #     draw(obj, point_radius: 10)
+        def configure(object: nil, point_radius: nil, path_only: nil)
+          @object = object if object
           @point_radius = point_radius if point_radius
           @path_only = path_only if path_only
           self
         end
 
         # Draws the Geom2D object onto the given Canvas.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   obj = canvas.graphic_object(:geom2d, object: ::Geom2D::Point(0, 0))
+        #   obj.draw(canvas)
         def draw(canvas)
           case @object
           when ::Geom2D::Point then draw_point(canvas)

@@ -41,7 +41,12 @@ module HexaPDF
     module GraphicObject
 
       # This class describes an elliptical arc in endpoint parameterization. It allows one to
-      # generate an arc from the current point to a given point, similar to Content::Canvas#line_to.
+      # generate an arc from the current point to a given point, similar to Canvas#line_to. Behind
+      # the scenes the endpoint parameterization is turned into a center parameterization and drawn
+      # with Arc.
+      #
+      # Note that only the path of the arc itself is added to the canvas. So depending on the
+      # use-case the path itself still has to be, for example, stroked.
       #
       # This graphic object is registered under the :endpoint_arc key for use with the
       # HexaPDF::Content::Canvas class.
@@ -52,10 +57,12 @@ module HexaPDF
       #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 10)
       #   canvas.move_to(0, 0).draw(arc).stroke
       #
-      # See: GraphicObject::Arc, ARC - https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
+      # See: Arc, ARC - https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes (in the
+      # version of about 2016, see
+      # https://web.archive.org/web/20160310153722/https://www.w3.org/TR/SVG/implnote.html).
       class EndpointArc
 
-        EPSILON = 1e-10
+        EPSILON = 1e-10 # :nodoc:
 
         include Utils::MathHelpers
 
@@ -66,78 +73,80 @@ module HexaPDF
           new.configure(**kwargs)
         end
 
-        # x-coordinate of endpoint
+        # x-coordinate of endpoint, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 20)
         #   canvas.move_to(0, 0).draw(arc).stroke
-        #   canvas.stroke_color("red").move_to(0, 0).draw(arc, x: -50).stroke
+        #   canvas.stroke_color("hp-blue").move_to(0, 0).draw(arc, x: -50).stroke
         attr_reader :x
 
-        # y-coordinate of endpoint
+        # y-coordinate of endpoint, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 20)
         #   canvas.move_to(0, 0).draw(arc).stroke
-        #   canvas.stroke_color("red").move_to(0, 0).draw(arc, y: -20).stroke
+        #   canvas.stroke_color("hp-blue").move_to(0, 0).draw(arc, y: -20).stroke
         attr_reader :y
 
-        # Length of semi-major axis
+        # Length of semi-major axis, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 20)
         #   canvas.move_to(0, 0).draw(arc).stroke
-        #   canvas.stroke_color("red").move_to(0, 0).draw(arc, a: 40).stroke
+        #   canvas.stroke_color("hp-blue").move_to(0, 0).draw(arc, a: 40).stroke
         attr_reader :a
 
-        # Length of semi-minor axis
+        # Length of semi-minor axis, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 20)
         #   canvas.move_to(0, 0).draw(arc).stroke
-        #   canvas.stroke_color("red").move_to(0, 0).draw(arc, b: 50).stroke
+        #   canvas.stroke_color("hp-blue").move_to(0, 0).draw(arc, b: 50).stroke
         attr_reader :b
 
-        # Inclination in degrees of semi-major axis in respect to x-axis
+        # Inclination in degrees of semi-major axis in respect to x-axis, defaults to 0.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 20)
         #   canvas.move_to(0, 0).draw(arc).stroke
-        #   canvas.stroke_color("red").move_to(0, 0).draw(arc, inclination: 45).stroke
+        #   canvas.stroke_color("hp-blue").move_to(0, 0).draw(arc, inclination: 45).stroke
         attr_reader :inclination
 
-        # Large arc choice - if +true+ use the large arc (i.e. the one spanning more than 180
-        # degrees), else the small arc
+        # Large arc choice - if +true+ (the default) use the large arc (i.e. the one spanning more
+        # than 180 degrees), else the small arc
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 20)
         #   canvas.move_to(0, 0).draw(arc).stroke
-        #   canvas.stroke_color("red").move_to(0, 0).draw(arc, large_arc: false, clockwise: true).stroke
+        #   canvas.stroke_color("hp-blue").
+        #     move_to(0, 0).draw(arc, large_arc: false, clockwise: true).stroke
         attr_reader :large_arc
 
         # Direction of arc - if +true+ in clockwise direction, else in counterclockwise direction
+        # (the default).
         #
-        # This is needed, for example, when filling paths using the nonzero winding number rule to achieve
-        # different effects.
+        # This is needed, for example, when filling paths using the nonzero winding number rule to
+        # achieve different effects.
         #
         # Examples:
         #
         #   #>pdf-center
         #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 20)
         #   canvas.move_to(0, 0).draw(arc).stroke
-        #   canvas.stroke_color("red").move_to(0, 0).draw(arc, clockwise: true).stroke
+        #   canvas.stroke_color("hp-blue").move_to(0, 0).draw(arc, clockwise: true).stroke
         attr_reader :clockwise
 
         # The maximal number of curves used for approximating a complete ellipse.
@@ -175,8 +184,9 @@ module HexaPDF
         # * semi-major axis +a+,
         # * semi-minor axis +b+,
         # * an inclination in respect to the x-axis of +inclination+ degrees,
-        # * the given large_arc flag and
-        # * the given clockwise flag.
+        # * the given large_arc flag,
+        # * the given clockwise flag and.
+        # * the given maximum number of approximation curves.
         #
         # The +large_arc+ option determines whether the large arc, i.e. the one spanning more than
         # 180 degrees, is used (+true+) or the small arc (+false+).
@@ -188,8 +198,15 @@ module HexaPDF
         # for the inital values.
         #
         # Returns self.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:endpoint_arc)
+        #   arc.configure(x: 50, y: 20, a: 30, b: 10)
+        #   canvas.move_to(0, 0).draw(arc).stroke
         def configure(x: nil, y: nil, a: nil, b: nil, inclination: nil, large_arc: nil,
-                      clockwise: nil)
+                      clockwise: nil, max_curves: nil)
           @x = x if x
           @y = y if y
           @a = a.abs if a
@@ -203,6 +220,17 @@ module HexaPDF
         end
 
         # Draws the arc on the given Canvas.
+        #
+        # Since this method doesn't have any other arguments than +canvas+, it is usually better and
+        # easier to use Canvas#draw.
+        #
+        # Examples:
+        #
+        #   #>pdf-center
+        #   arc = canvas.graphic_object(:endpoint_arc, x: 50, y: 20, a: 30, b: 10)
+        #   canvas.move_to(-20, -20)
+        #   arc.draw(canvas)
+        #   canvas.stroke
         def draw(canvas)
           x1, y1 = *canvas.current_point
 

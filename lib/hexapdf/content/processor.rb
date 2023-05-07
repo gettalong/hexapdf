@@ -45,7 +45,7 @@ module HexaPDF
     # == General Information
     #
     # When a content stream is read, operators and their operands are extracted. After extracting
-    # these operators are normally processed with a Processor instance that ensures that the needed
+    # these operators are usually processed with a Processor instance that ensures that the needed
     # setup (like modifying the graphics state) is done before further processing.
     #
     # == How Processing Works
@@ -79,7 +79,7 @@ module HexaPDF
 
       # Represents an (immutable) glyph box with positioning information.
       #
-      # Since the glyph may have been transformed by an affine matrix, the bounding may not be a
+      # Since the glyph may have been transformed by an affine matrix, the bounding box may not be a
       # rectangle in all cases but it is always a parallelogram.
       class GlyphBox
 
@@ -105,7 +105,7 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   fragment.lower_left    -> [llx, lly]
+        #   glyph_box.lower_left    -> [llx, lly]
         #
         # Returns the lower left coordinate
         def lower_left
@@ -113,7 +113,7 @@ module HexaPDF
         end
 
         # :call-seq:
-        #    fragment.lower_right   -> [lrx, lry]
+        #    glyph_box.lower_right   -> [lrx, lry]
         #
         # Returns the lower right coordinate
         def lower_right
@@ -121,7 +121,7 @@ module HexaPDF
         end
 
         # :call-seq:
-        #    fragment.upper_left    -> [ulx, uly]
+        #    glyph_box.upper_left    -> [ulx, uly]
         #
         # Returns the upper left coordinate
         def upper_left
@@ -129,7 +129,7 @@ module HexaPDF
         end
 
         # :call-seq:
-        #    fragment.upper_right    -> [urx, ury]
+        #    glyph_box.upper_right    -> [urx, ury]
         #
         # Returns the upper right coordinate which is computed by using the other three points of
         # the parallelogram.
@@ -138,7 +138,7 @@ module HexaPDF
         end
 
         # :call-seq:
-        #    fragment.points         -> [llx, lly, lrx, lry, urx, ury, ulx, uly]
+        #    glyph_box.points         -> [llx, lly, lrx, lry, urx, ury, ulx, uly]
         #
         # Returns the four corners of the box as an array of coordinates, starting with the lower
         # left corner and going counterclockwise.
@@ -155,7 +155,7 @@ module HexaPDF
       # in a straight line.
       class CompositeBox
 
-        # The text boxes contained in this positioned text object.
+        # The glyph boxes contained in this composite box object.
         attr_reader :boxes
 
         # Creates an empty object.
@@ -185,7 +185,7 @@ module HexaPDF
           self
         end
 
-        # Returns the concatenated text of the boxes.
+        # Returns the concatenated text of all the glyph boxes.
         def string
           @boxes.map(&:string).join
         end
@@ -311,14 +311,14 @@ module HexaPDF
 
       # The GraphicsState object containing the current graphics state.
       #
-      # It is not advised that this attribute is changed manually, it is automatically adjusted
-      # according to the processed operators!
+      # It is not advised to change this attribute manually, it is automatically adjusted according
+      # to the processed operators!
       attr_reader :graphics_state
 
       # The current graphics object.
       #
-      # It is not advised that this attribute is changed manually, it is automatically adjusted
-      # according to the processed operators!
+      # It is not advised to change this attribute manually, it is automatically adjusted according
+      # to the processed operators!
       #
       # This attribute can have the following values:
       #
