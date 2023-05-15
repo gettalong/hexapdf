@@ -114,6 +114,7 @@ module HexaPDF
         return @stream_data if defined?(@stream_data)
         data = stream
         oids, offsets = parse_oids_and_offsets(data)
+        @objects ||= {}
         oids.each {|oid| add_object(Reference.new(oid, 0)) }
         @stream_data = Data.new(data, oids, offsets)
       end
