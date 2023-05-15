@@ -97,7 +97,7 @@ module HexaPDF
       def execute(in_file, out_file = nil) #:nodoc:
         maybe_raise_on_existing_file(out_file) if out_file
         if (@fill || @flatten) && !out_file
-          raise "Output file missing"
+          raise Error, "Output file missing"
         end
         with_document(in_file, password: @password, out_file: out_file,
                       incremental: @incremental) do |doc|
@@ -106,7 +106,7 @@ module HexaPDF
           end
 
           if !doc.acro_form
-            raise "This PDF doesn't contain an interactive form"
+            raise Error, "This PDF doesn't contain an interactive form"
           elsif out_file
             doc.acro_form[:NeedAppearances] = @need_appearances unless @need_appearances.nil?
             if @fill || !@flatten
@@ -220,7 +220,7 @@ module HexaPDF
         form = doc.acro_form
         data.each do |name, value|
           field = form.field_by_name(name)
-          raise "Field '#{name}' not found in input PDF" unless field
+          raise Error, "Field '#{name}' not found in input PDF" unless field
           apply_field_value(field, value)
         end
       end
@@ -268,10 +268,10 @@ module HexaPDF
         when :radio_button
           field.field_value = value.to_sym
         else
-          raise "Field type #{field.concrete_field_type} not yet supported"
+          raise Error, "Field type #{field.concrete_field_type} not yet supported"
         end
       rescue StandardError
-        raise "Error while setting '#{field.full_field_name}': #{$!.message}"
+        raise Error, "Error while setting '#{field.full_field_name}': #{$!.message}"
       end
 
       # Iterates over all non-push button fields in page order. If a field appears on multiple

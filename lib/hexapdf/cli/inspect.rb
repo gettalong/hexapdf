@@ -266,11 +266,11 @@ module HexaPDF
       # Resolves the PDF object from the given string reference and returns it.
       def pdf_object_from_string_reference(str)
         if str.nil?
-          raise "Error: Missing argument object identifier OID[,GEN]"
+          raise Error, "Error: Missing argument object identifier OID[,GEN]"
         elsif !str.match?(/^\d+(,\d+)?$/)
-          raise "Error: Invalid argument: Must be of form OID[,GEN], not '#{str}'"
+          raise Error, "Error: Invalid argument: Must be of form OID[,GEN], not '#{str}'"
         elsif !(obj = @doc.object(pdf_reference_from_string(str)))
-          raise "Error: No object with the given object identifier '#{str}' found"
+          raise Error, "Error: No object with the given object identifier '#{str}' found"
         else
           obj
         end

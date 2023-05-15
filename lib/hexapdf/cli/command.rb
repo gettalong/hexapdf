@@ -43,6 +43,9 @@ require 'hexapdf/font/true_type'
 module HexaPDF
   module CLI
 
+    # Raised when problems occur on the CLI side of things.
+    class Error < HexaPDF::Error; end
+
     # Base class for all hexapdf commands. It provides utility methods needed by the individual
     # commands.
     class Command < CmdParse::Command
@@ -134,7 +137,7 @@ module HexaPDF
           doc.trailer.update_id
           doc.validate(auto_correct: true) do |msg, correctable, object|
             if command_parser.strict && !correctable
-              raise "Validation error for object (#{object.oid},#{object.gen}): #{msg}"
+              raise Error, "Validation error for object (#{object.oid},#{object.gen}): #{msg}"
             elsif command_parser.verbosity_info?
               $stderr.puts "#{correctable ? 'Corrected' : 'Ignored'} validation problem " \
                 "for object (#{object.oid},#{object.gen}): #{msg}"
@@ -151,7 +154,7 @@ module HexaPDF
       # HexaPDF::CLI#force is not set.
       def maybe_raise_on_existing_file(filename)
         if !command_parser.force && File.exist?(filename)
-          raise "Output file '#{filename}' already exists, not overwriting. Use --force to " \
+          raise Error, "Output file '#{filename}' already exists, not overwriting. Use --force to " \
             "force writing"
         end
       end
