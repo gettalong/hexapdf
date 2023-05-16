@@ -41,7 +41,7 @@ module HexaPDF
 
     # The base signature handler providing common functionality.
     #
-    # Specific signature handler need to override methods if necessary and implement the needed
+    # Specific signature handlers need to override methods if necessary and implement the needed
     # ones that don't have a default implementation.
     class Handler
 

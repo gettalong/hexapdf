@@ -37,7 +37,7 @@
 module HexaPDF
   module DigitalSignature
 
-    # Holds the result information when verifying a signature.
+    # Holds the result of verifying a signature.
     class VerificationResult
 
       # :nodoc:
@@ -47,7 +47,7 @@ module HexaPDF
         error: {info: -1, warning: -1, error: 0},
       }
 
-      # This structure represents a single status message, containing the type (:info, :warning,
+      # This structure represents a single status message, containing the type (:info, :warning, or
       # :error) and the content of the message.
       Message = Struct.new(:type, :content) do
         def <=>(other)

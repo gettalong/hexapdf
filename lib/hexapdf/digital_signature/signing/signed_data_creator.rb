@@ -55,7 +55,7 @@ module HexaPDF
       #
       # Additionally, only RSA signatures are currently supported!
       #
-      # See: PDF2.0/2.0 s12.8.3.3, PDF2.0 s12.8.3.4, RFC5652, ETSI TS 102 778 Parts 1-4
+      # See: PDF2.0 s12.8.3.3, PDF2.0 s12.8.3.4, RFC5652, ETSI TS 102 778 Parts 1-4
       class SignedDataCreator
 
         # Creates a SignedDataCreator, sets the given attributes if they are not nil and then calls
@@ -88,8 +88,6 @@ module HexaPDF
         attr_accessor :timestamp_handler
 
         # Creates a new SignedData object.
-        #
-        # Use the attribute accessor methods to set the required attributes.
         def initialize
           @certificate = nil
           @key = nil
@@ -170,7 +168,7 @@ module HexaPDF
 
         # Digests the data and then signs it using the assigned key, or if the key is not available,
         # by yielding to the caller.
-        def digest_and_sign_data(data)
+        def digest_and_sign_data(data) #:yields: digest_algorithm, hashed_data
           hash = OpenSSL::Digest.digest(@digest_algorithm, data)
           if @key
             @key.sign_raw(@digest_algorithm, hash)

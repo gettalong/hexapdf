@@ -50,10 +50,10 @@ module HexaPDF
     # differ from use-case to use-case. Therefore HexaPDF provides as much diagnostic information as
     # possible so that the user can decide whether a signature is valid.
     #
-    # By defining a custom signature handler one is able to also customize the signature
-    # verification.
+    # By defining a custom signature handler based on BaseHandler or CMSHandler one is able to also
+    # customize the signature verification.
     #
-    # See: PDF2.0/2.0 s12.8.1, HexaPDF::Type::AcroForm::SignatureField
+    # See: PDF2.0 s12.8.1, HexaPDF::Type::AcroForm::SignatureField
     class Signature < Dictionary
 
       # Represents a transform parameters dictionary.
@@ -117,7 +117,7 @@ module HexaPDF
 
       # Represents a signature reference dictionary.
       #
-      # See: PDF2.0/2.0 s12.8.1, HexaPDF::DigitalSignature::Signature
+      # See: PDF2.0 s12.8.1, HexaPDF::DigitalSignature::Signature
       class SignatureReference < Dictionary
 
         define_type :SigRef
@@ -202,7 +202,7 @@ module HexaPDF
         self[:Contents]
       end
 
-      # Returns the signed data as indicated by the /ByteRange entry as byte string.
+      # Returns the signed data as indicated by the /ByteRange entry as binary string.
       def signed_data
         unless document.revisions.parser
           raise HexaPDF::Error, "Can't load signed data without existing PDF file"

@@ -75,19 +75,19 @@ module HexaPDF
         # The size of the serialized signature that should be reserved.
         #
         # If this attribute has not been set, an empty string will be signed using #sign to
-        # determine the signature size which will contact the TSA server
+        # determine the signature size. Note thtat this will contact the TSA server!
         #
         # The size needs to be at least as big as the final signature, otherwise signing results in
         # an error.
         attr_writer :signature_size
 
-        # The reason for timestamping. If used, will be set on the signature object.
+        # The reason for timestamping. If used, will be set on the signature dictionary.
         attr_accessor :reason
 
-        # The timestamping location. If used, will be set on the signature object.
+        # The timestamping location. If used, will be set on the signature dictionary.
         attr_accessor :location
 
-        # The contact information. If used, will be set on the signature object.
+        # The contact information. If used, will be set on the signature dictionary.
         attr_accessor :contact_info
 
         # Creates a new TimestampHandler with the given attributes.

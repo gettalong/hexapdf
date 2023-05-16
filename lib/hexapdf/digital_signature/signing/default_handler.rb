@@ -158,12 +158,18 @@ module HexaPDF
         #
         # If the certificate is provided, HexaPDF creates the signature object. Otherwise the
         # #external_signing callable object has to create it.
+        #
+        # See the class documentation section "Signing Modes" on how #certificate, #key and
+        # #external_signing play together.
         attr_accessor :certificate
 
         # The private key for the #certificate.
         #
         # If the key is provided, HexaPDF does the signing. Otherwise the #external_signing callable
         # object has to sign the data.
+        #
+        # See the class documentation section "Signing Modes" on how #certificate, #key and
+        # #external_signing play together.
         attr_accessor :key
 
         # The certificate chain that should be embedded in the PDF; usually contains all
@@ -191,21 +197,24 @@ module HexaPDF
         # * If #certificate is set and #key is not, it is just used for signing. Here it needs to
         #   accept the used digest algorithm and the already digested data as arguments and return
         #   the signature.
+        #
+        # Also dee the class documentation section "Signing Modes" on how #certificate, #key and
+        # #external_signing play together.
         attr_accessor :external_signing
 
-        # The reason for signing. If used, will be set on the signature object.
+        # The reason for signing. If used, will be set on the signature dictionary.
         attr_accessor :reason
 
-        # The signing location. If used, will be set on the signature object.
+        # The signing location. If used, will be set on the signature dictionary.
         attr_accessor :location
 
-        # The contact information. If used, will be set on the signature object.
+        # The contact information. If used, will be set on the signature dictionary.
         attr_accessor :contact_info
 
         # The size of the serialized signature that should be reserved.
         #
-        # If this attribute has not been set, an empty string will be signed using #sign to
-        # determine the signature size.
+        # If this attribute is not set, an empty string will be signed using #sign to determine the
+        # signature size.
         #
         # The size needs to be at least as big as the final signature, otherwise signing results in
         # an error.

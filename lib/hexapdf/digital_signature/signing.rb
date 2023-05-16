@@ -41,6 +41,10 @@ module HexaPDF
 
     # This module contains everything related to the signing of a PDF document, i.e. signing
     # handlers and the actual code for signing.
+    #
+    # * The DefaultHandler is the standard signing handler and should be sufficient for most cases.
+    # * The TimestampHandler is used for timestamping purposes.
+    # * The SignedDataCreator provides the functionality to create custom CMS signed data objects.
     module Signing
 
       autoload(:DefaultHandler, 'hexapdf/digital_signature/signing/default_handler')

@@ -42,7 +42,7 @@ require 'hexapdf/error'
 module HexaPDF
   module DigitalSignature
 
-    # This class provides methods for interacting with digital signatures of a PDF file. Use it
+    # This class provides methods for interacting with digital signatures of a PDF file. It is used
     # through HexaPDF::Document#signatures.
     class Signatures
 
@@ -56,7 +56,7 @@ module HexaPDF
       # Creates a signing handler with the given attributes and returns it.
       #
       # A signing handler name is mapped to a class via the 'signature.signing_handler'
-      # configuration option. The default signing handler is DefaultHandler.
+      # configuration option. The default signing handler is Signing::DefaultHandler.
       def signing_handler(name: :default, **attributes)
         handler = @document.config.constantize('signature.signing_handler', name) do
           raise HexaPDF::Error, "No signing handler named '#{name}' is available"
@@ -90,19 +90,12 @@ module HexaPDF
       #
       # +handler+::
       #     The signing handler that provides the necessary methods for signing and adjusting the
-      #     signature and signature field objects to one's liking, see #handler and DefaultHandler.
+      #     signature and signature field objects to one's liking, see #signing_handler and
+      #     Signing::DefaultHandler.
       #
       # +write_options+::
       #     The key-value pairs of this hash will be passed on to the HexaPDF::Document#write
       #     method. Note that +incremental+ will be automatically set to ensure proper behaviour.
-      #
-      # The used signature object will have the following default values set:
-      #
-      # /Filter::    /Adobe.PPKLite
-      # /SubFilter:: /adbe.pkcs7.detached
-      # /M::         The current time.
-      #
-      # These values can be overridden in the #finalize_objects method of the signature handler.
       def add(file_or_io, handler, signature: nil, write_options: {})
         if signature && signature.type != :Sig
           signature_field = signature
@@ -178,7 +171,7 @@ module HexaPDF
       #   signatures.each {|signature| block }   -> signatures
       #   signatures.each                        -> Enumerator
       #
-      # Iterates over all signatures in the order they are found.
+      # Iterates over all signatures in the order they are found in the PDF.
       def each
         return to_enum(__method__) unless block_given?
 

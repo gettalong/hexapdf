@@ -43,10 +43,9 @@ module HexaPDF
     # The signature handler for PKCS#1 based sub-filters, the only being the adbe.x509.rsa_sha1
     # sub-filter.
     #
-    # Since PKCS#1 signatures are deprecated with PDF 2.0, the handler only provides the
-    # implementation for reading and verifying signatures.
+    # Note that PKCS#1 signatures are deprecated with PDF 2.0.
     #
-    # See: PDF2.0/2.0 s12.8.3.2
+    # See: PDF2.0 s12.8.3.2
     class PKCS1Handler < Handler
 
       # Returns the certificate chain.

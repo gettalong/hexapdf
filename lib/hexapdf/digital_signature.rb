@@ -39,9 +39,14 @@ module HexaPDF
   # PDF documents can be signed using digital signatures. Such a signature can be used to
   # authenticate the identity of the signer and the contents of the documents.
   #
-  # This module contains all code related to digital signatures in PDF.
+  # This module contains all code related to digital signatures in PDF:
   #
-  # See: PDF2.0/2.0 s12.8
+  # * Signatures provides the convenience interface accessible via Document#signatures.
+  # * Signature implements the PDF signature dictionary.
+  # * BaseHandler, CMSHandler and PKCS1Handler are used for verifying existing signatures.
+  # * The Signing module implements the functionality for creating digital signatures.
+  #
+  # See: PDF2.0 s12.8
   module DigitalSignature
 
     autoload(:Signatures, 'hexapdf/digital_signature/signatures')
