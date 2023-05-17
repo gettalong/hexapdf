@@ -87,6 +87,8 @@
 
 * [HexaPDF::Layout::PageStyle] for collecting all styling information for pages
 * [HexaPDF::Composer#page_style] for configuring different page styles
+* Configuration option 'filter.flate.on_error' for handling potentially
+  recoverable flate errors
 
 ### Changed
 
@@ -106,6 +108,7 @@
   deleted
 * `HexaPDF::Type::Page#perform_validation` to set a /MediaBox for invalid pages
   that don't have one
+* Parsing of invalid flate encoded streams that can potentially be recovered
 
 
 ## 0.30.0 - 2023-02-13
