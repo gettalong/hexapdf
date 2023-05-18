@@ -96,7 +96,7 @@ module HexaPDF
       #
       # Iterates over indirect file specification dictionaries of the PDF.
       #
-      # By default, only the file specifications in their standard locations, namely in the
+      # By default, only the file specifications in their standard locations, i.e. in the
       # EmbeddedFiles name tree and in the page annotations, are returned. If the +search+ option is
       # +true+, then all indirect objects are searched for file specification dictionaries which can
       # be much slower.

@@ -71,21 +71,20 @@ module HexaPDF
     #
     # == Box Styles
     #
-    # All box creation methods accept HexaPDF::Layout::Style objects or names for style objects
-    # (defined via #style). This allows one to predefine certain styles (like first level heading,
-    # second level heading, paragraph, ...) and consistently use them throughout the document
-    # creation process.
+    # All box creation methods accept Layout::Style objects or names for style objects (defined via
+    # #style). This allows one to predefine certain styles (like first level heading, second level
+    # heading, paragraph, ...) and consistently use them throughout the document creation process.
     #
-    # One style property, HexaPDF::Layout::Style#font, is handled specially:
+    # One style property, Layout::Style#font, is handled specially:
     #
     # * If no font is set on a style, the font "Times" is automatically set because otherwise there
     #   would be problems with text drawing operations (font is the only style property that has no
     #   valid default value).
     #
-    # * Standard style objects only allow font wrapper objects to be set via the
-    #   HexaPDF::Layout::Style#font method. This class makes usage easier by allowing strings or an
-    #   array [name, options_hash] to be used, like with e.g Content::Canvas#font. So to use
-    #   Helvetica as font, one could just do:
+    # * Standard style objects only allow font wrapper objects to be set via the Layout::Style#font
+    #   method. This class makes usage easier by allowing strings or an array [name, options_hash]
+    #   to be used, like with e.g Content::Canvas#font. So to use Helvetica as font, one could just
+    #   do:
     #
     #     style.font = 'Helvetica'
     #
@@ -108,11 +107,14 @@ module HexaPDF
       # text, formatted_text, image, ...:: Any method accepted by the Layout class without the _box
       #                                    suffix.
       #
-      # list, column, ...:: Any name registered for the configuration option +layout.boxes.map+.
+      # list, column, ...:: Any name registered with the configuration option +layout.boxes.map+.
+      #
+      # The special method #multiple allows adding multiple boxes as a single array to the collected
+      # children.
       #
       # Example:
       #
-      #   document.layout.box(:list) do |list|
+      #   document.layout.box(:list) do |list|  # list is a ChildrenCollector
       #     list.text_box("Some text here")     # layout method
       #     list.image(image_path)              # layout method without _box suffix
       #     list.column(columns: 3) do |column| # registered box name
@@ -166,7 +168,7 @@ module HexaPDF
 
       end
 
-      # The mapping of style name (a Symbol) to HexaPDF::Layout::Style instance.
+      # The mapping of style name (a Symbol) to Layout::Style instance.
       attr_reader :styles
 
       # Creates a new Layout object for the given PDF document.
@@ -179,20 +181,20 @@ module HexaPDF
       #    layout.style(name)                              -> style
       #    layout.style(name, base: :base, **properties)   -> style
       #
-      # Creates or updates the HexaPDF::Layout::Style object called +name+ with the given property
-      # values and returns it.
+      # Creates or updates the Layout::Style object called +name+ with the given property values and
+      # returns it.
+      #
+      # If neither +base+ nor any style properties are specified, the style +name+ is just returned.
       #
       # This method allows convenient access to the stored styles and to update them. Such styles
       # can then be used by name in the various box creation methods, e.g. #text_box or #image_box.
-      #
-      # If neither +base+ nor any style properties are specified, the style +name+ is just returned.
       #
       # If the style +name+ does not exist yet and the argument +base+ specifies the name of another
       # style, that style is duplicated and used as basis for the style. This also means that the
       # referenced +base+ style needs be defined first!
       #
-      # The special name :base should be used for setting the base style which is used when no
-      # specific style is set.
+      # The special name :base should be used for setting the base style which is used for the
+      # +base+ argument when no specific style is specified.
       #
       # Note that the style property 'font' is handled specially, see the class documentation for
       # details.
@@ -269,26 +271,26 @@ module HexaPDF
       #
       # +style+, +style_properties+::
       #     The box and the text are styled using the given +style+. This can either be a style name
-      #     set via #style or anything HexaPDF::Layout::Style::create accepts. If any additional
+      #     set via #style or anything Layout::Style::create accepts. If any additional
       #     +style_properties+ are specified, the style is duplicated and the additional styles are
       #     applied.
       #
       # +properties+::
-      #     This can be used to set custom properties on the created text box. See Box#properties
-      #     for details and usage.
+      #     This can be used to set custom properties on the created text box. See
+      #     Layout::Box#properties for details and usage.
       #
       # +box_style+::
       #     Sometimes it is necessary for the box to have a different style than the text, e.g. when
       #     using overlays. In such a case use +box_style+ for specifiying the style of the box (a
-      #     style name set via #style or anything HexaPDF::Layout::Style::create accepts).
+      #     style name set via #style or anything Layout::Style::create accepts).
       #
       #     The +style+ together with the +style_properties+ will be used for the text style.
       #
       # Examples:
       #
-      #   layout.text_box("Test " * 15)
+      #   layout.text_box("Test is on " * 15)
       #   layout.text_box("Now " * 7, width: 100)
-      #   layout.text_box("Another test", font_size: 15, fill_color: "green")
+      #   layout.text_box("Another test", font_size: 15, fill_color: "hp-blue")
       #   layout.text_box("Different box style", fill_color: 'white', box_style: {
       #     underlays: [->(c, b) { c.rectangle(0, 0, b.content_width, b.content_height).fill }]
       #   })
@@ -307,7 +309,8 @@ module HexaPDF
       # formatted differently.
       #
       # The argument +data+ needs to be an array of String, HexaPDF::Layout::InlineBox and/or Hash
-      # objects and is transformed so that it is suitable as argument for the text box:
+      # objects and is transformed so that it is suitable as argument for the text box
+      # initialization method.
       #
       # * A String object is treated like {text: data}.
       #
@@ -322,9 +325,9 @@ module HexaPDF
       #          for the text. If this is set and :box is not, the hash will be transformed into a
       #          text fragment with an appropriate link overlay.
       #
-      #   style:: The style to be use as base style instead of the style created from the +style+
-      #           and +style_properties+ arguments. See HexaPDF::Layout::Style::create for allowed
-      #           values.
+      #   style:: The style to use as base style instead of the style created from the +style+ and
+      #           +style_properties+ arguments. This can either be a style name set via #style or
+      #           anything HexaPDF::Layout::Style::create allows.
       #
       #           If any style properties are set, the used style is duplicated and the additional
       #           properties applied.
@@ -336,23 +339,42 @@ module HexaPDF
       #
       #         The value must be one or more (as an array) positional arguments to be used with the
       #         #inline_box method. The rest of the hash keys are passed as keyword arguments to
-      #         #inline_box except for :block that value of which would be passed as the block.
+      #         #inline_box except for :block which would be passed as the block.
       #
       # See #text_box for details on +width+, +height+, +style+, +style_properties+, +properties+
       # and +box_style+.
       #
       # Examples:
       #
+      #   # Text without special styling
       #   layout.formatted_text_box(["Some string"])
-      #   layout.formatted_text_box(["Some ", {text: "string", fill_color: 128}])
-      #   layout.formatted_text_box(["Some ", {link: "https://example.com",
-      #                                        fill_color: 'blue', text: "Example"}])
-      #   layout.formatted_text_box(["Some ", {text: "string", style: {font_size: 20}}])
-      #   layout.formatted_text_box(["Some ", {box: [:text, "string"], valign: :top}])
+      #
+      #   # A predefined inline box
+      #   ibox = layout.inline_box(:text, 'Hello')
+      #   layout.formatted_text_box([ibox])
+      #
+      #   # Text with styling properties
+      #   layout.formatted_text_box([{text: "string", fill_color: 128}])
+      #
+      #   # Text referencing a base style
+      #   layout.formatted_text_box([{text: "string", style: :bold}])
+      #
+      #   # Text with a link
+      #   layout.formatted_text_box([{link: "https://example.com",
+      #                               fill_color: 'blue', text: "Example"}])
+      #
+      #   # Inline boxes created from the given data
+      #   layout.formatted_text_box([{box: [:text, "string"], valign: :top}])
       #   block = lambda {|list| list.text("First item"); list.text("Second item") }
       #   layout.formatted_text_box(["Some ", {box: :list, item_spacing: 10, block: block}])
       #
-      # See: #text_box, HexaPDF::Layout::TextBox, HexaPDF::Layout::TextFragment
+      #   # Combining the above variants
+      #   layout.formatted_text_box(["Hello", {box: [:text, 'World!']}, "Here comes a ",
+      #                             {link: 'https://example.com', text: 'link'}, '!',
+      #                             {text: 'And more!', style: :bold, font_size: 20}])
+      #
+      # See: #text_box, #inline_box, HexaPDF::Layout::TextBox, HexaPDF::Layout::TextFragment,
+      # HexaPDF::Layout::InlineBox
       def formatted_text_box(data, width: 0, height: 0, style: nil, properties: nil, box_style: nil,
                              **style_properties)
         style = retrieve_style(style, style_properties)
@@ -417,7 +439,8 @@ module HexaPDF
           "mollit anim id est laborum.",
       ]
 
-      # Uses #text_box to create +count+ paragraphs of lorem ipsum text.
+      # Uses #text_box to create +count+ paragraphs with +sentences+ number of sentences (1 to 4) of
+      # lorem ipsum text.
       #
       # The +text_box_properties+ arguments are passed as is to #text_box.
       def lorem_ipsum_box(sentences: 4, count: 1, **text_box_properties)

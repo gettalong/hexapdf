@@ -127,8 +127,9 @@ module HexaPDF
             destination[2..-1].all? {|item| item.nil? || item.kind_of?(Numeric) }
         end
 
-        # Creates a new Destination for the given +destination+ which may be an explicit destination
-        # array or a dictionary with a /D entry (as allowed for a named destination).
+        # Creates a new Destination for the given +destination+ specification which may be an
+        # explicit destination array or a dictionary with a /D entry (as allowed for a named
+        # destination).
         def initialize(destination)
           @destination = if destination.kind_of?(HexaPDF::Dictionary) || destination.kind_of?(Hash)
                            destination[:D]
@@ -235,15 +236,15 @@ module HexaPDF
       #   destinations.use_or_create(type:, page, **options)           -> destination
       #
       # Uses the given destination name/array or creates a destination array based on the given
-      # +value+.
+      # arguments.
       #
       # This is the main utility method for other parts of HexaPDF for getting a valid destination
-      # array based on various different types of the given +value+:
+      # array based on various different types of the given arguments:
       #
       # String::
       #
       #     If a string is provided, it is assumed to be a named destination. If the named
-      #     destination exists, the value itself is returned. Otherwise an error is raised.
+      #     destination exists, the destination itself is returned. Otherwise an error is raised.
       #
       # Array::
       #
@@ -438,7 +439,7 @@ module HexaPDF
       # :call-seq:
       #   destinations.add(name, destination)
       #
-      # Adds the given +destination+ under +name+ to the destinations name tree.
+      # Adds the given +destination+ under +name+ (a String) to the destinations name tree.
       #
       # If the name does already exist, an error is raised.
       def add(name, destination)
@@ -448,8 +449,8 @@ module HexaPDF
       # :call-seq:
       #   destinations.delete(name)    -> destination
       #
-      # Deletes the given destination from the destinations name tree and returns it or +nil+ if no
-      # destination was registered under that name.
+      # Deletes the destination specified via +name+ (a String) from the destinations name tree and
+      # returns it or +nil+ if no destination was registered under that name.
       def delete(name)
         destinations.delete_entry(name)
       end
@@ -487,8 +488,8 @@ module HexaPDF
       # :call-seq:
       #   destinations[name]    -> destination
       #
-      # Returns the destination registered under the given +name+ or +nil+ if no destination was
-      # registered under that name.
+      # Returns the destination registered under the given +name+ (a String) or +nil+ if no
+      # destination was registered under that name.
       def [](name)
         destinations.find_entry(name)
       end

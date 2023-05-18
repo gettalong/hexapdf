@@ -39,7 +39,7 @@ require 'hexapdf/error'
 module HexaPDF
   class Document
 
-    # This class provides methods for managing the pages of a PDF file.
+    # This class provides methods for managing the pages and page labels of a PDF file.
     #
     # For page manipulation it uses the methods of HexaPDF::Type::PageTreeNode underneath but
     # provides a more convenient interface.
@@ -178,7 +178,8 @@ module HexaPDF
         @document.catalog.pages.each_page(&block)
       end
 
-      # Returns the number of pages in the PDF document. May be zero if the document has no pages.
+      # Returns the number of pages in the PDF document. May be zero if the document has no pages
+      # yet.
       def count
         @document.catalog.pages.page_count
       end
