@@ -64,32 +64,42 @@ end
 #
 # Here are some pointers to more in depth information:
 #
-# * For information about the command line application, see the HexaPDF::CLI module.
+# * HexaPDF::CLI has information about the accompanying command line application.
 # * HexaPDF::Document provides information about how to work with a PDF file.
+# * HexaPDF::Composer is the main class for easily creating PDF documents from scratch.
 # * HexaPDF::Content::Canvas provides the canvas API for drawing/writing on a page or form XObject
+# * HexaPDF::Type::AcroForm::Form is the entry point for working with interactive forms.
+# * HexaPDF::Type::Outline has information on working with outlines/bookmarks.
+# * HexaPDF::DigitalSignature is the entry point for working with digital signaturs.
 module HexaPDF
 
   autoload(:Composer, 'hexapdf/composer')
 
   # == HexaPDF::Document
   #
-  # Represents one PDF document.
+  # Represents a PDF document.
   #
-  # A PDF document consists of (indirect) objects, so the main job of this class is to provide
-  # methods for working with these objects. However, since a PDF document may also be
+  # A PDF document essentially consists of (indirect) objects, so the main job of this class is to
+  # provide methods for working with these objects. However, since a PDF document may also be
   # incrementally updated and can therefore contain one or more revisions, there are also methods
-  # for working with these revisions.
+  # for working with these revisions (see Revisions for details).
   #
-  # Note: This class provides everything to work on PDF documents on a low-level basis. This means
-  # that there are no convenience methods for higher PDF functionality. Those can be found in the
-  # objects linked from here, like #catalog.
+  # Additionally, there are many convenience methods for easily accessing the most important PDF
+  # functionality, like encrypting a document (#encrypt), working with digital signatures
+  # (#signatures), accessing the interactive form data (#acro_form), working with the pages
+  # (#pages), fonts (#fonts) and images (#images).
   #
-  # == Known Messages
+  # Note: This class provides the basis for working with a PDF document. The higher PDF
+  # functionality is *not* implemented here but either in the appropriate PDF type classes or in
+  # special convenience classes. All this functionality can be accessed via the convenience methods
+  # described above.
+  #
+  # == Available Message Hooks
   #
   # The document object provides a basic message dispatch system via #register_listener and
   # #dispatch_message.
   #
-  # Following are the messages that are used by HexaPDF itself:
+  # Following messages are used by HexaPDF itself:
   #
   # :complete_objects::
   #      This message is called before the first step of writing a document. Listeners should
@@ -138,17 +148,22 @@ module HexaPDF
       end
     end
 
-    # The configuration for the document.
+    # The configuration object for the document.
+    #
+    # See Configuration for details.
     attr_reader :config
 
     # The revisions of the document.
+    #
+    # See Revisions.
     attr_reader :revisions
 
     # Creates a new PDF document, either an empty one or one read from the provided +io+.
     #
     # When an IO object is provided and it contains an encrypted PDF file, it is automatically
     # decrypted behind the scenes. The +decryption_opts+ argument has to be set appropriately in
-    # this case.
+    # this case. In case this is not wanted, the configuration option 'document.auto_decrypt' needs
+    # to be used.
     #
     # Options:
     #
@@ -183,8 +198,8 @@ module HexaPDF
     #   doc.object(ref)    -> obj or nil
     #   doc.object(oid)    -> obj or nil
     #
-    # Returns the current version of the indirect object for the given exact reference or for the
-    # given object number.
+    # Returns the current version of the indirect object for the given exact reference (see
+    # Reference) or for the given object number.
     #
     # For references to unknown objects, +nil+ is returned but free objects are represented by a
     # PDF Null object, not by +nil+!
@@ -199,7 +214,7 @@ module HexaPDF
     #   doc.object?(oid)    -> true or false
     #
     # Returns +true+ if the the document contains an indirect object for the given exact reference
-    # or for the given object number.
+    # (see Reference) or for the given object number.
     #
     # Even though this method might return +true+ for some references, #object may return +nil+
     # because this method takes *all* revisions into account. Also see the discussion on #each for
@@ -212,7 +227,7 @@ module HexaPDF
 
     # Dereferences the given object.
     #
-    # Return the object itself if it is not a reference, or the indirect object specified by the
+    # Returns the object itself if it is not a reference, or the indirect object specified by the
     # reference.
     def deref(obj)
       obj.kind_of?(Reference) ? object(obj) : obj
@@ -227,7 +242,7 @@ module HexaPDF
     # HexaPDF::Object. If it is not the latter, #wrap is called with the object and the
     # additional keyword arguments.
     #
-    # See: Revisions#add_object
+    # See: #wrap, Revisions#add_object
     def add(obj, **wrap_opts)
       obj = wrap(obj, **wrap_opts) unless obj.kind_of?(HexaPDF::Object)
 
@@ -266,14 +281,14 @@ module HexaPDF
       HexaPDF::Importer.for(self).import(obj, source: source)
     end
 
-    # Wraps the given object inside a HexaPDF::Object class which allows one to use
+    # Wraps the given object inside a HexaPDF::Object (sub)class which allows one to use
     # convenience functions to work with the object.
     #
     # The +obj+ argument can also be a HexaPDF::Object object so that it can be re-wrapped if
-    # needed.
+    # necessary.
     #
     # The class of the returned object is always a subclass of HexaPDF::Object (or of
-    # HexaPDF::Stream if a +stream+ is given). Which subclass is used, depends on the values of the
+    # HexaPDF::Stream if +stream+ is given). Which subclass is used, depends on the values of the
     # +type+ and +subtype+ options as well as on the 'object.type_map' and 'object.subtype_map'
     # global configuration options:
     #
@@ -291,13 +306,13 @@ module HexaPDF
     #
     # * If there is no valid class after the above steps, HexaPDF::Stream is used if a stream is
     #   given, HexaPDF::Dictionary if the given object is a hash, HexaPDF::PDFArray if it is an
-    #   array or else HexaPDF::Object is used.
+    #   array or else HexaPDF::Object.
     #
     # Options:
     #
     # :type:: (Symbol or Class) The type of a PDF object that should be used for wrapping. This
     #         could be, for example, :Pages. If a class object is provided, it is used directly
-    #         instead of the type detection system.
+    #         instead of determining the class through the type detection system.
     #
     # :subtype:: (Symbol) The subtype of a PDF object which further qualifies a type. For
     #            example, image objects in PDF have a type of :XObject and a subtype of :Image.
@@ -410,6 +425,11 @@ module HexaPDF
     #    doc.register_listener(name) {|*args| block}       -> block
     #
     # Registers the given listener for the message +name+.
+    #
+    # If +callable+ is provided, it needs to be an Object responding to #call. Otherwise the block
+    # has to be provided. The arguments that are provided to the #call method depend on the message.
+    #
+    # See: dispatch_message
     def register_listener(name, callable = nil, &block)
       callable ||= block
       (@listeners[name] ||= []) << callable
@@ -420,6 +440,8 @@ module HexaPDF
     #
     # See the main Document documentation for an overview of messages that are used by HexaPDF
     # itself.
+    #
+    # See: register_listener
     def dispatch_message(name, *args)
       @listeners[name]&.each {|obj| obj.call(*args) }
     end
@@ -427,10 +449,10 @@ module HexaPDF
     UNSET = ::Object.new # :nordoc:
 
     # Caches and returns the given +value+ or the value of the given block using the given
-    # +pdf_data+ and +key+ arguments as composite cache key. If a cached value already exists and
-    # +update+ is +false+, the cached value is just returned.
+    # +pdf_data+ and +key+ arguments as composite cache key.
     #
-    # Set +update+ to +true+ to force an update of the cached value.
+    # If a cached value already exists and +update+ is +false+, the cached value is just returned.
+    # If +update+ is set to +true+, an update of the cached value is forced.
     #
     # This facility can be used to cache expensive operations in PDF objects that are easy to
     # compute again.
@@ -444,7 +466,7 @@ module HexaPDF
     # Returns +true+ if there is a value cached for the composite key consisting of the given
     # +pdf_data+ and +key+ objects.
     #
-    # Also see: #cache
+    # See: #cache
     def cached?(pdf_data, key)
       @cache.key?(pdf_data) && @cache[pdf_data].key?(key)
     end
@@ -455,29 +477,32 @@ module HexaPDF
     # It is *not* recommended to clear the whole cache! Better clear the cache for individual PDF
     # objects!
     #
-    # Also see: #cache
+    # See: #cache, #cached?
     def clear_cache(pdf_data = nil)
       pdf_data ? @cache[pdf_data].clear : @cache.clear
     end
 
-    # Returns the Pages object that provides convenience methods for working with pages.
+    # Returns the Pages object that provides convenience methods for working with the pages of the
+    # PDF file.
     #
-    # Also see: HexaPDF::Type::PageTreeNode
+    # See: Pages, Type::PageTreeNode
     def pages
       @pages ||= Pages.new(self)
     end
 
-    # Returns the Images object that provides convenience methods for working with images.
+    # Returns the Images object that provides convenience methods for working with images (e.g.
+    # adding them to the PDF or listing them).
     def images
       @images ||= Images.new(self)
     end
 
-    # Returns the Files object that provides convenience methods for working with files.
+    # Returns the Files object that provides convenience methods for working with embedded files.
     def files
       @files ||= Files.new(self)
     end
 
-    # Returns the Fonts object that provides convenience methods for working with fonts.
+    # Returns the Fonts object that provides convenience methods for working with the fonts used in
+    # the PDF file.
     def fonts
       @fonts ||= Fonts.new(self)
     end
@@ -496,14 +521,16 @@ module HexaPDF
 
     # Returns the main AcroForm object for dealing with interactive forms.
     #
-    # See HexaPDF::Type::Catalog#acro_form for details on the arguments.
+    # The meaning of the +create+ argument is detailed at Type::Catalog#acro_form.
+    #
+    # See: Type::AcroForm::Form
     def acro_form(create: false)
       catalog.acro_form(create: create)
     end
 
-    # Returns the main document outline object.
+    # Returns the entry object to the document outline (a.k.a. bookmarks).
     #
-    # See HexaPDF::Type::Outline for details.
+    # See: Type::Outline
     def outline
       catalog.outline
     end
@@ -513,7 +540,7 @@ module HexaPDF
     # Tasks provide an extensible way for performing operations on a PDF document without
     # cluttering the Document interface.
     #
-    # See Task for more information.
+    # See: Task
     def task(name, **opts, &block)
       task = config.constantize('task.map', name) do
         raise HexaPDF::Error, "No task named '#{name}' is available"
@@ -522,11 +549,15 @@ module HexaPDF
     end
 
     # Returns the trailer dictionary for the document.
+    #
+    # See: Type::Trailer
     def trailer
       @revisions.current.trailer
     end
 
     # Returns the document's catalog, the root of the object tree.
+    #
+    # See: Type::Catalog
     def catalog
       trailer.catalog
     end
@@ -543,8 +574,10 @@ module HexaPDF
       (@version < catalog_version ? catalog_version : @version)
     end
 
-    # Sets the version of the PDF document. The argument must be a string in the format 'M.N'
-    # where M is the major version and N the minor version (e.g. '1.4' or '2.0').
+    # Sets the version of the PDF document.
+    #
+    # The argument +value+ must be a string in the format 'M.N' where M is the major version and N
+    # the minor version (e.g. '1.4' or '2.0').
     def version=(value)
       raise ArgumentError, "PDF version must follow format M.N" unless value.to_s.match?(/\A\d\.\d\z/)
       @version = value.to_s
@@ -557,9 +590,9 @@ module HexaPDF
 
     # Encrypts the document.
     #
-    # This is done by setting up a security handler for this purpose and populating the trailer's
-    # Encrypt dictionary accordingly. The actual encryption, however, is only done when writing the
-    # document.
+    # Encryption is done by setting up a security handler for this purpose and populating the
+    # trailer's Encrypt dictionary accordingly. The actual encryption, however, is only done when
+    # writing the document.
     #
     # The security handler used for encrypting is selected via the +name+ argument. All other
     # arguments are passed on the security handler.
@@ -567,9 +600,8 @@ module HexaPDF
     # If the document should not be encrypted, the +name+ argument has to be set to +nil+. This
     # removes the security handler and deletes the trailer's Encrypt dictionary.
     #
-    # See: HexaPDF::Encryption::SecurityHandler#set_up_encryption and
-    # HexaPDF::Encryption::StandardSecurityHandler::EncryptionOptions for possible encryption
-    # options.
+    # See: Encryption::SecurityHandler#set_up_encryption and
+    # Encryption::StandardSecurityHandler::EncryptionOptions for possible encryption options.
     def encrypt(name: :Standard, **options)
       if name.nil?
         trailer.delete(:Encrypt)
@@ -605,17 +637,16 @@ module HexaPDF
     # Signs the document and writes it to the given file or IO object.
     #
     # For details on the arguments +file_or_io+, +signature+ and +write_options+ see
-    # HexaPDF::DigitalSignature::Signatures#add.
+    # DigitalSignature::Signatures#add.
     #
     # The signing handler to be used is determined by the +handler+ argument together with the rest
-    # of the keyword arguments (see HexaPDF::DigitalSignature::Signatures#signing_handler for
-    # details).
+    # of the keyword arguments (see DigitalSignature::Signatures#signing_handler for details).
     #
-    # If not changed, the default signing handler is
-    # HexaPDF::DigitalSignature::Signing::DefaultHandler.
+    # If not changed, the default signing handler is DigitalSignature::Signing::DefaultHandler.
     #
-    # *Note*: Once signing is done the document cannot be changed anymore since it was written. If a
-    # document needs to be signed multiple times, it needs to be loaded again after writing.
+    # *Note*: Once signing is done the document cannot be changed anymore since it was written
+    # during the signing process. If a document needs to be signed multiple times, it needs to be
+    # loaded again afterwards.
     def sign(file_or_io, handler: :default, signature: nil, write_options: {}, **handler_options)
       handler = signatures.signing_handler(name: handler, **handler_options)
       signatures.add(file_or_io, handler, signature: signature, write_options: write_options)
@@ -626,7 +657,7 @@ module HexaPDF
     #
     # If a block is given, it is called on validation problems.
     #
-    # See HexaPDF::Object#validate for more information.
+    # See Object#validate for more information.
     def validate(auto_correct: true, only_loaded: false, &block) #:yield: msg, correctable, object
       result = trailer.validate(auto_correct: auto_correct, &block)
       each(only_loaded: only_loaded) do |obj|
