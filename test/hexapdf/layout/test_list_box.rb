@@ -135,7 +135,7 @@ describe HexaPDF::Layout::ListBox do
     it "draws the result" do
       box = create_box(children: @fixed_size_boxes[0, 2])
       box.fit(100, 100, @frame)
-      box.draw(@canvas, 0, 0)
+      box.draw(@canvas, 0, 100 - box.height)
       operators = [
         [:save_graphics_state],
         [:set_font_and_size, [:F1, 10]],
@@ -165,7 +165,7 @@ describe HexaPDF::Layout::ListBox do
     it "draws a cicle as marker" do
       box = create_box(children: @fixed_size_boxes[0, 1], item_type: :circle)
       box.fit(100, 100, @frame)
-      box.draw(@canvas, 0, 0)
+      box.draw(@canvas, 0, 100 - box.height)
       operators = [
         [:save_graphics_state],
         [:set_font_and_size, [:F1, 5]],
@@ -185,7 +185,7 @@ describe HexaPDF::Layout::ListBox do
     it "draws a square as marker" do
       box = create_box(children: @fixed_size_boxes[0, 1], item_type: :square)
       box.fit(100, 100, @frame)
-      box.draw(@canvas, 0, 0)
+      box.draw(@canvas, 0, 100 - box.height)
       operators = [
         [:save_graphics_state],
         [:set_font_and_size, [:F1, 5]],
@@ -206,7 +206,7 @@ describe HexaPDF::Layout::ListBox do
       box = create_box(children: @fixed_size_boxes[0, 2], item_type: :decimal,
                        content_indentation: 20)
       box.fit(100, 100, @frame)
-      box.draw(@canvas, 0, 0)
+      box.draw(@canvas, 0, 100 - box.height)
       operators = [
         [:save_graphics_state],
         [:set_font_and_size, [:F1, 10]],
@@ -239,13 +239,35 @@ describe HexaPDF::Layout::ListBox do
       end
       box = create_box(children: @fixed_size_boxes[0, 1], item_type: marker)
       box.fit(100, 100, @frame)
-      box.draw(@canvas, 0, 0)
+      box.draw(@canvas, 0, 100 - box.height)
       operators = [
         [:save_graphics_state],
         [:concatenate_matrix, [1, 0, 0, 1, 0, 90]],
         [:restore_graphics_state],
         [:save_graphics_state],
         [:concatenate_matrix, [1, 0, 0, 1, 10, 90]],
+        [:restore_graphics_state],
+      ]
+      assert_operators(@canvas.contents, operators)
+    end
+
+    it "takes a different final location into account" do
+      box = create_box(children: @fixed_size_boxes[0, 1])
+      box.fit(100, 100, @frame)
+      box.draw(@canvas, 20, 10)
+      operators = [
+        [:save_graphics_state],
+        [:concatenate_matrix, [1, 0, 0, 1, 20, -80]],
+        [:save_graphics_state],
+        [:set_font_and_size, [:F1, 10]],
+        [:begin_text],
+        [:set_text_matrix, [1, 0, 0, 1, 1.5, 93.17]],
+        [:show_text, ["\x95".b]],
+        [:end_text],
+        [:restore_graphics_state],
+        [:save_graphics_state],
+        [:concatenate_matrix, [1, 0, 0, 1, 10, 90]],
+        [:restore_graphics_state],
         [:restore_graphics_state],
       ]
       assert_operators(@canvas.contents, operators)

@@ -239,6 +239,8 @@ module HexaPDF
           (@results.count - 1) * item_spacing +
           reserved_height
 
+        @draw_pos_x = frame.x + reserved_width_left
+        @draw_pos_y = frame.y - @height + reserved_height_bottom
         @fit_successful = @results.all?(&:fit_successful?) && @results.size == @children.size
       end
 
@@ -338,7 +340,14 @@ module HexaPDF
       end
 
       # Draws the list items onto the canvas at position [x, y].
-      def draw_content(canvas, _x, _y)
+      def draw_content(canvas, x, y)
+        translate = (style.position != :flow && (x != @draw_pos_x || y != @draw_pos_y))
+
+        if translate
+          canvas.save_graphics_state
+          canvas.translate(x - @draw_pos_x, y - @draw_pos_y)
+        end
+
         @results.each_with_index do |box_fitter, index|
           if index != 0 || !split_box? || @split_box == :show_first_marker
             box = item_marker_box(canvas.context.document, index)
@@ -348,6 +357,8 @@ module HexaPDF
           end
           box_fitter.fit_results.each {|result| result.draw(canvas) }
         end
+
+        canvas.restore_graphics_state if translate
       end
 
     end
