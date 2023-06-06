@@ -150,27 +150,53 @@ describe HexaPDF::Layout::ColumnBox do
     assert_equal(5, box_b.children.size)
   end
 
-  it "draws the result onto the canvas" do
-    box = create_box(children: @fixed_size_boxes)
-    box.fit(100, 100, @frame)
-
-    @canvas = HexaPDF::Document.new.pages.add.canvas
-    box.draw(@canvas, 0, 0)
-    operators = 90.step(to: 20, by: -10).map do |y|
-      [[:save_graphics_state],
-       [:concatenate_matrix, [1, 0, 0, 1, 0, y]],
-       [:move_to, [0, 0]],
-       [:end_path],
-       [:restore_graphics_state]]
+  describe "draw_content" do
+    before do
+      @canvas = HexaPDF::Document.new.pages.add.canvas
     end
-    operators.concat(90.step(to: 30, by: -10).map do |y|
-                       [[:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 55, y]],
-                        [:move_to, [0, 0]],
-                        [:end_path],
-                        [:restore_graphics_state]]
-                     end)
-    operators.flatten!(1)
-    assert_operators(@canvas.contents, operators)
+
+    it "draws the result onto the canvas" do
+      box = create_box(children: @fixed_size_boxes)
+      box.fit(100, 100, @frame)
+      box.draw(@canvas, 0, 100 - box.height)
+      operators = 90.step(to: 20, by: -10).map do |y|
+        [[:save_graphics_state],
+         [:concatenate_matrix, [1, 0, 0, 1, 0, y]],
+         [:move_to, [0, 0]],
+         [:end_path],
+         [:restore_graphics_state]]
+      end
+      operators.concat(90.step(to: 30, by: -10).map do |y|
+          [[:save_graphics_state],
+           [:concatenate_matrix, [1, 0, 0, 1, 55, y]],
+           [:move_to, [0, 0]],
+           [:end_path],
+           [:restore_graphics_state]]
+      end)
+      operators.flatten!(1)
+      assert_operators(@canvas.contents, operators)
+    end
+
+    it "takes a different final location into account" do
+      box = create_box(children: @fixed_size_boxes[0, 2])
+      box.fit(100, 100, @frame)
+      box.draw(@canvas, 20, 10)
+      operators = [
+        [:save_graphics_state],
+        [:concatenate_matrix, [1, 0, 0, 1, 20, -80]],
+        [:save_graphics_state],
+        [:concatenate_matrix, [1, 0, 0, 1, 0, 90]],
+        [:move_to, [0, 0]],
+        [:end_path],
+        [:restore_graphics_state],
+        [:save_graphics_state],
+        [:concatenate_matrix, [1, 0, 0, 1, 55, 90]],
+        [:move_to, [0, 0]],
+        [:end_path],
+        [:restore_graphics_state],
+        [:restore_graphics_state],
+      ]
+      assert_operators(@canvas.contents, operators)
+    end
   end
 end

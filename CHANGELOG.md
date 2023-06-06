@@ -16,7 +16,8 @@
 
 * [HexaPDF::Layout::ColumnBox], [HexaPDF::Layout::ListBox] and
   [HexaPDF::Layout::ImageBox] to correctly respond to `#empty?`
-* [HexaPDF::Layout::ListBox] to take different final box position into account
+* [HexaPDF::Layout::ColumnBox] and [HexaPDF::Layout::ListBox] to take different
+  final box positions into account
 * [HexaPDF::Content::Canvas#text] to set the leading only when multiple lines
   are drawn
 

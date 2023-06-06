@@ -62,8 +62,9 @@ module HexaPDF
 
       # The columns definition.
       #
-      # This is an array containing the widths of the columns. The size of the array is the number
-      # of columns.
+      # If the value is an array, it needs to contain the widths of the columns. The size of the
+      # array determines the number of columns. Otherwise, if the value is an integer, the value
+      # defines the number of equally sized columns, i.e. a value of +N+ is equal to [-1]*N.
       #
       # If a negative integer is used for the width, the column is auto-sized. Such columns split
       # the remaining width (after substracting the widths of the fixed columns) proportionally
@@ -204,6 +205,8 @@ module HexaPDF
 
         @width = columns[-1].sum + reserved_width
         @height = @box_fitter.content_heights.max + reserved_height
+        @draw_pos_x = frame.x + reserved_width_left
+        @draw_pos_y = frame.y - @height + reserved_height_bottom
 
         @box_fitter.fit_successful?
       end
@@ -242,8 +245,14 @@ module HexaPDF
       end
 
       # Draws the child boxes onto the canvas at position [x, y].
-      def draw_content(canvas, _x, _y)
-        @box_fitter.fit_results.each {|result| result.draw(canvas) }
+      def draw_content(canvas, x, y)
+        if style.position != :flow && (x != @draw_pos_x || y != @draw_pos_y)
+          canvas.translate(x - @draw_pos_x, y - @draw_pos_y) do
+            @box_fitter.fit_results.each {|result| result.draw(canvas) }
+          end
+        else
+          @box_fitter.fit_results.each {|result| result.draw(canvas) }
+        end
       end
 
     end
