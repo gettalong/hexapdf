@@ -2,6 +2,7 @@
 
 ### Added
 
+* [HexaPDF::Layout::TableBox] for rendering tables
 * [HexaPDF::Content::GraphicObject::EndpointArc#max_curves] for setting the
   approximation accuracy
 
