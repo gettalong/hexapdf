@@ -107,8 +107,8 @@ module HexaPDF
         # The coordinate is relative to the table's content rectangle, with positive x-axis going to
         # the right and positive y-axis going to the bottom.
         #
-        # This value is set by the parent table during fitting and may therefore only be relied on
-        # afterwards.
+        # This value is set by the parent Cells object during fitting and may therefore only be
+        # relied on afterwards.
         attr_accessor :left
 
         # The y-coordinate of the cell's top-left corner.
@@ -116,8 +116,8 @@ module HexaPDF
         # The coordinate is relative to the table's content rectangle, with positive x-axis going to
         # the right and positive y-axis going to the bottom.
         #
-        # This value is set by the parent table during fitting and may therefore only be relied on
-        # afterwards.
+        # This value is set by the parent Cells object during fitting and may therefore only be
+        # relied on afterwards.
         attr_accessor :top
 
         # The preferred width of the cell, determined during #fit.
@@ -268,9 +268,69 @@ module HexaPDF
           @number_of_columns
         end
 
-        # Iterates over each row, starting with the one specified in +start_row+.
-        def each_row(start_row = 0, &block)
-          @cells[start_row..-1].each(&block)
+        # Iterates over each row.
+        def each_row(&block)
+          @cells.each(&block)
+        end
+
+        # Fits all rows starting from +start_row+ into an area with the given +available_height+,
+        # using the column information in +column_info+. Returns the used height as well as the row
+        # index of the last row that fit (which may be -1 if no row fits).
+        #
+        # The +column_info+ argument needs to be an array of arrays of the form [x_pos, width]
+        # containing the horizontal positions and widths of each column.
+        #
+        # The fitting of a cell is done through the Cell#fit method which stores the result in the
+        # cell itself. Furthermore, Cell#left and Cell#top are also assigned correctly.
+        def fit_rows(start_row, available_height, column_info)
+          height = available_height
+          last_fitted_row_index = -1
+          @cells[start_row..-1].each.with_index(start_row) do |columns, row_index|
+            row_fit = true
+            row_height = 0
+            columns.each_with_index do |cell, col_index|
+              next if cell.row != row_index || cell.column != col_index
+              available_cell_width = if cell.col_span > 1
+                                       column_info[cell.column, cell.col_span].map(&:last).sum
+                                     else
+                                       column_info[cell.column].last
+                                     end
+              unless cell.fit(available_cell_width, available_height, nil)
+                row_fit = false
+                break
+              end
+              cell.left = column_info[cell.column].first
+              cell.top = height - available_height
+              row_height = cell.preferred_height if row_height < cell.preferred_height
+            end
+
+            if row_fit
+              seen = {}
+              columns.each do |cell|
+                next if seen[cell]
+                cell.update_height(cell.row == row_index ? row_height : cell.height + row_height)
+                seen[cell] = true
+              end
+
+              last_fitted_row_index = row_index
+              available_height -= row_height
+            else
+              last_fitted_row_index = columns.min_by(&:row).row - 1
+              break
+            end
+          end
+          [height - available_height, last_fitted_row_index]
+        end
+
+        # Draws the rows from +start_row+ to +end_row+ on the given +canvas+, with the top-left
+        # corner of the resulting table being at (+x+, +y+).
+        def draw_rows(start_row, end_row, canvas, x, y)
+          @cells[start_row..end_row].each.with_index(start_row) do |columns, row_index|
+            columns.each_with_index do |cell, col_index|
+              next if cell.row != row_index || cell.column != col_index
+              cell.draw(canvas, x + cell.left, y - cell.top - cell.height)
+            end
+          end
         end
 
         private
@@ -321,7 +381,7 @@ module HexaPDF
       # The Cells instance containing the data of the table.
       #
       # If this is an instance that was split from another one, the cells contain *all* the rows,
-      # not just the one for this split instance.
+      # not just the ones for this split instance.
       #
       # Also see #start_row_index.
       attr_reader :cells
@@ -381,48 +441,14 @@ module HexaPDF
         return false if (@initial_width > 0 && @initial_width > available_width) ||
           (@initial_height > 0 && @initial_height > available_height)
 
-        width = @initial_width > 0 ? @initial_width : available_width
+        width = (@initial_width > 0 ? @initial_width : available_width) - reserved_width
         height = (@initial_height > 0 ? @initial_height : available_height) - reserved_height
-        columns = calculate_column_widths(width - reserved_width)
-        max_row_height = height
+        columns = calculate_column_widths(width)
 
-        @cells.each_row(@start_row_index).with_index(@start_row_index) do |column_data, row_index|
-          row_fit = true
-          row_height = 0
-          column_data.each_with_index do |cell, col_index|
-            next if cell.row != row_index || cell.column != col_index
-            available_cell_width = if cell.col_span > 1
-                                     columns[cell.column, cell.col_span].map(&:last).sum
-                                   else
-                                     columns[cell.column].last
-                                   end
-            unless cell.fit(available_cell_width, max_row_height, nil)
-              row_fit = false
-              break
-            end
-            cell.left = columns[cell.column].first
-            cell.top = height - max_row_height
-            row_height = cell.preferred_height if row_height < cell.preferred_height
-          end
-
-          if row_fit
-            seen = {}
-            column_data.each do |cell|
-              next if seen[cell]
-              cell.update_height(cell.row == row_index ? row_height : cell.height + row_height)
-              seen[cell] = true
-            end
-
-            @last_fitted_row_index = row_index
-            max_row_height -= row_height
-          else
-            @last_fitted_row_index = column_data.min_by(&:row).row - 1
-            break
-          end
-        end
+        used_height, @last_fitted_row_index = @cells.fit_rows(@start_row_index, height, columns)
 
         @width = (@initial_width > 0 ? @initial_width : columns[-1].sum + reserved_width)
-        @height = (@initial_height > 0 ? @initial_height : height - max_row_height + reserved_height)
+        @height = (@initial_height > 0 ? @initial_height : used_height + reserved_height)
         @fit_successful = (@last_fitted_row_index == @cells.number_of_rows - 1)
       end
 
@@ -458,13 +484,7 @@ module HexaPDF
       # Draws the child boxes onto the canvas at position [x, y].
       def draw_content(canvas, x, y)
         y += content_height
-        @cells.each_row(@start_row_index).with_index(@start_row_index) do |columns, row_index|
-          break if row_index > @last_fitted_row_index
-          columns.each_with_index do |cell, col_index|
-            next if cell.row != row_index || cell.column != col_index
-            cell.draw(canvas, x + cell.left, y - cell.top - cell.height)
-          end
-        end
+        @cells.draw_rows(@start_row_index, @last_fitted_row_index, canvas, x, y)
       end
 
     end

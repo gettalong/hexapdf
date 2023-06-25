@@ -230,12 +230,9 @@ describe HexaPDF::Layout::TableBox::Cells do
       cells = create_cells([[:a, :b], [:c], [:d, :e]])
       assert_equal([[:a, :b], [:c], [:d, :e]], cells.each_row.map {|cols| cols.map(&:children) })
     end
-
-    it "can iterate from a given start index onwards" do
-      cells = create_cells([[:a, :b], [:c], [:d, :e]])
-      assert_equal([[:d, :e]], cells.each_row(2).map {|cols| cols.map(&:children) })
-    end
   end
+
+  #fit_rows and draw_rows are tested through TableBox#fit/#draw
 end
 
 describe HexaPDF::Layout::TableBox do
