@@ -28,6 +28,19 @@ describe HexaPDF::Layout::TableBox::Cell do
     end
   end
 
+  describe "empty?" do
+    it "returns true if the cell has not been fit yet" do
+      cell = create_cell(children: [:a])
+      assert(cell.empty?)
+    end
+
+    it "returns true if the cell has no content" do
+      cell = create_cell(children: nil)
+      cell.fit(100, 100, nil)
+      assert(cell.empty?)
+    end
+  end
+
   describe "update_height" do
     it "updates the height to the correct one" do
       cell = create_cell(children: HexaPDF::Layout::Box.create(width: 10, height: 10))
@@ -35,11 +48,6 @@ describe HexaPDF::Layout::TableBox::Cell do
       assert_equal(10, cell.height)
       cell.update_height(50)
       assert_equal(50, cell.height)
-    end
-
-    it "fails if #fit was not yet called" do
-      err = assert_raises(HexaPDF::Error) { create_cell.update_height(10) }
-      assert_match(/invoke #fit first/, err.message)
     end
 
     it "fails if the given height is smaller than the one determined during #fit" do
@@ -84,11 +92,23 @@ describe HexaPDF::Layout::TableBox::Cell do
       cell.fit(100, 100, nil)
       assert_equal(60, cell.preferred_width)
     end
+
+    it "fits the cell even if it has no content" do
+      cell = create_cell(children: nil, style: {padding: [10, 5]})
+      cell.fit(100, 100, nil)
+      assert_equal(100, cell.width)
+      assert_equal(20, cell.height)
+      assert_equal(10, cell.preferred_width)
+      assert_equal(20, cell.preferred_height)
+    end
   end
 
   describe "draw" do
-    it "draws the boxes at the correct location" do
+    before do
       @canvas = HexaPDF::Document.new.pages.add.canvas
+    end
+
+    it "draws the boxes at the correct location" do
       draw_block = lambda {|canvas, _| canvas.move_to(0, 0).end_path }
       box1 = HexaPDF::Layout::Box.create(width: 20, height: 10, position_hint: :center, &draw_block)
       box2 = HexaPDF::Layout::Box.create(width: 50, height: 15, &draw_block)
@@ -106,6 +126,13 @@ describe HexaPDF::Layout::TableBox::Cell do
                    [:end_path],
                    [:restore_graphics_state]]
       assert_operators(@canvas.contents, operators)
+    end
+
+    it "works for a cell without content" do
+      box = create_cell(children: nil)
+      box.fit(100, 100, nil)
+      box.draw(@canvas, 10, 75)
+      assert_operators(@canvas.contents, [])
     end
   end
 

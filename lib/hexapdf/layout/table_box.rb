@@ -150,11 +150,12 @@ module HexaPDF
 
         # The boxes to layout inside this cell.
         #
-        # This may either be a single Box instance or an array of Box instances.
+        # This may either be +nil+ (if the cell has no content), a single Box instance or an array
+        # of Box instances.
         attr_reader :children
 
         # Creates a new Cell instance.
-        def initialize(row:, column:, children: [], row_span: nil, col_span: nil, **kwargs)
+        def initialize(row:, column:, children: nil, row_span: nil, col_span: nil, **kwargs)
           super(**kwargs, width: 0, height: 0)
           @children = children
           @row = row
@@ -163,13 +164,16 @@ module HexaPDF
           @col_span = col_span || 1
         end
 
+        # Returns +true+ if the cell has no content.
+        def empty?
+          super && (!@fit_results || @fit_results.empty?)
+        end
+
         # Updates the height of the box to the given value.
         #
         # The +height+ has to be greater than or equal to the fitted height.
         def update_height(height)
-          if @height == 0
-            raise HexaPDF::Error, "Need to invoke #fit first"
-          elsif height < @height
+          if height < @height
             raise HexaPDF::Error, "Given height needs to be at least as big as fitted height"
           end
           @height = height
@@ -181,13 +185,14 @@ module HexaPDF
           width = available_width - reserved_width
           height = available_height - reserved_height
           frame = Frame.new(0, 0, width, height)
-          if children.kind_of?(Box)
+          case children
+          when Box
             fit_result = frame.fit(children)
             @preferred_width = fit_result.x + fit_result.box.width + reserved_width
             @height = @preferred_height = fit_result.box.height + reserved_height
             @fit_results = [fit_result]
             @fit_successful = fit_result.success?
-          else
+          when Array
             box_fitter = BoxFitter.new([frame])
             children.each {|box| box_fitter.fit(box) }
             max_x_result = box_fitter.fit_results.max_by {|result| result.x + result.box.width }
@@ -195,6 +200,11 @@ module HexaPDF
             @height = @preferred_height = box_fitter.content_heights[0] + reserved_height
             @fit_results = box_fitter.fit_results
             @fit_successful = box_fitter.fit_successful?
+          else
+            @preferred_width = reserved_width
+            @height = @preferred_height = reserved_height
+            @fit_results = []
+            @fit_successful = true
           end
         end
 
@@ -207,6 +217,8 @@ module HexaPDF
 
         # Draws the content of the cell.
         def draw_content(canvas, x, y)
+          return if @fit_results.empty?
+
           # available_width is always equal to content_width but we need to adjust for the
           # difference in the y direction between fitting and drawing
           y -= (@fit_results[0].available_height - content_height)
