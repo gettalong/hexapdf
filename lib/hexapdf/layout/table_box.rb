@@ -90,6 +90,16 @@ module HexaPDF
     #  table = layout.table(cells: cells)
     #  table.cells.each_row {|row| row.each {|cell| cell.style.border.width.set(1) } }
     #  composer.draw_box(table)
+    #
+    # Each table can have header rows and footer rows which are shown for all split parts:
+    #
+    #  #>pdf-composer
+    #  header = lambda {|tb| [[{content: layout.text('Header', align: :center), col_span: 2}]] }
+    #  footer = lambda {|tb| [[layout.text('F left'), layout.text('F right', align: :right)]] }
+    #  cells = [[layout.text('A'), layout.text('B')],
+    #           [layout.text('C'), layout.text('D')],
+    #           [layout.text('E'), layout.text('F')]]
+    #  composer.column(height: 60) {|col| col.table(cells: cells, header: header, footer: footer) }
     class TableBox < Box
 
       # Represents a single cell of the table.
@@ -315,7 +325,7 @@ module HexaPDF
               last_fitted_row_index = row_index
               available_height -= row_height
             else
-              last_fitted_row_index = columns.min_by(&:row).row - 1
+              last_fitted_row_index = columns.min_by(&:row).row - 1 if height != available_height
               break
             end
           end
@@ -386,6 +396,18 @@ module HexaPDF
       # Also see #start_row_index.
       attr_reader :cells
 
+      # The Cells instance containing the header cells of the table.
+      #
+      # If this is a TableBox instance that was split from another one, the header cells are created
+      # again through the use of +header+ block supplied to ::new.
+      attr_reader :header_cells
+
+      # The Cells instance containing the footer cells of the table.
+      #
+      # If this is a TableBox instance that was split from another one, the footer cells are created
+      # again through the use of +footer+ block supplied to ::new.
+      attr_reader :footer_cells
+
       # The column widths definition.
       #
       # See ::new for details.
@@ -423,12 +445,30 @@ module HexaPDF
       #
       #     If the +cells+ definition has more columns than specified by +column_widths+, the
       #     missing entries are assumed to be -1.
-      def initialize(cells:, column_widths: [], **kwargs)
+      #
+      # +header+::
+      #
+      #     A callable object that needs to accept this TableBox instance as argument and that
+      #     returns an array of arrays containing the header rows.
+      #
+      #     The header rows are shown for the table instance and all split boxes.
+      #
+      # +footer+::
+      #
+      #     A callable object that needs to accept this TableBox instance as argument and that
+      #     returns an array of arrays containing the footer rows.
+      #
+      #     The footer rows are shown for the table instance and all split boxes.
+      def initialize(cells:, column_widths: [], header: nil, footer: nil, **kwargs)
         super(**kwargs)
         @cells = Cells.new(cells)
         @column_widths = column_widths
         @start_row_index = 0
         @last_fitted_row_index = -1
+        @header = header
+        @header_cells = Cells.new(header.call(self)) if header
+        @footer = footer
+        @footer_cells = Cells.new(footer.call(self)) if footer
       end
 
       # Returns +true+ if not a single row could be fit.
@@ -443,9 +483,21 @@ module HexaPDF
 
         width = (@initial_width > 0 ? @initial_width : available_width) - reserved_width
         height = (@initial_height > 0 ? @initial_height : available_height) - reserved_height
+        used_height = 0
         columns = calculate_column_widths(width)
 
-        used_height, @last_fitted_row_index = @cells.fit_rows(@start_row_index, height, columns)
+        @special_cells_fit_not_successful = false
+        [@header_cells, @footer_cells].each do |special_cells|
+          next unless special_cells
+          special_used_height, last_fitted_row_index = special_cells.fit_rows(0, height, columns)
+          height -= special_used_height
+          used_height += special_used_height
+          @special_cells_fit_not_successful = (last_fitted_row_index != special_cells.number_of_rows - 1)
+          return false if @special_cells_fit_not_successful
+        end
+
+        main_used_height, @last_fitted_row_index = @cells.fit_rows(@start_row_index, height, columns)
+        used_height += main_used_height
 
         @width = (@initial_width > 0 ? @initial_width : columns[-1].sum + reserved_width)
         @height = (@initial_height > 0 ? @initial_height : used_height + reserved_height)
@@ -475,16 +527,31 @@ module HexaPDF
 
       # Splits the content of the column box. This method is called from Box#split.
       def split_content(_available_width, _available_height, _frame)
-        box = create_split_box
-        box.instance_variable_set(:@start_row_index, @last_fitted_row_index + 1)
-        box.instance_variable_set(:@last_fitted_row_index, -1)
-        [self, box]
+        if @special_cells_fit_not_successful || @last_fitted_row_index < 0
+          [nil, self]
+        else
+          box = create_split_box
+          box.instance_variable_set(:@start_row_index, @last_fitted_row_index + 1)
+          box.instance_variable_set(:@last_fitted_row_index, -1)
+          box.instance_variable_set(:@special_cells_fit_not_successful, nil)
+          box.instance_variable_set(:@header_cells, @header ? Cells.new(@header.call(self)) : nil)
+          box.instance_variable_set(:@footer_cells, @footer ? Cells.new(@footer.call(self)) : nil)
+          [self, box]
+        end
       end
 
       # Draws the child boxes onto the canvas at position [x, y].
       def draw_content(canvas, x, y)
         y += content_height
+        if @header_cells
+          @header_cells.draw_rows(0, -1, canvas, x, y)
+          y -= @header_cells[-1, 0].top + @header_cells[-1, 0].height
+        end
         @cells.draw_rows(@start_row_index, @last_fitted_row_index, canvas, x, y)
+        if @footer_cells
+          y -= @cells[@last_fitted_row_index, 0].top + @cells[@last_fitted_row_index, 0].height
+          @footer_cells.draw_rows(0, -1, canvas, x, y)
+        end
       end
 
     end

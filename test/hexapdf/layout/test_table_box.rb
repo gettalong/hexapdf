@@ -261,12 +261,21 @@ describe HexaPDF::Layout::TableBox do
         assert_equal(cheight, cell.height, "cell #{index} height")
       end
     end
+    box
+  end
+
+  def cell_infos(cells)
+    cells.each_row.map {|cols| cols.map {|c| [c.left, c.top, c.width, c.height] } }.flatten(1)
   end
 
   describe "initialize" do
     it "creates a new instance with the given arguments" do
-      box = create_box(cells: [[:a, :b], [:c]], column_widths: [-2, -1])
+      header = lambda {|_| [[:h1, :h2]] }
+      footer = lambda {|_| [[:f1], [:f2]] }
+      box = create_box(cells: [[:a, :b], [:c]], column_widths: [-2, -1], header: header, footer: footer)
       assert_equal([[:a, :b], [:c]], box.cells.each_row.map {|cols| cols.map(&:children) })
+      assert_equal([[:h1, :h2]], box.header_cells.each_row.map {|cols| cols.map(&:children) })
+      assert_equal([[:f1], [:f2]], box.footer_cells.each_row.map {|cols| cols.map(&:children) })
       assert_equal([-2, -1], box.column_widths)
       assert_equal(0, box.start_row_index)
       assert_equal(-1, box.last_fitted_row_index)
@@ -339,6 +348,28 @@ describe HexaPDF::Layout::TableBox do
                  [0, 30, 25, 10], [25, 30, 25, 10], [50, 20, 25, 20], [75, 30, 25, 10]])
     end
 
+    it "fits a table with header rows" do
+      result = [[0, 0, 50, 10], [50, 0, 50, 10], [0, 10, 50, 10], [50, 10, 50, 10]]
+      header = lambda {|_| [@fixed_size_boxes[10, 2], @fixed_size_boxes[12, 2]] }
+      box = check_box(create_box(header: header), true, 100, 40, result)
+      assert_equal(result, cell_infos(box.header_cells))
+    end
+
+    it "fits a table with footer rows" do
+      result = [[0, 0, 50, 10], [50, 0, 50, 10], [0, 10, 50, 10], [50, 10, 50, 10]]
+      footer = lambda {|_| [@fixed_size_boxes[10, 2], @fixed_size_boxes[12, 2]] }
+      box = check_box(create_box(footer: footer), true, 100, 40, result)
+      assert_equal(result, cell_infos(box.footer_cells))
+    end
+
+    it "fits a table with header and footer rows" do
+      result = [[0, 0, 50, 10], [50, 0, 50, 10], [0, 10, 50, 10], [50, 10, 50, 10]]
+      cell_creator = lambda {|_| [@fixed_size_boxes[10, 2], @fixed_size_boxes[12, 2]] }
+      box = check_box(create_box(header: cell_creator, footer: cell_creator), true, 100, 60, result)
+      assert_equal(result, cell_infos(box.header_cells))
+      assert_equal(result, cell_infos(box.footer_cells))
+    end
+
     it "partially fits a table if not enough height is available" do
       check_box(create_box(height: 10), false, 100, 10,
                 [[0, 0, 50, 10], [50, 0, 50, 10], [nil, nil, 50, 10], [nil, nil, 0, 0]])
@@ -357,6 +388,38 @@ describe HexaPDF::Layout::TableBox do
       assert_equal(0, box_a.last_fitted_row_index)
       assert_equal(1, box_b.start_row_index)
       assert_equal(-1, box_b.last_fitted_row_index)
+    end
+
+    it "splits the table if the header or footer rows don't fit" do
+      cells_creator = lambda {|_| [@fixed_size_boxes[10, 2]] }
+      [{header: cells_creator}, {footer: cells_creator}].each do |args|
+        box = create_box(**args)
+        refute(box.fit(100, 10, nil))
+        box_a, box_b = box.split(100, 10, nil)
+        assert_nil(box_a)
+        assert_same(box_b, box)
+      end
+    end
+
+    it "splits a table with a header or a footer" do
+      cells_creator = lambda {|_| [@fixed_size_boxes[10, 2]] }
+      [{header: cells_creator}, {footer: cells_creator}].each do |args|
+        box = create_box(**args)
+        refute(box.fit(100, 20, nil))
+        box_a, box_b = box.split(100, 20, nil)
+        assert_same(box_a, box)
+
+        assert_equal(0, box_a.start_row_index)
+        assert_equal(0, box_a.last_fitted_row_index)
+        assert_equal(1, box_b.start_row_index)
+        assert_equal(-1, box_b.last_fitted_row_index)
+        assert_nil(box_b.instance_variable_get(:@special_cells_fit_not_successful))
+        if args.key?(:header)
+          refute_same(box_a.header_cells, box_b.header_cells)
+        else
+          refute_same(box_a.footer_cells, box_b.footer_cells)
+        end
+      end
     end
   end
 
@@ -417,6 +480,44 @@ describe HexaPDF::Layout::TableBox do
                    [:restore_graphics_state],
                    [:save_graphics_state],
                    [:concatenate_matrix, [1, 0, 0, 1, 50.0, 50]],
+                   [:move_to, [0, 0]],
+                   [:end_path],
+                   [:restore_graphics_state]]
+      assert_operators(@canvas.contents, operators)
+    end
+
+    it "correctly works for tables with headers and footers" do
+      box = create_box(header: lambda {|_| [@fixed_size_boxes[10, 1]] },
+                       footer: lambda {|_| [@fixed_size_boxes[12, 1]] })
+      box.fit(100, 100, nil)
+      box.draw(@canvas, 20, 10)
+      operators = [[:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 20, 40]],
+                   [:move_to, [0, 0]],
+                   [:end_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 20, 30]],
+                   [:move_to, [0, 0]],
+                   [:end_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 70.0, 30]],
+                   [:move_to, [0, 0]],
+                   [:end_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 20, 20]],
+                   [:move_to, [0, 0]],
+                   [:end_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 70.0, 20]],
+                   [:move_to, [0, 0]],
+                   [:end_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 20.0, 10]],
                    [:move_to, [0, 0]],
                    [:end_path],
                    [:restore_graphics_state]]
