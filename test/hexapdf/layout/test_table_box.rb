@@ -223,6 +223,12 @@ describe HexaPDF::Layout::TableBox::Cells do
       assert_equal(2, cells[1, 2].row_span)
       assert_equal(1, cells[1, 2].col_span)
     end
+
+    it "allows setting cell styles and properties" do
+      cells = create_cells([[{content: :a, background_color: 'black', properties: {'x' => 'y'}}]])
+      assert_equal('black', cells[0, 0].style.background_color)
+      assert_equal('y', cells[0, 0].properties['x'])
+    end
   end
 
   describe "each_row" do

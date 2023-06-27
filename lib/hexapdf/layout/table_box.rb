@@ -233,12 +233,25 @@ module HexaPDF
       # row array may contain one of the following items:
       #
       # * A single Box instance defining the content of the cell.
-      # * An array of Box instances defining the content of the cell.
-      # * A hash with the keys +:row_span+ (for defining the row span), +:col_span+ (for defining
-      #   the column span) and +:content+ (for defining the content, again a single Box or an array
-      #   of Box instances).
       #
-      # Here is an example of the input data:
+      # * An array of Box instances defining the content of the cell.
+      #
+      # * A hash which defines the content of the cell as well as, optionally, additional
+      #   information through the following keys:
+      #
+      #   +:content+:: The content for the cell. This may be a single Box or an array of Box
+      #                instances.
+      #
+      #   +:row_span+:: An integer specifying the number of rows this cell should span.
+      #
+      #   +:col_span+:: An integer specifying the number of columsn this cell should span.
+      #
+      #   +:properties+:: A hash of properties (see Box#properties) to be set on the cell itself.
+      #
+      #   All other key-value pairs are taken to be cell styling information (like
+      #   +:background_color+) and assigned to the cell style.
+      #
+      # Here is an example input data array:
       #
       #  data = [[box1, {col_span: 2, content: box2}, box3],
       #          [box4, box5, {col_span: 2, row_span: 2, content: [box6.1, box6.2]}],
@@ -362,12 +375,15 @@ module HexaPDF
 
               children = content
               if content.kind_of?(Hash)
-                children = content[:content]
-                row_span = content[:row_span]
-                col_span = content[:col_span]
+                children = content.delete(:content)
+                row_span = content.delete(:row_span)
+                col_span = content.delete(:col_span)
+                properties = content.delete(:properties)
+                style = content
               end
               cell = Cell.new(children: children, row: row_index, column: col_index,
-                              row_span: row_span, col_span: col_span)
+                              row_span: row_span, col_span: col_span,
+                              style: style, properties: properties)
               row[col_index] = cell
 
               if cell.row_span > 1 || cell.col_span > 1
