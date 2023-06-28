@@ -297,6 +297,8 @@ module HexaPDF
     end
 
     # Makes a deep copy of the source PDF object and resets the object identifier.
+    #
+    # Note that indirect references are *not* copied! If that is also needed, use Importer::copy.
     def deep_copy
       obj = dup
       obj.instance_variable_set(:@data, @data.dup)

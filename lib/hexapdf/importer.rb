@@ -68,6 +68,19 @@ module HexaPDF
       @map[destination.hash] ||= new(destination)
     end
 
+    # Imports the given +object+ (belonging to the +source+ document) by completely copying it and
+    # all referenced objects into the +destination+ object.
+    #
+    # Specifying +source+ is optionial if it can be determined through +object+.
+    #
+    # After the operation is finished, all state is discarded. This means that another call to this
+    # method for the same object will yield a new - and different - object. This is in contrast to
+    # using ::for together with #import which remembers and returns already imported objects (which
+    # is generally what one wants).
+    def self.copy(destination, object, source: nil)
+      new(NullableWeakRef.new(destination)).import(object, source: source)
+    end
+
     private_class_method :new
 
     attr_reader :destination #:nodoc:

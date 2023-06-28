@@ -40,6 +40,15 @@ describe HexaPDF::Importer do
     end
   end
 
+  describe "::copy" do
+    it "copies a complete object including references" do
+      obj1 = HexaPDF::Importer.copy(@dest, @obj)
+      obj2 = HexaPDF::Importer.copy(@dest, @obj)
+      refute_same(obj1, obj2)
+      refute_same(obj1[:ref], obj2[:ref])
+    end
+  end
+
   describe "import" do
     it "updates the associated document" do
       obj = @importer.import(@obj)
