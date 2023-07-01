@@ -206,11 +206,16 @@ module HexaPDF
         # The styles of each edge. See Quad.
         attr_reader :style
 
+        # Specifies whether the border should be drawn inside the provided rectangle (+false+,
+        # default) or on it (+true+).
+        attr_accessor :draw_on_bounds
+
         # Creates a new border style. All arguments can be set to any value that a Quad can process.
-        def initialize(width: 0, color: 0, style: :solid)
+        def initialize(width: 0, color: 0, style: :solid, draw_on_bounds: false)
           @width = Quad.new(width)
           @color = Quad.new(color)
           @style = Quad.new(style)
+          @draw_on_bounds = draw_on_bounds
         end
 
         # Duplicates a Border object's properties.
@@ -226,9 +231,19 @@ module HexaPDF
           width.simple? && width.top == 0
         end
 
-        # Draws the border onto the canvas, inside the rectangle (x, y, w, h).
+        # Draws the border onto the canvas.
+        #
+        # Depending on #draw_on_bounds the border is drawn inside the rectangle (x, y, w, h) or on
+        # it.
         def draw(canvas, x, y, w, h)
           return if none?
+
+          if draw_on_bounds
+            x -= width.left / 2.0
+            y -= width.bottom / 2.0
+            w += (width.left + width.right) / 2.0
+            h += (width.top + width.bottom) / 2.0
+          end
 
           canvas.save_graphics_state do
             if width.simple? && color.simple? && style.simple?

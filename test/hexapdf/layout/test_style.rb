@@ -156,15 +156,24 @@ describe HexaPDF::Layout::Style::Border do
     assert_kind_of(HexaPDF::Layout::Style::Quad, border.style)
   end
 
+  it "has an accessor for the draw-on-bounds option" do
+    border = create_border
+    refute(border.draw_on_bounds)
+    border.draw_on_bounds = true
+    assert(border.draw_on_bounds)
+  end
+
   it "can be duplicated" do
     border = create_border
     copy = border.dup
     border.width.top = 10
     border.color.top = :red
     border.style.top = :dotted
+    border.draw_on_bounds = true
     assert_equal(0, copy.width.top)
     assert_equal(0, copy.color.top)
     assert_equal(:solid, copy.style.top)
+    refute(copy.draw_on_bounds)
   end
 
   it "can be asked whether a border is defined" do
@@ -258,6 +267,19 @@ describe HexaPDF::Layout::Style::Border do
                [:stroke_path],
                [:restore_graphics_state]]
         assert_operators(@canvas.contents, ops)
+      end
+
+      it "works if the border is drawn on the bounds" do
+        border = create_border(width: 10, color: 0.5, style: :solid, draw_on_bounds: true)
+        border.draw(@canvas, 0, 0, 100, 100)
+        assert_operators(@canvas.contents, [[:save_graphics_state],
+                                            [:set_device_gray_stroking_color, [0.5]],
+                                            [:set_line_width, [10]],
+                                            [:append_rectangle, [-5, -5, 110, 110]],
+                                            [:clip_path_non_zero], [:end_path],
+                                            [:append_rectangle, [0, 0, 100, 100]],
+                                            [:stroke_path],
+                                            [:restore_graphics_state]])
       end
     end
 
@@ -366,6 +388,34 @@ describe HexaPDF::Layout::Style::Border do
                [:set_device_gray_stroking_color, [0.75]], [:set_line_width, [30]],
                [:set_line_cap_style, [1]], [:set_line_dash_pattern, [[0, 42.5], 27.5]],
                [:move_to, [15, 0]], [:line_to, [15, 200]], [:stroke_path],
+               [:restore_graphics_state], [:restore_graphics_state]]
+        assert_operators(@canvas.contents, ops)
+      end
+
+      it "works if the border is drawn on the bounds" do
+        border = create_border(width: [20, 10, 40, 30], draw_on_bounds: true)
+        border.draw(@canvas, 0, 0, 100, 200)
+        ops = [[:save_graphics_state],
+               [:save_graphics_state],
+               [:move_to, [-15, 210]], [:line_to, [105, 210]],
+               [:line_to, [95, 190]], [:line_to, [15, 190]], [:clip_path_non_zero], [:end_path],
+               [:set_line_width, [20]],
+               [:move_to, [-15, 200]], [:line_to, [105, 200]], [:stroke_path],
+               [:restore_graphics_state], [:save_graphics_state],
+               [:move_to, [105, 210]], [:line_to, [105, -20]],
+               [:line_to, [95, 20]], [:line_to, [95, 190]], [:clip_path_non_zero], [:end_path],
+               [:set_line_width, [10]],
+               [:move_to, [100, 210]], [:line_to, [100, -20]], [:stroke_path],
+               [:restore_graphics_state], [:save_graphics_state],
+               [:move_to, [105, -20]], [:line_to, [-15, -20]],
+               [:line_to, [15, 20]], [:line_to, [95, 20]], [:clip_path_non_zero], [:end_path],
+               [:set_line_width, [40]],
+               [:move_to, [105, 0]], [:line_to, [-15, 0]], [:stroke_path],
+               [:restore_graphics_state], [:save_graphics_state],
+               [:move_to, [-15, -20]], [:line_to, [-15, 210]],
+               [:line_to, [15, 190]], [:line_to, [15, 20]], [:clip_path_non_zero], [:end_path],
+               [:set_line_width, [30]],
+               [:move_to, [0, -20]], [:line_to, [0, 210]], [:stroke_path],
                [:restore_graphics_state], [:restore_graphics_state]]
         assert_operators(@canvas.contents, ops)
       end
