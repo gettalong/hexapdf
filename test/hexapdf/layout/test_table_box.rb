@@ -398,7 +398,8 @@ describe HexaPDF::Layout::TableBox do
     it "creates a new instance with the given arguments" do
       header = lambda {|_| [[:h1, :h2]] }
       footer = lambda {|_| [[:f1], [:f2]] }
-      box = create_box(cells: [[:a, :b], [:c]], column_widths: [-2, -1], header: header, footer: footer)
+      box = create_box(cells: [[:a, :b], [:c]], column_widths: [-2, -1], header: header, footer: footer,
+                       cell_style: {background_color: 'black'})
       assert_equal([[:a, :b], [:c]], box.cells.each_row.map {|cols| cols.map(&:children) })
       assert_equal([[:h1, :h2]], box.header_cells.each_row.map {|cols| cols.map(&:children) })
       assert_equal([[:f1], [:f2]], box.footer_cells.each_row.map {|cols| cols.map(&:children) })
@@ -406,6 +407,21 @@ describe HexaPDF::Layout::TableBox do
       assert_equal(0, box.start_row_index)
       assert_equal(-1, box.last_fitted_row_index)
       refute(box.supports_position_flow?)
+      [box.cells[0, 0], box.header_cells[0, 0], box.footer_cells[0, 0]].each do |cell|
+        assert_equal('black', cell.style.background_color)
+      end
+    end
+
+    it "also applies the cell_style information to header and footer cells of split boxes" do
+      header = lambda {|_| [[nil]] }
+      footer = lambda {|_| [[nil]] }
+      box = create_box(header: header, footer: footer, cells: [[nil], [nil]],
+                       cell_style: {background_color: 'black'})
+      refute(box.fit(100, 40, nil))
+      box_a, box_b = box.split(100, 40, nil)
+      assert_same(box_a, box)
+      assert_equal('black', box_b.header_cells[0, 0].style.background_color)
+      assert_equal('black', box_b.footer_cells[0, 0].style.background_color)
     end
   end
 
@@ -482,9 +498,7 @@ describe HexaPDF::Layout::TableBox do
     it "fits a table with header rows" do
       result = [[0, 0, 80, 10], [80, 0, 80, 10], [0, 10, 80, 10], [80, 10, 80, 10]]
       header = lambda {|_| [@fixed_size_boxes[10, 2], @fixed_size_boxes[12, 2]] }
-      box = create_box(header: header)
-      box.cells.style(padding: 0, border: {width: 0})
-      box.header_cells.style(padding: 0, border: {width: 0})
+      box = create_box(header: header, cell_style: {padding: 0, border: {width: 0}})
       box = check_box(box, true, 160, 40, result)
       assert_equal(result, cell_infos(box.header_cells))
     end
@@ -492,9 +506,7 @@ describe HexaPDF::Layout::TableBox do
     it "fits a table with footer rows" do
       result = [[0, 0, 80, 10], [80, 0, 80, 10], [0, 10, 80, 10], [80, 10, 80, 10]]
       footer = lambda {|_| [@fixed_size_boxes[10, 2], @fixed_size_boxes[12, 2]] }
-      box = create_box(footer: footer)
-      box.cells.style(padding: 0, border: {width: 0})
-      box.footer_cells.style(padding: 0, border: {width: 0})
+      box = create_box(footer: footer, cell_style: {padding: 0, border: {width: 0}})
       box = check_box(box, true, 160, 40, result)
       assert_equal(result, cell_infos(box.footer_cells))
     end
@@ -502,20 +514,17 @@ describe HexaPDF::Layout::TableBox do
     it "fits a table with header and footer rows" do
       result = [[0, 0, 80, 10], [80, 0, 80, 10], [0, 10, 80, 10], [80, 10, 80, 10]]
       cell_creator = lambda {|_| [@fixed_size_boxes[10, 2], @fixed_size_boxes[12, 2]] }
-      box = create_box(header: cell_creator, footer: cell_creator)
-      box.cells.style(padding: 0, border: {width: 0})
-      box.header_cells.style(padding: 0, border: {width: 0})
-      box.footer_cells.style(padding: 0, border: {width: 0})
+      box = create_box(header: cell_creator, footer: cell_creator,
+                       cell_style: {padding: 0, border: {width: 0}})
       box = check_box(box, true, 160, 60, result)
       assert_equal(result, cell_infos(box.header_cells))
       assert_equal(result, cell_infos(box.footer_cells))
     end
 
     it "partially fits a table if not enough height is available" do
-      box = create_box(height: 10)
-      box.cells.style(padding: 0, border: {width: 0})
+      box = create_box(height: 10, cell_style: {padding: 0, border: {width: 0}})
       check_box(box, false, 160, 10,
-                [[0, 0, 80, 10], [80, 0, 80, 10], [nil, nil, 80, 10], [nil, nil, 0, 0]])
+                [[0, 0, 80, 10], [80, 0, 80, 10], [nil, nil, 80, 0], [nil, nil, 0, 0]])
     end
   end
 
@@ -628,8 +637,7 @@ describe HexaPDF::Layout::TableBox do
     end
 
     it "correctly works for split boxes" do
-      box = create_box
-      box.cells.style(padding: 0, border: {width: 0})
+      box = create_box(cell_style: {padding: 0, border: {width: 0}})
       refute(box.fit(100, 10, nil))
       _, split_box = box.split(100, 10, nil)
       assert(split_box.fit(100, 100, nil))
@@ -661,10 +669,8 @@ describe HexaPDF::Layout::TableBox do
 
     it "correctly works for tables with headers and footers" do
       box = create_box(header: lambda {|_| [@fixed_size_boxes[10, 1]] },
-                       footer: lambda {|_| [@fixed_size_boxes[12, 1]] })
-      box.cells.style(padding: 0, border: {width: 0})
-      box.header_cells.style(padding: 0, border: {width: 0})
-      box.footer_cells.style(padding: 0, border: {width: 0})
+                       footer: lambda {|_| [@fixed_size_boxes[12, 1]] },
+                       cell_style: {padding: 0, border: {width: 0}})
       box.fit(100, 100, nil)
       box.draw(@canvas, 20, 10)
       operators = [[:save_graphics_state],

@@ -81,9 +81,7 @@ module HexaPDF
     #  #>pdf-composer
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')]]
-    #  table = layout.table(cells: cells)
-    #  table.cells.style(border: {width: 0})
-    #  composer.draw_box(table)
+    #  composer.table(cells: cells, cell_style: {border: {width: 0}})
     #
     # If the table doesn't fit completely, it is automatically split (in this case, the last row
     # gets moved to the second column):
@@ -112,15 +110,16 @@ module HexaPDF
     #           [layout.text('E'), layout.text('F')]]
     #  composer.column(height: 90) {|col| col.table(cells: cells, header: header, footer: footer) }
     #
-    # The cells can be styled, either en masse or individually:
+    # The cells can be styled using a callable object for more complex styling:
     #
     #  #>pdf-composer
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')]]
-    #  table = layout.table(cells: cells)
-    #  table.cells.style(background_color: 'ffffee')
-    #  table.cells[0, 0].style.background_color = 'ffffaa'
-    #  composer.draw_box(table)
+    #  block = lambda do |cell|
+    #    cell.style.background_color =
+    #      (cell.row == 0 && cell.column == 0 ? 'ffffaa' : 'ffffee')
+    #  end
+    #  composer.table(cells: cells, cell_style: block)
     class TableBox < Box
 
       # Represents a single cell of the table.
@@ -548,16 +547,25 @@ module HexaPDF
       #     returns an array of arrays containing the footer rows.
       #
       #     The footer rows are shown for the table instance and all split boxes.
-      def initialize(cells:, column_widths: [], header: nil, footer: nil, **kwargs)
+      #
+      # +cell_style+::
+      #
+      #     Contains styling information that should be applied to all header, body and footer
+      #     cells.
+      #
+      #     This can either be a hash containing style properties or a callable object accepting a
+      #     cell as argument.
+      def initialize(cells:, column_widths: [], header: nil, footer: nil, cell_style: nil, **kwargs)
         super(**kwargs)
-        @cells = Cells.new(cells)
+        @cell_style = cell_style
+        @cells = Cells.new(cells, cell_style: @cell_style)
         @column_widths = column_widths
         @start_row_index = 0
         @last_fitted_row_index = -1
         @header = header
-        @header_cells = Cells.new(header.call(self)) if header
+        @header_cells = Cells.new(header.call(self), cell_style: @cell_style) if header
         @footer = footer
-        @footer_cells = Cells.new(footer.call(self)) if footer
+        @footer_cells = Cells.new(footer.call(self), cell_style: @cell_style) if footer
       end
 
       # Returns +true+ if not a single row could be fit.
@@ -632,8 +640,10 @@ module HexaPDF
           box.instance_variable_set(:@start_row_index, @last_fitted_row_index + 1)
           box.instance_variable_set(:@last_fitted_row_index, -1)
           box.instance_variable_set(:@special_cells_fit_not_successful, nil)
-          box.instance_variable_set(:@header_cells, @header ? Cells.new(@header.call(self)) : nil)
-          box.instance_variable_set(:@footer_cells, @footer ? Cells.new(@footer.call(self)) : nil)
+          header_cells = @header ? Cells.new(@header.call(self), cell_style: @cell_style) : nil
+          box.instance_variable_set(:@header_cells, header_cells)
+          footer_cells = @footer ? Cells.new(@footer.call(self), cell_style: @cell_style) : nil
+          box.instance_variable_set(:@footer_cells, footer_cells)
           [self, box]
         end
       end
