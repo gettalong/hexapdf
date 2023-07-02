@@ -265,6 +265,26 @@ describe HexaPDF::Layout::TableBox::Cells do
     end
   end
 
+  describe "style" do
+    it "assigns the style properties to all cells" do
+      cells = create_cells([[:a, :b], [:c, :d]])
+      cells.style(background_color: 'blue')
+      assert_equal('blue', cells[0, 0].style.background_color)
+      assert_equal('blue', cells[0, 1].style.background_color)
+      assert_equal('blue', cells[1, 0].style.background_color)
+      assert_equal('blue', cells[1, 1].style.background_color)
+    end
+
+    it "calls the given block for all cells" do
+      cells = create_cells([[:a, :b], [:c, :d]])
+      cells.style(background_color: 'blue') {|cell| cell.style.background_color = 'red' if cell.row == 0 }
+      assert_equal('red', cells[0, 0].style.background_color)
+      assert_equal('red', cells[0, 1].style.background_color)
+      assert_equal('blue', cells[1, 0].style.background_color)
+      assert_equal('blue', cells[1, 1].style.background_color)
+    end
+  end
+
   #fit_rows and draw_rows are tested through TableBox#fit/#draw
 end
 

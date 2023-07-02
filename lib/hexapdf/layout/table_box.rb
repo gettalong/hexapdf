@@ -308,6 +308,17 @@ module HexaPDF
           @cells.each(&block)
         end
 
+        # Applies the given style properties to all cells and optionally yields all cells for more
+        # complex customization.
+        def style(**properties, &block)
+          @cells.each do |columns|
+            columns.each do |cell|
+              cell.style.update(**properties)
+              block&.call(cell)
+            end
+          end
+        end
+
         # Fits all rows starting from +start_row+ into an area with the given +available_height+,
         # using the column information in +column_info+. Returns the used height as well as the row
         # index of the last row that fit (which may be -1 if no row fits).
