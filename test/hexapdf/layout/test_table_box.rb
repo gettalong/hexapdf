@@ -111,6 +111,12 @@ describe HexaPDF::Layout::TableBox::Cell do
       assert_equal(12, cell.preferred_width)
       assert_equal(12, cell.preferred_height)
     end
+
+    it "doesn't fit anything if the available width or height are too small" do
+      cell = create_cell(children: nil)
+      refute(cell.fit(10, 100, nil))
+      refute(cell.fit(100, 10, nil))
+    end
   end
 
   describe "draw" do

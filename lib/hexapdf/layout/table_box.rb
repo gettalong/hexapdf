@@ -208,6 +208,8 @@ module HexaPDF
           @width = available_width
           width = available_width - reserved_width
           height = available_height - reserved_height
+          return false if width <= 0 || height <= 0
+
           frame = Frame.new(0, 0, width, height)
           case children
           when Box
