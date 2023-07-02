@@ -12,13 +12,15 @@ describe HexaPDF::Layout::TableBox::Cell do
   describe "initialize" do
     it "creates a new instance with the given arguments" do
       cell = create_cell(children: [:a], row: 5, column: 3, row_span: 7, col_span: 2,
-                         style: {background_color: 'blue'})
+                         style: {background_color: 'blue', padding: 3, border: {width: 3}})
       assert_equal([:a], cell.children)
       assert_equal(5, cell.row)
       assert_equal(3, cell.column)
       assert_equal(7, cell.row_span)
       assert_equal(2, cell.col_span)
       assert_equal('blue', cell.style.background_color)
+      assert_equal(3, cell.style.padding.left)
+      assert_equal(3, cell.style.border.width.left)
     end
 
     it "uses defaults for attributes that were not given" do
@@ -26,16 +28,24 @@ describe HexaPDF::Layout::TableBox::Cell do
       assert_equal(1, cell.row_span)
       assert_equal(1, cell.col_span)
     end
+
+    it "uses defaults for the border and padding" do
+      cell = create_cell
+      assert(cell.style.border.width.simple?)
+      assert_equal(1, cell.style.border.width.left)
+      assert(cell.style.padding.simple?)
+      assert_equal(5, cell.style.padding.left)
+    end
   end
 
   describe "empty?" do
     it "returns true if the cell has not been fit yet" do
-      cell = create_cell(children: [:a])
+      cell = create_cell(children: [:a], style: {border: {width: 0}})
       assert(cell.empty?)
     end
 
     it "returns true if the cell has no content" do
-      cell = create_cell(children: nil)
+      cell = create_cell(children: nil, style: {border: {width: 0}})
       cell.fit(100, 100, nil)
       assert(cell.empty?)
     end
@@ -45,7 +55,7 @@ describe HexaPDF::Layout::TableBox::Cell do
     it "updates the height to the correct one" do
       cell = create_cell(children: HexaPDF::Layout::Box.create(width: 10, height: 10))
       cell.fit(100, 100, nil)
-      assert_equal(10, cell.height)
+      assert_equal(22, cell.height)
       cell.update_height(50)
       assert_equal(50, cell.height)
     end
@@ -63,15 +73,15 @@ describe HexaPDF::Layout::TableBox::Cell do
       cell = create_cell(children: HexaPDF::Layout::Box.create(width: 20, height: 10))
       cell.fit(100, 100, nil)
       assert_equal(100, cell.width)
-      assert_equal(10, cell.height)
-      assert_equal(20, cell.preferred_width)
-      assert_equal(10, cell.preferred_height)
+      assert_equal(22, cell.height)
+      assert_equal(32, cell.preferred_width)
+      assert_equal(22, cell.preferred_height)
     end
 
     it "fits a single box with horizontal aligning not being :left" do
       cell = create_cell(children: HexaPDF::Layout::Box.create(width: 20, height: 10, position_hint: :center))
       cell.fit(100, 100, nil)
-      assert_equal(60, cell.preferred_width)
+      assert_equal(66, cell.preferred_width)
     end
 
     it "fits multiple boxes" do
@@ -80,9 +90,9 @@ describe HexaPDF::Layout::TableBox::Cell do
       cell = create_cell(children: [box1, box2])
       cell.fit(100, 100, nil)
       assert_equal(100, cell.width)
-      assert_equal(25, cell.height)
-      assert_equal(50, cell.preferred_width)
-      assert_equal(25, cell.preferred_height)
+      assert_equal(37, cell.height)
+      assert_equal(62, cell.preferred_width)
+      assert_equal(37, cell.preferred_height)
     end
 
     it "fits multiple boxes with horizontal aligning not being :left" do
@@ -90,16 +100,16 @@ describe HexaPDF::Layout::TableBox::Cell do
       box2 = HexaPDF::Layout::Box.create(width: 50, height: 15)
       cell = create_cell(children: [box1, box2])
       cell.fit(100, 100, nil)
-      assert_equal(60, cell.preferred_width)
+      assert_equal(66, cell.preferred_width)
     end
 
     it "fits the cell even if it has no content" do
-      cell = create_cell(children: nil, style: {padding: [10, 5]})
+      cell = create_cell(children: nil)
       cell.fit(100, 100, nil)
       assert_equal(100, cell.width)
-      assert_equal(20, cell.height)
-      assert_equal(10, cell.preferred_width)
-      assert_equal(20, cell.preferred_height)
+      assert_equal(12, cell.height)
+      assert_equal(12, cell.preferred_width)
+      assert_equal(12, cell.preferred_height)
     end
   end
 
@@ -116,12 +126,19 @@ describe HexaPDF::Layout::TableBox::Cell do
       box.fit(100, 100, nil)
       box.draw(@canvas, 10, 75)
       operators = [[:save_graphics_state],
-                   [:concatenate_matrix, [1, 0, 0, 1, 50, 90]],
+                   [:append_rectangle, [9.5, 74.5, 101.0, 38.0]],
+                   [:clip_path_non_zero],
+                   [:end_path],
+                   [:append_rectangle, [10.0, 75.0, 100.0, 37.0]],
+                   [:stroke_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 50.0, 96]],
                    [:move_to, [0, 0]],
                    [:end_path],
                    [:restore_graphics_state],
                    [:save_graphics_state],
-                   [:concatenate_matrix, [1, 0, 0, 1, 10, 75]],
+                   [:concatenate_matrix, [1, 0, 0, 1, 16, 81]],
                    [:move_to, [0, 0]],
                    [:end_path],
                    [:restore_graphics_state]]
@@ -129,7 +146,7 @@ describe HexaPDF::Layout::TableBox::Cell do
     end
 
     it "works for a cell without content" do
-      box = create_cell(children: nil)
+      box = create_cell(children: nil, style: {border: {width: 0}})
       box.fit(100, 100, nil)
       box.draw(@canvas, 10, 75)
       assert_operators(@canvas.contents, [])
@@ -290,7 +307,7 @@ end
 
 describe HexaPDF::Layout::TableBox do
   before do
-    @frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100)
+    @frame = HexaPDF::Layout::Frame.new(0, 0, 160, 100)
     draw_block = lambda {|canvas, _box| canvas.move_to(0, 0).end_path }
     @fixed_size_boxes = 15.times.map { HexaPDF::Layout::Box.new(width: 20, height: 10, &draw_block) }
   end
@@ -308,8 +325,16 @@ describe HexaPDF::Layout::TableBox do
       assert_equal(cells.size, cell_data.size)
       cell_data.each_with_index do |(left, top, cwidth, cheight), index|
         cell = cells[index]
-        assert(left == cell.left, "cell #{index} left") # may be nil
-        assert(top == cell.top, "cell #{index} top")    # may be nil
+        if left.nil?
+          assert_nil(cell.left, "cell #{index} left")
+        else
+          assert_equal(left, cell.left, "cell #{index} left")
+        end
+        if top.nil?
+          assert_nil(cell.top, "cell #{index} top")
+        else
+          assert_equal(top, cell.top, "cell #{index} top")
+        end
         assert_equal(cwidth, cell.width, "cell #{index} width")
         assert_equal(cheight, cell.height, "cell #{index} height")
       end
@@ -368,10 +393,10 @@ describe HexaPDF::Layout::TableBox do
     end
 
     it "respects the border and padding" do
-      box = create_box(column_widths: [30, 30], style: {border: {width: [5, 4, 3, 2]}, padding: [5, 4, 3, 2]})
+      box = create_box(column_widths: [40, 40], style: {border: {width: [5, 4, 3, 2]}, padding: [5, 4, 3, 2]})
       box.fit(@frame.available_width, @frame.available_height, @frame)
-      assert_equal(72, box.width)
-      assert_equal(36, box.height)
+      assert_equal(93, box.width)
+      assert_equal(61, box.height)
     end
 
     it "cannot fit the table if the available width smaller than the initial width" do
@@ -385,8 +410,8 @@ describe HexaPDF::Layout::TableBox do
     end
 
     it "fits a simple table" do
-      check_box(create_box, true, 100, 20,
-                [[0, 0, 50, 10], [50, 0, 50, 10], [0, 10, 50, 10], [50, 10, 50, 10]])
+      check_box(create_box, true, 160, 45,
+                [[0, 0, 79.5, 22], [79.5, 0, 79.5, 22], [0, 22, 79.5, 22], [79.5, 22, 79.5, 22]])
     end
 
     it "fits a table with column and row spans" do
@@ -394,46 +419,58 @@ describe HexaPDF::Layout::TableBox do
                [{col_span: 2, row_span: 2, content: @fixed_size_boxes[3]}, *@fixed_size_boxes[4, 2]],
                [{row_span: 2, content: @fixed_size_boxes[6]}, @fixed_size_boxes[7]],
                @fixed_size_boxes[8, 3]]
-      check_box(create_box(cells: cells), true, 100, 40,
-                [[0, 0, 25, 10], [25, 0, 50, 10], [25, 0, 50, 10], [75, 0, 25, 10],
-                 [0, 10, 50, 20], [0, 10, 50, 20], [50, 10, 25, 10], [75, 10, 25, 10],
-                 [0, 10, 50, 20], [0, 10, 50, 20], [50, 20, 25, 20], [75, 20, 25, 10],
-                 [0, 30, 25, 10], [25, 30, 25, 10], [50, 20, 25, 20], [75, 30, 25, 10]])
+      check_box(create_box(cells: cells), true, 160, 89,
+                [[0, 0, 39.75, 22], [39.75, 0, 79.5, 22], [39.75, 0, 79.50, 22], [119.25, 0, 39.75, 22],
+                 [0, 22, 79.5, 44], [0, 22, 79.5, 44], [79.5, 22, 39.75, 22], [119.25, 22, 39.75, 22],
+                 [0, 22, 79.5, 44], [0, 22, 79.5, 44], [79.5, 44, 39.75, 44], [119.25, 44, 39.75, 22],
+                 [0, 66, 39.75, 22], [39.75, 66, 39.75, 22], [79.5, 44, 39.75, 44], [119.25, 66, 39.75, 22]])
     end
 
     it "fits a table with header rows" do
-      result = [[0, 0, 50, 10], [50, 0, 50, 10], [0, 10, 50, 10], [50, 10, 50, 10]]
+      result = [[0, 0, 80, 10], [80, 0, 80, 10], [0, 10, 80, 10], [80, 10, 80, 10]]
       header = lambda {|_| [@fixed_size_boxes[10, 2], @fixed_size_boxes[12, 2]] }
-      box = check_box(create_box(header: header), true, 100, 40, result)
+      box = create_box(header: header)
+      box.cells.style(padding: 0, border: {width: 0})
+      box.header_cells.style(padding: 0, border: {width: 0})
+      box = check_box(box, true, 160, 40, result)
       assert_equal(result, cell_infos(box.header_cells))
     end
 
     it "fits a table with footer rows" do
-      result = [[0, 0, 50, 10], [50, 0, 50, 10], [0, 10, 50, 10], [50, 10, 50, 10]]
+      result = [[0, 0, 80, 10], [80, 0, 80, 10], [0, 10, 80, 10], [80, 10, 80, 10]]
       footer = lambda {|_| [@fixed_size_boxes[10, 2], @fixed_size_boxes[12, 2]] }
-      box = check_box(create_box(footer: footer), true, 100, 40, result)
+      box = create_box(footer: footer)
+      box.cells.style(padding: 0, border: {width: 0})
+      box.footer_cells.style(padding: 0, border: {width: 0})
+      box = check_box(box, true, 160, 40, result)
       assert_equal(result, cell_infos(box.footer_cells))
     end
 
     it "fits a table with header and footer rows" do
-      result = [[0, 0, 50, 10], [50, 0, 50, 10], [0, 10, 50, 10], [50, 10, 50, 10]]
+      result = [[0, 0, 80, 10], [80, 0, 80, 10], [0, 10, 80, 10], [80, 10, 80, 10]]
       cell_creator = lambda {|_| [@fixed_size_boxes[10, 2], @fixed_size_boxes[12, 2]] }
-      box = check_box(create_box(header: cell_creator, footer: cell_creator), true, 100, 60, result)
+      box = create_box(header: cell_creator, footer: cell_creator)
+      box.cells.style(padding: 0, border: {width: 0})
+      box.header_cells.style(padding: 0, border: {width: 0})
+      box.footer_cells.style(padding: 0, border: {width: 0})
+      box = check_box(box, true, 160, 60, result)
       assert_equal(result, cell_infos(box.header_cells))
       assert_equal(result, cell_infos(box.footer_cells))
     end
 
     it "partially fits a table if not enough height is available" do
-      check_box(create_box(height: 10), false, 100, 10,
-                [[0, 0, 50, 10], [50, 0, 50, 10], [nil, nil, 50, 10], [nil, nil, 0, 0]])
+      box = create_box(height: 10)
+      box.cells.style(padding: 0, border: {width: 0})
+      check_box(box, false, 160, 10,
+                [[0, 0, 80, 10], [80, 0, 80, 10], [nil, nil, 80, 10], [nil, nil, 0, 0]])
     end
   end
 
   describe "split" do
     it "splits the table if some rows could not be fit into the available region" do
       box = create_box
-      refute(box.fit(100, 10, nil))
-      box_a, box_b = box.split(100, 10, nil)
+      refute(box.fit(100, 25, nil))
+      box_a, box_b = box.split(100, 25, nil)
       assert_same(box_a, box)
       assert(box_b.split_box?)
 
@@ -447,8 +484,9 @@ describe HexaPDF::Layout::TableBox do
       cells_creator = lambda {|_| [@fixed_size_boxes[10, 2]] }
       [{header: cells_creator}, {footer: cells_creator}].each do |args|
         box = create_box(**args)
-        refute(box.fit(100, 10, nil))
-        box_a, box_b = box.split(100, 10, nil)
+        box.cells.style(padding: 0, border: {width: 0})
+        refute(box.fit(100, 25, nil))
+        box_a, box_b = box.split(100, 25, nil)
         assert_nil(box_a)
         assert_same(box_b, box)
       end
@@ -458,8 +496,8 @@ describe HexaPDF::Layout::TableBox do
       cells_creator = lambda {|_| [@fixed_size_boxes[10, 2]] }
       [{header: cells_creator}, {footer: cells_creator}].each do |args|
         box = create_box(**args)
-        refute(box.fit(100, 20, nil))
-        box_a, box_b = box.split(100, 20, nil)
+        refute(box.fit(100, 50, nil))
+        box_a, box_b = box.split(100, 50, nil)
         assert_same(box_a, box)
 
         assert_equal(0, box_a.start_row_index)
@@ -486,22 +524,50 @@ describe HexaPDF::Layout::TableBox do
       box.fit(100, 100, nil)
       box.draw(@canvas, 20, 10)
       operators = [[:save_graphics_state],
-                   [:concatenate_matrix, [1, 0, 0, 1, 20, 20]],
+                   [:append_rectangle, [20.0, 32.0, 50.5, 23.0]],
+                   [:clip_path_non_zero],
+                   [:end_path],
+                   [:append_rectangle, [20.5, 32.5, 49.5, 22.0]],
+                   [:stroke_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 26.5, 38.5]],
                    [:move_to, [0, 0]],
                    [:end_path],
                    [:restore_graphics_state],
                    [:save_graphics_state],
-                   [:concatenate_matrix, [1, 0, 0, 1, 70.0, 20]],
+                   [:append_rectangle, [69.5, 32.0, 50.5, 23.0]],
+                   [:clip_path_non_zero],
+                   [:end_path],
+                   [:append_rectangle, [70.0, 32.5, 49.5, 22.0]],
+                   [:stroke_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 76.0, 38.5]],
                    [:move_to, [0, 0]],
                    [:end_path],
                    [:restore_graphics_state],
                    [:save_graphics_state],
-                   [:concatenate_matrix, [1, 0, 0, 1, 20, 10]],
+                   [:append_rectangle, [20.0, 10.0, 50.5, 23.0]],
+                   [:clip_path_non_zero],
+                   [:end_path],
+                   [:append_rectangle, [20.5, 10.5, 49.5, 22.0]],
+                   [:stroke_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 26.5, 16.5]],
                    [:move_to, [0, 0]],
                    [:end_path],
                    [:restore_graphics_state],
                    [:save_graphics_state],
-                   [:concatenate_matrix, [1, 0, 0, 1, 70.0, 10]],
+                   [:append_rectangle, [69.5, 10.0, 50.5, 23.0]],
+                   [:clip_path_non_zero],
+                   [:end_path],
+                   [:append_rectangle, [70.0, 10.5, 49.5, 22.0]],
+                   [:stroke_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 76.0, 16.5]],
                    [:move_to, [0, 0]],
                    [:end_path],
                    [:restore_graphics_state]]
@@ -510,6 +576,7 @@ describe HexaPDF::Layout::TableBox do
 
     it "correctly works for split boxes" do
       box = create_box
+      box.cells.style(padding: 0, border: {width: 0})
       refute(box.fit(100, 10, nil))
       _, split_box = box.split(100, 10, nil)
       assert(split_box.fit(100, 100, nil))
@@ -517,7 +584,7 @@ describe HexaPDF::Layout::TableBox do
       box.draw(@canvas, 20, 10)
       split_box.draw(@canvas, 0, 50)
       operators = [[:save_graphics_state],
-                   [:concatenate_matrix, [1, 0, 0, 1, 20, 10]],
+                   [:concatenate_matrix, [1, 0, 0, 1, 20.0, 10]],
                    [:move_to, [0, 0]],
                    [:end_path],
                    [:restore_graphics_state],
@@ -542,6 +609,9 @@ describe HexaPDF::Layout::TableBox do
     it "correctly works for tables with headers and footers" do
       box = create_box(header: lambda {|_| [@fixed_size_boxes[10, 1]] },
                        footer: lambda {|_| [@fixed_size_boxes[12, 1]] })
+      box.cells.style(padding: 0, border: {width: 0})
+      box.header_cells.style(padding: 0, border: {width: 0})
+      box.footer_cells.style(padding: 0, border: {width: 0})
       box.fit(100, 100, nil)
       box.draw(@canvas, 20, 10)
       operators = [[:save_graphics_state],

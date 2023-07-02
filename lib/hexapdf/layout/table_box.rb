@@ -49,9 +49,23 @@ module HexaPDF
     # If some rows don't fit into the provided area, the table is split. The style of the original
     # table is also applied to the split box.
     #
+    #
+    # == Table Cell
+    #
     # Each table cell is a Box instance and can have an associated style, e.g. for creating borders
     # around the cell contents. It is also possible to create cells that span more than one row or
-    # column.
+    # column. By default a cell has a solid, black, 1pt border and a padding of 5pt on all sides.
+    #
+    # It is important to note that the drawing of cell borders (just the drawing, size calculations
+    # are done as usual) are handled differently from standard box borders. While standard box
+    # borders are drawn inside the box, cell borders are drawn on the bounds of the box. This means
+    # that, visually, the borders of adjoining cells overlap, with the borders of cells to the right
+    # and bottom being on top.
+    #
+    # To make sure that the cell borders are not outside of the table's bounds, the left and top
+    # border widths of the top-left cell and the right and bottom border widths of the bottom-right
+    # cell are taken into account when calculating the available space.
+    #
     #
     # == Examples
     #
@@ -60,16 +74,15 @@ module HexaPDF
     #  #>pdf-composer
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')]]
-    #  composer.box(:table, cells: cells)
+    #  composer.table(cells: cells)
     #
-    # The style of the cells can be customized, e.g. to draw borders (note that each cell has a
-    # *separate* border):
+    # The style of the cells can be customized, e.g. to avoid drawing borders:
     #
     #  #>pdf-composer
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')]]
     #  table = layout.table(cells: cells)
-    #  table.cells.each_row {|row| row.each {|cell| cell.style.border.width.set(1) } }
+    #  table.cells.style(border: {width: 0})
     #  composer.draw_box(table)
     #
     # If the table doesn't fit completely, it is automatically split (in this case, the last row
@@ -79,7 +92,7 @@ module HexaPDF
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')],
     #           [layout.text('E'), layout.text('F')]]
-    #  composer.column(height: 35) {|col| col.table(cells: cells) }
+    #  composer.column(height: 50) {|col| col.table(cells: cells) }
     #
     # It is also possible to use row and column spans:
     #
@@ -87,19 +100,27 @@ module HexaPDF
     #  cells = [[{content: layout.text('A'), col_span: 2}, {content: layout.text('B'), row_span: 2}],
     #           [{content: layout.text('C'), col_span: 2, row_span: 2}],
     #           [layout.text('D')]]
-    #  table = layout.table(cells: cells)
-    #  table.cells.each_row {|row| row.each {|cell| cell.style.border.width.set(1) } }
-    #  composer.draw_box(table)
+    #  composer.table(cells: cells)
     #
     # Each table can have header rows and footer rows which are shown for all split parts:
     #
     #  #>pdf-composer
     #  header = lambda {|tb| [[{content: layout.text('Header', align: :center), col_span: 2}]] }
-    #  footer = lambda {|tb| [[layout.text('F left'), layout.text('F right', align: :right)]] }
+    #  footer = lambda {|tb| [[layout.text('left'), layout.text('right', align: :right)]] }
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')],
     #           [layout.text('E'), layout.text('F')]]
-    #  composer.column(height: 60) {|col| col.table(cells: cells, header: header, footer: footer) }
+    #  composer.column(height: 90) {|col| col.table(cells: cells, header: header, footer: footer) }
+    #
+    # The cells can be styled, either en masse or individually:
+    #
+    #  #>pdf-composer
+    #  cells = [[layout.text('A'), layout.text('B')],
+    #           [layout.text('C'), layout.text('D')]]
+    #  table = layout.table(cells: cells)
+    #  table.cells.style(background_color: 'ffffee')
+    #  table.cells[0, 0].style.background_color = 'ffffaa'
+    #  composer.draw_box(table)
     class TableBox < Box
 
       # Represents a single cell of the table.
@@ -162,6 +183,9 @@ module HexaPDF
           @column = column
           @row_span = row_span || 1
           @col_span = col_span || 1
+          style.border.width.set(1) unless style.border?
+          style.border.draw_on_bounds = true
+          style.padding.set(5) unless style.padding?
         end
 
         # Returns +true+ if the cell has no content.
@@ -520,8 +544,16 @@ module HexaPDF
         return false if (@initial_width > 0 && @initial_width > available_width) ||
           (@initial_height > 0 && @initial_height > available_height)
 
-        width = (@initial_width > 0 ? @initial_width : available_width) - reserved_width
-        height = (@initial_height > 0 ? @initial_height : available_height) - reserved_height
+        # Adjust reserved width/height to include space used by the edge cells for their border
+        # since cell borders are drawn on the bounds and not inside.
+        # This uses the top-left and bottom-right cells and so might not be correct in all cases.
+        @cell_tl_border_width = @cells[0, 0].style.border.width
+        cell_br_border_width = @cells[-1, -1].style.border.width
+        rw = reserved_width + (@cell_tl_border_width.left + cell_br_border_width.right) / 2.0
+        rh = reserved_height + (@cell_tl_border_width.top + cell_br_border_width.bottom) / 2.0
+
+        width = (@initial_width > 0 ? @initial_width : available_width) - rw
+        height = (@initial_height > 0 ? @initial_height : available_height) - rh
         used_height = 0
         columns = calculate_column_widths(width)
 
@@ -538,8 +570,8 @@ module HexaPDF
         main_used_height, @last_fitted_row_index = @cells.fit_rows(@start_row_index, height, columns)
         used_height += main_used_height
 
-        @width = (@initial_width > 0 ? @initial_width : columns[-1].sum + reserved_width)
-        @height = (@initial_height > 0 ? @initial_height : used_height + reserved_height)
+        @width = (@initial_width > 0 ? @initial_width : columns[-1].sum + rw)
+        @height = (@initial_height > 0 ? @initial_height : used_height + rh)
         @fit_successful = (@last_fitted_row_index == @cells.number_of_rows - 1)
       end
 
@@ -581,7 +613,8 @@ module HexaPDF
 
       # Draws the child boxes onto the canvas at position [x, y].
       def draw_content(canvas, x, y)
-        y += content_height
+        x += @cell_tl_border_width.left / 2.0
+        y += content_height - @cell_tl_border_width.top / 2.0
         if @header_cells
           @header_cells.draw_rows(0, -1, canvas, x, y)
           y -= @header_cells[-1, 0].top + @header_cells[-1, 0].height
