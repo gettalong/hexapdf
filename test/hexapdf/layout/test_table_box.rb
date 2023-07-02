@@ -409,6 +409,11 @@ describe HexaPDF::Layout::TableBox do
       refute(box.fit(@frame.available_width, @frame.available_height, @frame))
     end
 
+    it "cannot fit the table if the specified column widths are smaller than the available width" do
+      box = create_box(column_widths: [200])
+      refute(box.fit(@frame.available_width, @frame.available_height, @frame))
+    end
+
     it "fits a simple table" do
       check_box(create_box, true, 160, 45,
                 [[0, 0, 79.5, 22], [79.5, 0, 79.5, 22], [0, 22, 79.5, 22], [79.5, 22, 79.5, 22]])

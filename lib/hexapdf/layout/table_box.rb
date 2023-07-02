@@ -556,6 +556,7 @@ module HexaPDF
         height = (@initial_height > 0 ? @initial_height : available_height) - rh
         used_height = 0
         columns = calculate_column_widths(width)
+        return false if columns.empty?
 
         @special_cells_fit_not_successful = false
         [@header_cells, @footer_cells].each do |special_cells|
