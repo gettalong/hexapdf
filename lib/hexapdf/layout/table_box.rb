@@ -257,8 +257,8 @@ module HexaPDF
 
       # Represents the cells of a TableBox.
       #
-      # This class is a simple wrapper around an array of arrays and provides some utility methods
-      # for managing the cells.
+      # This class is a wrapper around an array of arrays and provides some utility methods for
+      # managing and styling the cells.
       #
       # == Table data transformation into correct form
       #
@@ -287,6 +287,18 @@ module HexaPDF
       #   All other key-value pairs are taken to be cell styling information (like
       #   +:background_color+) and assigned to the cell style.
       #
+      # Additionally, the first item in the +data+ argument is treated specially if it is not an
+      # array:
+      #
+      # * If it is a hash, it is assumed to be style properties to be set on all created cell
+      #   instances.
+      #
+      # * If it is a callable object, it needs to accept a cell as argument and is called for all
+      #   created cell instances.
+      #
+      # Any properties or styling information retrieved from the respective item in +data+ takes
+      # precedence over the above globally specified information.
+      #
       # Here is an example input data array:
       #
       #  data = [[box1, {col_span: 2, content: box2}, box3],
@@ -302,11 +314,15 @@ module HexaPDF
 
         # Creates a new Cells instance with the given +data+ which cannot be changed afterwards.
         #
+        # The optional +cell_style+ argument can either be a hash of style properties to be assigned
+        # to every cell or a block accepting a cell for more control over e.g. style assignment. If
+        # the +data+ has such a cell style as its first item, the +cell_style+ argument is not used.
+        #
         # See the class documentation for details on the +data+ argument.
-        def initialize(data)
+        def initialize(data, cell_style: nil)
           @cells = []
           @number_of_columns = 0
-          assign_data(data)
+          assign_data(data, cell_style)
         end
 
         # Returns the cell (a Cell instance) in the given row and column.
@@ -407,9 +423,15 @@ module HexaPDF
 
         # Assigns the +data+ to the individual cells, taking row and column spans into account.
         #
-        # This transforms the data into an array of row arrays with the same number of columns so
-        # that referencing a cell by (row, column) works correctly.
-        def assign_data(data)
+        # For details on the +cell_style+ argument see ::new.
+        def assign_data(data, cell_style)
+          cell_style = data.shift unless data[0].kind_of?(Array)
+          cell_style_block = if cell_style.kind_of?(Hash)
+                               lambda {|cell| cell.style.update(**cell_style) }
+                             else
+                               cell_style
+                             end
+
           data.each_with_index do |cols, row_index|
             # Only add new row array if it hasn't been added due to row spans before
             @cells << [] unless @cells[row_index]
@@ -429,10 +451,12 @@ module HexaPDF
                 style = content
               end
               cell = Cell.new(children: children, row: row_index, column: col_index,
-                              row_span: row_span, col_span: col_span,
-                              style: style, properties: properties)
-              row[col_index] = cell
+                              row_span: row_span, col_span: col_span)
+              cell_style_block&.call(cell)
+              cell.style.update(**style) if style
+              cell.properties.update(properties) if properties
 
+              row[col_index] = cell
               if cell.row_span > 1 || cell.col_span > 1
                 row_index.upto(row_index + cell.row_span - 1) do |r|
                   @cells << [] unless @cells[r]

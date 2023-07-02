@@ -160,8 +160,8 @@ describe HexaPDF::Layout::TableBox::Cell do
 end
 
 describe HexaPDF::Layout::TableBox::Cells do
-  def create_cells(data)
-    HexaPDF::Layout::TableBox::Cells.new(data)
+  def create_cells(data, cell_style = nil)
+    HexaPDF::Layout::TableBox::Cells.new(data, cell_style: cell_style)
   end
 
   describe "intialize" do
@@ -272,6 +272,48 @@ describe HexaPDF::Layout::TableBox::Cells do
       cells = create_cells([[{content: :a, background_color: 'black', properties: {'x' => 'y'}}]])
       assert_equal('black', cells[0, 0].style.background_color)
       assert_equal('y', cells[0, 0].properties['x'])
+    end
+
+    it "allows setting styles for all cells using a hash as first item in data" do
+      cells = create_cells([{background_color: 'black'}, [:a, :b], [:c, :d]])
+      assert_equal('black', cells[0, 0].style.background_color)
+      assert_equal('black', cells[1, 0].style.background_color)
+    end
+
+    it "allows setting styles for all cells using a proc as first item in data" do
+      block = lambda {|cell| cell.style.background_color = 'black' if cell.row == 0 }
+      cells = create_cells([block, [:a, :b], [:c, :d]])
+      assert_equal('black', cells[0, 0].style.background_color)
+      assert_nil(cells[1, 0].style.background_color)
+    end
+
+    it "allows setting styles for all cells using a hash as the cell_style argument" do
+      cells = create_cells([[:a, :b], [:c, :d]], {background_color: 'black'})
+      assert_equal('black', cells[0, 0].style.background_color)
+      assert_equal('black', cells[1, 0].style.background_color)
+    end
+
+    it "allows setting styles for all cells using a proc as the cell_style argument" do
+      block = lambda {|cell| cell.style.background_color = 'black' if cell.row == 0 }
+      cells = create_cells([[:a, :b], [:c, :d]], block)
+      assert_equal('black', cells[0, 0].style.background_color)
+      assert_nil(cells[1, 0].style.background_color)
+    end
+
+    it "only uses the styling informtion from data if a cell_style argument is also provided" do
+      cells = create_cells([{background_color: 'yellow'}, [:a, :b], [:c, :d]], {background_color: 'black'})
+      assert_equal('yellow', cells[0, 0].style.background_color)
+    end
+
+    it "makes sure that cell styling information overrides global styling information" do
+      block = lambda do |cell|
+        cell.style.background_color = 'yellow'
+        cell.properties['key'] = :value
+      end
+      cells = create_cells([block, [{background_color: 'black', properties: {'key' => 5}, content: :a}, :b],
+                            [:c, :d]])
+      assert_equal('black', cells[0, 0].style.background_color)
+      assert_equal(5, cells[0, 0].properties['key'])
     end
   end
 
