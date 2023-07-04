@@ -423,6 +423,11 @@ describe HexaPDF::Layout::TableBox do
       assert_equal('black', box_b.header_cells[0, 0].style.background_color)
       assert_equal('black', box_b.footer_cells[0, 0].style.background_color)
     end
+
+    it "allows providing a Cells instance instead of an array of arrays" do
+      box = create_box(cells: HexaPDF::Layout::TableBox::Cells.new([[:a, :b]]))
+      assert_equal(:a, box.cells[0, 0].children)
+    end
   end
 
   describe "empty?" do

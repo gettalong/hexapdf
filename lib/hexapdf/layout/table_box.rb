@@ -518,6 +518,9 @@ module HexaPDF
       #     This needs to be an array of arrays containing the data of the table. See Cells for more
       #     information on the allowed contents.
       #
+      #     Alternatively, a Cells instance can be used. Note that in this case the +cell_style+
+      #     argument is not used.
+      #
       # +column_widths+::
       #
       #     An array defining the width of the columns of the table.
@@ -558,7 +561,7 @@ module HexaPDF
       def initialize(cells:, column_widths: [], header: nil, footer: nil, cell_style: nil, **kwargs)
         super(**kwargs)
         @cell_style = cell_style
-        @cells = Cells.new(cells, cell_style: @cell_style)
+        @cells = cells.kind_of?(Cells) ? cells : Cells.new(cells, cell_style: @cell_style)
         @column_widths = column_widths
         @start_row_index = 0
         @last_fitted_row_index = -1
