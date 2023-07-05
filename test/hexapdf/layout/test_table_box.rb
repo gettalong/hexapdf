@@ -395,6 +395,17 @@ describe HexaPDF::Layout::TableBox do
   end
 
   describe "initialize" do
+    it "creates a new instance with the default arguments" do
+      box = create_box(cells: [[:a, :b], [:c]])
+      assert_equal([[:a, :b], [:c]], box.cells.each_row.map {|cols| cols.map(&:children) })
+      assert_equal([], box.column_widths)
+      assert_nil(box.header_cells)
+      assert_nil(box.footer_cells)
+      assert_equal(0, box.start_row_index)
+      assert_equal(-1, box.last_fitted_row_index)
+      refute(box.supports_position_flow?)
+    end
+
     it "creates a new instance with the given arguments" do
       header = lambda {|_| [[:h1, :h2]] }
       footer = lambda {|_| [[:f1], [:f2]] }
@@ -404,9 +415,6 @@ describe HexaPDF::Layout::TableBox do
       assert_equal([[:h1, :h2]], box.header_cells.each_row.map {|cols| cols.map(&:children) })
       assert_equal([[:f1], [:f2]], box.footer_cells.each_row.map {|cols| cols.map(&:children) })
       assert_equal([-2, -1], box.column_widths)
-      assert_equal(0, box.start_row_index)
-      assert_equal(-1, box.last_fitted_row_index)
-      refute(box.supports_position_flow?)
       [box.cells[0, 0], box.header_cells[0, 0], box.footer_cells[0, 0]].each do |cell|
         assert_equal('black', cell.style.background_color)
       end

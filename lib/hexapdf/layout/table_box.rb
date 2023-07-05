@@ -532,7 +532,8 @@ module HexaPDF
       #
       # +column_widths+::
       #
-      #     An array defining the width of the columns of the table.
+      #     An array defining the width of the columns of the table. If not set, defaults to an
+      #     empty array.
       #
       #     Each entry in the array may either be a positive or negative number. A positive number
       #     sets a fixed width for the respective column.
@@ -567,11 +568,11 @@ module HexaPDF
       #
       #     This can either be a hash containing style properties or a callable object accepting a
       #     cell as argument.
-      def initialize(cells:, column_widths: [], header: nil, footer: nil, cell_style: nil, **kwargs)
+      def initialize(cells:, column_widths: nil, header: nil, footer: nil, cell_style: nil, **kwargs)
         super(**kwargs)
         @cell_style = cell_style
         @cells = cells.kind_of?(Cells) ? cells : Cells.new(cells, cell_style: @cell_style)
-        @column_widths = column_widths
+        @column_widths = column_widths || []
         @start_row_index = 0
         @last_fitted_row_index = -1
         @header = header
