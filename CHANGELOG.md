@@ -68,7 +68,7 @@
 ### Added
 
 * [HexaPDF::Document::Layout#method_missing] for more convenient box creation
-* [HexaPDF::Document::Composer#method_missing] for more convenient box drawing
+* [HexaPDF::Composer#method_missing] for more convenient box drawing
 * [HexaPDF::Document::Layout#inline_box] for easy creation of inline boxes
 * [HexaPDF::Type::OutlineItem#open?] for getting the open state of an outline
   item

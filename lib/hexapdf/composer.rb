@@ -397,8 +397,7 @@ module HexaPDF
       end
     end
 
-    # :nodoc:
-    def respond_to_missing?(name, _private)
+    def respond_to_missing?(name, _private) # :nodoc:
       @document.layout.box_creation_method?(name) || super
     end
 
