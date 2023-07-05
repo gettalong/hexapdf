@@ -428,6 +428,111 @@ module HexaPDF
                                        properties: properties, style: style)
       end
 
+      # This helper class is used by Layout#table_box to allow specifying the keyword arguments used
+      # when converting cell data to box instances.
+      class CellArgumentCollector
+
+        # Stores a single keyword argument definition for a number of rows/columns.
+        ArgumentInfo = Struct.new(:rows, :cols, :args)
+
+        # Returns all stored ArgumentInfo instances.
+        attr_reader :argument_infos
+
+        # Creates a new instance, providing the number of rows and columns of the table.
+        def initialize(number_of_rows, number_of_columns)
+          @argument_infos = []
+          @number_of_rows = number_of_rows
+          @number_of_columns = number_of_columns
+        end
+
+        # Stores the keyword arguments in +args+ for the given 0-based rows and columns which can
+        # either be a single number or a range of numbers.
+        def []=(rows = 0..-1, cols = 0..-1, args)
+          rows = adjust_range(rows.kind_of?(Integer) ? rows..rows : rows, @number_of_rows)
+          cols = adjust_range(cols.kind_of?(Integer) ? cols..cols : cols, @number_of_columns)
+          @argument_infos << ArgumentInfo.new(rows, cols, args)
+        end
+
+        # Retrieves the merged keyword arguments for the cell in +row+ and +col+.
+        #
+        # Earlier defined arguments are overridden by later ones.
+        def retrieve_arguments_for(row, col)
+          @argument_infos.each_with_object({}) do |arg_info, result|
+            next unless arg_info.rows.cover?(row) && arg_info.cols.cover?(col)
+            result.update(arg_info.args)
+          end
+        end
+
+        private
+
+        # Adjusts the +range+ so that both the begin and the end of the range are zero or positive
+        # integers smaller than +max+.
+        def adjust_range(range, max)
+          (range.begin % max)..(range.end % max)
+        end
+
+      end
+
+      # Creates a HexaPDF::Layout::TableBox for the given table data.
+      #
+      # This method is a small wrapper around the actual class and mainly facilitates transforming
+      # the contents of the +data+ into the box instances needed by the table box implementation.
+      #
+      # In addition to everything the table box implementation allows for +data+, it is also
+      # possible to specify strings as cell contents. Those strings will be converted to text boxes
+      # by using the #text_box method. *Note* that this functionality is *not* available for the
+      # header and footer!
+      #
+      # Additional arguments for the #text_box invocations can be specified using the optional block
+      # that yields a CellArgumentCollector instance. This allows customization of the text boxes.
+      # By specifying the special key +:cell+ it is also possible to assign style properties to the
+      # cells themselves.
+      #
+      # See HexaPDF::Layout::TableBox::new for details on +column_widths+, +header+, +footer+, and
+      # +cell_style+.
+      #
+      # See #text_box for details on +width+, +height+, +style+, +style_properties+ and
+      # +properties+.
+      #
+      # Examples:
+      #
+      #   layout.table_box([[layout.text('A'), layout.text('B')],
+      #                     [layout.image(image_path), layout.text('D')]]
+      #   layout.table_box([['A', 'B'], [layout.image(image_path), 'D]])     # same as above
+      #
+      #   layout.table_box([['A', 'B'], ['C', 'D]]) do |args|
+      #     # assign the predefined style :cell_text to all texts
+      #     args[] = {style: :cell_text}
+      #     # row 0 has a grey background and bold text
+      #     args[0] = {font: ['Helvetica', variant: :bold], cell: {background_color: 'eee'}}
+      #     # text in last column is right aligned
+      #     args[0..-1, -1] = {align: :right}
+      #   end
+      #
+      # See: HexaPDF::Layout::TableBox
+      def table_box(data, column_widths: nil, header: nil, footer: nil, cell_style: nil,
+                    width: 0, height: 0, style: nil, properties: nil, **style_properties)
+        style = retrieve_style(style, style_properties)
+        cells = HexaPDF::Layout::TableBox::Cells.new(data, cell_style: cell_style)
+        collector = CellArgumentCollector.new(cells.number_of_rows, cells.number_of_columns)
+        yield(collector) if block_given?
+        cells.style do |cell|
+          args = collector.retrieve_arguments_for(cell.row, cell.column)
+          cstyle = args.delete(:cell)
+          result = case cell.children
+                   when Array, HexaPDF::Layout::Box
+                     cell.children
+                   else
+                     text_box(cell.children.to_s, **args)
+                   end
+          cell.children = result
+          cell.style.update(**cstyle) if cstyle
+        end
+        box_class_for_name(:table).new(cells: cells, column_widths: column_widths, header: header,
+                                       footer: footer, cell_style: cell_style, width: width,
+                                       height: height, properties: properties, style: style)
+      end
+
       LOREM_IPSUM = [ # :nodoc:
         "Lorem ipsum dolor sit amet, con\u{00AD}sectetur adipis\u{00AD}cing elit, sed " \
           "do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
@@ -447,7 +552,7 @@ module HexaPDF
         text_box(([LOREM_IPSUM[0, sentences].join(" ")] * count).join("\n\n"), **text_box_properties)
       end
 
-      BOX_METHOD_NAMES = [:text, :formatted_text, :image, :lorem_ipsum] #:nodoc:
+      BOX_METHOD_NAMES = [:text, :formatted_text, :image, :table, :lorem_ipsum] #:nodoc:
 
       # Allows creating boxes using more convenient method names:
       #

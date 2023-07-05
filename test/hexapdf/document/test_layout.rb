@@ -59,6 +59,54 @@ describe HexaPDF::Document::Layout::ChildrenCollector do
   end
 end
 
+describe HexaPDF::Document::Layout::CellArgumentCollector do
+  before do
+    @args = HexaPDF::Document::Layout::CellArgumentCollector.new(20, 10)
+  end
+
+  describe "[]" do
+    def check_argument_info(info, rows, cols, args)
+      assert_equal(rows, info.rows)
+      assert_equal(cols, info.cols)
+      assert_equal(args, info.args)
+    end
+
+    it "allows assigning to all cells" do
+      @args[] = {key: :value}
+      check_argument_info(@args.argument_infos.first, 0..19, 0..9, {key: :value})
+    end
+
+    it "allows assigning to all columns of a range of rows" do
+      @args[1..4] = {key: :value}
+      check_argument_info(@args.argument_infos.first, 1..4, 0..9, {key: :value})
+    end
+
+    it "allows assigning to the intersection of a range of rows with a range of columns" do
+      @args[1..4, 3..5] = {key: :value}
+      check_argument_info(@args.argument_infos.first, 1..4, 3..5, {key: :value})
+    end
+
+    it "allows selecting a single row or column" do
+      @args[1, 3] = {key: :value}
+      check_argument_info(@args.argument_infos.first, 1..1, 3..3, {key: :value})
+    end
+
+    it "allows using negative indices" do
+      @args[-3..-1, -5..-2] = {key: :value}
+      check_argument_info(@args.argument_infos.first, 17..19, 5..8, {key: :value})
+    end
+  end
+
+  describe "retrieve_arguments_for" do
+    it "merges all argument hashes, with later defined ones overridding prior ones" do
+      @args[] = {key: :value, a: :b}
+      @args[3..7] = {a: :c}
+      @args[5, 6] = {e: :f}
+      assert_equal({key: :value, a: :c, e: :f}, @args.retrieve_arguments_for(5, 6))
+    end
+  end
+end
+
 describe HexaPDF::Document::Layout do
   before do
     @doc = HexaPDF::Document.new
@@ -287,6 +335,56 @@ describe HexaPDF::Document::Layout do
       box = @layout.image_box(form, width: 10)
       assert_equal(10, box.width)
       assert_same(form, box.image)
+    end
+  end
+
+  describe "table_box" do
+    it "creates a table box" do
+      box = @layout.table_box([['m']], column_widths: [100], header: proc { [['a']] },
+                              footer: proc { [['b']] }, cell_style: {background_color: "red"},
+                              width: 100, height: 300, style: {background_color: "blue"},
+                              properties: {key: :value}, border: {width: 1})
+      assert_equal(100, box.width)
+      assert_equal(300, box.height)
+      assert_equal("blue", box.style.background_color)
+      assert_equal(1, box.style.border.width.left)
+      assert_equal({key: :value}, box.properties)
+      assert_equal(HexaPDF::Layout::TextBox, box.cells[0, 0].children.class)
+      assert_equal([100], box.column_widths)
+      assert_equal('a', box.header_cells[0, 0].children)
+      assert_equal('b', box.footer_cells[0, 0].children)
+    end
+
+    it "doesn't modify the children of cells if they are already in the correct form" do
+      image_path = File.join(TEST_DATA_DIR, 'images', 'gray.jpg')
+      cell0 = @layout.text('a')
+      cell1 = [@layout.text('b'), @layout.image(image_path)]
+      box = @layout.table_box([[cell0, cell1]])
+      assert_same(cell0, box.cells[0, 0].children)
+      assert_same(cell1, box.cells[0, 1].children)
+    end
+
+    it "converts cells containing other than Box and Array instances" do
+      box = @layout.table_box([['a', 5]])
+      assert_kind_of(HexaPDF::Layout::TextBox, box.cells[0, 0].children)
+      assert_kind_of(HexaPDF::Layout::TextBox, box.cells[0, 1].children)
+    end
+
+    it "allows customizing the creation arguments" do
+      box = @layout.table_box([['a']]) do |args|
+        args[] = {font_size: 20}
+      end
+      assert_equal(20, box.cells[0, 0].children.style.font_size)
+      refute_equal(20, box.cells[0, 0].style.font_size)
+    end
+
+    it "allows styling table cells themselves" do
+      box = @layout.table_box([['a', @layout.text('b')]]) do |args|
+        args[] = {cell: {background_color: "green"}}
+      end
+      assert_equal('green', box.cells[0, 0].style.background_color)
+      assert_nil(box.cells[0, 0].children.style.background_color)
+      assert_equal('green', box.cells[0, 1].style.background_color)
     end
   end
 

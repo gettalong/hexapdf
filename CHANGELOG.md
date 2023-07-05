@@ -3,6 +3,7 @@
 ### Added
 
 * [HexaPDF::Layout::TableBox] for rendering tables
+* [HexaPDF::Document::Layout#table_box] for easier table box creation
 * [HexaPDF::Content::GraphicObject::EndpointArc#max_curves] for setting the
   approximation accuracy
 * [HexaPDF::Importer::copy] for completely copying (including referenced

@@ -204,6 +204,7 @@ Style/OptionalBooleanParameter:
 Style/OptionalArguments:
   Exclude:
     - lib/hexapdf/content/canvas.rb # bc of line_with_rounded_corners
+    - lib/hexapdf/document/layout.rb # bc of CellArgumentCollector#[]
 
 Style/CaseLikeIf:
   Exclude:

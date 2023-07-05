@@ -74,14 +74,23 @@ module HexaPDF
     #  #>pdf-composer
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')]]
-    #  composer.table(cells: cells)
+    #  composer.table(cells)
+    #
+    # The HexaPDF::Document::Layout#table_box method accepts the cells as positional argument
+    # instead of as keyword argument but all other arguments of ::new work the same.
+    #
+    # While the table box itself only allows box instances as cell contents, the layout helper
+    # method also allows text which it transforms to text boxes. So this is the same as the above:
+    #
+    #  #>pdf-composer
+    #  composer.table([['A', 'B'], ['C', 'D']])
     #
     # The style of the cells can be customized, e.g. to avoid drawing borders:
     #
     #  #>pdf-composer
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')]]
-    #  composer.table(cells: cells, cell_style: {border: {width: 0}})
+    #  composer.table(cells, cell_style: {border: {width: 0}})
     #
     # If the table doesn't fit completely, it is automatically split (in this case, the last row
     # gets moved to the second column):
@@ -90,7 +99,7 @@ module HexaPDF
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')],
     #           [layout.text('E'), layout.text('F')]]
-    #  composer.column(height: 50) {|col| col.table(cells: cells) }
+    #  composer.column(height: 50) {|col| col.table(cells) }
     #
     # It is also possible to use row and column spans:
     #
@@ -98,7 +107,7 @@ module HexaPDF
     #  cells = [[{content: layout.text('A'), col_span: 2}, {content: layout.text('B'), row_span: 2}],
     #           [{content: layout.text('C'), col_span: 2, row_span: 2}],
     #           [layout.text('D')]]
-    #  composer.table(cells: cells)
+    #  composer.table(cells)
     #
     # Each table can have header rows and footer rows which are shown for all split parts:
     #
@@ -108,7 +117,7 @@ module HexaPDF
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')],
     #           [layout.text('E'), layout.text('F')]]
-    #  composer.column(height: 90) {|col| col.table(cells: cells, header: header, footer: footer) }
+    #  composer.column(height: 90) {|col| col.table(cells, header: header, footer: footer) }
     #
     # The cells can be styled using a callable object for more complex styling:
     #
@@ -119,7 +128,7 @@ module HexaPDF
     #    cell.style.background_color =
     #      (cell.row == 0 && cell.column == 0 ? 'ffffaa' : 'ffffee')
     #  end
-    #  composer.table(cells: cells, cell_style: block)
+    #  composer.table(cells, cell_style: block)
     class TableBox < Box
 
       # Represents a single cell of the table.
@@ -172,7 +181,7 @@ module HexaPDF
         #
         # This may either be +nil+ (if the cell has no content), a single Box instance or an array
         # of Box instances.
-        attr_reader :children
+        attr_accessor :children
 
         # Creates a new Cell instance.
         def initialize(row:, column:, children: nil, row_span: nil, col_span: nil, **kwargs)
