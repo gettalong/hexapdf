@@ -28,19 +28,36 @@ describe HexaPDF::Encryption::StandardEncryptionDictionary do
     end
   end
 
-  [:U, :O, :UE, :OE, :Perms].each do |field|
-    it "validates the length of /#{field} field for R=6" do
+  describe "validation for R=6" do
+    before do
       @dict[:R] = 6
-      @dict[field] = 'test'
-      refute(@dict.validate)
+      @dict[:U] = 't' * 48
+      @dict[:O] = 't' * 48
+      @dict[:UE] = 't' * 32
+      @dict[:OE] = 't' * 32
+      @dict[:Perms] = 't' * 16
     end
-  end
 
-  [:UE, :OE, :Perms].each do |field|
-    it "validates the existence of the /#{field} field for R=6" do
-      @dict[:R] = 6
-      @dict.delete(field)
-      refute(@dict.validate)
+    [:U, :O, :UE, :OE, :Perms].each do |field|
+      it "validates the length of /#{field}" do
+        @dict[field] = 'test'
+        refute(@dict.validate)
+      end
+    end
+
+    [:U, :O].each do |field|
+      it "auto-corrects /#{field} if it is larger and only padded with 0 bytes" do
+        @dict[field] = 't' * 48 + "\x00" * 20
+        assert(@dict.validate)
+        assert_equal('t' * 48, @dict[field])
+      end
+    end
+
+    [:UE, :OE, :Perms].each do |field|
+      it "validates the existence of the /#{field} field" do
+        @dict.delete(field)
+        refute(@dict.validate)
+      end
     end
   end
 end

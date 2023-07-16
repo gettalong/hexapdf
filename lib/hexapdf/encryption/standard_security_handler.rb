@@ -71,9 +71,15 @@ module HexaPDF
             yield("Value of /OE, /UE or /Perms is missing for dictionary revision 6", false)
             return
           end
-          if value[:U].length != 48 || value[:O].length != 48 || value[:UE].length != 32 ||
-              value[:OE].length != 32 || value[:Perms].length != 16
-            yield("Invalid size for /U, /O, /UE, /OE or /Perms values for revisions 6", false)
+          [:U, :O].each do |f|
+            if value[f].length != 48
+              yield("Invalid size (#{value[f].length} instead of 48) for /#{f} for revisions 6",
+                    value[f].length > 48 && value[f][48..-1].squeeze("\x00").length == 1)
+              value[f].slice!(48..-1)
+            end
+          end
+          if value[:UE].length != 32 || value[:OE].length != 32 || value[:Perms].length != 16
+            yield("Invalid size for /UE, /OE or /Perms values for revisions 6", false)
           end
         end
       end

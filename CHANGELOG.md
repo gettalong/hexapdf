@@ -28,6 +28,8 @@
 * [HexaPDF::Content::Canvas#text] to set the leading only when multiple lines
   are drawn
 * [HexaPDF::Layout::TextBox#split] to use float comparison
+* Validation of standard encryption dictionary to auto-correct invalid /U and
+  /O fields in case they are padded with zeros
 
 
 ## 0.32.2 - 2023-05-06
