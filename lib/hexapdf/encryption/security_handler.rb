@@ -52,7 +52,7 @@ module HexaPDF
 
       define_field :Filter,    type: Symbol, required: true
       define_field :SubFilter, type: Symbol, version: '1.3'
-      define_field :V,         type: Integer, required: true
+      define_field :V,         type: Integer, required: true, allowed_values: [0, 1, 2, 3, 4, 5]
       define_field :Lenth,     type: Integer, default: 40, version: '1.4'
       define_field :CF,        type: Dictionary, version: '1.5'
       define_field :StmF,      type: Symbol, default: :Identity, version: '1.5'
@@ -70,12 +70,8 @@ module HexaPDF
       # Ensures that the encryption dictionary's content is valid.
       def perform_validation
         super
-        unless [1, 2, 4, 5].include?(value[:V])
-          yield("Value of /V is not one of 1, 2, 4 or 5", false)
-          return
-        end
-        if value[:V] == 2 && (!key?(:Length) || value[:Length] < 40 ||
-          value[:Length] > 128 || value[:Length] % 8 != 0)
+        length = self[:Length]
+        if self[:V] == 2 && (!key?(:Length) || length < 40 || length > 128 || length % 8 != 0)
           yield("Invalid value for /Length field when /V is 2", false)
         end
       end

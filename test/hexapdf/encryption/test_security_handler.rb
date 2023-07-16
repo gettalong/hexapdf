@@ -17,13 +17,6 @@ describe HexaPDF::Encryption::EncryptionDictionary do
     assert(@dict.must_be_indirect?)
   end
 
-  it "validates the /V value" do
-    @dict[:V] = 1
-    assert(@dict.validate)
-    @dict[:V] = 3
-    refute(@dict.validate)
-  end
-
   it "validates the /Length field when /V=2" do
     @dict[:V] = 2
     refute(@dict.validate)
