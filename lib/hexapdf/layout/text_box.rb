@@ -103,7 +103,8 @@ module HexaPDF
       def split(available_width, available_height, frame)
         fit(available_width, available_height, frame) unless @result
 
-        if style.position != :flow && (@width > available_width || @height > available_height)
+        if style.position != :flow && (float_compare(@width, available_width) > 0 ||
+                                       float_compare(@height, available_height) > 0)
           [nil, self]
         elsif @result.remaining_items.empty?
           [self]

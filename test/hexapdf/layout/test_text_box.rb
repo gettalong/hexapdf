@@ -107,6 +107,14 @@ describe HexaPDF::Layout::TextBox do
       assert_equal([nil, box], box.split(100, 100, @frame))
     end
 
+    it "works if the box fits exactly (+/- float divergence)" do
+      box = create_box([@inline_box] * 5)
+      box.fit(50, 10, @frame)
+      box.instance_variable_set(:@width, 50.00000000006)
+      box.instance_variable_set(:@height, 10.00000000003)
+      assert_equal([box], box.split(50, 10, @frame))
+    end
+
     it "splits the box if necessary when using non-flowing text" do
       box = create_box([@inline_box] * 10)
       boxes = box.split(50, 10, @frame)

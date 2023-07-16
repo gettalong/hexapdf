@@ -26,6 +26,7 @@
   final box positions into account
 * [HexaPDF::Content::Canvas#text] to set the leading only when multiple lines
   are drawn
+* [HexaPDF::Layout::TextBox#split] to use float comparison
 
 
 ## 0.32.2 - 2023-05-06
