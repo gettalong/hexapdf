@@ -21,13 +21,6 @@ describe HexaPDF::Encryption::StandardEncryptionDictionary do
     @dict[:Perms] = 'test' * 8
   end
 
-  it "validates the /R value" do
-    @dict[:R] = 2
-    assert(@dict.validate)
-    @dict[:R] = 5
-    refute(@dict.validate)
-  end
-
   [:U, :O].each do |field|
     it "validates the length of /#{field} field for R <= 4" do
       @dict[field] = 'test'

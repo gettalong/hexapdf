@@ -47,7 +47,7 @@ module HexaPDF
     # the encryption key and a set of permissions.
     class StandardEncryptionDictionary < EncryptionDictionary
 
-      define_field :R,               type: Integer, required: true
+      define_field :R,               type: Integer, required: true, allowed_values: [2, 3, 4, 5, 6]
       define_field :O,               type: PDFByteString, required: true
       define_field :OE,              type: PDFByteString, version: '2.0'
       define_field :U,               type: PDFByteString, required: true
@@ -75,8 +75,6 @@ module HexaPDF
               value[:OE].length != 32 || value[:Perms].length != 16
             yield("Invalid size for /U, /O, /UE, /OE or /Perms values for revisions 6", false)
           end
-        else
-          yield("Value of /R is not one of 2, 3, 4 or 6", false)
         end
       end
 
