@@ -50,7 +50,12 @@ module HexaPDF
   # field object is automatically assigned a stateless converter object that knows if data read
   # from a PDF file potentially needs to be converted into a standard format before use.
   #
-  # The methods that need to be implemented by such stateless converter objects are:
+  # The available converter objects can be retrieved or modified via the Field.converters method.
+  #
+  #
+  # == Converter Objects
+  #
+  # The methods that need to be implemented by a stateless converter objects are the following:
   #
   # usable_for?(type)::
   #   Should return +true+ if the converter is usable for the given type.
@@ -63,19 +68,28 @@ module HexaPDF
   #   Should return the +converted+ data if conversion is possible and +nil+ otherwise. The +type+
   #   argument is the result of the Field#type method call and +document+ is the HexaPDF::Document
   #   for which the data should be converted.
+  #
+  # Since a converter usually doesn't need to store any data, it can be implemented as a module
+  # using class methods. This is how it is done for the built-in converter objects.
   module DictionaryFields
 
     # This constant should *always* be used for boolean fields.
+    #
+    # See: PDF2.0 s7.3.2
     Boolean = [TrueClass, FalseClass].freeze
 
     # PDFByteString is used for defining fields with strings in binary encoding.
+    #
+    # See: PDF2.0 s7.9.2.4
     PDFByteString = Class.new { private_class_method :new }
 
     # PDFDate is used for defining fields which store a date object as a string.
+    #
+    # See: PDF2.0 s7.9.4
     PDFDate = Class.new { private_class_method :new }
 
-    # A dictionary field contains information about one field of a structured PDF object and this
-    # information comes directly from the PDF specification.
+    # A field contains information about one field of a structured PDF object and this information
+    # comes directly from the PDF specification.
     #
     # By incorporating this field information into HexaPDF it is possible to do many things
     # automatically, like checking for the correct minimum PDF version to use or converting a date
@@ -91,9 +105,9 @@ module HexaPDF
 
       # Returns the converter for the given +type+ specification.
       #
-      # The converter list is checked for a suitable converter from the front to the back. So if
-      # two converters could potentially be used for the same type, the one that appears earlier
-      # is used.
+      # The converter list from #converters is checked for a suitable converter from the front to
+      # the back. So if two converters could potentially be used for the same type, the one that
+      # appears earlier is used.
       def self.converter_for(type)
         @converters.find {|converter| converter.usable_for?(type) }
       end
@@ -148,8 +162,7 @@ module HexaPDF
         !@default.nil?
       end
 
-      # Returns a duplicated default value, automatically taking unduplicatable classes into
-      # account.
+      # Returns a duplicated default value.
       def default
         @default.dup
       end
@@ -171,8 +184,10 @@ module HexaPDF
 
     end
 
-    # Converter module for fields of type Dictionary and its subclasses. The first class in the
-    # type array of the field is used for the conversion.
+    # Converter module for fields of type Dictionary and its subclasses.
+    #
+    # The first class in the type array of the field is used for the conversion. Symbol names for
+    # classes may also be used since they are automatically resolved.
     module DictionaryConverter
 
       # This converter is used when either a Symbol is provided as +type+ (for lazy loading) or
@@ -199,6 +214,8 @@ module HexaPDF
     end
 
     # Converter module for fields of type PDFArray.
+    #
+    # This converter ensures that arrays are wrapped by the PDFArray class for more convenient use.
     module ArrayConverter
 
       # This converter is usable if the +type+ is PDFArray.
@@ -220,6 +237,8 @@ module HexaPDF
     end
 
     # Converter module for string fields to automatically convert a string into UTF-8 encoding.
+    #
+    # See: PDF2.0 s7.9.2
     module StringConverter
 
       # This converter is usable if the +type+ is the String class.
@@ -231,8 +250,8 @@ module HexaPDF
       def self.additional_types
       end
 
-      # Converts the string into UTF-8 encoding, assuming it is a binary string. Otherwise +nil+ is
-      # returned.
+      # Converts the string into UTF-8 encoding, assuming it is a binary string (i.e. one not yet
+      # converted). Otherwise returns +nil+.
       def self.convert(str, _type, document)
         return unless str.kind_of?(String) && str.encoding == Encoding::BINARY
 
@@ -252,6 +271,8 @@ module HexaPDF
 
     # Converter module for binary string fields to automatically convert a string into binary
     # encoding.
+    #
+    # See: PDF2.0 s7.9.2.4
     module PDFByteStringConverter
 
       # This converter is usable if the +type+ is PDFByteString.
@@ -297,6 +318,8 @@ module HexaPDF
 
       # Checks if the given object is a string and converts into a Time object if possible.
       # Otherwise returns +nil+.
+      #
+      # This method takes some forms of mangled date strings into account that were found in the wild.
       def self.convert(str, _type, _document)
         return unless str.kind_of?(String) && (m = str.match(DATE_RE))
 
@@ -318,6 +341,8 @@ module HexaPDF
 
     # Converter module for file specification fields. A file specification in string format is
     # converted to the corresponding file specification dictionary.
+    #
+    # See: PDF2.0 s7.11, HexaPDF::Type::FileSpecification
     module FileSpecificationConverter
 
       # This converter is only used for the :Filespec type.
@@ -343,6 +368,8 @@ module HexaPDF
     end
 
     # Converter module for fields of type Rectangle.
+    #
+    # See: PDF2.0 s7.9.5
     module RectangleConverter
 
       # This converter is usable if the +type+ is Rectangle.
@@ -355,7 +382,8 @@ module HexaPDF
         Array
       end
 
-      # Wraps a given array in the Rectangle class. Otherwise returns +nil+.
+      # Wraps a given array using the Rectangle class or as a Null value if the array is invalid.
+      # Otherwise returns +nil+.
       def self.convert(data, _type, document)
         return unless data.kind_of?(Array) || data.kind_of?(HexaPDF::PDFArray)
         data.empty? ? document.wrap(nil) : document.wrap(data, type: Rectangle)
