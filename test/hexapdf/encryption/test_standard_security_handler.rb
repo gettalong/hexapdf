@@ -204,22 +204,24 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
   describe "prepare_decryption" do
     it "fails if the /Filter value is incorrect" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
-        @handler.set_up_decryption({Filter: :NonStandard, V: 2})
+        @handler.set_up_decryption({Filter: :NonStandard, V: 2, R: 4, O: 't' * 32, U: 't' * 32, P: 0,
+                                   Length: 128})
       end
       assert_match(/Invalid \/Filter value NonStandard/i, exp.message)
     end
 
     it "fails if the /R value is incorrect" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
-        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 5})
+        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 5, O: 't' * 32, U: 't' * 32, P: 0,
+                                    Length: 128})
       end
       assert_match(/Invalid \/R value 5/i, exp.message)
     end
 
     it "fails if the supplied password is invalid" do
       exp = assert_raises(HexaPDF::EncryptionError) do
-        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 6, U: 'a' * 48, O: 'a' * 48,
-                                    UE: 'a' * 32, OE: 'a' * 32})
+        @handler.set_up_decryption({Filter: :Standard, V: 5, R: 6, U: 'a' * 48, O: 'a' * 48,
+                                    UE: 'a' * 32, OE: 'a' * 32, P: 0, Perms: 'a' * 16})
       end
       assert_match(/Invalid password/i, exp.message)
     end
@@ -227,7 +229,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     it "assigns empty strings to the trailer's ID field if it is missing" do
       refute(@document.trailer.key?(:ID))
       exp = assert_raises(HexaPDF::EncryptionError) do
-        @handler.set_up_decryption({Filter: :Standard, V: 1, R: 2, U: 'a' * 48, O: 'a' * 48, P: 15})
+        @handler.set_up_decryption({Filter: :Standard, V: 1, R: 2, U: 'a' * 32, O: 'a' * 32, P: 15})
       end
       assert_match(/Invalid password/i, exp.message)
       assert_equal(['', ''], @document.trailer[:ID].value)

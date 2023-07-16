@@ -381,6 +381,10 @@ module HexaPDF
       # See: PDF2.0 s7.6.2
       def set_up_decryption(dictionary, **options)
         @dict = document.wrap(dictionary, type: encryption_dictionary_class)
+        @dict.validate do |msg, correctable, obj|
+          next if correctable
+          raise HexaPDF::Error, "Validation error for encryption dictionary (#{obj.oid},#{obj.gen}): #{msg}"
+        end
 
         case dict[:V]
         when 1, 2

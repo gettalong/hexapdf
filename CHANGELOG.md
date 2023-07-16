@@ -17,6 +17,7 @@
   [HexaPDF::Content::ColorSpace::COLOR_NAMES]
 * Constructor of [HexaPDF::Layout::PageStyle] to allow setting `next_style`
   attribute
+* The encryption dictionary is now validated before using it for decryption
 
 ### Fixed
 

@@ -233,6 +233,7 @@ describe HexaPDF::Encryption::SecurityHandler do
         [:identity, 128, {V: 4, StrF: :Mine, CF: {Mine: {CFM: :None}}}],
         [:identity, 128, {V: 4, CF: {Mine: {CFM: :AESV2}}}],
       ].each do |alg, length, dict|
+        dict[:Filter] = :Test
         @enc.strf = alg
         @enc.set_up_encryption(key_length: length, algorithm: (alg == :identity ? :aes : alg))
         @obj[:X] = @enc.encrypt_string('data', @obj)
@@ -242,7 +243,7 @@ describe HexaPDF::Encryption::SecurityHandler do
     end
 
     it "selects the correct algorithm for string, stream and embedded file decryption" do
-      @handler.set_up_decryption({V: 4, StrF: :Mine, StmF: :Mine, EFF: :Mine,
+      @handler.set_up_decryption({Filter: :Test, V: 4, StrF: :Mine, StmF: :Mine, EFF: :Mine,
                                   CF: {Mine: {CFM: :V2}}})
       assert_equal(HexaPDF::Encryption::FastARC4, @handler.send(:embedded_file_algorithm))
       assert_equal(HexaPDF::Encryption::FastARC4, @handler.send(:string_algorithm))
@@ -256,16 +257,23 @@ describe HexaPDF::Encryption::SecurityHandler do
                    @handler.encryption_details)
     end
 
+    it "fails if the encryption dictionary is not valid" do
+      exp = assert_raises(HexaPDF::Error) do
+        @handler.set_up_decryption({V: 5})
+      end
+      assert_match(/Validation error for encryption dictionary.*Required field Filter/i, exp.message)
+    end
+
     it "fails for unsupported /V values in the dict" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
-        @handler.set_up_decryption({V: 3})
+        @handler.set_up_decryption({Filter: :Text, V: 3})
       end
       assert_match(/Unsupported encryption version/i, exp.message)
     end
 
     it "fails for unsupported crypt filter encryption methods" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
-        @handler.set_up_decryption({V: 4, StrF: :Mine, CF: {Mine: {CFM: :Unknown}}})
+        @handler.set_up_decryption({Filter: :Test, V: 4, StrF: :Mine, CF: {Mine: {CFM: :Unknown}}})
       end
       assert_match(/Unsupported encryption method/i, exp.message)
     end
@@ -273,7 +281,7 @@ describe HexaPDF::Encryption::SecurityHandler do
 
   describe "decrypt" do
     before do
-      @handler.set_up_decryption({V: 1})
+      @handler.set_up_decryption({Filter: :Test, V: 1})
       @encrypted = @handler.encrypt_string('string', @obj)
       @obj.value = {Key: @encrypted.dup, Array: [@encrypted.dup], Hash: {Another: @encrypted.dup}}
     end
