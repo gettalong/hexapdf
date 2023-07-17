@@ -91,11 +91,13 @@ module HexaPDF
     #
     # == Overview
     #
-    # The PDF specification defines one security handler that should be implemented by all PDF
-    # conform libraries and applications. This standard security handler allows access permissions
-    # and a user password as well as an owner password to be set. See
-    # StandardSecurityHandler::EncryptionOptions for all valid options that can be used with this
-    # security handler.
+    # The PDF specification defines one security handler that should be implemented by all
+    # conforming PDF libraries and applications. This standard security handler allows access
+    # permissions and a user password as well as an owner password to be set.
+    #
+    # See StandardSecurityHandler::EncryptionOptions for all valid options that can be used with
+    # this security handler when encrypting a document. And see #prepare_decryption for all allowed
+    # options when decrypting a document.
     #
     # The access permissions (see StandardSecurityHandler::Permissions) can be used to restrict what
     # a user is allowed to do with a PDF file.
@@ -119,7 +121,7 @@ module HexaPDF
         # Printing (if HIGH_QUALITY_PRINT is also set, then high quality printing is allowed)
         PRINT = 1 << 2
 
-        # Modification of the content by operations that are different from those controller by
+        # Modification of the content by operations that are different from those controlled by
         # MODIFY_ANNOTATION, FILL_IN_FORMS and ASSEMBLE_DOCUMENT
         MODIFY_CONTENT = 1 << 3
 
@@ -410,9 +412,9 @@ module HexaPDF
       # For revisions <= 4 this is done by first retrieving the user password through the use of
       # the owner password and then using the #compute_user_encryption_key method.
       #
-      # For revision 6 file encryption key is a string of random bytes that has been encrypted
-      # with the owner password. If the password is the user password,
-      # #compute_user_encryption_key has to be used.
+      # For revision 6 the file encryption key is a string of random bytes that has been encrypted
+      # with the owner password. If the password is the user password, #compute_user_encryption_key
+      # has to be used.
       #
       # See: PDF2.0 s7.6.4.3.2 (algorithm 2.A (a)-(d))
       def compute_owner_encryption_key(password)

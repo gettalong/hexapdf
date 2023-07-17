@@ -90,8 +90,8 @@ module HexaPDF
     # * The method ::set_up_decryption is used when a security handler should be created from the
     #   document's encryption dictionary.
     #
-    # Security handlers could also be created with the ::new method but this is discouraged because
-    # the above methods provide the correct handling in both cases.
+    # It is *not* recommended to create security handlers manually but only with those two methods
+    # listed above.
     #
     #
     # == Using SecurityHandler Instances
@@ -103,11 +103,15 @@ module HexaPDF
     # * #encrypt_string
     # * #encrypt_stream
     #
-    # How the decryption/encryption key is actually computed is deferred to a sub class.
+    # How the decryption/encryption key is actually computed is deferred to a sub class, as per the
+    # PDF specification.
     #
     # Additionally, the #encryption_key_valid? method can be used to check whether the
     # SecurityHandler instance is built from/built for the current version of the encryption
     # dictionary.
+    #
+    # Note that any manual changes to the encryption dictionary will invalidate the key and lead to
+    # an error!
     #
     #
     # == Implementing a SecurityHandler Class
@@ -147,8 +151,8 @@ module HexaPDF
         # The encryption algorithm.
         attr_reader :algorithm
 
-        # Creates a new encrypted stream data object by utilizing the given stream data object as
-        # template. The arguments +key+ and +algorithm+ are used for decrypting purposes.
+        # Creates a new encrypted stream data object by utilizing the given stream data object +obj+
+        # as template. The arguments +key+ and +algorithm+ are used for decrypting purposes.
         def initialize(obj, key, algorithm)
           obj.instance_variables.each {|v| instance_variable_set(v, obj.instance_variable_get(v)) }
           @key = key
@@ -298,6 +302,9 @@ module HexaPDF
       end
 
       # Returns a Fiber that encrypts the contents of the given stream object.
+      #
+      # Note that some streams *must not be* encrypted. For those, their standard stream encoding
+      # fiber is returned.
       def encrypt_stream(obj)
         return obj.stream_encoder if obj.type == :XRef
 
@@ -317,8 +324,8 @@ module HexaPDF
         end
       end
 
-      # Computes the encryption key and sets up the algorithms for encrypting the document based on
-      # the given options, and returns the corresponding encryption dictionary.
+      # Computes the encryption key, sets up the algorithms for encrypting the document based on the
+      # given options, and returns the corresponding encryption dictionary.
       #
       # The security handler specific +options+ as well as the +algorithm+ argument are passed on to
       # the #prepare_encryption method.

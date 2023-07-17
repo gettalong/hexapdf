@@ -41,7 +41,7 @@ module HexaPDF
   # A PDF document may be encrypted so that
   #
   # * certain permissions are respected when the document is opened,
-  # * a password must be specified so that a document can be openend or so that
+  # * a password must be specified so that a document can be openend, or so that
   # * a password must be specified to remove the restrictions and allow full access.
   #
   # This module contains all encryption and security related code to facilitate PDF encryption.
@@ -61,6 +61,9 @@ module HexaPDF
   # additionally allows setting permission information. This security handler is implemented by
   # the Encryption::StandardSecurityHandler class.
   #
+  # There is also a certificate-based security handler defined by the PDF specification. However,
+  # that handler is not implemented.
+  #
   #
   # === Encryption Algorithms
   #
@@ -78,6 +81,8 @@ module HexaPDF
   #   Pure Ruby implementations of the algorithms which are naturally much slower than the OpenSSL
   #   based ones. However, these implementation can be used on any Ruby implementation.
   #
+  # The ARC4 algorithm is deprecated with PDF 2.0 and should not be used when creating new
+  # documents.
   #
   # See: PDF2.0 s7.6
   module Encryption

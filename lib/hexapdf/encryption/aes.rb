@@ -43,7 +43,7 @@ module HexaPDF
     # Common interface for AES algorithms
     #
     # This module defines the common interface that is used by the security handlers to encrypt or
-    # decrypt data with AES. It has to be *prepended* by any AES algorithm class.
+    # decrypt data with AES. It has to be *prepended* by any specific AES algorithm class.
     #
     # See the ClassMethods module for available class level methods of AES algorithms.
     #

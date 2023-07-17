@@ -68,7 +68,7 @@ module HexaPDF
         @cipher.send(mode)
         @cipher.key = key
         @cipher.iv = iv
-        @cipher.padding = 0
+        @cipher.padding = 0 # Padding handled by HexaPDF, also no @cipher.final call needed
       end
 
       # Encrypts or decrypts the given data whose length must be a multiple of 16.

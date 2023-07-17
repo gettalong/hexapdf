@@ -70,6 +70,7 @@ end
 # * HexaPDF::Content::Canvas provides the canvas API for drawing/writing on a page or form XObject
 # * HexaPDF::Type::AcroForm::Form is the entry point for working with interactive forms.
 # * HexaPDF::Type::Outline has information on working with outlines/bookmarks.
+# * HexaPDF::Encryption provides information on how encryption works.
 # * HexaPDF::DigitalSignature is the entry point for working with digital signaturs.
 module HexaPDF
 
