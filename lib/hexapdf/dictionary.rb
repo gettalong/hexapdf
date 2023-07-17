@@ -47,8 +47,9 @@ module HexaPDF
   # the PDF specification. This allows, among other things, automatic type checking and
   # basic validation.
   #
-  # Fields defined in superclasses are inherited by their subclasses. This avoids duplicating
-  # basic field information.
+  # Fields defined in superclasses are inherited by their subclasses. This avoids duplicating basic
+  # field information. If fields differ from their superclass definition, they can be defined again
+  # in the subclass.
   #
   # See: PDF2.0 s7.3.7
   class Dictionary < HexaPDF::Object
@@ -85,7 +86,7 @@ module HexaPDF
     #        a Symbol), it has to be the first in the list. Otherwise automatic type conversion
     #        functions won't work correctly.
     #
-    # required:: Specifies whether this field is required.
+    # required:: Specifies whether this field is required, either +true+ or +false+.
     #
     # default:: Specifies the default value for the field, if any.
     #
@@ -174,7 +175,7 @@ module HexaPDF
       data
     end
 
-    # Stores the data under name in the dictionary. Name has to be a Symbol object.
+    # Stores the data under name in the dictionary. Name has to be a Symbol.
     #
     # If the current value for this name has the class HexaPDF::Object (and only this, no
     # subclasses) and the given value has not (including subclasses), the value is stored inside the
