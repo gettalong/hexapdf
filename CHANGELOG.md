@@ -18,6 +18,8 @@
 * Constructor of [HexaPDF::Layout::PageStyle] to allow setting `next_style`
   attribute
 * The encryption dictionary is now validated before using it for decryption
+* Changed encryption permissions to be compatible to PDF 2.0 by always
+  activating the "extract content" permission
 
 ### Fixed
 

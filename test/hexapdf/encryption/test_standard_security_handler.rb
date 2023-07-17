@@ -298,7 +298,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
   it "returns an array of permission symbols" do
     perms = @handler.class::Permissions::MODIFY_CONTENT | @handler.class::Permissions::COPY_CONTENT
     @handler.set_up_encryption(permissions: perms)
-    assert_equal([:copy_content, :modify_content], @handler.permissions.sort)
+    assert_equal([:copy_content, :extract_content, :modify_content], @handler.permissions.sort)
   end
 
   describe "handling of metadata streams" do

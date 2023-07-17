@@ -133,6 +133,9 @@ module HexaPDF
         FILL_IN_FORMS = 1 << 8
 
         # Extracting content
+        #
+        # PDF 2.0 specifies that this bit should always be set by writers and should be ignored by
+        # readers. Therefore this is part of the RESERVED constant.
         EXTRACT_CONTENT = 1 << 9
 
         # Assembling of the document (inserting, rotating or deleting of pages and creation of
@@ -146,8 +149,8 @@ module HexaPDF
         ALL = PRINT | MODIFY_CONTENT | COPY_CONTENT | MODIFY_ANNOTATION | FILL_IN_FORMS |
           EXTRACT_CONTENT | ASSEMBLE_DOCUMENT | HIGH_QUALITY_PRINT
 
-        # Reserved permission bits
-        RESERVED = 0xFFFFF000 | 0b11000000
+        # Reserved permission bits that should always be set
+        RESERVED = 0xFFFFF000 | 0b11000000 | EXTRACT_CONTENT
 
         # Maps permission symbols to their respective value
         SYMBOL_TO_PERMISSION = {
