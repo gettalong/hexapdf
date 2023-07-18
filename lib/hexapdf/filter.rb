@@ -48,6 +48,8 @@ module HexaPDF
     attr_reader :length
 
     # Initializes the Fiber and sets the +length+.
+    #
+    # A +length+ of +nil+ is equal to -1.
     def initialize(length, &block)
       super(&block)
       @length = length || -1
@@ -99,8 +101,8 @@ module HexaPDF
 
     autoload(:PassThrough, 'hexapdf/filter/pass_through')
 
-    # Returns a Fiber that can be used as a source for decoders/encoders and that is based on a
-    # String object.
+    # Returns a FiberWithLength that yields the given string and can be used as a source for
+    # decoders/encoders.
     def self.source_from_string(str)
       FiberWithLength.new(str.length) { str.dup }
     end
@@ -149,7 +151,7 @@ module HexaPDF
     # Note that there will be a problem if the size of the file changes between the invocation of
     # this method and the actual consumption of the file!
     #
-    # See ::source_from_io for a description of the available options.
+    # See ::source_from_io for a description of the +pos+, +length+ and +chunk_size+ options.
     def self.source_from_file(filename, pos: 0, length: -1, chunk_size: 0)
       fib_length = (length < 0 ? File.stat(filename).size - pos : length)
       FiberWithLength.new(fib_length) do
@@ -165,7 +167,7 @@ module HexaPDF
     # Returns the concatenated string chunks retrieved by resuming the given source Fiber until it
     # is dead.
     #
-    # The returned string is always a string with +BINARY+ (= +ASCII-8BIT+) encoding.
+    # The returned string is always a string with binary (= +ASCII-8BIT+) encoding.
     def self.string_from_source(source)
       str = ''.b
       while source.alive? && (data = source.resume)
