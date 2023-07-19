@@ -63,6 +63,7 @@ module HexaPDF
   # Optionally, a font loader can provide a method +available_fonts(document)+ that returns a hash
   # where the keys are the font names and the values are the variants of all the provided fonts.
   #
+  #
   # == Font Wrappers
   #
   # A font wrapper needs to provide the following generic interface so that it can be used correctly
@@ -80,6 +81,8 @@ module HexaPDF
   #     and returns an encoded string that can be decoded with the font dictionary returned by
   #     \#dict.
   #
+  # HexaPDF contains a font wrapper implementation for the Standard 14 PDF fonts (see
+  # HexaPDF::Font::Type1Wrapper) and one for TrueType fonts (see HexaPDF::Font::TrueTypeWrapper).
   module FontLoader
 
     autoload(:Standard14, 'hexapdf/font_loader/standard14')

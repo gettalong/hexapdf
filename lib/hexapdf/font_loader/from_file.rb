@@ -39,15 +39,15 @@ require 'hexapdf/font/true_type_wrapper'
 module HexaPDF
   module FontLoader
 
-    # This module interprets the font name either as file name and tries to load it, or as font
-    # object to be wrapped directly.
+    # This module interprets the font name either as file name and tries to load it, or as TrueType
+    # font object to be wrapped directly.
     module FromFile
 
       # :call-seq:
       #   FromFile.call(document, file_name, subset: true, **)           -> wrapped_font
       #   FromFile.call(document, font_object, subset: true, **)    -> wrapped_font
       #
-      # Returns an appropriate font wrapper for the given file name or font object.
+      # Returns an appropriate font wrapper for the given file name or TrueType font object.
       #
       # If a file name is given, the file object representing the font file is *not* closed and if
       # needed must be closed by the caller once the font is not needed anymore.
@@ -57,10 +57,10 @@ module HexaPDF
       # font file.
       #
       # +document+::
-      #     The PDF document to associate the font object with.
+      #     The PDF document to associate the font wrapper with.
       #
       # +file_name+/+font_object+::
-      #     The file name or TrueType font object.
+      #     The file name or a HexaPDF::Font::TrueType::Font object.
       #
       # +subset+::
       #     Specifies whether the font should be subset if possible.

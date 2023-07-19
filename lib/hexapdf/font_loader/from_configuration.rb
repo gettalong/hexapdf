@@ -43,13 +43,14 @@ module HexaPDF
     # This module uses the configuration option 'font.map' for loading a font.
     module FromConfiguration
 
-      # Loads the given font by looking up the needed file in the 'font.map' configuration option.
+      # Returns a TrueType font wrapper for the given font by looking up the needed file in the
+      # 'font.map' configuration option.
       #
       # The file object representing the font file is *not* closed and if needed must be closed by
       # the caller once the font is not needed anymore.
       #
       # +document+::
-      #     The PDF document to associate the font object with.
+      #     The PDF document to associate the font wrapper with.
       #
       # +name+::
       #     The name of the font.
@@ -59,6 +60,8 @@ module HexaPDF
       #
       # +subset+::
       #     Specifies whether the font should be subset if possible.
+      #
+      # This method uses the FromFile font loader behind the scenes.
       def self.call(document, name, variant: :none, subset: true)
         file = document.config['font.map'].dig(name, variant)
         return nil if file.nil?

@@ -71,10 +71,10 @@ module HexaPDF
         },
       }.freeze
 
-      # Creates a new font object backed by the AFM font metrics read from the file or IO stream.
+      # Returns a font wrapper for the named Standard PDF font.
       #
       # +document+::
-      #     The PDF document to associate the font object with.
+      #     The PDF document to associate the font wrapper with.
       #
       # +name+::
       #     The name of the built-in font. One of Times, Helvetica, Courier, Symbol or ZapfDingbats.
@@ -85,7 +85,7 @@ module HexaPDF
       #
       # +custom_encoding+::
       #     For Times, Helvetica and Courier the standard encoding WinAnsiEncoding is used. If this
-      #     option is not wanted because access to other glyphs is needed, set this to +true+
+      #     is not wanted because access to other glyphs is needed, set this to +true+
       def self.call(document, name, variant: :none, custom_encoding: false, **)
         name = MAPPING[name] && MAPPING[name][variant]
         return nil if name.nil?
