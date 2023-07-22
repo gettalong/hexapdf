@@ -41,6 +41,9 @@ module HexaPDF
     # font.
     class InvalidGlyph
 
+      # The associated font object.
+      attr_reader :font
+
       # The string that could not be represented as a glyph.
       attr_reader :str
 

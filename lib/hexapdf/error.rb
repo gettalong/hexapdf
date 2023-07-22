@@ -82,4 +82,22 @@ module HexaPDF
   # Raised when the encryption method is not supported.
   class UnsupportedEncryptionError < EncryptionError; end
 
+  # Raised when a font wrapper implementation should encode a missing glyph.
+  class MissingGlyphError < Error
+
+    # Returns the glyph object that contains the information about the missing glyph.
+    attr_reader :glyph
+
+    # Creates a new MissingGlyphError for the given +glyph+.
+    def initialize(glyph)
+      @glyph = glyph
+    end
+
+    def message # :nodoc:
+      "No glyph for #{glyph.str.inspect} in font '#{glyph.font.full_name}' found. \n\n" \
+        "Use the configuration option 'font.on_missing_glyph' to customize missing glyph handling."
+    end
+
+  end
+
 end

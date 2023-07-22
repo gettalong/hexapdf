@@ -75,7 +75,8 @@ describe HexaPDF::Font::Type1Wrapper do
       end
 
       it "fails if an InvalidGlyph is encoded" do
-        assert_raises(HexaPDF::Error) { @times_wrapper.encode(@times_wrapper.glyph(:ffi)) }
+        exp = assert_raises(HexaPDF::MissingGlyphError) { @times_wrapper.encode(@times_wrapper.glyph(:ffi)) }
+        assert_match(/No glyph for "ﬃ" in font 'Times Roman'/, exp.message)
       end
 
       it "fails if the encoding does not support the given glyph" do

@@ -83,7 +83,10 @@ describe HexaPDF::Font::TrueTypeWrapper do
     end
 
     it "raises an error if an InvalidGlyph is encoded" do
-      assert_raises(HexaPDF::Error) { @font_wrapper.encode(@font_wrapper.glyph(9999)) }
+      exp = assert_raises(HexaPDF::MissingGlyphError) do
+        @font_wrapper.encode(@font_wrapper.decode_utf8("ö").first)
+      end
+      assert_match(/No glyph for "ö" in font 'Ubuntu-Title'/, exp.message)
     end
   end
 

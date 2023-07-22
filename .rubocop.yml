@@ -214,6 +214,9 @@ Style/ZeroLengthPredicate:
   Exclude:
     - lib/hexapdf/type/acro_form/appearance_generator.rb # false alarm
 
+Style/RaiseArgs:
+  AllowedCompactTypes: [HexaPDF::MissingGlyphError]
+
 Layout/HashAlignment:
   EnforcedLastArgumentHashStyle: ignore_implicit
 

@@ -48,6 +48,9 @@ module HexaPDF
       # Represents a single glyph of the wrapped font.
       class Glyph
 
+        # The associated font object.
+        attr_reader :font
+
         # The name of the glyph.
         attr_reader :name
         alias id name
@@ -188,9 +191,7 @@ module HexaPDF
       def encode(glyph)
         @encoded_glyphs[glyph.name] ||=
           begin
-            if glyph.name == @wrapped_font.missing_glyph_id
-              raise HexaPDF::Error, "Glyph for #{glyph.str.inspect} missing"
-            end
+            raise HexaPDF::MissingGlyphError.new(glyph) if glyph.kind_of?(InvalidGlyph)
             code = @encoding.code(glyph.name)
             if code
               code.chr.freeze

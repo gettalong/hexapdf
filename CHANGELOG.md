@@ -10,6 +10,8 @@
   indirect objects) a single PDF object (which may be from the same document)
 * [HexaPDF::Layout::Style::Border#draw_on_bounds] for drawing the border on the
   bounds instead of inside
+* [HexaPDF::MissingGlyphError] for better error messages when a font is missing
+  a glyph
 
 ### Changed
 
