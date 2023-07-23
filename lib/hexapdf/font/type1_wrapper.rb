@@ -214,7 +214,7 @@ module HexaPDF
               @encoding.code_to_name[@max_code] = glyph.name
               @max_code.chr.freeze
             else
-              raise HexaPDF::Error, "Type1 encoding has no codepoint for #{glyph.name}"
+              raise HexaPDF::Error, "Used Type1 encoding has no codepoint for #{glyph.name.inspect}"
             end
           end
       end
