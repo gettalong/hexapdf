@@ -66,6 +66,20 @@ describe HexaPDF::Font::TrueTypeWrapper do
     end
   end
 
+  describe "custom_glyph" do
+    it "returns the specified glyph object" do
+      glyph = @font_wrapper.custom_glyph(0, "str")
+      assert_equal(0, glyph.id)
+      assert_equal("str", glyph.str)
+    end
+
+    it "fails if an invalid glyph id is specified" do
+      exp = assert_raises(HexaPDF::Error) { @font_wrapper.custom_glyph(-5, 'c') }
+      assert_match(/Glyph ID -5 is invalid for font 'Ubuntu-Title'/, exp.message)
+      assert_raises(HexaPDF::Error) { @font_wrapper.custom_glyph(9999, 'c') }
+    end
+  end
+
   describe "encode" do
     it "returns the encoded glyph ID for fonts that are subset" do
       code = @font_wrapper.encode(@font_wrapper.glyph(3))

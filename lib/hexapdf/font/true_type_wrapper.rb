@@ -174,6 +174,18 @@ module HexaPDF
           end
       end
 
+      # Returns a custom Glyph object which represents the given +string+ via the given glyph +id+.
+      #
+      # This functionality can be used to associate a single glyph id with multiple, different
+      # strings for replacement glyph purposes. When used in such a way, the used glyph id is often
+      # 0 which represents the missing glyph.
+      def custom_glyph(id, string)
+        if id < 0 || id >= @wrapped_font[:maxp].num_glyphs
+          raise HexaPDF::Error, "Glyph ID #{id} is invalid for font '#{@wrapped_font.full_name}'"
+        end
+        Glyph.new(@wrapped_font, id, string)
+      end
+
       # Returns an array of glyph objects representing the characters in the UTF-8 encoded string.
       def decode_utf8(str)
         str.codepoints.map! do |c|

@@ -167,6 +167,20 @@ module HexaPDF
           end
       end
 
+      # Returns a custom Glyph object which represents the given +string+ via the given glyph
+      # +name+.
+      #
+      # This functionality can be used to associate a single glyph name with multiple, different
+      # strings for replacement glyph purposes. When used in such a way, the used glyph name is
+      # often :question.
+      def custom_glyph(name, string)
+        unless @wrapped_font.metrics.character_metrics.key?(name)
+          raise HexaPDF::Error, "Glyph named #{name.inspect} not found in " \
+            "font '#{@wrapped_font.full_name}'"
+        end
+        Glyph.new(@wrapped_font, name, string)
+      end
+
       # Returns an array of glyph objects representing the characters in the UTF-8 encoded string.
       #
       # If a Unicode codepoint is not available as glyph object, it is tried to map the codepoint

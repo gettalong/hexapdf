@@ -65,6 +65,19 @@ describe HexaPDF::Font::Type1Wrapper do
     end
   end
 
+  describe "custom_glyph" do
+    it "returns the specified glyph object" do
+      glyph = @times_wrapper.custom_glyph(:question, "str")
+      assert_equal(:question, glyph.name)
+      assert_equal("str", glyph.str)
+    end
+
+    it "fails if the provided glyph name is not available for the font" do
+      exp = assert_raises(HexaPDF::Error) { @times_wrapper.custom_glyph(:handicap, 'c') }
+      assert_match(/Glyph named :handicap not found in font 'Times Roman'/, exp.message)
+    end
+  end
+
   describe "encode" do
     describe "uses WinAnsiEncoding as initial encoding for non-symbolic fonts" do
       it "returns the PDF font dictionary using WinAnsiEncoding and encoded glyph" do

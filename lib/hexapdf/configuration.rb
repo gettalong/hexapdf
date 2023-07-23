@@ -275,7 +275,14 @@ module HexaPDF
   #    was called, you can use +font_wrapper.pdf_object.document+.
   #
   #    The default implementation returns an object of class HexaPDF::Font::InvalidGlyph which, when
-  #    not removed before encoding, will raise an error.
+  #    not removed before encoding, will raise a HexaPDF::MissingGlyphError.
+  #
+  #    If a replacement glyph should be displayed instead of an error, the following provides a good
+  #    starting implementation:
+  #
+  #      doc.config['font.on_missing_glyph'] = lambda do |character, font_wrapper|
+  #        font_wrapper.custom_glyph(font_wrapper.font_type == :Type1 ? :question : 0, character)
+  #      end
   #
   # font.on_missing_unicode_mapping::
   #    Callback hook when a character code point cannot be converted to a Unicode character.

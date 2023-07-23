@@ -12,6 +12,8 @@
   bounds instead of inside
 * [HexaPDF::MissingGlyphError] for better error messages when a font is missing
   a glyph
+* [HexaPDF::Font::Type1Wrapper#custom_glyph] and
+  [HexaPDF::Font::TrueTypeWrapper#custom_glyph] for custom glyph creation
 
 ### Changed
 
