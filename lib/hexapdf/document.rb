@@ -357,7 +357,9 @@ module HexaPDF
       if subtype
         sub_klass = GlobalConfiguration.constantize('object.subtype_map', type, subtype) { klass }
         if type ||
-            sub_klass&.each_field&.none? {|name, field| field.required? && !data.value.key?(name) }
+            sub_klass&.each_field&.none? do |name, field|
+              field.required? && !data.value.key?(name) && name != :Type
+            end
           klass = sub_klass
         end
       end

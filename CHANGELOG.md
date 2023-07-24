@@ -38,6 +38,7 @@
 * [HexaPDF::Layout::TextBox#split] to use float comparison
 * Validation of standard encryption dictionary to auto-correct invalid /U and
   /O fields in case they are padded with zeros
+* [HexaPDF::Document#wrap] handling of sub-type mapping in case of missing type
 
 
 ## 0.32.2 - 2023-05-06

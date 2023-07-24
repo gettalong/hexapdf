@@ -240,6 +240,7 @@ describe HexaPDF::Document do
       assert_kind_of(@myclass2, @doc.wrap({Subtype: :Global, Test: "true"}))
       assert_kind_of(@myclass2, @doc.wrap({Type: :MyClass, S: :TheSecond}))
       assert_kind_of(@myclass, @doc.wrap({Type: :MyClass, Subtype: :TheThird}))
+      assert_kind_of(HexaPDF::Type::FontTrueType, @doc.wrap({Subtype: :TrueType, BaseFont: :Help}))
     end
 
     it "respects the given type/subtype arguments" do
