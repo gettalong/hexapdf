@@ -107,6 +107,17 @@ describe HexaPDF::DigitalSignature::Signatures do
       assert_equal(1, field.each_widget.count)
     end
 
+    it "creates an empty widget on the first page for the signature field if necessary" do
+      @doc.pages.add
+      field = @doc.acro_form(create: true).create_signature_field('Signature2')
+      field.field_value = sig = @doc.add({Type: :Sig, key: :value})
+      @doc.signatures.add(@io, @handler, signature: sig)
+      widgets = field.each_widget.to_a
+      assert_equal(1, widgets.size)
+      assert_equal(@doc.pages[0], widgets[0][:P])
+      assert_equal([0, 0, 0, 0], widgets[0][:Rect])
+    end
+
     it "handles different xref section types correctly when determing the offsets" do
       @doc.delete(7)
       sig = @doc.signatures.add(@io, @handler, write_options: {update_fields: false})
