@@ -116,6 +116,14 @@ module HexaPDF
           signature_field.create_widget(@document.pages[0], Rect: [0, 0, 0, 0])
         end
 
+        # Work-around for Adobe Acrobat to recognize images (https://stackoverflow.com/a/73011571/8203541)
+        signature_field.each_widget do |widget|
+          next unless (resources = widget.appearance&.resources)
+          resources[:XObject]&.each do |_name, entry|
+            entry[:Resources] ||= {}
+          end
+        end
+
         # Prepare signature object
         handler.finalize_objects(signature_field, signature)
         signature[:ByteRange] = [0, 1_000_000_000_000, 1_000_000_000_000, 1_000_000_000_000]

@@ -118,6 +118,17 @@ describe HexaPDF::DigitalSignature::Signatures do
       assert_equal([0, 0, 0, 0], widgets[0][:Rect])
     end
 
+    it "handles a bug in Adobe Acrobat related to images not showing without a /Resources entry" do
+      field = @doc.acro_form(create: true).create_signature_field('Signature')
+      image = @doc.add({Type: :XObject, Subtype: :Image, Width: 1, Height: 1, ColorSpace: :DeviceGray,
+                        BitsPerComponent: 8}, stream: 'A')
+      field.create_widget(@doc.pages[0], Rect: [0, 0, 100, 100]).create_appearance.
+        canvas.xobject(image, at: [0, 0])
+      @doc.signatures.add(@io, @handler, signature: field)
+      assert(image.key?(:Resources))
+      assert_equal({}, image[:Resources])
+    end
+
     it "handles different xref section types correctly when determing the offsets" do
       @doc.delete(7)
       sig = @doc.signatures.add(@io, @handler, write_options: {update_fields: false})

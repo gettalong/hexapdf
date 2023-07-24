@@ -24,6 +24,8 @@
 * The encryption dictionary is now validated before using it for decryption
 * Changed encryption permissions to be compatible to PDF 2.0 by always
   activating the "extract content" permission
+* Digital signature creation in case of signature widgets containing images to
+  work around bug in Adobe Acrobat
 
 ### Fixed
 
