@@ -1738,10 +1738,14 @@ module HexaPDF
       #   canvas.character_spacing(amount)               => canvas
       #   canvas.character_spacing(amount) { block }     => canvas
       #
-      # The character spacing determines how much additional space is added between two
-      # consecutive characters. For horizontal writing positive values increase the distance
-      # between two characters, whereas for vertical writing negative values increase the
+      # The character spacing determines how much additional space is added after each character
+      # (or, more correctly, after each glyph). For horizontal writing positive values increase the
+      # distance between two characters, whereas for vertical writing negative values increase the
       # distance.
+      #
+      # Note that the character spacing is applied to all characters that are rendered. This has the
+      # effect that there is also a space after the last character which might not be wanted in
+      # certain cases (e.g. when justifying text).
       #
       # Returns the current character spacing value (see GraphicsState#character_spacing) when no
       # argument is given. Otherwise sets the character spacing using the +amount+ argument and
@@ -1765,9 +1769,16 @@ module HexaPDF
       #   # visual example
       #   canvas.font("Helvetica", size: 10)
       #   canvas.character_spacing = 0                  # initial value
-      #   canvas.text("This is an example text.", at: [10, 150])
-      #   canvas.character_spacing = 3
-      #   canvas.text("This is an example text.", at: [10, 100])
+      #   canvas.text("This is an example", at: [10, 150])
+      #   # show that the text cursor is directly after the last glyph
+      #   x, y = canvas.text_cursor
+      #   canvas.stroke_color("hp-blue").line(x, y, x, y + 10).stroke
+      #
+      #   canvas.character_spacing = 5
+      #   canvas.text("This is an example", at: [10, 100])
+      #   # visualize the spacing after the last glyph
+      #   x, y = canvas.text_cursor
+      #   canvas.stroke_color("hp-blue").line(x, y, x, y + 10).stroke
       #
       # See: PDF2.0 s9.3.2, #word_spacing, #horizontal_scaling
       def character_spacing(amount = nil, &bk)
