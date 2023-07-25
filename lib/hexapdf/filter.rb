@@ -57,6 +57,47 @@ module HexaPDF
 
   end
 
+  # Implements part of the Fiber interface so that it can be used instead of a Fiber by HexaPDF
+  # when only a single string should be returned.
+  class FiberDoubleForString
+
+    # Creates a new FiberDoubleForString instance for the given string +str+ or for the string
+    # returned by invoking the block.
+    def initialize(str = nil, &block)
+      @block = block
+      @str = str
+      @block_used = false
+    end
+
+    # Returns the length of the wrapped string.
+    #
+    # May only be called before #resume!
+    def length
+      str.length
+    end
+
+    # Returns +true+ if #resume has not yet been called.
+    def alive?
+      !str.nil?
+    end
+
+    # Returns the wrapped string on the first invocation, +nil+ otherwise.
+    def resume
+      tmp = str
+      @str = nil
+      tmp
+    end
+
+    private
+
+    # Sets the string to the return value of the initially provided block if no string has been
+    # provided.
+    def str
+      @str ||= @block_used || @block.nil? ? nil : (@block_used = true; @block.call)
+    end
+
+  end
+
   # == Overview
   #
   # A stream filter is used to compress a stream or to encode it in an ASCII compatible way; or
@@ -101,10 +142,16 @@ module HexaPDF
 
     autoload(:PassThrough, 'hexapdf/filter/pass_through')
 
-    # Returns a FiberWithLength that yields the given string and can be used as a source for
+    # Returns a FiberDoubleForString that uses the string returned by the provided block and can be
+    # used as a source for decoders/encoders.
+    def self.source_from_proc(&block)
+      FiberDoubleForString.new(&block)
+    end
+
+    # Returns a FiberDoubleForString that returns the given string and can be used as a source for
     # decoders/encoders.
     def self.source_from_string(str)
-      FiberWithLength.new(str.length) { str.dup }
+      FiberDoubleForString.new(str.dup)
     end
 
     # Returns a Fiber that can be used as a source for decoders/encoders and that reads chunks of

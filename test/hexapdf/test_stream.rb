@@ -31,6 +31,13 @@ describe HexaPDF::StreamData do
   end
 
   describe "fiber" do
+    it "returns a duplicate for a FiberDoubleForString source" do
+      source = HexaPDF::Filter.source_from_string("str")
+      fiber = HexaPDF::StreamData.new(source).fiber
+      assert_equal("str", fiber.resume)
+      refute_same(source, fiber)
+    end
+
     it "returns a fiber for a Proc source" do
       s = HexaPDF::StreamData.new(proc { :source })
       assert_equal(:source, s.fiber.resume)

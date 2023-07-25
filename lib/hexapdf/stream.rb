@@ -88,7 +88,9 @@ module HexaPDF
 
     # Returns a Fiber for getting at the data of the stream represented by this object.
     def fiber(chunk_size = 0)
-      if @source.kind_of?(Proc)
+      if @source.kind_of?(FiberDoubleForString)
+        @source.dup
+      elsif @source.kind_of?(Proc)
         FiberWithLength.new(@length, &@source)
       elsif @source.kind_of?(String)
         HexaPDF::Filter.source_from_file(@source, pos: @offset || 0, length: @length || -1,

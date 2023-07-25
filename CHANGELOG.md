@@ -14,6 +14,8 @@
   a glyph
 * [HexaPDF::Font::Type1Wrapper#custom_glyph] and
   [HexaPDF::Font::TrueTypeWrapper#custom_glyph] for custom glyph creation
+* [HexaPDF::FiberDoubleForString] to avoid creating real `Fiber` instances when
+  not necessary
 
 ### Changed
 

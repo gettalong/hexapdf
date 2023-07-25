@@ -12,6 +12,14 @@ describe HexaPDF::Filter do
     40.times { @str << [rand(2**32)].pack('N') }
   end
 
+  describe "source_from_proc" do
+    it "returns the whole string, once" do
+      fib = @obj.source_from_proc { @str }
+      assert_equal(@str, collector(fib))
+      assert_equal('', collector(fib))
+    end
+  end
+
   describe "source_from_string" do
     it "doesn't modify the given string" do
       str = @str.dup

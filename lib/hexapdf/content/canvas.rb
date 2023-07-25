@@ -299,7 +299,7 @@ module HexaPDF
         @current_point = [0, 0]
         @start_point = [0, 0]
         @contents = ''.b
-        @stream_data = HexaPDF::StreamData.new do
+        source = HexaPDF::Filter.source_from_proc do
           case graphics_object
           when :path, :clipping_path then end_path
           when :text then end_text
@@ -307,6 +307,7 @@ module HexaPDF
           restore_graphics_state while graphics_state.saved_states?
           @contents
         end
+        @stream_data = HexaPDF::StreamData.new(source)
       end
 
       # Returns the resource dictionary of the context object.
