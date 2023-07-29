@@ -200,7 +200,7 @@ module HexaPDF
         def create_text_appearances
           default_resources = @document.acro_form.default_resources
           font, font_size, font_color = retrieve_font_information(default_resources)
-          style = HexaPDF::Layout::Style.new(font: font, fill_color: font_color)
+          style = HexaPDF::Layout::Style.new(font: font, font_size: font_size, fill_color: font_color)
           border_style = @widget.border_style
           padding = [1, border_style.width].max
 
@@ -226,8 +226,6 @@ module HexaPDF
 
           canvas = form.canvas
           apply_background_and_border(border_style, canvas)
-          style.font_size = calculate_font_size(font, font_size, height, border_style)
-          style.clear_cache
 
           canvas.marked_content_sequence(:Tx) do
             if @field.field_value || @field.concrete_field_type == :list_box
@@ -362,6 +360,7 @@ module HexaPDF
         def draw_single_line_text(canvas, width, height, style, padding)
           value, text_color = apply_javascript_formatting(@field.field_value)
           style.fill_color = text_color if text_color
+          calculate_and_apply_font_size(value, style, width, height, padding)
           fragment = HexaPDF::Layout::TextFragment.create(value, style)
 
           if @field.concrete_field_type == :comb_text_field
@@ -431,6 +430,11 @@ module HexaPDF
 
         # Draws the visible option items of the list box in the widget's rectangle.
         def draw_list_box(canvas, width, height, style, padding)
+          if style.font_size == 0
+            style.font_size = 12 # Seems to be Adobe's default
+            style.clear_cache
+          end
+
           option_items = @field.option_items
           top_index = @field.list_box_top_index
           items = [Layout::TextFragment.create(option_items[top_index..-1].join("\n"), style)]
@@ -475,24 +479,20 @@ module HexaPDF
           [font, font_size, font_color]
         end
 
-        # Calculates the font size for text fields based on the font and font size of the default
-        # appearance string, the annotation rectangle's height and the border style.
-        def calculate_font_size(font, font_size, height, border_style)
-          if font_size == 0
-            case @field.concrete_field_type
-            when :multiline_text_field
-              0 # Handled by multiline drawing code
-            when :list_box
-              12 # Seems to be Adobe's default
-            else
-              unit_font_size = (font.wrapped_font.bounding_box[3] - font.wrapped_font.bounding_box[1]) *
-                font.scaling_factor / 1000.0
-              # The constant factor was found empirically by checking what Adobe Reader etc. do
-              (height - 2 * border_style.width) / unit_font_size * 0.83
-            end
-          else
-            font_size
-          end
+        # Calculates the font size for single line text fields using auto-sizing, based on the font
+        # and font size of the default appearance string, the annotation rectangle's height and
+        # width and the given padding. The font size is then applied to the provided style object.
+        def calculate_and_apply_font_size(value, style, width, height, padding)
+          return if style.font_size != 0
+
+          font = style.font
+          unit_font_size = (font.wrapped_font.bounding_box[3] - font.wrapped_font.bounding_box[1]) *
+            font.scaling_factor / 1000.0
+          # The constant factor was found empirically by checking what Adobe Reader etc. do
+          style.font_size = (height - 2 * padding) / unit_font_size * 0.85
+          fragment = HexaPDF::Layout::TextFragment.create(value, style)
+          style.font_size = [style.font_size, style.font_size * (width - 4 * padding) / fragment.width].min
+          style.clear_cache
         end
 
         # Handles Javascript formatting routines for single-line text fields.

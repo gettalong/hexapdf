@@ -467,12 +467,20 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       it "calculates the font size based on the rectangle height and border width" do
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
-                         [:set_font_and_size, [:F1, 12.923875]],
+                         [:set_font_and_size, [:F1, 13.235294]],
                          range: 5)
         @widget.border_style(width: 2, color: :transparent)
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
-                         [:set_font_and_size, [:F1, 11.487889]],
+                         [:set_font_and_size, [:F1, 11.764706]],
+                         range: 5)
+      end
+
+      it "shrinks the font size if necessary to fit the rectangle width" do
+        @field.field_value = "This is some arbitrary, long text"
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream,
+                         [:set_font_and_size, [:F1, 6.909955]],
                          range: 5)
       end
 
@@ -573,7 +581,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
             assert_format("2, 3, #{style}, 0, \"E\", true",
                           [[:set_device_rgb_non_stroking_color, [style % 2, 0.0, 0.0]],
                            [:begin_text],
-                           [:set_text_matrix, [1, 0, 0, 1, 2, 3.240724]],
+                           [:set_text_matrix, [1, 0, 0, 1, 2, 3.183272]],
                            [:show_text, [result]]], 6..9)
           end
         end
@@ -598,10 +606,10 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:append_rectangle, [1, 1, 98, 9.25]],
                           [:clip_path_non_zero],
                           [:end_path],
-                          [:set_font_and_size, [:F1, 6.641436]],
+                          [:set_font_and_size, [:F1, 6.801471]],
                           [:set_device_rgb_non_stroking_color, [1.0, 0.0, 0.0]],
                           [:begin_text],
-                          [:set_text_matrix, [1, 0, 0, 1, 2, 3.240724]],
+                          [:set_text_matrix, [1, 0, 0, 1, 2, 3.183272]],
                           [:show_text, ["Text"]],
                           [:end_text],
                           [:restore_graphics_state],
