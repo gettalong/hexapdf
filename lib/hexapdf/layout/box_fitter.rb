@@ -98,7 +98,7 @@ module HexaPDF
           if result.success?
             current_frame.remove_area(result.mask)
             @content_heights[@frame_index] = [@content_heights[@frame_index],
-                                              @initial_frame_y[@frame_index] - result.mask[0].y].max
+                                              @initial_frame_y[@frame_index] - result.mask.y].max
             @fit_results << result
             box = nil
             break
@@ -109,7 +109,7 @@ module HexaPDF
             if draw_box
               current_frame.remove_area(result.mask)
               @content_heights[@frame_index] = [@content_heights[@frame_index],
-                                                @initial_frame_y[@frame_index] - result.mask[0].y].max
+                                                @initial_frame_y[@frame_index] - result.mask.y].max
               @fit_results << result
             elsif !current_frame.find_next_region
               @frame_index += 1

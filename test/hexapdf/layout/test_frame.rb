@@ -11,7 +11,7 @@ describe HexaPDF::Layout::Frame do
     canvas = doc.pages.add.canvas
     box = HexaPDF::Layout::Box.create(width: 20, height: 20) {}
     result = HexaPDF::Layout::Frame::FitResult.new(box)
-    result.mask = Geom2D::Polygon([0, 0], [0, 20], [20, 20], [20, 0])
+    result.mask = Geom2D::Rectangle(0, 0, 20, 20)
     result.x = result.y = 0
     result.draw(canvas)
     assert_equal(<<~CONTENTS, canvas.contents)
@@ -19,11 +19,7 @@ describe HexaPDF::Layout::Frame do
       0.0 0.501961 0.0 rg
       0.0 0.392157 0.0 RG
       /GS1 gs
-      0 0 m
-      0 20 l
-      20 20 l
-      20 0 l
-      h
+      0 0 20 20 re
       B
       Q
       q
@@ -90,7 +86,11 @@ describe HexaPDF::Layout::Frame do
       refute_nil(fit_result)
       @frame.draw(@canvas, fit_result)
       assert_equal(mask, fit_result.mask.bbox.to_a)
-      assert_equal(points, @frame.shape.polygons.map(&:to_a))
+      if @frame.shape.respond_to?(:polygons)
+        assert_equal(points, @frame.shape.polygons.map(&:to_a))
+      else
+        assert_equal(points, [@frame.shape.to_a])
+      end
       @canvas.verify
     end
 
@@ -99,9 +99,9 @@ describe HexaPDF::Layout::Frame do
       areas.each do |area|
         @frame.remove_area(
           case area
-          when :left then Geom2D::Polygon([10, 10], [10, 110], [20, 110], [20, 10])
-          when :right then Geom2D::Polygon([100, 10], [100, 110], [110, 110], [110, 10])
-          when :top then Geom2D::Polygon([10, 110], [110, 110], [110, 100], [10, 100])
+          when :left then Geom2D::Rectangle(10, 10, 10, 100)
+          when :right then Geom2D::Rectangle(100, 10, 10, 100)
+          when :top then Geom2D::Rectangle(10, 100, 100, 10)
           end
         )
       end
@@ -323,7 +323,7 @@ describe HexaPDF::Layout::Frame do
     end
 
     it "can't fit the box if there is no available space" do
-      @frame.remove_area(Geom2D::Polygon([0, 0], [110, 0], [110, 110], [0, 110]))
+      @frame.remove_area(Geom2D::Rectangle(0, 0, 110, 110))
       box = HexaPDF::Layout::Box.create
       refute(@frame.fit(box).success?)
     end
@@ -388,7 +388,7 @@ describe HexaPDF::Layout::Frame do
     # +--------+
     it "works for a region with a hole" do
       frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100)
-      frame.remove_area(Geom2D::Polygon([20, 20], [80, 20], [80, 80], [20, 80]))
+      frame.remove_area(Geom2D::Rectangle(20, 20, 60, 60))
       check_regions(frame, [[0, 100, 100, 20], [0, 100, 20, 100],
                             [0, 80, 20, 80], [0, 20, 100, 20]])
     end
@@ -400,7 +400,7 @@ describe HexaPDF::Layout::Frame do
     # +--------+
     it "works for a u-shaped frame" do
       frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100)
-      frame.remove_area(Geom2D::Polygon([30, 100], [70, 100], [70, 60], [30, 60]))
+      frame.remove_area(Geom2D::Rectangle(30, 60, 40, 40))
       check_regions(frame, [[0, 100, 30, 100], [0, 60, 100, 60]])
     end
 
@@ -415,7 +415,7 @@ describe HexaPDF::Layout::Frame do
     it "works for a complicated frame" do
       frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100)
       top_cut = Geom2D::Polygon([20, 100], [20, 80], [40, 80], [40, 90], [60, 90], [60, 100])
-      left_cut = Geom2D::Polygon([0, 20], [30, 20], [30, 40], [0, 40])
+      left_cut = Geom2D::Rectangle(0, 20, 30, 20)
       frame.remove_area(Geom2D::PolygonSet(top_cut, left_cut))
 
       check_regions(frame, [[0, 100, 20, 60], [0, 90, 20, 50], [0, 80, 100, 40],

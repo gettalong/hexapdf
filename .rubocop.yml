@@ -252,6 +252,7 @@ Layout/MultilineOperationIndentation:
     - lib/hexapdf/type/annotations/widget.rb # false alarm
     - lib/hexapdf/layout/style.rb # false alarm
     - lib/hexapdf/layout/width_from_polygon.rb # false alarm
+    - lib/hexapdf/layout/frame.rb # false alarm
 
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented

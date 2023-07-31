@@ -106,8 +106,8 @@ module HexaPDF
         # The available height in the frame for this particular box.
         attr_accessor :available_height
 
-        # The rectangle (a Geom2D::Polygon object) that will be removed from the frame when drawing
-        # the box.
+        # The rectangle (a Geom2D::Rectangle object) that will be removed from the frame when
+        # drawing the box.
         attr_accessor :mask
 
         # Initialize the result object for the given box.
@@ -157,7 +157,8 @@ module HexaPDF
       # The height of the frame.
       attr_reader :height
 
-      # The shape of the frame, a Geom2D::PolygonSet consisting of rectilinear polygons.
+      # The shape of the frame, either a Geom2D::Rectangle in the simple case or a
+      # Geom2D::PolygonSet consisting of rectilinear polygons in the more complex case.
       attr_reader :shape
 
       # The x-coordinate where the next box will be placed.
@@ -187,9 +188,8 @@ module HexaPDF
         @bottom = bottom
         @width = width
         @height = height
-        @shape = shape || Geom2D::PolygonSet.new(
-          [create_rectangle(left, bottom, left + width, bottom + height)]
-        )
+        @shape = shape || create_rectangle(left, bottom, left + width, bottom + height)
+
         @x = left
         @y = bottom + height
         @available_width = width
@@ -319,8 +319,16 @@ module HexaPDF
       def find_next_region
         case @region_selection
         when :max_width
-          find_max_width_region
-          @region_selection = :max_height
+          if @shape.kind_of?(Geom2D::Rectangle)
+            @x = @shape.x
+            @y = @shape.y + @shape.height
+            @available_width = @shape.width
+            @available_height = @shape.height
+            @region_selection = :trim_shape
+          else
+            find_max_width_region
+            @region_selection = :max_height
+          end
         when :max_height
           x, y, aw, ah = @x, @y, @available_width, @available_height
           find_max_height_region
@@ -338,7 +346,17 @@ module HexaPDF
 
       # Removes the given *rectilinear* polygon from the frame's shape.
       def remove_area(polygon)
-        @shape = Geom2D::Algorithms::PolygonOperation.run(@shape, polygon, :difference)
+        @shape = if @shape.kind_of?(Geom2D::Rectangle) && polygon.kind_of?(Geom2D::Rectangle) &&
+                     float_equal(@shape.x, polygon.x) && float_equal(@shape.width, polygon.width) &&
+                     float_equal(@shape.y + @shape.height, polygon.y + polygon.height)
+                   if float_equal(@shape.height, polygon.height)
+                     Geom2D::PolygonSet()
+                   else
+                     Geom2D::Rectangle(@shape.x, @shape.y, @shape.width, @shape.height - polygon.height)
+                   end
+                 else
+                   Geom2D::Algorithms::PolygonOperation.run(@shape, polygon, :difference)
+                 end
         @region_selection = :max_width
         find_next_region
       end
@@ -369,8 +387,7 @@ module HexaPDF
       # Creates a Geom2D::Polygon object representing the rectangle with the bottom left corner
       # (blx, bly) and the top right corner (trx, try).
       def create_rectangle(blx, bly, trx, try)
-        Geom2D::Polygon(Geom2D::Point(blx, bly), Geom2D::Point(trx, bly),
-                        Geom2D::Point(trx, try), Geom2D::Point(blx, try))
+        Geom2D::Rectangle(blx, bly, trx - blx, try - bly)
       end
 
       # Finds the region with the maximum width.
@@ -404,7 +421,8 @@ module HexaPDF
 
       # Trims the frame's shape so that the next starting point is different.
       def trim_shape
-        return unless (segments = find_starting_point)
+        @x = @y = @available_width = @available_height = 0
+        return if @shape.kind_of?(Geom2D::Rectangle) || !(segments = find_starting_point)
 
         # Just use the second top-most segment
         # TODO: not the optimal solution!

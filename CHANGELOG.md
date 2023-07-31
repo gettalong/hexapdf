@@ -19,6 +19,7 @@
 
 ### Changed
 
+* [HexaPDF::Layout::Frame] to use more efficient `Geom2D::Rectangle` class
 * Internal constant `HexaPDF::Content::ColorSpace::CSS_COLOR_NAMES` changed to
   [HexaPDF::Content::ColorSpace::COLOR_NAMES]
 * Constructor of [HexaPDF::Layout::PageStyle] to allow setting `next_style`
