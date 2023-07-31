@@ -143,18 +143,27 @@ module HexaPDF
 
     # Makes sure that the object itself as well as all nested values are direct objects.
     #
+    # The +document+ argument needs to contain the Document instance to which +object+ belongs so
+    # that references can be correctly resolved.
+    #
     # If an indirect object is found, it is turned into a direct object and the indirect object is
     # deleted from the document.
-    def self.make_direct(object)
+    def self.make_direct(object, document)
       if object.kind_of?(HexaPDF::Object) && object.indirect?
+        raise HexaPDF::Error, "Can't make a stream object a direct object" if object.data.stream
         object_to_delete = object
         object = object.value
         object_to_delete.document.delete(object_to_delete)
       end
-      if object.kind_of?(Hash)
-        object.transform_values! {|val| make_direct(val) }
-      elsif object.kind_of?(Array)
-        object.map! {|val| make_direct(val) }
+      case object
+      when HexaPDF::Object
+        object.data.value = make_direct(object.data.value, document)
+      when Hash
+        object.transform_values! {|val| make_direct(val, document) }
+      when Array
+        object.map! {|val| make_direct(val, document) }
+      when Reference
+        object = make_direct(document.object(object), document)
       end
       object
     end

@@ -50,26 +50,37 @@ describe HexaPDF::Object do
       @doc = HexaPDF::Document.new
     end
 
-    it "doesn't touch wrapped direct objects" do
+    it "makes values of wrapped direct objects also direct" do
       obj = HexaPDF::Object.new(5)
-      assert_same(obj, HexaPDF::Object.make_direct(obj))
+      assert_same(obj, HexaPDF::Object.make_direct(obj, @doc))
+      obj = HexaPDF::Dictionary.new({a: 5, b: HexaPDF::Object.new(:a, oid: 3, document: @doc)})
+      assert_same(obj, HexaPDF::Object.make_direct(obj, @doc))
+      assert_equal(:a, obj[:b])
     end
 
     it "works for simple values" do
       obj = HexaPDF::Object.new(5, oid: 1, document: @doc)
-      assert_same(5, HexaPDF::Object.make_direct(obj))
+      assert_same(5, HexaPDF::Object.make_direct(obj, @doc))
     end
 
     it "works for hashes" do
       obj = HexaPDF::Dictionary.new({a: 5, b: HexaPDF::Object.new(:a, oid: 3, document: @doc)},
                                     oid: 1, document: @doc)
-      assert_equal({a: 5, b: :a}, HexaPDF::Object.make_direct(obj))
+      assert_equal({a: 5, b: :a}, HexaPDF::Object.make_direct(obj, @doc))
     end
 
     it "works for arrays" do
       obj = HexaPDF::PDFArray.new([:b, HexaPDF::Object.new(:a, oid: 3, document: @doc)],
                                   oid: 1, document: @doc)
-      assert_equal([:b, :a], HexaPDF::Object.make_direct(obj))
+      assert_equal([:b, :a], HexaPDF::Object.make_direct(obj, @doc))
+    end
+
+    it "resolves references" do
+      @doc.add(:Test, oid: 1)
+      obj = HexaPDF::PDFArray.new([HexaPDF::Reference.new(1, 0)],
+                                  oid: 2, document: @doc)
+      assert_equal([:Test], HexaPDF::Object.make_direct(obj, @doc))
+      assert(@doc.object(1).null?)
     end
   end
 

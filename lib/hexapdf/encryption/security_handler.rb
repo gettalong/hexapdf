@@ -214,7 +214,7 @@ module HexaPDF
 
         handler = handler.new(document)
         dict = document.trailer[:Encrypt] = handler.set_up_decryption(dict, **options)
-        HexaPDF::Object.make_direct(dict.value)
+        HexaPDF::Object.make_direct(dict.value, document)
         document.revisions.current.update(dict)
         document.revisions.each do |r|
           loader = r.loader
