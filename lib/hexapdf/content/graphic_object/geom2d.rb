@@ -139,6 +139,7 @@ module HexaPDF
           case @object
           when ::Geom2D::Point then draw_point(canvas)
           when ::Geom2D::Segment then draw_segment(canvas)
+          when ::Geom2D::Rectangle then draw_rectangle(canvas)
           when ::Geom2D::Polygon then draw_polygon(canvas)
           when ::Geom2D::PolygonSet then draw_polygon_set(canvas)
           else
@@ -156,6 +157,11 @@ module HexaPDF
         def draw_segment(canvas)
           canvas.line(@object.start_point.x, @object.start_point.y,
                       @object.end_point.x, @object.end_point.y)
+          canvas.stroke unless @path_only
+        end
+
+        def draw_rectangle(canvas)
+          canvas.rectangle(@object.x, @object.y, @object.width, @object.height)
           canvas.stroke unless @path_only
         end
 

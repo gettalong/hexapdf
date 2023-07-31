@@ -16,6 +16,8 @@
   [HexaPDF::Font::TrueTypeWrapper#custom_glyph] for custom glyph creation
 * [HexaPDF::FiberDoubleForString] to avoid creating real `Fiber` instances when
   not necessary
+* Support for drawing `Geom2D::Rectangle` instances via the :geom2d graphic
+  object
 
 ### Changed
 

@@ -51,6 +51,13 @@ describe HexaPDF::Content::GraphicObject::Geom2D do
                        [[:move_to, [5, 6]], [:line_to, [10, 11]], [:stroke_path]])
     end
 
+    it "draws a Geom2D::Rectangle onto the canvas" do
+      @obj.object = Geom2D::Rectangle(5, 6, 20, 50)
+      @obj.draw(@canvas)
+      assert_operators(@canvas.contents,
+                       [[:append_rectangle, [5, 6, 20, 50]], [:stroke_path]])
+    end
+
     it "draws a Geom2D::Polygon onto the canvas" do
       @obj.object = Geom2D::Polygon([5, 6], [10, 11], [7, 9])
       @obj.draw(@canvas)
