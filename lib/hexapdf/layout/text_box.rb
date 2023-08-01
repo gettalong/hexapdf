@@ -74,13 +74,14 @@ module HexaPDF
 
         @width = @height = 0
         @result = if style.position == :flow
-                    @tl.fit(@items, frame.width_specification, frame.shape.bbox.height)
+                    @tl.fit(@items, frame.width_specification, frame.shape.bbox.height,
+                            apply_first_text_indent: !split_box?)
                   else
                     @width = reserved_width
                     @height = reserved_height
                     width = (@initial_width > 0 ? @initial_width : available_width) - @width
                     height = (@initial_height > 0 ? @initial_height : available_height) - @height
-                    @tl.fit(@items, width, height)
+                    @tl.fit(@items, width, height, apply_first_text_indent: !split_box?)
                   end
         @width += if @initial_width > 0 || style.align == :center || style.align == :right
                     width

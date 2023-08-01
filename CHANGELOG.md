@@ -50,6 +50,8 @@
 * [HexaPDF::Document#wrap] handling of sub-type mapping in case of missing type
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] to also take a text field
   widget's width into account when auto-sizing
+* [HexaPDF::Layout::TextBox] to correctly handle text indentation for split
+  boxes
 
 
 ## 0.32.2 - 2023-05-06

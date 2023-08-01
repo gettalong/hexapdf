@@ -133,6 +133,16 @@ describe HexaPDF::Layout::TextBox do
       assert_equal(box, boxes[0])
       assert_equal(5, boxes[1].instance_variable_get(:@items).length)
     end
+
+    it "correctly handles text indentation for split boxes" do
+      [{}, {position: :flow}].each do |styles|
+        box = create_box([@inline_box] * 202, style: {text_indent: 50, **styles})
+        boxes = box.split(100, 100, @frame)
+        assert_equal(107, boxes[1].instance_variable_get(:@items).length)
+        boxes = boxes[1].split(100, 100, @frame)
+        assert_equal(7, boxes[1].instance_variable_get(:@items).length)
+      end
+    end
   end
 
   describe "draw" do
