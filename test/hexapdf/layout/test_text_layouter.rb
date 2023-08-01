@@ -419,6 +419,10 @@ describe HexaPDF::Layout::TextLayouter do
         assert(result.remaining_items.empty?)
         assert_equal(:success, result.status)
       end
+
+      result = @layouter.fit(boxes([20, 20], [20, 20], [20, 20], [20, 20]), 60, 200,
+                             apply_first_text_indent: false)
+      assert_equal([60, 20], result.lines.map(&:width))
     end
 
     it "fits using a limited height" do

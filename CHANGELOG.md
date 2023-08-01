@@ -18,6 +18,8 @@
   not necessary
 * Support for drawing `Geom2D::Rectangle` instances via the :geom2d graphic
   object
+* Optional argument `apply_first_text_indent` to
+  [HexaPDF::Layout::TextLayouter#fit]
 
 ### Changed
 

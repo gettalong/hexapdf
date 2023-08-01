@@ -51,7 +51,8 @@ module HexaPDF
     # * Existing line breaking characters inside of TextFragment objects are respected when fitting
     #   text. If this is not wanted, they have to be removed beforehand.
     #
-    # * The first line may be indented by setting Style#text_indent which may also be negative.
+    # * The first line of each paragraph may be indented by setting Style#text_indent which may also
+    #   be negative.
     #
     # * Text can be fitted into arbitrarily shaped areas, even containing holes.
     #
@@ -658,7 +659,7 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   text_layouter.fit(items, width, height) -> result
+      #   text_layouter.fit(items, width, height, apply_first_text_indent: true) -> result
       #
       # Fits the items into the given area and returns a Result object with all the information.
       #
@@ -693,7 +694,14 @@ module HexaPDF
       # The text segmentation algorithm specified via #style is applied to the items in case they
       # are not already in segmented form. This also means that Result#remaining_items always
       # contains segmented items.
-      def fit(items, width, height)
+      #
+      # Optional arguments:
+      #
+      # +apply_first_text_indent+::
+      #     Specifies whether style.text_indent should be applied to the first line. This should be
+      #     set to +false+ if the items start with a continuation of a paragraph instead of starting
+      #     a new paragraph (e.g. after a page break).
+      def fit(items, width, height, apply_first_text_indent: true)
         unless items.empty? || items[0].respond_to?(:type)
           items = style.text_segmentation_algorithm.call(items)
         end
@@ -704,7 +712,7 @@ module HexaPDF
         rest = items
 
         # processing state variables
-        indent = style.text_indent
+        indent = apply_first_text_indent ? style.text_indent : 0
         line_fragments = []
         line_height = 0
         previous_line = nil
