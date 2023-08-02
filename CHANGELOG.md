@@ -39,7 +39,7 @@
 
 ### Fixed
 
-**Breaking change**: [HexaPDF::Object::make_direct] now needs the document
+* **Breaking change**: [HexaPDF::Object::make_direct] now needs the document
   instance as second argument to correctly resolve references
 * [HexaPDF::Layout::ColumnBox], [HexaPDF::Layout::ListBox] and
   [HexaPDF::Layout::ImageBox] to correctly respond to `#empty?`
