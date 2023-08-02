@@ -87,7 +87,7 @@ The list of the benchmarked applications:
 **combine_pdf**
 
 : Homepage: <https://github.com/boazsegev/combine_pdf>\\
-  Version: 1.0.22\\
+  Version: 1.0.23\\
   Abilities: ?
 
   CombinePDF is a tool for merging PDF files, written in Ruby.
@@ -97,7 +97,7 @@ The list of the benchmarked applications:
 **pdftk**
 
 : Homepage: <https://gitlab.com/marcvinyals/pdftk>\\
-  Version: 3.0.9\\
+  Version: 3.3.2\\
   Abilities: C
 
   `pdftk` is probably one of the best known applications because, like `hexapdf` it allows for many

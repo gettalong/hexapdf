@@ -53,7 +53,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://www.reportlab.com/opensource/>\\
   Language: Python\\
-  Version: 3.5.34
+  Version: 3.6.12
 
   ReportLab also needs its input line by line. Otherwise it is much, much slower (at least 60x, then
   the test run was aborted).
@@ -62,7 +62,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://pyfpdf.github.io/fpdf2/>\\
   Language: Python\\
-  Version: 2.5.5
+  Version: 2.7.4
 
   As with HexaPDF itself, fpdf2 works equally fine when getting the input as one big string or line
   by line.
@@ -71,7 +71,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://tcpdf.org/>\\
   Language: PHP\\
-  Version: 6.3.5
+  Version: 6.6.2
 
   As with Prawn and ReportLab, TCPDF needs its input line by line. Otherwise it is much, much slower
   when line wrapping needs to be done (the test run was aborted because it took too long).

@@ -40,7 +40,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://www.reportlab.com/opensource/>\\
   Language: Python\\
-  Version: 3.5.34
+  Version: 3.6.12
 
   ReportLab has a module that implements some features in C to speed up the execution. This module
   is used in the benchmark.
@@ -49,7 +49,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://pyfpdf.github.io/fpdf2/>\\
   Language: Python\\
-  Version: 2.5.5
+  Version: 2.7.4
 
 **jPDFWriter**
 
@@ -67,13 +67,13 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://tcpdf.org/>\\
   Language: PHP\\
-  Version: 6.3.5
+  Version: 6.6.2
 
 **PDF::API2**
 
 : Homepage: <http://search.cpan.org/perldoc/PDF::API2>\\
   Language: Perl\\
-  Version: 2.037
+  Version: 2.044
 
 **PDFKit**
 
