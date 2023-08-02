@@ -557,7 +557,7 @@ describe HexaPDF::Type::Page do
       @page = @doc.pages.add
       @appearance = @doc.add({Type: :XObject, Subtype: :Form, BBox: [-10, -5, 50, 20]}, stream: "")
       @annot1 = @doc.add({Type: :Annot, Subtype: :Text, Rect: [100, 100, 160, 125], AP: {N: @appearance}})
-      @annot2 = @doc.add({Rect: [10, 10, 70, 35], AP: {N: @appearance}})
+      @annot2 = @doc.add({Type: :Annot, Subtype: :Text, Rect: [10, 10, 70, 35], AP: {N: @appearance}})
       @page[:Annots] = [@annot1, @annot2]
       @canvas = @page.canvas(type: :overlay)
     end
@@ -589,6 +589,18 @@ describe HexaPDF::Type::Page do
                                           [:restore_graphics_state]])
       assert(@annot1.null?)
       assert(@annot2.null?)
+    end
+
+    it "gracefully handles invalid /Annot key values" do
+      @page[:Annots] << nil << @doc.add({}, stream: '')
+      result = @page.flatten_annotations
+      assert(result.empty?)
+      assert(@annot1.null?)
+      assert(@annot2.null?)
+
+      @page[:Annots] = @doc.add({}, stream: '')
+      result = @page.flatten_annotations
+      assert(result.empty?)
     end
 
     it "only deletes the widget annotation of a form field even if it is embedded in the field object" do
@@ -631,7 +643,7 @@ describe HexaPDF::Type::Page do
                                           [:restore_graphics_state]])
     end
 
-    it "ignores annotations without appearane stream" do
+    it "ignores annotations without appearance stream" do
       @annot1.delete(:AP)
       result = @page.flatten_annotations
       assert_equal([@annot1], result)
@@ -708,10 +720,12 @@ describe HexaPDF::Type::Page do
   it "yields each annotation" do
     page = @doc.pages.add
     annot1 = @doc.add({Type: :Annot, Subtype: :Text, Rect: [100, 100, 160, 125]})
-    annot2 = @doc.add({Rect: [10, 10, 70, 35]})
-    page[:Annots] = [annot1, nil, annot2]
+    annot2 = @doc.add({Subtype: :Unknown, Rect: [10, 10, 70, 35]})
+    not_an_annot = @doc.add({}, stream: '')
+    page[:Annots] = [not_an_annot, annot1, nil, annot2]
 
     annotations = page.each_annotation.to_a
+    assert_equal(2, annotations.size)
     assert_equal([100, 100, 160, 125], annotations[0][:Rect])
     assert_equal(:Annot, annotations[0].type)
     assert_equal(:Annot, annotations[1].type)

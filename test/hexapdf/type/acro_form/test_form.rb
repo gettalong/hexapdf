@@ -42,11 +42,12 @@ describe HexaPDF::Type::AcroForm::Form do
   end
 
   it "finds the root fields" do
-    @doc.pages.add[:Annots] = [{FT: :Tx}, {FT: :Tx2, Parent: {FT: :Tx3}}]
-    @doc.pages.add[:Annots] = [{Subtype: :Widget}]
+    @doc.pages.add[:Annots] = [{Subtype: :Widget, Rect: [0, 0, 0, 0], FT: :Tx},
+                               {Subtype: :Widget, Rect: [0, 0, 0, 0], FT: :Tx, Parent: {FT: :Tx}}]
+    @doc.pages.add[:Annots] = [{Subtype: :Widget, Rect: [0, 0, 0, 0]}]
     @doc.pages.add
 
-    result = [{FT: :Tx}, {FT: :Tx3}]
+    result = [{Subtype: :Widget, Rect: [0, 0, 0, 0], FT: :Tx}, {FT: :Tx}]
     root_fields = @acro_form.find_root_fields
     assert_equal(result, root_fields.map(&:value))
     assert_kind_of(HexaPDF::Type::AcroForm::TextField, root_fields[0])

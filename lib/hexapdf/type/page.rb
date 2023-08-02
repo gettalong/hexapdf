@@ -522,8 +522,8 @@ module HexaPDF
       # Yields each annotation of this page.
       def each_annotation
         return to_enum(__method__) unless block_given?
-        self[:Annots]&.each do |annotation|
-          next unless annotation
+        Array(self[:Annots]).each do |annotation|
+          next unless annotation&.key?(:Subtype) && annotation&.key?(:Rect)
           yield(document.wrap(annotation, type: :Annot))
         end
         self
@@ -539,10 +539,14 @@ module HexaPDF
       # If an annotation is a form field widget, only the widget will be deleted but not the form
       # field itself.
       def flatten_annotations(annotations = self[:Annots])
-        not_flattened = (annotations || []).to_ary
+        not_flattened = Array(annotations) || []
         return not_flattened unless key?(:Annots)
 
-        annotations = not_flattened & self[:Annots] if annotations != self[:Annots]
+        annotations = if annotations == self[:Annots]
+                        not_flattened
+                      else
+                        not_flattened & Array(self[:Annots])
+                      end
         return not_flattened if annotations.empty?
 
         canvas = self.canvas(type: :overlay)
@@ -554,6 +558,11 @@ module HexaPDF
         to_delete = []
         not_flattened -= annotations
         annotations.each do |annotation|
+          unless annotation&.key?(:Subtype) && annotation&.key?(:Rect)
+            to_delete << annotation if annotation
+            next
+          end
+
           annotation = document.wrap(annotation, type: :Annot)
           appearance = annotation.appearance
           if annotation.flagged?(:hidden) || annotation.flagged?(:invisible)

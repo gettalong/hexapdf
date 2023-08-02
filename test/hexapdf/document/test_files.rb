@@ -55,8 +55,8 @@ describe HexaPDF::Document::Files do
       spec2 = @doc.add({Type: :Filespec})
       @doc.pages.add # page without annot
       @doc.pages.add[:Annots] = [
-        {Subtype: :FileAttachment, FS: HexaPDF::Reference.new(spec1.oid, spec1.gen)},
-        {Subtype: :FileAttachment, FS: spec2},
+        {Subtype: :FileAttachment, Rect: [0, 0, 0, 0], FS: HexaPDF::Reference.new(spec1.oid, spec1.gen)},
+        {Subtype: :FileAttachment, Rect: [0, 0, 0, 0], FS: spec2},
         {},
       ]
       assert_equal([spec1, spec2], @doc.files.to_a)

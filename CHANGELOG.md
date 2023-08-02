@@ -33,6 +33,9 @@
   activating the "extract content" permission
 * Digital signature creation in case of signature widgets containing images to
   work around bug in Adobe Acrobat
+* [HexaPDF::Type::Page#each_annotation] and
+  [HexaPDF::Type::Page#flatten_annotations] to process certain invalid /Annot
+  keys without errors
 
 ### Fixed
 
