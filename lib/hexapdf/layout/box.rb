@@ -60,17 +60,24 @@ module HexaPDF
     # instantiated from the common convenience method HexaPDF::Document::Layout#box. To use this
     # facility subclasses need to be registered with the configuration option 'layout.boxes.map'.
     #
-    # The methods #fit, #split or #split_content, and #draw or #draw_content need to be customized
-    # according to the subclass's use case.
+    # The methods #fit, #supports_position_flow?, #split or #split_content, #empty?, and #draw or
+    # #draw_content need to be customized according to the subclass's use case.
     #
     # #fit:: This method should return +true+ if fitting was successful. Additionally, the
     #        @fit_successful instance variable needs to be set to the fit result as it is used in
     #        #split.
     #
+    # #supports_position_flow?::
+    #        If the subclass supports the value :flow of the 'position' style property, this method
+    #        needs to be overridden to return +true+.
+    #
     # #split:: This method splits the content so that the available space is used as good as
     #          possible. The default implementation should be fine for most use-cases, so only
     #          #split_content needs to be implemented. The method #create_split_box should be used
     #          for getting a basic cloned box.
+    #
+    # #empty?:: This method should return +true+ if the subclass won't draw anything when #draw is
+    #           called.
     #
     # #draw:: This method draws the content and the default implementation already handles things
     #         like drawing the border and background. Therefore it's best to implement #draw_content
