@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* Support for optional content groups (layers)
+
+
 ## 0.33.0 - 2023-08-02
 
 ### Added

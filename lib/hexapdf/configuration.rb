@@ -609,6 +609,16 @@ module HexaPDF
                         XXOutlineItem: 'HexaPDF::Type::OutlineItem',
                         PageLabel: 'HexaPDF::Type::PageLabel',
                         XXMarkInformation: 'HexaPDF::Type::MarkInformation',
+                        OCG: 'HexaPDF::Type::OptionalContentGroup',
+                        XXOCUsage: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage',
+                        XXOCUsageCreatorInfo: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::CreatorInfo',
+                        XXOCUsageLanguage: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::Language',
+                        XXOCUsageExport: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::Export',
+                        XXOCUsageZoom: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::Zoom',
+                        XXOCUsagePrint: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::Print',
+                        XXOCUsageView: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::View',
+                        XXOCUsageUser: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::User',
+                        XXOCUsagePageElement: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::PageElement',
                       },
                       'object.subtype_map' => {
                         nil => {
