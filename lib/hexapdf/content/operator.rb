@@ -1001,6 +1001,8 @@ module HexaPDF
 
       # Mapping of operator names to their default operator implementations.
       DEFAULT_OPERATORS = {
+        BX: NoArgumentOperator.new('BX'),
+        EX: NoArgumentOperator.new('EX'),
         q: SaveGraphicsState.new,
         Q: RestoreGraphicsState.new,
         cm: ConcatenateMatrix.new,
