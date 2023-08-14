@@ -77,6 +77,7 @@ module HexaPDF
     autoload(:PageLabel, 'hexapdf/type/page_label')
     autoload(:MarkInformation, 'hexapdf/type/mark_information')
     autoload(:OptionalContentGroup, 'hexapdf/type/optional_content_group')
+    autoload(:OptionalContentMembership, 'hexapdf/type/optional_content_membership')
 
   end
 

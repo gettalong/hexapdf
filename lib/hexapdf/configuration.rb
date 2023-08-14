@@ -610,6 +610,7 @@ module HexaPDF
                         PageLabel: 'HexaPDF::Type::PageLabel',
                         XXMarkInformation: 'HexaPDF::Type::MarkInformation',
                         OCG: 'HexaPDF::Type::OptionalContentGroup',
+                        OCMD: 'HexaPDF::Type::OptionalContentMembership',
                         XXOCUsage: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage',
                         XXOCUsageCreatorInfo: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::CreatorInfo',
                         XXOCUsageLanguage: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::Language',
