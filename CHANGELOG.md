@@ -4,6 +4,11 @@
 
 * Support for optional content groups (layers)
 
+### Fixed
+
+* [HexaPDF::Document::Pages#add_labelling_range] to add a correct entry for
+  the default range starting at page 1
+
 
 ## 0.33.0 - 2023-08-02
 

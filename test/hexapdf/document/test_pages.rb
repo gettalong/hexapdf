@@ -196,15 +196,15 @@ describe HexaPDF::Document::Pages do
     end
 
     it "works for multiple page label entries" do
-      @doc.catalog[:PageLabels] = {Nums: [0, {S: :r}, 2, {S: :d}, 7, {S: :A}]}
+      @doc.catalog[:PageLabels] = {Nums: [0, {S: :r}, 2, {S: :D}, 7, {S: :A}]}
       result = @doc.pages.each_labelling_range.to_a
-      assert_equal([[0, 2, {S: :r}], [2, 5, {S: :d}], [7, 3, {S: :A}]],
+      assert_equal([[0, 2, {S: :r}], [2, 5, {S: :D}], [7, 3, {S: :A}]],
                    result.map {|s, c, l| [s, c, l.value] })
     end
 
     it "returns a zero or negative count for the last range if there aren't enough pages" do
       assert_equal(10, @doc.pages.count)
-      @doc.catalog[:PageLabels] = {Nums: [0, {S: :d}, 10, {S: :r}]}
+      @doc.catalog[:PageLabels] = {Nums: [0, {S: :D}, 10, {S: :r}]}
       assert_equal(0, @doc.pages.each_labelling_range.to_a[-1][1])
       @doc.catalog[:PageLabels][:Nums][2] = 11
       assert_equal(-1, @doc.pages.each_labelling_range.to_a[-1][1])
@@ -221,19 +221,19 @@ describe HexaPDF::Document::Pages do
 
     it "adds an entry for the range starting at 0 if it doesn't exist" do
       label = @doc.pages.add_labelling_range(5)
-      assert_equal([{S: :d}, label],
+      assert_equal([{S: :D}, label],
                    @doc.catalog.page_labels[:Nums].value.values_at(1, 3))
     end
   end
 
   describe "delete_labelling_range" do
     before do
-      @doc.catalog[:PageLabels] = {Nums: [0, {S: :r}, 5, {S: :d}]}
+      @doc.catalog[:PageLabels] = {Nums: [0, {S: :r}, 5, {S: :D}]}
     end
 
     it "deletes the labelling range for a given start index" do
       label = @doc.pages.delete_labelling_range(5)
-      assert_equal({S: :d}, label)
+      assert_equal({S: :D}, label)
     end
 
     it "deletes the labelling range for 0 if it is the last, together with the number tree" do

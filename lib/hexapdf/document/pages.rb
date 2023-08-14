@@ -246,7 +246,7 @@ module HexaPDF
 
         labels = @document.catalog.page_labels(create: true)
         labels.add_entry(start_index, page_label)
-        labels.add_entry(0, {S: :d}) unless labels.find_entry(0)
+        labels.add_entry(0, {S: :D}) unless labels.find_entry(0)
 
         page_label
       end
