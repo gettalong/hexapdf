@@ -46,6 +46,18 @@ module HexaPDF
     # See: PDF2.0 s8.10
     class Form < Stream
 
+      # Represents a group attribute dictionary.
+      #
+      # See: PDF2.0 s8.10.3
+      class Group < Dictionary
+
+        define_type :Group
+
+        define_field :Type, type: Symbol, default: type
+        define_field :S,    type: Symbol, required: true
+
+      end
+
       # Represents a reference dictionary which allows an XObject to refer to content in an embedded
       # or linked PDF document.
       #
@@ -68,7 +80,7 @@ module HexaPDF
       define_field :BBox,          type: Rectangle,  required: true
       define_field :Matrix,        type: PDFArray,   default: [1, 0, 0, 1, 0, 0]
       define_field :Resources,     type: :XXResources, version: '1.2'
-      define_field :Group,         type: Dictionary, version: '1.4'
+      define_field :Group,         type: :Group,     version: '1.4'
       define_field :Ref,           type: :XXReference, version: '1.4'
       define_field :Metadata,      type: Stream,     version: '1.4'
       define_field :PieceInfo,     type: Dictionary, version: '1.3'

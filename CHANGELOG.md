@@ -4,6 +4,7 @@
 
 * Support for optional content groups (layers)
 * Support for reference XObjects
+* Basic support for group XObjects
 
 ### Fixed
 
