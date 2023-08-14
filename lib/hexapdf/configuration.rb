@@ -619,6 +619,7 @@ module HexaPDF
                         XXOCUsageView: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::View',
                         XXOCUsageUser: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::User',
                         XXOCUsagePageElement: 'HexaPDF::Type::OptionalContentGroup::OptionalContentUsage::PageElement',
+                        XXReference: 'HexaPDF::Type::Form::Reference',
                       },
                       'object.subtype_map' => {
                         nil => {

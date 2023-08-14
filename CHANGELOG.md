@@ -3,6 +3,7 @@
 ### Added
 
 * Support for optional content groups (layers)
+* Support for reference XObjects
 
 ### Fixed
 

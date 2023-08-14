@@ -34,6 +34,7 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'stringio'
 require 'hexapdf/stream'
 require 'hexapdf/content'
 
@@ -45,6 +46,20 @@ module HexaPDF
     # See: PDF2.0 s8.10
     class Form < Stream
 
+      # Represents a reference dictionary which allows an XObject to refer to content in an embedded
+      # or linked PDF document.
+      #
+      # See: PDF2.0 s8.10.4
+      class Reference < Dictionary
+
+        define_type :XXReference
+
+        define_field :F,    type: :Filespec, required: true
+        define_field :Page, type: [Integer, String], required: true
+        define_field :ID,   type: PDFArray
+
+      end
+
       define_type :XObject
 
       define_field :Type,          type: Symbol,     default: type
@@ -54,7 +69,7 @@ module HexaPDF
       define_field :Matrix,        type: PDFArray,   default: [1, 0, 0, 1, 0, 0]
       define_field :Resources,     type: :XXResources, version: '1.2'
       define_field :Group,         type: Dictionary, version: '1.4'
-      define_field :Ref,           type: Dictionary, version: '1.4'
+      define_field :Ref,           type: :XXReference, version: '1.4'
       define_field :Metadata,      type: Stream,     version: '1.4'
       define_field :PieceInfo,     type: Dictionary, version: '1.3'
       define_field :LastModified,  type: PDFDate,    version: '1.3'
@@ -115,14 +130,15 @@ module HexaPDF
       #
       # See: HexaPDF::Content::Processor
       def process_contents(processor, original_resources: nil)
-        processor.resources = if self[:Resources]
-                                self[:Resources]
+        form = referenced_content || self
+        processor.resources = if form[:Resources]
+                                form[:Resources]
                               elsif original_resources
                                 original_resources
                               else
                                 document.wrap({}, type: :XXResources)
                               end
-        Content::Parser.parse(contents, processor)
+        Content::Parser.parse(form.contents, processor)
       end
 
       # Returns the canvas for the form XObject.
@@ -150,6 +166,48 @@ module HexaPDF
           set_filter(:FlateDecode)
           canvas
         end
+      end
+
+      # Returns +true+ if the Form XObject is a reference XObject.
+      def reference_xobject?
+        !self[:Ref].nil?
+      end
+
+      # Returns the referenced page as Form XObject, if this Form XObject is a Reference XObject and
+      # the referenced page is found. Otherwise returns +nil+.
+      def referenced_content
+        return unless (ref = self[:Ref])
+
+        doc = if ref[:F].embedded_file?
+                HexaPDF::Document.new(io: StringIO.new(ref[:F].embedded_file_stream.stream))
+              elsif File.exist?(ref[:F].path)
+                HexaPDF::Document.open(ref[:F].path)
+              end
+        return unless doc
+
+        page = ref[:Page]
+        if page.kind_of?(Integer)
+          page = doc.pages[page]
+        else
+          labels = []
+          doc.pages.each_labelling_range do |first_index, count, label|
+            count.times {|i| labels << label.construct_label(i) }
+          end
+          index = labels.index(page)
+          page = index && doc.pages[index]
+        end
+        return unless page
+
+        # See PDF2.0 s8.10.4.3
+        print_annots = page.each_annotation.select {|annot| annot.flagged?(:print) }
+        page.flatten_annotations(print_annots) unless print_annots.empty?
+
+        obj = page.to_form_xobject
+        obj[:BBox] = self[:BBox].dup
+        obj[:Matrix] = self[:Matrix].dup
+        obj
+      rescue
+        nil
       end
 
     end
