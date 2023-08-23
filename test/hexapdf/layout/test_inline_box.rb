@@ -59,6 +59,10 @@ describe HexaPDF::Layout::InlineBox do
     refute(HexaPDF::Layout::InlineBox.create(width: 10, height: 15) {}.empty?)
   end
 
+  it "returns the style of the box" do
+    assert_same(@box.box.style, @box.style)
+  end
+
   describe "valign" do
     it "has a default value of :baseline" do
       assert_equal(:baseline, @box.valign)

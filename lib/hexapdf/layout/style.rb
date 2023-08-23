@@ -1046,6 +1046,40 @@ module HexaPDF
       #   composer.text("There is spacing above this line due to last_line_gap.")
 
       ##
+      # :method: fill_horizontal
+      # :call-seq:
+      #   fill_horizontal(factor = nil)
+      #
+      # If set to a positive number, it specifies that the content of the text item should be
+      # repeated and appropriate spacing applied so that the remaining space of the line is
+      # completely filled.
+      #
+      # If there are multiple text items with this property set for a single line, the remaining
+      # space is split between those items using the set +factors+. For example, if item A has a
+      # factor of 1 and item B a factor of 2, the remaining space will be split so that item
+      # B will receive twice the space of A.
+      #
+      # Notes:
+      #
+      # * This property _must not_ be applied to inline boxes, it only works for text items.
+      # * If the filling should be done with spaces, the non-breaking space character \u{00a0} has
+      #   to be used.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.formatted_text(["Left", {text: "\u{00a0}", fill_horizontal: 1},
+      #                            "Right"])
+      #   composer.formatted_text(["Typical table of contents entry",
+      #                            {text: ".", fill_horizontal: 1}, "34"])
+      #   composer.formatted_text(["Factor 1", {text: "\u{00a0}", fill_horizontal: 1},
+      #                            "Factor 3", {text: "\u{00a0}", fill_horizontal: 3}, "End"])
+      #   overlays = [proc {|c, b| c.line(0, b.height / 2.0, b.width, b.height / 2.0).stroke}]
+      #   composer.formatted_text([{text: "\u{00a0}", fill_horizontal: 1, overlays: overlays},
+      #                            'Centered',
+      #                            {text: "\u{00a0}", fill_horizontal: 1, overlays: overlays}])
+
+      ##
       # :method: background_color
       # :call-seq:
       #   background_color(color = nil)
@@ -1293,6 +1327,7 @@ module HexaPDF
            "{type: value, value: extra_arg} : value))",
           extra_args: ", extra_arg = nil"}],
         [:last_line_gap, false, {valid_values: [true, false]}],
+        [:fill_horizontal, nil],
         [:background_color, nil],
         [:background_alpha, 1],
         [:padding, "Quad.new(0)", {setter: "Quad.new(value)"}],

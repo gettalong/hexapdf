@@ -262,7 +262,7 @@ module CommonLineWrappingTests
   end
 
   it "handles prohibited breakpoint penalties with non-zero width" do
-    item = boxes(20).first
+    item = boxes(20).first.item
     result = call(boxes(70) + [glue(10)] + boxes(10) + [penalty(5000, item)] + boxes(30))
     assert_line_wrapping(result, [70, 60])
   end
@@ -295,6 +295,28 @@ module CommonLineWrappingTests
     assert_equal(2, lines.count)
   end
 
+  it "handles items with fill_horizontal correctly" do
+    doc = HexaPDF::Document.new
+    font = doc.fonts.add("Times")
+    box1 = HexaPDF::Layout::TextLayouter::Box.new(
+      HexaPDF::Layout::TextFragment.create('.', font: font, fill_horizontal: 1)
+    )
+    box2 = HexaPDF::Layout::TextLayouter::Box.new(
+      HexaPDF::Layout::TextFragment.create('.', font: font, fill_horizontal: 2)
+    )
+    items = [box1, *boxes(10), box2]
+    rest, lines = call(items, 40)
+    assert_equal(0, rest.size)
+    assert_equal(1, lines.size)
+
+    line = lines.first
+    refute_same(items[0].item, line.items[0])
+    assert_same(items[1].item, line.items[1])
+    refute_same(items[2].item, line.items[2])
+    assert_equal(10, line.items[0].width)
+    assert_equal(10, line.items[1].width)
+    assert_equal(20, line.items[2].width)
+  end
 end
 
 describe HexaPDF::Layout::TextLayouter::SimpleLineWrapping do

@@ -84,6 +84,11 @@ module HexaPDF
         end
       end
 
+      # Returns the style of the wrapped box.
+      def style
+        box.style
+      end
+
       # Returns +true+ if this inline box is just a placeholder without drawing operations.
       def empty?
         box.empty?

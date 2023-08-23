@@ -392,6 +392,35 @@ describe HexaPDF::Layout::TextFragment do
     end
   end
 
+  describe "fill_horizontal!" do
+    before do
+      @fragment = HexaPDF::Layout::TextFragment.create('ab', fill_horizontal: 1, font: @font)
+    end
+
+    it "returns the fragment if the given width is too small" do
+      assert_same(@fragment, @fragment.fill_horizontal!(0.1))
+    end
+
+    it "repeats all items of the fragment" do
+      fragment = @fragment.fill_horizontal!(@fragment.width * 2)
+      assert_equal([*(@fragment.items * 2), 0], fragment.items)
+      assert_in_delta(@fragment.width * 2, fragment.width)
+    end
+
+    it "adds, after repeating, items from the start of the fragment to fill the available space" do
+      fragment = @fragment.fill_horizontal!(90)
+      assert_equal([*(@fragment.items * 9), @fragment.items[0], 3.3333333333332673], fragment.items)
+      assert_in_delta(90, fragment.width)
+    end
+
+    it "sets the character spacing correctly to account for the remaining space after filling with items" do
+      fragment = @fragment.fill_horizontal!(90)
+      refute_same(@fragment.style, fragment.style)
+      assert_equal(0.033333333333332674, fragment.style.character_spacing)
+      assert_in_delta(90, fragment.width)
+    end
+  end
+
   it "can be inspected" do
     frag = setup_fragment(@font.decode_utf8("H") << 5)
     assert_match(/:H/, frag.inspect)

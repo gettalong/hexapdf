@@ -283,6 +283,28 @@ module HexaPDF
         :text
       end
 
+      # Creates a new text fragment that repeats this fragment's items and applies the necessary
+      # spacing so that the returned text fragment fills the given +width+ completely.
+      #
+      # If the given +width+ is less than the fragment's width, +self+ is returned.
+      def fill_horizontal!(width)
+        return self if width < self.width
+
+        factor, rest = width.divmod(self.width)
+        items = @items * factor
+        rest = @items.inject(rest) do |available_width, item|
+          new_available_width = available_width - style.scaled_item_width(item)
+          break available_width if new_available_width < 0
+          items << item
+          new_available_width
+        end
+
+        spacing = rest / (items.size - 1)
+        new_style = @style.dup.update(character_spacing: spacing)
+        items << spacing / new_style.scaled_font_size # correct spacing after last item
+        self.class.new(items, new_style, properties: @properties.dup)
+      end
+
       # Clears all cached values.
       #
       # This method needs to be called if the fragment's items or attributes are changed!

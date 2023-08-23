@@ -5,6 +5,8 @@
 * Support for optional content groups (layers)
 * Support for reference XObjects
 * Basic support for group XObjects
+* [HexaPDF::Layout::Style#fill_horizontal] for allowing a text fragment to fill
+  the remaining space of line
 
 ### Fixed
 

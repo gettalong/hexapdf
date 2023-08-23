@@ -363,6 +363,7 @@ module HexaPDF
           @last_breakpoint_index = 0
           @last_breakpoint_line_items_index = 0
           @break_prohibited_state = false
+          @fill_horizontal = false
 
           @height_calc = Line::HeightCalculator.new
           @line = DummyLine.new(0, 0)
@@ -508,6 +509,7 @@ module HexaPDF
           return false unless @width + item.width <= @available_width
           @line_items.concat(@glue_items).push(item)
           @width += item.width
+          @fill_horizontal ||= item.style.fill_horizontal
           @glue_items.clear
           true
         end
@@ -547,6 +549,17 @@ module HexaPDF
 
         # Creates a Line object from the current line items.
         def create_line
+          if @fill_horizontal
+            rest_width = @available_width - @width
+            indices = []
+            @line_items.each_with_index do |item, index|
+              next unless item.style.fill_horizontal
+              indices << [index, item.style.fill_horizontal]
+              rest_width += item.width
+            end
+            unit_width = rest_width / indices.sum(&:last)
+            indices.each {|i, count| @line_items[i] = @line_items[i].fill_horizontal!(unit_width * count) }
+          end
           Line.new(@line_items)
         end
 
@@ -566,6 +579,7 @@ module HexaPDF
           @last_breakpoint_index = index
           @last_breakpoint_line_items_index = 0
           @break_prohibited_state = false
+          @fill_horizontal = false
           @available_width = @width_block.call(@line)
         end
 

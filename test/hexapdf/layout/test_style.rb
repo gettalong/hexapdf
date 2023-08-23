@@ -773,6 +773,7 @@ describe HexaPDF::Layout::Style do
     refute(@style.subscript)
     refute(@style.superscript)
     refute(@style.last_line_gap)
+    refute(@style.fill_horizontal)
     assert_kind_of(HexaPDF::Layout::Style::Layers, @style.underlays)
     assert_kind_of(HexaPDF::Layout::Style::Layers, @style.overlays)
   end
