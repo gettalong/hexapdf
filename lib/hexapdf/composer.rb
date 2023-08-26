@@ -401,7 +401,7 @@ module HexaPDF
       @document.layout.box_creation_method?(name) || super
     end
 
-    # Draws the given HexaPDF::Layout::Box.
+    # Draws the given HexaPDF::Layout::Box and returns the last drawn box.
     #
     # The box is drawn into the current frame if possible. If it doesn't fit, the box is split. If
     # it still doesn't fit, a new region of the frame is determined and then the process starts
@@ -433,6 +433,7 @@ module HexaPDF
           end
         end
       end
+      box
     end
 
     # Creates a stamp (Form XObject) which can be used like an image multiple times on a single page

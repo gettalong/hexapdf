@@ -8,6 +8,10 @@
 * [HexaPDF::Layout::Style#fill_horizontal] for allowing a text fragment to fill
   the remaining space of line
 
+### Changed
+
+* [HexaPDF::Composer#draw_box] to return the last drawn box
+
 ### Fixed
 
 * [HexaPDF::Document::Pages#add_labelling_range] to add a correct entry for

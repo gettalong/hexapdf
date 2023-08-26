@@ -243,6 +243,16 @@ describe HexaPDF::Composer do
                         [:restore_graphics_state]])
     end
 
+    it "returns the last drawn box" do
+      box = create_box(height: 400)
+      assert_same(box, @composer.draw_box(box))
+
+      box = create_box(height: 400)
+      split_box = create_box(height: 100)
+      box.define_singleton_method(:split) {|*| [box, split_box] }
+      assert_same(split_box, @composer.draw_box(box))
+    end
+
     it "raises an error if a box doesn't fit onto an empty page" do
       assert_raises(HexaPDF::Error) do
         @composer.draw_box(create_box(height: 800))
