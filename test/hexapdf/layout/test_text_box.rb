@@ -25,6 +25,14 @@ describe HexaPDF::Layout::TextBox do
     end
   end
 
+  it "returns the text contents as string" do
+    doc = HexaPDF::Document.new
+    font = doc.fonts.add("Times")
+    box = create_box([HexaPDF::Layout::TextFragment.create('Test ', font: font), @inline_box,
+                      HexaPDF::Layout::TextFragment.create('here', font: font)])
+    assert_equal('Test here', box.text)
+  end
+
   describe "fit" do
     it "fits into a rectangular area" do
       box = create_box([@inline_box] * 5, style: {padding: 10})

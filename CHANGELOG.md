@@ -7,6 +7,8 @@
 * Basic support for group XObjects
 * [HexaPDF::Layout::Style#fill_horizontal] for allowing a text fragment to fill
   the remaining space of line
+* [HexaPDF::Layout::TextFragment#text] and [HexaPDF::Layout::TextBox#text] for
+  retrieving the text represented by the stored items
 
 ### Changed
 

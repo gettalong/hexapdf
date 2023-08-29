@@ -51,6 +51,10 @@ describe HexaPDF::Layout::TextFragment do
     end
   end
 
+  it "returns the text value of the items as string" do
+    assert_equal("Hal lo\u{00a0}d\n", setup_fragment(@font.decode_utf8("Hal lo\u{00a0}d\n")).text)
+  end
+
   it "allows duplicating with only its attributes while also setting new items" do
     setup_fragment([20])
     @fragment.properties['key'] = :value

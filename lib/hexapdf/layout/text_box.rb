@@ -54,6 +54,13 @@ module HexaPDF
         @result = nil
       end
 
+      # Returns the text that will be drawn.
+      #
+      # This will ignore any inline boxes or kerning values.
+      def text
+        @items.map {|item| item.kind_of?(TextFragment) ? item.text : '' }.join
+      end
+
       # Returns +true+ as the 'position' style property value :flow is supported.
       def supports_position_flow?
         true

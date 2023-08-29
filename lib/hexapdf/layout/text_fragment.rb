@@ -111,6 +111,11 @@ module HexaPDF
         @properties = properties
       end
 
+      # Returns the text of the fragment.
+      def text
+        items.reject {|i| i.kind_of?(Numeric) }.map(&:str).join
+      end
+
       # Creates a new TextFragment with the same style and custom properties as this one but with
       # the given +items+.
       def dup_attributes(items)
@@ -315,8 +320,7 @@ module HexaPDF
 
       # :nodoc:
       def inspect
-        "#<#{self.class.name} #{items.reject {|i| i.kind_of?(Numeric) }.map(&:str).join.inspect} " \
-          "#{items.inspect}>"
+        "#<#{self.class.name} #{text.inspect} #{items.inspect}>"
       end
 
       private
