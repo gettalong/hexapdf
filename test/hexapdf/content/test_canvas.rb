@@ -71,6 +71,13 @@ describe HexaPDF::Content::Canvas do
     end
   end
 
+  describe "pos" do
+    it "returns the transformed position" do
+      @canvas.translate(9, 4)
+      assert_equal([10, 5], @canvas.pos(1, 1))
+    end
+  end
+
   describe "save_graphics_state" do
     it "invokes the operator implementation" do
       assert_operator_invoked(:q) { @canvas.save_graphics_state }

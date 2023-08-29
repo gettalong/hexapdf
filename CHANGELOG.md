@@ -9,6 +9,7 @@
   the remaining space of line
 * [HexaPDF::Layout::TextFragment#text] and [HexaPDF::Layout::TextBox#text] for
   retrieving the text represented by the stored items
+* [HexaPDF::Content::Canvas#pos] for retrieving untransformed positions
 
 ### Changed
 

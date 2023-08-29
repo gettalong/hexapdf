@@ -317,6 +317,14 @@ module HexaPDF
         @context.resources
       end
 
+      # Returns the position (x,y) transformed by the current transformation matrix.
+      #
+      # The resulting position should be interpreted in terms of the coordinate system of the
+      # context object (e.g. the page or Form XObject).
+      def pos(x, y)
+        graphics_state.ctm.evaluate(x, y)
+      end
+
       # :call-seq:
       #   canvas.save_graphics_state              => canvas
       #   canvas.save_graphics_state { block }    => canvas

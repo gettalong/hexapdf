@@ -423,7 +423,7 @@ module HexaPDF
       #
       #    To check whether the origin has been translated or not, use
       #
-      #      canvas.graphics_state.ctm.evaluate(0, 0)
+      #      canvas.pos(0, 0)
       #
       #    and check whether the result is [0, 0]. If it is, then the origin has not been
       #    translated.
@@ -550,7 +550,7 @@ module HexaPDF
         return not_flattened if annotations.empty?
 
         canvas = self.canvas(type: :overlay)
-        if (pos = canvas.graphics_state.ctm.evaluate(0, 0)) != [0, 0]
+        if (pos = canvas.pos(0, 0)) != [0, 0]
           canvas.save_graphics_state
           canvas.translate(-pos[0], -pos[1])
         end
