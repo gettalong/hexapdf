@@ -592,13 +592,18 @@ module HexaPDF
           end
 
           # Step 2) Fit calculated rectangle to annotation rectangle by translating/scaling
-          a = HexaPDF::Content::TransformationMatrix.new
-          a.translate(rect.left - left, rect.bottom - bottom)
-          a.scale(rect.width.fdiv(right - left), rect.height.fdiv(top - bottom))
+
+          # The final matrix is composed by translating the bottom-left corner of the transformed
+          # bounding box to the bottom-left corner of the annotation rectangle and scaling from the
+          # bottom-left corner of the transformed bounding box.
+          sx = rect.width.fdiv(right - left)
+          sy = rect.height.fdiv(top - bottom)
+          tx = rect.left - left + left - left * sx
+          ty = rect.bottom - bottom + bottom - bottom * sy
 
           # Step 3) Premultiply form matrix - done implicitly when drawing the XObject
 
-          canvas.transform(*a) do
+          canvas.transform(sx, 0, 0, sy, tx, ty) do
             # Use [box.left, box.bottom] to counter default translation in #xobject since that
             # is already taken care of in matrix a
             canvas.xobject(appearance, at: [box.left, box.bottom])

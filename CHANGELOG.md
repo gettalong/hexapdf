@@ -19,6 +19,8 @@
 
 * [HexaPDF::Document::Pages#add_labelling_range] to add a correct entry for
   the default range starting at page 1
+* [HexaPDF::Type::Page#flatten_annotations] to correctly handle scaled
+  appearances
 
 
 ## 0.33.0 - 2023-08-02

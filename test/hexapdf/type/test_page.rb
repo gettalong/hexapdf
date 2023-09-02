@@ -706,14 +706,14 @@ describe HexaPDF::Type::Page do
       @appearance[:Matrix] = [0.707106, 0.707106, -0.707106, 0.707106, 10, 30]
       @page.flatten_annotations
       assert_operators(@canvas.contents,
-                       [:concatenate_matrix, [0.998269, 0.0, 0.0, 0.415946, 111.21318, 80.60659]],
+                       [:concatenate_matrix, [0.998269, 0.0, 0.0, 0.415946, 111.193776, 91.933396]],
                        range: 1)
     end
 
     it "scales the appearance to fit into the annotations's rectangle" do
       @annot1[:Rect] = [100, 100, 130, 150]
       @page.flatten_annotations
-      assert_operators(@canvas.contents, [:concatenate_matrix, [0.5, 0, 0, 2, 110, 105]], range: 1)
+      assert_operators(@canvas.contents, [:concatenate_matrix, [0.5, 0, 0, 2, 105, 110]], range: 1)
     end
   end
 

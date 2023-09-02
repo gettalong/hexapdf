@@ -196,7 +196,7 @@ describe HexaPDF::Type::Form do
       end.write(io)
       @ref[:F].embed(io, name: 'Test')
       @ref[:Page] = 0
-      assert_equal(" q  Q q  5 w\n  Q q q\n1.0 0.0 0.0 1.0 10 10 cm\n/XO1 Do\nQ\n Q ",
+      assert_equal(" q  Q q  5 w\n  Q q q\n1.0 0 0 1.0 10.0 10.0 cm\n/XO1 Do\nQ\n Q ",
                    @form.referenced_content.contents)
     end
 
