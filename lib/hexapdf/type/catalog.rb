@@ -78,7 +78,7 @@ module HexaPDF
       define_field :SpiderInfo,        type: Dictionary, version: '1.3'
       define_field :OutputIntents,     type: PDFArray,   version: '1.4'
       define_field :PieceInfo,         type: Dictionary, version: '1.4'
-      define_field :OCProperties,      type: Dictionary, version: '1.5'
+      define_field :OCProperties,      type: :XXOCProperties, version: '1.5'
       define_field :Perms,             type: Dictionary, version: '1.5'
       define_field :Legal,             type: Dictionary, version: '1.5'
       define_field :Requirements,      type: PDFArray,   version: '1.7'

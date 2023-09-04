@@ -78,6 +78,8 @@ module HexaPDF
     autoload(:MarkInformation, 'hexapdf/type/mark_information')
     autoload(:OptionalContentGroup, 'hexapdf/type/optional_content_group')
     autoload(:OptionalContentMembership, 'hexapdf/type/optional_content_membership')
+    autoload(:OptionalContentProperties, 'hexapdf/type/optional_content_properties')
+    autoload(:OptionalContentConfiguration, 'hexapdf/type/optional_content_configuration')
 
   end
 
