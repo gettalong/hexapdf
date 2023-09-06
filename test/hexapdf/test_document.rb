@@ -561,6 +561,10 @@ describe HexaPDF::Document do
     assert_kind_of(HexaPDF::Type::Outline, @doc.outline)
   end
 
+  it "returns the optional content properties" do
+    assert_kind_of(HexaPDF::Type::OptionalContentProperties, @doc.optional_content)
+  end
+
   it "can be inspected and the output is not too large" do
     assert_match(/HexaPDF::Document:\d+/, @doc.inspect)
   end

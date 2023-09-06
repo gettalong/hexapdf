@@ -112,6 +112,15 @@ module HexaPDF
         self[:Outlines] ||= document.add({}, type: :Outlines)
       end
 
+      # Returns the optional content properties dictionary, creating it if needed.
+      #
+      # This is the main entry point for working with optional content, a.k.a. layers.
+      #
+      # See: OptionalContentProperties
+      def optional_content
+        self[:OCProperties] ||= document.add({OCGs: [], D: {}}, type: :XXOCProperties)
+      end
+
       # Returns the main AcroForm object.
       #
       # * If an AcroForm object exists, the +create+ argument is not used.

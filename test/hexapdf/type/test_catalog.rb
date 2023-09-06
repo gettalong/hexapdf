@@ -39,6 +39,17 @@ describe HexaPDF::Type::Catalog do
     assert_same(outline, @catalog.outline)
   end
 
+  it "uses or creates the optional content properties dictionary on access" do
+    @catalog[:OCProperties] = hash = {}
+    assert_equal(:XXOCProperties, @catalog.optional_content.type)
+    assert_same(hash, @catalog.optional_content.value)
+
+    @catalog.delete(:OCProperties)
+    oc = @catalog.optional_content
+    assert_equal([], oc[:OCGs])
+    assert_equal(:XXOCConfiguration, oc[:D].type)
+  end
+
   describe "acro_form" do
     it "returns an existing form object" do
       @catalog[:AcroForm] = :test

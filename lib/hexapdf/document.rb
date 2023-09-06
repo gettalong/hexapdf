@@ -538,6 +538,13 @@ module HexaPDF
       catalog.outline
     end
 
+    # Returns the main object for working with optional content (a.k.a. layers).
+    #
+    # See: Type::Catalog#optional_content
+    def optional_content
+      catalog.optional_content
+    end
+
     # Executes the given task and returns its result.
     #
     # Tasks provide an extensible way for performing operations on a PDF document without
