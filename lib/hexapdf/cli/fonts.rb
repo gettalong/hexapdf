@@ -127,7 +127,7 @@ module HexaPDF
           page.resources[:Font]&.each(&font_proc)
           page.resources[:XObject]&.each do |_, xobj|
             next unless xobj[:Subtype] == :Form
-            xobj.ressources[:Font]&.each(&font_proc)
+            xobj.resources[:Font]&.each(&font_proc)
           end
           page.each_annotation do |annotation|
             appearance = annotation.appearance
