@@ -261,12 +261,23 @@ module HexaPDF
       # Rotates the page +angle+ degrees counterclockwise where +angle+ has to be a multiple of 90.
       #
       # Positive values rotate the page to the left, negative values to the right. If +flatten+ is
-      # +true+, the rotation is not done via the page's meta data but by "rotating" the canvas
-      # itself.
+      # +true+, the rotation is not done via the page's meta (i.e. the /Rotate key) data but by
+      # rotating the canvas itself and all other necessary objects like the various page boxes and
+      # annotations.
       #
-      # Note that the :Rotate key of a page object describes the angle in a clockwise orientation
-      # but this method uses counterclockwise rotation to be consistent with other rotation methods
-      # (e.g. HexaPDF::Content::Canvas#rotate).
+      # Notes:
+      #
+      # * The given +angle+ is applied in addition to a possibly already existing rotation
+      #   (specified via the /Rotate key) and does not replace it.
+      #
+      # * Specifying 0 for +angle+ is valid and means that no additional rotation should be applied.
+      #   The only meaningful usage of 0 for +angle+ is when +flatten+ is set to +true+ (so that the
+      #   /Rotate key is removed and the existing rotation information incorporated into the canvas,
+      #   page boxes and annotations).
+      #
+      # * The /Rotate key of a page object describes the angle in a clockwise orientation but this
+      #   method uses counterclockwise rotation to be consistent with other rotation methods (e.g.
+      #   HexaPDF::Content::Canvas#rotate).
       def rotate(angle, flatten: false)
         if angle % 90 != 0
           raise ArgumentError, "Page rotation has to be multiple of 90 degrees"
