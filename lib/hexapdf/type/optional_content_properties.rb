@@ -92,6 +92,35 @@ module HexaPDF
         self[:OCGs].uniq.compact
       end
 
+      # :call-seq:
+      #   optional_content.default_configuration        -> config_dict
+      #   optional_content.default_configuration(hash)  -> config_dict
+      #
+      # Returns the default optional content configuration dictionary if no argument is given.
+      # Otherwise sets the the default optional content configuration to the given hash value.
+      #
+      # The default configuration defines the initial state of the optional content groups and how
+      # those states may be changed by a PDF processor.
+      #
+      # Example:
+      #
+      #   optional_content.default_configuration(
+      #     Name: 'My Configuration',
+      #     BaseState: :OFF,
+      #     ON: [ocg1],
+      #     Order: [ocg_all, [ocg1, ocg2, ocg3]]
+      #   )
+      #
+      # See: OptionalContentConfiguration
+      def default_configuration(hash = nil)
+        if hash
+          self[:D] = hash
+        else
+          self[:D] ||= {Creator: 'HexaPDF'}
+        end
+        self[:D]
+      end
+
       private
 
       def perform_validation(&block) # :nodoc:
