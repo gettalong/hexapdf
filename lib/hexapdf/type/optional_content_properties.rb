@@ -92,6 +92,16 @@ module HexaPDF
         self[:OCGs].uniq.compact
       end
 
+      private
+
+      def perform_validation(&block) # :nodoc:
+        unless key?(:D)
+          yield('The OptionalContentProperties dictionary needs a default configuration', true)
+          self[:D] = {Creator: 'HexaPDF'}
+        end
+        super
+      end
+
     end
 
   end

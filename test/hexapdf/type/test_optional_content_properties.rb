@@ -53,4 +53,14 @@ describe HexaPDF::Type::OptionalContentProperties do
       assert_equal([ocg1, ocg2, ocg3], @oc.ocgs)
     end
   end
+
+  describe "perform_validation" do
+    it "creates the /D entry if it is not set" do
+      @oc.delete(:D)
+      refute(@oc.validate(auto_correct: false))
+      refute(@oc.key?(:D))
+      assert(@oc.validate(auto_correct: true))
+      assert_equal({Creator: 'HexaPDF'}, @oc[:D].value)
+    end
+  end
 end

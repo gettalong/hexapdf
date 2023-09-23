@@ -118,7 +118,7 @@ module HexaPDF
       #
       # See: OptionalContentProperties
       def optional_content
-        self[:OCProperties] ||= document.add({OCGs: [], D: {}}, type: :XXOCProperties)
+        self[:OCProperties] ||= document.add({OCGs: [], D: {Creator: 'HexaPDF'}}, type: :XXOCProperties)
       end
 
       # Returns the main AcroForm object.
