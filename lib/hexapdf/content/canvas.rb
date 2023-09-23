@@ -2491,6 +2491,50 @@ module HexaPDF
         self
       end
 
+      # :call-seq:
+      #   canvas.optional_content(ocg, &block)                              -> canvas
+      #   canvas.optional_content(name, use_existing_ocg: true, &block)     -> canvas
+      #
+      # Inserts an optional content sequence. Returns +self+.
+      #
+      # An optional content sequence marks part of the content stream as belonging to the given
+      # optional content group. See HexaPDF::Type::OptionalContentProperties for details.
+      #
+      # If the first argument is already an optional content group dictionary, it is used.
+      # Otherwise, the first argument needs to be the name of the optional content group. In that
+      # case, the +use_existing_ocg+ specifies whether the first found optional content group with
+      # that name should be used or whether a new OCG should always be created.
+      #
+      # If invoked without a block, a corresponding call to #end_optional_content must be done.
+      # Otherwise the optional content sequence automatically ends when the block is finished.
+      #
+      # Examples:
+      #
+      #   canvas.optional_content('Hints')
+      #   # Other instructions
+      #   canvas.end_optional_content
+      #
+      #   canvas.optional_content('Hints', use_existing_ocg: false) do
+      #     # Other instructions
+      #   end
+      #
+      # See: PDF2.0 s8.11, #end_optional_content, HexaPDF::Type::OptionalContentProperties
+      def optional_content(ocg, use_existing_ocg: true, &block)
+        ocg = if ocg.kind_of?(HexaPDF::Dictionary) || !use_existing_ocg
+                context.document.optional_content.add_ocg(ocg)
+              else
+                context.document.optional_content.ocg(ocg, create: true)
+              end
+        marked_content_sequence(:OC, property_list: ocg, &block)
+      end
+
+      # Ends an optional content sequence and returns +self+.
+      #
+      # See #optional_content for details.
+      #
+      # See: PDF2.0 s8.11
+      alias :end_optional_content :end_marked_content_sequence
+
       # Creates and returns a color object from the given color specification. See #stroke_color for
       # details on the possible color specifications.
       #

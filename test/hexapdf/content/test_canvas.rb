@@ -1287,6 +1287,48 @@ describe HexaPDF::Content::Canvas do
     end
   end
 
+  describe "optional_content" do
+    it "invokes the marked-sequence operator implementation" do
+      assert_operator_invoked(:BDC, :OC, :P1) { @canvas.optional_content('Test') }
+    end
+
+    it "is serialized correctly when no block is used" do
+      @canvas.optional_content('Test')
+      assert_operators(@canvas.contents, [[:begin_marked_content_with_property_list, [:OC, :P1]]])
+    end
+
+    it "is serialized correctly when a block is used" do
+      @canvas.optional_content('Test') {}
+      assert_operators(@canvas.contents, [[:begin_marked_content_with_property_list, [:OC, :P1]],
+                                          [:end_marked_content]])
+    end
+
+    it "uses the provided OCG dictionary" do
+      ocg = @doc.optional_content.add_ocg('Test')
+      @canvas.optional_content(ocg)
+      assert_equal(ocg, @page.resources.property_list(:P1))
+    end
+
+    it "uses an existing OCG specified by name" do
+      ocg = @doc.optional_content.add_ocg('Test')
+      @canvas.optional_content('Test')
+      assert_equal(ocg, @page.resources.property_list(:P1))
+    end
+
+    it "creates an OCG if the named one doesn't yet exist" do
+      @canvas.optional_content('Test')
+      assert_equal(@doc.optional_content.ocg('Test'), @page.resources.property_list(:P1))
+    end
+
+    it "always creates a new OCG if use_existing_ocg is false" do
+      ocg = @doc.optional_content.add_ocg('Test')
+      @canvas.optional_content('Test', use_existing_ocg: false)
+      pl_item = @page.resources.property_list(:P1)
+      refute_equal(ocg, pl_item)
+      assert_equal(@doc.optional_content.ocgs.last, pl_item)
+    end
+  end
+
   describe "color_from_specification "do
     it "accepts a color string" do
       assert_equal([1, 0, 0], @canvas.color_from_specification("red").components)
