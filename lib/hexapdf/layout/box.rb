@@ -127,6 +127,20 @@ module HexaPDF
       #
       # This can be used to store arbitrary information on boxes for later use. For example, a
       # generic style layer could use one or more custom properties for its work.
+      #
+      # The Box class itself uses the following properties:
+      #
+      # optional_content::
+      #
+      #       If this property is set, it needs to be an optional content group dictionary, a String
+      #       defining an (optionally existing) optional content group dictionary, or an optional
+      #       content membership dictionary.
+      #
+      #       The whole content of the box, i.e. including padding, border, background..., is
+      #       wrapped with the appropriate commands so that the optional content group or membership
+      #       dictionary specifies whether the content is shown or not.
+      #
+      #       See: HexaPDF::Type::OptionalContentProperties
       attr_reader :properties
 
       # :call-seq:
@@ -220,6 +234,10 @@ module HexaPDF
       # instance variable to +nil+ or a valid block. This is useful to avoid unnecessary set-up
       # operations when the block does nothing.
       def draw(canvas, x, y)
+        if (oc = properties['optional_content'])
+          canvas.optional_content(oc)
+        end
+
         if style.background_color? && style.background_color
           canvas.save_graphics_state do
             canvas.opacity(fill_alpha: style.background_alpha).
@@ -233,6 +251,8 @@ module HexaPDF
         draw_content(canvas, x + reserved_width_left, y + reserved_height_bottom)
 
         style.overlays.draw(canvas, x, y, self) if style.overlays?
+
+        canvas.end_optional_content if oc
       end
 
       # Returns +true+ if no drawing operations are performed.

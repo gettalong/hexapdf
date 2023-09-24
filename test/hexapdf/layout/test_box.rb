@@ -150,6 +150,10 @@ describe HexaPDF::Layout::Box do
   end
 
   describe "draw" do
+    before do
+      @canvas = HexaPDF::Document.new.pages.add.canvas
+    end
+
     it "draws the box onto the canvas" do
       box = create_box(width: 150, height: 130) do |canvas, _|
         canvas.line_width(15)
@@ -161,7 +165,6 @@ describe HexaPDF::Layout::Box do
       box.style.underlays.add {|canvas, _| canvas.line_width(10) }
       box.style.overlays.add {|canvas, _| canvas.line_width(20) }
 
-      @canvas = HexaPDF::Document.new.pages.add.canvas
       box.draw(@canvas, 5, 5)
       assert_operators(@canvas.contents, [[:save_graphics_state],
                                           [:set_graphics_state_parameters, [:GS1]],
@@ -195,7 +198,6 @@ describe HexaPDF::Layout::Box do
     end
 
     it "draws nothing onto the canvas if the box is empty" do
-      @canvas = HexaPDF::Document.new.pages.add.canvas
       box = create_box
       box.draw(@canvas, 5, 5)
       assert_operators(@canvas.contents, [])
@@ -203,6 +205,13 @@ describe HexaPDF::Layout::Box do
       refute(box.style.underlays?)
       refute(box.style.border?)
       refute(box.style.overlays?)
+    end
+
+    it "wraps the box in optional content markers if the optional_content property is set" do
+      box = create_box(properties: {'optional_content' => 'Text'})
+      box.draw(@canvas, 0, 0)
+      assert_operators(@canvas.contents, [[:begin_marked_content_with_property_list, [:OC, :P1]],
+                                          [:end_marked_content]])
     end
   end
 
