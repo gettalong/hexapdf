@@ -268,7 +268,8 @@ module HexaPDF
   #
   #    The value needs to be an object that responds to \#call(character, font_wrapper) where
   #    +character+ is the Unicode character for the missing glyph and returns a substitute glyph to
-  #    be used instead.
+  #    be used instead. This substitute glyph needs to be from the same font, i.e. it needs to be
+  #    created through the provided +font_wrapper+ instance.
   #
   #    The +font_wrapper+ argument is the used font wrapper object, e.g.
   #    HexaPDF::Font::TrueTypeWrapper. To access the HexaPDF::Document instance from which this hook
