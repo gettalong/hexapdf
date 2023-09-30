@@ -607,6 +607,9 @@ module HexaPDF
       # Finally, a default font is set if necessary to ensure that the style object works in all
       # cases.
       def retrieve_style(style, properties = nil)
+        if style.kind_of?(Symbol) && !@styles.key?(style)
+          raise HexaPDF::Error, "Style #{style} not defined"
+        end
         style = HexaPDF::Layout::Style.create(@styles[style] || style || @styles[:base])
         style = style.dup.update(**properties) unless properties.nil? || properties.empty?
         style.font('Times') unless style.font?

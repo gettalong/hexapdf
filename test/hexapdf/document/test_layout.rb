@@ -219,6 +219,10 @@ describe HexaPDF::Document::Layout do
       box = @layout.text_box("Test", box_style: :named)
       assert_equal(20, box.style.font_size)
     end
+
+    it "raises an error if the to-be-used style doesn't exist" do
+      assert_raises(HexaPDF::Error) { @layout.text_box("Test", style: :unknown) }
+    end
   end
 
   describe "formatted_text" do

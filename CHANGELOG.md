@@ -21,6 +21,8 @@
   the default range starting at page 1
 * [HexaPDF::Type::Page#flatten_annotations] to correctly handle scaled
   appearances
+* Using an unknown style name in [HexaPDF:Document::Layout] method by providing
+  a useful error message
 
 
 ## 0.33.0 - 2023-08-02
