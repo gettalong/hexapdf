@@ -640,6 +640,7 @@ module HexaPDF
                           GoToR: 'HexaPDF::Type::Actions::GoToR',
                           Launch: 'HexaPDF::Type::Actions::Launch',
                           URI: 'HexaPDF::Type::Actions::URI',
+                          SetOCGState: 'HexaPDF::Type::Actions::SetOCGState',
                           Text: 'HexaPDF::Type::Annotations::Text',
                           Link: 'HexaPDF::Type::Annotations::Link',
                           Widget: 'HexaPDF::Type::Annotations::Widget',
@@ -661,6 +662,7 @@ module HexaPDF
                           GoToR: 'HexaPDF::Type::Actions::GoToR',
                           Launch: 'HexaPDF::Type::Actions::Launch',
                           URI: 'HexaPDF::Type::Actions::URI',
+                          SetOCGState: 'HexaPDF::Type::Actions::SetOCGState',
                         },
                         Annot: {
                           Text: 'HexaPDF::Type::Annotations::Text',

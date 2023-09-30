@@ -48,6 +48,7 @@ module HexaPDF
       autoload(:GoToR, 'hexapdf/type/actions/go_to_r')
       autoload(:Launch, 'hexapdf/type/actions/launch')
       autoload(:URI, 'hexapdf/type/actions/uri')
+      autoload(:SetOCGState, 'hexapdf/type/actions/set_ocg_state')
 
     end
 
