@@ -152,6 +152,11 @@ module HexaPDF
       define_field :Intent, type: [Symbol, PDFArray], default: :View
       define_field :Usage,  type: :XXOCUsage
 
+      # Returns +true+ since optional content group dictionaries objects must always be indirect.
+      def must_be_indirect?
+        true
+      end
+
       # :call-seq:
       #   ocg.name          -> name
       #   ocg.name(value)   -> value

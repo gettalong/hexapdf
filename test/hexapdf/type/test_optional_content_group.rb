@@ -45,6 +45,10 @@ describe HexaPDF::Type::OptionalContentGroup do
                    ocu[:PageElement])
   end
 
+  it "must always be an indirect object" do
+    assert(@ocg.must_be_indirect?)
+  end
+
   it "returns the name" do
     assert_equal('OCG', @ocg.name)
     @ocg.name('Other')
