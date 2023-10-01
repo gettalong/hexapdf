@@ -56,8 +56,8 @@ describe HexaPDF::Layout::Box do
     end
 
     it "allows setting custom properties" do
-      box = create_box(properties: {'key' => :value})
-      assert_equal({'key' => :value}, box.properties)
+      assert_equal({}, create_box(properties: nil).properties)
+      assert_equal({'key' => :value}, create_box(properties: {'key' => :value}).properties)
     end
   end
 

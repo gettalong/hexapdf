@@ -24,6 +24,8 @@
   appearances
 * Using an unknown style name in [HexaPDF:Document::Layout] method by providing
   a useful error message
+* [HexaPDF::Layout::Box::new] to ensure that the properties attribute is always
+  a hash
 
 
 ## 0.33.0 - 2023-08-02
