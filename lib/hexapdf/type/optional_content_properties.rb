@@ -92,6 +92,29 @@ module HexaPDF
         self[:OCGs].uniq.compact
       end
 
+
+      # :nodoc:
+      OCMD_POLICY_MAPPING = {any_on: :AnyOn, AnyOn: :AnyOn, any_off: :AnyOff, AnyOff: :AnyOff,
+                             all_off: :AllOff, AllOff: :AllOff}
+
+      # Creates an optional content membership dictionary containing the given optional content
+      # group(s).
+      #
+      # The optional argument +policy+ specifies the visibility policy:
+      #
+      # :any_on/:AnyOn:: Content is visible if any of the OCGs are on.
+      # :any_off/:AnyOff:: Content is visible if any of the OCGs are off.
+      # :all_on/:AllOn:: Content is only visible if all OCGs are on.
+      # :all_off/:AllOff:: Content is only visible if all OCGs are off.
+      #
+      # See: OptionalContentMembership
+      def create_ocmd(ocgs, policy: :any_on)
+        policy = OCMD_POLICY_MAPPING.fetch(policy) do
+          raise ArgumentError, "Invalid OCMD policy #{policy} specified"
+        end
+        document.wrap({Type: :OCMD, OCGs: Array(ocgs), P: policy})
+      end
+
       # :call-seq:
       #   optional_content.default_configuration        -> config_dict
       #   optional_content.default_configuration(hash)  -> config_dict

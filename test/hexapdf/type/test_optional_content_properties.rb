@@ -54,6 +54,21 @@ describe HexaPDF::Type::OptionalContentProperties do
     end
   end
 
+  describe "create_ocmd" do
+    it "creates the optional content membership dictionary for the given OCGs" do
+      ocmd = @oc.create_ocmd(@oc.ocg('Test'))
+      assert_equal({Type: :OCMD, OCGs: [@oc.ocg('Test')], P: :AnyOn}, ocmd.value)
+
+      ocmd = @oc.create_ocmd([@oc.ocg('Test'), @oc.ocg('Test2')], policy: :any_off)
+      assert_equal({Type: :OCMD, OCGs: [@oc.ocg('Test'), @oc.ocg('Test2')], P: :AnyOff}, ocmd.value)
+    end
+
+    it "fails if the policy is invalid" do
+      error = assert_raises(ArgumentError) { @oc.create_ocmd(:ocg, policy: :unknown) }
+      assert_match(/Invalid OCMD.*unknown/, error.message)
+    end
+  end
+
   describe "default_configuration" do
     it "returns an existing dictionary" do
       dict = @oc.default_configuration
