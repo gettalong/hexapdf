@@ -14,6 +14,7 @@
 ### Changed
 
 * [HexaPDF::Composer#draw_box] to return the last drawn box
+* [HexaPDF::Layout::Style::LinkLayer] to support arbitrary actions
 
 ### Fixed
 

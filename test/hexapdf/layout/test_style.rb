@@ -580,7 +580,10 @@ describe HexaPDF::Layout::Style::LinkLayer do
     it "fails if more than one possible target is chosen" do
       assert_raises(ArgumentError) { HexaPDF::Layout::Style::LinkLayer.new(dest: true, uri: true) }
       assert_raises(ArgumentError) { HexaPDF::Layout::Style::LinkLayer.new(dest: true, file: true) }
+      assert_raises(ArgumentError) { HexaPDF::Layout::Style::LinkLayer.new(dest: true, action: true) }
       assert_raises(ArgumentError) { HexaPDF::Layout::Style::LinkLayer.new(uri: true, file: true) }
+      assert_raises(ArgumentError) { HexaPDF::Layout::Style::LinkLayer.new(uri: true, action: true) }
+      assert_raises(ArgumentError) { HexaPDF::Layout::Style::LinkLayer.new(file: true, action: true) }
     end
 
     it "fails if an invalid border is provided" do
@@ -653,6 +656,12 @@ describe HexaPDF::Layout::Style::LinkLayer do
     it "works for files" do
       annot = call_link(file: "local-file.pdf")
       assert_equal({S: :Launch, F: "local-file.pdf", NewWindow: true}, annot[:A].value)
+      assert_nil(annot[:Dest])
+    end
+
+    it "works for actions" do
+      annot = call_link(action: {Type: :Action, S: :SetOCGState})
+      assert_equal({Type: :Action, S: :SetOCGState}, annot[:A].value)
       assert_nil(annot[:Dest])
     end
 

@@ -464,12 +464,12 @@ module HexaPDF
 
         # Creates a new LinkLayer object.
         #
-        # The following arguments are allowed (note that only *one* of +dest+, +uri+ or +file+ may
-        # be specified):
+        # The following arguments are allowed (note that only *one* of +dest+, +uri+, +file+ or
+        # +action+ may be specified):
         #
         # +dest+::
         #   The destination array or a name of a named destination for in-document links. If neither
-        #   +dest+ nor +uri+ nor +file+ is specified, it is assumed that the box has a custom
+        #   +dest+, +uri+, +file+ nor +action+ is specified, it is assumed that the box has a custom
         #   property named 'link' which is used for the destination.
         #
         # +uri+::
@@ -479,6 +479,9 @@ module HexaPDF
         #   The file that should be opened or, if it refers to an application, the application that
         #   should be launched. Can either be a string or a Filespec object. Also see:
         #   HexaPDF::Type::FileSpecification.
+        #
+        # +action+::
+        #   The PDF action that should be executed.
         #
         # +border+::
         #   If set to +true+, a standard border is used. Also accepts an array that adheres to the
@@ -492,15 +495,17 @@ module HexaPDF
         #   LinkLayer.new(dest: [page, :XYZ, nil, nil, nil], border: true)
         #   LinkLayer.new(uri: "https://my.example.com/path", border: [5 5 2])
         #   LinkLayer.new     # use 'link' custom box property for dest
-        def initialize(dest: nil, uri: nil, file: nil, border: false, border_color: nil)
-          if dest && (uri || file) || uri && file
-            raise ArgumentError, "Only one of dest, uri and file is allowed"
+        def initialize(dest: nil, uri: nil, file: nil, action: nil, border: false, border_color: nil)
+          if dest && (uri || file || action) || uri && (file || action) || file && action
+            raise ArgumentError, "Only one of dest, uri, file or action is allowed"
           end
           @dest = dest
           @action = if uri
                       {S: :URI, URI: uri}
                     elsif file
                       {S: :Launch, F: file, NewWindow: true}
+                    elsif action
+                      action
                     end
           @border = case border
                     when false then [0, 0, 0]
