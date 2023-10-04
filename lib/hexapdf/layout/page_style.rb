@@ -135,7 +135,8 @@ module HexaPDF
         Layout::Frame.new(box.left + margin.left,
                           box.bottom + margin.bottom,
                           box.width - margin.left - margin.right,
-                          box.height - margin.bottom - margin.top)
+                          box.height - margin.bottom - margin.top,
+                          context: page)
       end
 
     end

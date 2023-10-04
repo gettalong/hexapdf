@@ -340,8 +340,8 @@ module HexaPDF
         # current start of the line index should be stored for later use.
         #
         # After the algorithm is finished, it returns the unused items.
-        def self.call(items, width_block, &block)
-          obj = new(items, width_block)
+        def self.call(items, width_block, frame, &block)
+          obj = new(items, width_block, frame)
           if width_block.arity == 1
             obj.variable_width_wrapping(&block)
           else
@@ -353,9 +353,10 @@ module HexaPDF
 
         # Creates a new line wrapping object that arranges the +items+ on lines with the given
         # width.
-        def initialize(items, width_block)
+        def initialize(items, width_block, frame)
           @items = items
           @width_block = width_block
+          @frame = frame
           @line_items = []
           @width = 0
           @glue_items = []
@@ -506,6 +507,7 @@ module HexaPDF
         #
         # Returns +true+ if the item could be added and +false+ otherwise.
         def add_box_item(item)
+          item.fit_wrapped_box(@frame&.context) if item.kind_of?(InlineBox)
           return false unless @width + item.width <= @available_width
           @line_items.concat(@glue_items).push(item)
           @width += item.width
@@ -715,7 +717,7 @@ module HexaPDF
       #     Specifies whether style.text_indent should be applied to the first line. This should be
       #     set to +false+ if the items start with a continuation of a paragraph instead of starting
       #     a new paragraph (e.g. after a page break).
-      def fit(items, width, height, apply_first_text_indent: true)
+      def fit(items, width, height, apply_first_text_indent: true, frame: nil)
         unless items.empty? || items[0].respond_to?(:type)
           items = style.text_segmentation_algorithm.call(items)
         end
@@ -779,7 +781,7 @@ module HexaPDF
           too_wide_box = nil
           line_height = 0
 
-          rest = style.text_line_wrapping_algorithm.call(rest, width_block) do |line, item|
+          rest = style.text_line_wrapping_algorithm.call(rest, width_block, frame) do |line, item|
             # make sure empty lines broken by mandatory paragraph breaks are not empty
             line << TextFragment.new([], style) if item&.type != :box && line.items.empty?
 

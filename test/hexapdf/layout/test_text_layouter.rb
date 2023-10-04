@@ -322,6 +322,7 @@ end
 describe HexaPDF::Layout::TextLayouter::SimpleLineWrapping do
   before do
     @obj = HexaPDF::Layout::TextLayouter::SimpleLineWrapping
+    @mock_frame = nil
   end
 
   describe "fixed width wrapping" do
@@ -330,7 +331,9 @@ describe HexaPDF::Layout::TextLayouter::SimpleLineWrapping do
     def call(items, width = 100, &block)
       lines = []
       block ||= proc { true }
-      rest = @obj.call(items, proc { width }) {|line, item| lines << line; block.call(line, item) }
+      rest = @obj.call(items, proc { width }, @mock_frame) do |line, item|
+        lines << line; block.call(line, item)
+      end
       [rest, lines]
     end
   end
@@ -341,7 +344,9 @@ describe HexaPDF::Layout::TextLayouter::SimpleLineWrapping do
     def call(items, width = 100, &block)
       lines = []
       block ||= proc { true }
-      rest = @obj.call(items, proc {|_| width }) {|line, i| lines << line; block.call(line, i) }
+      rest = @obj.call(items, proc {|_| width }, @mock_frame) do |line, i|
+        lines << line; block.call(line, i)
+      end
       [rest, lines]
     end
 
@@ -356,7 +361,7 @@ describe HexaPDF::Layout::TextLayouter::SimpleLineWrapping do
         end
       end
       lines = []
-      rest = @obj.call(boxes([20, 10], [10, 10], [20, 15], [40, 10]), width_block) do |line|
+      rest = @obj.call(boxes([20, 10], [10, 10], [20, 15], [40, 10]), width_block, @mock_frame) do |line|
         height += line.height
         lines << line
         true
@@ -379,7 +384,7 @@ describe HexaPDF::Layout::TextLayouter::SimpleLineWrapping do
       lines = []
       item = HexaPDF::Layout::InlineBox.create(width: 20, height: 10) {}
       items = boxes([20, 10]) + [penalty(0, item)] + boxes([40, 15])
-      rest = @obj.call(items, width_block) do |line|
+      rest = @obj.call(items, width_block, @mock_frame) do |line|
         height += line.height
         lines << line
         true

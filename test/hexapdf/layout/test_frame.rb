@@ -34,6 +34,14 @@ describe HexaPDF::Layout::Frame do
     @frame = HexaPDF::Layout::Frame.new(5, 10, 100, 150)
   end
 
+  it "allows accessing the context's document" do
+    assert_nil(@frame.document)
+    context = Minitest::Mock.new
+    context.expect(:document, :document)
+    assert_equal(:document, HexaPDF::Layout::Frame.new(0, 0, 10, 10, context: context).document)
+    context.verify
+  end
+
   it "allows access to the bounding box attributes" do
     assert_equal(5, @frame.left)
     assert_equal(10, @frame.bottom)

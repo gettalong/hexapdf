@@ -222,7 +222,8 @@ module HexaPDF
             remove_indent_from_frame_shape(shape) unless shape.polygons.empty?
           end
 
-          item_frame = Frame.new(item_frame_left, top - height, item_frame_width, height, shape: shape)
+          item_frame = Frame.new(item_frame_left, top - height, item_frame_width, height,
+                                 shape: shape, context: frame.context)
           @results_item_marker_x << item_frame.x - content_indentation
 
           box_fitter = BoxFitter.new([item_frame])

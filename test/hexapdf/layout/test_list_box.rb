@@ -6,7 +6,9 @@ require 'hexapdf/layout/list_box'
 
 describe HexaPDF::Layout::ListBox do
   before do
-    @frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100)
+    @doc = HexaPDF::Document.new
+    @page = @doc.pages.add
+    @frame = HexaPDF::Layout::Frame.new(0, 0, 100, 100, context: @page)
     inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {}
     @text_boxes = 5.times.map do
       HexaPDF::Layout::TextBox.new(items: [inline_box] * 15, style: {position: :default})
@@ -127,7 +129,7 @@ describe HexaPDF::Layout::ListBox do
 
   describe "draw" do
     before do
-      @canvas = HexaPDF::Document.new.pages.add.canvas
+      @canvas = @page.canvas
       draw_block = lambda {|canvas, box| }
       @fixed_size_boxes = 5.times.map { HexaPDF::Layout::Box.new(width: 20, height: 10, &draw_block) }
     end

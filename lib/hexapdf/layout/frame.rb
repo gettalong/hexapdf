@@ -182,13 +182,18 @@ module HexaPDF
       # Also see the note in the #x documentation for further information.
       attr_reader :available_height
 
+      # The context object (a HexaPDF::Type::Page or HexaPDF::Type::Form) for which this frame
+      # should be used.
+      attr_reader :context
+
       # Creates a new Frame object for the given rectangular area.
-      def initialize(left, bottom, width, height, shape: nil)
+      def initialize(left, bottom, width, height, shape: nil, context: nil)
         @left = left
         @bottom = bottom
         @width = width
         @height = height
         @shape = shape || create_rectangle(left, bottom, left + width, bottom + height)
+        @context = context
 
         @x = left
         @y = bottom + height
@@ -197,6 +202,12 @@ module HexaPDF
 
         find_max_width_region if shape
         @region_selection = :max_height
+      end
+
+      # Returns the HexaPDF::Document instance (through #context) that is associated with this Frame
+      # object or +nil+ if no context object has been set.
+      def document
+        @context&.document
       end
 
       # Fits the given box into the current region of available space and returns a FitResult

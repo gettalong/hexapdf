@@ -212,13 +212,13 @@ module HexaPDF
         end
 
         # Fits the children of the table cell into the given rectangular area.
-        def fit(available_width, available_height, _frame)
+        def fit(available_width, available_height, frame)
           @width = available_width
           width = available_width - reserved_width
           height = available_height - reserved_height
           return false if width <= 0 || height <= 0
 
-          frame = Frame.new(0, 0, width, height)
+          frame = Frame.new(0, 0, width, height, context: frame.context)
           case children
           when Box
             fit_result = frame.fit(children)
@@ -376,9 +376,11 @@ module HexaPDF
         # The +column_info+ argument needs to be an array of arrays of the form [x_pos, width]
         # containing the horizontal positions and widths of each column.
         #
+        # The +frame+ argument is further handed down to the Cell instances for fitting.
+        #
         # The fitting of a cell is done through the Cell#fit method which stores the result in the
         # cell itself. Furthermore, Cell#left and Cell#top are also assigned correctly.
-        def fit_rows(start_row, available_height, column_info)
+        def fit_rows(start_row, available_height, column_info, frame)
           height = available_height
           last_fitted_row_index = -1
           @cells[start_row..-1].each.with_index(start_row) do |columns, row_index|
@@ -391,7 +393,7 @@ module HexaPDF
                                      else
                                        column_info[cell.column].last
                                      end
-              unless cell.fit(available_cell_width, available_height, nil)
+              unless cell.fit(available_cell_width, available_height, frame)
                 row_fit = false
                 break
               end
@@ -587,7 +589,7 @@ module HexaPDF
       end
 
       # Fits the table into the available space.
-      def fit(available_width, available_height, _frame)
+      def fit(available_width, available_height, frame)
         return false if (@initial_width > 0 && @initial_width > available_width) ||
           (@initial_height > 0 && @initial_height > available_height)
 
@@ -608,14 +610,14 @@ module HexaPDF
         @special_cells_fit_not_successful = false
         [@header_cells, @footer_cells].each do |special_cells|
           next unless special_cells
-          special_used_height, last_fitted_row_index = special_cells.fit_rows(0, height, columns)
+          special_used_height, last_fitted_row_index = special_cells.fit_rows(0, height, columns, frame)
           height -= special_used_height
           used_height += special_used_height
           @special_cells_fit_not_successful = (last_fitted_row_index != special_cells.number_of_rows - 1)
           return false if @special_cells_fit_not_successful
         end
 
-        main_used_height, @last_fitted_row_index = @cells.fit_rows(@start_row_index, height, columns)
+        main_used_height, @last_fitted_row_index = @cells.fit_rows(@start_row_index, height, columns, frame)
         used_height += main_used_height
 
         @width = (@initial_width > 0 ? @initial_width : columns[-1].sum + rw)

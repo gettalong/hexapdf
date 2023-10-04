@@ -309,9 +309,10 @@ describe HexaPDF::Document::Layout do
 
     it "allows creating an inline box through a hash with a :box key" do
       block = lambda {|item| item.box(:base, width: 5, height: 15) }
-      box = @layout.formatted_text_box([{box: :list, width: 10, block: block}])
+      box = @layout.formatted_text_box([{box: :column, columns: 1, width: 100, block: block}])
       ibox = box.instance_variable_get(:@items).first
-      assert_equal(10, ibox.width)
+      ibox.fit_wrapped_box(nil)
+      assert_equal(100, ibox.width)
       assert_equal(15, ibox.height)
     end
 

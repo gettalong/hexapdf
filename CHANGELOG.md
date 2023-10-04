@@ -15,6 +15,8 @@
 
 * [HexaPDF::Composer#draw_box] to return the last drawn box
 * [HexaPDF::Layout::Style::LinkLayer] to support arbitrary actions
+* [HexaPDF::Layout::Frame::new] (and adapted other layout classes) to accept a
+  context argument (a page or Form XObject instance)
 
 ### Fixed
 
