@@ -28,6 +28,8 @@
   a useful error message
 * [HexaPDF::Layout::Box::new] to ensure that the properties attribute is always
   a hash
+* [HexaPDF::Layout::ListBox] to work correctly if the marker height is larger
+  than the item content height
 
 
 ## 0.33.0 - 2023-08-02

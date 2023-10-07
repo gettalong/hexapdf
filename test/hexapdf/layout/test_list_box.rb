@@ -25,8 +25,8 @@ describe HexaPDF::Layout::ListBox do
     assert_equal(height, box.height, "box height")
     if fit_pos
       results = box.instance_variable_get(:@results)
-      results.each_with_index do |box_fitter, item_index|
-        box_fitter.fit_results.each_with_index do |fit_result, result_index|
+      results.each_with_index do |item_result, item_index|
+        item_result.box_fitter.fit_results.each_with_index do |fit_result, result_index|
           x, y = fit_pos.shift
           assert_equal(x, fit_result.x, "item #{item_index}, result #{result_index}, x")
           assert_equal(y, fit_result.y, "item #{item_index}, result #{result_index}, y")
@@ -57,7 +57,7 @@ describe HexaPDF::Layout::ListBox do
     it "is empty if nothing could be fit" do
       box = create_box(children: [@text_boxes[0]], width: 5)
       box.fit(@frame.available_width, @frame.available_height, @frame)
-      assert(create_box.empty?)
+      assert(box.empty?)
     end
   end
 
@@ -92,6 +92,12 @@ describe HexaPDF::Layout::ListBox do
       check_box(box, 100, 90, [[10, 80], [10, 60], [10, 40], [50, 10]])
     end
 
+    it "calculates the correct height if the marker is higher than the content" do
+      box = create_box(children: @text_boxes[0, 1], content_indentation: 20,
+                       style: {font_size: 30})
+      check_box(box, 100, 27, [[20, 80]])
+    end
+
     it "respects the content indentation" do
       box = create_box(children: @text_boxes[0, 1], content_indentation: 30)
       check_box(box, 100, 30, [[30, 70]])
@@ -100,6 +106,11 @@ describe HexaPDF::Layout::ListBox do
     it "respects the spacing between list items" do
       box = create_box(children: @text_boxes[0, 2], item_spacing: 30)
       check_box(box, 100, 70, [[10, 80], [10, 30]])
+    end
+
+    it "fails for unknown item types" do
+      box = create_box(children: @text_boxes[0, 1], item_type: :unknown)
+      assert_raises(HexaPDF::Error) { box.fit(100, 100, @frame) }
     end
   end
 
@@ -110,7 +121,7 @@ describe HexaPDF::Layout::ListBox do
       box_a, box_b = box.split(100, 100, @frame)
       assert_same(box, box_a)
       assert_equal(:show_first_marker, box_b.split_box?)
-      assert_equal(1, box_a.instance_variable_get(:@results)[0].fit_results.size)
+      assert_equal(1, box_a.instance_variable_get(:@results)[0].box_fitter.fit_results.size)
       assert_equal(1, box_b.children.size)
       assert_equal(2, box_b.start_number)
     end
@@ -121,7 +132,7 @@ describe HexaPDF::Layout::ListBox do
       box_a, box_b = box.split(100, 100, @frame)
       assert_same(box, box_a)
       assert_equal(:hide_first_marker, box_b.split_box?)
-      assert_equal(1, box_a.instance_variable_get(:@results)[0].fit_results.size)
+      assert_equal(1, box_a.instance_variable_get(:@results)[0].box_fitter.fit_results.size)
       assert_equal(2, box_b.children.size)
       assert_equal(1, box_b.start_number)
     end
@@ -273,12 +284,6 @@ describe HexaPDF::Layout::ListBox do
         [:restore_graphics_state],
       ]
       assert_operators(@canvas.contents, operators)
-    end
-
-    it "fails for unknown item types" do
-      box = create_box(children: @fixed_size_boxes[0, 1], item_type: :unknown)
-      box.fit(100, 100, @frame)
-      assert_raises(HexaPDF::Error) { box.draw(@canvas, 0, 0) }
     end
   end
 end

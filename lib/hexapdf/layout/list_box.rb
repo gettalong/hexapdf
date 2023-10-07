@@ -60,6 +60,9 @@ module HexaPDF
     #    arguments are ignored.
     class ListBox < Box
 
+      # Stores the information when fitting an item of the list box.
+      ItemResult = Struct.new(:box_fitter, :height, :marker, :marker_pos_x)
+
       # The child boxes of this ListBox. They need to be finalized before #fit is called.
       attr_reader :children
 
@@ -179,7 +182,7 @@ module HexaPDF
 
       # Returns +true+ if no box was fitted into the list box.
       def empty?
-        super && (!@results || @results.all? {|box_fitter| box_fitter.fit_results.empty? })
+        super && (!@results || @results.all? {|result| result.box_fitter.fit_results.empty? })
       end
 
       # Fits the list box into the available space.
@@ -210,9 +213,10 @@ module HexaPDF
         end
 
         @results = []
-        @results_item_marker_x = []
 
-        @children.each do |child|
+        @children.each_with_index do |child, index|
+          item_result = ItemResult.new
+
           shape = Geom2D::Polygon([left, top - height],
                                   [left + width, top - height],
                                   [left + width, top],
@@ -224,25 +228,34 @@ module HexaPDF
 
           item_frame = Frame.new(item_frame_left, top - height, item_frame_width, height,
                                  shape: shape, context: frame.context)
-          @results_item_marker_x << item_frame.x - content_indentation
+
+          if index != 0 || !split_box? || @split_box == :show_first_marker
+            box = item_marker_box(frame.document, index)
+            break unless box.fit(content_indentation, height, nil)
+            item_result.marker = box
+            item_result.marker_pos_x = item_frame.x - content_indentation
+            item_result.height = box.height
+          end
 
           box_fitter = BoxFitter.new([item_frame])
           Array(child).each {|box| box_fitter.fit(box) }
-          @results << box_fitter
+          item_result.box_fitter = box_fitter
+          item_result.height = [item_result.height.to_i, box_fitter.content_heights[0]].max
+          @results << item_result
 
-          top -= box_fitter.content_heights[0] + item_spacing
-          height -= box_fitter.content_heights[0] + item_spacing
+          top -= item_result.height + item_spacing
+          height -= item_result.height + item_spacing
 
           break if !box_fitter.fit_successful? || height <= 0
         end
 
-        @height = @results.sum {|box_fitter| box_fitter.content_heights[0] } +
+        @height = @results.sum {|item_result| item_result.height } +
           (@results.count - 1) * item_spacing +
           reserved_height
 
         @draw_pos_x = frame.x + reserved_width_left
         @draw_pos_y = frame.y - @height + reserved_height_bottom
-        @fit_successful = @results.all?(&:fit_successful?) && @results.size == @children.size
+        @fit_successful = @results.all? {|r| r.box_fitter.fit_successful? } && @results.size == @children.size
       end
 
       private
@@ -293,7 +306,7 @@ module HexaPDF
 
       # Splits the content of the list box. This method is called from Box#split.
       def split_content(_available_width, _available_height, _frame)
-        remaining_boxes = @results[-1].remaining_boxes
+        remaining_boxes = @results[-1].box_fitter.remaining_boxes
         first_is_split_box = remaining_boxes.first&.split_box?
         children = (remaining_boxes.empty? ? [] : [remaining_boxes]) + @children[@results.size..-1]
 
@@ -302,7 +315,6 @@ module HexaPDF
         box.instance_variable_set(:@start_number,
                                   @start_number + @results.size + (first_is_split_box ? -1 : 0))
         box.instance_variable_set(:@results, [])
-        box.instance_variable_set(:@results_item_marker_x, [])
 
         [self, box]
       end
@@ -349,12 +361,11 @@ module HexaPDF
           canvas.translate(x - @draw_pos_x, y - @draw_pos_y)
         end
 
-        @results.each_with_index do |box_fitter, index|
-          if index != 0 || !split_box? || @split_box == :show_first_marker
-            box = item_marker_box(canvas.context.document, index)
-            box.fit(content_indentation, box_fitter.content_heights[0], nil)
-            box.draw(canvas, @results_item_marker_x[index],
-                     box_fitter.frames[0].bottom + box_fitter.frames[0].height - box.height)
+        @results.each do |item_result|
+          box_fitter = item_result.box_fitter
+          if (marker = item_result.marker)
+            marker.draw(canvas, item_result.marker_pos_x,
+                        box_fitter.frames[0].bottom + box_fitter.frames[0].height - marker.height)
           end
           box_fitter.fit_results.each {|result| result.draw(canvas) }
         end
