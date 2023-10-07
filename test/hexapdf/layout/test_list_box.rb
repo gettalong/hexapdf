@@ -146,14 +146,16 @@ describe HexaPDF::Layout::ListBox do
     end
 
     it "draws the result" do
-      box = create_box(children: @fixed_size_boxes[0, 2])
+      box = create_box(children: @fixed_size_boxes[0, 2],
+                       style: {font_size: 11, fill_color: 0.5})
       box.fit(100, 100, @frame)
       box.draw(@canvas, 0, 100 - box.height)
       operators = [
         [:save_graphics_state],
-        [:set_font_and_size, [:F1, 10]],
+        [:set_font_and_size, [:F1, 11]],
+        [:set_device_gray_non_stroking_color, [0.5]],
         [:begin_text],
-        [:set_text_matrix, [1, 0, 0, 1, 1.5, 93.17]],
+        [:set_text_matrix, [1, 0, 0, 1, 1.15, 92.487]],
         [:show_text, ["\x95".b]],
         [:end_text],
         [:restore_graphics_state],
@@ -162,9 +164,10 @@ describe HexaPDF::Layout::ListBox do
         [:restore_graphics_state],
 
         [:save_graphics_state],
-        [:set_font_and_size, [:F1, 10]],
+        [:set_font_and_size, [:F1, 11]],
+        [:set_device_gray_non_stroking_color, [0.5]],
         [:begin_text],
-        [:set_text_matrix, [1, 0, 0, 1, 1.5, 83.17]],
+        [:set_text_matrix, [1, 0, 0, 1, 1.15, 82.487]],
         [:show_text, ["\x95".b]],
         [:end_text],
         [:restore_graphics_state],
@@ -175,16 +178,18 @@ describe HexaPDF::Layout::ListBox do
       assert_operators(@canvas.contents, operators)
     end
 
-    it "draws a cicle as marker" do
-      box = create_box(children: @fixed_size_boxes[0, 1], item_type: :circle)
+    it "draws a circle as marker" do
+      box = create_box(children: @fixed_size_boxes[0, 1], item_type: :circle,
+                       style: {font_size: 11, fill_color: 0.5})
       box.fit(100, 100, @frame)
       box.draw(@canvas, 0, 100 - box.height)
       operators = [
         [:save_graphics_state],
-        [:set_font_and_size, [:F1, 5]],
-        [:set_text_rise, [-5.555556]],
+        [:set_font_and_size, [:F1, 5.5]],
+        [:set_text_rise, [-6.111111]],
+        [:set_device_gray_non_stroking_color, [0.5]],
         [:begin_text],
-        [:set_text_matrix, [1, 0, 0, 1, 0.635, 100]],
+        [:set_text_matrix, [1, 0, 0, 1, 0.1985, 100]],
         [:show_text, ["m".b]],
         [:end_text],
         [:restore_graphics_state],
@@ -196,15 +201,17 @@ describe HexaPDF::Layout::ListBox do
     end
 
     it "draws a square as marker" do
-      box = create_box(children: @fixed_size_boxes[0, 1], item_type: :square)
+      box = create_box(children: @fixed_size_boxes[0, 1], item_type: :square,
+                       style: {font_size: 11, fill_color: 0.5})
       box.fit(100, 100, @frame)
       box.draw(@canvas, 0, 100 - box.height)
       operators = [
         [:save_graphics_state],
-        [:set_font_and_size, [:F1, 5]],
-        [:set_text_rise, [-5.555556]],
+        [:set_font_and_size, [:F1, 5.5]],
+        [:set_text_rise, [-6.111111]],
+        [:set_device_gray_non_stroking_color, [0.5]],
         [:begin_text],
-        [:set_text_matrix, [1, 0, 0, 1, 1.195, 100]],
+        [:set_text_matrix, [1, 0, 0, 1, 0.8145, 100]],
         [:show_text, ["n".b]],
         [:end_text],
         [:restore_graphics_state],
@@ -217,14 +224,16 @@ describe HexaPDF::Layout::ListBox do
 
     it "draws decimal numbers as marker" do
       box = create_box(children: @fixed_size_boxes[0, 2], item_type: :decimal,
+                       style: {font_size: 11, fill_color: 0.5},
                        content_indentation: 20)
       box.fit(100, 100, @frame)
       box.draw(@canvas, 0, 100 - box.height)
       operators = [
         [:save_graphics_state],
-        [:set_font_and_size, [:F1, 10]],
+        [:set_font_and_size, [:F1, 11]],
+        [:set_device_gray_non_stroking_color, [0.5]],
         [:begin_text],
-        [:set_text_matrix, [1, 0, 0, 1, 7.5, 93.17]],
+        [:set_text_matrix, [1, 0, 0, 1, 6.75, 92.487]],
         [:show_text, ["1.".b]],
         [:end_text],
         [:restore_graphics_state],
@@ -233,9 +242,10 @@ describe HexaPDF::Layout::ListBox do
         [:restore_graphics_state],
 
         [:save_graphics_state],
-        [:set_font_and_size, [:F1, 10]],
+        [:set_font_and_size, [:F1, 11]],
+        [:set_device_gray_non_stroking_color, [0.5]],
         [:begin_text],
-        [:set_text_matrix, [1, 0, 0, 1, 7.5, 83.17]],
+        [:set_text_matrix, [1, 0, 0, 1, 6.75, 82.487]],
         [:show_text, ["2.".b]],
         [:end_text],
         [:restore_graphics_state],

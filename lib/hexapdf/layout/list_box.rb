@@ -328,20 +328,22 @@ module HexaPDF
         fragment = case @item_type
                    when :disc
                      TextFragment.create("•", font: document.fonts.add("Times"),
-                                         font_size: style.font_size)
+                                         font_size: style.font_size, fill_color: style.fill_color)
                    when :circle
                      TextFragment.create("❍", font: document.fonts.add("ZapfDingbats"),
                                          font_size: style.font_size / 2.0,
+                                         fill_color: style.fill_color,
                                          text_rise: -style.font_size / 1.8)
                    when :square
                      TextFragment.create("■", font: document.fonts.add("ZapfDingbats"),
                                          font_size: style.font_size / 2.0,
+                                         fill_color: style.fill_color,
                                          text_rise: -style.font_size / 1.8)
                    when :decimal
                      text = (@start_number + index).to_s << "."
                      decimal_style = {
                        font: (style.font? ? style.font : document.fonts.add("Times")),
-                       font_size: style.font_size || 10,
+                       font_size: style.font_size || 10, fill_color: style.fill_color
                      }
                      TextFragment.create(text, decimal_style)
                    else

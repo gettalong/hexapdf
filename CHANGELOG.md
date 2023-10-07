@@ -17,6 +17,8 @@
 * [HexaPDF::Layout::Style::LinkLayer] to support arbitrary actions
 * [HexaPDF::Layout::Frame::new] (and adapted other layout classes) to accept a
   context argument (a page or Form XObject instance)
+* [HexaPDF::Layout::ListBox] to use its 'fill_color' style property for the item
+  marker color
 
 ### Fixed
 
