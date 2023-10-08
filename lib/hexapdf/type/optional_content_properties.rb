@@ -51,7 +51,7 @@ module HexaPDF
 
       define_type :XXOCProperties
 
-      define_field :OCGs,    type: PDFArray, required: true
+      define_field :OCGs,    type: PDFArray, default: [], required: true
       define_field :D,       type: :XXOCConfiguration, required: true
       define_field :Configs, type: PDFArray
 
