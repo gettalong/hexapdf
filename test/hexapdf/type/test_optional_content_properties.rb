@@ -17,6 +17,13 @@ describe HexaPDF::Type::OptionalContentProperties do
       assert_equal([ocg], @oc[:OCGs])
     end
 
+    it "doesn't add an OCG if it has been added before" do
+      ocg = @doc.add({Type: :OCG, Name: 'test'})
+      @oc.add_ocg(ocg)
+      @oc.add_ocg(ocg)
+      assert_equal([ocg], @oc[:OCGs])
+    end
+
     it "creates a new OCG object with the given name and adds it" do
       ocg = @oc.add_ocg('Test')
       assert_equal([ocg], @oc[:OCGs])

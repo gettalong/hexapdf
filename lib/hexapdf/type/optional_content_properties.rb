@@ -69,7 +69,7 @@ module HexaPDF
               else
                 document.add({Type: :OCG, Name: name_or_dict})
               end
-        (self[:OCGs] ||= []) << ocg
+        self[:OCGs] << ocg unless self[:OCGs].include?(ocg)
         ocg
       end
 
