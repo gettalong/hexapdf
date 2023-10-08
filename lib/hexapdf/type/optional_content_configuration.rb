@@ -78,6 +78,92 @@ module HexaPDF
       define_field :RBGroups,  type: PDFArray
       define_field :Locked,    type: PDFArray, default: []
 
+      # :call-seq:
+      #   configuration.ocg_state(ocg)          -> state
+      #   configuration.ocg_state(ocg, state)   -> state
+      #
+      # Returns the state (+:on+, +:off+ or +nil+) of the optional content group if the +state+
+      # argument is not given. Otherwise sets the state of the OCG to the given state value
+      # (+:on+/+:ON+ or +:off+/+:OFF+).
+      #
+      # The value +nil+ is only returned if the state is not defined by the configuration dictionary
+      # (which may only be the case if the configuration dictionary is not the default configuration
+      # dictionary).
+      def ocg_state(ocg, state = nil)
+        if state.nil?
+          case self[:BaseState]
+          when :ON then self[:OFF]&.include?(ocg) ? :off : :on
+          when :OFF then self[:ON]&.include?(ocg) ? :on : :off
+          else self[:OFF]&.include?(ocg) ? :off : (self[:ON]&.include?(ocg) ? :on : nil)
+          end
+        elsif state&.downcase == :on
+          (self[:ON] ||= []) << ocg unless self[:ON]&.include?(ocg)
+          self[:OFF].delete(ocg) if key?(:OFF)
+        elsif state&.downcase == :off
+          (self[:OFF] ||= []) << ocg unless self[:OFF]&.include?(ocg)
+          self[:ON].delete(ocg) if key?(:ON)
+        else
+          raise ArgumentError, "Invalid value #{state.inspect} for state argument"
+        end
+      end
+
+      # Returns +true+ if the given optional content group is on.
+      def ocg_on?(ocg)
+        ocg_state(ocg) == :on
+      end
+
+      # Makes the given optional content group visible in an interactive PDF processor's user
+      # interface.
+      #
+      # The OCG is always added to the end of the specified +path+ or, if +path+ is not specified,
+      # the top level.
+      #
+      # The optional argument +path+ specifies the strings or OCGs under which the given OCG should
+      # hierarchically be nested. A string is used as a non-selectable label, an OCG reflects an
+      # actual nesting of the involved OCGs.
+      #
+      # Examples:
+      #
+      #  configuration.add_ocg_to_ui(ocg)                   # Add the OCG as top-level item
+      #  configuration.add_ocg_to_ui(ocg, path: 'Debug')    # Add the OCG under the label 'Debug'
+      #  # Add the OCG under the label 'Page1' which is under the label 'Debug'
+      #  configuration.add_ocg_to_ui(ocg, path: ['Debug', 'Page1'])
+      #  configuration.add_ocg_to_ui(ocg, path: other_ocg)  # Add the OCG under the other OCG
+      def add_ocg_to_ui(ocg, path: nil)
+        array = self[:Order] ||= []
+        path = Array(path)
+        until path.empty?
+          item = path.shift
+          index = array.index do |entry|
+            if (entry.kind_of?(Array) || entry.kind_of?(PDFArray)) && item.kind_of?(String)
+              entry.first == item
+            else
+              entry == item
+            end
+          end
+
+          if item.kind_of?(String)
+            unless index
+              array << [item]
+              index = -1
+            end
+            array = array[index]
+          else
+            unless index
+              array << item << []
+              index = -2
+            end
+            if array[index + 1].kind_of?(Array) || array[index + 1].kind_of?(PDFArray)
+              array = array[index + 1]
+            else
+              array.insert(index + 1, [])
+              array = array[index + 1]
+            end
+          end
+        end
+        array << ocg
+      end
+
     end
 
   end
