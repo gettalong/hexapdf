@@ -76,6 +76,30 @@ describe HexaPDF::Type::OptionalContentGroup do
     end
   end
 
+  describe "managing the OCG's default configuration" do
+    it "can be asked whether it is on by default" do
+      assert(@ocg.on?)
+      @doc.optional_content.default_configuration[:OFF] = [@ocg]
+      refute(@ocg.on?)
+    end
+
+    it "can set its default state to on" do
+      @doc.optional_content.default_configuration[:OFF] = [@ocg]
+      @ocg.on!
+      assert(@ocg.on?)
+    end
+
+    it "can set its default state to off" do
+      @ocg.off!
+      refute(@ocg.on?)
+    end
+
+    it "can add itself to the UI" do
+      @ocg.add_to_ui(path: 'Test')
+      assert_equal([['Test', @ocg]], @doc.optional_content.default_configuration[:Order].value)
+    end
+  end
+
   it "can set and return the creator info usage entry" do
     refute(@ocg.creator_info)
     dict = @ocg.creator_info("HexaPDF", :Technical)

@@ -187,6 +187,31 @@ module HexaPDF
         Array(self[:Intent]).include?(:Design)
       end
 
+      # Returns +true+ if the OCG is set to on in the default configuration (see
+      # OptionalContentProperties#default_configuration).
+      def on?
+        document.optional_content.default_configuration.ocg_on?(self)
+      end
+
+      # Sets the state of the OCG to on in the default configuration (see
+      # OptionalContentProperties#default_configuration).
+      def on!
+        document.optional_content.default_configuration.ocg_state(self, :on)
+      end
+
+      # Sets the state of the OCG to off in the default configuration (see
+      # OptionalContentProperties#default_configuration).
+      def off!
+        document.optional_content.default_configuration.ocg_state(self, :off)
+      end
+
+      # Adds the OCG to the PDF processor's user interface in the default configuration (see
+      # OptionalContentProperties#default_configuration), either at the top-level or under the given
+      # hierarchical +path+ but always as the last item.
+      def add_to_ui(path: nil)
+        document.optional_content.default_configuration.add_ocg_to_ui(self, path: path)
+      end
+
       # :call-seq:
       #   ocg.creator_info                     -> creator_info or nil
       #   ocg.creator_info(creator, subtype)   -> creator_info
