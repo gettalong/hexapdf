@@ -5,7 +5,7 @@ require 'hexapdf/layout/frame'
 require 'hexapdf/layout/box'
 require 'hexapdf/document'
 
-describe HexaPDF::Layout::Frame do
+describe HexaPDF::Layout::Frame::FitResult do
   it "shows the box's mask area on #draw when using debug output" do
     doc = HexaPDF::Document.new(config: {'debug' => true})
     canvas = doc.pages.add.canvas
@@ -15,6 +15,7 @@ describe HexaPDF::Layout::Frame do
     result.x = result.y = 0
     result.draw(canvas)
     assert_equal(<<~CONTENTS, canvas.contents)
+      /OC /P1 BDC
       q
       0.0 0.501961 0.0 rg
       0.0 0.392157 0.0 RG
@@ -22,10 +23,13 @@ describe HexaPDF::Layout::Frame do
       0 0 20 20 re
       B
       Q
+      EMC
       q
       1 0 0 1 0 0 cm
       Q
     CONTENTS
+    ocg = doc.optional_content.ocgs.first
+    assert_equal([['Debug', ocg]], doc.optional_content.default_configuration[:Order])
   end
 end
 

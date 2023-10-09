@@ -19,6 +19,8 @@
   context argument (a page or Form XObject instance)
 * [HexaPDF::Layout::ListBox] to use its 'fill_color' style property for the item
   marker color
+* [HexaPDF::Layout::Frame::FitResult#draw] to use optional content groups for
+  debug output
 
 ### Fixed
 

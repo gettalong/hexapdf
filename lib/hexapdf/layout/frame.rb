@@ -133,12 +133,18 @@ module HexaPDF
         # The configuration option "debug" can be used to add visual debug output with respect to
         # box placement.
         def draw(canvas)
-          if canvas.context.document.config['debug']
-            canvas.save_graphics_state do
-              canvas.fill_color("green").stroke_color("darkgreen").
-                opacity(fill_alpha: 0.1, stroke_alpha: 0.2).
-                draw(:geom2d, object: mask, path_only: true).fill_stroke
+          doc = canvas.context.document
+          if doc.config['debug']
+            name = "#{box.class} (#{x.to_i},#{y.to_i}-#{box.width.to_i}x#{box.height.to_i})"
+            ocg = doc.optional_content.ocg(name)
+            canvas.optional_content(ocg) do
+              canvas.save_graphics_state do
+                canvas.fill_color("green").stroke_color("darkgreen").
+                  opacity(fill_alpha: 0.1, stroke_alpha: 0.2).
+                  draw(:geom2d, object: mask, path_only: true).fill_stroke
+              end
             end
+            doc.optional_content.default_configuration.add_ocg_to_ui(ocg, path: 'Debug')
           end
           box.draw(canvas, x, y)
         end
