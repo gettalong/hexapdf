@@ -26,10 +26,14 @@ doc = HexaPDF::Document.new
 ocg = doc.optional_content.ocg('Squares')
 ocg1 = doc.optional_content.ocg('Black')
 ocg1.zoom(max: 1)
+ocg1.add_to_ui(path: ocg)
 ocg2 = doc.optional_content.ocg('Blue')
 ocg2.zoom(min: 1, max: 2)
+ocg2.add_to_ui(path: ocg)
+ocg2.off!
 ocg3 = doc.optional_content.ocg('Orange')
 ocg3.zoom(min: 2, max: 20)
+ocg3.add_to_ui(path: ocg)
 
 canvas = doc.pages.add([0, 0, 200, 200]).canvas
 canvas.optional_content(ocg) do
@@ -44,13 +48,8 @@ canvas.optional_content(ocg) do
   end
 end
 
-doc.optional_content.default_configuration(
-  BaseState: :OFF,
-  Order: [ocg, [ocg1, ocg2, ocg3]],
-  ON: [ocg, ocg1, ocg3],
-  AS: [
-    {Event: :View, Category: [:Zoom], OCGs: [ocg1, ocg2, ocg3]}
-  ],
-)
+doc.optional_content.default_configuration[:AS] = [
+  {Event: :View, Category: [:Zoom], OCGs: [ocg1, ocg2, ocg3]}
+]
 
 doc.write('optional_content.pdf')
