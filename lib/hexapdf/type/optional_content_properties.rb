@@ -129,8 +129,7 @@ module HexaPDF
       #
       #   optional_content.default_configuration(
       #     Name: 'My Configuration',
-      #     BaseState: :OFF,
-      #     ON: [ocg1],
+      #     OFF: [ocg1],
       #     Order: [ocg_all, [ocg1, ocg2, ocg3]]
       #   )
       #
