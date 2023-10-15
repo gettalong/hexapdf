@@ -34,6 +34,8 @@
   a hash
 * [HexaPDF::Layout::ListBox] to work correctly if the marker height is larger
   than the item content height
+* [HexaPDF::Dictionary] setting default values on wrong classes in certain
+  situations
 
 
 ## 0.33.0 - 2023-08-02

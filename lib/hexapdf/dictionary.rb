@@ -249,6 +249,7 @@ module HexaPDF
     # Sets all required fields that have no current value but a default value to their respective
     # default value.
     def set_required_fields_with_defaults
+      return if (type = value[:Type]) && self.class.type != type
       self.class.each_field do |name, field|
         if !key?(name) && field.required? && field.default?
           value[name] = field.default

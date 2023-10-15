@@ -94,6 +94,16 @@ describe HexaPDF::Dictionary do
       obj = @test_class.new(nil)
       assert_equal(:MyType, obj.value[:Type])
     end
+
+    it "doesn't set the default values for required fields if the type class might be wrong" do
+      @test_class.define_type(:MyType)
+      obj = @test_class.new({})
+      assert_equal([], obj.value[:Array])
+      obj = @test_class.new({Type: :MyType})
+      assert_equal([], obj.value[:Array])
+      obj = @test_class.new({Type: :OtherType})
+      refute(obj.key?(:Array))
+    end
   end
 
   describe "[]" do
