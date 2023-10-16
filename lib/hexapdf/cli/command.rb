@@ -56,6 +56,12 @@ module HexaPDF
             "Copyright (c) 2014-2021 Thomas Leitner; licensed under the AGPLv3\n\n" \
             "#{format(usage, indent: 7)}\n\n"
         end
+
+        def help #:nodoc:
+          super << format("See https://hexapdf.gettalong.org/documentation/hexapdf.1.html " \
+                          "for the full manual page with examples.", indent: 0)
+        end
+
       end
 
       include Extensions
