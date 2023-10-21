@@ -45,10 +45,24 @@ module HexaPDF
     # See: PDF2.0 s9.7.4
     class CIDFont < Font
 
+      # Describes the CIDSystemInfo dictionary specifying the character collection assumed by the
+      # CIDFont.
+      #
+      # See: PDF2.0 s9.7.3
+      class CIDSystemInfo < Dictionary
+
+        define_type :XXCIDSystemInfo
+
+        define_field :Registry, type: String, required: true
+        define_field :Ordering, type: String, required: true
+        define_field :Supplement, type: Integer, required: true
+
+      end
+
       DEFAULT_WIDTH = 1000 # :nodoc:
 
       define_field :BaseFont,        type: Symbol, required: true
-      define_field :CIDSystemInfo,   type: Dictionary, required: true
+      define_field :CIDSystemInfo,   type: :XXCIDSystemInfo, required: true
       define_field :FontDescriptor,  type: :FontDescriptor, indirect: true, required: true
       define_field :DW,              type: Integer, default: DEFAULT_WIDTH
       define_field :W,               type: PDFArray

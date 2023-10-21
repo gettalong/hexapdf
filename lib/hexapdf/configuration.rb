@@ -625,6 +625,7 @@ module HexaPDF
                         XXOCConfiguration: 'HexaPDF::Type::OptionalContentConfiguration',
                         XXOCUsageApplication: 'HexaPDF::Type::OptionalContentConfiguration::UsageApplication',
                         XXReference: 'HexaPDF::Type::Form::Reference',
+                        XXCIDSystemInfo: 'HexaPDF::Type::CIDFont::CIDSystemInfo',
                         Group: 'HexaPDF::Type::Form::Group',
                       },
                       'object.subtype_map' => {
