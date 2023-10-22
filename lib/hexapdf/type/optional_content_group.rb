@@ -227,6 +227,8 @@ module HexaPDF
         if creator && subtype
           self[:Usage] ||= {}
           self[:Usage][:CreatorInfo] = {Creator: creator, Subtype: subtype}
+        elsif creator || subtype
+          raise ArgumentError, "Missing argument, both creator and subtype are needed"
         end
         self[:Usage]&.[](:CreatorInfo)
       end

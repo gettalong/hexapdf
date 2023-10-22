@@ -104,6 +104,7 @@ describe HexaPDF::Type::OptionalContentGroup do
     refute(@ocg.creator_info)
     dict = @ocg.creator_info("HexaPDF", :Technical)
     assert_equal({Creator: "HexaPDF", Subtype: :Technical}, dict.value)
+    assert_raises(ArgumentError) { @ocg.creator_info("HexaPDF") }
   end
 
   it "can set and return the language usage entry" do
