@@ -93,9 +93,8 @@ module HexaPDF
       end
 
 
-      # :nodoc:
-      OCMD_POLICY_MAPPING = {any_on: :AnyOn, AnyOn: :AnyOn, any_off: :AnyOff, AnyOff: :AnyOff,
-                             all_off: :AllOff, AllOff: :AllOff}
+      OCMD_POLICY_MAPPING = {any_on: :AnyOn, AnyOn: :AnyOn, any_off: :AnyOff, # :nodoc:
+                             AnyOff: :AnyOff, all_off: :AllOff, AllOff: :AllOff}
 
       # Creates an optional content membership dictionary containing the given optional content
       # group(s).

@@ -40,8 +40,7 @@ module HexaPDF
     # Holds the result of verifying a signature.
     class VerificationResult
 
-      # :nodoc:
-      MESSAGE_SORT_MAP = {
+      MESSAGE_SORT_MAP = { # :nodoc:
         info: {warning: 1, error: 1, info: 0},
         warning: {info: -1, error: 1, warning: 0},
         error: {info: -1, warning: -1, error: 0},

@@ -93,11 +93,9 @@ module HexaPDF
 
       private
 
-      # :nodoc:
-      COMMAND_LIST = %w[object recursive stream raw-stream xref catalog trailer pages
+      COMMAND_LIST = %w[object recursive stream raw-stream xref catalog trailer pages # :nodoc:
                         page-count search quit help]
-      # :nodoc:
-      RELINE_COMPLETION_PROC = proc do |s|
+      RELINE_COMPLETION_PROC = proc do |s| # :nodoc:
         if s.empty?
           COMMAND_DESCRIPTIONS.map {|cmd, desc| cmd.ljust(35) << desc }
         else

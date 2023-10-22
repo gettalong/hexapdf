@@ -55,8 +55,7 @@ module HexaPDF
 
         private
 
-        # :nodoc:
-        STATE_TO_STATE_MODEL = {
+        STATE_TO_STATE_MODEL = { # :nodoc:
           "Marked" => "Marked", "Unmarked" => "Marked",
           "Accepted" => "Review", "Rejected" => "Review", "Cancelled" => "Review",
           "Completed" => "Review", "None" => "Review"

@@ -278,9 +278,8 @@ module HexaPDF
       end
     end
 
-    # :nodoc:
     # A mapping from short name to long name for filters.
-    FILTER_MAP = {AHx: :ASCIIHexDecode, A85: :ASCII85Decode, LZW: :LZWDecode,
+    FILTER_MAP = {AHx: :ASCIIHexDecode, A85: :ASCII85Decode, LZW: :LZWDecode, # :nodoc:
                   Fl: :FlateDecode, RL: :RunLengthDecode, CCF: :CCITTFaxDecode,
                   DCT: :DCTDecode}.freeze
 

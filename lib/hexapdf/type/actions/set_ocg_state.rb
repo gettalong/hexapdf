@@ -49,8 +49,7 @@ module HexaPDF
         define_field :State, type: PDFArray, required: true, default: []
         define_field :PreserveRB, type: Boolean, default: true
 
-        # :nodoc:
-        STATE_TYPE_MAPPING = {on: :ON, ON: :ON, off: :OFF, OFF: :OFF,
+        STATE_TYPE_MAPPING = {on: :ON, ON: :ON, off: :OFF, OFF: :OFF, # :nodoc:
                               toggle: :Toggle, Toggle: :Toggle}
 
         # Adds a state changing sequence to the /State array.

@@ -103,8 +103,7 @@ module HexaPDF
         end
       end
 
-      # :nodoc:
-      NUMBERING_STYLE_MAPPING = {
+      NUMBERING_STYLE_MAPPING = { # :nodoc:
         decimal: :D, D: :D,
         uppercase_roman: :R, R: :R,
         lowercase_roman: :r, r: :r,
@@ -113,8 +112,7 @@ module HexaPDF
         none: nil
       }
 
-      # :nodoc:
-      REVERSE_NUMBERING_STYLE_MAPPING = Hash[*NUMBERING_STYLE_MAPPING.flatten.reverse]
+      REVERSE_NUMBERING_STYLE_MAPPING = Hash[*NUMBERING_STYLE_MAPPING.flatten.reverse] # :nodoc:
 
       # :call-seq:
       #   page_label.numbering_style             -> numbering_style
@@ -174,8 +172,7 @@ module HexaPDF
 
       private
 
-      # :nodoc:
-      ALPHABET = ('A'..'Z').to_a
+      ALPHABET = ('A'..'Z').to_a # :nodoc:
 
       # Maps the given number to uppercase (or, if +lowercase+ is +true+, lowercase) letters (e.g. 1
       # -> A, 27 -> AA, 28 -> AB, ...).
@@ -188,8 +185,7 @@ module HexaPDF
         lowercase ? result.downcase : result
       end
 
-      # :nodoc:
-      ROMAN_NUMERAL_MAPPING = {
+      ROMAN_NUMERAL_MAPPING = { # :nodoc:
         1000 => "M",
         900 => "CM",
         500 => "D",

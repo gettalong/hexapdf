@@ -52,7 +52,6 @@ module HexaPDF
     # See: PDF2.0 s7.9.2, D.1, D.3
     module PDFDocEncoding
 
-      # :nodoc:
       CHARACTER_MAP = %W[\uFFFD \uFFFD \uFFFD \uFFFD \uFFFD \uFFFD \uFFFD \uFFFD
                          \uFFFD \u0009 \u000A \uFFFD \uFFFD \u000D \uFFFD \uFFFD
                          \uFFFD \uFFFD \uFFFD \uFFFD \uFFFD \uFFFD \uFFFD \uFFFD
