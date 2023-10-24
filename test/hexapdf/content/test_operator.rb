@@ -195,7 +195,8 @@ describe_operator :SetGraphicsStateParameters, :gs do
     font.glyph_scaling_factor = 0.01
     @processor.resources[:ExtGState] = {Name: {LW: 10, LC: 2, LJ: 2, ML: 2, D: [[3, 5], 2],
                                                RI: 2, SA: true, BM: :Multiply, CA: 0.5, ca: 0.5,
-                                               AIS: true, TK: false, Font: [font, 10]}}
+                                               AIS: true, TK: false, Font: [font, 10],
+                                               SMask: {Type: :Mask, S: :Luminosity}}}
     @processor.resources.define_singleton_method(:document) do
       Object.new.tap {|obj| obj.define_singleton_method(:deref) {|o| o } }
     end
@@ -213,6 +214,7 @@ describe_operator :SetGraphicsStateParameters, :gs do
     assert_equal(0.5, gs.stroke_alpha)
     assert_equal(0.5, gs.fill_alpha)
     assert(gs.alpha_source)
+    assert_equal({Type: :Mask, S: :Luminosity}, gs.soft_mask)
     assert_equal(font, gs.font)
     assert_equal(10, gs.font_size)
     refute(gs.text_knockout)

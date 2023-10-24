@@ -326,7 +326,6 @@ module HexaPDF
           ops[:M].invoke(processor, dict[:ML]) if dict.key?(:ML)
           ops[:d].invoke(processor, *dict[:D]) if dict.key?(:D)
           ops[:ri].invoke(processor, dict[:RI]) if dict.key?(:RI)
-          # TODO: dict[:SMask] works differently than operator!
 
           # No content operator exists for the following parameters
           gs = processor.graphics_state
@@ -335,6 +334,7 @@ module HexaPDF
           gs.stroke_alpha = dict[:CA] if dict.key?(:CA)
           gs.fill_alpha = dict[:ca] if dict.key?(:ca)
           gs.alpha_source = dict[:AIS] if dict.key?(:AIS)
+          gs.soft_mask = dict[:SMask] if dict.key?(:SMask)
           gs.text_knockout = dict[:TK] if dict.key?(:TK)
           if dict.key?(:Font)
             gs.font = processor.resources.document.deref(dict[:Font][0])

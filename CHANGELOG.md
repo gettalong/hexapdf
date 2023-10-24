@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* Setting of /SMask key in graphics state parameters operator
+
+
 ## 0.34.0 - 2023-10-22
 
 ### Added
