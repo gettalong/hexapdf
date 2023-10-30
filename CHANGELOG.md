@@ -4,6 +4,11 @@
 
 * Setting of /SMask key in graphics state parameters operator
 
+### Fixed
+
+* [HexaPDF::Composer#page_style] to set a page style when no attributes are
+  given but a block is
+
 
 ## 0.34.0 - 2023-10-22
 

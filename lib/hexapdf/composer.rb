@@ -281,7 +281,7 @@ module HexaPDF
     #
     # See: HexaPDF::Layout::PageStyle
     def page_style(name, **attributes, &block)
-      if attributes.empty?
+      if attributes.empty? && block.nil?
         @page_styles[name]
       else
         @page_styles[name] = HexaPDF::Layout::PageStyle.new(**attributes, &block)

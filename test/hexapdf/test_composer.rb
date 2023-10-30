@@ -119,6 +119,26 @@ describe HexaPDF::Composer do
     end
   end
 
+  describe "page_style" do
+    it "returns the page style if no argument or block is given" do
+      page_style = @composer.page_style(:default)
+      assert_kind_of(HexaPDF::Layout::PageStyle, page_style)
+      assert_equal(:A4, page_style.page_size)
+    end
+
+    it "sets a page style using the given attributes" do
+      @composer.page_style(:other, page_size: :A3)
+      assert_equal(:A3, @composer.page_style(:other).page_size)
+    end
+
+    it "sets a page style using default attributes but with a block" do
+      @composer.page_style(:other) {|canvas, style| style.frame = :hallo }
+      style = @composer.page_style(:other)
+      style.create_page(@composer.document)
+      assert_equal(:hallo, style.frame)
+    end
+  end
+
   describe "text/formatted_text/image/box/method_missing" do
     before do
       test_self = self
