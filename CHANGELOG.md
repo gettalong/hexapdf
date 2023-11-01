@@ -8,6 +8,9 @@
 
 * [HexaPDF::Composer#page_style] to set a page style when no attributes are
   given but a block is
+* [HexaPDF::Type::Page#each_annotation] and
+  [HexaPDF::Type::Page#flatten_annotations] to process certain invalid /Annot
+  keys without errors
 
 
 ## 0.34.0 - 2023-10-22

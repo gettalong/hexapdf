@@ -534,7 +534,7 @@ module HexaPDF
       def each_annotation
         return to_enum(__method__) unless block_given?
         Array(self[:Annots]).each do |annotation|
-          next unless annotation&.key?(:Subtype) && annotation&.key?(:Rect)
+          next unless annotation?(annotation)
           yield(document.wrap(annotation, type: :Annot))
         end
         self
@@ -551,12 +551,14 @@ module HexaPDF
       # field itself.
       def flatten_annotations(annotations = self[:Annots])
         not_flattened = Array(annotations) || []
-        return not_flattened unless key?(:Annots)
+        unless self[:Annots].kind_of?(PDFArray)
+          return (not_flattened == [annotations] ? [] : not_flattened)
+        end
 
         annotations = if annotations == self[:Annots]
                         not_flattened
                       else
-                        not_flattened & Array(self[:Annots])
+                        not_flattened & self[:Annots]
                       end
         return not_flattened if annotations.empty?
 
@@ -569,8 +571,8 @@ module HexaPDF
         to_delete = []
         not_flattened -= annotations
         annotations.each do |annotation|
-          unless annotation&.key?(:Subtype) && annotation&.key?(:Rect)
-            to_delete << annotation if annotation
+          unless annotation?(annotation)
+            self[:Annots].delete(annotation)
             next
           end
 
@@ -636,6 +638,12 @@ module HexaPDF
       end
 
       private
+
+      # Returns +true+ if the given object seems to be an annotation.
+      def annotation?(obj)
+        (obj.kind_of?(Hash) || obj.kind_of?(Dictionary)) &&
+          obj&.key?(:Subtype) && obj&.key?(:Rect)
+      end
 
       # Ensures that the required inheritable fields are set.
       def perform_validation(&block)

@@ -592,11 +592,12 @@ describe HexaPDF::Type::Page do
     end
 
     it "gracefully handles invalid /Annot key values" do
-      @page[:Annots] << nil << @doc.add({}, stream: '')
+      @page[:Annots] << nil << @doc.add({}, stream: '') << 543
       result = @page.flatten_annotations
       assert(result.empty?)
       assert(@annot1.null?)
       assert(@annot2.null?)
+      assert_equal([], @page[:Annots].value)
 
       @page[:Annots] = @doc.add({}, stream: '')
       result = @page.flatten_annotations
@@ -722,12 +723,13 @@ describe HexaPDF::Type::Page do
     annot1 = @doc.add({Type: :Annot, Subtype: :Text, Rect: [100, 100, 160, 125]})
     annot2 = @doc.add({Subtype: :Unknown, Rect: [10, 10, 70, 35]})
     not_an_annot = @doc.add({}, stream: '')
-    page[:Annots] = [not_an_annot, annot1, nil, annot2]
+    page[:Annots] = [not_an_annot, annot1, nil, annot2, {Type: :Annot, Subtype: :Text, Rect: [0, 0, 0, 0]}]
 
     annotations = page.each_annotation.to_a
-    assert_equal(2, annotations.size)
+    assert_equal(3, annotations.size)
     assert_equal([100, 100, 160, 125], annotations[0][:Rect])
     assert_equal(:Annot, annotations[0].type)
     assert_equal(:Annot, annotations[1].type)
+    assert_equal(:Annot, annotations[2].type)
   end
 end
