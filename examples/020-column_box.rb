@@ -31,7 +31,7 @@ columns = doc.layout.column(columns: 2, style: {position: :flow}) do |column|
                style: {margin: 20, position: :float, position_hint: :right,
                        background_color: "hp-blue-light2",
                        border: {width: 1, color: "hp-blue-dark"}})
-    column.lorem_ipsum(count: 2, position: :flow, align: :justify)
+    column.lorem_ipsum(count: 2, position: :flow, text_align: :justify)
   end
 end
 result = frame.fit(columns)

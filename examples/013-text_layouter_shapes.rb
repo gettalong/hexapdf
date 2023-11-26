@@ -71,13 +71,13 @@ result.draw(canvas, 0, circle_top)
 canvas.circle(0, circle_top - radius, radius).stroke
 
 # Center: full circle
-layouter.style.align = :justify
+layouter.style.text_align = :justify
 result = layouter.fit(items, circle, radius * 2)
 result.draw(canvas, page.box.width / 2.0 - radius, circle_top)
 canvas.circle(page.box.width / 2.0, circle_top - radius, radius).stroke
 
 # Right: left half circle
-layouter.style.align = :right
+layouter.style.text_align = :right
 result = layouter.fit(items, left_half_circle, radius * 2)
 result.draw(canvas, page.box.width - radius, circle_top)
 canvas.circle(page.box.width, circle_top - radius, radius).stroke
@@ -106,14 +106,14 @@ left_half_diamond = lambda do |height, line_height|
 end
 
 # Left: right half diamond
-layouter.style.align = :left
+layouter.style.text_align = :left
 result = layouter.fit(items, half_diamond_width, 2 * diamond_width)
 result.draw(canvas, 0, diamond_top)
 canvas.polyline(0, diamond_top, diamond_width, diamond_top - diamond_width,
                 0, diamond_top - 2 * diamond_width).stroke
 
 # Center: full diamond
-layouter.style.align = :justify
+layouter.style.text_align = :justify
 result = layouter.fit(items, full_diamond, 2 * diamond_width)
 left = page.box.width / 2.0 - diamond_width
 result.draw(canvas, left, diamond_top)
@@ -123,7 +123,7 @@ canvas.polyline(left + diamond_width, diamond_top,
                 left, diamond_top - diamond_width).close_subpath.stroke
 
 # Right: left half diamond
-layouter.style.align = :right
+layouter.style.text_align = :right
 result = layouter.fit(items, left_half_diamond, 2 * diamond_width)
 middle = page.box.width
 result.draw(canvas, middle - diamond_width, diamond_top)
@@ -142,7 +142,7 @@ sine_wave = lambda do |height, line_height|
             40 * Math.sin(2 * Math::PI * (height + line_height) / sine_wave_height)].max
   [offset, sine_wave_height + 100 + offset * -2]
 end
-layouter.style.align = :justify
+layouter.style.text_align = :justify
 result = layouter.fit(items, sine_wave, sine_wave_height)
 middle = page.box.width / 2.0
 result.draw(canvas, middle - (sine_wave_height + 100) / 2, sine_wave_top)
@@ -167,7 +167,7 @@ house = lambda do |height, line_height|
     0
   end
 end
-layouter.style.align = :justify
+layouter.style.text_align = :justify
 result = layouter.fit(items, house, 200)
 
 middle = page.box.width / 2.0

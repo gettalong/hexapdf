@@ -662,8 +662,9 @@ module HexaPDF
 
       # The style to be applied.
       #
-      # Only the following properties are used: Style#text_indent, Style#align, Style#valign,
-      # Style#line_spacing, Style#text_segmentation_algorithm, Style#text_line_wrapping_algorithm
+      # Only the following properties are used: Style#text_indent, Style#text_align,
+      # Style#text_valign, Style#line_spacing, Style#text_segmentation_algorithm,
+      # Style#text_line_wrapping_algorithm
       attr_reader :style
 
       # Creates a new TextLayouter object with the given style.
@@ -910,9 +911,9 @@ module HexaPDF
         end
       end
 
-      # Returns the initial baseline offset from the top, based on the valign style option.
+      # Returns the initial baseline offset from the top, based on the text_valign style property.
       def initial_baseline_offset(lines, height, actual_height)
-        case style.valign
+        case style.text_valign
         when :top
           lines.first.y_max
         when :center
@@ -922,9 +923,9 @@ module HexaPDF
         end
       end
 
-      # Returns the horizontal offset from the left side, based on the align style option.
+      # Returns the horizontal offset from the left side, based on the text_align style property.
       def horizontal_alignment_offset(line, available_width)
-        case style.align
+        case style.text_align
         when :left then 0
         when :center then (available_width - line.width) / 2
         when :right then available_width - line.width

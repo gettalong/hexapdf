@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* **Breaking change**: Style property 'align' is now called 'text_align' and
+  'valign' is 'text_valign'
+
+
 ## 0.34.1 - 2023-11-01
 
 ### Added

@@ -112,8 +112,8 @@ module HexaPDF
     # Each table can have header rows and footer rows which are shown for all split parts:
     #
     #  #>pdf-composer
-    #  header = lambda {|tb| [[{content: layout.text('Header', align: :center), col_span: 2}]] }
-    #  footer = lambda {|tb| [[layout.text('left'), layout.text('right', align: :right)]] }
+    #  header = lambda {|tb| [[{content: layout.text('Header', text_align: :center), col_span: 2}]] }
+    #  footer = lambda {|tb| [[layout.text('left'), layout.text('right', text_align: :right)]] }
     #  cells = [[layout.text('A'), layout.text('B')],
     #           [layout.text('C'), layout.text('D')],
     #           [layout.text('E'), layout.text('F')]]

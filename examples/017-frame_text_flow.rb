@@ -31,7 +31,7 @@ boxes << Box.create(width: 50, height: 50, margin: 20,
                     position: :float, position_hint: :right,
                     background_color: "hp-blue-light2",
                     border: {width: 1, color: "hp-blue-dark"})
-boxes << doc.layout.lorem_ipsum_box(count: 3, position: :flow, align: :justify)
+boxes << doc.layout.lorem_ipsum_box(count: 3, position: :flow, text_align: :justify)
 
 i = 0
 frame_filled = false

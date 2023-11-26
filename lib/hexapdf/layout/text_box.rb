@@ -90,12 +90,12 @@ module HexaPDF
                     height = (@initial_height > 0 ? @initial_height : available_height) - @height
                     @tl.fit(@items, width, height, apply_first_text_indent: !split_box?, frame: frame)
                   end
-        @width += if @initial_width > 0 || style.align == :center || style.align == :right
+        @width += if @initial_width > 0 || style.text_align == :center || style.text_align == :right
                     width
                   else
                     @result.lines.max_by(&:width)&.width || 0
                   end
-        @height += if @initial_height > 0 || style.valign == :center || style.valign == :bottom
+        @height += if @initial_height > 0 || style.text_valign == :center || style.text_valign == :bottom
                      height
                    else
                      @result.height

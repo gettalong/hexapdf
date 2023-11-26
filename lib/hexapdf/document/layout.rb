@@ -506,7 +506,7 @@ module HexaPDF
       #     # row 0 has a grey background and bold text
       #     args[0] = {font: ['Helvetica', variant: :bold], cell: {background_color: 'eee'}}
       #     # text in last column is right aligned
-      #     args[0..-1, -1] = {align: :right}
+      #     args[0..-1, -1] = {text_align: :right}
       #   end
       #
       # See: HexaPDF::Layout::TableBox

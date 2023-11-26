@@ -78,8 +78,8 @@ module HexaPDF
   #
   #   #>pdf-full
   #   HexaPDF::Composer.create('out.pdf', page_size: :A6, margin: 36) do |pdf|
-  #     pdf.style(:base, font_size: 20, align: :center)
-  #     pdf.text("Hello World", valign: :center)
+  #     pdf.style(:base, font_size: 20, text_align: :center)
+  #     pdf.text("Hello World", text_valign: :center)
   #   end
   #
   # See: HexaPDF::Document::Layout, HexaPDF::Layout::Frame, HexaPDF::Layout::Box

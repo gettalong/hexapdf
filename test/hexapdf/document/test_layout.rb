@@ -259,29 +259,29 @@ describe HexaPDF::Document::Layout do
     end
 
     it "allows using custom style properties for a single part" do
-      box = @layout.formatted_text_box([{text: "Test", font_size: 20}, "test"], align: :center)
+      box = @layout.formatted_text_box([{text: "Test", font_size: 20}, "test"], text_align: :center)
       items = box.instance_variable_get(:@items)
       assert_equal(10, box.style.font_size)
 
       assert_equal(20, items[0].style.font_size)
-      assert_equal(:center, items[0].style.align)
+      assert_equal(:center, items[0].style.text_align)
 
       assert_equal(10, items[1].style.font_size)
-      assert_equal(:center, items[1].style.align)
+      assert_equal(:center, items[1].style.text_align)
     end
 
     it "allows using a custom style as basis for a single part" do
       box = @layout.formatted_text_box([{text: "Test", style: {font_size: 20}, subscript: true},
-                                        "test"], align: :center)
+                                        "test"], text_align: :center)
       items = box.instance_variable_get(:@items)
       assert_equal(10, box.style.font_size)
 
       assert_equal(20, items[0].style.font_size)
-      assert_equal(:left, items[0].style.align)
+      assert_equal(:left, items[0].style.text_align)
       assert(items[0].style.subscript)
 
       assert_equal(10, items[1].style.font_size)
-      assert_equal(:center, items[1].style.align)
+      assert_equal(:center, items[1].style.text_align)
       refute(items[1].style.subscript)
     end
 

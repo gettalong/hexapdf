@@ -349,7 +349,7 @@ module HexaPDF
                    else
                      raise HexaPDF::Error, "Unknown list item type #{@item_type.inspect}"
                    end
-        box = TextBox.new(items: [fragment], style: {align: :right, padding: [0, 5, 0, 0]})
+        box = TextBox.new(items: [fragment], style: {text_align: :right, padding: [0, 5, 0, 0]})
         @item_marker_box = box unless @item_type == :decimal
         box
       end

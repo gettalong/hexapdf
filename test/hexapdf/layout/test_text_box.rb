@@ -66,7 +66,7 @@ describe HexaPDF::Layout::TextBox do
 
     it "uses the whole available width when aligning to the center or right" do
       [:center, :right].each do |align|
-        box = create_box([@inline_box], style: {align: align})
+        box = create_box([@inline_box], style: {text_align: align})
         assert(box.fit(100, 100, @frame))
         assert_equal(100, box.width)
       end
@@ -74,7 +74,7 @@ describe HexaPDF::Layout::TextBox do
 
     it "uses the whole available height when vertically aligning to the center or bottom" do
       [:center, :bottom].each do |valign|
-        box = create_box([@inline_box], style: {valign: valign})
+        box = create_box([@inline_box], style: {text_valign: valign})
         assert(box.fit(100, 100, @frame))
         assert_equal(100, box.height)
       end

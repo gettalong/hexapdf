@@ -57,7 +57,7 @@ items = sample_text.split(/(:-\)|;-\))/).map do |part|
 end
 
 layouter = TextLayouter.new
-layouter.style.align = :justify
+layouter.style.text_align = :justify
 layouter.style.line_spacing(:proportional, 1.5)
 layouter.fit(items, 500, 700).draw(doc.pages.add.canvas, 50, 800)
 

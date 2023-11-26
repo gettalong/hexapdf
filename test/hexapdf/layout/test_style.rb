@@ -767,8 +767,8 @@ describe HexaPDF::Layout::Style do
     assert_equal(HexaPDF::Content::LineCapStyle::BUTT_CAP, @style.stroke_cap_style)
     assert_equal(HexaPDF::Content::LineJoinStyle::MITER_JOIN, @style.stroke_join_style)
     assert_equal(10.0, @style.stroke_miter_limit)
-    assert_equal(:left, @style.align)
-    assert_equal(:top, @style.valign)
+    assert_equal(:left, @style.text_align)
+    assert_equal(:top, @style.text_valign)
     assert_equal(0, @style.text_indent)
     assert_nil(@style.background_color)
     assert_equal(1, @style.background_alpha)
@@ -800,18 +800,18 @@ describe HexaPDF::Layout::Style do
   end
 
   it "allows checking for valid values" do
-    error = assert_raises(ArgumentError) { @style.align = :none }
-    assert_match(/not a valid align value \(:left, :center, :right, :justify\)/, error.message)
+    error = assert_raises(ArgumentError) { @style.text_align = :none }
+    assert_match(/not a valid text_align value \(:left, :center, :right, :justify\)/, error.message)
   end
 
   it "allows checking whether a property has been set or accessed" do
-    refute(@style.align?)
-    assert_equal(:left, @style.align)
-    assert(@style.align?)
+    refute(@style.text_align?)
+    assert_equal(:left, @style.text_align)
+    assert(@style.text_align?)
 
-    refute(@style.valign?)
-    @style.valign = :bottom
-    assert(@style.valign?)
+    refute(@style.text_valign?)
+    @style.text_valign = :bottom
+    assert(@style.text_valign?)
   end
 
   it "has several dynamically generated properties with default values that take blocks" do

@@ -4,9 +4,10 @@
 # inside a rectangular area, with various horizontal and vertical alignment
 # options.
 #
-# The text can be aligned horizontally by setting [HexaPDF::Layout::Style#align]
-# and vertically by [HexaPDF::Layout::Style#valign]. In this example, a sample
-# text is laid out in all possible combinations.
+# The text can be aligned horizontally by setting
+# [HexaPDF::Layout::Style#text_align] and vertically by
+# [HexaPDF::Layout::Style#text_valign]. In this example, a sample text is laid
+# out in all possible combinations.
 #
 # Usage:
 # : `ruby text_layouter_alignment.rb`
@@ -38,7 +39,7 @@ tl = HexaPDF::Layout::TextLayouter.new
     y = y_base - (height + 30) * y_index
     canvas.text(valign.to_s, at: [20, y - height / 2]) if x_index == 0
 
-    tl.style.align(align).valign(valign)
+    tl.style.text_align(align).text_valign(valign)
     tl.fit([tf], width, height).draw(canvas, x, y)
     canvas.stroke_color("hp-blue-dark").rectangle(x, y, width, -height).stroke
   end

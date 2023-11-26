@@ -407,7 +407,7 @@ module HexaPDF
         def draw_multiline_text(canvas, width, height, style, padding)
           items = [Layout::TextFragment.create(@field.field_value, style)]
           layouter = Layout::TextLayouter.new(style)
-          layouter.style.align(@field.text_alignment).line_spacing(:proportional, 1.25)
+          layouter.style.text_align(@field.text_alignment).line_spacing(:proportional, 1.25)
 
           result = nil
           if style.font_size == 0 # need to auto-size text
@@ -442,7 +442,7 @@ module HexaPDF
           indices = [@field.field_value].flatten.compact.map {|val| option_items.index(val) }
 
           layouter = Layout::TextLayouter.new(style)
-          layouter.style.align(@field.text_alignment).line_spacing(:proportional, 1.25)
+          layouter.style.text_align(@field.text_alignment).line_spacing(:proportional, 1.25)
           result = layouter.fit(items, width - 4 * padding, height)
 
           unless result.lines.empty?

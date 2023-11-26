@@ -651,7 +651,7 @@ describe HexaPDF::Layout::TextLayouter do
       end
 
       it "aligns the contents to the left" do
-        @style.align = :left
+        @style.text_align = :left
         result = @layouter.fit(@items, 100, 100)
         assert_equal(0, result.lines[0].x_offset)
         assert_equal(80, result.lines[0].width)
@@ -661,7 +661,7 @@ describe HexaPDF::Layout::TextLayouter do
       end
 
       it "aligns the contents to the center" do
-        @style.align = :center
+        @style.text_align = :center
         result = @layouter.fit(@items, 100, 100)
         assert_equal(10, result.lines[0].x_offset)
         result = @layouter.fit(@items, proc { 100 }, 100)
@@ -669,7 +669,7 @@ describe HexaPDF::Layout::TextLayouter do
       end
 
       it "aligns the contents to the right" do
-        @style.align = :right
+        @style.text_align = :right
         result = @layouter.fit(@items, 100, 100)
         assert_equal(20, result.lines[0].x_offset)
         result = @layouter.fit(@items, proc { 100 }, 100)
@@ -683,28 +683,28 @@ describe HexaPDF::Layout::TextLayouter do
       end
 
       it "aligns the contents to the top" do
-        @style.valign = :top
+        @style.text_valign = :top
         result = @layouter.fit(@items, 40, 100)
         assert_equal(result.lines[0].y_max, result.lines[0].y_offset)
         assert_equal(40, result.height)
       end
 
       it "aligns the contents to the center" do
-        @style.valign = :center
+        @style.text_valign = :center
         result = @layouter.fit(@items, 40, 100)
         assert_equal((100 - 40) / 2 + 20, result.lines[0].y_offset)
         assert_equal(70, result.height)
       end
 
       it "aligns the contents to the bottom" do
-        @style.valign = :bottom
+        @style.text_valign = :bottom
         result = @layouter.fit(@items, 40, 100)
         assert_equal(100 - 20 * 2 + 20, result.lines[0].y_offset)
         assert_equal(100, result.height)
       end
 
       it "doesn't vertically align when layouting in variable-width mode" do
-        @style.valign = :bottom
+        @style.text_valign = :bottom
         result = @layouter.fit(@items, proc { 40 }, 100)
         assert_equal(result.lines[0].y_max, result.lines[0].y_offset)
         assert_equal(40, result.height)
@@ -723,7 +723,7 @@ describe HexaPDF::Layout::TextLayouter do
       # Missing width: 100 - 90 = 10
       # -> Each space must be doubled!
 
-      @style.align = :justify
+      @style.text_align = :justify
       result = @layouter.fit(items, 100, 100)
       assert(result.remaining_items.empty?)
       assert_equal(:success, result.status)
@@ -770,8 +770,8 @@ describe HexaPDF::Layout::TextLayouter do
 
     it "respects the x- and y-offsets" do
       top = 100
-      @layouter.style.valign = :center
-      @layouter.style.align = :center
+      @layouter.style.text_valign = :center
+      @layouter.style.text_align = :center
 
       result = @layouter.fit([@frag], @width, top)
       result.draw(@canvas, 5, top)

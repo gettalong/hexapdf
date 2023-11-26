@@ -25,7 +25,7 @@ dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exer\u{00AD}citation
 ullamco laboris nisi ut aliquip ex ea commodo consequat. ".tr("\n", " ")
 
 HexaPDF::Composer.create('composer.pdf') do |pdf|
-  pdf.style(:base, line_spacing: 1.5, last_line_gap: true, align: :justify)
+  pdf.style(:base, line_spacing: 1.5, last_line_gap: true, text_align: :justify)
   pdf.style(:image, border: {width: 1}, padding: 5, margin: 10)
   pdf.style(:link, fill_color: "hp-blue-dark", underline: true)
   image = File.join(__dir__, 'machupicchu.jpg')
@@ -40,5 +40,5 @@ HexaPDF::Composer.create('composer.pdf') do |pdf|
                       {link: "https://hexapdf.gettalong.org", text: "HexaPDF",
                        style: :link},
                       " via HexaPDF::Composer"],
-                      font_size: 15, align: :center, padding: 15)
+                      font_size: 15, text_align: :center, padding: 15)
 end

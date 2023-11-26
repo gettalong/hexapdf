@@ -577,7 +577,7 @@ module HexaPDF
       # equivalent to the property names.
       #
       # Example:
-      #   Style.new(font_size: 15, align: :center, valign: center)
+      #   Style.new(font_size: 15, text_align: :center, text_valign: center)
       def initialize(**properties)
         update(**properties)
         @scaled_item_widths = {}.compare_by_identity
@@ -946,9 +946,9 @@ module HexaPDF
       #                 text_rendering_mode: :stroke)
 
       ##
-      # :method: align
+      # :method: text_align
       # :call-seq:
-      #   align(direction = nil)
+      #   text_align(direction = nil)
       #
       # The horizontal alignment of text, defaults to :left.
       #
@@ -964,15 +964,15 @@ module HexaPDF
       #   #>pdf-composer100
       #   text = "Lorem ipsum dolor sit amet. " * 2
       #   composer.style(:base, border: {width: 1})
-      #   composer.text(text, align: :left)
-      #   composer.text(text, align: :center)
-      #   composer.text(text, align: :right)
-      #   composer.text(text, align: :justify)
+      #   composer.text(text, text_align: :left)
+      #   composer.text(text, text_align: :center)
+      #   composer.text(text, text_align: :right)
+      #   composer.text(text, text_align: :justify)
 
       ##
       # :method: valign
       # :call-seq:
-      #   valign(direction = nil)
+      #   text_valign(direction = nil)
       #
       # The vertical alignment of items (normally text) inside a text box, defaults to :top.
       #
@@ -991,9 +991,9 @@ module HexaPDF
       #
       #   #>pdf-composer100
       #   composer.style(:base, border: {width: 1})
-      #   composer.text("Top aligned", height: 20, valign: :top)
-      #   composer.text("Center aligned", height: 20, valign: :center)
-      #   composer.text("Bottom aligned", valign: :bottom)
+      #   composer.text("Top aligned", height: 20, text_valign: :top)
+      #   composer.text("Center aligned", height: 20, text_valign: :center)
+      #   composer.text("Bottom aligned", text_valign: :bottom)
 
       ##
       # :method: text_indent
@@ -1324,8 +1324,8 @@ module HexaPDF
         [:stroke_miter_limit, 10.0],
         [:stroke_dash_pattern, "Content::LineDashPattern.new",
          {setter: "Content::LineDashPattern.normalize(value, phase)", extra_args: ", phase = 0"}],
-        [:align, :left, {valid_values: [:left, :center, :right, :justify]}],
-        [:valign, :top, {valid_values: [:top, :center, :bottom]}],
+        [:text_align, :left, {valid_values: [:left, :center, :right, :justify]}],
+        [:text_valign, :top, {valid_values: [:top, :center, :bottom]}],
         [:text_indent, 0],
         [:line_spacing, "LineSpacing.new(type: :single)",
          {setter: "LineSpacing.new(**(value.kind_of?(Symbol) || value.kind_of?(Numeric) ? " \

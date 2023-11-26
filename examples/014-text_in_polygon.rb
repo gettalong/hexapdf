@@ -30,7 +30,7 @@ ullamco laboris nisi ut aliquip ex ea commodo consequat.
 ".tr("\n", ' ') * 12
 items = [TextFragment.create(sample_text, font: doc.fonts.add("Times"))]
 layouter = TextLayouter.new
-layouter.style.align = :justify
+layouter.style.text_align = :justify
 
 # The house example
 house = Geom2D::Polygon([100, 200], [400, 200], [500, 100], [400, 100], [400, 0],
