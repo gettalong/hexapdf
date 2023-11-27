@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* Command 'psd' for CLI `hexapdf inspect` to show a decoded content stream
+
 ### Changed
 
 * **Breaking change**: Style property 'align' is now called 'text_align' and

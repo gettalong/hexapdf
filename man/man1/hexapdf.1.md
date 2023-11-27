@@ -643,6 +643,11 @@ The available commands are:
   allowed format of *PAGE*. Note that only the content stream of the first page is printed, even if
   a page range is specified.
 
+`psd PAGE`
+
+: Print the content stream for the given page in decoded form, i.e. using more descriptive operator
+  names as well as decoding the text parts. Otherwise it works the same as `ps`.
+
 `pc | page-count`
 
 : Print the number of pages.

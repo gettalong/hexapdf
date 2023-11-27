@@ -42,6 +42,47 @@ module HexaPDF
     # Shows the internal structure of a PDF file.
     class Inspect < Command
 
+      # Outputs the content of a page in a nicer form.
+      class ContentProcessor < HexaPDF::Content::Processor
+
+        # :nodoc:
+        def initialize(*)
+          super
+          @indent = 0
+          @serializer = HexaPDF::Serializer.new
+        end
+
+        # :nodoc:
+        def method_missing(operator, *operands)
+          case operator
+          when :save_graphics_state, :begin_text, :begin_marked_content
+            puts "#{indent}#{operator}"
+            @indent += 1
+          when :restore_graphics_state, :end_text, :end_marked_content
+            @indent -= 1
+            puts "#{indent}#{operator}"
+          when :show_text, :show_text_with_positioning
+            puts "#{indent}text> #{decode_text(*operands)}"
+          else
+            puts "#{indent}#{operator} #{operands.map {|op| @serializer.serialize(op) }.join(' ')}"
+            @indent += 1 if operator == :begin_marked_content_with_property_list
+          end
+        end
+
+        # :nodoc:
+        def respond_to_missing?(*)
+          true
+        end
+
+        private
+
+        # Returns the current indentation string.
+        def indent
+          '  ' * @indent
+        end
+
+      end
+
       def initialize #:nodoc:
         super('inspect', takes_commands: false)
         short_desc("Dig into the internal structure of a PDF file")
@@ -176,7 +217,7 @@ module HexaPDF
               puts str
             end
 
-          when 'po', 'ps'
+          when 'po', 'ps', 'psd'
             page_number_str = data.shift
             unless page_number_str
               $stderr.puts("Error: Missing PAGE argument to #{command}")
@@ -188,8 +229,11 @@ module HexaPDF
               next
             end
             page = @doc.pages[page_number]
-            if command.start_with?('ps')
+            case command
+            when 'ps'
               $stdout.write(page.contents)
+            when 'psd'
+              page.process_contents(ContentProcessor.new)
             else
               puts "#{page.oid} #{page.gen} obj"
               serialize(page.value, recursive: false)
@@ -375,6 +419,7 @@ module HexaPDF
         ["p[ages] [RANGE]",  "Print information about pages"],
         ["po PAGE", "Print the page object"],
         ["ps PAGE", "Print the content stream of the page"],
+        ["psd PAGE", "Print the decoded content stream of the page"],
         ["pc | page-count", "Print the number of pages"],
         ["search REGEXP", "Print objects matching the pattern"],
         ["h[elp]", "Show the help"],
