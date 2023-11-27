@@ -588,7 +588,7 @@ module HexaPDF
         super && (!@last_fitted_row_index || @last_fitted_row_index < 0)
       end
 
-      # Fits the table into the available space.
+      # Fits the table into the current region of the frame.
       def fit(available_width, available_height, frame)
         return false if (@initial_width > 0 && @initial_width > available_width) ||
           (@initial_height > 0 && @initial_height > available_height)

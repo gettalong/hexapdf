@@ -138,7 +138,7 @@ module HexaPDF
         super && (!@box_fitter || @box_fitter.fit_results.empty?)
       end
 
-      # Fits the column box into the available space.
+      # Fits the column box into the current region of the frame.
       #
       # If the style property 'position' is set to :flow, the columns might not be rectangles but
       # arbitrary (sets of) polygons since the +frame+s shape is taken into account.

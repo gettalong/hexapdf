@@ -53,8 +53,8 @@ module HexaPDF
     #   available space. If fitting is successful, the box can be drawn using #draw.
     #
     #   The method #fit is also called for absolutely positioned boxes but since these boxes are not
-    #   subject to the normal constraints, the available space used is the width and height inside
-    #   the frame to the right and top of the bottom-left corner of the box.
+    #   subject to the normal constraints, the provided available width and height are the width and
+    #   height inside the frame to the right and top of the bottom-left corner of the box.
     #
     # * If the box didn't fit, call #find_next_region to determine the next region for placing the
     #   box. If a new region was found, start over with #fit. Otherwise the frame has no more space
@@ -178,12 +178,12 @@ module HexaPDF
       # Also see the note in the #x documentation for further information.
       attr_reader :y
 
-      # The available width for placing a box.
+      # The available width of the current region for placing a box.
       #
       # Also see the note in the #x documentation for further information.
       attr_reader :available_width
 
-      # The available height for placing a box.
+      # The available height of the current region for placing a box.
       #
       # Also see the note in the #x documentation for further information.
       attr_reader :available_height
@@ -326,7 +326,7 @@ module HexaPDF
 
       # Finds the next region for placing boxes. Returns +false+ if no useful region was found.
       #
-      # This method should be called after drawing a box using #draw was not successful. It finds a
+      # This method should be called after fitting or drawing a box was not successful. It finds a
       # different region on each invocation. So if a box doesn't fit into the first region, this
       # method should be called again to find another region and to try again.
       #

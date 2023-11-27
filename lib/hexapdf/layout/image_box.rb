@@ -56,7 +56,7 @@ module HexaPDF
     #     #>pdf-composer100
     #     composer.image(machu_picchu, width: 100, height: 30)
     #
-    # * If neither has been set, the image is scaled to fit the available space.
+    # * If neither has been set, the image is scaled to fit the current region.
     #
     #     #>pdf-composer100
     #     composer.image(machu_picchu)
@@ -79,8 +79,8 @@ module HexaPDF
         false
       end
 
-      # Fits the image into the available space, taking the initially set width and height into
-      # account (see the class description for details).
+      # Fits the image into the current region of the frame, taking the initially set width and
+      # height into account (see the class description for details).
       def fit(available_width, available_height, _frame)
         image_width = @image.width.to_f
         image_height = @image.height.to_f

@@ -185,7 +185,7 @@ module HexaPDF
         super && (!@results || @results.all? {|result| result.box_fitter.fit_results.empty? })
       end
 
-      # Fits the list box into the available space.
+      # Fits the list box into the current region of the frame.
       def fit(available_width, available_height, frame)
         @width = if @initial_width > 0
                    @initial_width

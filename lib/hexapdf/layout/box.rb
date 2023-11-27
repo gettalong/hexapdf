@@ -71,7 +71,7 @@ module HexaPDF
     #        If the subclass supports the value :flow of the 'position' style property, this method
     #        needs to be overridden to return +true+.
     #
-    # #split:: This method splits the content so that the available space is used as good as
+    # #split:: This method splits the content so that the current region is used as good as
     #          possible. The default implementation should be fine for most use-cases, so only
     #          #split_content needs to be implemented. The method #create_split_box should be used
     #          for getting a basic cloned box.
@@ -186,26 +186,29 @@ module HexaPDF
 
       # Fits the box into the Frame and returns +true+ if fitting was successful.
       #
-      # The default implementation uses the whole available space for width and height if they were
-      # initially set to 0. Otherwise the specified dimensions are used.
+      # The arguments +available_width+ and +available_height+ are the width and height of the
+      # current region of the frame. The frame itself is provided as third argument.
+      #
+      # The default implementation uses the available width and height for the box width and height
+      # if they were initially set to 0. Otherwise the specified dimensions are used.
       def fit(available_width, available_height, _frame)
         @width = (@initial_width > 0 ? @initial_width : available_width)
         @height = (@initial_height > 0 ? @initial_height : available_height)
         @fit_successful = (@width <= available_width && @height <= available_height)
       end
 
-      # Tries to split the box into two, the first of which needs to fit into the available space,
-      # and returns the parts as array.
+      # Tries to split the box into two, the first of which needs to fit into the current region of
+      # the frame, and returns the parts as array.
       #
       # If the first item in the result array is not +nil+, it needs to be this box and it means
       # that even when #fit fails, a part of the box may still fit. Note that #fit should not be
       # called before #draw on the first box since it is already fitted. If not even a part of this
-      # box fits into the available space, +nil+ should be returned as the first array element.
+      # box fits into the current region, +nil+ should be returned as the first array element.
       #
       # Possible return values:
       #
-      # [self]:: The box fully fits into the available space.
-      # [nil, self]:: The box can't be split or no part of the box fits into the available space.
+      # [self]:: The box fully fits into the current region.
+      # [nil, self]:: The box can't be split or no part of the box fits into the current region.
       # [self, new_box]:: A part of the box fits and a new box is returned for the rest.
       #
       # This default implementation provides the basic functionality based on the #fit result that
