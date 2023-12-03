@@ -1233,8 +1233,14 @@ module HexaPDF
       #         #supports_position_flow? method and returning +true+ if it does or +false+ if it
       #         doesn't.
       #
-      # :absolute:: Position the box at an absolute position relative to the frame. The coordinates
-      #             are given via the position hint.
+      # [x, y]:: Position the box with the bottom left corner at the given absolute position
+      #          relative to the bottom left corner of the frame.
+      #
+      #          Examples:
+      #
+      #            #>pdf-composer100
+      #            composer.text('Absolute', position: [50, 50], border: {width: 1})
+      #            draw_current_frame_shape("red")
       #
       # See #position_hint for examples
 
@@ -1280,18 +1286,6 @@ module HexaPDF
       #     draw_current_frame_shape("blue")
       #     composer.text("Right", position_hint: :right)
       #     draw_current_frame_shape("green")
-      #
-      # :absolute::
-      #
-      #    An array with the x- and y-coordinates of the bottom left corner of the absolutely
-      #    positioned box. The coordinates are taken as being relative to the bottom left corner of
-      #    the frame into which the box is drawn.
-      #
-      #    Examples:
-      #
-      #      #>pdf-composer100
-      #      composer.text("Absolute", position: :absolute, position_hint: [30, 40])
-      #      draw_current_frame_shape("red")
 
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
@@ -1340,7 +1334,7 @@ module HexaPDF
         [:border, "Border.new", {setter: "Border.new(**value)"}],
         [:overlays, "Layers.new", {setter: "Layers.new(value)"}],
         [:underlays, "Layers.new", {setter: "Layers.new(value)"}],
-        [:position, :default, {valid_values: [:default, :float, :flow, :absolute]}],
+        [:position, :default],
         [:position_hint, nil],
       ].each do |name, default, options = {}|
         default = default.inspect unless default.kind_of?(String)

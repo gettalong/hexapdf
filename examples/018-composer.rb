@@ -32,8 +32,7 @@ HexaPDF::Composer.create('composer.pdf') do |pdf|
 
   pdf.text(lorem_ipsum * 2)
   pdf.image(image, style: :image, width: 200, position: :float)
-  pdf.image(image, style: :image, width: 200, position: :absolute,
-            position_hint: [200, 300])
+  pdf.image(image, style: :image, width: 200, position: [200, 300])
   pdf.text(lorem_ipsum * 20, position: :flow)
 
   pdf.formatted_text(["Produced by ",

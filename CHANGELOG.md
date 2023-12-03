@@ -8,6 +8,8 @@
 
 * **Breaking change**: Style property 'align' is now called 'text_align' and
   'valign' is 'text_valign'
+* **Breaking change**: Style property 'position' now takes the absolute position
+  directly as value instead of in the 'position_hint' property
 
 
 ## 0.34.1 - 2023-11-01

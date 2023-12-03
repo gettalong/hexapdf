@@ -230,8 +230,8 @@ module HexaPDF
                      :default
                    end
 
-        if position == :absolute
-          x, y = box.style.position_hint
+        if position.kind_of?(Array)
+          x, y = box.style.position
 
           aw = width - x
           ah = height - y

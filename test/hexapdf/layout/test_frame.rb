@@ -122,7 +122,7 @@ describe HexaPDF::Layout::Frame do
     describe "absolute position" do
       it "draws the box at the given absolute position" do
         check_box(
-          {width: 50, height: 50, position: :absolute, position_hint: [10, 10]},
+          {width: 50, height: 50, position: [10, 10]},
           [20, 20],
           [20, 20, 70, 70],
           [[[10, 10], [110, 10], [110, 110], [10, 110]],
@@ -132,7 +132,7 @@ describe HexaPDF::Layout::Frame do
 
       it "determines the available space for #fit by using the space to the right and above" do
         check_box(
-          {position: :absolute, position_hint: [10, 10]},
+          {position: [10, 10]},
           [20, 20],
           [20, 20, 110, 110],
           [[[10, 10], [110, 10], [110, 20], [20, 20], [20, 110], [10, 110]]]
@@ -141,7 +141,7 @@ describe HexaPDF::Layout::Frame do
 
       it "always removes the whole margin box from the frame" do
         check_box(
-          {width: 50, height: 50, position: :absolute, position_hint: [10, 10],
+          {width: 50, height: 50, position: [10, 10],
            margin: [10, 20, 30, 40]},
           [20, 20],
           [-20, -10, 90, 80],

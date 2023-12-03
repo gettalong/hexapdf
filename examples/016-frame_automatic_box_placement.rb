@@ -57,8 +57,7 @@ draw_box = lambda do |**args|
 end
 
 # Absolutely positioned box with margin
-draw_box.call(width: 100, height: 100, position: :absolute, margin: 10,
-              position_hint: [250, 250])
+draw_box.call(width: 100, height: 100, position: [250, 250], margin: 10)
 
 # Fixed sized box with automatic width
 draw_box.call(height: 100)
