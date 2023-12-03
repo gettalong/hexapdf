@@ -53,6 +53,14 @@ module HexaPDF
         end
 
         # :nodoc:
+        def paint_xobject(name)
+          puts "#{indent}paint_xobject #{@serializer.serialize(name)}"
+          @indent += 1
+          super
+          @indent -= 1
+        end
+
+        # :nodoc:
         def method_missing(operator, *operands)
           case operator
           when :save_graphics_state, :begin_text, :begin_marked_content
