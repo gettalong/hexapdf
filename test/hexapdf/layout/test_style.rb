@@ -785,6 +785,8 @@ describe HexaPDF::Layout::Style do
     refute(@style.fill_horizontal)
     assert_kind_of(HexaPDF::Layout::Style::Layers, @style.underlays)
     assert_kind_of(HexaPDF::Layout::Style::Layers, @style.overlays)
+    assert_equal(:default, @style.position)
+    assert_equal(:default, @style.mask_mode)
   end
 
   it "allows using a non-standard setter for generated properties" do

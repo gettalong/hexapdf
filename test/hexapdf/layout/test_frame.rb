@@ -114,6 +114,7 @@ describe HexaPDF::Layout::Frame do
           when :left then Geom2D::Rectangle(10, 10, 10, 100)
           when :right then Geom2D::Rectangle(100, 10, 10, 100)
           when :top then Geom2D::Rectangle(10, 100, 100, 10)
+          when :bottom then Geom2D::Rectangle(10, 10, 100, 10)
           end
         )
       end
@@ -136,16 +137,6 @@ describe HexaPDF::Layout::Frame do
           [20, 20],
           [20, 20, 110, 110],
           [[[10, 10], [110, 10], [110, 20], [20, 20], [20, 110], [10, 110]]]
-        )
-      end
-
-      it "always removes the whole margin box from the frame" do
-        check_box(
-          {width: 50, height: 50, position: [10, 10],
-           margin: [10, 20, 30, 40]},
-          [20, 20],
-          [-20, -10, 90, 80],
-          [[[10, 80], [90, 80], [90, 10], [110, 10], [110, 110], [10, 110]]]
         )
       end
     end
@@ -245,79 +236,6 @@ describe HexaPDF::Layout::Frame do
       end
     end
 
-    describe "floating boxes" do
-      it "draws the box on the left side" do
-        check_box({width: 50, height: 50, position: :float},
-                  [10, 60],
-                  [10, 60, 60, 110],
-                  [[[10, 10], [110, 10], [110, 110], [60, 110], [60, 60], [10, 60]]])
-      end
-
-      it "draws the box on the right side" do
-        check_box({width: 50, height: 50, position: :float, position_hint: :right},
-                  [60, 60],
-                  [60, 60, 110, 110],
-                  [[[10, 10], [110, 10], [110, 60], [60, 60], [60, 110], [10, 110]]])
-      end
-
-      it "draws the box in the center" do
-        check_box({width: 50, height: 50, position: :float, position_hint: :center},
-                  [35, 60],
-                  [35, 60, 85, 110],
-                  [[[10, 10], [110, 10], [110, 110], [85, 110], [85, 60], [35, 60],
-                    [35, 110], [10, 110]]])
-      end
-
-      describe "with margin" do
-        [:left, :center, :right].each do |hint|
-          it "ignores all margins if the box fills the whole frame, with position hint #{hint}" do
-            check_box({margin: 10, position: :float, position_hint: hint},
-                      [10, 10], [10, 10, 110, 110], [])
-            assert_equal(100, @box.width)
-            assert_equal(100, @box.height)
-          end
-        end
-
-        it "ignores the left, but not the right margin if aligned left to the frame border" do
-          check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :left},
-                    [10, 60],
-                    [10, 50, 70, 110],
-                    [[[10, 10], [110, 10], [110, 110], [70, 110], [70, 50], [10, 50]]])
-        end
-
-        it "uses the left and the right margin if aligned left and not to the frame border" do
-          remove_area(:left)
-          check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :left},
-                    [30, 60],
-                    [20, 50, 90, 110],
-                    [[[20, 10], [110, 10], [110, 110], [90, 110], [90, 50], [20, 50]]])
-        end
-
-        it "uses the left and the right margin if aligned center" do
-          check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :center},
-                    [35, 60],
-                    [25, 50, 95, 110],
-                    [[[10, 10], [110, 10], [110, 110], [95, 110], [95, 50], [25, 50],
-                      [25, 110], [10, 110]]])
-        end
-
-        it "ignores the right, but not the left margin if aligned right to the frame border" do
-          check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :right},
-                    [60, 60],
-                    [50, 50, 110, 110],
-                    [[[10, 10], [110, 10], [110, 50], [50, 50], [50, 110], [10, 110]]])
-        end
-
-        it "uses the left and the right margin if aligned right and not to the frame border" do
-          remove_area(:right)
-          check_box({width: 50, height: 50, margin: 10, position: :float, position_hint: :right},
-                    [40, 60],
-                    [30, 50, 100, 110],
-                    [[[10, 10], [100, 10], [100, 50], [30, 50], [30, 110], [10, 110]]])
-        end
-      end
-    end
-
     describe "flowing boxes" do
       it "flows inside the frame's outline" do
         check_box({width: 10, height: 20, margin: 10, position: :flow},
@@ -331,6 +249,95 @@ describe HexaPDF::Layout::Frame do
                   [10, 90],
                   [10, 80, 110, 110],
                   [[[10, 10], [110, 10], [110, 80], [10, 80]]])
+      end
+    end
+
+    describe "mask mode" do
+      describe "none" do
+        it "doesn't remove any area" do
+          check_box({width: 50, height: 50, mask_mode: :none},
+                    [10, 60],
+                    [10, 60, 10, 60],
+                    [[[10, 10], [110, 10], [110, 110], [10, 110]]]
+                   )
+        end
+      end
+
+      describe "box" do
+        it "removes the box area" do
+          check_box({width: 50, height: 50, mask_mode: :box},
+                    [10, 60],
+                    [10, 60, 60, 110],
+                    [[[10, 10], [110, 10], [110, 110], [60, 110], [60, 60], [10, 60]]])
+        end
+
+        it "ignores the margin if sides are on the frame border" do
+          check_box({margin: 10, mask_mode: :box},
+                    [10, 10], [10, 10, 110, 110], [])
+        end
+
+        it "uses the margin if sides are not on the frame border" do
+          remove_area(:left, :right, :top, :bottom)
+          check_box({margin: 10, mask_mode: :box},
+                    [30, 30], [20, 20, 100, 100], [])
+        end
+      end
+
+      describe "fill_horizontal" do
+        it "removes the horizontal part to the bottom of the box in the current region" do
+          remove_area(:left, :right)
+          check_box({width: 50, height: 50, mask_mode: :fill_horizontal},
+                    [20, 60],
+                    [20, 60, 100, 110],
+                    [[[20, 10], [100, 10], [100, 60], [20, 60]]])
+        end
+
+        it "respects the top and bottom margins for the mask" do
+          remove_area(:top, :bottom)
+          check_box({width: 50, margin: 10, mask_mode: :fill_horizontal},
+                    [10, 30], [10, 20, 110, 100], [])
+        end
+      end
+
+      describe "fill_frame_horizontal" do
+        it "removes the horizontal part to the bottom of the box in the frame" do
+          remove_area(:left, :right)
+          check_box({width: 50, height: 50, mask_mode: :fill_frame_horizontal},
+                    [20, 60],
+                    [10, 60, 110, 110],
+                    [[[20, 10], [100, 10], [100, 60], [20, 60]]])
+        end
+
+        it "respects the bottom margin for the mask" do
+          remove_area(:left, :right, :top, :bottom)
+          check_box({width: 50, margin: 10, mask_mode: :fill_frame_horizontal},
+                    [30, 30], [10, 20, 110, 100], [])
+        end
+      end
+
+      describe "fill_vertical" do
+        it "removes the vertical part covering the box in the current region" do
+          check_box({width: 50, height: 50, mask_mode: :fill_vertical, position_hint: :center},
+                    [35, 60],
+                    [35, 10, 85, 110],
+                    [[[10, 10], [35, 10], [35, 110], [10, 110]],
+                      [[85, 10], [110, 10], [110, 110], [85, 110]]])
+        end
+
+        it "respects the left and right margins for the mask" do
+          check_box({width: 50, height: 50, margin: 10, mask_mode: :fill_vertical, position_hint: :center},
+                    [35, 60],
+                    [25, 10, 95, 110],
+                    [[[10, 10], [25, 10], [25, 110], [10, 110]],
+                      [[95, 10], [110, 10], [110, 110], [95, 110]]])
+        end
+      end
+
+      describe "fill" do
+        it "removes the current region completely" do
+          check_box({width: 50, height: 50, mask_mode: :fill},
+                    [10, 60], [10, 10, 110, 110], [])
+        end
       end
     end
 

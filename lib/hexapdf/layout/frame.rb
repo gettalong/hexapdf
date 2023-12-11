@@ -71,9 +71,9 @@ module HexaPDF
     #
     # == Used Box Properties
     #
-    # The style properties "position", "position_hint" and "margin" are taken into account when
-    # fitting, splitting or drawing a box. Note that the margin is ignored if a box's side coincides
-    # with the frame's original boundary.
+    # The style properties 'position', 'position_hint', 'margin' and 'mask_mode' are taken into
+    # account when fitting, splitting or drawing a box. Note that the margin is ignored if a box's
+    # side coincides with the frame's original boundary.
     #
     # == Frame Shape
     #
@@ -219,10 +219,15 @@ module HexaPDF
       # Fits the given box into the current region of available space and returns a FitResult
       # object.
       #
+      # Fitting a box takes the style properties 'position', 'position_hint', 'margin', and
+      # 'mask_mode' into account.
+      #
       # Use the FitResult#success? method to determine whether fitting was successful.
       def fit(box)
         fit_result = FitResult.new(box)
         return fit_result if full?
+
+        margin = box.style.margin if box.style.margin?
 
         position = if box.style.position != :flow || box.supports_position_flow?
                      box.style.position
@@ -240,20 +245,12 @@ module HexaPDF
 
           x += left
           y += bottom
-          rectangle = if box.style.margin?
-                        margin = box.style.margin
-                        create_rectangle(x - margin.left, y - margin.bottom,
-                                         x + box.width + margin.right, y + box.height + margin.top)
-                      else
-                        create_rectangle(x, y, x + box.width, y + box.height)
-                      end
         else
           aw = available_width
           ah = available_height
 
           margin_top = margin_right = margin_left = 0
-          if box.style.margin?
-            margin = box.style.margin
+          if margin
             aw -= margin_right = margin.right unless float_equal(@x + aw, @left + @width)
             aw -= margin_left = margin.left unless float_equal(@x, @left)
             ah -= margin.bottom unless float_equal(@y - ah, @bottom)
@@ -269,8 +266,6 @@ module HexaPDF
           when :flow
             x = 0
             y = @y - height
-            rectangle = create_rectangle(left, [bottom, y - (margin&.bottom || 0)].max,
-                                         left + self.width, @y)
           else
             x = case box.style.position_hint
                 when nil, :left
@@ -287,17 +282,43 @@ module HexaPDF
                   end
                 end
             y = @y - height - margin_top
-            rectangle = if position == :float
-                          create_rectangle([left, x - (margin&.left || 0)].max,
-                                           [bottom, y - (margin&.bottom || 0)].max,
-                                           [left + self.width, x + width + (margin&.right || 0)].min,
-                                           @y)
-                        else
-                          create_rectangle(left, [bottom, y - (margin&.bottom || 0)].max,
-                                           left + self.width, @y)
-                        end
           end
         end
+
+        mask_mode = if box.style.mask_mode == :default
+                      case position
+                      when :default, :flow then :fill_frame_horizontal
+                      else :box
+                      end
+                    else
+                      box.style.mask_mode
+                    end
+        rectangle =
+          case mask_mode
+          when :none
+            create_rectangle(x, y, x, y)
+          when :box
+            if margin
+              create_rectangle([left, x - (margin&.left || 0)].max,
+                               [bottom, y - (margin&.bottom || 0)].max,
+                               [left + self.width, x + box.width + (margin&.right || 0)].min,
+                               [bottom + self.height, y + box.height + (margin&.top || 0)].min)
+            else
+              create_rectangle(x, y, x + box.width, y + box.height)
+            end
+          when :fill_horizontal
+            create_rectangle(@x, [bottom, y - (margin&.bottom || 0)].max,
+                             @x + available_width,
+                             [@y, y + box.height + (margin&.top || 0)].min)
+          when :fill_frame_horizontal
+            create_rectangle(left, [bottom, y - (margin&.bottom || 0)].max,
+                             left + self.width, @y)
+          when :fill_vertical
+            create_rectangle([@x, x - (margin&.left || 0)].max, @y - available_height,
+                             [@x + available_width, x + box.width + (margin&.right || 0)].min, @y)
+          when :fill
+            create_rectangle(@x, @y - available_height, @x + available_width, @y)
+          end
 
         fit_result.available_width = aw
         fit_result.available_height = ah
@@ -363,6 +384,8 @@ module HexaPDF
 
       # Removes the given *rectilinear* polygon from the frame's shape.
       def remove_area(polygon)
+        return if polygon.kind_of?(Geom2D::Rectangle) && (polygon.width == 0 || polygon.height == 0)
+
         @shape = if @shape.kind_of?(Geom2D::Rectangle) && polygon.kind_of?(Geom2D::Rectangle) &&
                      float_equal(@shape.x, polygon.x) && float_equal(@shape.width, polygon.width) &&
                      float_equal(@shape.y + @shape.height, polygon.y + polygon.height)

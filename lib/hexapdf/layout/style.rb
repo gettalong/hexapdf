@@ -1220,12 +1220,10 @@ module HexaPDF
       # Possible values:
       #
       # :default:: Position the box at the current position. The exact horizontal position is given
-      #            via the position hint. Space to the left/right of the box can't be used for other
-      #            boxes.
+      #            via the position hint.
       #
-      # :float:: Position the box at the current position but let it "float" so that the space to
-      #          the left/right can still be used. The position hint specifies where the box should
-      #          float.
+      # :float:: This is the same as :default except that the used value for #mask_mode when it is
+      #          set to :default is :box instead of :fill_frame_horizontal.
       #
       # :flow:: Flows the content of the box inside the frame around objects.
       #
@@ -1287,6 +1285,85 @@ module HexaPDF
       #     composer.text("Right", position_hint: :right)
       #     draw_current_frame_shape("green")
 
+      ##
+      # :method: mask_mode
+      # :call-seq:
+      #   mask_mode(value = nil)
+      #
+      # Specifies how the mask defining the to-be-removed region should be constructed. Defaults to
+      # :default.
+      #
+      # Possible values:
+      #
+      #   :default::
+      #       The actually used value depends on the value of #position:
+      #
+      #       * For position=:default the used value is :fill_frame_horizontal.
+      #       * For position=:float the used value is :box.
+      #       * For position=:flow the used value is :fill_frame_horizontal.
+      #       * For position=:absolute the used value is :box.
+      #
+      #   :none::
+      #       The mask covers nothing (useful for layering boxes over each other).
+      #
+      #       Examples:
+      #
+      #         #>pdf-composer100
+      #         composer.text('Text on bottom', mask_mode: :none)
+      #         composer.text('Text on top', fill_color: 'hp-blue')
+      #
+      #   :box::
+      #       The mask covers the box including the margin around the box.
+      #
+      #       Examples:
+      #
+      #         #>pdf-composer100
+      #         composer.text('Box only mask', mask_mode: :box)
+      #         draw_current_frame_shape('hp-blue')
+      #         composer.text('Text to the right')
+      #
+      #   :fill_horizontal::
+      #       The mask covers the box including the margin around the box and the space to the left
+      #       and right in the current region.
+      #
+      #       Examples:
+      #
+      #         #>pdf-composer100
+      #         composer.text('Standard, whole horizontal space')
+      #         draw_current_frame_shape('hp-blue')
+      #         composer.text('Text underneath')
+      #
+      #   :fill_frame_horizontal::
+      #       The mask covers the box including the margin around the box and the space to the left
+      #       and right in the frame.
+      #
+      #       Examples:
+      #
+      #         #>pdf-composer100
+      #         composer.frame.remove_area(Geom2D::Rectangle(50, 50, 10, 50))
+      #         composer.text('Mask covers frame horizontally', mask_mode: :fill_frame_horizontal)
+      #         draw_current_frame_shape('hp-blue')
+      #         composer.text('Text underneath')
+      #
+      #   :fill_vertical::
+      #       The mask covers the box including the margin around the box and the space to the top
+      #       and bottom in the current region.
+      #
+      #       Examples:
+      #
+      #         #>pdf-composer100
+      #         composer.text('Mask covers vertical space', mask_mode: :fill_vertical)
+      #         draw_current_frame_shape('hp-blue')
+      #         composer.text('Text to the right')
+      #
+      #   :fill:: The mask covers the current region completely.
+      #
+      #       Examples:
+      #
+      #         #>pdf-composer100
+      #         composer.text('Mask covers everything', mask_mode: :fill)
+      #         composer.text('On the next page')
+
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
         [:font_size, 10],
@@ -1336,6 +1413,8 @@ module HexaPDF
         [:underlays, "Layers.new", {setter: "Layers.new(value)"}],
         [:position, :default],
         [:position_hint, nil],
+        [:mask_mode, :default, {valid_values: [:default, :none, :box, :fill_horizontal,
+                                               :fill_frame_horizontal, :fill_vertical, :fill]}],
       ].each do |name, default, options = {}|
         default = default.inspect unless default.kind_of?(String)
         setter = options.delete(:setter) || "value"

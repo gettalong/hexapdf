@@ -3,6 +3,8 @@
 ### Added
 
 * Command 'psd' for CLI `hexapdf inspect` to show a decoded content stream
+* Style property 'mask_mode' for more control over the region that gets removed
+  from a frame after placing a box
 
 ### Changed
 
