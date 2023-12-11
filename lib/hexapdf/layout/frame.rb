@@ -71,7 +71,7 @@ module HexaPDF
     #
     # == Used Box Properties
     #
-    # The style properties 'position', 'position_hint', 'margin' and 'mask_mode' are taken into
+    # The style properties 'position', 'align', 'valign', 'margin' and 'mask_mode' are taken into
     # account when fitting, splitting or drawing a box. Note that the margin is ignored if a box's
     # side coincides with the frame's original boundary.
     #
@@ -219,7 +219,7 @@ module HexaPDF
       # Fits the given box into the current region of available space and returns a FitResult
       # object.
       #
-      # Fitting a box takes the style properties 'position', 'position_hint', 'margin', and
+      # Fitting a box takes the style properties 'position', 'align', 'valign', 'margin', and
       # 'mask_mode' into account.
       #
       # Use the FitResult#success? method to determine whether fitting was successful.
@@ -249,11 +249,11 @@ module HexaPDF
           aw = available_width
           ah = available_height
 
-          margin_top = margin_right = margin_left = 0
+          margin_top = margin_right = margin_left = margin_bottom = 0
           if margin
             aw -= margin_right = margin.right unless float_equal(@x + aw, @left + @width)
             aw -= margin_left = margin.left unless float_equal(@x, @left)
-            ah -= margin.bottom unless float_equal(@y - ah, @bottom)
+            ah -= margin_bottom = margin.bottom unless float_equal(@y - ah, @bottom)
             ah -= margin_top = margin.top unless float_equal(@y, @bottom + @height)
           end
 
@@ -267,8 +267,8 @@ module HexaPDF
             x = 0
             y = @y - height
           else
-            x = case box.style.position_hint
-                when nil, :left
+            x = case box.style.align
+                when :left
                   @x + margin_left
                 when :right
                   @x + margin_left + aw - width
@@ -281,7 +281,20 @@ module HexaPDF
                     @x + margin_left + (aw - width) / 2.0
                   end
                 end
-            y = @y - height - margin_top
+            y = case box.style.valign
+                when :top
+                  @y - margin_top - height
+                when :bottom
+                  @y - available_height + margin_bottom
+                when :center
+                  max_margin = [margin_top, margin_bottom].max
+                  # If we have enough space left for equal margins, we center perfectly
+                  if available_height - height >= 2 * max_margin
+                    @y - height - (available_height - height) / 2.0
+                  else
+                    @y - margin_top - height - (ah - height) / 2.0
+                  end
+                end
           end
         end
 

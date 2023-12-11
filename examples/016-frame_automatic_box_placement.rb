@@ -70,23 +70,23 @@ draw_box.call(width: 100, height: 100)
 draw_box.call(width: 100, height: 100)
 
 # Fixed sized floating box, space to the right can be used
-draw_box.call(width: 100, height: 100, position: :float, position_hint: :left)
+draw_box.call(width: 100, height: 100, position: :float, align: :left)
 
 # Fixed sized floating box again, floating to the right
-draw_box.call(width: 100, height: 100, position: :float, position_hint: :right)
+draw_box.call(width: 100, height: 100, position: :float, align: :right)
 
 # Fixed sized floating box again, floating to the left with margin
-draw_box.call(width: 100, height: 100, position: :float, position_hint: :left,
+draw_box.call(width: 100, height: 100, position: :float, align: :left,
               margin: [0, 10])
 
 # Fixed sized box, no floating
 draw_box.call(width: 100, height: 100)
 
 # Fixed sized box, center aligned in the available space
-draw_box.call(width: 100, height: 100, position_hint: :center)
+draw_box.call(width: 100, height: 100, align: :center)
 
 # Fixed sized box, right aligned in the available space
-draw_box.call(width: 100, height: 100, position_hint: :right)
+draw_box.call(width: 100, height: 100, align: :right)
 
 # Fixed sized box, consuming the whole remaining available space
 draw_box.call

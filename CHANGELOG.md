@@ -5,6 +5,7 @@
 * Command 'psd' for CLI `hexapdf inspect` to show a decoded content stream
 * Style property 'mask_mode' for more control over the region that gets removed
   from a frame after placing a box
+* Style property 'valign' for vertically centering a box in a frame
 
 ### Changed
 
@@ -12,6 +13,7 @@
   'valign' is 'text_valign'
 * **Breaking change**: Style property 'position' now takes the absolute position
   directly as value instead of in the 'position_hint' property
+* **Breaking change**: Style property 'position_hint' is now called 'align'
 
 
 ## 0.34.1 - 2023-11-01

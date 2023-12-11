@@ -74,7 +74,7 @@ HexaPDF::Composer.create('composer_optional_content.pdf') do |composer|
   action = composer.document.wrap({Type: :Action, S: :SetOCGState})
   action.add_state_change(:toggle, [a1, a2, a3])
   composer.text("Click to toggle answers", border: {width: 1, color: "red"},
-                position_hint: :right, padding: 2, overlays: [[:link, action: action]])
+                align: :right, padding: 2, overlays: [[:link, action: action]])
 
   composer.document.optional_content.default_configuration(
     BaseState: :OFF,

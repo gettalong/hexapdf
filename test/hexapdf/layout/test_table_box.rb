@@ -83,7 +83,7 @@ describe HexaPDF::Layout::TableBox::Cell do
     end
 
     it "fits a single box with horizontal aligning not being :left" do
-      cell = create_cell(children: HexaPDF::Layout::Box.create(width: 20, height: 10, position_hint: :center))
+      cell = create_cell(children: HexaPDF::Layout::Box.create(width: 20, height: 10, align: :center))
       cell.fit(100, 100, @frame)
       assert_equal(66, cell.preferred_width)
     end
@@ -100,7 +100,7 @@ describe HexaPDF::Layout::TableBox::Cell do
     end
 
     it "fits multiple boxes with horizontal aligning not being :left" do
-      box1 = HexaPDF::Layout::Box.create(width: 20, height: 10, position_hint: :center)
+      box1 = HexaPDF::Layout::Box.create(width: 20, height: 10, align: :center)
       box2 = HexaPDF::Layout::Box.create(width: 50, height: 15)
       cell = create_cell(children: [box1, box2])
       cell.fit(100, 100, @frame)
@@ -130,7 +130,7 @@ describe HexaPDF::Layout::TableBox::Cell do
 
     it "draws the boxes at the correct location" do
       draw_block = lambda {|canvas, _| canvas.move_to(0, 0).end_path }
-      box1 = HexaPDF::Layout::Box.create(width: 20, height: 10, position_hint: :center, &draw_block)
+      box1 = HexaPDF::Layout::Box.create(width: 20, height: 10, align: :center, &draw_block)
       box2 = HexaPDF::Layout::Box.create(width: 50, height: 15, &draw_block)
       box = create_cell(children: [box1, box2])
       box.fit(100, 100, @frame)

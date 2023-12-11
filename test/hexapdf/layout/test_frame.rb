@@ -150,40 +150,52 @@ describe HexaPDF::Layout::Frame do
       end
 
       it "draws the box on the right side" do
-        check_box({width: 50, height: 50, position_hint: :right},
+        check_box({width: 50, height: 50, align: :right},
                   [60, 60],
                   [10, 60, 110, 110],
                   [[[10, 10], [110, 10], [110, 60], [10, 60]]])
       end
 
       it "draws the box in the center" do
-        check_box({width: 50, height: 50, position_hint: :center},
+        check_box({width: 50, height: 50, align: :center},
                   [35, 60],
                   [10, 60, 110, 110],
                   [[[10, 10], [110, 10], [110, 60], [10, 60]]])
       end
 
+      it "draws the box vertically in the center" do
+        check_box({width: 50, height: 50, valign: :center},
+                  [10, 35],
+                  [10, 35, 110, 110],
+                  [[[10, 10], [110, 10], [110, 35], [10, 35]]])
+      end
+
+      it "draws the box vertically at the bottom" do
+        check_box({width: 50, height: 50, valign: :bottom},
+                  [10, 10], [10, 10, 110, 110], [])
+      end
+
       describe "with margin" do
         [:left, :center, :right].each do |hint|
-          it "ignores all margins if the box fills the whole frame, with position hint #{hint}" do
-            check_box({margin: 10, position_hint: hint},
+          it "ignores all margins if the box fills the whole frame, with alignment #{hint}" do
+            check_box({margin: 10, align: hint},
                       [10, 10], [10, 10, 110, 110], [])
             assert_equal(100, @box.width)
             assert_equal(100, @box.height)
           end
 
           it "ignores the left/top/right margin if the available bounds coincide with the " \
-            "frame's, with position hint #{hint}" do
-            check_box({height: 50, margin: 10, position_hint: hint},
+            "frame's, with alignment #{hint}" do
+            check_box({height: 50, margin: 10, align: hint},
                       [10, 60],
                       [10, 50, 110, 110],
                       [[[10, 10], [110, 10], [110, 50], [10, 50]]])
           end
 
           it "doesn't ignore top margin if the available bounds' top doesn't coincide with the " \
-            "frame's top, with position hint #{hint}" do
+            "frame's top, with alignment #{hint}" do
             remove_area(:top)
-            check_box({height: 50, margin: 10, position_hint: hint},
+            check_box({height: 50, margin: 10, align: hint},
                       [10, 40],
                       [10, 30, 110, 100],
                       [[[10, 10], [110, 10], [110, 30], [10, 30]]])
@@ -191,9 +203,9 @@ describe HexaPDF::Layout::Frame do
           end
 
           it "doesn't ignore left margin if the available bounds' left doesn't coincide with the " \
-            "frame's left, with position hint #{hint}" do
+            "frame's left, with alignment #{hint}" do
             remove_area(:left)
-            check_box({height: 50, margin: 10, position_hint: hint},
+            check_box({height: 50, margin: 10, align: hint},
                       [30, 60],
                       [10, 50, 110, 110],
                       [[[20, 10], [110, 10], [110, 50], [20, 50]]])
@@ -201,9 +213,9 @@ describe HexaPDF::Layout::Frame do
           end
 
           it "doesn't ignore right margin if the available bounds' right doesn't coincide with " \
-            "the frame's right, with position hint #{hint}" do
+            "the frame's right, with alignment #{hint}" do
             remove_area(:right)
-            check_box({height: 50, margin: 10, position_hint: hint},
+            check_box({height: 50, margin: 10, align: hint},
                       [10, 60],
                       [10, 50, 110, 110],
                       [[[10, 10], [100, 10], [100, 50], [10, 50]]])
@@ -211,27 +223,88 @@ describe HexaPDF::Layout::Frame do
           end
         end
 
-        it "perfectly centers a box if possible, margins ignored" do
-          check_box({width: 50, height: 10, margin: [10, 10, 10, 20], position_hint: :center},
+        [:top, :center, :bottom].each do |hint|
+          it "ignores all margins if the box fills the whole frame, with vertical alignment #{hint}" do
+            check_box({margin: 10, valign: hint},
+                      [10, 10], [10, 10, 110, 110], [])
+            assert_equal(100, @box.width)
+            assert_equal(100, @box.height)
+          end
+
+          it "ignores the left/top/bottom margin if the available bounds coincide with the " \
+            "frame's, with vertical alignment #{hint}" do
+            check_box({width: 50, margin: 10, valign: hint},
+                      [10, 10], [10, 10, 110, 110], [])
+            assert_equal(100, @box.height)
+          end
+
+          it "doesn't ignore top margin if the available bounds' top doesn't coincide with the " \
+            "frame's top, with vertical alignment #{hint}" do
+            remove_area(:top)
+            check_box({width: 50, margin: 10, valign: hint},
+                      [10, 10], [10, 10, 110, 100], [])
+            assert_equal(80, @box.height)
+          end
+
+          it "doesn't ignore left margin if the available bounds' left doesn't coincide with the " \
+            "frame's left, with vertical alignment #{hint}" do
+            remove_area(:left)
+            check_box({width: 50, margin: 10, valign: hint},
+                      [30, 10], [10, 10, 110, 110], [])
+            assert_equal(100, @box.height)
+          end
+
+          it "doesn't ignore bottom margin if the available bounds' bottom doesn't coincide with " \
+            "the frame's bottom, with vertical alignment #{hint}" do
+            remove_area(:bottom)
+            check_box({width: 50, margin: 10, valign: hint},
+                      [10, 30], [10, 20, 110, 110], [])
+            assert_equal(80, @box.height)
+          end
+        end
+
+        it "perfectly centers a box horizontally if possible, margins ignored" do
+          check_box({width: 50, height: 10, margin: [10, 10, 10, 20], align: :center},
                     [35, 100],
                     [10, 90, 110, 110],
                     [[[10, 10], [110, 10], [110, 90], [10, 90]]])
         end
 
-        it "perfectly centers a box if possible, margins not ignored" do
+        it "perfectly centers a box horizontally if possible, margins not ignored" do
           remove_area(:left, :right)
-          check_box({width: 40, height: 10, margin: [10, 10, 10, 20], position_hint: :center},
+          check_box({width: 40, height: 10, margin: [10, 10, 10, 20], align: :center},
                     [40, 100],
                     [10, 90, 110, 110],
                     [[[20, 10], [100, 10], [100, 90], [20, 90]]])
         end
 
-        it "centers a box as good as possible when margins aren't equal" do
+        it "horizontally centers a box as good as possible when margins aren't equal" do
           remove_area(:left, :right)
-          check_box({width: 20, height: 10, margin: [10, 10, 10, 40], position_hint: :center},
+          check_box({width: 20, height: 10, margin: [10, 10, 10, 40], align: :center},
                     [65, 100],
                     [10, 90, 110, 110],
                     [[[20, 10], [100, 10], [100, 90], [20, 90]]])
+        end
+
+        it "perfectly centers a box vertically if possible, margins ignored" do
+          check_box({width: 10, height: 50, margin: [10, 10, 20, 10], valign: :center},
+                    [10, 35],
+                    [10, 15, 110, 110],
+                    [[[10, 10], [110, 10], [110, 15], [10, 15]]])
+        end
+
+        it "perfectly centers a box vertically if possible, margins not ignored" do
+          remove_area(:top, :bottom)
+          check_box({width: 10, height: 40, margin: [10, 10, 20, 10], valign: :center},
+                    [10, 40], [10, 20, 110, 100], [])
+        end
+
+        it "vertically centers a box as good as possible when margins aren't equal" do
+          remove_area(:top, :bottom)
+          check_box({width: 10, height: 20, margin: [10, 10, 40, 10], valign: :center},
+                    [10, 65],
+                    [10, 25, 110, 100],
+                    [[[10, 20], [110, 20], [110, 25], [10, 25]]])
         end
       end
     end
@@ -317,7 +390,7 @@ describe HexaPDF::Layout::Frame do
 
       describe "fill_vertical" do
         it "removes the vertical part covering the box in the current region" do
-          check_box({width: 50, height: 50, mask_mode: :fill_vertical, position_hint: :center},
+          check_box({width: 50, height: 50, mask_mode: :fill_vertical, align: :center},
                     [35, 60],
                     [35, 10, 85, 110],
                     [[[10, 10], [35, 10], [35, 110], [10, 110]],
@@ -325,7 +398,7 @@ describe HexaPDF::Layout::Frame do
         end
 
         it "respects the left and right margins for the mask" do
-          check_box({width: 50, height: 50, margin: 10, mask_mode: :fill_vertical, position_hint: :center},
+          check_box({width: 50, height: 50, margin: 10, mask_mode: :fill_vertical, align: :center},
                     [35, 60],
                     [25, 10, 95, 110],
                     [[[10, 10], [25, 10], [25, 110], [10, 110]],

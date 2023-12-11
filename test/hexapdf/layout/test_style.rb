@@ -786,6 +786,8 @@ describe HexaPDF::Layout::Style do
     assert_kind_of(HexaPDF::Layout::Style::Layers, @style.underlays)
     assert_kind_of(HexaPDF::Layout::Style::Layers, @style.overlays)
     assert_equal(:default, @style.position)
+    assert_equal(:left, @style.align)
+    assert_equal(:top, @style.valign)
     assert_equal(:default, @style.mask_mode)
   end
 

@@ -16,8 +16,8 @@ HexaPDF::Composer.create('frame_mask_mode.pdf') do |composer|
                font_size: 50, text_valign: :center, text_rendering_mode: :fill_stroke,
                fill_color: 'white', stroke_color: 'hp-blue', margin: [0, 0, 10])
   composer.column(columns: 1, style: {border: {width: 1}, padding: 10}) do |col|
-    col.text('Center', mask_mode: :box, position_hint: :center)
+    col.text('Center', mask_mode: :box, align: :center)
     col.text('Left', mask_mode: :fill_horizontal)
-    col.text('Right', position_hint: :right)
+    col.text('Right', align: :right)
   end
 end

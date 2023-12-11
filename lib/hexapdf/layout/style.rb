@@ -970,7 +970,7 @@ module HexaPDF
       #   composer.text(text, text_align: :justify)
 
       ##
-      # :method: valign
+      # :method: text_valign
       # :call-seq:
       #   text_valign(direction = nil)
       #
@@ -1214,76 +1214,106 @@ module HexaPDF
       # :call-seq:
       #   position(value = nil)
       #
-      # Specifies how a box should be positioned in a frame. The property #position_hint provides
-      # additional, position specific data. Defaults to :default.
+      # Specifies how a box should be positioned in a frame. Defaults to :default.
+      #
+      # The properties #align and #valign provide alignment information while #mask_mode defines how
+      # the to-be-removed region should be constructed.
       #
       # Possible values:
       #
-      # :default:: Position the box at the current position. The exact horizontal position is given
-      #            via the position hint.
-      #
-      # :float:: This is the same as :default except that the used value for #mask_mode when it is
-      #          set to :default is :box instead of :fill_frame_horizontal.
-      #
-      # :flow:: Flows the content of the box inside the frame around objects.
-      #
-      #         A box needs to indicate whether it supports this value by implementing the
-      #         #supports_position_flow? method and returning +true+ if it does or +false+ if it
-      #         doesn't.
-      #
-      # [x, y]:: Position the box with the bottom left corner at the given absolute position
-      #          relative to the bottom left corner of the frame.
-      #
-      #          Examples:
-      #
-      #            #>pdf-composer100
-      #            composer.text('Absolute', position: [50, 50], border: {width: 1})
-      #            draw_current_frame_shape("red")
-      #
-      # See #position_hint for examples
-
-      ##
-      # :method: position_hint
-      # :call-seq:
-      #   position_hint(value = nil)
-      #
-      # Specifies additional information on how a box should be positioned in a frame. The exact
-      # meaning depends on the value of the #position property.
-      #
-      # Possible values depending on the #position property:
-      #
       # :default::
+      #     Position the box at the current position. The exact horizontal and vertical position
+      #     inside the current region is given via the #align and #valign style properties.
       #
-      #   :left:: (default) Align the box to the left side of the available region.
-      #   :center:: Horizontally center the box in the available region.
-      #   :right:: Align the box to the right side of the available region.
+      #     Examples:
       #
-      #   Examples:
-      #
-      #     #>pdf-composer100
-      #     composer.text("Left", border: {width: 1})
-      #     draw_current_frame_shape("red")
-      #     composer.text("Center", position_hint: :center, border: {width: 1})
-      #     draw_current_frame_shape("blue")
-      #     composer.text("Right", position_hint: :right, border: {width: 1})
-      #     draw_current_frame_shape("green")
+      #       #>pdf-composer100
+      #       composer.box(:base, width: 40, height: 20,
+      #                    style: {align: :right, border: {width: 1}})
+      #       composer.box(:base, width: 40, height: 20,
+      #                    style: {align: :center, valign: :center, border: {width: 1}})
       #
       # :float::
+      #     This is the same as :default except that the used value for #mask_mode when it is set to
+      #     :default is :box instead of :fill_frame_horizontal.
       #
-      #   :left:: (default) Float the box to the left side of the available region.
-      #   :center:: Float the box to the center of the available region.
-      #   :right::  Float the box to the right side of the available region.
+      #     Examples:
       #
-      #   Examples:
+      #       #>pdf-composer100
+      #       composer.box(:base, width: 40, height: 20,
+      #                    style: {position: :float, border: {width: 1}})
+      #       composer.box(:base, width: 40, height: 20,
+      #                    style: {position: :float, border: {color: "hp-blue", width: 1}})
       #
-      #     #>pdf-composer100
-      #     composer.style(:base, position: :float, border: {width: 1})
-      #     composer.text("Left", position_hint: :left)
-      #     draw_current_frame_shape("red")
-      #     composer.text("Center", position_hint: :center)
-      #     draw_current_frame_shape("blue")
-      #     composer.text("Right", position_hint: :right)
-      #     draw_current_frame_shape("green")
+      # :flow::
+      #     Flows the content of the box inside the frame around objects.
+      #
+      #     A box needs to indicate whether it supports this value by implementing the
+      #     #supports_position_flow? method and returning +true+ if it does or +false+ if it
+      #     doesn't. If a box doesn't support this value, it is positioned as if the value :default
+      #     was set.
+      #
+      #     Note that the properties #align and #valign are not used with this value!
+      #
+      #     Examples:
+      #
+      #       #>pdf-composer100
+      #       composer.box(:base, width: 40, height: 20,
+      #                    style: {position: :float, border: {width: 1}})
+      #       composer.lorem_ipsum(position: :flow)
+      #
+      # [x, y]::
+      #     Position the box with the bottom left corner at the given absolute position relative to
+      #     the bottom left corner of the frame.
+      #
+      #     Examples:
+      #
+      #       #>pdf-composer100
+      #       composer.text('Absolute', position: [50, 50], border: {width: 1})
+      #       draw_current_frame_shape("red")
+
+      ##
+      # :method: align
+      # :call-seq:
+      #   align(value = nil)
+      #
+      # Specifies the horizontal alignment of a box inside the current region. Defaults to :left.
+      #
+      # Possible values:
+      #
+      # :left:: Align the box to the left side of the current region.
+      # :center:: Horizontally center the box in the current region.
+      # :right:: Align the box to the right side of the current region.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Left", border: {width: 1})
+      #   draw_current_frame_shape("hp-blue")
+      #   composer.text("Center", align: :center, border: {width: 1})
+      #   draw_current_frame_shape("hp-orange")
+      #   composer.text("Right", align: :right, border: {width: 1})
+      #   draw_current_frame_shape("hp-teal")
+
+      ##
+      # :method: valign
+      # :call-seq:
+      #   valign(value = nil)
+      #
+      # Specifies the vertical alignment of a box inside the current region. Defaults to :top.
+      #
+      # Possible values:
+      #
+      # :top:: Align the box to the top side of the current region.
+      # :center:: Vertically center the box in the current region.
+      # :bottom:: Align the box to the bottom side of the current region.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Top", mask_mode: :fill_vertical, border: {width: 1})
+      #   composer.text("Center", valign: :center, mask_mode: :fill_vertical, border: {width: 1})
+      #   composer.text("Bottom", valign: :bottom, border: {width: 1})
 
       ##
       # :method: mask_mode
@@ -1295,74 +1325,75 @@ module HexaPDF
       #
       # Possible values:
       #
-      #   :default::
-      #       The actually used value depends on the value of #position:
+      # :default::
+      #     The actually used value depends on the value of #position:
       #
-      #       * For position=:default the used value is :fill_frame_horizontal.
-      #       * For position=:float the used value is :box.
-      #       * For position=:flow the used value is :fill_frame_horizontal.
-      #       * For position=:absolute the used value is :box.
+      #     * For :default the used value is :fill_frame_horizontal.
+      #     * For :float the used value is :box.
+      #     * For :flow the used value is :fill_frame_horizontal.
+      #     * For :absolute the used value is :box.
       #
-      #   :none::
-      #       The mask covers nothing (useful for layering boxes over each other).
+      # :none::
+      #     The mask covers nothing (useful for layering boxes over each other).
       #
-      #       Examples:
+      #     Examples:
       #
-      #         #>pdf-composer100
-      #         composer.text('Text on bottom', mask_mode: :none)
-      #         composer.text('Text on top', fill_color: 'hp-blue')
+      #       #>pdf-composer100
+      #       composer.text('Text on bottom', mask_mode: :none)
+      #       composer.text('Text on top', fill_color: 'hp-blue')
       #
-      #   :box::
-      #       The mask covers the box including the margin around the box.
+      # :box::
+      #     The mask covers the box including the margin around the box.
       #
-      #       Examples:
+      #     Examples:
       #
-      #         #>pdf-composer100
-      #         composer.text('Box only mask', mask_mode: :box)
-      #         draw_current_frame_shape('hp-blue')
-      #         composer.text('Text to the right')
+      #       #>pdf-composer100
+      #       composer.text('Box only mask', mask_mode: :box)
+      #       draw_current_frame_shape('hp-blue')
+      #       composer.text('Text to the right')
       #
-      #   :fill_horizontal::
-      #       The mask covers the box including the margin around the box and the space to the left
-      #       and right in the current region.
+      # :fill_horizontal::
+      #     The mask covers the box including the margin around the box and the space to the left
+      #     and right in the current region.
       #
-      #       Examples:
+      #     Examples:
       #
-      #         #>pdf-composer100
-      #         composer.text('Standard, whole horizontal space')
-      #         draw_current_frame_shape('hp-blue')
-      #         composer.text('Text underneath')
+      #       #>pdf-composer100
+      #       composer.text('Standard, whole horizontal space')
+      #       draw_current_frame_shape('hp-blue')
+      #       composer.text('Text underneath')
       #
-      #   :fill_frame_horizontal::
-      #       The mask covers the box including the margin around the box and the space to the left
-      #       and right in the frame.
+      # :fill_frame_horizontal::
+      #     The mask covers the box including the margin around the box and the space to the left
+      #     and right in the frame.
       #
-      #       Examples:
+      #     Examples:
       #
-      #         #>pdf-composer100
-      #         composer.frame.remove_area(Geom2D::Rectangle(50, 50, 10, 50))
-      #         composer.text('Mask covers frame horizontally', mask_mode: :fill_frame_horizontal)
-      #         draw_current_frame_shape('hp-blue')
-      #         composer.text('Text underneath')
+      #       #>pdf-composer100
+      #       composer.frame.remove_area(Geom2D::Rectangle(100, 50, 10, 50))
+      #       composer.text('Mask covers frame horizontally', mask_mode: :fill_frame_horizontal)
+      #       draw_current_frame_shape('hp-blue')
+      #       composer.text('Text underneath')
       #
-      #   :fill_vertical::
-      #       The mask covers the box including the margin around the box and the space to the top
-      #       and bottom in the current region.
+      # :fill_vertical::
+      #     The mask covers the box including the margin around the box and the space to the top
+      #     and bottom in the current region.
       #
-      #       Examples:
+      #     Examples:
       #
-      #         #>pdf-composer100
-      #         composer.text('Mask covers vertical space', mask_mode: :fill_vertical)
-      #         draw_current_frame_shape('hp-blue')
-      #         composer.text('Text to the right')
+      #       #>pdf-composer100
+      #       composer.text('Mask covers vertical space', mask_mode: :fill_vertical)
+      #       draw_current_frame_shape('hp-blue')
+      #       composer.text('Text to the right')
       #
-      #   :fill:: The mask covers the current region completely.
+      # :fill::
+      #     The mask covers the current region completely.
       #
-      #       Examples:
+      #     Examples:
       #
-      #         #>pdf-composer100
-      #         composer.text('Mask covers everything', mask_mode: :fill)
-      #         composer.text('On the next page')
+      #       #>pdf-composer100
+      #       composer.text('Mask covers everything', mask_mode: :fill)
+      #       composer.text('On the next page')
 
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
@@ -1412,7 +1443,8 @@ module HexaPDF
         [:overlays, "Layers.new", {setter: "Layers.new(value)"}],
         [:underlays, "Layers.new", {setter: "Layers.new(value)"}],
         [:position, :default],
-        [:position_hint, nil],
+        [:align, :left, {valid_values: [:left, :center, :right]}],
+        [:valign, :top, {valid_values: [:top, :center, :bottom]}],
         [:mask_mode, :default, {valid_values: [:default, :none, :box, :fill_horizontal,
                                                :fill_frame_horizontal, :fill_vertical, :fill]}],
       ].each do |name, default, options = {}|

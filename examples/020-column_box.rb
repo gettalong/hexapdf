@@ -28,7 +28,7 @@ columns = doc.layout.column(columns: 2, style: {position: :flow}) do |column|
     column.image(File.join(__dir__, 'machupicchu.jpg'), width: 100,
                  style: {margin: [10, 30], position: :float})
     column.box(:base, width: 50, height: 50,
-               style: {margin: 20, position: :float, position_hint: :right,
+               style: {margin: 20, position: :float, align: :right,
                        background_color: "hp-blue-light2",
                        border: {width: 1, color: "hp-blue-dark"}})
     column.lorem_ipsum(count: 2, position: :flow, text_align: :justify)
