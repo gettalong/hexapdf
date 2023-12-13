@@ -205,7 +205,7 @@ module HexaPDF
         end
 
         @width = columns[-1].sum + reserved_width
-        @height = @box_fitter.content_heights.max + reserved_height
+        @height = (@initial_height > 0 ? @initial_height : @box_fitter.content_heights.max + reserved_height)
         @draw_pos_x = frame.x + reserved_width_left
         @draw_pos_y = frame.y - @height + reserved_height_bottom
 

@@ -69,10 +69,18 @@ describe HexaPDF::Layout::ColumnBox do
       it "respects the set initial width, position #{position}" do
         box = create_box(children: @text_boxes[0..1], width: 50, style: {position: position})
         check_box(box, 50, 80)
+
+        box = create_box(columns: 1, children: @fixed_size_boxes[0..0], width: 50,
+                         style: {position: position})
+        check_box(box, 50, 10)
       end
 
       it "respects the set initial height, position #{position}" do
         box = create_box(children: @text_boxes[0..1], height: 50, equal_height: false,
+                         style: {position: position})
+        check_box(box, 100, 50)
+
+        box = create_box(children: @text_boxes[0..1], height: 50, equal_height: true,
                          style: {position: position})
         check_box(box, 100, 50)
       end

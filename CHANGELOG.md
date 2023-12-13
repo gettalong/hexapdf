@@ -15,6 +15,10 @@
   directly as value instead of in the 'position_hint' property
 * **Breaking change**: Style property 'position_hint' is now called 'align'
 
+### Fixed
+
+* [HexaPDF::Layout::ColumnBox#fit] to correctly take initial height into account
+
 
 ## 0.34.1 - 2023-11-01
 
