@@ -73,6 +73,9 @@ describe HexaPDF::Layout::ColumnBox do
         box = create_box(columns: 1, children: @fixed_size_boxes[0..0], width: 50,
                          style: {position: position})
         check_box(box, 50, 10)
+
+        box = create_box(children: @fixed_size_boxes[0..0], width: 110)
+        refute(box.fit(@frame.available_width, @frame.available_height, @frame))
       end
 
       it "respects the set initial height, position #{position}" do
@@ -83,6 +86,9 @@ describe HexaPDF::Layout::ColumnBox do
         box = create_box(children: @text_boxes[0..1], height: 50, equal_height: true,
                          style: {position: position})
         check_box(box, 100, 50)
+
+        box = create_box(children: @fixed_size_boxes[0..0], height: 110)
+        refute(box.fit(@frame.available_width, @frame.available_height, @frame))
       end
 
       it "respects the border and padding around all columns, position #{position}" do

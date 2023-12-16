@@ -18,6 +18,8 @@
 ### Fixed
 
 * [HexaPDF::Layout::ColumnBox#fit] to correctly take initial height into account
+* [HexaPDF::Layout::ColumnBox#fit] to ensure correct results in case the
+  requested dimensions are larger than the current region
 
 
 ## 0.34.1 - 2023-11-01
