@@ -143,7 +143,7 @@ module HexaPDF
       # If the style property 'position' is set to :flow, the columns might not be rectangles but
       # arbitrary (sets of) polygons since the +frame+s shape is taken into account.
       def fit(available_width, available_height, frame)
-        initial_fit_successful = (@equal_height ? nil : false)
+        initial_fit_successful = (@equal_height && @columns.size > 1 ? nil : false)
         tries = 0
         @width = if style.position == :flow
                    (@initial_width > 0 ? @initial_width : frame.width) - reserved_width
