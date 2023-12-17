@@ -453,7 +453,7 @@ module HexaPDF
                       },
                       'font.map' => {},
                       'font.on_missing_glyph' => proc do |char, font_wrapper|
-                        HexaPDF::Font::InvalidGlyph.new(font_wrapper.wrapped_font, char)
+                        HexaPDF::Font::InvalidGlyph.new(font_wrapper, char)
                       end,
                       'font.on_missing_unicode_mapping' => proc do |code_point, font|
                         raise HexaPDF::Error, "No Unicode mapping for code point #{code_point} " \

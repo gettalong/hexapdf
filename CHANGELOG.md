@@ -15,6 +15,8 @@
 * **Breaking change**: Style property 'position' now takes the absolute position
   directly as value instead of in the 'position_hint' property
 * **Breaking change**: Style property 'position_hint' is now called 'align'
+* **Breaking change**: Glyph objects now take the font wrapper instead of the
+  font on creation
 
 ### Fixed
 

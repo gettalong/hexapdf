@@ -59,8 +59,8 @@ module HexaPDF
       # Represents a single glyph of the wrapped font.
       class Glyph
 
-        # The associated font object.
-        attr_reader :font
+        # The associated TrueTypeWrapper object.
+        attr_reader :font_wrapper
 
         # The glyph ID.
         attr_reader :id
@@ -69,35 +69,40 @@ module HexaPDF
         attr_reader :str
 
         # Creates a new Glyph object.
-        def initialize(font, id, str)
-          @font = font
+        def initialize(font_wrapper, id, str)
+          @font_wrapper = font_wrapper
           @id = id
           @str = str
         end
 
         # Returns the glyph's minimum x coordinate.
         def x_min
-          @x_min ||= @font[:glyf][id].x_min * 1000.0 / @font[:head].units_per_em
+          @x_min ||= @font_wrapper.wrapped_font[:glyf][id].x_min * 1000.0 /
+            @font_wrapper.wrapped_font[:head].units_per_em
         end
 
         # Returns the glyph's maximum x coordinate.
         def x_max
-          @x_max ||= @font[:glyf][id].x_max * 1000.0 / @font[:head].units_per_em
+          @x_max ||= @font_wrapper.wrapped_font[:glyf][id].x_max * 1000.0 /
+            @font_wrapper.wrapped_font[:head].units_per_em
         end
 
         # Returns the glyph's minimum y coordinate.
         def y_min
-          @y_min ||= @font[:glyf][id].y_min * 1000.0 / @font[:head].units_per_em
+          @y_min ||= @font_wrapper.wrapped_font[:glyf][id].y_min * 1000.0 /
+            @font_wrapper.wrapped_font[:head].units_per_em
         end
 
         # Returns the glyph's maximum y coordinate.
         def y_max
-          @y_max ||= @font[:glyf][id].y_max * 1000.0 / @font[:head].units_per_em
+          @y_max ||= @font_wrapper.wrapped_font[:glyf][id].y_max * 1000.0 /
+            @font_wrapper.wrapped_font[:head].units_per_em
         end
 
         # Returns the width of the glyph.
         def width
-          @width ||= @font[:hmtx][id].advance_width * 1000.0 / @font[:head].units_per_em
+          @width ||= @font_wrapper.wrapped_font[:hmtx][id].advance_width * 1000.0 /
+            @font_wrapper.wrapped_font[:head].units_per_em
         end
 
         # Returns +false+ since the word spacing parameter is never applied for multibyte font
@@ -108,7 +113,7 @@ module HexaPDF
 
         #:nodoc:
         def inspect
-          "#<#{self.class.name} font=#{@font.full_name.inspect} id=#{id} #{str.inspect}>"
+          "#<#{self.class.name} font=#{@font_wrapper.wrapped_font.full_name.inspect} id=#{id} #{str.inspect}>"
         end
 
       end
@@ -168,7 +173,7 @@ module HexaPDF
       def glyph(id, str = nil)
         @id_to_glyph[id] ||=
           if id >= 0 && id < @wrapped_font[:maxp].num_glyphs
-            Glyph.new(@wrapped_font, id, str || (+'' << (@cmap.gid_to_code(id) || 0xFFFD)))
+            Glyph.new(self, id, str || (+'' << (@cmap.gid_to_code(id) || 0xFFFD)))
           else
             @pdf_object.document.config['font.on_missing_glyph'].call("\u{FFFD}", self)
           end
@@ -183,7 +188,7 @@ module HexaPDF
         if id < 0 || id >= @wrapped_font[:maxp].num_glyphs
           raise HexaPDF::Error, "Glyph ID #{id} is invalid for font '#{@wrapped_font.full_name}'"
         end
-        Glyph.new(@wrapped_font, id, string)
+        Glyph.new(self, id, string)
       end
 
       # Returns an array of glyph objects representing the characters in the UTF-8 encoded string.

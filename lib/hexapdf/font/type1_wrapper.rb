@@ -48,8 +48,8 @@ module HexaPDF
       # Represents a single glyph of the wrapped font.
       class Glyph
 
-        # The associated font object.
-        attr_reader :font
+        # The associated Type1Wrapper object.
+        attr_reader :font_wrapper
 
         # The name of the glyph.
         attr_reader :name
@@ -59,35 +59,35 @@ module HexaPDF
         attr_reader :str
 
         # Creates a new Glyph object.
-        def initialize(font, name, str)
-          @font = font
+        def initialize(font_wrapper, name, str)
+          @font_wrapper = font_wrapper
           @name = name
           @str = str
         end
 
         # Returns the glyph's minimum x coordinate.
         def x_min
-          @font.metrics.character_metrics[name].bbox[0]
+          @font_wrapper.wrapped_font.metrics.character_metrics[name].bbox[0]
         end
 
         # Returns the glyph's maximum x coordinate.
         def x_max
-          @font.metrics.character_metrics[name].bbox[2]
+          @font_wrapper.wrapped_font.metrics.character_metrics[name].bbox[2]
         end
 
         # Returns the glyph's minimum y coordinate.
         def y_min
-          @font.metrics.character_metrics[name].bbox[1]
+          @font_wrapper.wrapped_font.metrics.character_metrics[name].bbox[1]
         end
 
         # Returns the glyph's maximum y coordinate.
         def y_max
-          @font.metrics.character_metrics[name].bbox[3]
+          @font_wrapper.wrapped_font.metrics.character_metrics[name].bbox[3]
         end
 
         # Returns the width of the glyph.
         def width
-          @width ||= @font.width(name)
+          @width ||= @font_wrapper.wrapped_font.width(name)
         end
 
         # Returns +true+ if the word spacing parameter needs to be applied for the glyph.
@@ -97,7 +97,8 @@ module HexaPDF
 
         #:nodoc:
         def inspect
-          "#<#{self.class.name} font=#{@font.full_name.inspect} id=#{name.inspect} #{str.inspect}>"
+          "#<#{self.class.name} font=#{@font_wrapper.wrapped_font.full_name.inspect} " \
+            "id=#{name.inspect} #{str.inspect}>"
         end
 
       end
@@ -160,7 +161,7 @@ module HexaPDF
           begin
             str = Encoding::GlyphList.name_to_unicode(name, **@zapf_dingbats_opt)
             if @wrapped_font.metrics.character_metrics.key?(name)
-              Glyph.new(@wrapped_font, name, str)
+              Glyph.new(self, name, str)
             else
               @pdf_object.document.config['font.on_missing_glyph'].call(str, self)
             end
@@ -178,7 +179,7 @@ module HexaPDF
           raise HexaPDF::Error, "Glyph named #{name.inspect} not found in " \
             "font '#{@wrapped_font.full_name}'"
         end
-        Glyph.new(@wrapped_font, name, string)
+        Glyph.new(self, name, string)
       end
 
       # Returns an array of glyph objects representing the characters in the UTF-8 encoded string.

@@ -94,7 +94,8 @@ module HexaPDF
     end
 
     def message # :nodoc:
-      "No glyph for #{glyph.str.inspect} in font '#{glyph.font.full_name}' found. \n\n" \
+      "No glyph for #{glyph.str.inspect} in font '#{glyph.font_wrapper.wrapped_font.full_name}' " \
+        "found. \n\n" \
         "Use the configuration option 'font.on_missing_glyph' to customize missing glyph handling."
     end
 

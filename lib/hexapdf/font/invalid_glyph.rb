@@ -41,21 +41,21 @@ module HexaPDF
     # font.
     class InvalidGlyph
 
-      # The associated font object.
-      attr_reader :font
+      # The associated font wrapper object, either a Type1Wrapper or a TrueTypeWrapper.
+      attr_reader :font_wrapper
 
       # The string that could not be represented as a glyph.
       attr_reader :str
 
       # Creates a new Glyph object.
-      def initialize(font, str)
-        @font = font
+      def initialize(font_wrapper, str)
+        @font_wrapper = font_wrapper
         @str = str
       end
 
       # Returns the appropriate missing glyph id based on the used font.
       def id
-        @font.missing_glyph_id
+        @font_wrapper.wrapped_font.missing_glyph_id
       end
       alias name id
 
@@ -75,7 +75,7 @@ module HexaPDF
 
       #:nodoc:
       def inspect
-        "#<#{self.class.name} font=#{@font.full_name.inspect} id=#{id} #{@str.inspect}>"
+        "#<#{self.class.name} font=#{@font_wrapper.wrapped_font.full_name.inspect} id=#{id} #{@str.inspect}>"
       end
 
     end

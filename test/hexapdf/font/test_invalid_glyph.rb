@@ -8,7 +8,9 @@ describe HexaPDF::Font::InvalidGlyph do
     font = Object.new
     font.define_singleton_method(:missing_glyph_id) { 0 }
     font.define_singleton_method(:full_name) { "Test Roman" }
-    @glyph = HexaPDF::Font::InvalidGlyph.new(font, "str")
+    font_wrapper = Object.new
+    font_wrapper.define_singleton_method(:wrapped_font) { font }
+    @glyph = HexaPDF::Font::InvalidGlyph.new(font_wrapper, "str")
   end
 
   it "returns the missing glyph id for id/name" do
