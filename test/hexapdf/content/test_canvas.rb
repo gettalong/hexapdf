@@ -756,6 +756,28 @@ describe HexaPDF::Content::Canvas do
     end
   end
 
+  describe "form" do
+    it "uses the context dimensions if none are given" do
+      form = @canvas.form
+      assert_equal(@canvas.context.box.value, form.box.value)
+    end
+
+    it "uses the provided dimensions" do
+      form = @canvas.form(300, 200)
+      assert_equal([0, 0, 300, 200], form.box.value)
+    end
+
+    it "yields the canvas for defining the form's content" do
+      yielded_canvas = nil
+      form = @canvas.form {|canvas| yielded_canvas = canvas }
+      assert_equal(form.canvas, yielded_canvas)
+    end
+
+    it "raises an ArgumentError if only one of width/height is provided" do
+      assert_raises(ArgumentError) { @canvas.form(20) }
+    end
+  end
+
   describe "graphic_object" do
     it "returns a new graphic object given a name" do
       arc = @canvas.graphic_object(:arc)

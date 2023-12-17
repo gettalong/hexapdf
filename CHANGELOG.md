@@ -6,6 +6,7 @@
 * Style property 'mask_mode' for more control over the region that gets removed
   from a frame after placing a box
 * Style property 'valign' for vertically centering a box in a frame
+* [HexaPDF::Content::Canvas#form] for creating reusable Form XObjects
 
 ### Changed
 

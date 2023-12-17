@@ -1451,6 +1451,43 @@ module HexaPDF
       end
 
       # :call-seq:
+      #   canvas.form {|form_canvas| block }                  => form
+      #   canvas.form(width, height) {|form_canvas| block }   => form
+      #
+      # Creates a reusable Form XObject, yields its canvas and then returns it.
+      #
+      # If no arguments are provided, the bounding box of the form is the same as that of the
+      # context object of this canvas. Otherwise you need to provide the +width+ and +height+ for
+      # the form.
+      #
+      # Once the form has been created, it can be used like an image and drawn mulitple times with
+      # the #xobject method. Note that the created form object is independent of this canvas and its
+      # context object. This means it can also be used with other canvases.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   form = canvas.form do |form_canvas|
+      #     form_canvas.fill_color("hp-blue").line_width(5).
+      #       rectangle(10, 10, 80, 80).fill_stroke
+      #   end
+      #   canvas.xobject(form, at: [0, 0])
+      #   canvas.xobject(form, width: 50, at: [100, 100])
+      #
+      # See: HexaPDF::Type::Form
+      def form(width = nil, height = nil) # :yield: canvas
+        obj = if width && height
+                context.document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, width, height]})
+              elsif width || height
+                raise ArgumentError, "Both arguments width and height need to be provided"
+              else
+                context.document.add({Type: :XObject, Subtype: :Form, BBox: context.box.value.dup})
+              end
+        yield(obj.canvas) if block_given?
+        obj
+      end
+
+      # :call-seq:
       #   canvas.graphic_object(obj, **options)      => obj
       #   canvas.graphic_object(name, **options)     => graphic_object
       #
