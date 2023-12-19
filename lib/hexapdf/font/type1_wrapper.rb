@@ -95,6 +95,11 @@ module HexaPDF
           @name == :space
         end
 
+        # Returns +true+ since this is a valid glyph.
+        def valid?
+          true
+        end
+
         #:nodoc:
         def inspect
           "#<#{self.class.name} font=#{@font_wrapper.wrapped_font.full_name.inspect} " \

@@ -29,6 +29,10 @@ describe HexaPDF::Font::InvalidGlyph do
     refute(@glyph.apply_word_spacing?)
   end
 
+  it "returns false when asked whether it is valid" do
+    refute(@glyph.valid?)
+  end
+
   it "can represent itself for debug purposes" do
     assert_equal('#<HexaPDF::Font::InvalidGlyph font="Test Roman" id=0 "str">',
                  @glyph.inspect)

@@ -7,6 +7,7 @@
   from a frame after placing a box
 * Style property 'valign' for vertically centering a box in a frame
 * [HexaPDF::Content::Canvas#form] for creating reusable Form XObjects
+* Method `#valid?` to all Glyph classes
 
 ### Changed
 

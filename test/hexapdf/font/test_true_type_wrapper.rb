@@ -54,6 +54,7 @@ describe HexaPDF::Font::TrueTypeWrapper do
       assert_equal(584, glyph.x_max)
       assert_equal(696, glyph.y_max)
       refute(glyph.apply_word_spacing?)
+      assert(glyph.valid?)
       assert_equal('#<HexaPDF::Font::TrueTypeWrapper::Glyph font="Ubuntu-Title" id=17 "0">',
                    glyph.inspect)
     end

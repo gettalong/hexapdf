@@ -53,6 +53,7 @@ describe HexaPDF::Font::Type1Wrapper do
       assert_equal(706, glyph.x_max)
       assert_equal(674, glyph.y_max)
       refute(glyph.apply_word_spacing?)
+      assert(glyph.valid?)
       assert_equal('#<HexaPDF::Font::Type1Wrapper::Glyph font="Times Roman" id=:A "A">',
                    glyph.inspect)
     end

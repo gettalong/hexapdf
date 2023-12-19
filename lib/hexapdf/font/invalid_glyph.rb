@@ -73,6 +73,11 @@ module HexaPDF
         false
       end
 
+      # Returns +false+ since this is an invalid glyph.
+      def valid?
+        false
+      end
+
       #:nodoc:
       def inspect
         "#<#{self.class.name} font=#{@font_wrapper.wrapped_font.full_name.inspect} id=#{id} #{@str.inspect}>"
