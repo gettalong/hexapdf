@@ -33,6 +33,12 @@ describe HexaPDF::Font::InvalidGlyph do
     refute(@glyph.valid?)
   end
 
+  it "returns true if the glyph represents a control character" do
+    refute(@glyph.control_char?)
+    assert(HexaPDF::Font::InvalidGlyph.new(nil, "\n"))
+    assert(HexaPDF::Font::InvalidGlyph.new(nil, "\u{8203}"))
+  end
+
   it "can represent itself for debug purposes" do
     assert_equal('#<HexaPDF::Font::InvalidGlyph font="Test Roman" id=0 "str">',
                  @glyph.inspect)

@@ -34,6 +34,8 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'set'
+
 module HexaPDF
   module Font
 
@@ -76,6 +78,15 @@ module HexaPDF
       # Returns +false+ since this is an invalid glyph.
       def valid?
         false
+      end
+
+      # Set of codepoints for text control characters, like tabulator, line separators, non-breaking
+      # space etc.
+      CONTROL_CHARS = Set.new([9, 10, 11, 12, 13, 133, 8232, 8233, 8203, 173, 160]) #:nodoc:
+
+      # Returns +true+ if this glyph represents a control character like tabulator or newline.
+      def control_char?
+        CONTROL_CHARS.include?(str.ord)
       end
 
       #:nodoc:

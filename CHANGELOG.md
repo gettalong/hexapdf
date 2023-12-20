@@ -8,6 +8,8 @@
 * Style property 'valign' for vertically centering a box in a frame
 * [HexaPDF::Content::Canvas#form] for creating reusable Form XObjects
 * Method `#valid?` to all Glyph classes
+* [HexaPDF::Font::InvalidGlyph#control_char?] for detecting invalid glyphs that
+  represent a control character (like a newline)
 
 ### Changed
 
