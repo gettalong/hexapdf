@@ -25,9 +25,13 @@ describe HexaPDF::Font::Type1Wrapper do
     assert_equal(1, @times_wrapper.scaling_factor)
   end
 
-  describe "decode_utf8" do
-    it "returns an array of glyph objects" do
+  describe "decode_*" do
+    it "decode_utf8 returns an array of glyph objects" do
       assert_equal([:T, :e, :s, :t], @times_wrapper.decode_utf8("Test").map(&:name))
+    end
+
+    it "decode_codepoint returns a single glyph object" do
+      assert_equal(:A, @times_wrapper.decode_codepoint(65).name)
     end
 
     it "falls back to the internal font encoding if the Unicode codepoint is not mapped" do

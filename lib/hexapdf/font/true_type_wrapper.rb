@@ -197,15 +197,23 @@ module HexaPDF
       end
 
       # Returns an array of glyph objects representing the characters in the UTF-8 encoded string.
+      #
+      # See #decode_codepoint for details.
       def decode_utf8(str)
-        str.codepoints.map! do |c|
-          @codepoint_to_glyph[c] ||=
-            if (gid = @cmap[c])
-              glyph(gid, +'' << c)
-            else
-              @pdf_object.document.config['font.on_missing_glyph'].call(+'' << c, self)
-            end
-        end
+        str.codepoints.map! {|c| @codepoint_to_glyph[c] || decode_codepoint(c) }
+      end
+
+      # Returns a glyph object for the given Unicode codepoint.
+      #
+      # The configuration option 'font.on_missing_glyph' is invoked if no glyph for a given
+      # codepoint is available.
+      def decode_codepoint(codepoint)
+        @codepoint_to_glyph[codepoint] ||=
+          if (gid = @cmap[codepoint])
+            glyph(gid, +'' << codepoint)
+          else
+            @pdf_object.document.config['font.on_missing_glyph'].call(+'' << codepoint, self)
+          end
       end
 
       # Encodes the glyph and returns the code string.

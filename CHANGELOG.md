@@ -10,6 +10,9 @@
 * Method `#valid?` to all Glyph classes
 * [HexaPDF::Font::InvalidGlyph#control_char?] for detecting invalid glyphs that
   represent a control character (like a newline)
+* [HexaPDF::Font::Type1Wrapper#decode_codepoint] and
+  [HexaPDF::Font::TrueTypeWrapper#decode_codepoint] for decoding a single
+  Unicode codepoint into a glyph
 
 ### Changed
 

@@ -189,22 +189,30 @@ module HexaPDF
 
       # Returns an array of glyph objects representing the characters in the UTF-8 encoded string.
       #
+      # See #decode_codepoint for details.
+      def decode_utf8(str)
+        str.codepoints.map! {|c| @codepoint_to_glyph[c] || decode_codepoint(c) }
+      end
+
+      # Returns a glyph object for the given Unicode codepoint.
+      #
       # If a Unicode codepoint is not available as glyph object, it is tried to map the codepoint
       # using the font's internal encoding. This is useful, for example, for the ZapfDingbats font
       # to use ASCII characters for accessing the glyphs.
-      def decode_utf8(str)
-        str.codepoints.map! do |c|
-          @codepoint_to_glyph[c] ||=
-            begin
-              name = Encoding::GlyphList.unicode_to_name(+'' << c, **@zapf_dingbats_opt)
-              if @wrapped_font.metrics.character_set == 'Special' &&
-                  (name == :'.notdef' || !@wrapped_font.metrics.character_metrics.key?(name))
-                name = @encoding.name(c)
-              end
-              name = +"u" << c.to_s(16).rjust(6, '0') if name == :'.notdef'
-              glyph(name)
+      #
+      # The configuration option 'font.on_missing_glyph' is invoked if no glyph for a given
+      # codepoint is available.
+      def decode_codepoint(codepoint)
+        @codepoint_to_glyph[codepoint] ||=
+          begin
+            name = Encoding::GlyphList.unicode_to_name(+'' << codepoint, **@zapf_dingbats_opt)
+            if @wrapped_font.metrics.character_set == 'Special' &&
+                (name == :'.notdef' || !@wrapped_font.metrics.character_metrics.key?(name))
+              name = @encoding.name(codepoint)
             end
-        end
+            name = +"u" << codepoint.to_s(16).rjust(6, '0') if name == :'.notdef'
+            glyph(name)
+          end
       end
 
       # Encodes the glyph and returns the code string.

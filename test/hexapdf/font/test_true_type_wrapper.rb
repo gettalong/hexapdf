@@ -29,10 +29,14 @@ describe HexaPDF::Font::TrueTypeWrapper do
     refute(HexaPDF::Font::TrueTypeWrapper.new(@doc, @font, subset: false).subset?)
   end
 
-  describe "decode_utf8" do
-    it "returns an array of glyph objects" do
+  describe "decode_*" do
+    it "decode_utf8 returns an array of glyph objects" do
       assert_equal("Test",
                    @font_wrapper.decode_utf8("Test").map {|g| @cmap.gid_to_code(g.id) }.pack('U*'))
+    end
+
+    it "decode_codepoint returns a single glyph object" do
+      assert_equal("A", @font_wrapper.decode_codepoint(65).str)
     end
 
     it "invokes font.on_missing_glyph for UTF-8 characters for which no glyph exists" do
