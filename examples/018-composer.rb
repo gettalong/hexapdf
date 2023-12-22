@@ -4,9 +4,9 @@
 # documents by providing a high-level interface to the box layouting engine.
 #
 # Basic style properties can be set using the [HexaPDF::Composer#style] method
-# and the style name `:basic`. These properties are reused by every box and can
+# and the style name `:base`. These properties are reused by every box and can
 # be adjusted on a box-by-box basis. Newly defined styles also inherit the
-# properties from the `:basic` style.
+# properties from the `:base` style.
 #
 # Various methods allow the easy creation of boxes, for example, text and image
 # boxes. All these boxes are automatically drawn on the page. If the page has
