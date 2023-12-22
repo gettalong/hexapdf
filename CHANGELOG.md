@@ -15,6 +15,8 @@
   Unicode codepoint into a glyph
 * [HexaPDF::Layout::TextFragment::create_with_fallback_glyphs] for creating an
   array of text fragments with support for fallback glyphs
+* Configuration option 'font.on_invalid_glyph' for use together with the new
+  method for creating text fragments with fallback glyphs
 
 ### Changed
 

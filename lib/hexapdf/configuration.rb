@@ -263,6 +263,30 @@ module HexaPDF
   #    [italic] For the italic or oblique variant of the font
   #    [bold_italic] For the bold and italic/oblique variant of the font
   #
+  # font.on_invalid_glyph::
+  #    Callback hook when a character cannot be mapped to a glyph and one or more glyphs from a
+  #    different font should be used. Only applies when using high-level text creation facilities.
+  #
+  #    The value needs to be an object that responds to \#call(codepoint, invalid_glyph) where
+  #    +codepoint+ is the Unicode codepoint that cannot be mapped to a valid glyph. The
+  #    +invalid_glyph+ argument is the HexaPDF::Font::InvalidGlyph object that was the result of the
+  #    initial mapping. The return value has to be an array of glyph objects which can be from any
+  #    font but all need to be from the same one.
+  #
+  #    The default implementation does nothing, so invalid glyphs will be passed on.
+  #
+  #    Note: The 'font.on_missing_glyph' configuration option does something similar but is
+  #    restricted to returning a single glyph from the same font. Whenever a glyph is not found,
+  #    'font.on_missing_glyph' is invoked first and if an invalid glyph instance is returned, this
+  #    callback hook is invoked when using the layout engine.
+  #
+  #    A typical implementation would use one or more fallback fonts for providing the necessary
+  #    glyph(s):
+  #
+  #      doc.config['font.on_invalid_glyph'] = lambda do |codepoint, glyph|
+  #        [other_font.decode_codepoint(codepoint)]
+  #      end
+  #
   # font.on_missing_glyph::
   #    Callback hook when an UTF-8 character cannot be mapped to a glyph of a font.
   #
@@ -452,6 +476,7 @@ module HexaPDF
                         Encryption: 'HexaPDF::Filter::Encryption',
                       },
                       'font.map' => {},
+                      'font.on_invalid_glyph' => nil,
                       'font.on_missing_glyph' => proc do |char, font_wrapper|
                         HexaPDF::Font::InvalidGlyph.new(font_wrapper, char)
                       end,
