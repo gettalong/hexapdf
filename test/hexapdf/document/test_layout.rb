@@ -110,6 +110,9 @@ end
 describe HexaPDF::Document::Layout do
   before do
     @doc = HexaPDF::Document.new
+    @doc.config['font.on_invalid_glyph'] = lambda do |codepoint, invalid_glyph|
+      [@doc.fonts.add('ZapfDingbats').decode_codepoint(codepoint)]
+    end
     @layout = @doc.layout
   end
 
@@ -177,14 +180,37 @@ describe HexaPDF::Document::Layout do
     end
   end
 
+  describe "text_fragments" do
+    it "creates an array of text fragments with fallback glyph support" do
+      result = @layout.text_fragments("Tom✂")
+      assert_equal(2, result.size)
+      assert_equal(@doc.fonts.add('ZapfDingbats'), result[1].style.font)
+
+      @doc.config['font.on_invalid_glyph'] = nil
+      assert_equal(1, @layout.text_fragments("Tom✂").size)
+    end
+
+    it "uses the standard rules for creating the style object" do
+      @layout.style(:named, font_size: 20)
+      result = @layout.text_fragments("Test", style: :named)
+      assert_equal(20, result[0].style.font_size)
+    end
+
+    it "optionally assigns the properties to all fragments" do
+      result = @layout.text_fragments("Tom✂", properties: {key: :value})
+      assert_equal(:value, result[0].properties[:key])
+      assert_equal(:value, result[1].properties[:key])
+    end
+  end
+
   describe "text_box" do
     it "creates a text box" do
-      box = @layout.text_box("Test", width: 10, height: 15, properties: {key: :value})
+      box = @layout.text_box("Test✂", width: 10, height: 15, properties: {key: :value})
       assert_equal(10, box.width)
       assert_equal(15, box.height)
       assert_same(@doc.fonts.add("Times"), box.style.font)
       items = box.instance_variable_get(:@items)
-      assert_equal(1, items.length)
+      assert_equal(2, items.length)
       assert_same(box.style, items.first.style)
       assert_equal({key: :value}, box.properties)
     end
@@ -227,10 +253,10 @@ describe HexaPDF::Document::Layout do
 
   describe "formatted_text" do
     it "creates a text box with the given text" do
-      box = @layout.formatted_text_box(["Test"], width: 10, height: 15)
+      box = @layout.formatted_text_box(["Test✂"], width: 10, height: 15)
       assert_equal(10, box.width)
       assert_equal(15, box.height)
-      assert_equal(1, box.instance_variable_get(:@items).length)
+      assert_equal(2, box.instance_variable_get(:@items).length)
     end
 
     it "allows setting custom properties on the whole box" do
@@ -240,8 +266,9 @@ describe HexaPDF::Document::Layout do
     end
 
     it "allows using a hash with :text key instead of a simple string" do
-      box = @layout.formatted_text_box([{text: "Test"}])
+      box = @layout.formatted_text_box([{text: "Test✂"}])
       items = box.instance_variable_get(:@items)
+      assert_equal(2, items.length)
       assert_equal(4, items[0].items.length)
     end
 

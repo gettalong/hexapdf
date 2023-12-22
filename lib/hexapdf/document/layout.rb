@@ -260,6 +260,28 @@ module HexaPDF
                                      style: retrieve_style(style), **box_options)
       end
 
+      # Creates an array of HexaPDF::Layout::TextFragment objects for the given +text+.
+      #
+      # This method uses the configuration option 'font.on_invalid_glyph' to map Unicode characters
+      # without a valid glyph in the given font to zero, one or more glyphs in a fallback font.
+      #
+      # +style+, +style_properties+::
+      #     The text is styled using the given +style+. This can either be a style name set via
+      #     #style or anything Layout::Style::create accepts. If any additional +style_properties+
+      #     are specified, the style is duplicated and the additional styles are applied.
+      #
+      # +properties+::
+      #     This can be used to set custom properties on the created text fragments. See
+      #     Layout::Box#properties for details and usage.
+      def text_fragments(text, style: nil, properties: nil, **style_properties)
+        style = retrieve_style(style, style_properties)
+        fragments = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs(
+          text, style, &@document.config['font.on_invalid_glyph']
+        )
+        fragments.each {|f| f.properties.update(properties) } if properties
+        fragments
+      end
+
       # Creates a HexaPDF::Layout::TextBox for the given text.
       #
       # This method is of the two main methods for creating text boxes, the other being
@@ -300,7 +322,7 @@ module HexaPDF
                    **style_properties)
         style = retrieve_style(style, style_properties)
         box_style = (box_style ? retrieve_style(box_style) : style)
-        box_class_for_name(:text).new(items: [HexaPDF::Layout::TextFragment.create(text, style)],
+        box_class_for_name(:text).new(items: text_fragments(text, style: style),
                                       width: width, height: height, properties: properties,
                                       style: box_style)
       end
@@ -319,11 +341,11 @@ module HexaPDF
       # * Hashes can contain any style properties and the following special keys:
       #
       #   text:: The text to be formatted. If this is set and :box is not, the hash will be
-      #          transformed into a text fragment.
+      #          transformed into text fragments.
       #
       #   link:: A URL that should be linked to. If no text is provided but a link, the link is used
-      #          for the text. If this is set and :box is not, the hash will be transformed into a
-      #          text fragment with an appropriate link overlay.
+      #          for the text. If this is set and :box is not, the hash will be transformed into
+      #          text fragments with an appropriate link overlay.
       #
       #   style:: The style to use as base style instead of the style created from the +style+ and
       #           +style_properties+ arguments. This can either be a style name set via #style or
@@ -333,6 +355,8 @@ module HexaPDF
       #           properties applied.
       #
       #           The final style is used for a created text fragment.
+      #
+      #   properties:: The custom properties that should be set on the created text fragments.
       #
       #   box:: An inline box to be used. If this is set, the hash will be transformed into an
       #         inline box.
@@ -379,26 +403,24 @@ module HexaPDF
                              **style_properties)
         style = retrieve_style(style, style_properties)
         box_style = (box_style ? retrieve_style(box_style) : style)
-        data.map! do |item|
+        data = data.inject([]) do |result, item|
           case item
           when String
-            HexaPDF::Layout::TextFragment.create(item, style)
+            result.concat(text_fragments(item, style: style))
           when Hash
             if (args = item.delete(:box))
               block = item.delete(:block)
-              inline_box(*args, **item, &block)
+              result << inline_box(*args, **item, &block)
             else
               link = item.delete(:link)
               (item[:overlays] ||= []) << [:link, {uri: link}] if link
               text = item.delete(:text) || link || ""
               item_properties = item.delete(:properties)
               frag_style = retrieve_style(item.delete(:style) || style, item)
-              fragment = HexaPDF::Layout::TextFragment.create(text, frag_style)
-              fragment.properties.update(item_properties) if item_properties
-              fragment
+              result.concat(text_fragments(text, style: frag_style, properties: item_properties))
             end
           when HexaPDF::Layout::InlineBox
-            item
+            result << item
           else
             raise ArgumentError, "Invalid item of class #{item.class} in data array"
           end

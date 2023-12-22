@@ -17,6 +17,8 @@
   array of text fragments with support for fallback glyphs
 * Configuration option 'font.on_invalid_glyph' for use together with the new
   method for creating text fragments with fallback glyphs
+* [HexaPDF::Document::Layout#text_fragments] for creating text fragments with
+  support for fallback glyphs via 'font.on_invalid_glyph'
 
 ### Changed
 
