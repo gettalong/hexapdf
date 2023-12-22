@@ -234,7 +234,8 @@ describe HexaPDF::Document::Layout do
     end
 
     it "allows setting custom properties on the whole box" do
-      box = @layout.formatted_text_box(["Test"], properties: {key: :value})
+      box = @layout.formatted_text_box([{text: "Test", properties: {key: :novalue}}],
+                                        properties: {key: :value})
       assert_equal({key: :value}, box.properties)
     end
 

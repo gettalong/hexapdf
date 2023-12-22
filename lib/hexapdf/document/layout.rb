@@ -391,10 +391,10 @@ module HexaPDF
               link = item.delete(:link)
               (item[:overlays] ||= []) << [:link, {uri: link}] if link
               text = item.delete(:text) || link || ""
-              properties = item.delete(:properties)
+              item_properties = item.delete(:properties)
               frag_style = retrieve_style(item.delete(:style) || style, item)
               fragment = HexaPDF::Layout::TextFragment.create(text, frag_style)
-              fragment.properties.update(properties) if properties
+              fragment.properties.update(item_properties) if item_properties
               fragment
             end
           when HexaPDF::Layout::InlineBox
