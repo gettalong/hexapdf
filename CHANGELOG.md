@@ -13,6 +13,8 @@
 * [HexaPDF::Font::Type1Wrapper#decode_codepoint] and
   [HexaPDF::Font::TrueTypeWrapper#decode_codepoint] for decoding a single
   Unicode codepoint into a glyph
+* [HexaPDF::Layout::TextFragment::create_with_fallback_glyphs] for creating an
+  array of text fragments with support for fallback glyphs
 
 ### Changed
 

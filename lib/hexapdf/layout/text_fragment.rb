@@ -70,6 +70,56 @@ module HexaPDF
         TextShaper.new.shape_text(fragment)
       end
 
+      # :call-seq:
+      #   TextFragment.create_with_fallback_glyphs(text, style)                      -> [frag]
+      #   TextFragment.create_with_fallback_glyphs(text, style) {|codepoint| block } -> [frag1, frag2, ...]
+      #
+      # Creates one or more TextFragment objects for the given text - possibly using glyphs from
+      # fallback fonts -, shapes them and returns them.
+      #
+      # If no block is given, the method works like #create but returns the text fragment inside an
+      # array.
+      #
+      # If a block is given, the text is split on codepoints for which there is no glyph in the
+      # style's font. For the parts with valid glyphs TextFragment objects are created like with
+      # #create. Each codepoint without a valid glyph is yielded to the given block together with
+      # the associated HexaPDF::Font::InvalidGlyph object as arguments. The block needs to return an
+      # array of either HexaPDF::Font::Type1Wrapper::Glyph or HexaPDF::Font::TrueTypeWrapper::Glyph
+      # objects. This array is then used for creating a TextFragment object.
+      #
+      # The needed style of the text fragments is specified by the +style+ argument (see
+      # Style::create for details). Note that the resulting style object needs at least the font
+      # set.
+      def self.create_with_fallback_glyphs(text, style)
+        return [create(text, style)] if !block_given? || text.empty?
+
+        style = Style.create(style)
+        styles = Hash.new {|h, k| h[k] = style.dup.font(k) }
+        styles[style.font] = style
+
+        result = []
+        items = []
+        shaper = TextShaper.new
+        font = style.font
+        text.each_codepoint do |codepoint|
+          glyph = font.decode_codepoint(codepoint)
+          if glyph.valid? || glyph.control_char?
+            items << glyph
+          else
+            unless items.empty?
+              result << shaper.shape_text(new(items, style))
+              items = []
+            end
+            fallback = yield(codepoint, glyph)
+            unless fallback.empty?
+              result << shaper.shape_text(new(fallback, styles[fallback.first.font_wrapper]))
+            end
+          end
+        end
+        result << shaper.shape_text(new(items, style)) unless items.empty?
+        result
+      end
+
       # The items (glyphs and kerning values) of the text fragment.
       attr_accessor :items
 

@@ -34,6 +34,43 @@ describe HexaPDF::Layout::TextFragment do
     end
   end
 
+  describe "create_with_fallback_glyphs" do
+    it "creates an array with a single fragment object if no block is given" do
+      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("Tom", font: @font, font_size: 20)
+      assert_equal(1, frags.size)
+      assert_equal(37.78, frags[0].width)
+    end
+
+    it "allows using a style object instead of directly specifying style properties" do
+      style = HexaPDF::Layout::Style.new(font: @font, font_size: 20)
+      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("Tom", style)
+      assert_equal(37.78, frags[0].width)
+    end
+
+    it "replaces invalid glyphs with the result of the block" do
+      zapf_dingbats = @doc.fonts.add('ZapfDingbats')
+      i = 0
+      fallback = lambda do |codepoint, invalid_glyph|
+        case (i += 1) % 3
+        when 0 then []
+        when 1 then [zapf_dingbats.decode_codepoint(codepoint)]
+        when 2 then @font.decode_utf8("Tom")
+        end
+      end
+      style = HexaPDF::Layout::Style.new(font: @font, font_size: 20, font_features: {kern: true})
+
+      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("✂Tom✂✂Tom✂", style, &fallback)
+      assert_equal(5, frags.size)
+      assert_equal(zapf_dingbats, frags[0].style.font)
+      assert_equal(:a2, frags[0].items[0].name)
+      assert_equal(@font, frags[2].style.font)
+
+      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("Tom✂Tom", style, &fallback)
+      assert_equal(3, frags.size)
+      assert_equal(frags[0].width, frags[1].width)
+    end
+  end
+
   describe "initialize" do
     before do
       @items = @font.decode_utf8("Tom")
