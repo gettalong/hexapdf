@@ -28,7 +28,7 @@ adipis\u{00AD}cing elit, sed do eiusmod tempor incididunt ut labore et
 dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
 ullamco laboris nisi ut aliquip ex ea commodo consequat.
 ".tr("\n", ' ') * 12
-items = [TextFragment.create(sample_text, font: doc.fonts.add("Times"))]
+items = doc.layout.text_fragments(sample_text, font: doc.fonts.add("Times"))
 layouter = TextLayouter.new
 layouter.style.text_align = :justify
 

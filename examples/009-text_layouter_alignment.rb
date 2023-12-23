@@ -27,8 +27,7 @@ canvas.font("Times", size: 10, variant: :bold)
 width = 100
 height = 150
 y_base = 800
-tf = HexaPDF::Layout::TextFragment.create(sample_text,
-                                          font: doc.fonts.add("Times"))
+tf = doc.layout.text_fragments(sample_text, font: doc.fonts.add("Times"))
 tl = HexaPDF::Layout::TextLayouter.new
 
 [:left, :center, :right, :justify].each_with_index do |align, x_index|
@@ -40,7 +39,7 @@ tl = HexaPDF::Layout::TextLayouter.new
     canvas.text(valign.to_s, at: [20, y - height / 2]) if x_index == 0
 
     tl.style.text_align(align).text_valign(valign)
-    tl.fit([tf], width, height).draw(canvas, x, y)
+    tl.fit(tf, width, height).draw(canvas, x, y)
     canvas.stroke_color("hp-blue-dark").rectangle(x, y, width, -height).stroke
   end
 end

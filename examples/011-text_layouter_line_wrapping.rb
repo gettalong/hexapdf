@@ -37,17 +37,15 @@ require 'hexapdf'
 
 doc = HexaPDF::Document.new
 canvas = doc.pages.add([0, 0, 180, 230]).canvas
-canvas.font("Times", size: 10, variant: :bold)
-
 text = "Hello! Fly-fishing\nand wand\u{00AD}ering\taround - fanta\u{200B}stic" \
   " 1\u{00A0}0\u{00A0}1"
 
 x = 10
 y = 220
-frag = HexaPDF::Layout::TextFragment.create(text, font: doc.fonts.add("Times"))
+frag = doc.layout.text_fragments(text, font: doc.fonts.add("Times"))
 layouter = HexaPDF::Layout::TextLayouter.new
 [30, 60, 100, 160].each do |width|
-  result = layouter.fit([frag], width, 400)
+  result = layouter.fit(frag, width, 400)
   result.draw(canvas, x, y)
   canvas.stroke_color("hp-blue-dark").line_width(0.2)
   canvas.rectangle(x, y, width, -result.height).stroke

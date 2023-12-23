@@ -25,8 +25,6 @@
 
 require 'hexapdf'
 
-include HexaPDF::Layout
-
 doc = HexaPDF::Document.new
 page = doc.pages.add
 canvas = page.canvas
@@ -40,8 +38,8 @@ dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
 ullamco laboris nisi ut aliquip ex ea commodo consequat.
 ".tr("\n", ' ') * 10
 
-items = [TextFragment.create(sample_text, font: font)]
-layouter = TextLayouter.new
+items = doc.layout.text_fragments(sample_text, font: font)
+layouter = HexaPDF::Layout::TextLayouter.new
 
 ########################################################################
 # Circly things on the top
