@@ -29,6 +29,8 @@
 * **Breaking change**: Style property 'position_hint' is now called 'align'
 * **Breaking change**: Glyph objects now take the font wrapper instead of the
   font on creation
+* **Breaking change**: The item marker type of a [HexaPDF::Layout::ListBox] item
+  is now set via `#marker_type` instead of `#item_type`
 
 ### Fixed
 

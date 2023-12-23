@@ -44,9 +44,10 @@ module HexaPDF
 
     # A ListBox arranges its children as unordered or ordered list items.
     #
-    # The indentation of the contents from the left (#content_indentation) as well as the type of
-    # item (#item_type) can be specified. Additionally, it is possible to define the start number
-    # for ordered lists (#start_number) and the amount of spacing between items (#item_spacing).
+    # The indentation of the contents from the left (#content_indentation) as well as the marker
+    # type of the items (#marker_type) can be specified. Additionally, it is possible to define the
+    # start number for ordered lists (#start_number) and the amount of spacing between items
+    # (#item_spacing).
     #
     # If the list box has padding and/or borders specified, they are handled like with any other
     # box. This means they are around all items and their contents and are not used separately for
@@ -75,7 +76,7 @@ module HexaPDF
       #     Draws a filled disc for the items of the unordered list.
       #
       #       #>pdf-composer100
-      #       composer.box(:list, item_type: :disc) do |list|
+      #       composer.box(:list, marker_type: :disc) do |list|
       #         list.lorem_ipsum_box(sentences: 1)
       #       end
       #
@@ -84,7 +85,7 @@ module HexaPDF
       #     Draws an unfilled circle for the items of the unordered list.
       #
       #       #>pdf-composer100
-      #       composer.box(:list, item_type: :circle) do |list|
+      #       composer.box(:list, marker_type: :circle) do |list|
       #         list.lorem_ipsum_box(sentences: 1)
       #       end
       #
@@ -93,7 +94,7 @@ module HexaPDF
       #     Draws a filled square for the items of the unordered list.
       #
       #       #>pdf-composer100
-      #       composer.box(:list, item_type: :square) do |list|
+      #       composer.box(:list, marker_type: :square) do |list|
       #         list.lorem_ipsum_box(sentences: 1)
       #       end
       #
@@ -103,7 +104,7 @@ module HexaPDF
       #     the ordered list.
       #
       #       #>pdf-composer100
-      #       composer.box(:list, item_type: :decimal) do |list|
+      #       composer.box(:list, marker_type: :decimal) do |list|
       #         5.times { list.lorem_ipsum_box(sentences: 1) }
       #       end
       #
@@ -118,19 +119,19 @@ module HexaPDF
       #      image = lambda do |document, box, index|
       #        document.layout.image_box(machu_picchu, height: box.style.font_size)
       #      end
-      #      composer.box(:list, item_type: image) do |list|
+      #      composer.box(:list, marker_type: image) do |list|
       #        2.times { list.lorem_ipsum_box(sentences: 1) }
       #      end
-      attr_reader :item_type
+      attr_reader :marker_type
 
-      # The start number when using an #item_type that represents an ordered list.
+      # The start number when using a #marker_type that represents an ordered list.
       #
       # The default value for this is 1.
       #
       # Example:
       #
       #   #>pdf-composer100
-      #   composer.box(:list, item_type: :decimal, start_number: 3) do |list|
+      #   composer.box(:list, marker_type: :decimal, start_number: 3) do |list|
       #     2.times { list.lorem_ipsum_box(sentences: 1) }
       #   end
       attr_reader :start_number
@@ -162,11 +163,11 @@ module HexaPDF
       attr_reader :item_spacing
 
       # Creates a new ListBox object for the given child boxes in +children+.
-      def initialize(children: [], item_type: :disc, content_indentation: nil, start_number: 1,
+      def initialize(children: [], marker_type: :disc, content_indentation: nil, start_number: 1,
                      item_spacing: 0, **kwargs)
         super(**kwargs)
         @children = children
-        @item_type = item_type
+        @marker_type = marker_type
         @content_indentation = content_indentation || 2 * style.font_size
         @start_number = start_number
         @item_spacing = item_spacing
@@ -322,10 +323,10 @@ module HexaPDF
       # Creates a box for the item marker at the given item index, using #item_style to decide on
       # its contents.
       def item_marker_box(document, index)
-        return @item_type.call(document, self, index) if @item_type.kind_of?(Proc)
+        return @marker_type.call(document, self, index) if @marker_type.kind_of?(Proc)
         return @item_marker_box if defined?(@item_marker_box)
 
-        fragment = case @item_type
+        fragment = case @marker_type
                    when :disc
                      TextFragment.create("•", font: document.fonts.add("Times"),
                                          font_size: style.font_size, fill_color: style.fill_color)
@@ -347,10 +348,10 @@ module HexaPDF
                      }
                      TextFragment.create(text, decimal_style)
                    else
-                     raise HexaPDF::Error, "Unknown list item type #{@item_type.inspect}"
+                     raise HexaPDF::Error, "Unknown list marker type #{@marker_type.inspect}"
                    end
         box = TextBox.new(items: [fragment], style: {text_align: :right, padding: [0, 5, 0, 0]})
-        @item_marker_box = box unless @item_type == :decimal
+        @item_marker_box = box unless @marker_type == :decimal
         box
       end
 

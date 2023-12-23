@@ -30,11 +30,11 @@ HexaPDF::Composer.create('composer_optional_content.pdf') do |composer|
   composer.text('The Great Ruby Quiz', text_align: :center, margin: [0, 0, 24],
                 font: ['Helvetica', variant: :bold], font_size: 24)
 
-  composer.list(item_type: :decimal, item_spacing: 32, style: :question) do |listing|
+  composer.list(marker_type: :decimal, item_spacing: 32, style: :question) do |listing|
     listing.multiple do |item|
       item.text('Who created Ruby?', style: :question)
       item.column(columns: 3, gaps: 5) do |cols|
-        cols.list(item_type: :decimal) do |answers|
+        cols.list(marker_type: :decimal) do |answers|
           answers.text('Guido van Rossum')
           answers.multiple do |answer|
             answer.text('Yukihiro “Matz” Matsumoto', position: :float)
@@ -49,7 +49,7 @@ HexaPDF::Composer.create('composer_optional_content.pdf') do |composer|
     listing.multiple do |item|
       item.text('When was Ruby created?', style: :question)
       item.column(columns: 3, gaps: 5) do |cols|
-        cols.list(item_type: :decimal) do |answers|
+        cols.list(marker_type: :decimal) do |answers|
           answers.text('1991')
           answers.text('1992')
           answers.multiple do |answer|

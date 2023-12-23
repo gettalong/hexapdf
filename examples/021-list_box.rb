@@ -16,7 +16,7 @@ HexaPDF::Composer.create("list_box.pdf") do |composer|
   composer.list(content_indentation: 40, item_spacing: 20) do |list|
     list.lorem_ipsum
     list.image(File.join(__dir__, 'machupicchu.jpg'), height: 100)
-    list.list(item_type: :decimal) do |sub_list|
+    list.list(marker_type: :decimal) do |sub_list|
       1.upto(10) {|i| sub_list.text("Item #{i}") }
     end
     list.column do |column|

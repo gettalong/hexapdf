@@ -38,10 +38,10 @@ describe HexaPDF::Layout::ListBox do
 
   describe "initialize" do
     it "creates a new instance with the given arguments" do
-      box = create_box(children: [:a], item_type: :circle, content_indentation: 15,
+      box = create_box(children: [:a], marker_type: :circle, content_indentation: 15,
                        start_number: 4, item_spacing: 20)
       assert_equal([:a], box.children)
-      assert_equal(:circle, box.item_type)
+      assert_equal(:circle, box.marker_type)
       assert_equal(15, box.content_indentation)
       assert_equal(4, box.start_number)
       assert_equal(20, box.item_spacing)
@@ -109,7 +109,7 @@ describe HexaPDF::Layout::ListBox do
     end
 
     it "fails for unknown item types" do
-      box = create_box(children: @text_boxes[0, 1], item_type: :unknown)
+      box = create_box(children: @text_boxes[0, 1], marker_type: :unknown)
       assert_raises(HexaPDF::Error) { box.fit(100, 100, @frame) }
     end
   end
@@ -179,7 +179,7 @@ describe HexaPDF::Layout::ListBox do
     end
 
     it "draws a circle as marker" do
-      box = create_box(children: @fixed_size_boxes[0, 1], item_type: :circle,
+      box = create_box(children: @fixed_size_boxes[0, 1], marker_type: :circle,
                        style: {font_size: 11, fill_color: 0.5})
       box.fit(100, 100, @frame)
       box.draw(@canvas, 0, 100 - box.height)
@@ -201,7 +201,7 @@ describe HexaPDF::Layout::ListBox do
     end
 
     it "draws a square as marker" do
-      box = create_box(children: @fixed_size_boxes[0, 1], item_type: :square,
+      box = create_box(children: @fixed_size_boxes[0, 1], marker_type: :square,
                        style: {font_size: 11, fill_color: 0.5})
       box.fit(100, 100, @frame)
       box.draw(@canvas, 0, 100 - box.height)
@@ -223,7 +223,7 @@ describe HexaPDF::Layout::ListBox do
     end
 
     it "draws decimal numbers as marker" do
-      box = create_box(children: @fixed_size_boxes[0, 2], item_type: :decimal,
+      box = create_box(children: @fixed_size_boxes[0, 2], marker_type: :decimal,
                        style: {font_size: 11, fill_color: 0.5},
                        content_indentation: 20)
       box.fit(100, 100, @frame)
@@ -260,7 +260,7 @@ describe HexaPDF::Layout::ListBox do
       marker = lambda do |_doc, _list_box, _index|
         HexaPDF::Layout::Box.create(width: 10, height: 10) {}
       end
-      box = create_box(children: @fixed_size_boxes[0, 1], item_type: marker)
+      box = create_box(children: @fixed_size_boxes[0, 1], marker_type: marker)
       box.fit(100, 100, @frame)
       box.draw(@canvas, 0, 100 - box.height)
       operators = [
