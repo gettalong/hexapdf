@@ -453,7 +453,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       before do
         @widget[:Rect].height = 20
         @widget[:Rect].width = 100
-        @field.field_value = ''
+        @field[:V] = ''
       end
 
       it "uses the non-zero font size" do
@@ -477,7 +477,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
 
       it "shrinks the font size if necessary to fit the rectangle width" do
-        @field.field_value = "This is some arbitrary, long text"
+        @field[:V] = "This is some arbitrary, long text"
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
                          [:set_font_and_size, [:F1, 6.909955]],
@@ -498,7 +498,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
     describe "single line text fields" do
       describe "quadding e.g. text alignment" do
         before do
-          @field.field_value = 'Test'
+          @field[:V] = 'Test'
           @field.set_default_appearance_string(font_size: 10)
           @widget[:Rect].height = 20
         end
@@ -551,7 +551,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
       describe "Javascript action AFNumber_Format" do
         before do
-          @field.field_value = '1234567.898765'
+          @field[:V] = '1234567.898765'
           @action = {S: :JavaScript, JS: ''}
           @field[:AA] = {F: @action}
         end
@@ -576,7 +576,8 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         end
 
         it "respects the negative value styling" do
-          @field.field_value = '-1234567.898'
+          @field[:V] = '-1234567.898'
+          @widget[:Rect].height = 11.25
           ["-E1234567,90", "E1234567,90", "(E1234567,90)", "(E1234567,90)"].each_with_index do |result, style|
             assert_format("2, 3, #{style}, 0, \"E\", true",
                           [[:set_device_rgb_non_stroking_color, [style % 2, 0.0, 0.0]],
@@ -656,7 +657,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
 
       it "creates the /N appearance stream according to the set string" do
-        @field.field_value = "Test\nValue"
+        @field[:V] = "Test\nValue"
         @field.set_default_appearance_string(font_size: 10, font_color: "red")
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
@@ -679,7 +680,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:restore_graphics_state],
                           [:end_marked_content]])
 
-        @field.field_value = "Test\nTest\nTest"
+        @field[:V] = "Test\nTest\nTest"
         @field.set_default_appearance_string(font_size: 0)
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
@@ -744,7 +745,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         end
 
         it "handles centering like Adobe, e.g. shift left, when text cannot be completely centered" do
-          @field.field_value = 'Hello'
+          @field[:V] = 'Hello'
           @field.text_alignment(:center)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
@@ -754,7 +755,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
 
       it "creates the /N appearance stream according to the set string" do
-        @field.field_value = 'Text'
+        @field[:V] = 'Text'
         @field.set_default_appearance_string(font_size: 10, font_color: "red")
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
