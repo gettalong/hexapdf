@@ -361,12 +361,16 @@ module HexaPDF
           value, text_color = apply_javascript_formatting(@field.field_value)
           style.fill_color = text_color if text_color
           calculate_and_apply_font_size(value, style, width, height, padding)
-          fragment = HexaPDF::Layout::TextFragment.create(value, style)
+          line = HexaPDF::Layout::Line.new(@document.layout.text_fragments(value, style: style))
 
-          if @field.concrete_field_type == :comb_text_field
+          if @field.concrete_field_type == :comb_text_field && !value.empty?
             unless @field.key?(:MaxLen)
               raise HexaPDF::Error, "Missing or invalid dictionary field /MaxLen for comb text field"
             end
+            unless line.items.size == 1
+              raise HexaPDF::Error, "Fallback glyphs are not yet supported with comb text fields"
+            end
+            fragment = line.items[0]
             new_items = []
             cell_width = width.to_f / @field[:MaxLen]
             scaled_cell_width = cell_width / style.scaled_font_size.to_f
@@ -376,6 +380,7 @@ module HexaPDF
             new_items << fragment.items.last
             fragment.items.replace(new_items)
             fragment.clear_cache
+            line.clear_cache
             # Adobe always seems to add 1 to the first offset...
             x_offset = 1 + (cell_width - style.scaled_item_width(fragment.items[0])) / 2.0
             x = case @field.text_alignment
@@ -387,8 +392,8 @@ module HexaPDF
             # Adobe seems to be left/right-aligning based on twice the border width
             x = case @field.text_alignment
                 when :left then 2 * padding
-                when :right then [width - 2 * padding - fragment.width, 2 * padding].max
-                when :center then [(width - fragment.width) / 2.0, 2 * padding].max
+                when :right then [width - 2 * padding - line.width, 2 * padding].max
+                when :center then [(width - line.width) / 2.0, 2 * padding].max
                 end
           end
 
@@ -400,12 +405,12 @@ module HexaPDF
             style.font_size
           y = padding + (height - 2 * padding - cap_height) / 2.0
           y = padding - style.scaled_font_descender if y < 0
-          fragment.draw(canvas, x, y)
+          line.each {|fragment, fx, _| fragment.draw(canvas, x + fx, y) }
         end
 
         # Draws multiple lines  of text inside the widget's rectangle.
         def draw_multiline_text(canvas, width, height, style, padding)
-          items = [Layout::TextFragment.create(@field.field_value, style)]
+          items = @document.layout.text_fragments(@field.field_value, style: style)
           layouter = Layout::TextLayouter.new(style)
           layouter.style.text_align(@field.text_alignment).line_spacing(:proportional, 1.25)
 
@@ -437,7 +442,7 @@ module HexaPDF
 
           option_items = @field.option_items
           top_index = @field.list_box_top_index
-          items = [Layout::TextFragment.create(option_items[top_index..-1].join("\n"), style)]
+          items = @document.layout.text_fragments(option_items[top_index..-1].join("\n"), style: style)
           # Should use /I but if it differs from /V, we need to use /V; so just use /V...
           indices = [@field.field_value].flatten.compact.map {|val| option_items.index(val) }
 
@@ -490,8 +495,8 @@ module HexaPDF
             font.scaling_factor / 1000.0
           # The constant factor was found empirically by checking what Adobe Reader etc. do
           style.font_size = (height - 2 * padding) / unit_font_size * 0.85
-          fragment = HexaPDF::Layout::TextFragment.create(value, style)
-          style.font_size = [style.font_size, style.font_size * (width - 4 * padding) / fragment.width].min
+          calc_width = @document.layout.text_fragments(value, style: style).sum(&:width)
+          style.font_size = [style.font_size, style.font_size * (width - 4 * padding) / calc_width].min
           style.clear_cache
         end
 

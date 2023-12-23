@@ -598,8 +598,11 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       end
 
       it "creates the /N appearance stream according to the set string" do
-        @field.field_value = 'Text'
+        @doc.config['font.on_invalid_glyph'] = lambda do |codepoint, _|
+          [@doc.fonts.add('ZapfDingbats').decode_codepoint(codepoint)]
+        end
         @field.set_default_appearance_string(font_color: "red")
+        @field[:V] = 'Te ✂ xt'
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
                          [[:begin_marked_content, [:Tx]],
@@ -607,11 +610,17 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:append_rectangle, [1, 1, 98, 9.25]],
                           [:clip_path_non_zero],
                           [:end_path],
-                          [:set_font_and_size, [:F1, 6.801471]],
+                          [:set_font_and_size, [:F1, 10]],
                           [:set_device_rgb_non_stroking_color, [1.0, 0.0, 0.0]],
                           [:begin_text],
-                          [:set_text_matrix, [1, 0, 0, 1, 2, 3.183272]],
-                          [:show_text, ["Text"]],
+                          [:set_text_matrix, [1, 0, 0, 1, 2, 2.035]],
+                          [:show_text, ["Te "]],
+                          [:set_font_and_size, [:F2, 10]],
+                          [:move_text, [14.45, 0]],
+                          [:show_text, ["\""]],
+                          [:set_font_and_size, [:F1, 10]],
+                          [:move_text, [9.61, 0]],
+                          [:show_text, [" xt"]],
                           [:end_text],
                           [:restore_graphics_state],
                           [:end_marked_content]])
@@ -774,10 +783,28 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:end_marked_content]])
       end
 
+      it "works for empty strings" do
+        @field[:V] = ''
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream,
+                         [[:begin_text],
+                          [:set_text_matrix, [1, 0, 0, 1, 2, 6.41]],
+                          [:end_text]], range: 6..8)
+      end
+
       it "fails if the /MaxLen key is not set" do
         @field.delete(:MaxLen)
         @field[:V] = 't'
         assert_raises(HexaPDF::Error) { @generator.create_appearances }
+      end
+
+      it "fails if fallback glyphs are needed for rendering" do
+        @doc.config['font.on_invalid_glyph'] = lambda do |codepoint, _|
+          [@doc.fonts.add('ZapfDingbats').decode_codepoint(codepoint)]
+        end
+        @field[:V] = 'Test ✂'
+        ex = assert_raises(HexaPDF::Error) { @generator.create_appearances }
+        assert_match(/Fallback glyphs/, ex.message)
       end
     end
 
