@@ -38,6 +38,8 @@
 * [HexaPDF::Layout::ColumnBox#fit] to ensure correct results in case the
   requested dimensions are larger than the current region
 * [HexaPDF::Document::Layout#formatted_text_box] to correctly handle properties
+* [HexaPDF::Layout::Frame#fit] to raise an error if an invalid value for the
+  style property 'position' is used
 
 
 ## 0.34.1 - 2023-11-01

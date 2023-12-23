@@ -120,6 +120,12 @@ describe HexaPDF::Layout::Frame do
       end
     end
 
+    it "fails if an unkown position value is provided" do
+      box = HexaPDF::Layout::Box.create(position: :unknown)
+      exception = assert_raises(HexaPDF::Error)  { @frame.fit(box) }
+      assert_match(/Invalid value 'unknown'/, exception.message)
+    end
+
     describe "absolute position" do
       it "draws the box at the given absolute position" do
         check_box(

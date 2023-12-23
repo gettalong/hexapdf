@@ -263,10 +263,7 @@ module HexaPDF
           height = box.height
 
           case position
-          when :flow
-            x = 0
-            y = @y - height
-          else
+          when :default, :float
             x = case box.style.align
                 when :left
                   @x + margin_left
@@ -295,6 +292,11 @@ module HexaPDF
                     @y - margin_top - height - (ah - height) / 2.0
                   end
                 end
+          when :flow
+            x = 0
+            y = @y - height
+          else
+            raise HexaPDF::Error, "Invalid value '#{position}' for style property position"
           end
         end
 
