@@ -1351,6 +1351,21 @@ describe HexaPDF::Content::Canvas do
     end
   end
 
+  describe "composer" do
+    it "creates a CanvasComposer, yields it and returns it" do
+      comp1 = nil
+      comp2 = @canvas.composer {|composer| comp1 = composer }
+      assert_kind_of(HexaPDF::Content::CanvasComposer, comp1)
+      assert_same(comp1, comp2)
+      assert_same(@canvas, comp1.canvas)
+    end
+
+    it "passes on the margin argument" do
+      comp = @canvas.composer(margin: 20)
+      assert_equal(20, comp.frame.x)
+    end
+  end
+
   describe "color_from_specification "do
     it "accepts a color string" do
       assert_equal([1, 0, 0], @canvas.color_from_specification("red").components)

@@ -36,6 +36,7 @@
 
 require 'hexapdf/content/graphics_state'
 require 'hexapdf/content/operator'
+require 'hexapdf/content/canvas_composer'
 require 'hexapdf/serializer'
 require 'hexapdf/utils/math_helpers'
 require 'hexapdf/utils/graphics_helpers'
@@ -2571,6 +2572,31 @@ module HexaPDF
       #
       # See: PDF2.0 s8.11
       alias :end_optional_content :end_marked_content_sequence
+
+      # :call-seq:
+      #   canvas.composer(margin: 0) {|composer| block }  -> composer
+      #
+      # Creates a CanvasComposer object for composing content using high-level document layout
+      # features, yields it, if a block is given, and returns it.
+      #
+      # The +margin+ can be any value allowed by HexaPDF::Layout::Style::Quad#set and defines the
+      # margin that should not be used during composition. For the remaining area of the canvas a
+      # frame object will be created.
+      #
+      # Examples:
+      #
+      #   #>pdf
+      #   canvas.composer(margin: [10, 30]) do |composer|
+      #     composer.image(machu_picchu, height: 30, position: :float)
+      #     composer.lorem_ipsum(position: :flow)
+      #   end
+      #
+      # See: CanvasComposer, HexaPDF::Document::Layout
+      def composer(margin: 0)
+        composer = CanvasComposer.new(self, margin: margin)
+        yield(composer) if block_given?
+        composer
+      end
 
       # Creates and returns a color object from the given color specification. See #stroke_color for
       # details on the possible color specifications.

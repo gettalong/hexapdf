@@ -19,6 +19,9 @@
   method for creating text fragments with fallback glyphs
 * [HexaPDF::Document::Layout#text_fragments] for creating text fragments with
   support for fallback glyphs via 'font.on_invalid_glyph'
+* [HexaPDF::Content::CanvasComposer] for using high-level layout functionality
+  on a single canvas
+* [HexaPDF::Content::Canvas#composer] for easily creating a canvas composer
 
 ### Changed
 
