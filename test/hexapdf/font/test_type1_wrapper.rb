@@ -28,6 +28,13 @@ describe HexaPDF::Font::Type1Wrapper do
     refute(@doc.fonts.add("Helvetica").bold?)
   end
 
+  it "can be asked whether the font is an italic one" do
+    refute(@times_wrapper.italic?)
+    refute(@symbol_wrapper.italic?)
+    assert(@doc.fonts.add("Times", variant: :italic).italic?)
+    assert(@doc.fonts.add("Helvetica", variant: :bold_italic).italic?)
+  end
+
   it "returns 1 for the scaling factor" do
     assert_equal(1, @times_wrapper.scaling_factor)
   end

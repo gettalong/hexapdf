@@ -24,6 +24,9 @@
 * [HexaPDF::Content::Canvas#composer] for easily creating a canvas composer
 * [HexaPDF::Font::TrueTypeWrapper#bold?] and [HexaPDF::Font::Type1Wrapper#bold?]
   for determining whether a font is bold
+* [HexaPDF::Font::TrueTypeWrapper#italic?] and
+  [HexaPDF::Font::Type1Wrapper#italic?] for determining whether a font is italic
+
 
 ### Changed
 

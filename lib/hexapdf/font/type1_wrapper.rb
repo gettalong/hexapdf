@@ -165,6 +165,11 @@ module HexaPDF
         @wrapped_font.weight_class > 500
       end
 
+      # Returns +true+ if the font contains glyphs with an incline (italic or slant).
+      def italic?
+        @wrapped_font.italic_angle.to_i != 0
+      end
+
       # Returns a Glyph object for the given glyph name.
       def glyph(name)
         @name_to_glyph[name] ||=

@@ -28,6 +28,10 @@ describe HexaPDF::Font::TrueTypeWrapper do
     refute(@font_wrapper.bold?)
   end
 
+  it "can be asked whether the font is an italic one" do
+    refute(@font_wrapper.italic?)
+  end
+
   it "can be asked whether font wil be subset" do
     assert(@font_wrapper.subset?)
     refute(HexaPDF::Font::TrueTypeWrapper.new(@doc, @font, subset: false).subset?)

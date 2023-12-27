@@ -169,6 +169,11 @@ module HexaPDF
         @wrapped_font.weight > 500
       end
 
+      # Returns +true+ if the font contains glyphs with an incline (italic or slant).
+      def italic?
+        @wrapped_font.italic_angle.to_i != 0
+      end
+
       # Returns +true+ if the wrapped TrueType font will be subset.
       def subset?
         !@subsetter.nil?
