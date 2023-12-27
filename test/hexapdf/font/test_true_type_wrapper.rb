@@ -24,6 +24,10 @@ describe HexaPDF::Font::TrueTypeWrapper do
     end
   end
 
+  it "can be asked whether the font is a bold one" do
+    refute(@font_wrapper.bold?)
+  end
+
   it "can be asked whether font wil be subset" do
     assert(@font_wrapper.subset?)
     refute(HexaPDF::Font::TrueTypeWrapper.new(@doc, @font, subset: false).subset?)

@@ -21,6 +21,13 @@ describe HexaPDF::Font::Type1Wrapper do
     assert_equal("A", wrapper.encode(wrapper.glyph(:B)))
   end
 
+  it "can be asked whether the font is a bold one" do
+    refute(@times_wrapper.bold?)
+    refute(@symbol_wrapper.bold?)
+    assert(@doc.fonts.add("Times", variant: :bold).bold?)
+    refute(@doc.fonts.add("Helvetica").bold?)
+  end
+
   it "returns 1 for the scaling factor" do
     assert_equal(1, @times_wrapper.scaling_factor)
   end

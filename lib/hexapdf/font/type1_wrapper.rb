@@ -160,6 +160,11 @@ module HexaPDF
         1
       end
 
+      # Returns +true+ if the font contains bold glyphs.
+      def bold?
+        @wrapped_font.weight_class > 500
+      end
+
       # Returns a Glyph object for the given glyph name.
       def glyph(name)
         @name_to_glyph[name] ||=

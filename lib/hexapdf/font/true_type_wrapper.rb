@@ -164,6 +164,11 @@ module HexaPDF
         @scaling_factor ||= 1000.0 / @wrapped_font[:head].units_per_em
       end
 
+      # Returns +true+ if the font contains bold glyphs.
+      def bold?
+        @wrapped_font.weight > 500
+      end
+
       # Returns +true+ if the wrapped TrueType font will be subset.
       def subset?
         !@subsetter.nil?
