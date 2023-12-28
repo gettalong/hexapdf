@@ -663,8 +663,8 @@ module HexaPDF
       # The style to be applied.
       #
       # Only the following properties are used: Style#text_indent, Style#text_align,
-      # Style#text_valign, Style#line_spacing, Style#text_segmentation_algorithm,
-      # Style#text_line_wrapping_algorithm
+      # Style#text_valign, Style#line_spacing, Style#fill_horizontal,
+      # Style#text_segmentation_algorithm, Style#text_line_wrapping_algorithm
       attr_reader :style
 
       # Creates a new TextLayouter object with the given style.
