@@ -2,6 +2,7 @@
 
 require 'test_helper'
 require 'hexapdf/configuration'
+require 'hexapdf/document'
 
 describe HexaPDF::Configuration do
   before do
@@ -89,5 +90,53 @@ describe HexaPDF::Configuration do
     it "returns the result of the given block when no constant is found" do
       assert_equal(:test, @config.constantize('unk') {|name| assert_equal('unk', name); :test })
     end
+  end
+end
+
+describe "HexaPDF.font_on_invalid_glyph" do
+  before do
+    @doc = HexaPDF::Document.new
+    @font = @doc.fonts.add('Helvetica')
+  end
+
+  def assert_glyph(font, codepoint, font_name, glyph_name)
+    invalid_glyph = HexaPDF::Font::InvalidGlyph.new(font, codepoint.chr("UTF-8"))
+    glyph = HexaPDF.font_on_invalid_glyph(codepoint, invalid_glyph)
+
+    assert_equal(1, glyph.size)
+    glyph = glyph.first
+    assert(glyph.valid?)
+    assert_equal(font_name, glyph.font_wrapper.wrapped_font.font_name)
+    assert_equal(glyph_name, glyph.name)
+    glyph
+  end
+
+  it "tries each fallback font and uses the first valid glyph" do
+    assert_glyph(@font, 10102, "ZapfDingbats", :a130)
+    assert_glyph(@font, 8855, "Symbol", :circlemultiply)
+  end
+
+  it "takes the font variant into account" do
+    @doc.config['font.fallback'] = ['Times']
+
+    glyph = assert_glyph(@doc.fonts.add("Helvetica", variant: :bold), 65, "Times-Bold", :A)
+    assert(glyph.font_wrapper.bold?)
+
+    glyph = assert_glyph(@doc.fonts.add("Helvetica", variant: :italic), 65, "Times-Italic", :A)
+    assert(glyph.font_wrapper.italic?)
+
+    glyph = assert_glyph(@doc.fonts.add("Helvetica", variant: :bold_italic), 65, "Times-BoldItalic", :A)
+    assert(glyph.font_wrapper.bold?)
+    assert(glyph.font_wrapper.italic?)
+  end
+
+  it "falls back to the :none variant of a fallback font if a more specific one doesn't exist" do
+    assert_glyph(@doc.fonts.add("Helvetica", variant: :bold), 9985, "ZapfDingbats", :a1)
+  end
+
+  it "returns the given invalid glyph if no fallback glyph could be found" do
+    @doc.config['font.fallback'] = []
+    invalid_glyph = HexaPDF::Font::InvalidGlyph.new(@font, "A")
+    assert_equal([invalid_glyph], HexaPDF.font_on_invalid_glyph(65, invalid_glyph))
   end
 end

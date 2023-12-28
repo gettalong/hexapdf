@@ -138,6 +138,30 @@ module HexaPDF
 
   end
 
+  # Provides the default implementation for the configuration option 'font.on_invalid_glyph'.
+  #
+  # It uses the first font in the list provided by the 'font.fallback' configuration option that
+  # contains a glyph for the +codepoint+ (taking the font variant into account). If no fallback font
+  # contains such a glyph, +invalid_glyph+ is used.
+  def self.font_on_invalid_glyph(codepoint, invalid_glyph)
+    font_wrapper = invalid_glyph.font_wrapper
+    document = font_wrapper.pdf_object.document
+    variant = case
+              when font_wrapper.italic? && font_wrapper.bold? then :bold_italic
+              when font_wrapper.bold? then :bold
+              when font_wrapper.italic? then :italic
+              else :none
+              end
+    document.config['font.fallback'].each do |font_name|
+      font = document.fonts.add(font_name, variant: variant) rescue document.fonts.add(font_name)
+      glyph = font.decode_codepoint(codepoint)
+      unless glyph.kind_of?(HexaPDF::Font::InvalidGlyph)
+        return [glyph]
+      end
+    end
+    [invalid_glyph]
+  end
+
   # The default document specific configuration object.
   #
   # Modify this object if you want to globally change document specific options or if you want to
@@ -247,6 +271,14 @@ module HexaPDF
   #
   #    See PDF2.0 s7.4.1, ADB sH.3 3.3
   #
+  # font.fallback::
+  #    An array of fallback font names to be used when replacing invalid glyphs.
+  #
+  #    The values can be anything that can be passed to Document::Fonts#add. Note that the +variant+
+  #    of a font is determined by looking at the font for which a invalid glyph should be replaced.
+  #
+  #    The default value consists of the built-in fonts ZapfDingbats and Symbol.
+  #
   # font.map::
   #    Defines a mapping from font names and variants to font files.
   #
@@ -273,15 +305,17 @@ module HexaPDF
   #    initial mapping. The return value has to be an array of glyph objects which can be from any
   #    font but all need to be from the same one.
   #
-  #    The default implementation does nothing, so invalid glyphs will be passed on.
+  #    The default implementation is provided by ::font_on_invalid_glyph and uses the
+  #    'font.fallback' configuration option. It is usually not necessary to change this
+  #    configuration option or the 'font.on_missing_glyph' one.
   #
   #    Note: The 'font.on_missing_glyph' configuration option does something similar but is
   #    restricted to returning a single glyph from the same font. Whenever a glyph is not found,
   #    'font.on_missing_glyph' is invoked first and if an invalid glyph instance is returned, this
   #    callback hook is invoked when using the layout engine.
   #
-  #    A typical implementation would use one or more fallback fonts for providing the necessary
-  #    glyph(s):
+  #    A typical implementation would use one or more fallback fonts (probably choosing one in the
+  #    correct font variant) for providing the necessary glyph(s):
   #
   #      doc.config['font.on_invalid_glyph'] = lambda do |codepoint, glyph|
   #        [other_font.decode_codepoint(codepoint)]
@@ -475,8 +509,9 @@ module HexaPDF
                         Crypt: 'HexaPDF::Filter::Crypt',
                         Encryption: 'HexaPDF::Filter::Encryption',
                       },
+                      'font.fallback' => ['ZapfDingbats', 'Symbol'],
                       'font.map' => {},
-                      'font.on_invalid_glyph' => nil,
+                      'font.on_invalid_glyph' => method(:font_on_invalid_glyph),
                       'font.on_missing_glyph' => proc do |char, font_wrapper|
                         HexaPDF::Font::InvalidGlyph.new(font_wrapper, char)
                       end,
