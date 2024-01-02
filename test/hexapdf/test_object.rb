@@ -186,6 +186,19 @@ describe HexaPDF::Object do
       refute(@obj.validate(auto_correct: false))
       assert_equal([:before], invoked)
     end
+
+    it "re-raises caught HexaPDF::Error exceptions" do
+      @obj.define_singleton_method(:perform_validation) { raise HexaPDF::Error, "Unknown" }
+      invoked = []
+      assert_raises(HexaPDF::Error) { @obj.validate {|*a| invoked << a } }
+    end
+
+    it "catches errors raised in perform_validation and produces an appropriate message" do
+      @obj.define_singleton_method(:perform_validation) { raise "Unknown" }
+      invoked = []
+      refute(@obj.validate {|*a| invoked << a })
+      assert_equal([["Error: Unexpected value encountered", false, @obj]], invoked)
+    end
   end
 
   it "can represent itself during inspection" do

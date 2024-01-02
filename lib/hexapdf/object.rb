@@ -303,6 +303,11 @@ module HexaPDF
         return false unless auto_correct
       end
       result
+    rescue HexaPDF::Error
+      raise
+    rescue
+      yield("Error: Unexpected value encountered", false, self) if block_given?
+      false
     end
 
     # Makes a deep copy of the source PDF object and resets the object identifier.

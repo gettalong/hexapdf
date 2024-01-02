@@ -40,6 +40,8 @@
   font on creation
 * **Breaking change**: The item marker type of a [HexaPDF::Layout::ListBox] item
   is now set via `#marker_type` instead of `#item_type`
+* [HexaPDF::Object#validate] to catch exceptions and provided an appropriate
+  validation message
 
 ### Fixed
 
