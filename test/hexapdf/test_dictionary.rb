@@ -204,7 +204,7 @@ describe HexaPDF::Dictionary do
     end
   end
 
-  describe "validate_fields" do
+  describe "perform_validation" do
     before do
       @test_class.define_field(:Inherited, type: [Array, Symbol], required: true, indirect: false)
       @test_class.define_field(:AllowedValues, type: Integer, allowed_values: [1, 5])

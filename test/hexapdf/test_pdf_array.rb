@@ -166,4 +166,13 @@ describe HexaPDF::PDFArray do
   it "can be converted to a simple array" do
     assert_equal([1, :data, "deref", @array[3]], @array.to_ary)
   end
+
+  describe "perform_validation" do
+    it "validates nested objects" do
+      @array.value << HexaPDF::PDFArray.new([HexaPDF::Reference.new(1, 0)], document: self)
+      assert(@array.validate)
+      assert_kind_of(HexaPDF::Object, @array.value[2])
+      assert_kind_of(HexaPDF::Object, @array.value.last.value[0])
+    end
+  end
 end

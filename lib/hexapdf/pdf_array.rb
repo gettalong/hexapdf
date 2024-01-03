@@ -212,6 +212,11 @@ module HexaPDF
       data
     end
 
+    def perform_validation(&block) # :nodoc:
+      super
+      each {|element| validate_nested(element, &block) }
+    end
+
   end
 
 end

@@ -299,17 +299,5 @@ describe HexaPDF::Object do
       obj.validate
       assert_equal(1, obj.oid)
     end
-
-    it "validates collection values" do
-      x = HexaPDF::Object.new(:x, document: @doc)
-      x.must_be_indirect = true
-      y = HexaPDF::Object.new(:y, document: @doc)
-      y.must_be_indirect = true
-
-      obj = HexaPDF::Object.new([1, 2, 3, [4, x], {X: [y, 5]}])
-      obj.validate
-      assert_equal(1, x.oid)
-      assert_equal(1, y.oid)
-    end
   end
 end

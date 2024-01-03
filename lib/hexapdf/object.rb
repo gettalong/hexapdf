@@ -429,8 +429,6 @@ module HexaPDF
         yield("Object must be an indirect object", true)
         document.add(self)
       end
-
-      validate_nested(value, &block)
     end
 
     # Validates all nested values of the object, i.e. values inside collection objects.

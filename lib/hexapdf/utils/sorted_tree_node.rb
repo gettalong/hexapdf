@@ -307,16 +307,6 @@ module HexaPDF
         super
         container_name = leaf_node_container_name
 
-        # All kids entries must be indirect objects
-        if key?(:Kids)
-          self[:Kids].each_with_index do |kid, index|
-            unless kid.kind_of?(HexaPDF::Object) && kid.indirect?
-              yield("Child entries of sorted tree nodes must be indirect objects", true)
-              value[:Kids][index] = document.add(kid)
-            end
-          end
-        end
-
         # All keys of the container must be lexically ordered strings and the container must be
         # correctly formatted
         if key?(container_name)

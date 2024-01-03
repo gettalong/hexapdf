@@ -209,7 +209,7 @@ describe HexaPDF::Utils::SortedTreeNode do
       @root[:Kids][0] = ref
       @kid1.oid = 0
       assert(@root.validate do |message, c|
-               assert_match(/must be indirect objects/, message)
+               assert_match(/must be an indirect object/, message)
                assert(c)
              end)
       assert(@kid1.indirect?)

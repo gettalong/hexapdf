@@ -51,6 +51,8 @@
 * [HexaPDF::Document::Layout#formatted_text_box] to correctly handle properties
 * [HexaPDF::Layout::Frame#fit] to raise an error if an invalid value for the
   style property 'position' is used
+* Validation of PDF arrays and dictionaries by making sure only processed values
+  are used
 
 
 ## 0.34.1 - 2023-11-01
