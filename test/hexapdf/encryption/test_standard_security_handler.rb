@@ -301,6 +301,49 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     assert_equal([:copy_content, :extract_content, :modify_content], @handler.permissions.sort)
   end
 
+  test_files = Dir[File.join(TEST_DATA_DIR, 'standard-security-handler', '*.pdf')].sort
+  user_password = 'uhexapdf'
+  owner_password = 'ohexapdf'
+
+  describe "decryption_password_type" do
+    it "doesn't need a password for encrypted files without a password" do
+      file = test_files.find {|name| name =~ /nopwd-aes-256bit-V5.pdf/}
+      HexaPDF::Document.open(file) do |doc|
+        assert_equal(:none, doc.security_handler.decryption_password_type)
+      end
+    end
+
+    it "doesn't need a password for owner encrypted files" do
+      file = test_files.find {|name| name =~ /ownerpwd-aes-256bit-V5.pdf/}
+      HexaPDF::Document.open(file) do |doc|
+        assert_equal(:none, doc.security_handler.decryption_password_type)
+      end
+    end
+
+    it "needs the user password for user encrypted files" do
+      file = test_files.find {|name| name =~ /userpwd-aes-256bit-V5.pdf/}
+      HexaPDF::Document.open(file, decryption_opts: {password: user_password}) do |doc|
+        assert_equal(:user, doc.security_handler.decryption_password_type)
+      end
+    end
+
+    it "can user either the user or owner password for user+owner encrypted files" do
+      file = test_files.find {|name| name =~ /bothpwd-aes-256bit-V5.pdf/}
+      HexaPDF::Document.open(file, decryption_opts: {password: user_password}) do |doc|
+        assert_equal(:user, doc.security_handler.decryption_password_type)
+      end
+      HexaPDF::Document.open(file, decryption_opts: {password: owner_password}) do |doc|
+        assert_equal(:owner, doc.security_handler.decryption_password_type)
+      end
+    end
+
+    it "returns :unknown for loaded or created and then encrypted PDF documents" do
+      doc = HexaPDF::Document.new
+      doc.encrypt
+      assert_equal(:unknown, doc.security_handler.decryption_password_type)
+    end
+  end
+
   describe "handling of metadata streams" do
     before do
       @doc = HexaPDF::Document.new

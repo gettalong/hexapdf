@@ -250,6 +250,18 @@ module HexaPDF
         end
       end
 
+      # Returns the type of password used for decrypting the PDF document.
+      #
+      # The return value is one of the following:
+      #
+      # :none:: No password was needed for decryption.
+      # :user:: The provided user password was used for decryption.
+      # :owner:: The provided owner password was used for decryption.
+      # :unknown:: The document was not decrypted, only encrypted.
+      def decryption_password_type
+        @decryption_password_type || :unknown
+      end
+
       def decrypt(obj) #:nodoc:
         if dict[:V] >= 4 && obj.type == :Metadata && obj[:Subtype] == :XML && !dict[:EncryptMetadata]
           obj
@@ -345,10 +357,13 @@ module HexaPDF
         password = prepare_password(password)
 
         if user_password_valid?(prepare_password(''))
+          @decryption_password_type = :none
           encryption_key = compute_user_encryption_key(prepare_password(''))
         elsif user_password_valid?(password)
+          @decryption_password_type = :user
           encryption_key = compute_user_encryption_key(password)
         elsif owner_password_valid?(password)
+          @decryption_password_type = :owner
           encryption_key = compute_owner_encryption_key(password)
         else
           raise HexaPDF::EncryptionError, "Invalid password specified"

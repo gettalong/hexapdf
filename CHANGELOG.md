@@ -28,6 +28,8 @@
   for determining whether a font is bold
 * [HexaPDF::Font::TrueTypeWrapper#italic?] and
   [HexaPDF::Font::Type1Wrapper#italic?] for determining whether a font is italic
+* [HexaPDF::Encryption::StandardSecurityHandler#decryption_password_type] for
+  information on the type of password used for decryption
 
 ### Changed
 
