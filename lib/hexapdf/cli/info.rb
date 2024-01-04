@@ -128,6 +128,7 @@ module HexaPDF
             details = doc.security_handler.encryption_details
             data = "yes (version: #{details[:version]}, key length: #{details[:key_length]}bits)"
             output_line("Encrypted", data)
+            output_line("  Used Password", doc.security_handler.decryption_password_type)
             output_line("  String algorithm", details[:string_algorithm].to_s)
             output_line("  Stream algorithm", details[:stream_algorithm].to_s)
             output_line("  EFF algorithm", details[:embedded_file_algorithm].to_s)
