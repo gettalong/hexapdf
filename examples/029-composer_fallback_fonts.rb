@@ -14,9 +14,7 @@ require 'hexapdf'
 
 HexaPDF::Composer.create('composer_fallback_fonts.pdf') do |composer|
   zapf_dingbats = composer.document.fonts.add('ZapfDingbats')
-  composer.document.config['font.on_invalid_glyph'] = lambda do |codepoint, invalid_glyph|
-    [zapf_dingbats.decode_codepoint(codepoint)]
-  end
+  composer.document.config['font.fallback'] = ['ZapfDingbats']
   composer.text('This text contains the scissors symbol ✂ which is not available in ' \
                 'the default font Times but available in the set ZapfDingbats fallback ' \
                 'font. Other symbols from ZapfDingbats like ✐ and ✈ can also be used.' \
