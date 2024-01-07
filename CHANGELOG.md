@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+* Pre-defined paper sizes of the ISO A, B and C series to be more precise
+
+
 ## 0.35.0 - 2024-01-06
 
 ### Added

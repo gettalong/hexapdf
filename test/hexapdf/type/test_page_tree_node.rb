@@ -89,7 +89,7 @@ describe HexaPDF::Type::PageTreeNode do
       assert_equal(:Page, page[:Type])
       assert_equal(@root, page[:Parent])
       assert_kind_of(HexaPDF::Rectangle, page[:MediaBox])
-      assert_equal([0, 0, 842, 595], page[:MediaBox].value)
+      assert_equal([0, 0, 841.889764, 595.275591], page[:MediaBox].value)
       assert_equal({}, page[:Resources].value)
       refute(@root.value.key?(:Parent))
     end

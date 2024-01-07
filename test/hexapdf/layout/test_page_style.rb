@@ -35,7 +35,7 @@ describe HexaPDF::Layout::PageStyle do
         istyle.next_style = :other
       end
       page = style.create_page(@doc)
-      assert_equal([0, 0, 595, 842], page.box(:media))
+      assert_equal([0, 0, 595.275591, 841.889764], page.box(:media))
       assert_equal("0 0 10 10 re\nS\n", page.contents)
       assert_equal(:frame, style.frame)
       assert_equal(:other, style.next_style)
@@ -54,8 +54,8 @@ describe HexaPDF::Layout::PageStyle do
       assert_kind_of(HexaPDF::Layout::Frame, style.frame)
       assert_equal(36, style.frame.left)
       assert_equal(36, style.frame.bottom)
-      assert_equal(523, style.frame.width)
-      assert_equal(770, style.frame.height)
+      assert_equal(523.275591, style.frame.width)
+      assert_equal(769.889764, style.frame.height)
     end
   end
 
@@ -65,7 +65,7 @@ describe HexaPDF::Layout::PageStyle do
     frame = style.create_frame(style.create_page(doc), [15, 10])
     assert_equal(10, frame.left)
     assert_equal(15, frame.bottom)
-    assert_equal(575, frame.width)
-    assert_equal(812, frame.height)
+    assert_equal(575.275591, frame.width)
+    assert_equal(811.889764, frame.height)
   end
 end

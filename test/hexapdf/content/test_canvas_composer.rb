@@ -39,7 +39,7 @@ describe HexaPDF::Content::CanvasComposer do
       @composer.draw_box(create_box)
       assert_operators(@composer.canvas.contents,
                        [[:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 0, 742]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 0, 741.889764]],
                         [:restore_graphics_state],
                         [:save_graphics_state],
                         [:concatenate_matrix, [1, 0, 0, 1, 0, 0]],
@@ -58,10 +58,10 @@ describe HexaPDF::Content::CanvasComposer do
                         [:concatenate_matrix, [1, 0, 0, 1, 0, 0]],
                         [:restore_graphics_state],
                         [:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 400, 742]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 400, 741.889764]],
                         [:restore_graphics_state],
                         [:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 400, 642]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 400, 641.889764]],
                         [:restore_graphics_state]])
     end
 
@@ -70,10 +70,10 @@ describe HexaPDF::Content::CanvasComposer do
       @composer.draw_box(create_box(width: 400, height: 100))
       assert_operators(@composer.canvas.contents,
                        [[:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 0, 742]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 0, 741.889764]],
                         [:restore_graphics_state],
                         [:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 0, 642]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 0, 641.889764]],
                         [:restore_graphics_state]])
     end
 

@@ -12,11 +12,11 @@ describe HexaPDF::Type::Page do
 
   describe "::media_box" do
     it "returns the media box for a given paper size" do
-      assert_equal([0, 0, 595, 842], HexaPDF::Type::Page.media_box(:A4))
+      assert_equal([0, 0, 595.275591, 841.889764], HexaPDF::Type::Page.media_box(:A4))
     end
 
     it "respects the orientation key" do
-      assert_equal([0, 0, 842, 595], HexaPDF::Type::Page.media_box(:A4, orientation: :landscape))
+      assert_equal([0, 0, 841.889764, 595.275591], HexaPDF::Type::Page.media_box(:A4, orientation: :landscape))
     end
 
     it "works with a paper size array" do
@@ -116,7 +116,7 @@ describe HexaPDF::Type::Page do
       page1[:MediaBox] = [0, 0, 1, 1]
       refute(page2.validate(auto_correct: false))
       assert(page2.validate)
-      assert_equal([0, 0, 595, 842], page2[:MediaBox])
+      assert_equal([0, 0, 595.275591, 841.889764], page2[:MediaBox])
     end
   end
 

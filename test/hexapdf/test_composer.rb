@@ -16,8 +16,8 @@ describe HexaPDF::Composer do
       assert_kind_of(HexaPDF::Type::Page, @composer.page)
       assert_equal(36, @composer.frame.left)
       assert_equal(36, @composer.frame.bottom)
-      assert_equal(523, @composer.frame.width)
-      assert_equal(770, @composer.frame.height)
+      assert_equal(523.275591, @composer.frame.width)
+      assert_equal(769.889764, @composer.frame.height)
       assert_kind_of(HexaPDF::Layout::Style, @composer.style(:base))
     end
 
@@ -28,15 +28,15 @@ describe HexaPDF::Composer do
 
     it "allows the customization of the page orientation" do
       composer = HexaPDF::Composer.new(page_orientation: :landscape)
-      assert_equal([0, 0, 842, 595], composer.page.box.value)
+      assert_equal([0, 0, 841.889764, 595.275591], composer.page.box.value)
     end
 
     it "allows the customization of the margin" do
       composer = HexaPDF::Composer.new(margin: [100, 80, 60, 40])
       assert_equal(40, composer.frame.left)
       assert_equal(60, composer.frame.bottom)
-      assert_equal(475, composer.frame.width)
-      assert_equal(682, composer.frame.height)
+      assert_in_delta(475.275591, composer.frame.width)
+      assert_equal(681.889764, composer.frame.height)
     end
 
     it "allows skipping the initial page creation" do
@@ -107,7 +107,7 @@ describe HexaPDF::Composer do
   end
 
   it "returns the current y-position" do
-    assert_equal(806, @composer.y)
+    assert_equal(805.889764, @composer.y)
   end
 
   describe "style" do
@@ -203,7 +203,7 @@ describe HexaPDF::Composer do
       @composer.draw_box(create_box)
       assert_operators(@composer.canvas.contents,
                        [[:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 36, 706]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 36, 705.889764]],
                         [:restore_graphics_state],
                         [:save_graphics_state],
                         [:concatenate_matrix, [1, 0, 0, 1, 36, 36]],
@@ -232,14 +232,14 @@ describe HexaPDF::Composer do
       @composer.draw_box(box)
       assert_operators(first_page_contents,
                        [[:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 36, 406]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 36, 405.889764]],
                         [:restore_graphics_state],
                         [:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 36, 6]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 36, 5.889764]],
                         [:restore_graphics_state]])
       assert_operators(@composer.canvas.contents,
                        [[:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 36, 706]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 36, 705.889764]],
                         [:restore_graphics_state]])
     end
 
@@ -252,14 +252,14 @@ describe HexaPDF::Composer do
       @composer.draw_box(box)
       assert_operators(first_page_contents,
                        [[:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 36, 406]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 36, 405.889764]],
                         [:restore_graphics_state],
                         [:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 36, 306]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 36, 305.889764]],
                         [:restore_graphics_state]])
       assert_operators(@composer.canvas.contents,
                        [[:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 36, 406]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 36, 405.889764]],
                         [:restore_graphics_state]])
     end
 

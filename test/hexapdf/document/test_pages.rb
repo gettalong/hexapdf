@@ -17,20 +17,20 @@ describe HexaPDF::Document::Pages do
   describe "create" do
     it "uses the defaults from the configuration for missing arguments" do
       page = @doc.pages.create
-      assert_equal([0, 0, 595, 842], page.box(:media).value)
+      assert_equal([0, 0, 595.275591, 841.889764], page.box(:media).value)
     end
 
     it "allows specifying a reference to a predefined page size" do
       page = @doc.pages.create(media_box: :A3)
-      assert_equal([0, 0, 842, 1191], page.box(:media).value)
+      assert_equal([0, 0, 841.889764, 1190.551181], page.box(:media).value)
     end
 
     it "allows specifying the orientation for a predefined page size" do
       page = @doc.pages.create(media_box: :A4, orientation: :landscape)
-      assert_equal([0, 0, 842, 595], page.box(:media).value)
+      assert_equal([0, 0, 841.889764, 595.275591], page.box(:media).value)
 
       page = @doc.pages.create(orientation: :landscape)
-      assert_equal([0, 0, 842, 595], page.box(:media).value)
+      assert_equal([0, 0, 841.889764, 595.275591], page.box(:media).value)
     end
 
     it "allows using a media box array" do
@@ -54,7 +54,7 @@ describe HexaPDF::Document::Pages do
     it "adds a new empty page with the given page format" do
       page = @doc.pages.add(:A4, orientation: :landscape)
       assert_same(page, @doc.pages[0])
-      assert_equal([0, 0, 842, 595], @doc.pages[0].box(:media).value)
+      assert_equal([0, 0, 841.889764, 595.275591], @doc.pages[0].box(:media).value)
     end
 
     it "adds the given page to the end" do
