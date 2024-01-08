@@ -42,7 +42,7 @@ module HexaPDF
     # Utility class for generating width specifications for TextLayouter#fit from polygons.
     class WidthFromPolygon
 
-      include Geom2D::Utils
+      include HexaPDF::Utils
 
       # Creates a new object for the given polygon (or polygon set) and immediately prepares it so
       # that #call can be used.

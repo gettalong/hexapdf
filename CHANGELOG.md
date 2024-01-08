@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Utils] module functions for float comparisons and using the instead
+  of the geom2d ones
+
 ### Changed
 
 * Pre-defined paper sizes of the ISO A, B and C series to be more precise

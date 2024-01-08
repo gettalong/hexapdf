@@ -84,7 +84,7 @@ module HexaPDF
     #         which should just draw the content.
     class Box
 
-      include Geom2D::Utils
+      include HexaPDF::Utils
 
       # Creates a new Box object, using the provided block as drawing block (see ::new).
       #

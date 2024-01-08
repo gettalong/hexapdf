@@ -86,7 +86,7 @@ module HexaPDF
     # It is also possible to provide a different initial shape on initialization.
     class Frame
 
-      include Geom2D::Utils
+      include HexaPDF::Utils
 
       # Stores the result of fitting a box in a Frame.
       class FitResult
