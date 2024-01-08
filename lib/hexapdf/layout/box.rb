@@ -194,7 +194,8 @@ module HexaPDF
       def fit(available_width, available_height, _frame)
         @width = (@initial_width > 0 ? @initial_width : available_width)
         @height = (@initial_height > 0 ? @initial_height : available_height)
-        @fit_successful = (@width <= available_width && @height <= available_height)
+        @fit_successful = (float_compare(@width, available_width) <= 0 &&
+                           float_compare(@height, available_height) <= 0)
       end
 
       # Tries to split the box into two, the first of which needs to fit into the current region of

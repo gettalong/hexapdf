@@ -95,6 +95,13 @@ describe HexaPDF::Layout::Box do
       assert_equal(100, box.height)
     end
 
+    it "uses float comparison" do
+      box = create_box(width: 50.0000002, height: 49.9999996)
+      assert(box.fit(50, 50, @frame))
+      assert_equal(50.0000002, box.width)
+      assert_equal(49.9999996, box.height)
+    end
+
     it "returns false if the box doesn't fit" do
       box = create_box(width: 101)
       refute(box.fit(100, 100, @frame))
