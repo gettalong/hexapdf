@@ -118,7 +118,7 @@ module HexaPDF
       #     composer.list(item_spacing: 2) do |list|
       #       composer.document.config['layout.boxes.map'].each do |name, klass|
       #         list.formatted_text([{text: name.to_s, fill_color: "hp-blue-dark"},
-      #                              {text: "\n#{klass}", font_size: 7}])
+      #                              {text: "\n#{klass}"}, font_size: 7])
       #       end
       #     end
       #   end
