@@ -1,8 +1,8 @@
-## Unreleased
+## 0.35.1 - 2024-01-11
 
 ### Added
 
-* [HexaPDF::Utils] module functions for float comparisons and using the instead
+* [HexaPDF::Utils] module functions for float comparisons and using them instead
   of the geom2d ones
 
 ### Changed
