@@ -192,19 +192,19 @@ describe HexaPDF::Layout::ColumnBox do
     end
 
     it "takes a different final location into account" do
-      box = create_box(children: @fixed_size_boxes[0, 2])
+      box = create_box(children: @fixed_size_boxes[0, 2], style: {padding: [2, 4, 6, 8]})
       box.fit(100, 100, @frame)
       box.draw(@canvas, 20, 10)
       operators = [
         [:save_graphics_state],
-        [:concatenate_matrix, [1, 0, 0, 1, 20, -80]],
+        [:concatenate_matrix, [1, 0, 0, 1, 20, -72]],
         [:save_graphics_state],
-        [:concatenate_matrix, [1, 0, 0, 1, 0, 90]],
+        [:concatenate_matrix, [1, 0, 0, 1, 8, 88]],
         [:move_to, [0, 0]],
         [:end_path],
         [:restore_graphics_state],
         [:save_graphics_state],
-        [:concatenate_matrix, [1, 0, 0, 1, 55, 90]],
+        [:concatenate_matrix, [1, 0, 0, 1, 57, 88]],
         [:move_to, [0, 0]],
         [:end_path],
         [:restore_graphics_state],
