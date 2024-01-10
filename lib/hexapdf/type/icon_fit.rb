@@ -34,7 +34,7 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
-require 'hexapdf/type/annotation'
+require 'hexapdf/dictionary'
 
 module HexaPDF
   module Type
@@ -43,7 +43,7 @@ module HexaPDF
     # rectangle.
     #
     # See: PDF2.0 s12.7.8.3.2
-    class IconFit < Annotation
+    class IconFit < Dictionary
 
       define_type :XXIconFit
 

@@ -12,6 +12,7 @@
 ### Fixed
 
 * [HexaPDF::Layout::Box#fit] to use float comparison
+* [HexaPDF::Type::IconFit] to use correct superclass
 
 
 ## 0.35.0 - 2024-01-06
