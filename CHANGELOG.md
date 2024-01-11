@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::Layout::Frame::FitResult#draw] to allow drawing at an offset
+
+
 ## 0.35.1 - 2024-01-11
 
 ### Added

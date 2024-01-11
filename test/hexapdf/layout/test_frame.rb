@@ -13,10 +13,11 @@ describe HexaPDF::Layout::Frame::FitResult do
     result = HexaPDF::Layout::Frame::FitResult.new(box)
     result.mask = Geom2D::Rectangle(0, 0, 20, 20)
     result.x = result.y = 0
-    result.draw(canvas)
+    result.draw(canvas, dx: 10, dy: 15)
     assert_equal(<<~CONTENTS, canvas.contents)
       /OC /P1 BDC
       q
+      1 0 0 1 10 15 cm
       0.0 0.501961 0.0 rg
       0.0 0.392157 0.0 RG
       /GS1 gs
@@ -25,7 +26,7 @@ describe HexaPDF::Layout::Frame::FitResult do
       Q
       EMC
       q
-      1 0 0 1 0 0 cm
+      1 0 0 1 10 15 cm
       Q
     CONTENTS
     ocg = doc.optional_content.ocgs.first

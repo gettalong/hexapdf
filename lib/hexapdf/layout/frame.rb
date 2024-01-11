@@ -128,17 +128,20 @@ module HexaPDF
           @success
         end
 
-        # Draws the #box onto the canvas at (#x, #y).
+        # Draws the #box onto the canvas at (#x + *dx*, #y + *dy*).
+        #
+        # The relative offset (dx, dy) is useful when rendering results that were accumulated and
+        # then need to be moved because the container holding them changes its position.
         #
         # The configuration option "debug" can be used to add visual debug output with respect to
         # box placement.
-        def draw(canvas)
+        def draw(canvas, dx: 0, dy: 0)
           doc = canvas.context.document
           if doc.config['debug']
             name = "#{box.class} (#{x.to_i},#{y.to_i}-#{box.width.to_i}x#{box.height.to_i})"
             ocg = doc.optional_content.ocg(name)
             canvas.optional_content(ocg) do
-              canvas.save_graphics_state do
+              canvas.translate(dx, dy) do
                 canvas.fill_color("green").stroke_color("darkgreen").
                   opacity(fill_alpha: 0.1, stroke_alpha: 0.2).
                   draw(:geom2d, object: mask, path_only: true).fill_stroke
@@ -146,7 +149,7 @@ module HexaPDF
             end
             doc.optional_content.default_configuration.add_ocg_to_ui(ocg, path: 'Debug')
           end
-          box.draw(canvas, x, y)
+          box.draw(canvas, x + dx, y + dy)
         end
 
       end
