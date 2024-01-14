@@ -238,10 +238,12 @@ module HexaPDF
       #
       # The +name+ argument refers to the registered name of the box class that is looked up in the
       # 'layout.boxes.map' configuration option. The +box_options+ are passed as-is to the
-      # initialization method of that box class
+      # initialization method of that box class.
       #
       # If a block is provided, a ChildrenCollector is yielded and the collected children are passed
-      # to the box initialization method via the :children keyword argument.
+      # to the box initialization method via the :children keyword argument. There is one exception
+      # to this rule in case +name+ is +base+: The provided block is passed to the initialization
+      # method of the base box class to function as drawing method.
       #
       # See #text_box for details on +width+, +height+ and +style+ (note that there is no
       # +style_properties+ argument).
@@ -252,12 +254,19 @@ module HexaPDF
       #   layout.box(:column) do |column|            # column box with one child
       #     column.lorem_ipsum
       #   end
-      def box(name, width: 0, height: 0, style: nil, **box_options, &block)
-        if block_given? && !box_options.key?(:children)
-          box_options[:children] = ChildrenCollector.collect(self, &block)
+      #   layout.box(width: 100) do |canvas, box|
+      #     canvas.line(0, 0, box.content_width, box.content_height).stroke
+      #   end
+      def box(name = :base, width: 0, height: 0, style: nil, **box_options, &block)
+        if block_given?
+          if name == :base
+            box_block = block
+          elsif !box_options.key?(:children)
+            box_options[:children] = ChildrenCollector.collect(self, &block)
+          end
         end
         box_class_for_name(name).new(width: width, height: height,
-                                     style: retrieve_style(style), **box_options)
+                                     style: retrieve_style(style), **box_options, &box_block)
       end
 
       # Creates an array of HexaPDF::Layout::TextFragment objects for the given +text+.

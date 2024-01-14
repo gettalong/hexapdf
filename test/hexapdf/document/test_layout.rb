@@ -175,6 +175,12 @@ describe HexaPDF::Document::Layout do
       assert_equal(2, box.children.size)
     end
 
+    it "uses the provided block as drawing block for the base box class if name=:base" do
+      block = proc {}
+      box = @layout.box(width: 100, &block)
+      assert_equal(block, box.instance_variable_get(:@draw_block))
+    end
+
     it "fails if the name is not registered" do
       assert_raises(HexaPDF::Error) { @layout.box(:unknown) }
     end
