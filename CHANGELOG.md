@@ -3,6 +3,8 @@
 ### Changed
 
 * [HexaPDF::Layout::Frame::FitResult#draw] to allow drawing at an offset
+* [HexaPDF::Layout::Box#fit] to delegate the actual content fitting to the
+  `#fit_content` method
 
 
 ## 0.35.1 - 2024-01-11

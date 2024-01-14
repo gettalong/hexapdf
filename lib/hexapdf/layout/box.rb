@@ -60,28 +60,59 @@ module HexaPDF
     # instantiated from the common convenience method HexaPDF::Document::Layout#box. To use this
     # facility subclasses need to be registered with the configuration option 'layout.boxes.map'.
     #
-    # The methods #fit, #supports_position_flow?, #split or #split_content, #empty?, and #draw or
-    # #draw_content need to be customized according to the subclass's use case.
-    #
-    # #fit:: This method should return +true+ if fitting was successful. Additionally, the
-    #        @fit_successful instance variable needs to be set to the fit result as it is used in
-    #        #split.
+    # The methods #supports_position_flow?, #empty?, #fit or #fit_content, #split or #split_content,
+    # and #draw or #draw_content need to be customized according to the subclass's use case (also
+    # see the documentation of the methods besides the informatione below):
     #
     # #supports_position_flow?::
-    #        If the subclass supports the value :flow of the 'position' style property, this method
-    #        needs to be overridden to return +true+.
+    #     If the subclass supports the value :flow of the 'position' style property, this method
+    #     needs to be overridden to return +true+.
     #
-    # #split:: This method splits the content so that the current region is used as good as
-    #          possible. The default implementation should be fine for most use-cases, so only
-    #          #split_content needs to be implemented. The method #create_split_box should be used
-    #          for getting a basic cloned box.
+    # #empty?::
+    #     This method should return +true+ if the subclass won't draw anything when #draw is called.
     #
-    # #empty?:: This method should return +true+ if the subclass won't draw anything when #draw is
-    #           called.
+    # #fit::
+    #     This method should return +true+ if fitting was successful. Additionally, the
+    #     @fit_successful instance variable needs to be set to the fit result as it is used in
+    #     #split.
     #
-    # #draw:: This method draws the content and the default implementation already handles things
-    #         like drawing the border and background. Therefore it's best to implement #draw_content
-    #         which should just draw the content.
+    #     The default implementation provides code common to most use-cases and delegates the
+    #     specifics to the #fit_content method which needs to return +true+ if fitting was
+    #     successful.
+    #
+    # #split::
+    #     This method splits the content so that the current region is used as good as possible. The
+    #     default implementation should be fine for most use-cases, so only #split_content needs to
+    #     be implemented. The method #create_split_box should be used for getting a basic cloned
+    #     box.
+    #
+    # #draw::
+    #     This method draws the content and the default implementation already handles things like
+    #     drawing the border and background. So it should not be overridden. The box specific
+    #     drawing commands should be implemented in the #draw_content method.
+    #
+    # This base class provides various private helper methods for use in the above methods:
+    #
+    # +reserved_width+, +reserved_height+::
+    #     Returns the width respectively the height of the reserved space inside the box that is
+    #     used for the border and padding.
+    #
+    # +reserved_width_left+, +reserved_width_right+, +reserved_height_top+,
+    # +reserved_height_bottom+::
+    #     Returns the reserved space inside the box at the specified edge (left, right, top,
+    #     bottom).
+    #
+    # +update_content_width+, +update_content_height+::
+    #     Takes a block that should return the content width respectively height and sets the box's
+    #     width respectively height accordingly.
+    #
+    # +create_split_box+::
+    #     Creates a new box based on this one and resets the internal data back to their original
+    #     values.
+    #
+    #     The keyword argument +split_box_value+ (defaults to +true+) is used to set the
+    #     +@split_box+ variable to make the new box aware that it is a split box. This can be set to
+    #     any other truthy value to convey more meaning.
     class Box
 
       include HexaPDF::Utils
@@ -162,7 +193,8 @@ module HexaPDF
         @split_box = false
       end
 
-      # Returns +true+ if this is a split box, i.e. the rest of another box after it was split.
+      # Returns the set truthy value if this is a split box, i.e. the rest of another box after it
+      # was split.
       def split_box?
         @split_box
       end
@@ -184,18 +216,34 @@ module HexaPDF
         height < 0 ? 0 : height
       end
 
-      # Fits the box into the Frame and returns +true+ if fitting was successful.
+      # Fits the box into the *frame* and returns +true+ if fitting was successful.
       #
       # The arguments +available_width+ and +available_height+ are the width and height of the
-      # current region of the frame. The frame itself is provided as third argument.
+      # current region of the frame, adjusted for this box. The frame itself is provided as third
+      # argument.
       #
-      # The default implementation uses the available width and height for the box width and height
-      # if they were initially set to 0. Otherwise the specified dimensions are used.
-      def fit(available_width, available_height, _frame)
+      # The default implementation uses the given available width and height for the box width and
+      # height if they were initially set to 0. Otherwise the intially specified dimensions are
+      # used. Then the #fit_content method is called which allows sub-classes to fit their content.
+      #
+      # The following variables are set that may later be used during splitting or drawing:
+      #
+      # * (@fit_x, @fit_y): The lower-left corner of the content box where fitting was done. Can be
+      #   used to adjust the drawing position in #draw/#draw_content if necessary.
+      # * @fit_successful: +true+ if fitting was successful.
+      def fit(available_width, available_height, frame)
         @width = (@initial_width > 0 ? @initial_width : available_width)
         @height = (@initial_height > 0 ? @initial_height : available_height)
         @fit_successful = (float_compare(@width, available_width) <= 0 &&
                            float_compare(@height, available_height) <= 0)
+        return unless @fit_successful
+
+        @fit_successful = fit_content(available_width, available_height, frame)
+
+        @fit_x = frame.x + reserved_width_left
+        @fit_y = frame.y - @height + reserved_height_bottom
+
+        @fit_successful
       end
 
       # Tries to split the box into two, the first of which needs to fit into the current region of
@@ -237,6 +285,8 @@ module HexaPDF
       # arguments. Subclasses can specify an on-demand drawing method by setting the +@draw_block+
       # instance variable to +nil+ or a valid block. This is useful to avoid unnecessary set-up
       # operations when the block does nothing.
+      #
+      # Alternatively, if a #draw_content method is defined, this method is called.
       def draw(canvas, x, y)
         if (oc = properties['optional_content'])
           canvas.optional_content(oc)
@@ -316,12 +366,26 @@ module HexaPDF
         result
       end
 
-      # Draws the content of the box at position [x, y] which is the bottom-left corner of the
-      # content box.
-      def draw_content(canvas, x, y)
-        if @draw_block
-          canvas.translate(x, y) { @draw_block.call(canvas, self) }
-        end
+      # Updates the width of the box using the content width returned by the block.
+      def update_content_width
+        return if @initial_width > 0
+        @width = yield + reserved_width
+      end
+
+      # Updates the height of the box using the content height returned by the block.
+      def update_content_height
+        return if @initial_height > 0
+        @height = yield + reserved_height
+      end
+
+      # Fits the content of the box and returns whether fitting was successful.
+      #
+      # This is just a stub implementation that returns +true+. Subclasses should override it to
+      # provide the box specific behaviour.
+      #
+      # See #fit for details.
+      def fit_content(available_width, available_height, frame)
+        true
       end
 
       # Splits the content of the box.
@@ -333,6 +397,17 @@ module HexaPDF
       # use #create_split_box to create a cloned box to supply as the second argument.
       def split_content(_available_width, _available_height, _frame)
         [nil, self]
+      end
+
+      # Draws the content of the box at position [x, y] which is the bottom-left corner of the
+      # content box.
+      #
+      # This implementation uses the drawing block provided on initialization, if set, to draw the
+      # contents. Subclasses should override it to provide box specific behaviour.
+      def draw_content(canvas, x, y)
+        if @draw_block
+          canvas.translate(x, y) { @draw_block.call(canvas, self) }
+        end
       end
 
       # Creates a new box based on this one and resets the data back to their original values.

@@ -232,7 +232,8 @@ module HexaPDF
 
           if index != 0 || !split_box? || @split_box == :show_first_marker
             box = item_marker_box(frame.document, index)
-            break unless box.fit(content_indentation, height, nil)
+            marker_frame = Frame.new(0, 0, content_indentation, height, context: frame.context)
+            break unless box.fit(content_indentation, height, marker_frame)
             item_result.marker = box
             item_result.marker_pos_x = item_frame.x - content_indentation
             item_result.height = box.height

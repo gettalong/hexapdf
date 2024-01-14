@@ -5,6 +5,12 @@ require 'hexapdf/document'
 require 'hexapdf/layout/box'
 
 describe HexaPDF::Layout::Box do
+  before do
+    @frame = Object.new
+    def @frame.x; 0; end
+    def @frame.y; 100; end
+  end
+
   def create_box(**args, &block)
     HexaPDF::Layout::Box.new(**args, &block)
   end
@@ -70,15 +76,13 @@ describe HexaPDF::Layout::Box do
   end
 
   describe "fit" do
-    before do
-      @frame = Object.new
-    end
-
     it "fits a fixed sized box" do
-      box = create_box(width: 50, height: 50)
+      box = create_box(width: 50, height: 50, style: {padding: 5})
       assert(box.fit(100, 100, @frame))
       assert_equal(50, box.width)
       assert_equal(50, box.height)
+      assert_equal(5, box.instance_variable_get(:@fit_x))
+      assert_equal(55, box.instance_variable_get(:@fit_y))
     end
 
     it "uses the maximum available width" do
@@ -106,49 +110,71 @@ describe HexaPDF::Layout::Box do
       box = create_box(width: 101)
       refute(box.fit(100, 100, @frame))
     end
+
+    it "can use the #content_width/#content_height helper methods" do
+      box = create_box
+      box.define_singleton_method(:fit_content) do |aw, ah, frame|
+        update_content_width { 10 }
+        update_content_height { 20 }
+        true
+      end
+      assert(box.fit(100, 100, @frame))
+      assert_equal(10, box.width)
+      assert_equal(20, box.height)
+
+      box = create_box(width: 30, height: 50)
+      box.define_singleton_method(:fit_content) do |aw, ah, frame|
+        update_content_width { 10 }
+        update_content_height { 20 }
+        true
+      end
+      assert(box.fit(100, 100, @frame))
+      assert_equal(30, box.width)
+      assert_equal(50, box.height)
+    end
   end
 
   describe "split" do
     before do
       @box = create_box(width: 100, height: 100)
-      @box.fit(100, 100, nil)
+      @box.fit(100, 100, @frame)
     end
 
     it "doesn't need to be split if it completely fits" do
-      assert_equal([@box, nil], @box.split(100, 100, nil))
+      assert_equal([@box, nil], @box.split(100, 100, @frame))
     end
 
     it "can't be split if it doesn't (completely) fit and its width is greater than the available width" do
       @box.fit(90, 100, nil)
-      assert_equal([nil, @box], @box.split(50, 150, nil))
+      assert_equal([nil, @box], @box.split(50, 150, @frame))
     end
 
     it "can't be split if it doesn't (completely) fit and its height is greater than the available height" do
       @box.fit(90, 100, nil)
-      assert_equal([nil, @box], @box.split(150, 50, nil))
+      assert_equal([nil, @box], @box.split(150, 50, @frame))
     end
 
     it "can't be split if it doesn't (completely) fit and its content width is zero" do
       box = create_box(width: 0, height: 100)
-      assert_equal([nil, box], box.split(150, 150, nil))
+      assert_equal([nil, box], box.split(150, 150, @frame))
     end
 
     it "can't be split if it doesn't (completely) fit and its content height is zero" do
       box = create_box(width: 100, height: 0)
-      assert_equal([nil, box], box.split(150, 150, nil))
+      assert_equal([nil, box], box.split(150, 150, @frame))
     end
 
     it "can't be split if it doesn't (completely) fit as the default implementation " \
       "knows nothing about the content" do
       @box.style.position = :flow # make sure we would generally be splitable
       @box.fit(90, 100, nil)
-      assert_equal([nil, @box], @box.split(150, 150, nil))
+      assert_equal([nil, @box], @box.split(150, 150, @frame))
     end
   end
 
   it "can create a cloned box for splitting" do
     box = create_box
-    box.fit(100, 100, nil)
+    box.fit(100, 100, @frame)
     cloned_box = box.send(:create_split_box)
     assert(cloned_box.split_box?)
     refute(cloned_box.instance_variable_get(:@fit_successful))
