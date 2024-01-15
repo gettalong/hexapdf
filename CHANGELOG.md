@@ -8,6 +8,11 @@
 * [HexaPDF::Document::Layout#box] to allow using the block as drawing block for
   the base box class
 
+### Fixed
+
+* [HexaPDF::Type::FontSimple#to_utf8] to work in case the font's encoding cannot
+  be retrieved
+
 
 ## 0.35.1 - 2024-01-11
 

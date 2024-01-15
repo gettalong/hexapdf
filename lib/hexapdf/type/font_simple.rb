@@ -95,7 +95,8 @@ module HexaPDF
       # Returns the UTF-8 string for the given character code, or calls the configuration option
       # 'font.on_missing_unicode_mapping' if no mapping was found.
       def to_utf8(code)
-        to_unicode_cmap&.to_unicode(code) || encoding.unicode(code) || missing_unicode_mapping(code)
+        to_unicode_cmap&.to_unicode(code) || (encoding.unicode(code) rescue nil) ||
+          missing_unicode_mapping(code)
       end
 
       # Returns the unscaled width of the given code point in glyph units, or 0 if the width for

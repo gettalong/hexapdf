@@ -116,9 +116,17 @@ describe HexaPDF::Type::FontSimple do
       assert_equal(" ", @font.to_utf8(32))
     end
 
+    it "swallows errors during retrieving the font's encoding" do
+      @font.delete(:ToUnicode)
+      @font.delete(:Encoding)
+      err = assert_raises(HexaPDF::Error) { @font.to_utf8(32) }
+      assert_match(/No Unicode mapping/, err.message)
+    end
+
     it "calls the configured proc if no correct mapping could be found" do
       @font.delete(:ToUnicode)
-      assert_raises(HexaPDF::Error) { @font.to_utf8(0) }
+      err = assert_raises(HexaPDF::Error) { @font.to_utf8(0) }
+      assert_match(/No Unicode mapping/, err.message)
     end
   end
 
