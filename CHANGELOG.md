@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Layout::ContainerBox] for grouping child boxes together
+
 ### Changed
 
 * [HexaPDF::Layout::Frame::FitResult#draw] to allow drawing at an offset

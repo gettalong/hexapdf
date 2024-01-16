@@ -58,6 +58,7 @@ module HexaPDF
     autoload(:ListBox, 'hexapdf/layout/list_box')
     autoload(:PageStyle, 'hexapdf/layout/page_style')
     autoload(:TableBox, 'hexapdf/layout/table_box')
+    autoload(:ContainerBox, 'hexapdf/layout/container_box')
 
   end
 
