@@ -688,6 +688,7 @@ module HexaPDF
                         XXReference: 'HexaPDF::Type::Form::Reference',
                         XXCIDSystemInfo: 'HexaPDF::Type::CIDFont::CIDSystemInfo',
                         Group: 'HexaPDF::Type::Form::Group',
+                        Metadata: 'HexaPDF::Type::Metadata',
                       },
                       'object.subtype_map' => {
                         nil => {
@@ -706,6 +707,7 @@ module HexaPDF
                           Text: 'HexaPDF::Type::Annotations::Text',
                           Link: 'HexaPDF::Type::Annotations::Link',
                           Widget: 'HexaPDF::Type::Annotations::Widget',
+                          XML: 'HexaPDF::Type::Metadata'
                         },
                         XObject: {
                           Image: 'HexaPDF::Type::Image',

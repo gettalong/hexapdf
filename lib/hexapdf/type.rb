@@ -80,6 +80,7 @@ module HexaPDF
     autoload(:OptionalContentMembership, 'hexapdf/type/optional_content_membership')
     autoload(:OptionalContentProperties, 'hexapdf/type/optional_content_properties')
     autoload(:OptionalContentConfiguration, 'hexapdf/type/optional_content_configuration')
+    autoload(:Metadata, 'hexapdf/type/metadata')
 
   end
 

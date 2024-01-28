@@ -120,6 +120,7 @@ module HexaPDF
     autoload(:Files, 'hexapdf/document/files')
     autoload(:Destinations, 'hexapdf/document/destinations')
     autoload(:Layout, 'hexapdf/document/layout')
+    autoload(:Metadata, 'hexapdf/document/metadata')
 
     # :call-seq:
     #   Document.open(filename, **docargs)                   -> doc
@@ -486,6 +487,16 @@ module HexaPDF
       pdf_data ? @cache[pdf_data].clear : @cache.clear
     end
 
+    # Returns the Metadata object that provides a convenience interface for working with the
+    # document metadata.
+    #
+    # Note that invoking this method means that, depending on the settings, the info dictionary as
+    # well as the metadata stream will be overwritten when the document gets written. See the
+    # "Caveats" section in the Metadata documentation.
+    def metadata
+      @metadata ||= Metadata.new(self)
+    end
+
     # Returns the Pages object that provides convenience methods for working with the pages of the
     # PDF file.
     #
@@ -706,12 +717,16 @@ module HexaPDF
     #   Optimize the file size by using object and cross-reference streams. This will raise the PDF
     #   version to at least 1.5.
     def write(file_or_io, incremental: false, validate: true, update_fields: true, optimize: false)
-      dispatch_message(:complete_objects)
-
       if update_fields
         trailer.update_id
-        trailer.info[:ModDate] = Time.now
+        if @metadata
+          metadata.modification_date(Time.now)
+        else
+          trailer.info[:ModDate] = Time.now
+        end
       end
+
+      dispatch_message(:complete_objects)
 
       if validate
         self.validate(auto_correct: true) do |msg, correctable, obj|
