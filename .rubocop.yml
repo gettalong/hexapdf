@@ -5,7 +5,7 @@ AllCops:
     - test/**/*.rb
   Exclude:
     - '[^blt]*/**/*'
-  TargetRubyVersion: 2.6
+  TargetRubyVersion: 2.7
 
 
 Layout/LineLength:

@@ -5,6 +5,10 @@
 * [HexaPDF::Document::Metadata] for working with metadata (reading the info
   dictionary and writing it as well as the XMP metadata stream)
 
+### Changed
+
+* Minimum Ruby version to be 2.7
+
 ### Fixed
 
 * [HexaPDF::FiberDoubleForString#length] to not assume a binary string
