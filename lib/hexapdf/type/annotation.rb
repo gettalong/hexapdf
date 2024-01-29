@@ -132,6 +132,77 @@ module HexaPDF
       define_field :StructParent, type: Integer, version: '1.3'
       define_field :OC,           type: Dictionary, version: '1.5'
 
+      ##
+      # :method: flags
+      #
+      # Returns an array of flag names representing the set bit flags for /F.
+      #
+      # The available flags are:
+      #
+      # :invisible or 0::
+      #     Applies only to non-standard annotations. If set, do not render or print the annotation.
+      #
+      # :hidden or 1::
+      #     If set, do not render the annotation or allow interactions.
+      #
+      # :print or 2::
+      #     If set, print the annotation unless the hidden flag is also set. Otherwise never print
+      #     the annotation.
+      #
+      # :no_zoom or 3::
+      #     If set, do not scale the annotation's appearance to match the magnification of the page.
+      #
+      # :no_rotate or 4::
+      #     If set, do not rotate the annotation's appearance to match the rotation of the page.
+      #
+      # :no_view or 5::
+      #     If set, do not render the annotation on the screen or allow interactions.
+      #
+      # :read_only or 6::
+      #     If set, do not allow user interactions.
+      #
+      # :locked or 7::
+      #     If set, do not allow the annotation to be deleted or its properties be modified.
+      #
+      # :toggle_no_view or 8::
+      #     If set, invert the interpretation of the :no_view flag for annotation selection and
+      #     mouse hovering.
+      #
+      # :locked_contents or 9::
+      #     If set, do not allow the contents of the annotation to be modified.
+      #
+
+      ##
+      # :method: flagged?
+      # :call-seq:
+      #   flagged?(flag)
+      #
+      # Returns +true+ if the given flag is set on /F. The argument can either be the flag name or
+      # the bit index.
+      #
+      # See #flags for the list of available flags.
+      #
+
+      ##
+      # :method: flag
+      # :call-seq:
+      #   flag(*flags, clear_existing: false)
+      #
+      # Sets the given flags on /F, given as flag names or bit indices. If +clear_existing+ is
+      # +true+, all prior flags will be cleared.
+      #
+      # See #flags for the list of available flags.
+      #
+
+      ##
+      # :method: unflag
+      # :call-seq:
+      #   flag(*flags)
+      #
+      # Clears the given flags from /F, given as flag names or bit indices.
+      #
+      # See #flags for the list of available flags.
+      #
       bit_field(:flags, {invisible: 0, hidden: 1, print: 2, no_zoom: 3, no_rotate: 4,
                          no_view: 5, read_only: 6, locked: 7, toggle_no_view: 8,
                          locked_contents: 9},
