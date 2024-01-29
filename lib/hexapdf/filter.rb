@@ -69,11 +69,11 @@ module HexaPDF
       @block_used = false
     end
 
-    # Returns the length of the wrapped string.
+    # Returns the length in bytes of the wrapped string.
     #
     # May only be called before #resume!
     def length
-      str.length
+      str.bytesize
     end
 
     # Returns +true+ if #resume has not yet been called.

@@ -5,6 +5,10 @@
 * [HexaPDF::Document::Metadata] for working with metadata (reading the info
   dictionary and writing it as well as the XMP metadata stream)
 
+### Fixed
+
+* [HexaPDF::FiberDoubleForString#length] to not assume a binary string
+
 
 ## 0.36.0 - 2024-01-20
 

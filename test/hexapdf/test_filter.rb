@@ -18,6 +18,12 @@ describe HexaPDF::Filter do
       assert_equal(@str, collector(fib))
       assert_equal('', collector(fib))
     end
+
+    it "returns the correct length of the fiber" do
+      str = "\u{FEFF}Öl"
+      fib = @obj.source_from_proc { str }
+      assert_equal(6, fib.length)
+    end
   end
 
   describe "source_from_string" do
@@ -29,6 +35,12 @@ describe HexaPDF::Filter do
 
     it "returns the whole string" do
       assert_equal(@str, collector(@obj.source_from_string(@str)))
+    end
+
+    it "returns the correct size of the fiber" do
+      str = "\u{FEFF}Öl"
+      fib = @obj.source_from_string(str)
+      assert_equal(6, fib.length)
     end
   end
 
