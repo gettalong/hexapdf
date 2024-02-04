@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Validation of annotation dictionaries having an empty appearance dictionary
+
+
 ## 0.37.0 - 2024-01-29
 
 ### Added

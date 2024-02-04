@@ -51,7 +51,7 @@ end
 describe HexaPDF::Type::Annotation do
   before do
     @doc = HexaPDF::Document.new
-    @annot = @doc.add({Type: :Annot, F: 0b100011, Rect: [10, 10, 110, 60]})
+    @annot = @doc.add({Type: :Annot, Subtype: :Link, F: 0b100011, Rect: [10, 10, 110, 60]})
   end
 
   it "must always be indirect" do
@@ -136,6 +136,16 @@ describe HexaPDF::Type::Annotation do
       assert_equal([:invisible, :hidden, :no_view, :locked], @annot.flags)
       @annot.flag(:locked, clear_existing: true)
       assert_equal([:locked], @annot.flags)
+    end
+  end
+
+  describe "validation" do
+    it "makes sure that empty appearance stream dictionaries don't cause validation errors" do
+      assert(@annot.validate)
+      @annot[:AP] = {}
+      msg = nil
+      assert(@annot.validate {|imsg| msg = imsg })
+      assert_match(/appearance.*must not be empty/, msg)
     end
   end
 end
