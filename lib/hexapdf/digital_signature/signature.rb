@@ -125,7 +125,7 @@ module HexaPDF
         define_field :Type,            type: Symbol, default: type
         define_field :TransformMethod, type: Symbol, required: true,
           allowed_values: [:DocMDP, :UR, :FieldMDP]
-        define_field :TransformParams, type: Dictionary
+        define_field :TransformParams, type: :TransformParams
         define_field :Data,            type: ::Object
         define_field :DigestMethod,    type: Symbol, version: '1.5',
           allowed_values: [:MD5, :SHA1, :SHA256, :SHA384, :SHA512, :RIPEMD160]

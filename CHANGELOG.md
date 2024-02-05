@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Type of /TransformParams field in signature reference dictionary
+
+
 ## 0.37.1 - 2024-02-05
 
 ### Fixed
