@@ -240,7 +240,7 @@ module HexaPDF
           end
 
           box_fitter = BoxFitter.new([item_frame])
-          Array(child).each {|box| box_fitter.fit(box) }
+          Array(child).each {|ibox| box_fitter.fit(ibox) }
           item_result.box_fitter = box_fitter
           item_result.height = [item_result.height.to_i, box_fitter.content_heights[0]].max
           @results << item_result
@@ -251,9 +251,7 @@ module HexaPDF
           break if !box_fitter.fit_successful? || height <= 0
         end
 
-        @height = @results.sum {|item_result| item_result.height } +
-          (@results.count - 1) * item_spacing +
-          reserved_height
+        @height = @results.sum(&:height) + (@results.count - 1) * item_spacing + reserved_height
 
         @draw_pos_x = frame.x + reserved_width_left
         @draw_pos_y = frame.y - @height + reserved_height_bottom
@@ -358,7 +356,7 @@ module HexaPDF
 
       # Draws the list items onto the canvas at position [x, y].
       def draw_content(canvas, x, y)
-        translate = (style.position != :flow && (x != @draw_pos_x || y != @draw_pos_y))
+        translate = style.position != :flow && (x != @draw_pos_x || y != @draw_pos_y)
 
         if translate
           canvas.save_graphics_state

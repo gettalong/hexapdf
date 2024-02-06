@@ -48,8 +48,8 @@ describe HexaPDF::Layout::TextShaper do
     end
 
     it "handles kerning" do
-      data = [0, 1].pack('n2') << \
-        [0, 6 + 8 + 12, 0x1].pack('n3') << \
+      data = [0, 1].pack('n2') <<
+        [0, 6 + 8 + 12, 0x1].pack('n3') <<
         [2, 0, 0, 0, 53, 80, -20, 80, 81, -10].pack('n4n2s>n2s>')
       table = create_table(:Kern, data, standalone: true)
       @wrapped_font.instance_eval { @tables[:kern] = table }

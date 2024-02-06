@@ -67,69 +67,85 @@ module HexaPDF
         #
         # See: PDF2.0 s8.11.4.4
         class CreatorInfo < Dictionary
+
           define_type :XXOCUsageCreatorInfo
           define_field :Creator, type: String, required: true
           define_field :Subtype, type: Symbol, required: true
+
         end
 
         # The dictionary used as value for the /Language key.
         #
         # See: PDF2.0 s8.11.4.4
         class Language < Dictionary
+
           define_type :XXOCUsageLanguage
           define_field :Lang, type: String, required: true
           define_field :Preferred, type: Symbol, default: :OFF, allowed_values: [:ON, :OFF]
+
         end
 
         # The dictionary used as value for the /Export key.
         #
         # See: PDF2.0 s8.11.4.4
         class Export < Dictionary
+
           define_type :XXOCUsageExport
           define_field :ExportState, type: Symbol, required: true, allowed_values: [:ON, :OFF]
+
         end
 
         # The dictionary used as value for the /Zoom key.
         #
         # See: PDF2.0 s8.11.4.4
         class Zoom < Dictionary
+
           define_type :XXOCUsageZoom
           define_field :min, type: Numeric, default: 0
           define_field :max, type: Numeric
+
         end
 
         # The dictionary used as value for the /Print key.
         #
         # See: PDF2.0 s8.11.4.4
         class Print < Dictionary
+
           define_type :XXOCUsagePrint
           define_field :Subtype, type: Symbol
           define_field :PrintState, type: Symbol, allowed_values: [:ON, :OFF]
+
         end
 
         # The dictionary used as value for the /View key.
         #
         # See: PDF2.0 s8.11.4.4
         class View < Dictionary
+
           define_type :XXOCUsageView
           define_field :ViewState, type: Symbol, required: true, allowed_values: [:ON, :OFF]
+
         end
 
         # The dictionary used as value for the /User key.
         #
         # See: PDF2.0 s8.11.4.4
         class User < Dictionary
+
           define_type :XXOCUsageUser
           define_field :Type, type: Symbol, required: true, allowed_values: [:Ind, :Ttl, :Org]
           define_field :Name, type: [String, PDFArray], required: true
+
         end
 
         # The dictionary used as value for the /PageElement key.
         #
         # See: PDF2.0 s8.11.4.4
         class PageElement < Dictionary
+
           define_type :XXOCUsagePageElement
           define_field :Subtype, type: Symbol, required: true, allowed_values: [:HF, :FG, :BG, :L]
+
         end
 
         define_type :XXOCUsage

@@ -128,16 +128,16 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
 
     it "sets the correct revision independent /P value" do
       dict = @handler.set_up_encryption
-      assert_equal(@handler.class::Permissions::ALL | \
+      assert_equal(@handler.class::Permissions::ALL |
                    @handler.class::Permissions::RESERVED - 2**32,
                    dict[:P])
       dict = @handler.set_up_encryption(permissions: @handler.class::Permissions::COPY_CONTENT)
-      assert_equal(@handler.class::Permissions::COPY_CONTENT | \
+      assert_equal(@handler.class::Permissions::COPY_CONTENT |
                    @handler.class::Permissions::RESERVED - 2**32,
                    dict[:P])
       dict = @handler.set_up_encryption(permissions: [:modify_content, :modify_annotation])
-      assert_equal(@handler.class::Permissions::MODIFY_CONTENT | \
-                   @handler.class::Permissions::MODIFY_ANNOTATION | \
+      assert_equal(@handler.class::Permissions::MODIFY_CONTENT |
+                   @handler.class::Permissions::MODIFY_ANNOTATION |
                    @handler.class::Permissions::RESERVED - 2**32,
                    dict[:P])
     end
@@ -222,7 +222,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     it "fails if the /Filter value is incorrect" do
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
         @handler.set_up_decryption({Filter: :NonStandard, V: 2, R: 4, O: 't' * 32, U: 't' * 32, P: 0,
-                                   Length: 128})
+                                    Length: 128})
       end
       assert_match(/Invalid \/Filter value NonStandard/i, exp.message)
     end
@@ -307,28 +307,28 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
 
   describe "decryption_password_type" do
     it "doesn't need a password for encrypted files without a password" do
-      file = test_files.find {|name| name =~ /nopwd-aes-256bit-V5.pdf/}
+      file = test_files.find {|name| name =~ /nopwd-aes-256bit-V5.pdf/ }
       HexaPDF::Document.open(file) do |doc|
         assert_equal(:none, doc.security_handler.decryption_password_type)
       end
     end
 
     it "doesn't need a password for owner encrypted files" do
-      file = test_files.find {|name| name =~ /ownerpwd-aes-256bit-V5.pdf/}
+      file = test_files.find {|name| name =~ /ownerpwd-aes-256bit-V5.pdf/ }
       HexaPDF::Document.open(file) do |doc|
         assert_equal(:none, doc.security_handler.decryption_password_type)
       end
     end
 
     it "needs the user password for user encrypted files" do
-      file = test_files.find {|name| name =~ /userpwd-aes-256bit-V5.pdf/}
+      file = test_files.find {|name| name =~ /userpwd-aes-256bit-V5.pdf/ }
       HexaPDF::Document.open(file, decryption_opts: {password: user_password}) do |doc|
         assert_equal(:user, doc.security_handler.decryption_password_type)
       end
     end
 
     it "can user either the user or owner password for user+owner encrypted files" do
-      file = test_files.find {|name| name =~ /bothpwd-aes-256bit-V5.pdf/}
+      file = test_files.find {|name| name =~ /bothpwd-aes-256bit-V5.pdf/ }
       HexaPDF::Document.open(file, decryption_opts: {password: user_password}) do |doc|
         assert_equal(:user, doc.security_handler.decryption_password_type)
       end

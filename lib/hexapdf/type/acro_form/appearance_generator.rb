@@ -140,7 +140,7 @@ module HexaPDF
 
           border_style = @widget.border_style
           marker_style = @widget.marker_style
-          circular = (@field.radio_button? && marker_style.style == :circle)
+          circular = @field.radio_button? && marker_style.style == :circle
 
           default_font_size = @document.config['acro_form.default_font_size']
           rect = @widget[:Rect]
@@ -209,7 +209,7 @@ module HexaPDF
           rect = @widget[:Rect]
           rect.width = @document.config['acro_form.text_field.default_width'] if rect.width == 0
           if rect.height == 0
-            style.font_size = \
+            style.font_size =
               (font_size == 0 ? @document.config['acro_form.default_font_size'] : font_size)
             rect.height = style.scaled_y_max - style.scaled_y_min + 2 * padding
           end
@@ -405,7 +405,7 @@ module HexaPDF
             style.font_size
           y = padding + (height - 2 * padding - cap_height) / 2.0
           y = padding - style.scaled_font_descender if y < 0
-          line.each {|fragment, fx, _| fragment.draw(canvas, x + fx, y) }
+          line.each {|frag, fx, _| frag.draw(canvas, x + fx, y) }
         end
 
         # Draws multiple lines  of text inside the widget's rectangle.

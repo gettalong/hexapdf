@@ -110,7 +110,7 @@ end
 describe HexaPDF::Document::Layout do
   before do
     @doc = HexaPDF::Document.new
-    @doc.config['font.on_invalid_glyph'] = lambda do |codepoint, invalid_glyph|
+    @doc.config['font.on_invalid_glyph'] = lambda do |codepoint, _invalid_glyph|
       [@doc.fonts.add('ZapfDingbats').decode_codepoint(codepoint)]
     end
     @layout = @doc.layout
@@ -267,7 +267,7 @@ describe HexaPDF::Document::Layout do
 
     it "allows setting custom properties on the whole box" do
       box = @layout.formatted_text_box([{text: "Test", properties: {key: :novalue}}],
-                                        properties: {key: :value})
+                                       properties: {key: :value})
       assert_equal({key: :value}, box.properties)
     end
 

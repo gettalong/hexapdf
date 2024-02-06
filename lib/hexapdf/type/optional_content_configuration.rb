@@ -57,10 +57,12 @@ module HexaPDF
       #
       # See: PDF2.0 s8.11.4.4
       class UsageApplication < Dictionary
+
         define_type :XXOCUsageApplication
         define_field :Event, type: Symbol, required: true, allowed_values: [:View, :Print, :Export]
         define_field :OCGs, type: PDFArray, default: []
         define_field :Category, type: PDFArray, required: true
+
       end
 
       define_type :XXOCConfiguration
@@ -153,12 +155,10 @@ module HexaPDF
               array << item << []
               index = -2
             end
-            if array[index + 1].kind_of?(Array) || array[index + 1].kind_of?(PDFArray)
-              array = array[index + 1]
-            else
+            unless array[index + 1].kind_of?(Array) || array[index + 1].kind_of?(PDFArray)
               array.insert(index + 1, [])
-              array = array[index + 1]
             end
+            array = array[index + 1]
           end
         end
         array << ocg

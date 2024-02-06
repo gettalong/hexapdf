@@ -130,7 +130,7 @@ module HexaPDF
       private
 
       # Fits the children into the container.
-      def fit_content(available_width, available_height, frame)
+      def fit_content(_available_width, _available_height, frame)
         my_frame = Frame.new(frame.x + reserved_width_left, frame.y - @height + reserved_height_bottom,
                              content_width, content_height, context: frame.context)
         @box_fitter = BoxFitter.new([my_frame])
@@ -138,8 +138,8 @@ module HexaPDF
 
         if @box_fitter.fit_successful?
           update_content_width do
-            result = @box_fitter.fit_results.max_by {|result| result.mask.x + result.mask.width }
-            children.size > 0 ? result.mask.x + result.mask.width - my_frame.left : 0
+            result = @box_fitter.fit_results.max_by {|r| r.mask.x + r.mask.width }
+            children.empty? ? 0 : result.mask.x + result.mask.width - my_frame.left
           end
           update_content_height { @box_fitter.content_heights.max }
           true

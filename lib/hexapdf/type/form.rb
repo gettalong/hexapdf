@@ -74,21 +74,21 @@ module HexaPDF
 
       define_type :XObject
 
-      define_field :Type,          type: Symbol,     default: type
-      define_field :Subtype,       type: Symbol,     required: true, default: :Form
-      define_field :FormType,      type: Integer,    default: 1, allowed_values: 1
-      define_field :BBox,          type: Rectangle,  required: true
-      define_field :Matrix,        type: PDFArray,   default: [1, 0, 0, 1, 0, 0]
+      define_field :Type,          type: Symbol,       default: type
+      define_field :Subtype,       type: Symbol,       required: true, default: :Form
+      define_field :FormType,      type: Integer,      default: 1, allowed_values: 1
+      define_field :BBox,          type: Rectangle,    required: true
+      define_field :Matrix,        type: PDFArray,     default: [1, 0, 0, 1, 0, 0]
       define_field :Resources,     type: :XXResources, version: '1.2'
-      define_field :Group,         type: :Group,     version: '1.4'
+      define_field :Group,         type: :Group,       version: '1.4'
       define_field :Ref,           type: :XXReference, version: '1.4'
-      define_field :Metadata,      type: Stream,     version: '1.4'
-      define_field :PieceInfo,     type: Dictionary, version: '1.3'
-      define_field :LastModified,  type: PDFDate,    version: '1.3'
-      define_field :StructParent,  type: Integer,    version: '1.3'
-      define_field :StructParents, type: Integer,    version: '1.3'
-      define_field :OPI,           type: Dictionary, version: '1.2'
-      define_field :OC,            type: Dictionary, version: '1.5'
+      define_field :Metadata,      type: Stream,       version: '1.4'
+      define_field :PieceInfo,     type: Dictionary,   version: '1.3'
+      define_field :LastModified,  type: PDFDate,      version: '1.3'
+      define_field :StructParent,  type: Integer,      version: '1.3'
+      define_field :StructParents, type: Integer,      version: '1.3'
+      define_field :OPI,           type: Dictionary,   version: '1.2'
+      define_field :OC,            type: Dictionary,   version: '1.5'
 
       # Returns the path to the PDF file that was used when creating the form object.
       #
@@ -202,7 +202,7 @@ module HexaPDF
           page = doc.pages[page]
         else
           labels = []
-          doc.pages.each_labelling_range do |first_index, count, label|
+          doc.pages.each_labelling_range do |_first_index, count, label|
             count.times {|i| labels << label.construct_label(i) }
           end
           index = labels.index(page)
@@ -218,7 +218,7 @@ module HexaPDF
         obj[:BBox] = self[:BBox].dup
         obj[:Matrix] = self[:Matrix].dup
         obj
-      rescue
+      rescue StandardError
         nil
       end
 

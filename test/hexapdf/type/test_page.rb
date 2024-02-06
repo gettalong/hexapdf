@@ -16,7 +16,8 @@ describe HexaPDF::Type::Page do
     end
 
     it "respects the orientation key" do
-      assert_equal([0, 0, 841.889764, 595.275591], HexaPDF::Type::Page.media_box(:A4, orientation: :landscape))
+      assert_equal([0, 0, 841.889764, 595.275591],
+                   HexaPDF::Type::Page.media_box(:A4, orientation: :landscape))
     end
 
     it "works with a paper size array" do

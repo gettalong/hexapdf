@@ -6,11 +6,11 @@ require 'hexapdf/font/true_type/table/name'
 
 describe HexaPDF::Font::TrueType::Table::Name do
   before do
-    data = [0, 3, 42].pack('n3') << \
-      [1, 0, 0, 0, 4, 0].pack('n6') << \
-      [0, 3, 1, 0, 8, 4].pack('n6') << \
-      [3, 1, 1033, 1, 14, 12].pack('n6') << \
-      'hexa'.encode('MACROMAN').b << \
+    data = [0, 3, 42].pack('n3') <<
+      [1, 0, 0, 0, 4, 0].pack('n6') <<
+      [0, 3, 1, 0, 8, 4].pack('n6') <<
+      [3, 1, 1033, 1, 14, 12].pack('n6') <<
+      'hexa'.encode('MACROMAN').b <<
       'hexa'.encode('UTF-16BE').b <<
       'hexapdf'.encode('UTF-16BE').b
     set_up_stub_true_type_font(data)

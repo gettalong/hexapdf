@@ -653,8 +653,7 @@ module HexaPDF
                         Action: 'HexaPDF::Type::Action',
                         XXLaunchActionWinParameters: 'HexaPDF::Type::Actions::Launch::WinParameters',
                         Annot: 'HexaPDF::Type::Annotation',
-                        XXAppearanceCharacteristics: \
-                          'HexaPDF::Type::Annotations::Widget::AppearanceCharacteristics',
+                        XXAppearanceCharacteristics: 'HexaPDF::Type::Annotations::Widget::AppearanceCharacteristics',
                         XXIconFit: 'HexaPDF::Type::IconFit',
                         XXAcroForm: 'HexaPDF::Type::AcroForm::Form',
                         XXAcroFormField: 'HexaPDF::Type::AcroForm::Field',
@@ -707,7 +706,7 @@ module HexaPDF
                           Text: 'HexaPDF::Type::Annotations::Text',
                           Link: 'HexaPDF::Type::Annotations::Link',
                           Widget: 'HexaPDF::Type::Annotations::Widget',
-                          XML: 'HexaPDF::Type::Metadata'
+                          XML: 'HexaPDF::Type::Metadata',
                         },
                         XObject: {
                           Image: 'HexaPDF::Type::Image',

@@ -132,7 +132,7 @@ describe HexaPDF::Composer do
     end
 
     it "sets a page style using default attributes but with a block" do
-      @composer.page_style(:other) {|canvas, style| style.frame = :hallo }
+      @composer.page_style(:other) {|_canvas, style| style.frame = :hallo }
       style = @composer.page_style(:other)
       style.create_page(@composer.document)
       assert_equal(:hallo, style.frame)

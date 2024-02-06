@@ -123,7 +123,7 @@ describe HexaPDF::Layout::Frame do
 
     it "fails if an unkown position value is provided" do
       box = HexaPDF::Layout::Box.create(position: :unknown)
-      exception = assert_raises(HexaPDF::Error)  { @frame.fit(box) }
+      exception = assert_raises(HexaPDF::Error) { @frame.fit(box) }
       assert_match(/Invalid value 'unknown'/, exception.message)
     end
 
@@ -338,8 +338,7 @@ describe HexaPDF::Layout::Frame do
           check_box({width: 50, height: 50, mask_mode: :none},
                     [10, 60],
                     [10, 60, 10, 60],
-                    [[[10, 10], [110, 10], [110, 110], [10, 110]]]
-                   )
+                    [[[10, 10], [110, 10], [110, 110], [10, 110]]])
         end
       end
 
@@ -401,7 +400,7 @@ describe HexaPDF::Layout::Frame do
                     [35, 60],
                     [35, 10, 85, 110],
                     [[[10, 10], [35, 10], [35, 110], [10, 110]],
-                      [[85, 10], [110, 10], [110, 110], [85, 110]]])
+                     [[85, 10], [110, 10], [110, 110], [85, 110]]])
         end
 
         it "respects the left and right margins for the mask" do
@@ -409,7 +408,7 @@ describe HexaPDF::Layout::Frame do
                     [35, 60],
                     [25, 10, 95, 110],
                     [[[10, 10], [25, 10], [25, 110], [10, 110]],
-                      [[95, 10], [110, 10], [110, 110], [95, 110]]])
+                     [[95, 10], [110, 10], [110, 110], [95, 110]]])
         end
       end
 

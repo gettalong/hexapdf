@@ -149,34 +149,34 @@ describe HexaPDF::Document::Metadata do
       @metadata.property('dc', 'other', 'https://test.org/example')
       @doc.write(StringIO.new, update_fields: false)
       metadata = <<~XMP
-      <?xpacket begin="﻿" id=""?>
-      <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-      <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
-      <dc:title><rdf:Alt>
-      <rdf:li xml:lang="en">Title</rdf:li>
-      <rdf:li xml:lang="de">Der Titel</rdf:li>
-      </rdf:Alt></dc:title>
-      <dc:creator><rdf:Seq>
-      <rdf:li>Author 1</rdf:li>
-      <rdf:li>Author 2</rdf:li>
-      </rdf:Seq></dc:creator>
-      <dc:description><rdf:Alt>
-      <rdf:li xml:lang="en">Subject</rdf:li>
-      </rdf:Alt></dc:description>
-      <dc:other rdf:resource="https://test.org/example" />
-      </rdf:Description>
-      <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
-      <pdf:Keywords>Keywords</pdf:Keywords>
-      <pdf:Producer>Producer</pdf:Producer>
-      <pdf:Trapped>True</pdf:Trapped>
-      </rdf:Description>
-      <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">
-      <xmp:CreatorTool>Creator</xmp:CreatorTool>
-      <xmp:CreateDate>#{@metadata.send(:xmp_date, @time)}</xmp:CreateDate>
-      <xmp:ModifyDate>#{@metadata.send(:xmp_date, @time)}</xmp:ModifyDate>
-      </rdf:Description>
-      </rdf:RDF>
-      <?xpacket end="r"?>
+        <?xpacket begin="﻿" id=""?>
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dc:title><rdf:Alt>
+        <rdf:li xml:lang="en">Title</rdf:li>
+        <rdf:li xml:lang="de">Der Titel</rdf:li>
+        </rdf:Alt></dc:title>
+        <dc:creator><rdf:Seq>
+        <rdf:li>Author 1</rdf:li>
+        <rdf:li>Author 2</rdf:li>
+        </rdf:Seq></dc:creator>
+        <dc:description><rdf:Alt>
+        <rdf:li xml:lang="en">Subject</rdf:li>
+        </rdf:Alt></dc:description>
+        <dc:other rdf:resource="https://test.org/example" />
+        </rdf:Description>
+        <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
+        <pdf:Keywords>Keywords</pdf:Keywords>
+        <pdf:Producer>Producer</pdf:Producer>
+        <pdf:Trapped>True</pdf:Trapped>
+        </rdf:Description>
+        <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">
+        <xmp:CreatorTool>Creator</xmp:CreatorTool>
+        <xmp:CreateDate>#{@metadata.send(:xmp_date, @time)}</xmp:CreateDate>
+        <xmp:ModifyDate>#{@metadata.send(:xmp_date, @time)}</xmp:ModifyDate>
+        </rdf:Description>
+        </rdf:RDF>
+        <?xpacket end="r"?>
       XMP
       assert_equal(metadata, @doc.catalog[:Metadata].stream.sub(/(?<=id=")\w+/, ''))
     end

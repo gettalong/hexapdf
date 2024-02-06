@@ -228,7 +228,7 @@ module HexaPDF
         if rectangle
           case type
           when :media, :crop, :bleed, :trim, :art
-            self["#{type.capitalize}Box".to_sym] = rectangle
+            self[:"#{type.capitalize}Box"] = rectangle
           else
             raise ArgumentError, "Unsupported page box type provided: #{type}"
           end
@@ -297,7 +297,7 @@ module HexaPDF
                    end
 
           rotate_box = lambda do |box|
-            llx, lly, urx, ury = \
+            llx, lly, urx, ury =
               case cw_angle
               when 90  then [box.right, box.bottom, box.left, box.top]
               when 180 then [box.right, box.top, box.left, box.bottom]

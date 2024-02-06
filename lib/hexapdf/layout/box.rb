@@ -234,8 +234,8 @@ module HexaPDF
       def fit(available_width, available_height, frame)
         @width = (@initial_width > 0 ? @initial_width : available_width)
         @height = (@initial_height > 0 ? @initial_height : available_height)
-        @fit_successful = (float_compare(@width, available_width) <= 0 &&
-                           float_compare(@height, available_height) <= 0)
+        @fit_successful = float_compare(@width, available_width) <= 0 &&
+          float_compare(@height, available_height) <= 0
         return unless @fit_successful
 
         @fit_successful = fit_content(available_width, available_height, frame)
@@ -384,7 +384,7 @@ module HexaPDF
       # provide the box specific behaviour.
       #
       # See #fit for details.
-      def fit_content(available_width, available_height, frame)
+      def fit_content(_available_width, _available_height, _frame)
         true
       end
 

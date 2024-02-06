@@ -129,7 +129,7 @@ module HexaPDF
                                               Logger: WEBrick::Log.new(StringIO.new), AccessLog: [])
         @tsa_server.mount_proc('/') do |request, response|
           @tsr = OpenSSL::Timestamp::Request.new(request.body)
-          case (@tsr.policy_id || '1.2.3.4.0')
+          case @tsr.policy_id || '1.2.3.4.0'
           when '1.2.3.4.0', '1.2.3.4.2'
             fac = OpenSSL::Timestamp::Factory.new
             fac.gen_time = Time.now

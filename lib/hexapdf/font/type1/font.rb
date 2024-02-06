@@ -92,7 +92,7 @@ module HexaPDF
             if @metrics.encoding_scheme == 'AdobeStandardEncoding'
               Encoding.for_name(:StandardEncoding)
             elsif font_name == 'ZapfDingbats' || font_name == 'Symbol'
-              Encoding.for_name("#{font_name}Encoding".to_sym)
+              Encoding.for_name(:"#{font_name}Encoding")
             else
               encoding = Encoding::Base.new
               @metrics.character_metrics.each do |key, char_metric|

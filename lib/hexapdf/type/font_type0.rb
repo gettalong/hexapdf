@@ -112,7 +112,7 @@ module HexaPDF
       #
       # See: PDF2.0 s9.3.3
       def word_spacing_applicable?
-        @word_spacing_applicable ||= ((cmap.read_codes("\x20") && true) rescue false)
+        @word_spacing_applicable ||= (cmap.read_codes("\x20") && true rescue false)
       end
 
       private

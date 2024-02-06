@@ -2571,7 +2571,7 @@ module HexaPDF
       # See #optional_content for details.
       #
       # See: PDF2.0 s8.11
-      alias :end_optional_content :end_marked_content_sequence
+      alias end_optional_content end_marked_content_sequence
 
       # :call-seq:
       #   canvas.composer(margin: 0) {|composer| block }  -> composer

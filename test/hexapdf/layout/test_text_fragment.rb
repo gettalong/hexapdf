@@ -50,7 +50,7 @@ describe HexaPDF::Layout::TextFragment do
     it "replaces invalid glyphs with the result of the block" do
       zapf_dingbats = @doc.fonts.add('ZapfDingbats')
       i = 0
-      fallback = lambda do |codepoint, invalid_glyph|
+      fallback = lambda do |codepoint, _invalid_glyph|
         case (i += 1) % 3
         when 0 then []
         when 1 then [zapf_dingbats.decode_codepoint(codepoint)]

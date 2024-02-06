@@ -1366,7 +1366,7 @@ describe HexaPDF::Content::Canvas do
     end
   end
 
-  describe "color_from_specification "do
+  describe "color_from_specification " do
     it "accepts a color string" do
       assert_equal([1, 0, 0], @canvas.color_from_specification("red").components)
     end

@@ -134,4 +134,3 @@ module HexaPDF
 
   end
 end
-

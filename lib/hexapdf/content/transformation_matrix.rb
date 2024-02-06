@@ -160,8 +160,8 @@ module HexaPDF
 
       # Returns +true+ if the other object is a transformation matrix with the same values.
       def ==(other)
-        (other.kind_of?(self.class) && @a == other.a && @b == other.b && @c == other.c &&
-          @d == other.d && @e == other.e && @f == other.f)
+        other.kind_of?(self.class) && @a == other.a && @b == other.b && @c == other.c &&
+          @d == other.d && @e == other.e && @f == other.f
       end
 
       # Creates an array [a, b, c, d, e, f] from the transformation matrix.

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'hexapdf/utils.rb'
+require 'hexapdf/utils'
 
 describe HexaPDF::Utils do
   include HexaPDF::Utils

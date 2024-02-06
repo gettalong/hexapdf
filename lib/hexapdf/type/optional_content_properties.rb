@@ -92,7 +92,6 @@ module HexaPDF
         self[:OCGs].uniq.compact
       end
 
-
       OCMD_POLICY_MAPPING = {any_on: :AnyOn, AnyOn: :AnyOn, any_off: :AnyOff, # :nodoc:
                              AnyOff: :AnyOff, all_off: :AllOff, AllOff: :AllOff}
 

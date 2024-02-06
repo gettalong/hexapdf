@@ -305,7 +305,7 @@ module HexaPDF
       result
     rescue HexaPDF::Error
       raise
-    rescue
+    rescue StandardError
       yield("Error: Unexpected value encountered", false, self) if block_given?
       false
     end
@@ -423,7 +423,7 @@ module HexaPDF
     #       yield("/OtherKey needs to contain an odd number of elements")
     #     end
     #   end
-    def perform_validation(&block)
+    def perform_validation
       # Validate that the object is indirect if #must_be_indirect? is +true+.
       if must_be_indirect? && !indirect?
         yield("Object must be an indirect object", true)

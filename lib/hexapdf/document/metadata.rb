@@ -110,8 +110,10 @@ module HexaPDF
 
       # Represents a localized XMP string, i.e. as string with an attached language.
       class LocalizedString < String
+
         # The language identifier for the string in RFC3066 format.
         attr_accessor :language
+
       end
 
       # Contains a mapping of predefined prefixes for XMP namespaces for metadata.
@@ -119,8 +121,8 @@ module HexaPDF
         "rdf" => "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         "xmp" => "http://ns.adobe.com/xap/1.0/",
         "pdf" => "http://ns.adobe.com/pdf/1.3/",
-        "dc"  => "http://purl.org/dc/elements/1.1/",
-        "x"   => "adobe:ns:meta/",
+        "dc" => "http://purl.org/dc/elements/1.1/",
+        "x" => "adobe:ns:meta/",
       }.freeze
 
       # Contains a mapping of predefined XMP properties to their types, i.e. from namespace to
@@ -143,12 +145,11 @@ module HexaPDF
         }.freeze,
       }.freeze
 
-
       # Creates a new Metadata object for the given PDF document.
       def initialize(document)
         @document = document
         @namespaces = PREDEFINED_NAMESPACES.dup
-        @properties = PREDEFINED_PROPERTIES.transform_values {|value| value.dup}
+        @properties = PREDEFINED_PROPERTIES.transform_values(&:dup)
         @default_language = document.catalog[:Lang] || 'en'
         @metadata = Hash.new {|h, k| h[k] = {} }
         write_info_dict(true)
@@ -430,11 +431,11 @@ module HexaPDF
       # Creates an XMP packet with the given payload +data+.
       def xmp_packet(data)
         <<~XMP
-        <?xpacket begin="\u{FEFF}" id="#{SecureRandom.uuid.tr('-', '')}"?>
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        #{data}
-        </rdf:RDF>
-        <?xpacket end="r"?>
+          <?xpacket begin="\u{FEFF}" id="#{SecureRandom.uuid.tr('-', '')}"?>
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          #{data}
+          </rdf:RDF>
+          <?xpacket end="r"?>
         XMP
       end
 
@@ -465,9 +466,9 @@ module HexaPDF
           str
         end.join("\n")
         <<~XMP.strip
-        <rdf:Description rdf:about="" xmlns:#{ns_prefix}="#{xmp_escape(namespace(ns_prefix))}">
-        #{values}
-        </rdf:Description>
+          <rdf:Description rdf:about="" xmlns:#{ns_prefix}="#{xmp_escape(namespace(ns_prefix))}">
+          #{values}
+          </rdf:Description>
         XMP
       end
 

@@ -54,8 +54,8 @@ describe HexaPDF::Font::TrueType::Table::CmapSubtable do
     end
 
     it "works for format 2" do
-      f2 = ([0, 8] + [0] * 254).pack('n*') + \
-        [[0, 256, 0, 2 + 8], [0x33, 3, 5, 2 + 256 * 2]].map {|a| a.pack('n2s>n') }.join + \
+      f2 = ([0, 8] + [0] * 254).pack('n*') +
+        [[0, 256, 0, 2 + 8], [0x33, 3, 5, 2 + 256 * 2]].map {|a| a.pack('n2s>n') }.join +
         ((0..255).to_a + [35, 65534, 0]).pack('n*')
       t = table([2, f2.length + 6, 0].pack('n3') << f2)
       assert_nil(t[0x0132])

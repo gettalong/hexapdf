@@ -20,8 +20,8 @@ describe HexaPDF::Type::OptionalContentGroup do
         Print: {},
         View: {},
         User: {},
-        PageElement: {}
-      }
+        PageElement: {},
+      },
     }
     ocg = @doc.add(hash, type: :OCG)
     assert_kind_of(HexaPDF::Type::OptionalContentGroup, ocg)

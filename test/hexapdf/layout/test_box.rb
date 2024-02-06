@@ -113,7 +113,7 @@ describe HexaPDF::Layout::Box do
 
     it "can use the #content_width/#content_height helper methods" do
       box = create_box
-      box.define_singleton_method(:fit_content) do |aw, ah, frame|
+      box.define_singleton_method(:fit_content) do |_aw, _ah, _frame|
         update_content_width { 10 }
         update_content_height { 20 }
         true
@@ -123,7 +123,7 @@ describe HexaPDF::Layout::Box do
       assert_equal(20, box.height)
 
       box = create_box(width: 30, height: 50)
-      box.define_singleton_method(:fit_content) do |aw, ah, frame|
+      box.define_singleton_method(:fit_content) do |_aw, _ah, _frame|
         update_content_width { 10 }
         update_content_height { 20 }
         true

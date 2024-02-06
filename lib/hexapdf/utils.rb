@@ -37,6 +37,8 @@
 require 'geom2d/utils'
 
 module HexaPDF
+
+  # This module contains helper methods for the whole library.
   module Utils
 
     # The precision with which to compare floating point numbers.
@@ -46,8 +48,6 @@ module HexaPDF
 
     # Best effort of setting Geom2D's precision to the one used by HexaPDF.
     ::Geom2D::Utils.precision = EPSILON
-
-    module_function
 
     private
 

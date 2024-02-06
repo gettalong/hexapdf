@@ -424,9 +424,9 @@ module HexaPDF
         scaled_word_space = (font.word_spacing_applicable? ? graphics_state.scaled_word_spacing : 0)
         scaled_font_size = graphics_state.scaled_font_size
 
-        below_baseline = font.bounding_box[1] * scaled_font_size / \
+        below_baseline = font.bounding_box[1] * scaled_font_size /
           graphics_state.scaled_horizontal_scaling + graphics_state.text_rise
-        above_baseline = font.bounding_box[3] * scaled_font_size / \
+        above_baseline = font.bounding_box[3] * scaled_font_size /
           graphics_state.scaled_horizontal_scaling + graphics_state.text_rise
 
         text = CompositeBox.new
@@ -436,7 +436,7 @@ module HexaPDF
           else
             font.decode(item).each do |code_point|
               char = font.to_utf8(code_point)
-              width = font.width(code_point) * scaled_font_size + scaled_char_space + \
+              width = font.width(code_point) * scaled_font_size + scaled_char_space +
                 (code_point == 32 ? scaled_word_space : 0)
               matrix = graphics_state.ctm.dup.premultiply(*graphics_state.tm)
               fragment = GlyphBox.new(code_point, char,

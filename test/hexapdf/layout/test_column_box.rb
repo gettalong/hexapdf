@@ -181,11 +181,11 @@ describe HexaPDF::Layout::ColumnBox do
          [:restore_graphics_state]]
       end
       operators.concat(90.step(to: 30, by: -10).map do |y|
-          [[:save_graphics_state],
-           [:concatenate_matrix, [1, 0, 0, 1, 55, y]],
-           [:move_to, [0, 0]],
-           [:end_path],
-           [:restore_graphics_state]]
+        [[:save_graphics_state],
+         [:concatenate_matrix, [1, 0, 0, 1, 55, y]],
+         [:move_to, [0, 0]],
+         [:end_path],
+         [:restore_graphics_state]]
       end)
       operators.flatten!(1)
       assert_operators(@canvas.contents, operators)
