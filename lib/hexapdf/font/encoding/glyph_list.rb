@@ -89,7 +89,7 @@ module HexaPDF
             @standard_name_to_uni[name]
           else
             name = name.to_s
-            if name =~ /\Auni([0-9A-F]{4})\Z/ || name =~ /\Au([0-9A-f]{4,6})\Z/
+            if name =~ /\Auni([0-9A-F]{4})\Z/ || name =~ /\Au([0-9A-F]{4,6})\Z/
               +'' << $1.hex
             end
           end

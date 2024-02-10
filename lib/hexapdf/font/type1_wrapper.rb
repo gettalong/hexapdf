@@ -220,7 +220,7 @@ module HexaPDF
                 (name == :'.notdef' || !@wrapped_font.metrics.character_metrics.key?(name))
               name = @encoding.name(codepoint)
             end
-            name = +"u" << codepoint.to_s(16).rjust(6, '0') if name == :'.notdef'
+            name = +"u" << codepoint.to_s(16).rjust(6, '0').upcase if name == :'.notdef'
             glyph(name)
           end
       end
