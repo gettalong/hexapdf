@@ -233,15 +233,28 @@ module HexaPDF
             raise ArgumentError, "Unsupported page box type provided: #{type}"
           end
         else
-          case type
-          when :media then self[:MediaBox]
-          when :crop then self[:CropBox] || self[:MediaBox]
-          when :bleed then self[:BleedBox] || self[:CropBox] || self[:MediaBox]
-          when :trim then self[:TrimBox] || self[:CropBox] || self[:MediaBox]
-          when :art then self[:ArtBox] || self[:CropBox] || self[:MediaBox]
-          else
-            raise ArgumentError, "Unsupported page box type provided: #{type}"
+          media_box = self[:MediaBox]
+          result = case type
+                   when :media then media_box
+                   when :crop then self[:CropBox] || media_box
+                   when :bleed then self[:BleedBox] || self[:CropBox] || media_box
+                   when :trim then self[:TrimBox] || self[:CropBox] || media_box
+                   when :art then self[:ArtBox] || self[:CropBox] || media_box
+                   else
+                     raise ArgumentError, "Unsupported page box type provided: #{type}"
+                   end
+          unless result == media_box
+            if result.right < media_box.left || result.left > media_box.right ||
+                result.top < media_box.bottom || result.bottom > media_box.top
+              result.value = [0, 0, 0, 0]
+            else
+              result.left = media_box.left if result.left < media_box.left
+              result.right = media_box.right if result.right > media_box.right
+              result.top = media_box.top if result.top > media_box.top
+              result.bottom = media_box.bottom if result.bottom < media_box.bottom
+            end
           end
+          result
         end
       end
 
@@ -290,10 +303,11 @@ module HexaPDF
           delete(:Rotate)
           return if cw_angle == 0
 
+          pbox = box
           matrix = case cw_angle
-                   when 90  then Content::TransformationMatrix.new(0, -1, 1, 0, -box.bottom, box.right)
-                   when 180 then Content::TransformationMatrix.new(-1, 0, 0, -1, box.right, box.top)
-                   when 270 then Content::TransformationMatrix.new(0, 1, -1, 0, box.top, -box.left)
+                   when 90  then Content::TransformationMatrix.new(0, -1, 1, 0, -pbox.bottom, pbox.right)
+                   when 180 then Content::TransformationMatrix.new(-1, 0, 0, -1, pbox.right, pbox.top)
+                   when 270 then Content::TransformationMatrix.new(0, 1, -1, 0, pbox.top, -pbox.left)
                    end
 
           rotate_box = lambda do |box|

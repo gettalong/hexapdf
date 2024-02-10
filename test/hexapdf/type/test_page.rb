@@ -137,27 +137,46 @@ describe HexaPDF::Type::Page do
     end
 
     it "returns the correct crop box" do
-      @page[:MediaBox] = :media
-      assert_equal(:media, @page.box(:crop))
-      @page[:CropBox] = :crop
-      assert_equal(:crop, @page.box(:crop))
+      @page[:MediaBox] = [0, 0, 10, 10]
+      assert_equal([0, 0, 10, 10], @page.box(:crop))
+      @page[:CropBox] = [0, 0, 5, 5]
+      assert_equal([0, 0, 5, 5], @page.box(:crop))
     end
 
     it "returns the correct bleed, trim and art boxes" do
-      @page[:MediaBox] = :media
-      assert_equal(:media, @page.box(:bleed))
-      assert_equal(:media, @page.box(:trim))
-      assert_equal(:media, @page.box(:art))
-      @page[:CropBox] = :crop
-      assert_equal(:crop, @page.box(:bleed))
-      assert_equal(:crop, @page.box(:trim))
-      assert_equal(:crop, @page.box(:art))
-      @page[:BleedBox] = :bleed
-      @page[:TrimBox] = :trim
-      @page[:ArtBox] = :art
-      assert_equal(:bleed, @page.box(:bleed))
-      assert_equal(:trim, @page.box(:trim))
-      assert_equal(:art, @page.box(:art))
+      @page[:MediaBox] = mb = [0, 0, 10, 10]
+      assert_equal(mb, @page.box(:bleed))
+      assert_equal(mb, @page.box(:trim))
+      assert_equal(mb, @page.box(:art))
+      @page[:CropBox] = cb = [0, 0, 8, 8]
+      assert_equal(cb, @page.box(:bleed))
+      assert_equal(cb, @page.box(:trim))
+      assert_equal(cb, @page.box(:art))
+      @page[:BleedBox] = [0, 0, 0, 5]
+      @page[:TrimBox] = [0, 0, 0, 7]
+      @page[:ArtBox] = [0, 0, 0, 1]
+      assert_equal([0, 0, 0, 5], @page.box(:bleed))
+      assert_equal([0, 0, 0, 7], @page.box(:trim))
+      assert_equal([0, 0, 0, 1], @page.box(:art))
+    end
+
+    it "restricts all boxes to the bounds of the media box" do
+      @page[:MediaBox] = [10, 20, 100, 200]
+      @page[:CropBox] = [0, 0, 200, 300]
+      assert_equal([10, 20, 100, 200], @page.box.value)
+    end
+
+    it "returns a zero-sized box if requested box doesn't overlap with the media box" do
+      @page[:MediaBox] = [0, 0, 100, 100]
+
+      @page[:CropBox] = [-20, 0, -10, 100]
+      assert_equal([0, 0, 0, 0], @page.box)
+      @page[:CropBox] = [200, 0, 250, 100]
+      assert_equal([0, 0, 0, 0], @page.box)
+      @page[:CropBox] = [0, 110, 100, 150]
+      assert_equal([0, 0, 0, 0], @page.box)
+      @page[:CropBox] = [0, -100, 100, -10]
+      assert_equal([0, 0, 0, 0], @page.box)
     end
 
     it "fails if an unknown box type is supplied" do
@@ -165,16 +184,18 @@ describe HexaPDF::Type::Page do
     end
 
     it "sets the correct box" do
-      @page.box(:media, :media)
-      assert_equal(:media, @page.box(:media))
-      @page.box(:crop, :crop)
-      assert_equal(:crop, @page.box(:crop))
-      @page.box(:bleed, :bleed)
-      assert_equal(:bleed, @page.box(:bleed))
-      @page.box(:trim, :trim)
-      assert_equal(:trim, @page.box(:trim))
-      @page.box(:art, :art)
-      assert_equal(:art, @page.box(:art))
+      @page.box(:media, [0, 0, 1, 1])
+      assert_equal([0, 0, 1, 1], @page.box(:media).value)
+
+      @page.box(:media, [0, 0, 1, 10])
+      @page.box(:crop, [0, 0, 1, 2])
+      assert_equal([0, 0, 1, 2], @page.box(:crop).value)
+      @page.box(:bleed, [0, 0, 1, 3])
+      assert_equal([0, 0, 1, 3], @page.box(:bleed))
+      @page.box(:trim, [0, 0, 1, 4])
+      assert_equal([0, 0, 1, 4], @page.box(:trim))
+      @page.box(:art, [0, 0, 1, 5])
+      assert_equal([0, 0, 1, 5], @page.box(:art))
     end
 
     it "fails if an unknown box type is supplied when setting a box" do
@@ -251,17 +272,17 @@ describe HexaPDF::Type::Page do
 
     describe "flatten" do
       it "adjust all page boxes" do
-        @page.box(:crop, [0, 0, 1, 2])
-        @page.box(:bleed, [0, 0, 2, 3])
-        @page.box(:trim, [0, 0, 3, 4])
-        @page.box(:art, [0, 0, 4, 5])
+        @page.box(:crop, [50, 100, 200, 300])
+        @page.box(:bleed, [60, 110, 190, 290])
+        @page.box(:trim, [70, 120, 180, 280])
+        @page.box(:art, [80, 130, 170, 270])
 
         @page.rotate(90, flatten: true)
-        assert_equal([-298, 50, -98, 200], @page.box(:media).value)
-        assert_equal([0, 0, 2, 1], @page.box(:crop).value)
-        assert_equal([-1, 0, 2, 2], @page.box(:bleed).value)
-        assert_equal([-2, 0, 2, 3], @page.box(:trim).value)
-        assert_equal([-3, 0, 2, 4], @page.box(:art).value)
+        assert_equal([0, 0, 200, 150], @page.box(:media).value)
+        assert_equal([0, 0, 200, 150], @page.box(:crop).value)
+        assert_equal([10, 10, 190, 140], @page.box(:bleed).value)
+        assert_equal([20, 20, 180, 130], @page.box(:trim).value)
+        assert_equal([30, 30, 170, 120], @page.box(:art).value)
       end
 
       it "works correctly for 90 degrees" do
@@ -489,6 +510,7 @@ describe HexaPDF::Type::Page do
     end
 
     it "works correctly if the page has its crop box origin not at (0,0)" do
+      @page.box(:media, [-20, -20, 100, 300])
       @page.box(:crop, [-10, -5, 100, 300])
       @page.canvas(type: :underlay).line_width = 2
       @page.canvas(type: :page).line_width = 2
