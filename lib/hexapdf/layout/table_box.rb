@@ -257,9 +257,9 @@ module HexaPDF
           # difference in the y direction between fitting and drawing
           y -= (@fit_results[0].available_height - content_height)
           @fit_results.each do |fit_result|
-            fit_result.x += x
-            fit_result.y += y
-            fit_result.draw(canvas)
+            #fit_result.x += x
+            #fit_result.y += y
+            fit_result.draw(canvas, dx: x, dy: y)
           end
         end
 
