@@ -614,6 +614,12 @@ describe HexaPDF::Type::Page do
       assert(@annot2.null?)
     end
 
+    it "gracefully handles duplicate annotations that should be flattened" do
+      @page[:Annots] << @annot1
+      result = @page.flatten_annotations
+      assert(result.empty?)
+    end
+
     it "gracefully handles invalid /Annot key values" do
       @page[:Annots] << nil << @doc.add({}, stream: '') << 543
       result = @page.flatten_annotations

@@ -34,6 +34,7 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'set'
 require 'hexapdf/error'
 require 'hexapdf/dictionary'
 require 'hexapdf/stream'
@@ -582,7 +583,7 @@ module HexaPDF
           canvas.translate(-pos[0], -pos[1])
         end
 
-        to_delete = []
+        to_delete = Set.new
         not_flattened -= annotations
         annotations.each do |annotation|
           unless annotation?(annotation)

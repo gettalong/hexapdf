@@ -6,6 +6,8 @@
 * [HexaPDF::Type::Page#box] to intersect the requested box with the media box
 * Validation of [HexaPDF::Type::Annotation] to resolve PDF reference before
   access
+* [HexaPDF::Type::Page#flatten_annotations] to work in case of duplicate
+  annotations
 
 
 ## 0.37.1 - 2024-02-05
