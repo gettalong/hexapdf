@@ -142,7 +142,7 @@ describe HexaPDF::Type::Annotation do
   describe "validation" do
     it "makes sure that empty appearance stream dictionaries don't cause validation errors" do
       assert(@annot.validate)
-      @annot[:AP] = {}
+      @annot[:AP] = HexaPDF::Reference.new(@doc.add({}).oid)
       msg = nil
       assert(@annot.validate {|imsg| msg = imsg })
       assert_match(/appearance.*must not be empty/, msg)

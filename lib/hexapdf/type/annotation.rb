@@ -258,7 +258,7 @@ module HexaPDF
 
       def perform_validation(&block) #:nodoc:
         # Make sure empty appearance dictionaries don't cause validation errors
-        if key?(:AP) && value[:AP].empty?
+        if key?(:AP) && self[:AP]&.empty?
           yield("An annotation's appearance dictionary must not be empty", true)
           delete(:AP)
         end

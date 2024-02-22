@@ -4,6 +4,8 @@
 
 * Type of /TransformParams field in signature reference dictionary
 * [HexaPDF::Type::Page#box] to intersect the requested box with the media box
+* Validation of [HexaPDF::Type::Annotation] to resolve PDF reference before
+  access
 
 
 ## 0.37.1 - 2024-02-05
