@@ -8,6 +8,7 @@
   access
 * [HexaPDF::Type::Page#flatten_annotations] to work in case of duplicate
   annotations
+* [HexaPDF::Type::AcroForm::Form#each_field] to gracefully handle null values
 
 
 ## 0.37.1 - 2024-02-05

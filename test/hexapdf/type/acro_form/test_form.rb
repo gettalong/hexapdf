@@ -81,6 +81,12 @@ describe HexaPDF::Type::AcroForm::Form do
     it "converts the fields into their proper types if possible" do
       assert_kind_of(HexaPDF::Type::AcroForm::TextField, @acro_form.each_field.to_a.last)
     end
+
+    it "gracefully handles null entries" do
+      @acro_form[:Fields].insert(1, HexaPDF::Reference.new(100, 0))
+      @acro_form[:Fields][-1][:Kids].insert(1, nil)
+      assert_equal([:Tx1, :Tx2, :Tx4, :Tx6], @acro_form.each_field.map {|h| h[:T] })
+    end
   end
 
   describe "field_by_name" do

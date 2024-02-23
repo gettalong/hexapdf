@@ -127,6 +127,7 @@ module HexaPDF
 
           process_field_array = lambda do |array|
             array.each_with_index do |field, index|
+              next if field.nil?
               unless field.respond_to?(:type) && field.type == :XXAcroFormField
                 array[index] = field = document.wrap(field, type: :XXAcroFormField,
                                                      subtype: Field.inherited_value(field, :FT))
