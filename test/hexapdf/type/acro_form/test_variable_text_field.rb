@@ -79,6 +79,18 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
       assert_equal([:F2, 10, @color], @field.parse_default_appearance_string)
     end
 
+    it "parses the default appearance string of the given widget" do
+      widget = @field.create_widget(@doc.pages.add, allow_embedded: false, Rect: [0, 0, 1, 1],
+                                   DA: "/F1 10 Tf 1 g")
+      assert_equal([:F1, 10, @color], @field.parse_default_appearance_string(widget))
+    end
+
+    it "falls back to the field if the widget has no appearance string set" do
+      @field[:DA] = "/F2 5 Tf"
+      widget = @field.create_widget(@doc.pages.add, allow_embedded: false, Rect: [0, 0, 1, 1])
+      assert_equal([:F2, 5, nil], @field.parse_default_appearance_string(widget))
+    end
+
     it "uses the default appearance string of a parent field" do
       parent = @doc.add({DA: "/F1 15 Tf"}, type: :XXAcroFormField)
       @field[:Parent] = parent

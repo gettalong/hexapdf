@@ -153,10 +153,13 @@ module HexaPDF
         # Parses the default appearance string and returns an array containing [font_name,
         # font_size, font_color].
         #
-        # The default appearance string is taken from the field or, if not set, the default
-        # appearance string of the form.
-        def parse_default_appearance_string
-          da = self[:DA] || (document.acro_form && document.acro_form[:DA])
+        # The default appearance string is taken from the given +widget+ of the field, falls back to
+        # the field itself or, if still not available, the default appearance string of the form.
+        #
+        # The reason why a specific widget of the field can be specified is because the widgets of a
+        # field might differ in their visual representation.
+        def parse_default_appearance_string(widget = self)
+          da = widget[:DA] || self[:DA] || (document.acro_form && document.acro_form[:DA])
           raise HexaPDF::Error, "No default appearance string set" unless da
           self.class.parse_appearance_string(da)
         end

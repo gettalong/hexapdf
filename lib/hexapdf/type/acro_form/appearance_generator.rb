@@ -465,7 +465,7 @@ module HexaPDF
 
         # Returns the font wrapper and font size to be used for a variable text field.
         def retrieve_font_information(resources)
-          font_name, font_size, font_color = @field.parse_default_appearance_string
+          font_name, font_size, font_color = @field.parse_default_appearance_string(@widget)
           font_object = resources.font(font_name) rescue nil
           font = font_object&.font_wrapper
           unless font

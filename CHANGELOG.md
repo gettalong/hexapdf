@@ -9,6 +9,8 @@
 * [HexaPDF::Type::Page#flatten_annotations] to work in case of duplicate
   annotations
 * [HexaPDF::Type::AcroForm::Form#each_field] to gracefully handle null values
+* [HexaPDF::Type::AcroForm::AppearanceGenerator] to take an appearance string
+  set on a widget instead of a field into account
 
 
 ## 0.37.1 - 2024-02-05
