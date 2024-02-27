@@ -145,6 +145,13 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
       @field[:Opt] = @items
       assert_equal(["a", "Töne", "Hällo"], @field.export_values)
     end
+
+    it "can retrieve the option items/export values if they are set on a widget and not on the field" do
+      @field.create_widget(@doc.pages.add, allow_embedded: false, Rect: [0, 0, 0, 0], Opt: @items)
+      @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0], Opt: ['other'])
+      assert_equal(["Zx", "Töne", "Hällo"], @field.option_items)
+      assert_equal(["a", "Töne", "Hällo"], @field.export_values)
+    end
   end
 
   it "returns the correct concrete field type" do

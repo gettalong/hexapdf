@@ -168,6 +168,7 @@ module HexaPDF
         # Note that this *only* returns the option items themselves! For getting the export values,
         # the #export_values method has to be used.
         def option_items
+          prepare_option_items
           key?(:Opt) ? process_value(self[:Opt].map {|i| i.kind_of?(Array) ? i[1] : i }) : []
         end
 
@@ -175,6 +176,7 @@ module HexaPDF
         #
         # If you need the display strings (as in most cases), use the #option_items method.
         def export_values
+          prepare_option_items
           key?(:Opt) ? process_value(self[:Opt].map {|i| i.kind_of?(Array) ? i[0] : i }) : []
         end
 
@@ -248,6 +250,14 @@ module HexaPDF
         end
 
         private
+
+        # Makes sure that the /Opt key is set on the field and not on the individual widgets.
+        def prepare_option_items
+          return if key?(:Opt) || !terminal_field?
+          opt = nil
+          self[:Kids]&.each {|widget| opt ||= widget.delete(:Opt) }
+          self[:Opt] = opt
+        end
 
         # Uses the HexaPDF::DictionaryFields::StringConverter to process the value (a string or an
         # array of strings) so that it contains only normalized strings.
