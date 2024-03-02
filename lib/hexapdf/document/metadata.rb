@@ -150,7 +150,7 @@ module HexaPDF
         @document = document
         @namespaces = PREDEFINED_NAMESPACES.dup
         @properties = PREDEFINED_PROPERTIES.transform_values(&:dup)
-        @default_language = document.catalog[:Lang] || 'en'
+        @default_language = document.catalog[:Lang] || 'x-default'
         @metadata = Hash.new {|h, k| h[k] = {} }
         write_info_dict(true)
         write_metadata_stream(true)
@@ -166,7 +166,7 @@ module HexaPDF
       # is given. Otherwise sets the default language to the given language.
       #
       # The initial default lanuage is taken from the document catalog's /Lang entry. If that is not
-      # set, the default language is assumed to be English ('en').
+      # set, the default language is assumed to be default language ('x-default').
       def default_language(value = :UNSET)
         if value == :UNSET
           @default_language
@@ -240,13 +240,14 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   metadata.title          -> title or nil
-      #   metadata.title(value    -> value
+      #   metadata.title           -> title or nil
+      #   metadata.title(value)    -> value
       #
       # Returns the document's title if no argument is given. Otherwise sets the document's title to
       # the given value.
       #
-      # The language for the title is specified via #default_language.
+      # If the +value+ is a LocalizedString, the language for the title is taken from it. Otherwise
+      # the language specified via #default_language is used.
       #
       # The value +nil+ is returned if the property is not set. And by using +nil+ as +value+ the
       # property is deleted from the metadata.
@@ -278,7 +279,8 @@ module HexaPDF
       # Returns the subject of the document if no argument is given. Otherwise sets the subject to
       # the given value.
       #
-      # The language for the subject is specified via #default_language.
+      # If the +value+ is a LocalizedString, the language for the subject is taken from it.
+      # Otherwise the language specified via #default_language is used.
       #
       # The value +nil+ is returned if the property ist not set. And by using +nil+ as +value+ the
       # property is deleted from the metadata.

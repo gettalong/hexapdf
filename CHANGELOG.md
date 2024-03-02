@@ -4,6 +4,11 @@
 
 * [HexaPDF::Type::OutputIntent] for defining output intents
 
+### Change
+
+* Default language for XMP metadata from English to 'x-default'
+
+
 ## 0.37.2 - 2024-02-27
 
 ### Fixed

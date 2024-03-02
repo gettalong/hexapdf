@@ -27,8 +27,8 @@ describe HexaPDF::Document::Metadata do
       assert_equal("de", HexaPDF::Document::Metadata.new(@doc).default_language)
     end
 
-    it "falls back to English if the document doesn't have a default language set" do
-      assert_equal('en', @metadata.default_language)
+    it "falls back to the default language if the document doesn't have a default language set" do
+      assert_equal('x-default', @metadata.default_language)
     end
 
     it "allows changing the default language" do
@@ -153,7 +153,7 @@ describe HexaPDF::Document::Metadata do
         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
         <dc:title><rdf:Alt>
-        <rdf:li xml:lang="en">Title</rdf:li>
+        <rdf:li xml:lang="x-default">Title</rdf:li>
         <rdf:li xml:lang="de">Der Titel</rdf:li>
         </rdf:Alt></dc:title>
         <dc:creator><rdf:Seq>
@@ -161,7 +161,7 @@ describe HexaPDF::Document::Metadata do
         <rdf:li>Author 2</rdf:li>
         </rdf:Seq></dc:creator>
         <dc:description><rdf:Alt>
-        <rdf:li xml:lang="en">Subject</rdf:li>
+        <rdf:li xml:lang="x-default">Subject</rdf:li>
         </rdf:Alt></dc:description>
         <dc:other rdf:resource="https://test.org/example" />
         </rdf:Description>
