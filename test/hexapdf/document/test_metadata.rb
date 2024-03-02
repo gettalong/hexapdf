@@ -147,6 +147,8 @@ describe HexaPDF::Document::Metadata do
       @metadata.author(['Author 1', 'Author 2'])
       @metadata.register_property_type('dc', 'other', 'URI')
       @metadata.property('dc', 'other', 'https://test.org/example')
+      @metadata.property('pdfaid', 'part', 3)
+      @metadata.property('pdfaid', 'conformance', 'b')
       @doc.write(StringIO.new, update_fields: false)
       metadata = <<~XMP
         <?xpacket begin="﻿" id=""?>
@@ -174,6 +176,10 @@ describe HexaPDF::Document::Metadata do
         <xmp:CreatorTool>Creator</xmp:CreatorTool>
         <xmp:CreateDate>#{@metadata.send(:xmp_date, @time)}</xmp:CreateDate>
         <xmp:ModifyDate>#{@metadata.send(:xmp_date, @time)}</xmp:ModifyDate>
+        </rdf:Description>
+        <rdf:Description rdf:about="" xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/">
+        <pdfaid:part>3</pdfaid:part>
+        <pdfaid:conformance>b</pdfaid:conformance>
         </rdf:Description>
         </rdf:RDF>
         <?xpacket end="r"?>

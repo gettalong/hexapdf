@@ -3,6 +3,7 @@
 ### Added
 
 * [HexaPDF::Type::OutputIntent] for defining output intents
+* PDF/A metadata properties definitions
 
 ### Change
 

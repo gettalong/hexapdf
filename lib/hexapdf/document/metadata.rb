@@ -80,6 +80,10 @@ module HexaPDF
     # String::
     #     Maps to the XMP simple string value. Values need to be of type String.
     #
+    # Integer::
+    #     Maps to the XMP integer core value type and gets formatted as string. Values need to be of
+    #     type Integer.
+    #
     # Date::
     #     Maps to the XMP simple string value, correctly formatted. Values need to be of type Time,
     #     Date, or DateTime
@@ -123,6 +127,7 @@ module HexaPDF
         "pdf" => "http://ns.adobe.com/pdf/1.3/",
         "dc" => "http://purl.org/dc/elements/1.1/",
         "x" => "adobe:ns:meta/",
+        "pdfaid" => "http://www.aiim.org/pdfa/ns/id/",
       }.freeze
 
       # Contains a mapping of predefined XMP properties to their types, i.e. from namespace to
@@ -142,6 +147,10 @@ module HexaPDF
           'creator' => 'OrderedArray',
           'description' => 'LanguageArray',
           'title' => 'LanguageArray',
+        }.freeze,
+        "http://www.aiim.org/pdfa/ns/id/" => {
+          'part' => 'Integer',
+          'conformance' => 'String',
         }.freeze,
       }.freeze
 
@@ -213,8 +222,8 @@ module HexaPDF
 
       # Registers the +property+ for the namespace specified via +prefix+ as the given +type+.
       #
-      # The argument +type+ has to be one of the following: 'String', 'Date', 'URI', 'Boolean',
-      # 'OrderedArray', 'UnorderedArray', or 'LanguageArray'.
+      # The argument +type+ has to be one of the following: 'String', 'Integer', 'Date', 'URI',
+      # 'Boolean', 'OrderedArray', 'UnorderedArray', or 'LanguageArray'.
       def register_property_type(prefix, property, type)
         (@properties[namespace(prefix)] ||= {})[property] = type
       end
@@ -446,8 +455,8 @@ module HexaPDF
         values = values.map do |name, value|
           str = +"<#{ns_prefix}:#{name}"
           case (property_type = @properties[namespace(ns_prefix)][name])
-          when 'String'
-            str << ">#{xmp_escape(value)}</#{ns_prefix}:#{name}>"
+          when 'String', 'Integer'
+            str << ">#{xmp_escape(value.to_s)}</#{ns_prefix}:#{name}>"
           when 'Date'
             str << ">#{xmp_date(value)}</#{ns_prefix}:#{name}>"
           when 'URI'
