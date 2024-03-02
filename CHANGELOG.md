@@ -4,6 +4,8 @@
 
 * [HexaPDF::Type::OutputIntent] for defining output intents
 * PDF/A metadata properties definitions
+* Added a /Name entry to the default optional content configuration dictionary
+  (needed by PDF/A)
 
 ### Change
 

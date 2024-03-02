@@ -136,7 +136,7 @@ module HexaPDF
         if hash
           self[:D] = hash
         else
-          self[:D] ||= {Creator: 'HexaPDF'}
+          self[:D] ||= {Name: 'Default', Creator: 'HexaPDF'}
         end
         self[:D]
       end
@@ -146,7 +146,7 @@ module HexaPDF
       def perform_validation(&block) # :nodoc:
         unless key?(:D)
           yield('The OptionalContentProperties dictionary needs a default configuration', true)
-          self[:D] = {Creator: 'HexaPDF'}
+          self[:D] = {Name: 'Default', Creator: 'HexaPDF'}
         end
         super
       end

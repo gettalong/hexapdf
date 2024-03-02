@@ -85,7 +85,7 @@ describe HexaPDF::Type::OptionalContentProperties do
 
     it "sets and returns a default configuration dictionary if none is set" do
       @oc.delete(:D)
-      assert_equal({Creator: 'HexaPDF'}, @oc.default_configuration.value)
+      assert_equal({Name: 'Default', Creator: 'HexaPDF'}, @oc.default_configuration.value)
     end
 
     it "sets the default configuration dictionary to the given value" do
@@ -103,7 +103,7 @@ describe HexaPDF::Type::OptionalContentProperties do
       refute(@oc.validate(auto_correct: false))
       refute(@oc.key?(:D))
       assert(@oc.validate(auto_correct: true))
-      assert_equal({Creator: 'HexaPDF'}, @oc[:D].value)
+      assert_equal({Name: 'Default', Creator: 'HexaPDF'}, @oc[:D].value)
     end
   end
 end
