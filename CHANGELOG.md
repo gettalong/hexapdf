@@ -1,3 +1,9 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::Type::OutputIntent] for defining output intents
+
 ## 0.37.2 - 2024-02-27
 
 ### Fixed

@@ -688,6 +688,8 @@ module HexaPDF
                         XXCIDSystemInfo: 'HexaPDF::Type::CIDFont::CIDSystemInfo',
                         Group: 'HexaPDF::Type::Form::Group',
                         Metadata: 'HexaPDF::Type::Metadata',
+                        OutputIntent: 'HexaPDF::Type::OutputIntent',
+                        XXDestOutputProfileRef: 'HexaPDF::Type::OutputIntent::DestOutputProfileRef',
                       },
                       'object.subtype_map' => {
                         nil => {
@@ -707,6 +709,9 @@ module HexaPDF
                           Link: 'HexaPDF::Type::Annotations::Link',
                           Widget: 'HexaPDF::Type::Annotations::Widget',
                           XML: 'HexaPDF::Type::Metadata',
+                          GTS_PDFX: 'HexaPDF::Type::OutputIntent',
+                          GTS_PDFA1: 'HexaPDF::Type::OutputIntent',
+                          ISO_PDFE1: 'HexaPDF::Type::OutputIntent',
                         },
                         XObject: {
                           Image: 'HexaPDF::Type::Image',
@@ -737,6 +742,11 @@ module HexaPDF
                           Btn: 'HexaPDF::Type::AcroForm::ButtonField',
                           Ch: 'HexaPDF::Type::AcroForm::ChoiceField',
                           Sig: 'HexaPDF::Type::AcroForm::SignatureField',
+                        },
+                        OutputIntent: {
+                          GTS_PDFX: 'HexaPDF::Type::OutputIntent',
+                          GTS_PDFA1: 'HexaPDF::Type::OutputIntent',
+                          ISO_PDFE1: 'HexaPDF::Type::OutputIntent',
                         },
                       })
 
