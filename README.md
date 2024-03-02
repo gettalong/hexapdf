@@ -178,6 +178,9 @@ Some included files have a different license:
 * The AES test vector files in `test/data/aes-test-vectors` have been created using the test vector
   file available from <http://csrc.nist.gov/groups/STM/cavp/block-ciphers.html#test-vectors>.
 
+* The license of the file `data/hexapdf/sRGB2014.icc` is available in the
+  `data/hexapdf/sRGB2014.icc.LICENSE` file.
+
 
 ## Contributing
 
