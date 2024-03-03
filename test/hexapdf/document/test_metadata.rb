@@ -176,7 +176,9 @@ describe HexaPDF::Document::Metadata do
       metadata = <<~XMP
         <?xpacket begin="﻿" id=""?>
         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-
+        <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
+        <pdf:Producer>HexaPDF version #{HexaPDF::VERSION}</pdf:Producer>
+        </rdf:Description>
         </rdf:RDF>
         <?xpacket end="r"?>
       XMP
@@ -212,7 +214,7 @@ describe HexaPDF::Document::Metadata do
         </rdf:Description>
         <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
         <pdf:Keywords>Keywords</pdf:Keywords>
-        <pdf:Producer>Producer</pdf:Producer>
+        <pdf:Producer>HexaPDF version #{HexaPDF::VERSION}</pdf:Producer>
         <pdf:Trapped>True</pdf:Trapped>
         </rdf:Description>
         <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">

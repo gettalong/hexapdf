@@ -434,6 +434,8 @@ module HexaPDF
         ns_xmp = namespace('xmp')
         ns_pdf = namespace('pdf')
 
+        producer("HexaPDF version #{HexaPDF::VERSION}")
+
         if write_info_dict?
           info_dict = @document.trailer.info
           info_dict[:Title] = Array(@metadata[ns_dc]['title']).first
