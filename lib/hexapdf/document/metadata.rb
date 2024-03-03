@@ -249,6 +249,23 @@ module HexaPDF
       end
 
       # :call-seq:
+      #   metadata.delete
+      #   metadata.delete(ns_prefix)
+      #   metadata.delete(ns_prefix, name)
+      #
+      # Deletes either all metadata properties, only the ones from a specific namespace, or a
+      # specific one.
+      def delete(ns = nil, property = nil)
+        if ns.nil? && property.nil?
+          @metadata.clear
+        elsif property.nil?
+          @metadata.delete(namespace(ns))
+        else
+          @metadata[namespace(ns)].delete(property)
+        end
+      end
+
+      # :call-seq:
       #   metadata.title           -> title or nil
       #   metadata.title(value)    -> value
       #

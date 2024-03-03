@@ -80,6 +80,25 @@ describe HexaPDF::Document::Metadata do
     refute(@metadata.instance_variable_get(:@metadata)[@metadata.namespace('dc')].key?('title'))
   end
 
+  describe "delete" do
+    it "deletes all properties" do
+      @metadata.delete
+      assert(@metadata.instance_variable_get(:@metadata).empty?)
+    end
+
+    it "deletes all properties of a single namespace" do
+      @metadata.creator('Test')
+      @metadata.delete('dc')
+      assert_equal('Test', @metadata.creator)
+      refute(@metadata.instance_variable_get(:@metadata).key?(@metadata.namespace('dc')))
+    end
+
+    it "deletes a specific property" do
+      @metadata.delete('dc', 'title')
+      assert_nil(@metadata.title)
+    end
+  end
+
   it "allows reading and setting all info dictionary properties" do
     [['title', 'dc', 'title'], ['author', 'dc', 'creator'], ['subject', 'dc', 'description'],
      ['keywords', 'pdf', 'Keywords'], ['creator', 'xmp', 'CreatorTool'],
