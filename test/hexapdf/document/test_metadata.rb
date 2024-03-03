@@ -159,6 +159,19 @@ describe HexaPDF::Document::Metadata do
       assert_equal('Subject', info[:Subject])
     end
 
+    it "omits rdf:Description elements without values" do
+      @metadata.delete
+      @doc.write(StringIO.new, update_fields: false)
+      metadata = <<~XMP
+        <?xpacket begin="﻿" id=""?>
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+        </rdf:RDF>
+        <?xpacket end="r"?>
+      XMP
+      assert_equal(metadata, @doc.catalog[:Metadata].stream.sub(/(?<=id=")\w+/, ''))
+    end
+
     it "writes the XMP metadata" do
       title = HexaPDF::Document::Metadata::LocalizedString.new('Der Titel')
       title.language = 'de'

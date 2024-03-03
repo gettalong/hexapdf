@@ -449,8 +449,9 @@ module HexaPDF
 
         if write_metadata_stream?
           descriptions = @metadata.map do |namespace, values|
+            next if values.empty?
             xmp_description(@namespaces.key(namespace), values)
-          end.join("\n")
+          end.compact.join("\n")
           obj = @document.catalog[:Metadata] ||= @document.add({Type: :Metadata, Subtype: :XML})
           obj.stream = xmp_packet(descriptions)
         end
