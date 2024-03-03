@@ -139,6 +139,17 @@ describe HexaPDF::Document::Metadata do
       assert_equal(:True, info[:Trapped])
     end
 
+    it "omits values in the info dictionary that are not set" do
+      @metadata.delete('pdf', 'Trapped')
+      @metadata.delete('dc', 'title')
+      @metadata.delete('dc', 'creator')
+      @doc.write(StringIO.new, update_fields: false)
+      info = @doc.trailer.info
+      refute(info.key?(:Title))
+      refute(info.key?(:Author))
+      refute(info.key?(:Trapped))
+    end
+
     it "uses a correctly updated modification date if set so by Document#write" do
       info = @doc.trailer.info
       sleep(0.1)

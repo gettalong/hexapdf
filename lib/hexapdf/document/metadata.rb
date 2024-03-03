@@ -437,14 +437,18 @@ module HexaPDF
         if write_info_dict?
           info_dict = @document.trailer.info
           info_dict[:Title] = Array(@metadata[ns_dc]['title']).first
-          info_dict[:Author] = Array(@metadata[ns_dc]['creator']).join(', ')
+          if @metadata[ns_dc].key?('creator')
+            info_dict[:Author] = Array(@metadata[ns_dc]['creator']).join(', ')
+          end
           info_dict[:Subject] = Array(@metadata[ns_dc]['description']).first
           info_dict[:Creator] = @metadata[ns_xmp]['CreatorTool']
           info_dict[:CreationDate] = @metadata[ns_xmp]['CreateDate']
           info_dict[:ModDate] = @metadata[ns_xmp]['ModifyDate']
           info_dict[:Keywords] = @metadata[ns_pdf]['Keywords']
           info_dict[:Producer] = @metadata[ns_pdf]['Producer']
-          info_dict[:Trapped] = @metadata[ns_pdf]['Trapped'] ? :True : :False
+          if @metadata[ns_pdf].key?('Trapped')
+            info_dict[:Trapped] = @metadata[ns_pdf]['Trapped'] ? :True : :False
+          end
         end
 
         if write_metadata_stream?
