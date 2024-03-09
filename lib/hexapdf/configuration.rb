@@ -568,6 +568,7 @@ module HexaPDF
                       'task.map' => {
                         optimize: 'HexaPDF::Task::Optimize',
                         dereference: 'HexaPDF::Task::Dereference',
+                        pdfa: 'HexaPDF::Task::PDFA',
                       })
 
   # The global configuration object, providing the following options:

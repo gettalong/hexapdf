@@ -2,6 +2,7 @@
 
 ### Added
 
+* [HexaPDF::Task::PDFA] for creating PDF/A conforming PDF files
 * [HexaPDF::Type::OutputIntent] for defining output intents
 * [HexaPDF::Document::Metadata#delete] for deleting metadata properties
 * PDF/A metadata properties definitions
