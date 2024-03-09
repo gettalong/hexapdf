@@ -325,27 +325,30 @@ module HexaPDF
         return @marker_type.call(document, self, index) if @marker_type.kind_of?(Proc)
         return @item_marker_box if defined?(@item_marker_box)
 
+        marker_style = {
+          font: style.font? ? style.font : document.fonts.add("Times"),
+          font_size: style.font_size || 10, fill_color: style.fill_color
+        }
         fragment = case @marker_type
                    when :disc
-                     TextFragment.create("•", font: document.fonts.add("Times"),
-                                         font_size: style.font_size, fill_color: style.fill_color)
+                     TextFragment.create("•", marker_style)
                    when :circle
-                     TextFragment.create("❍", font: document.fonts.add("ZapfDingbats"),
+                     unless marker_style[:font].decode_codepoint("❍".ord).valid?
+                       marker_style[:font] = document.fonts.add("ZapfDingbats")
+                     end
+                     TextFragment.create("❍", **marker_style,
                                          font_size: style.font_size / 2.0,
-                                         fill_color: style.fill_color,
                                          text_rise: -style.font_size / 1.8)
                    when :square
-                     TextFragment.create("■", font: document.fonts.add("ZapfDingbats"),
+                     unless marker_style[:font].decode_codepoint("■".ord).valid?
+                       marker_style[:font] = document.fonts.add("ZapfDingbats")
+                     end
+                     TextFragment.create("■", **marker_style,
                                          font_size: style.font_size / 2.0,
-                                         fill_color: style.fill_color,
                                          text_rise: -style.font_size / 1.8)
                    when :decimal
                      text = (@start_number + index).to_s << "."
-                     decimal_style = {
-                       font: (style.font? ? style.font : document.fonts.add("Times")),
-                       font_size: style.font_size || 10, fill_color: style.fill_color
-                     }
-                     TextFragment.create(text, decimal_style)
+                     TextFragment.create(text, marker_style)
                    else
                      raise HexaPDF::Error, "Unknown list marker type #{@marker_type.inspect}"
                    end

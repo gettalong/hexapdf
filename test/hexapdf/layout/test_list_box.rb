@@ -143,6 +143,7 @@ describe HexaPDF::Layout::ListBox do
       @canvas = @page.canvas
       draw_block = lambda {|canvas, box| }
       @fixed_size_boxes = 5.times.map { HexaPDF::Layout::Box.new(width: 20, height: 10, &draw_block) }
+      @helvetica = @doc.fonts.add('Helvetica')
     end
 
     it "draws the result" do
@@ -295,5 +296,24 @@ describe HexaPDF::Layout::ListBox do
       ]
       assert_operators(@canvas.contents, operators)
     end
+
+    it "uses the font set on the list box for the marker" do
+      box = create_box(children: @fixed_size_boxes[0, 1],
+                       style: {font: @helvetica, font_size: 12})
+      box.fit(100, 100, @frame)
+      box.draw(@canvas, 0, 100 - box.height)
+      assert_operators(@canvas.contents, [:set_font_and_size, [:F1, 12]], range: 1)
+      assert_equal(:Helvetica, @canvas.resources.font(:F1)[:BaseFont])
+    end
+
+    it "falls back to ZapfDingbats if the set font doesn't contain the necessary symbol" do
+      box = create_box(children: @fixed_size_boxes[0, 1], marker_type: :circle,
+                       style: {font: @helvetica})
+      box.fit(100, 100, @frame)
+      box.draw(@canvas, 0, 100 - box.height)
+      assert_operators(@canvas.contents, [:set_font_and_size, [:F1, 5]], range: 1)
+      assert_equal(:ZapfDingbats, @canvas.resources.font(:F1)[:BaseFont])
+    end
+
   end
 end
