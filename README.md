@@ -47,19 +47,19 @@ section](#License) for details.
 * [`hexapdf` binary][hp] for most common PDF manipulation tasks
 
 
-[canvas API]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Content/Canvas.html
-[document composition engine]: https://hexapdf.gettalong.org/documentation/key-topics/document-layout.html
+[canvas API]: https://hexapdf.gettalong.org/documentation/api/HexaPDF/Content/Canvas.html
+[document composition engine]: https://hexapdf.gettalong.org/documentation/document-creation/document-layout.html
 [flowing text]: https://hexapdf.gettalong.org/examples/frame_text_flow.html
-[styles]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Layout/Style/index.html
-[(un)ordered lists]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Layout/ListBox.html
-[multi-column layout]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Layout/ColumnBox.html
-[PDF forms]: https://hexapdf.gettalong.org/documentation/key-topics/forms.html
-[Document outline]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Type/Outline.html
-[attaching files]: https://hexapdf.gettalong.org/documentation/reference/api/HexaPDF/Document/Files.html
-[Encryption]: https://hexapdf.gettalong.org/documentation/key-topics/encryption.html
-[Digital Signatures]: https://hexapdf.gettalong.org/documentation/key-topics/digital-signatures.html
+[styles]: https://hexapdf.gettalong.org/documentation/api/HexaPDF/Layout/Style/index.html
+[(un)ordered lists]: https://hexapdf.gettalong.org/documentation/api/HexaPDF/Layout/ListBox.html
+[multi-column layout]: https://hexapdf.gettalong.org/documentation/api/HexaPDF/Layout/ColumnBox.html
+[PDF forms]: https://hexapdf.gettalong.org/documentation/interactive-forms/index.html
+[Document outline]: https://hexapdf.gettalong.org/documentation/outline/index.html
+[attaching files]: https://hexapdf.gettalong.org/documentation/api/HexaPDF/Document/Files.html
+[Encryption]: https://hexapdf.gettalong.org/documentation/encryption/index.html
+[Digital Signatures]: https://hexapdf.gettalong.org/documentation/digital-signatures/index.html
 [File size optimization]: https://hexapdf.gettalong.org/documentation/benchmarks/optimization.html
-[hp]: https://hexapdf.gettalong.org/documentation/reference/hexapdf.1.html
+[hp]: https://hexapdf.gettalong.org/documentation/hexapdf.1.html
 
 
 ## Usage
@@ -126,7 +126,7 @@ featureful API when it comes to creating content, for individual pages as well a
 If you want to migrate from Prawn to HexaPDF, there is the [migration guide] with detailed
 information and examples, comparing the Prawn API to HexaPDF's equivalents.
 
-[migration guide]: https://hexapdf.gettalong.org/documentation/howtos/migrating-from-prawn.html
+[migration guide]: https://hexapdf.gettalong.org/documentation/document-creation/migrating-from-prawn.html
 
 Why use HexaPDF?
 
@@ -145,8 +145,9 @@ Why use HexaPDF?
   manipulating PDFs. This tool is intended to be a replacement for tools like `pdftk` and the
   various Poppler-based tools like `pdfinfo`, `pdfimages`, ...
 
-[Prawn]: http://prawnpdf.org
+[Prawn]: https://prawnpdf.org
 [page canvas API]: https://hexapdf.gettalong.org/api/HexaPDF/Content/Canvas.html
+
 
 ## Development
 
