@@ -14,6 +14,8 @@
 * Default language for XMP metadata from English to 'x-default'
 * [HexaPDF::Layout::ListBox] to use the style's font for drawing markers and to
   fall back to Times and ZapfDingbats if necessary
+* [HexaPDF::Document::Layout#table_box] to merge the `:cell` keys that define
+  the cell style instead of using the last one
 
 
 ## 0.37.2 - 2024-02-27

@@ -486,10 +486,14 @@ module HexaPDF
 
         # Retrieves the merged keyword arguments for the cell in +row+ and +col+.
         #
-        # Earlier defined arguments are overridden by later ones.
+        # Earlier defined arguments are overridden by later ones, except for the +:cell+ key which
+        # is merged.
         def retrieve_arguments_for(row, col)
           @argument_infos.each_with_object({}) do |arg_info, result|
             next unless arg_info.rows.cover?(row) && arg_info.cols.cover?(col)
+            if arg_info.args[:cell]
+              arg_info.args[:cell] = (result[:cell] || {}).merge(arg_info.args[:cell])
+            end
             result.update(arg_info.args)
           end
         end

@@ -104,6 +104,13 @@ describe HexaPDF::Document::Layout::CellArgumentCollector do
       @args[5, 6] = {e: :f}
       assert_equal({key: :value, a: :c, e: :f}, @args.retrieve_arguments_for(5, 6))
     end
+
+    it "deep merges the :cell keys" do
+      @args[] = {cell: {a: :b, c: :d}}
+      @args[3..7] = {cell: {a: :y, e: :f}}
+      @args[5, 6] = {cell: {a: :z}}
+      assert_equal({cell: {a: :z, c: :d, e: :f}}, @args.retrieve_arguments_for(5, 6))
+    end
   end
 end
 
