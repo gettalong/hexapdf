@@ -236,6 +236,12 @@ describe HexaPDF::Document::Layout do
       assert_equal(20, box.style.font_size)
 
       box = @layout.text_box("Test", style: {font_size: 20})
+      assert_same(@doc.fonts.add("Times"), box.style.font)
+      assert_equal(20, box.style.font_size)
+
+      @layout.style(:base, font: ['Times', {variant: :bold}])
+      box = @layout.text_box("Test", style: {font_size: 20})
+      assert_same(@doc.fonts.add("Times", variant: :bold), box.style.font)
       assert_equal(20, box.style.font_size)
 
       @layout.style(:named, font_size: 20)
