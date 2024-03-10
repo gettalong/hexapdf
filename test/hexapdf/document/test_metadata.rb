@@ -175,11 +175,13 @@ describe HexaPDF::Document::Metadata do
       @doc.write(StringIO.new, update_fields: false)
       metadata = <<~XMP
         <?xpacket begin="﻿" id=""?>
+        <x:xmpmeta xmlns:x="adobe:ns:meta/">
         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
         <pdf:Producer>HexaPDF version #{HexaPDF::VERSION}</pdf:Producer>
         </rdf:Description>
         </rdf:RDF>
+        </x:xmpmeta>
         <?xpacket end="r"?>
       XMP
       assert_equal(metadata, @doc.catalog[:Metadata].stream.sub(/(?<=id=")\w+/, ''))
@@ -197,6 +199,7 @@ describe HexaPDF::Document::Metadata do
       @doc.write(StringIO.new, update_fields: false)
       metadata = <<~XMP
         <?xpacket begin="﻿" id=""?>
+        <x:xmpmeta xmlns:x="adobe:ns:meta/">
         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
         <dc:title><rdf:Alt>
@@ -227,6 +230,7 @@ describe HexaPDF::Document::Metadata do
         <pdfaid:conformance>b</pdfaid:conformance>
         </rdf:Description>
         </rdf:RDF>
+        </x:xmpmeta>
         <?xpacket end="r"?>
       XMP
       assert_equal(metadata, @doc.catalog[:Metadata].stream.sub(/(?<=id=")\w+/, ''))

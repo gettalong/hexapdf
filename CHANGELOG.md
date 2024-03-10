@@ -18,6 +18,7 @@
   the cell style instead of using the last one
 * [HexaPDF::Document::Layout] style retrieval to fall back to using the font of
   the `:base` style and only if that doesn't exist to 'Times'
+* XMP metadata stream contents to satisfy more PDF/A validators
 
 
 ## 0.37.2 - 2024-02-27
