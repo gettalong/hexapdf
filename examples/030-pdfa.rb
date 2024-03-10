@@ -1,4 +1,4 @@
-# # PDF/A Compliance
+# # PDF/A Conformance
 #
 # This example shows how to create a PDF file that is PDF/A compliant.
 #
