@@ -4,6 +4,11 @@
 
 * Hierarchical box information to the document layout engine
 
+### Changed
+
+* [HexaPDF::Layout::Frame::FitResult#draw] to provide better optional content
+  group names
+
 
 ## 0.38.0 - 2024-03-10
 

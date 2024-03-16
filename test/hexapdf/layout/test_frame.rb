@@ -31,7 +31,8 @@ describe HexaPDF::Layout::Frame::FitResult do
       Q
     CONTENTS
     ocg = doc.optional_content.ocgs.first
-    assert_equal([['Debug', ocg]], doc.optional_content.default_configuration[:Order])
+    assert_equal([['Debug', ['Page 1', ocg]]], doc.optional_content.default_configuration[:Order])
+    assert_match(/10,15-20x20/, ocg.name)
   end
 end
 

@@ -142,7 +142,10 @@ module HexaPDF
         def draw(canvas, dx: 0, dy: 0)
           doc = canvas.context.document
           if doc.config['debug']
-            name = "#{box.class} (#{x.to_i},#{y.to_i}-#{box.width.to_i}x#{box.height.to_i})"
+            name = (frame.parent_boxes + [box]).map do |box|
+              box.class.to_s.sub(/.*::/, '')
+            end.join('-') << "##{box.object_id}"
+            name = "#{name} (#{(x + dx).to_i},#{(y + dy).to_i}-#{mask.width.to_i}x#{mask.height.to_i})"
             ocg = doc.optional_content.ocg(name)
             canvas.optional_content(ocg) do
               canvas.translate(dx, dy) do
@@ -151,7 +154,8 @@ module HexaPDF
                   draw(:geom2d, object: mask, path_only: true).fill_stroke
               end
             end
-            doc.optional_content.default_configuration.add_ocg_to_ui(ocg, path: 'Debug')
+            page = "Page #{canvas.context.index + 1}" rescue "XObject"
+            doc.optional_content.default_configuration.add_ocg_to_ui(ocg, path: ['Debug', page])
           end
           box.draw(canvas, x + dx, y + dy)
         end
