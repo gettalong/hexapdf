@@ -218,7 +218,7 @@ module HexaPDF
           height = available_height - reserved_height
           return false if width <= 0 || height <= 0
 
-          frame = Frame.new(0, 0, width, height, context: frame.context)
+          frame = frame.child_frame(0, 0, width, height, box: self)
           case children
           when Box
             fit_result = frame.fit(children)
@@ -607,6 +607,7 @@ module HexaPDF
         columns = calculate_column_widths(width)
         return false if columns.empty?
 
+        frame = frame.child_frame(box: self)
         @special_cells_fit_not_successful = false
         [@header_cells, @footer_cells].each do |special_cells|
           next unless special_cells

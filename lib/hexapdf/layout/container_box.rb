@@ -131,8 +131,9 @@ module HexaPDF
 
       # Fits the children into the container.
       def fit_content(_available_width, _available_height, frame)
-        my_frame = Frame.new(frame.x + reserved_width_left, frame.y - @height + reserved_height_bottom,
-                             content_width, content_height, context: frame.context)
+        my_frame = frame.child_frame(frame.x + reserved_width_left,
+                                     frame.y - @height + reserved_height_bottom,
+                                     content_width, content_height, box: self)
         @box_fitter = BoxFitter.new([my_frame])
         children.each {|box| @box_fitter.fit(box) }
 

@@ -79,6 +79,7 @@ module HexaPDF
         return false if (@initial_width > 0 && @initial_width > available_width) ||
           (@initial_height > 0 && @initial_height > available_height)
 
+        frame = frame.child_frame(box: self)
         @width = @height = 0
         @result = if style.position == :flow
                     @tl.fit(@items, frame.width_specification, frame.shape.bbox.height,

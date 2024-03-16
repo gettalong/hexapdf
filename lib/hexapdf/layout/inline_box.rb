@@ -126,10 +126,17 @@ module HexaPDF
         height
       end
 
-      # Fits the wrapped box, using the given context (see Frame#context).
-      def fit_wrapped_box(context)
-        @fit_result = Frame.new(0, 0, box.width, box.height == 0 ? 100_000 : box.height,
-                                context: context).fit(box)
+      # Fits the wrapped box.
+      #
+      # If the +frame+ argument is +nil+, a custom frame is created. Otherwise the given +frame+ is
+      # used for the fitting operation.
+      def fit_wrapped_box(frame)
+        frame = if frame
+                  frame.child_frame(0, 0, box.width, box.height == 0 ? 100_000 : box.height)
+                else
+                  Frame.new(0, 0, box.width, box.height == 0 ? 100_000 : box.height)
+                end
+        @fit_result = frame.fit(box)
         if !@fit_result.success?
           raise HexaPDF::Error, "Box for inline use could not be fit"
         elsif box.height > 99_000

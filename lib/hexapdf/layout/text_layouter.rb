@@ -307,9 +307,14 @@ module HexaPDF
       class SimpleLineWrapping
 
         # :call-seq:
-        #   SimpleLineWrapping.call(items, width_block) {|line, item| block }   -> rest
+        #   SimpleLineWrapping.call(items, width_block, frame = nil) {|line, item| block }   -> rest
         #
         # Arranges the items into lines.
+        #
+        # The optional +frame+ argument needs to be a Frame object that is used when fitting inline
+        # boxes. If not provided, a custom Frame object is used. However, if the items contain
+        # inline boxes that need to access a frame's context object, it is mandatory to provide an
+        # appropriate Frame object.
         #
         # The +width_block+ argument has to be a callable object that returns the width of the line:
         #
@@ -340,7 +345,7 @@ module HexaPDF
         # current start of the line index should be stored for later use.
         #
         # After the algorithm is finished, it returns the unused items.
-        def self.call(items, width_block, frame, &block)
+        def self.call(items, width_block, frame = nil, &block)
           obj = new(items, width_block, frame)
           if width_block.arity == 1
             obj.variable_width_wrapping(&block)
@@ -507,7 +512,7 @@ module HexaPDF
         #
         # Returns +true+ if the item could be added and +false+ otherwise.
         def add_box_item(item)
-          item.fit_wrapped_box(@frame&.context) if item.kind_of?(InlineBox)
+          item.fit_wrapped_box(@frame) if item.kind_of?(InlineBox)
           return false unless @width + item.width <= @available_width
           @line_items.concat(@glue_items).push(item)
           @width += item.width
@@ -718,6 +723,10 @@ module HexaPDF
       #     Specifies whether style.text_indent should be applied to the first line. This should be
       #     set to +false+ if the items start with a continuation of a paragraph instead of starting
       #     a new paragraph (e.g. after a page break).
+      #
+      # +frame+::
+      #     If used with the document layout functionality, this should be the frame into which the
+      #     text is laid out.
       def fit(items, width, height, apply_first_text_indent: true, frame: nil)
         unless items.empty? || items[0].respond_to?(:type)
           items = style.text_segmentation_algorithm.call(items)

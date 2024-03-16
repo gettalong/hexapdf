@@ -10,7 +10,8 @@ describe HexaPDF::Layout::Frame::FitResult do
     doc = HexaPDF::Document.new(config: {'debug' => true})
     canvas = doc.pages.add.canvas
     box = HexaPDF::Layout::Box.create(width: 20, height: 20) {}
-    result = HexaPDF::Layout::Frame::FitResult.new(box)
+    frame = HexaPDF::Layout::Frame.new(5, 10, 100, 150)
+    result = HexaPDF::Layout::Frame::FitResult.new(frame, box)
     result.mask = Geom2D::Rectangle(0, 0, 20, 20)
     result.x = result.y = 0
     result.draw(canvas, dx: 10, dy: 15)
@@ -61,6 +62,11 @@ describe HexaPDF::Layout::Frame do
     assert_equal(150, @frame.available_height)
   end
 
+  it "allows access to the frame's parent boxes" do
+    frame = HexaPDF::Layout::Frame.new(5, 10, 100, 150, parent_boxes: [:a])
+    assert_equal([:a], frame.parent_boxes)
+  end
+
   it "allows setting the shape of the frame on initialization" do
     shape = Geom2D::Polygon([50, 10], [55, 100], [105, 100], [105, 10])
     frame = HexaPDF::Layout::Frame.new(5, 10, 100, 150, shape: shape)
@@ -69,6 +75,27 @@ describe HexaPDF::Layout::Frame do
     assert_equal(100, frame.y)
     assert_equal(50, frame.available_width)
     assert_equal(90, frame.available_height)
+  end
+
+  describe "child_frame" do
+    before do
+      @frame = HexaPDF::Layout::Frame.new(10, 10, 100, 100, parent_boxes: [:a])
+    end
+
+    it "duplicates the frame setting the parent boxes appropriately" do
+      assert_same(@frame.parent_boxes, @frame.child_frame.parent_boxes)
+      frame = @frame.child_frame(box: :b)
+      assert_equal([:a, :b], frame.parent_boxes)
+    end
+
+    it "creates a new frame, optionally adding a parent box" do
+      shape = Geom2D::Rectangle(0, 0, 20, 20)
+      frame = @frame.child_frame(0, 0, 20, 20, shape: shape)
+      assert_same(@frame.parent_boxes, frame.parent_boxes)
+      assert_equal(shape, frame.shape)
+      frame = @frame.child_frame(0, 0, 20, 20, box: :b)
+      assert_equal([:a, :b], frame.parent_boxes)
+    end
   end
 
   it "returns an appropriate width specification object" do
@@ -97,6 +124,7 @@ describe HexaPDF::Layout::Frame do
       @canvas.expect(:translate, nil, pos)
       fit_result = @frame.fit(@box)
       refute_nil(fit_result)
+      assert_same(@frame, fit_result.frame)
       @frame.draw(@canvas, fit_result)
       assert_equal(mask, fit_result.mask.bbox.to_a)
       if @frame.shape.respond_to?(:polygons)

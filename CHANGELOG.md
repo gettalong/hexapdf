@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* Hierarchical box information to the document layout engine
+
+
 ## 0.38.0 - 2024-03-10
 
 ### Added

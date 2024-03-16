@@ -179,8 +179,8 @@ module HexaPDF
                                      [column_left, column_bottom + height])
               shape = Geom2D::Algorithms::PolygonOperation.run(frame.shape, rect, :intersection)
             end
-            column_frame = Frame.new(column_left, column_bottom, column_width, height,
-                                     shape: shape, context: frame.context)
+            column_frame = frame.child_frame(column_left, column_bottom, column_width, height,
+                                             shape: shape, box: self)
             @box_fitter << column_frame
           end
 

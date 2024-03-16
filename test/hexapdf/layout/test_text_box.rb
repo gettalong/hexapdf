@@ -158,7 +158,7 @@ describe HexaPDF::Layout::TextBox do
       inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10,
                                                      border: {width: 1})
       box = create_box([inline_box], width: 100, height: 30, style: {padding: [10, 5]})
-      box.fit(100, 100, nil)
+      box.fit(100, 100, @frame)
 
       @canvas = HexaPDF::Document.new.pages.add.canvas
       box.draw(@canvas, 0, 0)

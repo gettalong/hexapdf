@@ -31,7 +31,14 @@ describe HexaPDF::Layout::InlineBox do
   end
 
   describe "fit_wrapped_box" do
-    it "automatically fits the provided box into a frame" do
+    it "automatically fits the provided box into the given frame" do
+      ibox = inline_box(HexaPDF::Document.new.layout.text("test is going good", width: 20))
+      ibox.fit_wrapped_box(HexaPDF::Layout::Frame.new(0, 0, 50, 50))
+      assert_equal(20, ibox.width)
+      assert_equal(45, ibox.height)
+    end
+
+    it "automatically fits the provided box into a custom frame" do
       ibox = inline_box(HexaPDF::Document.new.layout.text("test is going good", width: 20))
       ibox.fit_wrapped_box(nil)
       assert_equal(20, ibox.width)

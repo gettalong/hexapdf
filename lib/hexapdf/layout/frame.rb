@@ -91,6 +91,9 @@ module HexaPDF
       # Stores the result of fitting a box in a Frame.
       class FitResult
 
+        # The frame into which the box was fitted.
+        attr_accessor :frame
+
         # The box that was fitted into the frame.
         attr_accessor :box
 
@@ -110,8 +113,9 @@ module HexaPDF
         # drawing the box.
         attr_accessor :mask
 
-        # Initialize the result object for the given box.
-        def initialize(box)
+        # Initialize the result object for the given frame and box.
+        def initialize(frame, box)
+          @frame = frame
           @box = box
           @available_width = 0
           @available_height = 0
@@ -195,14 +199,21 @@ module HexaPDF
       # should be used.
       attr_reader :context
 
+      # An array of box objects representing the parent boxes.
+      #
+      # The immediate parent is the last array entry, the top most parent the first one. All boxes
+      # that are fitted into this frame have to be child boxes of the immediate parent box.
+      attr_reader :parent_boxes
+
       # Creates a new Frame object for the given rectangular area.
-      def initialize(left, bottom, width, height, shape: nil, context: nil)
+      def initialize(left, bottom, width, height, shape: nil, context: nil, parent_boxes: [])
         @left = left
         @bottom = bottom
         @width = width
         @height = height
         @shape = shape || create_rectangle(left, bottom, left + width, bottom + height)
         @context = context
+        @parent_boxes = parent_boxes.freeze
 
         @x = left
         @y = bottom + height
@@ -211,6 +222,25 @@ module HexaPDF
 
         find_max_width_region if shape
         @region_selection = :max_height
+      end
+
+      # Creates a new Frame object based on this one.
+      #
+      # If the +init_args+ arguments are provided, a new Frame is created using the constructor. The
+      # optional +shape+ argument is then also passed to the constructor.
+      #
+      # Otherwise, this frame is duplicated. This kind of invocation is only useful if the +box+
+      # argument is provided (because otherwise there would be no difference to this frame).
+      #
+      # The +box+ argument can be used to add the appropriate parent box to the list of
+      # #parent_boxes for the newly created frame.
+      def child_frame(*init_args, shape: nil, box: nil)
+        parent_boxes = (box ? @parent_boxes.dup << box : @parent_boxes)
+        if init_args.empty?
+          dup.tap {|result| result.instance_variable_set(:@parent_boxes, parent_boxes) }
+        else
+          self.class.new(*init_args, shape: shape, context: @context, parent_boxes: parent_boxes)
+        end
       end
 
       # Returns the HexaPDF::Document instance (through #context) that is associated with this Frame
@@ -227,7 +257,7 @@ module HexaPDF
       #
       # Use the FitResult#success? method to determine whether fitting was successful.
       def fit(box)
-        fit_result = FitResult.new(box)
+        fit_result = FitResult.new(self, box)
         return fit_result if full?
 
         margin = box.style.margin if box.style.margin?
