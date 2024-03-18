@@ -284,7 +284,7 @@ module HexaPDF
         end
 
         # Creates a new widget annotation for this form field (must be a terminal field!) on the
-        # given +page+, adding the +values+ to the created widget annotation oject.
+        # given +page+, adding the +values+ to the created widget annotation object.
         #
         # If +allow_embedded+ is +false+, embedding the first widget in the field itself is not
         # allowed.
