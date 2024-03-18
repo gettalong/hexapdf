@@ -202,7 +202,7 @@ module HexaPDF
           font, font_size, font_color = retrieve_font_information(default_resources)
           style = HexaPDF::Layout::Style.new(font: font, font_size: font_size, fill_color: font_color)
           border_style = @widget.border_style
-          padding = [1, border_style.width].max
+          padding = @widget[:padding] || [1, border_style.width].max
 
           @widget[:AS] = :N
           @widget.flag(:print)
