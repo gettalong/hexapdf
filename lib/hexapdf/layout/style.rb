@@ -1085,6 +1085,25 @@ module HexaPDF
       #                            {text: "\u{00a0}", fill_horizontal: 1, overlays: overlays}])
 
       ##
+      # :method: text_overflow
+      # :call-seq:
+      #   text_overflow(mode = nil)
+      #
+      # Specifies how text overflowing a box with a given initial height should be handled:
+      #
+      # Possible values:
+      #
+      # :error::    An error is raised (default).
+      # :truncate:: Truncates the overflowing text.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("This is some longer text that does appear in two lines.")
+      #   composer.text("This is some longer text that does not appear in two lines.",
+      #                 height: 15, text_overflow: :truncate)
+
+      ##
       # :method: background_color
       # :call-seq:
       #   background_color(color = nil)
@@ -1435,6 +1454,7 @@ module HexaPDF
           extra_args: ", extra_arg = nil"}],
         [:last_line_gap, false, {valid_values: [true, false]}],
         [:fill_horizontal, nil],
+        [:text_overflow, :error],
         [:background_color, nil],
         [:background_alpha, 1],
         [:padding, "Quad.new(0)", {setter: "Quad.new(value)"}],

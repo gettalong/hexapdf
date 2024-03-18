@@ -50,8 +50,7 @@ describe HexaPDF::Layout::TextBox do
     end
 
     it "fits into the frame's outline" do
-      inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10) {}
-      box = create_box([inline_box] * 20, style: {position: :flow})
+      box = create_box([@inline_box] * 20, style: {position: :flow})
       assert(box.fit(100, 100, @frame))
       assert_equal(100, box.width)
       assert_equal(20, box.height)
@@ -78,6 +77,16 @@ describe HexaPDF::Layout::TextBox do
         assert(box.fit(100, 100, @frame))
         assert_equal(100, box.height)
       end
+    end
+
+    it "respects the style property text_overflow when fitting too much text" do
+      box = create_box([@inline_box] * 20, height: 15)
+      refute(box.fit(100, 100, @frame))
+      box.style.text_overflow = :truncate
+      assert(box.fit(100, 100, @frame))
+
+      box = create_box([@inline_box] * 20, style: {text_overflow: :truncate})
+      refute(box.fit(100, 15, @frame))
     end
 
     it "can't fit the text box if the set width is bigger than the available width" do
@@ -154,13 +163,16 @@ describe HexaPDF::Layout::TextBox do
   end
 
   describe "draw" do
+    before do
+      @canvas = HexaPDF::Document.new.pages.add.canvas
+    end
+
     it "draws the layed out inline items onto the canvas" do
       inline_box = HexaPDF::Layout::InlineBox.create(width: 10, height: 10,
                                                      border: {width: 1})
       box = create_box([inline_box], width: 100, height: 30, style: {padding: [10, 5]})
       box.fit(100, 100, @frame)
 
-      @canvas = HexaPDF::Document.new.pages.add.canvas
       box.draw(@canvas, 0, 0)
       assert_operators(@canvas.contents, [[:save_graphics_state],
                                           [:restore_graphics_state],
@@ -179,10 +191,15 @@ describe HexaPDF::Layout::TextBox do
     end
 
     it "draws nothing onto the canvas if the box is empty" do
-      @canvas = HexaPDF::Document.new.pages.add.canvas
       box = create_box([])
       box.draw(@canvas, 5, 5)
       assert_operators(@canvas.contents, [])
+    end
+
+    it "raises an error if there is too much content for a set height with text_overlow=:error" do
+      box = create_box([@inline_box] * 20, height: 15)
+      box.fit(100, 100, @frame)
+      assert_raises(HexaPDF::Error) { box.draw(@canvas, 0, 0) }
     end
   end
 

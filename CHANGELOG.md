@@ -3,11 +3,17 @@
 ### Added
 
 * Hierarchical box information to the document layout engine
+* Style property 'text_overflow' for controlling how overflowing text should be
+  handled
 
 ### Changed
 
 * [HexaPDF::Layout::Frame::FitResult#draw] to provide better optional content
   group names
+
+### Fixed
+
+* [HexaPDF::Layout::TextBox] to correctly respect a set height
 
 
 ## 0.38.0 - 2024-03-10
