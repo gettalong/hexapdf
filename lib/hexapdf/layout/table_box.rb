@@ -417,7 +417,8 @@ module HexaPDF
               break
             end
           end
-          [height - available_height, last_fitted_row_index]
+
+          [height - available_height, last_fitted_row_index < start_row ? -1 : last_fitted_row_index]
         end
 
         # Draws the rows from +start_row+ to +end_row+ on the given +canvas+, with the top-left
@@ -647,7 +648,7 @@ module HexaPDF
         end
       end
 
-      # Splits the content of the column box. This method is called from Box#split.
+      # Splits the content of the table box. This method is called from Box#split.
       def split_content(_available_width, _available_height, _frame)
         if @special_cells_fit_not_successful || @last_fitted_row_index < 0
           [nil, self]

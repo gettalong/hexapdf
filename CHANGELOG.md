@@ -1,3 +1,11 @@
+## Unreleasd
+
+### Fixed
+
+* [HexaPDF::Layout::TableBox] to correctly split tables when a row span with a
+  too high cell is involved
+
+
 ## 0.39.0 - 2024-03-18
 
 ### Added

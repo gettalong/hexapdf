@@ -362,8 +362,8 @@ describe HexaPDF::Layout::TableBox do
     @doc = HexaPDF::Document.new
     @page = @doc.pages.add
     @frame = HexaPDF::Layout::Frame.new(0, 0, 160, 100, context: @page)
-    draw_block = lambda {|canvas, _box| canvas.move_to(0, 0).end_path }
-    @fixed_size_boxes = 15.times.map { HexaPDF::Layout::Box.new(width: 20, height: 10, &draw_block) }
+    @draw_block = lambda {|canvas, _box| canvas.move_to(0, 0).end_path }
+    @fixed_size_boxes = 15.times.map { HexaPDF::Layout::Box.new(width: 20, height: 10, &@draw_block) }
   end
 
   def create_box(**kwargs)
@@ -559,6 +559,30 @@ describe HexaPDF::Layout::TableBox do
       assert_equal(0, box_a.last_fitted_row_index)
       assert_equal(1, box_b.start_row_index)
       assert_equal(-1, box_b.last_fitted_row_index)
+    end
+
+    it "splits the table correctly when row spans and a too-high cell are involved" do
+      cells = [[@fixed_size_boxes[0], @fixed_size_boxes[1]],
+               [{row_span: 2, content: @fixed_size_boxes[2]}, @fixed_size_boxes[3]],
+               [HexaPDF::Layout::Box.new(width: 20, height: 150, &@draw_block)]]
+      box = create_box(cells: cells)
+
+      refute(box.fit(100, 100, @frame))
+      box_a, box_b = box.split(100, 100, @frame)
+      assert_same(box_a, box)
+      assert(box_b.split_box?)
+      assert_equal(0, box_a.start_row_index)
+      assert_equal(0, box_a.last_fitted_row_index)
+      assert_equal(1, box_b.start_row_index)
+      assert_equal(-1, box_b.last_fitted_row_index)
+
+      refute(box_b.fit(100, 100, @frame))
+      box_c, box_d = box_b.split(100, 100, @frame)
+      assert_nil(box_c)
+      assert_same(box_d, box_b)
+      assert(box_d.split_box?)
+      assert_equal(1, box_d.start_row_index)
+      assert_equal(-1, box_d.last_fitted_row_index)
     end
 
     it "splits the table if the header or footer rows don't fit" do
