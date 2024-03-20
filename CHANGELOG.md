@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Layout::ListBox] to hide marker in case of splitting list items with
+  multiple boxes
+
+
 ## 0.39.1 - 2024-03-20
 
 ### Fixed

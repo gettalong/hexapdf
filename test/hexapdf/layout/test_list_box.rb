@@ -136,6 +136,17 @@ describe HexaPDF::Layout::ListBox do
       assert_equal(2, box_b.children.size)
       assert_equal(1, box_b.start_number)
     end
+
+    it "splits a list item containg multiple boxes along box lines" do
+      box = create_box(children: [@text_boxes[0], @text_boxes[1, 2]])
+      box.fit(100, 40, @frame)
+      box_a, box_b = box.split(100, 40, @frame)
+      assert_same(box, box_a)
+      assert_equal(:hide_first_marker, box_b.split_box?)
+      assert_equal(1, box_a.instance_variable_get(:@results)[1].box_fitter.fit_results.size)
+      assert_equal(1, box_b.children.size)
+      assert_equal(2, box_b.start_number)
+    end
   end
 
   describe "draw" do

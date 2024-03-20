@@ -307,7 +307,7 @@ module HexaPDF
       # Splits the content of the list box. This method is called from Box#split.
       def split_content(_available_width, _available_height, _frame)
         remaining_boxes = @results[-1].box_fitter.remaining_boxes
-        first_is_split_box = remaining_boxes.first&.split_box?
+        first_is_split_box = !remaining_boxes.empty?
         children = (remaining_boxes.empty? ? [] : [remaining_boxes]) + @children[@results.size..-1]
 
         box = create_split_box(split_box_value: first_is_split_box ? :hide_first_marker : :show_first_marker)
