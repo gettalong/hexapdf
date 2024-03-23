@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Changed
+
+* **Breaking change**: Style property 'text_overflow' is now called 'overflow'
+
 ### Fixed
 
 * [HexaPDF::Layout::ListBox] to hide marker in case of splitting list items with

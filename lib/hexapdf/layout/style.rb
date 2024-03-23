@@ -1085,25 +1085,6 @@ module HexaPDF
       #                            {text: "\u{00a0}", fill_horizontal: 1, overlays: overlays}])
 
       ##
-      # :method: text_overflow
-      # :call-seq:
-      #   text_overflow(mode = nil)
-      #
-      # Specifies how text overflowing a box with a given initial height should be handled:
-      #
-      # Possible values:
-      #
-      # :error::    An error is raised (default).
-      # :truncate:: Truncates the overflowing text.
-      #
-      # Examples:
-      #
-      #   #>pdf-composer100
-      #   composer.text("This is some longer text that does appear in two lines.")
-      #   composer.text("This is some longer text that does not appear in two lines.",
-      #                 height: 15, text_overflow: :truncate)
-
-      ##
       # :method: background_color
       # :call-seq:
       #   background_color(color = nil)
@@ -1414,6 +1395,26 @@ module HexaPDF
       #       composer.text('Mask covers everything', mask_mode: :fill)
       #       composer.text('On the next page')
 
+      ##
+      # :method: overflow
+      # :call-seq:
+      #   overflow(mode = nil)
+      #
+      # Specifies how overflowing boxes (e.g. the text of a box or the children of a container) with
+      # a given initial height should be handled:
+      #
+      # Possible values:
+      #
+      # :error::    An error is raised (default).
+      # :truncate:: Truncates the overflowing parts.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("This is some longer text that does appear in two lines.")
+      #   composer.text("This is some longer text that does not appear in two lines.",
+      #                 height: 15, text_overflow: :truncate)
+
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
         [:font_size, 10],
@@ -1454,7 +1455,6 @@ module HexaPDF
           extra_args: ", extra_arg = nil"}],
         [:last_line_gap, false, {valid_values: [true, false]}],
         [:fill_horizontal, nil],
-        [:text_overflow, :error],
         [:background_color, nil],
         [:background_alpha, 1],
         [:padding, "Quad.new(0)", {setter: "Quad.new(value)"}],
@@ -1467,6 +1467,7 @@ module HexaPDF
         [:valign, :top, {valid_values: [:top, :center, :bottom]}],
         [:mask_mode, :default, {valid_values: [:default, :none, :box, :fill_horizontal,
                                                :fill_frame_horizontal, :fill_vertical, :fill]}],
+        [:overflow, :error],
       ].each do |name, default, options = {}|
         default = default.inspect unless default.kind_of?(String)
         setter = options.delete(:setter) || "value"

@@ -79,13 +79,13 @@ describe HexaPDF::Layout::TextBox do
       end
     end
 
-    it "respects the style property text_overflow when fitting too much text" do
+    it "respects the style property overflow when fitting too much text" do
       box = create_box([@inline_box] * 20, height: 15)
       refute(box.fit(100, 100, @frame))
-      box.style.text_overflow = :truncate
+      box.style.overflow = :truncate
       assert(box.fit(100, 100, @frame))
 
-      box = create_box([@inline_box] * 20, style: {text_overflow: :truncate})
+      box = create_box([@inline_box] * 20, style: {overflow: :truncate})
       refute(box.fit(100, 15, @frame))
     end
 
@@ -196,7 +196,7 @@ describe HexaPDF::Layout::TextBox do
       assert_operators(@canvas.contents, [])
     end
 
-    it "raises an error if there is too much content for a set height with text_overlow=:error" do
+    it "raises an error if there is too much content for a set height with overlow=:error" do
       box = create_box([@inline_box] * 20, height: 15)
       box.fit(100, 100, @frame)
       assert_raises(HexaPDF::Error) { box.draw(@canvas, 0, 0) }

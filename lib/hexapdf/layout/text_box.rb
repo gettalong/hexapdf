@@ -106,7 +106,7 @@ module HexaPDF
         end
 
         @result.status == :success ||
-          (@result.status == :height && @initial_height > 0 && style.text_overflow == :truncate)
+          (@result.status == :height && @initial_height > 0 && style.overflow == :truncate)
       end
 
       # Splits the text box into two boxes if necessary and possible.
@@ -136,9 +136,9 @@ module HexaPDF
       def draw_content(canvas, x, y)
         return unless @result
 
-        if @result.status == :height && @initial_height > 0 && style.text_overflow == :error
+        if @result.status == :height && @initial_height > 0 && style.overflow == :error
           raise HexaPDF::Error, "Text doesn't fit into box with limited height and " \
-            "style property text_overflow is set to :error"
+            "style property overflow is set to :error"
         end
 
         return if @result.lines.empty?
