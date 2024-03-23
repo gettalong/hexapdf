@@ -108,7 +108,14 @@ describe HexaPDF::Layout::ListBox do
       check_box(box, 100, 70, [[10, 80], [10, 30]])
     end
 
-    it "fails for unknown item types" do
+    it "creates a new box for each marker even if the marker is the same" do
+      box = create_box(children: @text_boxes[0, 2])
+      check_box(box, 100, 40)
+      results = box.instance_variable_get(:@results)
+      refute_same(results[0].marker, results[1].marker)
+    end
+
+    it "fails for unknown marker types" do
       box = create_box(children: @text_boxes[0, 1], marker_type: :unknown)
       assert_raises(HexaPDF::Error) { box.fit(100, 100, @frame) }
     end

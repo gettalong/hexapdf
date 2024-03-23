@@ -4,6 +4,7 @@
 
 * [HexaPDF::Layout::ListBox] to hide marker in case of splitting list items with
   multiple boxes
+* [HexaPDF::Layout::ListBox] to create independent marker boxes for all markers
 
 
 ## 0.39.1 - 2024-03-20
