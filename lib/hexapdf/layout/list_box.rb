@@ -255,7 +255,9 @@ module HexaPDF
 
         @draw_pos_x = frame.x + reserved_width_left
         @draw_pos_y = frame.y - @height + reserved_height_bottom
-        @fit_successful = @results.all? {|r| r.box_fitter.fit_successful? } && @results.size == @children.size
+        @all_items_fitted = @results.all? {|r| r.box_fitter.fit_successful? } &&
+          @results.size == @children.size
+        @fit_successful = @all_items_fitted || (@initial_height > 0 && style.overflow == :truncate)
       end
 
       private
@@ -359,6 +361,11 @@ module HexaPDF
 
       # Draws the list items onto the canvas at position [x, y].
       def draw_content(canvas, x, y)
+        if !@all_items_fitted && (@initial_height > 0 && style.overflow == :error)
+          raise HexaPDF::Error, "Some items don't fit into box with limited height and " \
+            "style property overflow is set to :error"
+        end
+
         translate = style.position != :flow && (x != @draw_pos_x || y != @draw_pos_y)
 
         if translate

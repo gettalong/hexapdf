@@ -196,7 +196,7 @@ describe HexaPDF::Layout::TextBox do
       assert_operators(@canvas.contents, [])
     end
 
-    it "raises an error if there is too much content for a set height with overlow=:error" do
+    it "raises an error if there is too much content for a set height with overflow=:error" do
       box = create_box([@inline_box] * 20, height: 15)
       box.fit(100, 100, @frame)
       assert_raises(HexaPDF::Error) { box.draw(@canvas, 0, 0) }

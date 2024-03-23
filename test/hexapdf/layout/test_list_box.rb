@@ -73,6 +73,12 @@ describe HexaPDF::Layout::ListBox do
         check_box(box, 100, 40)
       end
 
+      it "respects the set initial height and the property overflow=:truncate" do
+        box = create_box(children: @text_boxes[0, 2], height: 20,
+                         style: {overflow: :truncate, position: position})
+        check_box(box, 100, 20)
+      end
+
       it "respects the border and padding around all list items, position #{position}" do
         box = create_box(children: @text_boxes[0, 2],
                          style: {border: {width: [5, 4, 3, 2]}, padding: [5, 4, 3, 2], position: position})
@@ -333,5 +339,10 @@ describe HexaPDF::Layout::ListBox do
       assert_equal(:ZapfDingbats, @canvas.resources.font(:F1)[:BaseFont])
     end
 
+    it "fails if the initial height is set and property overflow is set to :error" do
+      box = create_box(children: @fixed_size_boxes[0, 2], height: 10)
+      box.fit(100, 100, @frame)
+      assert_raises(HexaPDF::Error) { box.draw(@canvas, 0, 100 - box.height) }
+    end
   end
 end
