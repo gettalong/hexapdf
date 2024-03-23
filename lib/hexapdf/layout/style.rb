@@ -1413,7 +1413,7 @@ module HexaPDF
       #   #>pdf-composer100
       #   composer.text("This is some longer text that does appear in two lines.")
       #   composer.text("This is some longer text that does not appear in two lines.",
-      #                 height: 15, text_overflow: :truncate)
+      #                 height: 15, overflow: :truncate)
 
       [
         [:font, "raise HexaPDF::Error, 'No font set'"],
