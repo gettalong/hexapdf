@@ -62,7 +62,7 @@ module HexaPDF
       #     Specifies whether the font should be subset if possible.
       #
       # This method uses the FromFile font loader behind the scenes.
-      def self.call(document, name, variant: :none, subset: true)
+      def self.call(document, name, variant: :none, subset: true, **)
         file = document.config['font.map'].dig(name, variant)
         return nil if file.nil?
 

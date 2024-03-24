@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::FontLoader::FromConfiguration] to accept arbitrary keyword arguments
+
+
 ## 0.40.0 - 2024-03-23
 
 ### Changed

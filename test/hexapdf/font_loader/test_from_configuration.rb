@@ -37,6 +37,10 @@ describe HexaPDF::FontLoader::FromConfiguration do
     assert_nil(@klass.call(@doc, "Unknown"))
   end
 
+  it "allows arbitrary keywords arguments" do
+    assert_nil(@klass.call(@doc, "Unknown", something: :other))
+  end
+
   it "returns a hash with all configured fonts" do
     assert_equal({'font' => [:none], 'font1' => [:none]}, @klass.available_fonts(@doc))
   end
