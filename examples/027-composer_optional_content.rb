@@ -28,7 +28,7 @@ HexaPDF::Composer.create('composer_optional_content.pdf') do |composer|
   a3m = composer.document.optional_content.create_ocmd([a3, all], policy: :any_on)
 
   composer.text('The Great Ruby Quiz', text_align: :center, margin: [0, 0, 24],
-                font: ['Helvetica', variant: :bold], font_size: 24)
+                font: 'Helvetica bold', font_size: 24)
 
   composer.list(marker_type: :decimal, item_spacing: 32, style: :question) do |listing|
     listing.multiple do |item|

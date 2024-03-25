@@ -614,7 +614,7 @@ module HexaPDF
       # The font to be used, must be set to a valid font wrapper object before it can be used.
       #
       # HexaPDF::Composer handles this property specially in that it resolves a set string or array
-      # to a font wrapper object before doing else with the style object.
+      # to a font wrapper object before doing anything else with the style object.
       #
       # This is the only style property without a default value!
       #
@@ -624,11 +624,12 @@ module HexaPDF
       #
       #   #>pdf-composer100
       #   composer.text("Helvetica", font: composer.document.fonts.add("Helvetica"))
-      #   composer.text("Courier", font: "Courier") # works only with composer
+      #   composer.text("Courier", font: "Courier")
       #
       #   helvetica_bold = composer.document.fonts.add("Helvetica", variant: :bold)
       #   composer.text("Helvetica Bold", font: helvetica_bold)
-      #   composer.text("Courier Bold", font: ["Courier", variant: :bold]) # only composer
+      #   composer.text("Courier Bold", font: "Courier bold")
+      #   composer.text("Courier Bold also", font: ["Courier", variant: :bold])
 
       ##
       # :method: font_size

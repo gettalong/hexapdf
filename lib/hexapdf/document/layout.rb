@@ -92,6 +92,13 @@ module HexaPDF
     #
     #     style.font = ['Helvetica', variant: :bold]
     #
+    #   Helvetica in bold could also be set the conventional way:
+    #
+    #     style.font = 'Helvetica bold'
+    #
+    #   However, using an array it is also possible to specify other options when setting a font,
+    #   like the :subset option.
+    #
     class Layout
 
       # This class is used when a box can contain child boxes and the creation of such boxes should
@@ -539,7 +546,7 @@ module HexaPDF
       #     # assign the predefined style :cell_text to all texts
       #     args[] = {style: :cell_text}
       #     # row 0 has a grey background and bold text
-      #     args[0] = {font: ['Helvetica', variant: :bold], cell: {background_color: 'eee'}}
+      #     args[0] = {font: 'Helvetica bold', cell: {background_color: 'eee'}}
       #     # text in last column is right aligned
       #     args[0..-1, -1] = {text_align: :right}
       #   end

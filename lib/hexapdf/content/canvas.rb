@@ -2245,6 +2245,8 @@ module HexaPDF
       #   canvas.text("Times at size 10", at: [10, 150])
       #   canvas.font("Times", variant: :bold_italic, size: 15)
       #   canvas.text("Times bold+italic at size 15", at: [10, 100])
+      #   canvas.font("Times bold")
+      #   canvas.text("Times bold using the variant-from-name method", at: [10, 50])
       #
       # See: PDF2.0 s9.2.2, #font_size, #text
       def font(name = nil, size: nil, **options)

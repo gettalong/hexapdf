@@ -30,18 +30,18 @@ HexaPDF::Composer.create('pdfa.pdf') do |composer|
   composer.style(:base, font: 'Lato', font_size: 10, line_spacing: 1.3)
   composer.style(:top, font_size: 8)
   composer.style(:top_box, padding: [100, 0, 0], margin: [0, 0, 10], border: {width: [0, 0, 1]})
-  composer.style(:header, font: ['Lato', variant: :bold], font_size: 20, margin: [50, 0, 20])
+  composer.style(:header, font: 'Lato bold', font_size: 20, margin: [50, 0, 20])
   composer.style(:line_items, border: {width: 1, color: "eee"}, margin: [20, 0])
   composer.style(:line_item_cell, font_size: 8)
   composer.style(:footer, border: {width: [1, 0, 0], color: "darkgrey"},
                  padding: [5, 0, 0], valign: :bottom)
-  composer.style(:footer_heading, font: ['Lato', variant: :bold],
+  composer.style(:footer_heading, font: 'Lato bold',
                  font_size: 8, padding: [0, 0, 8])
   composer.style(:footer_text,  font_size: 8, fill_color: "darkgrey")
 
   # Top part
   composer.box(:container, style: :top_box) do |container|
-    container.formatted_text([{text: company[:name], font: ['Lato', variant: :bold]},
+    container.formatted_text([{text: company[:name], font: 'Lato bold'},
                               " - " + company[:address].join(' - ')], style: :top)
   end
   composer.text("Mega Client\nSmall Lane 5\n67890 Noonestown", mask_mode: :box)
@@ -50,7 +50,7 @@ HexaPDF::Composer.create('pdfa.pdf') do |composer|
            ["Service date:", "2024-02-01"]]
   composer.table(cells, column_widths: [150, 80], style: {align: :right}) do |args|
     args[] = {cell: {border: {width: 0}, padding: 2}, text_align: :right}
-    args[0..-1, 0] = {font: ['Lato', variant: :bold]}
+    args[0..-1, 0] = {font: 'Lato bold'}
   end
 
   # Middle part
@@ -65,9 +65,9 @@ HexaPDF::Composer.create('pdfa.pdf') do |composer|
   cells << [nil, nil, nil, "€ #{250 * max * (max + 1) / 2},00"]
   composer.table(cells, column_widths: [250, 80], style: :line_items) do |args|
     args[] = {cell: {border: {width: 0}, padding: 8}, style: :line_item_cell}
-    args[0] = {cell: {background_color: "eee"}, font: ["Lato", variant: :bold]}
+    args[0] = {cell: {background_color: "eee"}, font: "Lato bold"}
     args[-1] = {cell: {background_color: "eee", border: {width: [2, 0, 0]}},
-                font: ["Lato", variant: :bold]}
+                font: "Lato bold"}
     args[0..-1, 1..-1] = {text_align: :right}
   end
 
