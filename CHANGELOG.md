@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* Font loader [HexaPDF::FontLoader::VariantFromName] to ease specifying font
+  variants
+
 ### Fixed
 
 * [HexaPDF::FontLoader::FromConfiguration] to accept arbitrary keyword arguments

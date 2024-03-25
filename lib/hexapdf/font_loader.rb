@@ -88,6 +88,7 @@ module HexaPDF
     autoload(:Standard14, 'hexapdf/font_loader/standard14')
     autoload(:FromConfiguration, 'hexapdf/font_loader/from_configuration')
     autoload(:FromFile, 'hexapdf/font_loader/from_file')
+    autoload(:VariantFromName, 'hexapdf/font_loader/variant_from_name')
 
   end
 

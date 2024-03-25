@@ -523,6 +523,7 @@ module HexaPDF
                         'HexaPDF::FontLoader::Standard14',
                         'HexaPDF::FontLoader::FromConfiguration',
                         'HexaPDF::FontLoader::FromFile',
+                        'HexaPDF::FontLoader::VariantFromName',
                       ],
                       'graphic_object.arc.max_curves' => 6,
                       'graphic_object.map' => {
