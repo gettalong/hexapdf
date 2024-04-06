@@ -8,6 +8,7 @@
 ### Fixed
 
 * [HexaPDF::FontLoader::FromConfiguration] to accept arbitrary keyword arguments
+* [HexaPDF::Font::CMap::Parser] to avoid instantiating invalid UTF-16BE chars
 
 
 ## 0.40.0 - 2024-03-23

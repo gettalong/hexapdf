@@ -163,11 +163,7 @@ module HexaPDF
             dest = tokenizer.next_object
 
             if dest.kind_of?(String)
-              codepoint = dest.force_encoding(::Encoding::UTF_16BE).ord
-              code1.upto(code2) do |code|
-                cmap.add_unicode_mapping(code, +'' << codepoint)
-                codepoint += 1
-              end
+              cmap.add_unicode_range_mapping(code1, code2, dest.unpack("n*"))
             elsif dest.kind_of?(Array)
               code1.upto(code2) do |code|
                 str = dest[code - code1].encode!(::Encoding::UTF_8, ::Encoding::UTF_16BE)

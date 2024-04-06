@@ -100,8 +100,10 @@ module HexaPDF
       # The writing mode of the CMap: 0 for horizontal, 1 for vertical writing.
       attr_accessor :wmode
 
-      attr_reader :codespace_ranges, :cid_mapping, :cid_range_mappings, :unicode_mapping # :nodoc:
-      protected :codespace_ranges, :cid_mapping, :cid_range_mappings, :unicode_mapping
+      attr_reader :codespace_ranges, :cid_mapping, :cid_range_mappings, :unicode_mapping,
+                  :unicode_range_mappings # :nodoc:
+      protected :codespace_ranges, :cid_mapping, :cid_range_mappings, :unicode_mapping,
+                :unicode_range_mappings
 
       # Creates a new CMap object.
       def initialize
@@ -109,6 +111,7 @@ module HexaPDF
         @cid_mapping = {}
         @cid_range_mappings = []
         @unicode_mapping = {}
+        @unicode_range_mappings = []
       end
 
       # Add all mappings from the given CMap to this CMap.
@@ -117,6 +120,7 @@ module HexaPDF
         @cid_mapping.merge!(cmap.cid_mapping)
         @cid_range_mappings.concat(cmap.cid_range_mappings)
         @unicode_mapping.merge!(cmap.unicode_mapping)
+        @unicode_range_mappings.concat(cmap.unicode_range_mappings)
       end
 
       # Add a codespace range using an array of ranges for the individual bytes.
@@ -193,10 +197,25 @@ module HexaPDF
         @unicode_mapping[code] = string
       end
 
+      # Adds a mapping from a range of character codes to strings starting with the given 16-bit
+      # integer values (representing the raw UTF-16BE characters).
+      def add_unicode_range_mapping(start_code, end_code, start_values)
+        @unicode_range_mappings << [start_code..end_code, start_values]
+      end
+
       # Returns the Unicode string in UTF-8 encoding for the given character code, or +nil+ if no
       # mapping was found.
       def to_unicode(code)
-        unicode_mapping[code]
+        @unicode_mapping.fetch(code) do
+          @unicode_range_mappings.reverse_each do |range, start_values|
+            if range.cover?(code)
+              str = start_values[0..-2].append(start_values[-1] + code - range.first).
+                pack('n*').encode(::Encoding::UTF_8, ::Encoding::UTF_16BE)
+              return @unicode_mapping[code] = str
+            end
+          end
+          nil
+        end
       end
 
     end

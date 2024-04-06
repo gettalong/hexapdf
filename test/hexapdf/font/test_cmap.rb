@@ -97,6 +97,14 @@ describe HexaPDF::Font::CMap do
       assert_equal("ABC", @cmap.to_unicode(20))
     end
 
+    it "allows adding a code range to unicode mapping and retrieving the values" do
+      @cmap.add_unicode_range_mapping(20, 30, [65])
+      @cmap.add_unicode_range_mapping(40, 41, [0xD840, 0xDC3D])
+      assert_equal("A", @cmap.to_unicode(20))
+      assert_equal("K", @cmap.to_unicode(30))
+      assert_equal("𠀾", @cmap.to_unicode(41))
+    end
+
     it "returns nil for unknown mappings" do
       assert_nil(@cmap.to_unicode(20))
     end

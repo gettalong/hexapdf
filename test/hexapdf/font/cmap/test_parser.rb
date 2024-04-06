@@ -33,10 +33,11 @@ describe HexaPDF::Font::CMap::Parser do
         <8145> <8145> 8123
         <8146> <8148> 9000
         endcidrange
-        2 beginbfrange
+        4 beginbfrange
         <0000> <005E> <0020>
         <1379> <137B> <90FE>
         <005F> <0061> [ <00660066> <00660069> <00660066006C> ]
+        <E040> <E041> <D840DC3D>
         endbfrange
         1 beginbfchar
         <3A51> <D840DC3E>
@@ -82,8 +83,9 @@ describe HexaPDF::Font::CMap::Parser do
       assert_equal("ff", cmap.to_unicode(0x5F))
       assert_equal("fi", cmap.to_unicode(0x60))
       assert_equal("ffl", cmap.to_unicode(0x61))
-      assert_equal("\xD8\x40\xDC\x3E".encode("UTF-8", "UTF-16BE"),
-                   cmap.to_unicode(0x3A51))
+      symbol = "\xD8\x40\xDC\x3E".encode("UTF-8", "UTF-16BE")
+      assert_equal(symbol, cmap.to_unicode(0xE041))
+      assert_equal(symbol, cmap.to_unicode(0x3A51))
       assert_nil(cmap.to_unicode(0xFF))
     end
 
