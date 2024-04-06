@@ -5,6 +5,10 @@
 * Font loader [HexaPDF::FontLoader::VariantFromName] to ease specifying font
   variants
 
+### Changed
+
+* CLI command `hexapdf form` to show more information in verbose mode
+
 ### Fixed
 
 * [HexaPDF::FontLoader::FromConfiguration] to accept arbitrary keyword arguments

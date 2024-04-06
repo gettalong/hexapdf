@@ -141,7 +141,7 @@ module HexaPDF
       # Lists all terminal form fields.
       def list_form_fields(doc)
         current_page_index = -1
-        each_field(doc) do |_page, page_index, field, widget|
+        each_field(doc, with_seen: true) do |_page, page_index, field, widget|
           if current_page_index != page_index
             puts "Page #{page_index + 1}"
             current_page_index = page_index
@@ -151,6 +151,7 @@ module HexaPDF
             (field.alternate_field_name ? " (#{field.alternate_field_name})" : '')
           concrete_field_type = field.concrete_field_type
           nice_field_type = concrete_field_type.to_s.split('_').map(&:capitalize).join(' ')
+          size = "(#{widget[:Rect].width.round(3)}x#{widget[:Rect].height.round(3)})"
           position = "(#{widget[:Rect].left}, #{widget[:Rect].bottom})"
           field_value = if !field.field_value || concrete_field_type != :signature_field
                           field.field_value.inspect
@@ -163,7 +164,7 @@ module HexaPDF
 
           puts "  #{field_name}"
           if command_parser.verbosity_info?
-            printf("    └─ %-22s | %-20s\n", nice_field_type, position)
+            printf("    └─ %-22s | %-20s\n", nice_field_type, "#{size} #{position}")
           end
           puts "    └─ #{field_value}"
           if command_parser.verbosity_info?
@@ -171,6 +172,10 @@ module HexaPDF
               puts "    └─ Options: #{field.option_items.map(&:inspect).join(', ')}"
             elsif concrete_field_type == :radio_button || concrete_field_type == :check_box
               puts "    └─ Options: #{([:Off] + field.allowed_values).map(&:to_s).join(', ')}"
+            end
+            puts "    └─ Widget OID: #{widget.oid},#{widget.gen}"
+            if field != widget
+              puts "    └─ Field OID:  #{field.oid},#{field.gen}"
             end
           end
         end
@@ -275,8 +280,8 @@ module HexaPDF
       end
 
       # Iterates over all non-push button fields in page order. If a field appears on multiple
-      # pages, it is only yielded on the first page.
-      def each_field(doc) # :yields: page, page_index, field
+      # pages, it is only yielded on the first page if +with_seen+ is +false.
+      def each_field(doc, with_seen: false) # :yields: page, page_index, field
         seen = {}
 
         doc.pages.each_with_index do |page, page_index|
@@ -284,7 +289,7 @@ module HexaPDF
             next unless annotation[:Subtype] == :Widget
             field = annotation.form_field
             next if field.concrete_field_type == :push_button
-            unless seen[field.full_field_name]
+            if with_seen || !seen[field.full_field_name]
               yield(page, page_index, field, annotation)
               seen[field.full_field_name] = true
             end

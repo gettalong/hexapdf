@@ -305,9 +305,13 @@ The following information is shown for each font:
 Synopsis: `form` \[`OPTIONS`] *INPUT* \[*OUTPUT*]
 
 This command allows working with interactive forms. If the *OUTPUT* file is not specified, all form
-fields are listed in page order. By default the field name followed by a help text in parentheses
-(if available) is shown, followed on the next line by the current value. Using the global
-`--verbose` option will show additional information like field type and location on the page.
+fields are listed in page order. Note that a form field appears only once in the output, namely for
+the first widget annotation.
+
+By default the field name followed by a help text in parentheses (if available) is shown, followed
+on the next line by the current value. Using the global `--verbose` option will show all widget
+annotations instead of just the first one from a field as well as additional information like field
+type, possible field values, and size plus location on the page.
 
 If *OUTPUT* is provided, the fields can be filled out interactively, via a template file or the
 fields can just be flattened. Form field flattening can also be activated in addition to filling out
