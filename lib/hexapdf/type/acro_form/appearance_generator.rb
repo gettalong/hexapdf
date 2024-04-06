@@ -129,8 +129,13 @@ module HexaPDF
         #   widget.background_color(1)
         #   widget.marker_style(style: :circle, size: 0, color: 0)
         def create_check_box_appearances
-          appearance_keys = @widget.appearance_dict&.normal_appearance&.value&.keys || []
-          on_name = (appearance_keys - [:Off]).first
+          normal_appearance = @widget.appearance_dict&.normal_appearance
+          if !normal_appearance.kind_of?(HexaPDF::Dictionary) || normal_appearance.kind_of?(HexaPDF::Stream)
+            (@widget[:AP] ||= {})[:N] = {Off: nil}
+            normal_appearance = @widget[:AP][:N]
+            normal_appearance[@field[:V] == :Off ? :Yes : @field[:V]] = nil
+          end
+          on_name = (normal_appearance.value.keys - [:Off]).first
           unless on_name
             raise HexaPDF::Error, "Widget of button field doesn't define name for on state"
           end

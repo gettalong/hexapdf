@@ -272,6 +272,19 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         end
       end
 
+      it "creates the needed appearance dictionary for the normal appearance" do
+        @widget[:AP][:N] = 5
+        @generator.create_appearances
+        assert_equal(:XObject, @widget[:AP][:N][:Off].type)
+        assert_equal(:XObject, @widget[:AP][:N][:Yes].type)
+
+        @field[:V] = :Other
+        @widget[:AP][:N] = @doc.wrap({Type: :XObject, Subtype: :Form})
+        @generator.create_appearances
+        assert_equal(:XObject, @widget[:AP][:N][:Off].type)
+        assert_equal(:XObject, @widget[:AP][:N][:Other].type)
+      end
+
       it "creates the needed appearance streams" do
         @widget[:AP][:N].delete(:Off)
         @generator.create_appearances
@@ -309,7 +322,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:restore_graphics_state]])
       end
 
-      it "fails if the appearance dictionaries are not set up" do
+      it "fails if the appearance dictionary doesn't contain a name for the on state" do
         @widget[:AP][:N].delete(:Yes)
         assert_raises(HexaPDF::Error) { @generator.create_appearances }
       end
