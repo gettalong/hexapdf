@@ -112,11 +112,15 @@ module HexaPDF
         # It is assumed that the initialization vector is included in the first BLOCK_SIZE bytes
         # of the data. After the decryption the PKCS#5 padding is removed.
         #
+        # If a problem is encountered, an error message is yielded. If no block is given or if the
+        # supplied block returns +true+, an error is raised.
+        #
         # See: PDF2.0 s7.6.3
-        def decrypt(key, data)
+        def decrypt(key, data) # :yields: error_message
           return data if data.empty? # Handle invalid files with empty strings
           if data.length % BLOCK_SIZE != 0 || data.length < BLOCK_SIZE
-            raise HexaPDF::EncryptionError, "Invalid data for decryption, need 32 + 16*n bytes"
+            msg = "Invalid data for decryption, need 32 + 16*n bytes"
+            (!block_given? || yield(msg)) && raise(HexaPDF::EncryptionError, msg)
           end
           iv = data.slice!(0, BLOCK_SIZE)
           # Handle invalid files with missing padding
@@ -126,8 +130,9 @@ module HexaPDF
         # Returns a Fiber object that decrypts the data from the given source fiber with the
         # +key+.
         #
-        # Padding and the initialization vector are handled like in #decrypt.
-        def decryption_fiber(key, source)
+        # Padding, the initialization vector and an optionally given block are handled like in
+        # #decrypt.
+        def decryption_fiber(key, source) # :yields: error_message
           Fiber.new do
             data = ''.b
             while data.length < BLOCK_SIZE && source.alive? && (new_data = source.resume)
@@ -145,8 +150,10 @@ module HexaPDF
             end
 
             if data.length % BLOCK_SIZE != 0
-              raise HexaPDF::EncryptionError, "Invalid data for decryption, need 32 + 16*n bytes"
-            elsif data.empty?
+              msg = "Invalid data for decryption, need 32 + 16*n bytes"
+              (!block_given? || yield(msg)) && raise(HexaPDF::EncryptionError, msg)
+            end
+            if data.empty?
               data # Handle invalid files with missing padding
             else
               unpad(algorithm.process(data))

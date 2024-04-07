@@ -192,6 +192,10 @@ module HexaPDF
             puts "WARNING: Parse error at position #{pos}: #{msg}"
             false
           end
+          options[:config]['encryption.on_decryption_error'] = lambda do |obj, msg|
+            puts "WARNING: Decryption problem for object (#{obj.oid},#{obj.gen}): #{msg}"
+            false
+          end
           options
         else
           super

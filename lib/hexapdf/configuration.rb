@@ -255,6 +255,12 @@ module HexaPDF
   #    PDF defines a standard security handler that is implemented
   #    (HexaPDF::Encryption::StandardSecurityHandler) and assigned the :Standard name.
   #
+  # encryption.on_decryption_error::
+  #    Callback hook when HexaPDF encounters a decryption error that can potentially be ignored.
+  #
+  #    The value needs to be an object that responds to \#call(obj, message) and returns +true+ if
+  #    an error should be raised.
+  #
   # encryption.sub_filter_map::
   #    A mapping from a PDF name (a Symbol) to a security handler class (see
   #    HexaPDF::Encryption::SecurityHandler). If the value is a String, it should contain the name
@@ -488,6 +494,9 @@ module HexaPDF
                       'encryption.filter_map' => {
                         Standard: 'HexaPDF::Encryption::StandardSecurityHandler',
                       },
+                      'encryption.on_decryption_error' => proc do |_obj, _error|
+                        false
+                      end,
                       'encryption.sub_filter_map' => {},
                       'filter.map' => {
                         ASCIIHexDecode: 'HexaPDF::Filter::ASCIIHexDecode',

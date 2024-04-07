@@ -134,6 +134,17 @@ module HexaPDF
               false
             end
           end
+        hash[:config]['encryption.on_decryption_error'] =
+          if command_parser.strict
+            proc { true }
+          else
+            proc do |obj, msg|
+              if command_parser.verbosity_info?
+                $stderr.puts "Ignored decryption problem for object (#{ob.oid},#{obj.gen}): #{msg}"
+              end
+              false
+            end
+          end
         hash
       end
 

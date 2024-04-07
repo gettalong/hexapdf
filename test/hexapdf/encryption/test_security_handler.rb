@@ -332,9 +332,26 @@ describe HexaPDF::Encryption::SecurityHandler do
     end
 
     it "enhances a thrown EncryptionError by setting the PDF object" do
+      @document.config['encryption.on_decryption_error'] = proc { true }
       @handler.set_up_encryption(key_length: 256)
       error = assert_raises(HexaPDF::EncryptionError) { @handler.decrypt(@obj) }
       assert_match(/Object \(1,0\):/, error.message)
+    end
+
+    it "uses the encryption.on_decryption_error configuration option" do
+      @handler.set_up_encryption(key_length: 256)
+      @handler.decrypt(@obj)
+      assert_equal('', @obj[:Key])
+
+      @obj[:Key] = @encrypted
+      called = false
+      @document.config['encryption.on_decryption_error'] = proc do |obj, msg|
+        assert_same(@obj, obj)
+        assert_match(/32 \+ 16/, msg)
+        called = true
+      end
+      assert_raises(HexaPDF::EncryptionError) { @handler.decrypt(@obj) }
+      assert(called)
     end
 
     it "fails if V < 5 and the object number changes" do

@@ -17,7 +17,6 @@ describe HexaPDF::Encryption::AES do
       end
 
       def process(data)
-        raise "invalid data" if data.empty? || data.length % 16 != 0
         data
       end
     end
@@ -56,9 +55,16 @@ describe HexaPDF::Encryption::AES do
       assert_equal('', @algorithm_class.decrypt('some key' * 2, 'iv' * 8))
     end
 
-    it "fails on decryption if not enough bytes are provided" do
+    it "handles invalid files where not enough bytes are provided" do
+      @algorithm_class.decrypt('some' * 4, 'a' * 36) do |msg|
+        assert_match(/32 \+ 16/, msg)
+        false
+      end
       assert_raises(HexaPDF::EncryptionError) do
         @algorithm_class.decrypt('some' * 4, 'no iv')
+      end
+      assert_raises(HexaPDF::EncryptionError) do
+        @algorithm_class.decrypt('some' * 4, 'no iv') { true }
       end
     end
   end
@@ -126,12 +132,16 @@ describe HexaPDF::Encryption::AES do
       assert_equal('', collector(@algorithm_class.decryption_fiber('key', Fiber.new { '' })))
     end
 
-    it "fails on decryption if not enough bytes are provided" do
-      [4, 20, 40].each do |length|
-        assert_raises(HexaPDF::EncryptionError) do
-          collector(@algorithm_class.decryption_fiber('some' * 4,
-                                                      Fiber.new { 'a' * length }))
-        end
+    it "handles invalid files where not enough bytes are provided" do
+      collector(@algorithm_class.decryption_fiber('some' * 4, Fiber.new { 'a' * 40 }) do |msg|
+        assert_match(/32 \+ 16/, msg)
+        false
+      end)
+      assert_raises(HexaPDF::EncryptionError) do
+        collector(@algorithm_class.decryption_fiber('some' * 4, Fiber.new { 'a' * 40 }))
+      end
+      assert_raises(HexaPDF::EncryptionError) do
+        collector(@algorithm_class.decryption_fiber('some' * 4, Fiber.new { 'a' * 40 })) { true }
       end
     end
   end

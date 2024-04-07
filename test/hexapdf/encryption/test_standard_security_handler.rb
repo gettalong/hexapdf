@@ -258,7 +258,7 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       end
 
       it "fails if the field cannot be decrypted" do
-        @dict[:Perms].succ!
+        @dict[:Perms].setbyte(-1, (@dict[:Perms].getbyte(-1) + 1) % 256)
         exp = assert_raises(HexaPDF::EncryptionError) { @handler.set_up_decryption(@dict) }
         assert_match(/cannot be decrypted/, exp.message)
       end

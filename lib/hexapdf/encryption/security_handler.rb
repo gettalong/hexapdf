@@ -153,17 +153,18 @@ module HexaPDF
 
         # Creates a new encrypted stream data object by utilizing the given stream data object +obj+
         # as template. The arguments +key+ and +algorithm+ are used for decrypting purposes.
-        def initialize(obj, key, algorithm)
+        def initialize(obj, key, algorithm, &error_block)
           obj.instance_variables.each {|v| instance_variable_set(v, obj.instance_variable_get(v)) }
           @key = key
           @algorithm = algorithm
+          @error_block = error_block
         end
 
         alias undecrypted_fiber fiber
 
         # Returns a fiber like HexaPDF::StreamData#fiber, but one wrapped in a decrypting fiber.
         def fiber(*args)
-          @algorithm.decryption_fiber(@key, super(*args))
+          @algorithm.decryption_fiber(@key, super(*args), &@error_block)
         end
 
       end
@@ -268,17 +269,18 @@ module HexaPDF
       def decrypt(obj)
         return obj if @is_encrypt_dict[obj] || obj.type == :XRef
 
+        error_proc = proc {|msg| document.config['encryption.on_decryption_error'].call(obj, msg) }
         key = object_key(obj.oid, obj.gen, string_algorithm)
         each_string_in_object(obj.value) do |str|
           next if str.empty? || (obj.type == :Sig && obj[:Contents].equal?(str))
-          str.replace(string_algorithm.decrypt(key, str))
+          str.replace(string_algorithm.decrypt(key, str, &error_proc))
         end
 
         if obj.kind_of?(HexaPDF::Stream) && obj.raw_stream.filter[0] != :Crypt
           unless string_algorithm == stream_algorithm
             key = object_key(obj.oid, obj.gen, stream_algorithm)
           end
-          obj.data.stream = EncryptedStreamData.new(obj.raw_stream, key, stream_algorithm)
+          obj.data.stream = EncryptedStreamData.new(obj.raw_stream, key, stream_algorithm, &error_proc)
         end
 
         obj
