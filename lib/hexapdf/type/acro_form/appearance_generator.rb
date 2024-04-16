@@ -363,7 +363,7 @@ module HexaPDF
 
         # Draws a single line of text inside the widget's rectangle.
         def draw_single_line_text(canvas, width, height, style, padding)
-          value, text_color = apply_javascript_formatting(@field.field_value)
+          value, text_color = JavaScriptActions.apply_formatting(@field.field_value, @widget[:AA]&.[](:F))
           style.fill_color = text_color if text_color
           calculate_and_apply_font_size(value, style, width, height, padding)
           line = HexaPDF::Layout::Line.new(@document.layout.text_fragments(value, style: style))
@@ -503,79 +503,6 @@ module HexaPDF
           calc_width = @document.layout.text_fragments(value, style: style).sum(&:width)
           style.font_size = [style.font_size, style.font_size * (width - 4 * padding) / calc_width].min
           style.clear_cache
-        end
-
-        # Handles Javascript formatting routines for single-line text fields.
-        #
-        # Returns [value, nil_or_text_color] where value is the new, potentially adjusted field
-        # value and the second argument is either +nil+ or the color that should be used for the
-        # text value.
-        def apply_javascript_formatting(value)
-          format_action = @widget[:AA]&.[](:F)
-          return [value, nil] unless format_action && format_action[:S] == :JavaScript
-          if (match = AF_NUMBER_FORMAT_RE.match(format_action[:JS]))
-            apply_af_number_format(value, match)
-          else
-            [value, nil]
-          end
-        end
-
-        # Regular expression for matching the AFNumber_Format Javascript method.
-        AF_NUMBER_FORMAT_RE = /
-          \AAFNumber_Format\(
-            \s*(?<ndec>\d+)\s*,
-            \s*(?<sep_style>[0-3])\s*,
-            \s*(?<neg_style>[0-3])\s*,
-            \s*0\s*,
-            \s*(?<currency_string>".*?")\s*,
-            \s*(?<prepend>false|true)\s*
-          \);\z
-        /x
-
-        # Implements the Javascript AFNumber_Format method.
-        #
-        # See:
-        # - https://experienceleague.adobe.com/docs/experience-manager-learn/assets/FormsAPIReference.pdf
-        # - https://opensource.adobe.com/dc-acrobat-sdk-docs/library/jsapiref/JS_API_AcroJS.html#printf
-        def apply_af_number_format(value, match)
-          value = value.to_f
-          format = "%.#{match[:ndec]}f"
-          text_color = 'black'
-
-          currency_string = JSON.parse(match[:currency_string])
-          format = (match[:prepend] == 'true' ? currency_string + format : format + currency_string)
-
-          if value < 0
-            value = value.abs
-            case match[:neg_style]
-            when '0' # MinusBlack
-              format = "-#{format}"
-            when '1' # Red
-              text_color = 'red'
-            when '2' # ParensBlack
-              format = "(#{format})"
-            when '3' # ParensRed
-              format = "(#{format})"
-              text_color = 'red'
-            end
-          end
-
-          result = sprintf(format, value)
-
-          # sep_style: 0=12,345.67, 1=12345.67, 2=12.345,67, 3=12345,67
-          before_decimal_point, after_decimal_point = result.split('.')
-          if match[:sep_style] == '0' || match[:sep_style] == '2'
-            separator = (match[:sep_style] == '0' ? ',' : '.')
-            before_decimal_point.gsub!(/\B(?=(\d\d\d)+(?:[^\d]|\z))/, separator)
-          end
-          result = if after_decimal_point
-                     decimal_point = (match[:sep_style] =~ /[01]/ ? '.' : ',')
-                     "#{before_decimal_point}#{decimal_point}#{after_decimal_point}"
-                   else
-                     before_decimal_point
-                   end
-
-          [result, text_color]
         end
 
       end

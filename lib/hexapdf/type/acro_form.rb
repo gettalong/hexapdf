@@ -51,6 +51,7 @@ module HexaPDF
       autoload(:SignatureField, 'hexapdf/type/acro_form/signature_field')
 
       autoload(:AppearanceGenerator, 'hexapdf/type/acro_form/appearance_generator')
+      autoload(:JavaScriptActions, 'hexapdf/type/acro_form/java_script_actions')
 
     end
 

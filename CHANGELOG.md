@@ -4,6 +4,8 @@
 
 * Font loader [HexaPDF::FontLoader::VariantFromName] to ease specifying font
   variants
+* [HexaPDF::Type::AcroForm::JavaScriptActions] module to contain all JavaScript
+  actions that HexaPDF can handle
 * Configuration option 'encryption.on_decryption_error' to allow custom
   decryption error handling
 

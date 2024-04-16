@@ -562,52 +562,11 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         end
       end
 
-      describe "Javascript action AFNumber_Format" do
-        before do
-          @field[:V] = '1234567.898765'
-          @action = {S: :JavaScript, JS: ''}
-          @field[:AA] = {F: @action}
-        end
-
-        def assert_format(arg_string, result, range)
-          @action[:JS] = "AFNumber_Format(#{arg_string});"
-          @generator.create_appearances
-          assert_operators(@widget[:AP][:N].stream, result, range: range)
-        end
-
-        it "respects the set number of decimals" do
-          assert_format('0, 2, 0, 0, "E", false',
-                        [:show_text, ["1.234.568E"]], 9)
-          assert_format('2, 2, 0, 0, "E", false',
-                        [:show_text, ["1.234.567,90E"]], 9)
-        end
-
-        it "respects the digit separator style" do
-          ["1,234,567.90", "1234567.90", "1.234.567,90", "1234567,90"].each_with_index do |result, style|
-            assert_format("2, #{style}, 0, 0, \"\", false", [:show_text, [result]], 9)
-          end
-        end
-
-        it "respects the negative value styling" do
-          @field[:V] = '-1234567.898'
-          @widget[:Rect].height = 11.25
-          ["-E1234567,90", "E1234567,90", "(E1234567,90)", "(E1234567,90)"].each_with_index do |result, style|
-            assert_format("2, 3, #{style}, 0, \"E\", true",
-                          [[:set_device_rgb_non_stroking_color, [style % 2, 0.0, 0.0]],
-                           [:begin_text],
-                           [:set_text_matrix, [1, 0, 0, 1, 2, 3.183272]],
-                           [:show_text, [result]]], 6..9)
-          end
-        end
-
-        it "respects the specified currency string and position" do
-          assert_format('2, 3, 0, 0, " E", false', [:show_text, ["1234567,90 E"]], 9)
-          assert_format('2, 3, 0, 0, "E ", true', [:show_text, ["E 1234567,90"]], 9)
-        end
-
-        it "does nothing to the value if the Javascript method could not be determined " do
-          assert_format('2, 3, 0, 0, " E", false, a', [:show_text, ["1234567.898765"]], 8)
-        end
+      it "applies JavaScript formatting actions" do
+        @field[:V] = '1234567.898765'
+        @field[:AA] = {F: {S: :JavaScript, JS: 'AFNumber_Format(0, 2, 0, 0, "E", false);'}}
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream, [:show_text, ["1.234.568E"]], range: 9)
       end
 
       it "creates the /N appearance stream according to the set string" do
