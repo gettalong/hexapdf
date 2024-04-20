@@ -76,6 +76,10 @@ module HexaPDF
         options.on('--flatten', 'Flatten the form fields') do
           @flatten = true
         end
+        options.on("--[no-]fill-read-only-fields", "Allow filling in fields that are " \
+                   "marked as read only. Default: false") do |read_only|
+          @fill_read_only_fields = read_only
+        end
         options.on("--[no-]viewer-override", "Let the PDF viewer override the visual " \
                    "appearance. Default: use setting from input PDF") do |need_appearances|
           @need_appearances = need_appearances
@@ -90,6 +94,7 @@ module HexaPDF
         @flatten = false
         @generate_template = false
         @template = nil
+        @fill_read_only_fields = false
         @need_appearances = nil
         @incremental = true
       end
@@ -185,6 +190,7 @@ module HexaPDF
       def fill_form(doc)
         current_page_index = -1
         each_field(doc) do |_page, page_index, field, _widget|
+          next if field.flagged?(:read_only) && !@fill_read_only_fields
           if current_page_index != page_index
             puts "Page #{page_index + 1}"
             current_page_index = page_index
@@ -226,6 +232,11 @@ module HexaPDF
         data.each do |name, value|
           field = form.field_by_name(name)
           raise Error, "Field '#{name}' not found in input PDF" unless field
+          if field.flagged?(:read_only) && !@fill_read_only_fields
+            puts "Ignoring field '#{name}' because it is read only and --fill-read-only-fields " \
+              "is no set"
+            next
+          end
           apply_field_value(field, value)
         end
       end

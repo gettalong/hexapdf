@@ -367,6 +367,10 @@ features are not supported, the result may not be correct.
 : Flattens the form fields by making them part of the content of the page. This option can be used
   standalone or in addition to `--fill` or `--template`.
 
+`--[no-]fill-read-only-fields`
+
+: Specifies whether read only fields can be filled in. Defaults to false.
+
 `--[no-]viewer-override`
 
 : Specifies whether the PDF viewer should override the generated visual appearance. Note that not

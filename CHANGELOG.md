@@ -8,6 +8,8 @@
   actions that HexaPDF can handle
 * Configuration option 'encryption.on_decryption_error' to allow custom
   decryption error handling
+* CLI option `--fill-read-only-fields` to `hexapdf form` to specify whether
+  filling in read only fields is allowed
 
 ### Changed
 
