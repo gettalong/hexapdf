@@ -14,6 +14,7 @@
 ### Changed
 
 * CLI command `hexapdf form` to show more information in verbose mode
+* CLI command 'hexapdf form' to show the field flags "read only" and "required"
 
 ### Fixed
 

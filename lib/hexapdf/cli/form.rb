@@ -167,7 +167,8 @@ module HexaPDF
                           temp
                         end
 
-          puts "  #{field_name}"
+          flags = field_flags(field)
+          puts "  #{field_name}" << (flags.empty? ? '' : " (#{flags.join(', ')})")
           if command_parser.verbosity_info?
             printf("    └─ %-22s | %-20s\n", nice_field_type, "#{size} #{position}")
           end
@@ -200,7 +201,8 @@ module HexaPDF
             (field.alternate_field_name ? " (#{field.alternate_field_name})" : '')
           concrete_field_type = field.concrete_field_type
 
-          puts "  #{field_name}"
+          flags = field_flags(field)
+          puts "  #{field_name}" << (flags.empty? ? '' : " (#{flags.join(', ')})")
           puts "    └─ Current value: #{field.field_value.inspect}"
 
           if field.field_type == :Ch
@@ -306,6 +308,12 @@ module HexaPDF
             end
           end
         end
+      end
+
+      # Returns an array with the flags "read only" and "required" if they are set.
+      def field_flags(field)
+        [field.flagged?(:read_only) ? "read only" : nil,
+         field.flagged?(:required) ? "required" : nil].compact
       end
 
     end
