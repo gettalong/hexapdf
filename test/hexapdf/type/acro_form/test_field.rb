@@ -100,6 +100,10 @@ describe HexaPDF::Type::AcroForm::Field do
     refute(@field.terminal_field?)
   end
 
+  it "returns itself when asked for the form field" do
+    assert_same(@field, @field.form_field)
+  end
+
   it "can check whether a widget is embedded in the field" do
     refute(@field.embedded_widget?)
     @field[:Subtype] = :Wdiget

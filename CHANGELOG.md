@@ -11,6 +11,8 @@
   decryption error handling
 * CLI option `--fill-read-only-fields` to `hexapdf form` to specify whether
   filling in read only fields is allowed
+* [HexaPDF::Type::AcroForm::Field#form_field] to getting the field irrespective
+  of whether the object is already a field or a widget
 
 ### Changed
 

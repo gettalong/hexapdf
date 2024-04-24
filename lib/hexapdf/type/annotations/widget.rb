@@ -85,7 +85,7 @@ module HexaPDF
         define_field :BS,      type: :Border, version: '1.2'
         define_field :Parent,  type: Dictionary
 
-        # Returs the AcroForm field object to which this widget annotation belongs.
+        # Returns the AcroForm field object to which this widget annotation belongs.
         #
         # Since a widget and a field can share the same dictionary object, the returned object is
         # often just the widget re-wrapped in the correct field class.

@@ -236,6 +236,14 @@ module HexaPDF
           kids.nil? || kids.empty? || kids.none? {|kid| kid.key?(:T) }
         end
 
+        # Returns self.
+        #
+        # This method is only here to make it easier to get the form field when the object may
+        # either be a form field or a field widget.
+        def form_field
+          self
+        end
+
         # Returns +true+ if the field contains an embedded widget.
         def embedded_widget?
           key?(:Subtype)
