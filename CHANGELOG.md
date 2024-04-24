@@ -6,6 +6,7 @@
   variants
 * [HexaPDF::Type::AcroForm::JavaScriptActions] module to contain all JavaScript
   actions that HexaPDF can handle
+* Support for the `AFSimple_Calculate` Javascript method
 * Configuration option 'encryption.on_decryption_error' to allow custom
   decryption error handling
 * CLI option `--fill-read-only-fields` to `hexapdf form` to specify whether

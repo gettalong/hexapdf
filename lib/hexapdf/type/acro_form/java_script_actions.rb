@@ -54,6 +54,10 @@ module HexaPDF
       #
       #   * +AFNumber_Format+: #apply_af_number_format
       #
+      # * Calculating
+      #
+      #   * +AFSimple_Calculate+:: #run_af_simple_calculate
+      #
       # See: PDF2.0 s12.6.4.17
       #
       # See:
@@ -180,6 +184,86 @@ module HexaPDF
                    end
 
           [result, text_color]
+        end
+
+        # Handles JavaScript calculation actions for single-line text fields.
+        #
+        # The argument +form+ is the main Form instance of the document (needed for accessing the
+        # fields for the calculation) and +calculation_action+ is the PDF calculation action object
+        # that should be applied.
+        #
+        # Returns the calculated value as string if the calculation was succcessful or +nil+
+        # otherwise.
+        #
+        # A calculation may not be successful if
+        #
+        # * HexaPDF doesn't support the specific calculation action (e.g. because it contains
+        #   general JavaScript instructions), or if
+        # * there was an error during the calculation (e.g. because a field could not be resolved).
+        def calculate(form, calculation_action)
+          return nil unless calculation_action[:S] == :JavaScript
+          action_string = calculation_action[:JS]
+          result = if action_string.start_with?('AFSimple_Calculate(')
+                     run_af_simple_calculate(form, action_string)
+                   else
+                     nil
+                   end
+          result && (result == result.truncate ? result.to_i.to_s : result.to_s)
+        end
+
+        # Regular expression for matching the AFSimple_Calculate function.
+        #
+        # See: #run_af_simple_calculate
+        AF_SIMPLE_CALCULATE_RE = /
+          \AAFSimple_Calculate\(
+            \s*"(?<function>AVG|SUM|PRD|MIN|MAX)"\s*,
+            \s*(?<fields>.*)\s*
+          \);\z
+        /x
+
+        # Mapping of AFSimple_Calculate function names to implementations.
+        #
+        # See: #run_af_simple_calculate
+        AF_SIMPLE_CALCULATE = {
+          'AVG' => lambda {|values| values.sum / values.length },
+          'SUM' => lambda {|values| values.sum },
+          'PRD' => lambda {|values| values.inject {|product, val| product * val } },
+          'MIN' => lambda {|values| values.min },
+          'MAX' => lambda {|values| values.max },
+        }
+
+        # Implements the JavaScript AFSimple_Calculate function and returns the calculated value.
+        #
+        # The argument +form+ has to be the document's main AcroForm object and +action_string+ has
+        # to be the JavaScript action string.
+        #
+        # The AFSimple_Calculate function applies one of several predefined functions to the values
+        # of the given fields. The values of those fields need to be strings representing numbers.
+        #
+        # It has the form <tt>AFSimple_Calculate(function, fields))</tt> where the arguments have
+        # the following meaning:
+        #
+        # +function+::
+        #   The name of the calculation function that should be applied to the values.
+        #
+        #   Possible values are:
+        #
+        #   +SUM+:: Calculate the sum of the given field values.
+        #   +AVG+:: Calculate the average of the given field values.
+        #   +PRD+:: Calculate the product of the given field values.
+        #   +MIN+:: Calculate the minimum of the given field values.
+        #   +MAX+:: Calculate the maximum of the given field values.
+        #
+        # +fields+::
+        #   An array of AcroForm field names the values of which should be used.
+        def run_af_simple_calculate(form, action_string)
+          return nil unless (match = AF_SIMPLE_CALCULATE_RE.match(action_string))
+          function = match[:function]
+          values = match[:fields].scan(/".*?"/).map do |name|
+            return nil unless (field = form.field_by_name(name[1..-2]))
+            field.field_value.to_f
+          end
+          AF_SIMPLE_CALCULATE.fetch(function)&.call(values)
         end
 
       end

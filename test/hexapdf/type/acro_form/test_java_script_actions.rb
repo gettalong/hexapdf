@@ -5,12 +5,12 @@ require 'hexapdf/document'
 require 'hexapdf/type/acro_form/java_script_actions'
 
 describe HexaPDF::Type::AcroForm::JavaScriptActions do
-  describe "formatting" do
-    before do
-      @action = {S: :JavaScript}
-      @klass = HexaPDF::Type::AcroForm::JavaScriptActions
-    end
+  before do
+    @klass = HexaPDF::Type::AcroForm::JavaScriptActions
+    @action = {S: :JavaScript}
+  end
 
+  describe "formatting" do
     it "returns the original value if the formatting action can't be processed" do
       @action[:JS] = 'Unknown();'
       @klass.apply_formatting("10", @action)
@@ -55,6 +55,68 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
 
       it "does nothing to the value if the JavasSript method could not be determined " do
         assert_format('2, 3, 0, 0, " E", false, a', "1234567.898765", nil)
+      end
+    end
+  end
+
+  describe "calculation" do
+    before do
+      @doc = HexaPDF::Document.new
+      @form = @doc.acro_form(create: true)
+      @form.create_text_field('text')
+      @field1 = @form.create_text_field('text.1')
+      @field1.field_value = "10"
+      @field2 = @form.create_text_field('text.2')
+      @field2.field_value = "20"
+      @field3 = @form.create_text_field('text.3')
+      @field3.field_value = "30"
+    end
+
+    it "returns nil if the calculation action is not a JavaScript action" do
+      @action[:S] = :GoTo
+      assert_nil(@klass.calculate(@form, @action))
+    end
+
+    it "returns nil if the calculation action contains unknown JavaScript" do
+      @action[:JS] = 'Unknown();'
+      assert_nil(@klass.calculate(@form, @action))
+    end
+
+    describe "predefined calculations" do
+      def assert_calculation(function, fields, value)
+        fields = fields.map {|field| "\"#{field.full_field_name}\"" }.join(", ")
+        @action[:JS] = "AFSimple_Calculate(\"#{function}\", new Array(#{fields}));"
+        assert_equal(value, @klass.calculate(@form, @action))
+      end
+
+      it "can sum fields" do
+        assert_calculation('SUM', [@field1, @field2, @field3], "60")
+      end
+
+      it "can average fields" do
+        assert_calculation('AVG', [@field1, @field2, @field3], "20")
+      end
+
+      it "can multiply fields" do
+        assert_calculation('PRD', [@field1, @field2, @field3], "6000")
+      end
+
+      it "can find the minimum field value" do
+        assert_calculation('MIN', [@field1, @field2, @field3], "10")
+      end
+
+      it "can find the maximum field value" do
+        assert_calculation('MAX', [@field1, @field2, @field3], "30")
+      end
+
+      it "works with floats" do
+        @field1.field_value = "10.54"
+        assert_calculation('SUM', [@field1, @field2], "30.54")
+      end
+
+      it "returns nil if a field cannot be resolved" do
+        @action[:JS] = 'AFSimple_Calculate("SUM", ["unknown"]);'
+        assert_nil(@klass.calculate(@form, @action))
       end
     end
   end
