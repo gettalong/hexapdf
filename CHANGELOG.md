@@ -22,6 +22,8 @@
 * [HexaPDF::Font::CMap::Parser] to avoid instantiating invalid UTF-16BE chars
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] to work for files where check
   boxes don't have appearance subdictionaries
+* [HexaPDF::Type::AcroForm::TextField#field_value=] to call the config option
+  'acro_form.on_invalid_value' when passing a non-String argument (except `nil`)
 
 
 ## 0.40.0 - 2024-03-23

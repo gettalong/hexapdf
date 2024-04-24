@@ -168,6 +168,8 @@ module HexaPDF
             raise HexaPDF::Error, "Storing a field value for a password field is not allowed"
           elsif comb_text_field? && !key?(:MaxLen)
             raise HexaPDF::Error, "A comb text field need a valid /MaxLen value"
+          elsif str && !str.kind_of?(String)
+            @document.config['acro_form.on_invalid_value'].call(self, str)
           end
           str = str.gsub(/[[:space:]]/, ' ') if str && concrete_field_type == :single_line_text_field
           if key?(:MaxLen) && str && str.length > self[:MaxLen]

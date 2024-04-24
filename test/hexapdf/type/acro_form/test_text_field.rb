@@ -124,6 +124,10 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert_raises(HexaPDF::Error) { @field.field_value = 'test' }
     end
 
+    it "fails if the provided value is not a string" do
+      assert_raises(HexaPDF::Error) { @field.field_value = 10 }
+    end
+
     it "fails if the value exceeds the length set by /MaxLen" do
       @field[:MaxLen] = 5
       assert_raises(HexaPDF::Error) { @field.field_value = 'testdf' }
