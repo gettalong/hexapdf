@@ -22,6 +22,15 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
         @action[:JS] = ''
       end
 
+      it "returns a correct JavaScript string" do
+        assert_equal('AFNumber_Format(2, 0, 0, 0, "", true);',
+                     @klass.af_number_format_action)
+        assert_equal('AFNumber_Format(1, 1, 1, 0, "E", false);',
+                     @klass.af_number_format_action(decimals: 1, separator_style: :point_no_thousands,
+                                                    negative_style: :red, currency_string: "E",
+                                                    prepend_currency: false))
+      end
+
       def assert_format(arg_string, result_value, result_color)
         @action[:JS] = "AFNumber_Format(#{arg_string});"
         value, text_color = @klass.apply_formatting(@value, @action)

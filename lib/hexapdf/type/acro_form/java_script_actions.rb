@@ -161,6 +161,57 @@ module HexaPDF
           end
         end
 
+        AF_NUMBER_FORMAT_MAPPINGS = { #:nodoc:
+          separator: {
+            point: 0,
+            point_no_thousands: 1,
+            comma: 2,
+            comma_no_thousands: 3,
+          },
+          negative: {
+            minus_black: 0,
+            red: 1,
+            parens_black: 2,
+            parens_red: 3,
+          },
+        }
+
+        # Returns the appropriate JavaScript action string for the AFNumber_Format function.
+        #
+        # +decimals+::
+        #     The number of decimal digits to use. Default 2.
+        #
+        # +separator_style+::
+        #     Specifies the character for the decimal and thousands separator, one of:
+        #
+        #     :point:: (Default) Use point as decimal separator and comma as thousands separator.
+        #     :point_no_thousands:: Use point as decimal separator and no thousands separator.
+        #     :comma:: Use comma as decimal separator and point as thousands separator.
+        #     :comma_no_thousands:: Use comma as decimal separator and no thousands separator.
+        #
+        # +negative_style+::
+        #     Specifies how negative numbers should be formatted, one of:
+        #
+        #     :minus_black:: (Default) Use minus before the number and black as color.
+        #     :red:: Just use red as color.
+        #     :parens_black:: Use parentheses around the number and black as color.
+        #     :parens_red:: Use parentheses around the number and red as color.
+        #
+        # +currency_string+::
+        #      Specifies the currency string that should be used. Default is the empty string.
+        #
+        # +prepend_currency+::
+        #      Specifies whether the currency string should be prepended (+true+, default) or
+        #      appended (+false).
+        #
+        # See: #apply_af_number_format
+        def af_number_format_action(decimals: 2, separator_style: :point, negative_style: :minus_black,
+                                    currency_string: "", prepend_currency: true)
+          "AFNumber_Format(#{decimals}, #{AF_NUMBER_FORMAT_MAPPINGS[:separator][separator_style]}, " \
+            "#{AF_NUMBER_FORMAT_MAPPINGS[:negative][negative_style]}, 0, \"#{currency_string}\", " \
+            "#{prepend_currency});"
+        end
+
         # Regular expression for matching the AFNumber_Format method.
         #
         # See: #apply_af_number_format
