@@ -36,6 +36,7 @@
 
 require 'hexapdf/error'
 require 'hexapdf/type/acro_form/variable_text_field'
+require 'hexapdf/type/acro_form/java_script_actions'
 
 module HexaPDF
   module Type
@@ -241,6 +242,26 @@ module HexaPDF
         # Updates the widgets so that they reflect the current field value.
         def update_widgets
           create_appearances(force: true)
+        end
+
+        # Sets the given formatting JavaScript action on the field's widgets.
+        #
+        # This action is executed when the field value needs to be formatted for rendering in the
+        # appearance streams of the associated widgets.
+        #
+        # The argument +type+ can be one of the following:
+        #
+        # :number::
+        #     Assumes that the field value is a number and formats it according to the given
+        #     arguments. See JavaScriptActions.af_number_format_action for details on the arguments.
+        def set_formatting_action(type, **arguments)
+          action_string = case type
+                          when :number then JavaScriptActions.af_number_format_action(**arguments)
+                          else
+                            raise ArgumentError, "Invalid value for type argument: #{type.inspect}"
+                          end
+          self[:AA] ||= {}
+          self[:AA][:F] = {S: :JavaScript, JS: action_string}
         end
 
         private
