@@ -119,5 +119,49 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
         assert_nil(@klass.calculate(@form, @action))
       end
     end
+
+    describe "simplified field notation calculations" do
+      def assert_calculation(sfn, value)
+        @action[:JS] = "/** BVCALC #{sfn} EVCALC **/"
+        result = @klass.calculate(@form, @action)
+        value ? assert_equal(value, result) : assert_nil(result)
+      end
+
+      it "works for additions" do
+        assert_calculation('text.1 + text.2 + text.1', "40")
+      end
+
+      it "works for substraction" do
+        assert_calculation('text.2-text\.1', "10")
+      end
+
+      it "works for multiplication" do
+        assert_calculation('text.2\* text\.1 * text\.3', "6000")
+      end
+
+      it "works for division" do
+        assert_calculation('text.2 /text\.1', "2")
+      end
+
+      it "works with parentheses" do
+        assert_calculation('(text.2 + (text.1*text.3))', "320")
+      end
+
+      it "works in a more complex case" do
+        assert_calculation('(text.1 + text.2)/(text.3) * text.1', "10")
+      end
+
+      it "fails if a referenced field is not a terminal field" do
+        assert_calculation('text + text.2', nil)
+      end
+
+      it "fails if a referenced field does not exist" do
+        assert_calculation('unknown + text.2', nil)
+      end
+
+      it "fails if parentheses don't match" do
+        assert_calculation('(text.1 + text.2', nil)
+      end
+    end
   end
 end

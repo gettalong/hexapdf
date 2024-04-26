@@ -57,6 +57,7 @@ module HexaPDF
       # * Calculating
       #
       #   * +AFSimple_Calculate+:: #run_af_simple_calculate
+      #   * Simplified Field Notation expressions:: #run_simplified_field_notation
       #
       # See: PDF2.0 s12.6.4.17
       #
@@ -64,6 +65,81 @@ module HexaPDF
       # - https://experienceleague.adobe.com/docs/experience-manager-learn/assets/FormsAPIReference.pdf
       # - https://opensource.adobe.com/dc-acrobat-sdk-docs/library/jsapiref/JS_API_AcroJS.html#printf
       module JavaScriptActions
+
+        # Implements a parser for the simplified field notation used for calculating field values.
+        #
+        # This notation is used if the predefined functions are too simple but the calculation can
+        # still be done by simple arithmetic.
+        class SimplifiedFieldNotationParser
+
+          # Raised if there was an error during parsing.
+          class ParseError < StandardError; end
+
+          # Creates a new instance for the given AcroForm +form+ instance and simplified field
+          # notation string +sfn_string+.
+          def initialize(form, sfn_string)
+            @form = form
+            @tokens = sfn_string.scan(/\p{Alpha}[^()*\/+-]*|[()*\/+-]/)
+          end
+
+          # Parses the string holding the simplified field notation and returns the calculation
+          # result, or +nil+ if there was any problem.
+          def parse
+            result = expression
+            @tokens.empty? ? result : nil
+          rescue ParseError
+            nil
+          end
+
+          private
+
+          # Implementation of the four basis operations.
+          OPERATIONS = {
+            '+' => lambda {|l, r| l + r },
+            '-' => lambda {|l, r| l - r },
+            '*' => lambda {|l, r| l * r },
+            '/' => lambda {|l, r| l / r },
+          }
+
+          # Parses the expression at the current position.
+          #
+          # expression = term [('+'|'-') term]*
+          def expression
+            result = term
+            while @tokens.first == '+' || @tokens.first == '-'
+              result = OPERATIONS[@tokens.shift].call(result, term)
+            end
+            result
+          end
+
+          # Parses the term at the current position.
+          #
+          # term = factor [('*'|'/') factor]*
+          def term
+            result = factor
+            while @tokens.first == '*' || @tokens.first == '/'
+              result = OPERATIONS[@tokens.shift].call(result, factor)
+            end
+            result
+          end
+
+          # Parses the factor at the current position.
+          #
+          # factor = '(' expr ')' | field_name
+          def factor
+            token = @tokens.shift
+            if token == '('
+              value = expression
+              raise ParseError, "Unmatched parentheses" unless @tokens.shift == ')'
+              value
+            elsif (field = @form.field_by_name(token.strip.gsub('\\', ''))) && field.terminal_field?
+              field.field_value.to_f
+            else
+              raise ParseError, "Invalid token encountered: #{token}"
+            end
+          end
+
+        end
 
         module_function
 
@@ -77,8 +153,7 @@ module HexaPDF
         # and the second argument is either +nil+ (no change in color) or the color that should be
         # used for the text value.
         def apply_formatting(value, format_action)
-          return [value, nil] unless format_action && format_action[:S] == :JavaScript
-          action_string = format_action[:JS]
+          return [value, nil] unless (action_string = action_string(format_action))
           if action_string.start_with?('AFNumber_Format(')
             apply_af_number_format(value, action_string)
           else
@@ -201,10 +276,11 @@ module HexaPDF
         #   general JavaScript instructions), or if
         # * there was an error during the calculation (e.g. because a field could not be resolved).
         def calculate(form, calculation_action)
-          return nil unless calculation_action[:S] == :JavaScript
-          action_string = calculation_action[:JS]
+          return nil unless (action_string = action_string(calculation_action))
           result = if action_string.start_with?('AFSimple_Calculate(')
                      run_af_simple_calculate(form, action_string)
+                   elsif action_string.match?(/\/\*\*\s*BVCALC/)
+                     run_simplified_field_notation(form, action_string)
                    else
                      nil
                    end
@@ -265,6 +341,30 @@ module HexaPDF
           end
           AF_SIMPLE_CALCULATE.fetch(function)&.call(values)
         end
+
+        # Implements parsing of the simplified field notation (SFN).
+        #
+        # The argument +form+ has to be the document's main AcroForm object and +action_string+ has
+        # to be the JavaScript action string.
+        #
+        # This notation is more powerful than AFSimple_Calculate as it allows arbitrary expressions
+        # consisting of additions, substractions, multiplications and divisions, possibly grouped
+        # using parentheses, and field names (which stand in for their value).
+        #
+        # Note: The implementation has been created by looking at sample documents using SFN. As
+        # such this may not work for all documents that use SFN.
+        def run_simplified_field_notation(form, action_string)
+          return nil unless (match = /BVCALC(.*?)EVCALC/m.match(action_string))
+          SimplifiedFieldNotationParser.new(form, match[1]).parse
+        end
+
+        # Returns the JavaScript action string for the given action.
+        def action_string(action)
+          return nil unless action && action[:S] == :JavaScript
+          result = action[:JS]
+          result.kind_of?(HexaPDF::Stream) ? result.stream : result
+        end
+        private :action_string
 
       end
 
