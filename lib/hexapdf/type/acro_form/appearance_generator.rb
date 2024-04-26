@@ -39,6 +39,7 @@ require 'hexapdf/error'
 require 'hexapdf/layout/style'
 require 'hexapdf/layout/text_fragment'
 require 'hexapdf/layout/text_layouter'
+require 'hexapdf/type/acro_form/java_script_actions'
 
 module HexaPDF
   module Type
