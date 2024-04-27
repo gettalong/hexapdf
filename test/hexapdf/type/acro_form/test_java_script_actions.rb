@@ -92,6 +92,11 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
     end
 
     describe "predefined calculations" do
+      it "returns a correct JavaScript string" do
+        assert_equal('AFSimple_Calculate("SUM", ["text.1","text.2"]);',
+                     @klass.af_simple_calculate_action(:sum, ['text.1', @field2]))
+      end
+
       def assert_calculation(function, fields, value)
         fields = fields.map {|field| "\"#{field.full_field_name}\"" }.join(", ")
         @action[:JS] = "AFSimple_Calculate(\"#{function}\", new Array(#{fields}));"

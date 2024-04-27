@@ -338,6 +338,34 @@ module HexaPDF
           result && (result == result.truncate ? result.to_i.to_s : result.to_s)
         end
 
+        AF_SIMPLE_CALCULATE_MAPPING = { #:nodoc
+          sum: 'SUM',
+          average: 'AVG',
+          product: 'PRD',
+          min: 'MIN',
+          max: 'MAX',
+        }
+
+        # Returns the appropriate JavaScript action string for the AFSimple_Calculate function.
+        #
+        # +type+::
+        #     The type of operation that should be used, one of:
+        #
+        #     :sum:: Sums the values of the given +fields+.
+        #     :average:: Calculates the average value of the given +fields+.
+        #     :product:: Multiplies the values of the given +fields+.
+        #     :min:: Uses the minimum value of the given +fields+.
+        #     :max:: Uses the maximum value of the given +fields+.
+        #
+        # +fields+::
+        #     An array of form field objects and/or full field names.
+        #
+        # See: #run_af_simple_calculate
+        def af_simple_calculate_action(type, fields)
+          fields = fields.map {|field| field.kind_of?(String) ? field : field.full_field_name }
+          "AFSimple_Calculate(\"#{AF_SIMPLE_CALCULATE_MAPPING[type]}\", #{fields.to_json});"
+        end
+
         # Regular expression for matching the AFSimple_Calculate function.
         #
         # See: #run_af_simple_calculate
