@@ -312,10 +312,10 @@ module HexaPDF
           [result, text_color]
         end
 
-        # Handles JavaScript calculation actions for single-line text fields.
+        # Handles JavaScript calculate actions for single-line text fields.
         #
         # The argument +form+ is the main Form instance of the document (needed for accessing the
-        # fields for the calculation) and +calculation_action+ is the PDF calculation action object
+        # fields for the calculation) and +calculation_action+ is the PDF calculate action object
         # that should be applied.
         #
         # Returns the calculated value as string if the calculation was succcessful or +nil+
@@ -323,11 +323,11 @@ module HexaPDF
         #
         # A calculation may not be successful if
         #
-        # * HexaPDF doesn't support the specific calculation action (e.g. because it contains
-        #   general JavaScript instructions), or if
+        # * HexaPDF doesn't support the specific calculate action (e.g. because it contains general
+        #   JavaScript instructions), or if
         # * there was an error during the calculation (e.g. because a field could not be resolved).
-        def calculate(form, calculation_action)
-          return nil unless (action_string = action_string(calculation_action))
+        def calculate(form, calculate_action)
+          return nil unless (action_string = action_string(calculate_action))
           result = if action_string.start_with?('AFSimple_Calculate(')
                      run_af_simple_calculate(form, action_string)
                    elsif action_string.match?(/\/\*\*\s*BVCALC/)

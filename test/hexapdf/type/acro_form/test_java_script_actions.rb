@@ -68,7 +68,7 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
     end
   end
 
-  describe "calculation" do
+  describe "calculate" do
     before do
       @doc = HexaPDF::Document.new
       @form = @doc.acro_form(create: true)
@@ -81,12 +81,12 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
       @field3.field_value = "30"
     end
 
-    it "returns nil if the calculation action is not a JavaScript action" do
+    it "returns nil if the calculate action is not a JavaScript action" do
       @action[:S] = :GoTo
       assert_nil(@klass.calculate(@form, @action))
     end
 
-    it "returns nil if the calculation action contains unknown JavaScript" do
+    it "returns nil if the calculate action contains unknown JavaScript" do
       @action[:JS] = 'Unknown();'
       assert_nil(@klass.calculate(@form, @action))
     end
