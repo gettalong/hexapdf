@@ -264,6 +264,58 @@ module HexaPDF
           self[:AA][:F] = {S: :JavaScript, JS: action_string}
         end
 
+        # Sets the specified JavaScript calculate action on the field.
+        #
+        # This action is executed by a viewer when any field's value changes so as to recalculate
+        # the value of this field. Usually, the field is also flagged as read only to avoid a user
+        # changing the value manually.
+        #
+        # The argument +type+ can be one of the following:
+        #
+        # :sum::
+        #     Sums the values of the given +fields+.
+        #
+        # :average::
+        #     Calculates the average value of the given +fields+.
+        #
+        # :product::
+        #     Multiplies the values of the given +fields+.
+        #
+        # :min::
+        #     Uses the minimum value of the given +fields+.
+        #
+        # :max::
+        #     Uses the maximum value of the given +fields+.
+        #
+        # :sfn::
+        #     Uses the Simplified Field Notation for calculating the field's value. This allows for
+        #     more complex calculations involving addition, subtraction, multiplication and
+        #     division. Field values are specified by using the full field names which should not
+        #     contain spaces or punctuation characters except point.
+        #
+        #     The +fields+ argument needs to contain a string with the SFN calculation rule.
+        #
+        #     Here are some examples:
+        #
+        #       field1 + field2 - field3
+        #       (field.1 + field.2) * (field.3 - field.4)
+        #
+        # Note: Setting this action appends the field to the main Form's /CO entry which specifies
+        # the calculation order. Rearrange the entries as needed.
+        def set_calculate_action(type, fields: nil)
+          action_string = case type
+                          when :sum, :average, :product, :min, :max
+                            JavaScriptActions.af_simple_calculate_action(type, fields)
+                          when :sfn
+                            JavaScriptActions.simplified_field_notation_action(document.acro_form, fields)
+                          else
+                            raise ArgumentError, "Invalid value for type argument: #{type.inspect}"
+                          end
+          self[:AA] ||= {}
+          self[:AA][:C] = {S: :JavaScript, JS: action_string}
+          (document.acro_form[:CO] ||= []) << self
+        end
+
         private
 
         def perform_validation #:nodoc:

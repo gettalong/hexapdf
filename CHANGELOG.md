@@ -16,6 +16,8 @@
   of whether the object is already a field or a widget
 * [HexaPDF::Type::AcroForm::TextField#set_format_action] for setting a
   JavaScript action that formats the field's value
+* [HexaPDF::Type::AcroForm::TextField#set_calculate_action] for setting a
+  JavaScript action that calculates the field's value
 
 ### Changed
 

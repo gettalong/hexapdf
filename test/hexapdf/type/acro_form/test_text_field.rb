@@ -215,6 +215,32 @@ describe HexaPDF::Type::AcroForm::TextField do
     end
   end
 
+  describe "set_calculate_action" do
+    before do
+      @form = @doc.acro_form(create: true)
+      @form.create_text_field('text1')
+      @form.create_text_field('text2')
+    end
+
+    it "sets the calculate action using AFSimple_Calculate" do
+      @field.set_calculate_action(:sum, fields: ['text1', @form.field_by_name('text2')])
+      assert(@field.key?(:AA))
+      assert(@field[:AA].key?(:C))
+      assert_equal('AFSimple_Calculate("SUM", ["text1","text2"]);', @field[:AA][:C][:JS])
+      assert_equal([@field], @form[:CO].value)
+    end
+
+    it "sets the simplified field notation calculate action" do
+      @field.set_calculate_action(:sfn, fields: "text1")
+      assert_equal('/** BVCALC text1 EVCALC **/ event.value = AFMakeNumber(getField("text1").value)',
+                   @field[:AA][:C][:JS])
+    end
+
+    it "fails if an unknown calculate action is specified" do
+      assert_raises(ArgumentError) { @field.set_calculate_action(:unknown) }
+    end
+  end
+
   describe "validation" do
     it "checks the value of the /FT field" do
       @field.delete(:FT)
