@@ -82,10 +82,15 @@ module HexaPDF
             @tokens = sfn_string.scan(/\p{Alpha}[^()*\/+-]*|[()*\/+-]/)
           end
 
-          # Parses the string holding the simplified field notation and returns the calculation
-          # result, or +nil+ if there was any problem.
-          def parse
-            result = expression
+          # Parses the string holding the simplified field notation.
+          #
+          # If +operations+ is :calculate, the calculation is performed and the result returned. If
+          # +operations+ is :generate, a JavaScript representation is generated and returned.
+          #
+          #  +nil+ is returned regardless of the +operations+ value if there was any problem.
+          def parse(operations = :calculate)
+            operations = (operations == :calculate ? CALCULATE_OPERATIONS : JS_GENERATE_OPERATIONS)
+            result = expression(operations)
             @tokens.empty? ? result : nil
           rescue ParseError
             nil
@@ -93,21 +98,33 @@ module HexaPDF
 
           private
 
-          # Implementation of the four basis operations.
-          OPERATIONS = {
+          # Implementation of the operations for calculating the result.
+          CALCULATE_OPERATIONS = {
             '+' => lambda {|l, r| l + r },
             '-' => lambda {|l, r| l - r },
             '*' => lambda {|l, r| l * r },
             '/' => lambda {|l, r| l / r },
+            field: lambda {|field| field.field_value.to_f },
+            parens: lambda {|expr| expr },
+          }
+
+          # Implementation of the operations for generating the equivalent JavaScript code.
+          JS_GENERATE_OPERATIONS = {
+            '+' => lambda {|l, r| "#{l} + #{r}" },
+            '-' => lambda {|l, r| "#{l} - #{r}" },
+            '*' => lambda {|l, r| "#{l} * #{r}" },
+            '/' => lambda {|l, r| "#{l} / #{r}" },
+            field: lambda {|field| "AFMakeNumber(getField(#{field.full_field_name.to_json}).value)" },
+            parens: lambda {|expr| "(#{expr})" },
           }
 
           # Parses the expression at the current position.
           #
           # expression = term [('+'|'-') term]*
-          def expression
-            result = term
+          def expression(operations)
+            result = term(operations)
             while @tokens.first == '+' || @tokens.first == '-'
-              result = OPERATIONS[@tokens.shift].call(result, term)
+              result = operations[@tokens.shift].call(result, term(operations))
             end
             result
           end
@@ -115,10 +132,10 @@ module HexaPDF
           # Parses the term at the current position.
           #
           # term = factor [('*'|'/') factor]*
-          def term
-            result = factor
+          def term(operations)
+            result = factor(operations)
             while @tokens.first == '*' || @tokens.first == '/'
-              result = OPERATIONS[@tokens.shift].call(result, factor)
+              result = operations[@tokens.shift].call(result, factor(operations))
             end
             result
           end
@@ -126,14 +143,14 @@ module HexaPDF
           # Parses the factor at the current position.
           #
           # factor = '(' expr ')' | field_name
-          def factor
+          def factor(operations)
             token = @tokens.shift
             if token == '('
-              value = expression
+              value = expression(operations)
               raise ParseError, "Unmatched parentheses" unless @tokens.shift == ')'
-              value
+              operations[:parens].call(value)
             elsif (field = @form.field_by_name(token.strip.gsub('\\', ''))) && field.terminal_field?
-              field.field_value.to_f
+              operations[:field].call(field)
             else
               raise ParseError, "Invalid token encountered: #{token}"
             end
@@ -419,6 +436,19 @@ module HexaPDF
             field.field_value.to_f
           end
           AF_SIMPLE_CALCULATE.fetch(function)&.call(values)
+        end
+
+        # Returns the appropriate JavaScript action string for a calculate action that uses
+        # Simplified Field Notation.
+        #
+        # The argument +form+ has to be the document's main AcroForm object and +sfn_string+ the
+        # string containing the simplified field notation.
+        #
+        # See: #run_simplified_field_notation
+        def simplified_field_notation_action(form, sfn_string)
+          js_part = SimplifiedFieldNotationParser.new(form, sfn_string).parse(:generate)
+          raise ArgumentError, "Invalid simplified field notation rule" unless js_part
+          "/** BVCALC #{sfn_string} EVCALC **/ event.value = #{js_part}"
         end
 
         # Implements parsing of the simplified field notation (SFN).

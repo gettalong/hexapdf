@@ -135,6 +135,21 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
     end
 
     describe "simplified field notation calculations" do
+      it "returns a correct JavaScript string" do
+        sfn = '(text.1 + text.2) * text.3 - text.1 / text.1'
+        assert_equal("/** BVCALC #{sfn} EVCALC **/ " \
+                     'event.value = (AFMakeNumber(getField("text.1").value) + ' \
+                     'AFMakeNumber(getField("text.2").value)) * ' \
+                     'AFMakeNumber(getField("text.3").value) - ' \
+                     'AFMakeNumber(getField("text.1").value) / ' \
+                     'AFMakeNumber(getField("text.1").value)',
+                     @klass.simplified_field_notation_action(@form, sfn))
+      end
+
+      it "fails if the SFN string is invalid when generating a JavaScript action string" do
+        assert_raises(ArgumentError) { @klass.simplified_field_notation_action(@form, '(test') }
+      end
+
       def assert_calculation(sfn, value)
         @action[:JS] = "/** BVCALC #{sfn} EVCALC **/"
         result = @klass.calculate(@form, @action)
