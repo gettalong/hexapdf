@@ -14,7 +14,7 @@
   filling in read only fields is allowed
 * [HexaPDF::Type::AcroForm::Field#form_field] to getting the field irrespective
   of whether the object is already a field or a widget
-* [HexaPDF::Type::AcroForm::TextField#set_formatting_action] for setting a
+* [HexaPDF::Type::AcroForm::TextField#set_format_action] for setting a
   JavaScript action that formats the field's value
 
 ### Changed

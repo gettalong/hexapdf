@@ -201,17 +201,17 @@ describe HexaPDF::Type::AcroForm::TextField do
     end
   end
 
-  describe "set_formatting_action" do
+  describe "set_format_action" do
     it "applies the number format" do
       @doc.acro_form(create: true)
-      @field.set_formatting_action(:number, decimals: 0)
+      @field.set_format_action(:number, decimals: 0)
       assert(@field.key?(:AA))
       assert(@field[:AA].key?(:F))
       assert_equal('AFNumber_Format(0, 0, 0, 0, "", true);', @field[:AA][:F][:JS])
     end
 
-    it "fails if an unknown formatting action is specified" do
-      assert_raises(ArgumentError) { @field.set_formatting_action(:unknown) }
+    it "fails if an unknown format action is specified" do
+      assert_raises(ArgumentError) { @field.set_format_action(:unknown) }
     end
   end
 

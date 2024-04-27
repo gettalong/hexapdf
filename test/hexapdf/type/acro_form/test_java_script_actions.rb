@@ -10,10 +10,10 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
     @action = {S: :JavaScript}
   end
 
-  describe "formatting" do
-    it "returns the original value if the formatting action can't be processed" do
+  describe "format" do
+    it "returns the original value if the format action can't be processed" do
       @action[:JS] = 'Unknown();'
-      @klass.apply_formatting("10", @action)
+      @klass.apply_format("10", @action)
     end
 
     describe "AFNumber_Format" do
@@ -33,7 +33,7 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
 
       def assert_format(arg_string, result_value, result_color)
         @action[:JS] = "AFNumber_Format(#{arg_string});"
-        value, text_color = @klass.apply_formatting(@value, @action)
+        value, text_color = @klass.apply_format(@value, @action)
         assert_equal(result_value, value)
         result_color ? assert_equal(result_color, text_color) : assert_nil(text_color)
       end

@@ -364,7 +364,7 @@ module HexaPDF
 
         # Draws a single line of text inside the widget's rectangle.
         def draw_single_line_text(canvas, width, height, style, padding)
-          value, text_color = JavaScriptActions.apply_formatting(@field.field_value, @widget[:AA]&.[](:F))
+          value, text_color = JavaScriptActions.apply_format(@field.field_value, @widget[:AA]&.[](:F))
           style.fill_color = text_color if text_color
           calculate_and_apply_font_size(value, style, width, height, padding)
           line = HexaPDF::Layout::Line.new(@document.layout.text_fragments(value, style: style))

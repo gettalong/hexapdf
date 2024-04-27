@@ -244,7 +244,7 @@ module HexaPDF
           create_appearances(force: true)
         end
 
-        # Sets the given formatting JavaScript action on the field's widgets.
+        # Sets the specified JavaScript format action on the field's widgets.
         #
         # This action is executed when the field value needs to be formatted for rendering in the
         # appearance streams of the associated widgets.
@@ -254,7 +254,7 @@ module HexaPDF
         # :number::
         #     Assumes that the field value is a number and formats it according to the given
         #     arguments. See JavaScriptActions.af_number_format_action for details on the arguments.
-        def set_formatting_action(type, **arguments)
+        def set_format_action(type, **arguments)
           action_string = case type
                           when :number then JavaScriptActions.af_number_format_action(**arguments)
                           else

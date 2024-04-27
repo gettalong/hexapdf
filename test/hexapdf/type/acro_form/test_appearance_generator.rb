@@ -562,7 +562,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         end
       end
 
-      it "applies JavaScript formatting actions" do
+      it "applies JavaScript formatt actions" do
         @field[:V] = '1234567.898765'
         @field[:AA] = {F: {S: :JavaScript, JS: 'AFNumber_Format(0, 2, 0, 0, "E", false);'}}
         @generator.create_appearances

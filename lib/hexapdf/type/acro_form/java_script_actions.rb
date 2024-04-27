@@ -50,11 +50,11 @@ module HexaPDF
       # These JavaScript functions are not specified in the PDF specification but can be found in
       # other reference materials (e.g. from Adobe).
       #
-      # * Formatting
+      # * Formatting a field's value
       #
       #   * +AFNumber_Format+: #apply_af_number_format
       #
-      # * Calculating
+      # * Calculating a field's value
       #
       #   * +AFSimple_Calculate+:: #run_af_simple_calculate
       #   * Simplified Field Notation expressions:: #run_simplified_field_notation
@@ -143,16 +143,16 @@ module HexaPDF
 
         module_function
 
-        # Handles JavaScript formatting actions for single-line text fields.
+        # Handles JavaScript field format actions for single-line text fields.
         #
         # The argument +value+ is the value that should be formatted and +format_action+ is the PDF
-        # formatting action object that should be applied. The latter may be +nil+ if no associated
-        # formatted action is available.
+        # format action object that should be applied. The latter may be +nil+ if no associated
+        # format action is available.
         #
         # Returns [value, nil_or_text_color] where value is the new, potentially changed field value
         # and the second argument is either +nil+ (no change in color) or the color that should be
         # used for the text value.
-        def apply_formatting(value, format_action)
+        def apply_format(value, format_action)
           return [value, nil] unless (action_string = action_string(format_action))
           if action_string.start_with?('AFNumber_Format(')
             apply_af_number_format(value, action_string)
