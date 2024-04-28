@@ -420,6 +420,27 @@ module HexaPDF
           not_flattened
         end
 
+        # Recalculates all form fields that have a calculate action applied (which are all fields
+        # listed in the /CO entry).
+        #
+        # If HexaPDF doesn't support a calculation method or an error occurs during calculation, the
+        # field value is not updated.
+        #
+        # Note that calculations are *not* done automatically when a form field's value changes
+        # since it would lead to possibly many calls to this actions. So first fill in all field
+        # values and then call this method.
+        #
+        # See: JavaScriptActions
+        def recalculate_fields
+          self[:CO]&.each do |field|
+            field = document.wrap(field, type: :XXAcroFormField,
+                                  subtype: Field.inherited_value(field, :FT))
+            next unless field && (calculation_action = field[:AA]&.[](:C))
+            result = JavaScriptActions.calculate(self, calculation_action)
+            field.form_field.field_value = result if result
+          end
+        end
+
         private
 
         # Creates a new field with the full name +name+ and the field type +type+.

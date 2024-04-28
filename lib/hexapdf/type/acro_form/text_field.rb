@@ -270,6 +270,9 @@ module HexaPDF
         # the value of this field. Usually, the field is also flagged as read only to avoid a user
         # changing the value manually.
         #
+        # Note that HexaPDF *doesn't* automatically recalculate field values, use
+        # Form#recalculate_fields to manually kick off recalculation.
+        #
         # The argument +type+ can be one of the following:
         #
         # :sum::

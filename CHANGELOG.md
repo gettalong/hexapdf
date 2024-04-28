@@ -18,6 +18,7 @@
   JavaScript action that formats the field's value
 * [HexaPDF::Type::AcroForm::TextField#set_calculate_action] for setting a
   JavaScript action that calculates the field's value
+* [HexaPDF::Type::AcroForm#recalculate_fields] for recalculating fields
 
 ### Changed
 

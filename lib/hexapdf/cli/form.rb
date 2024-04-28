@@ -120,6 +120,7 @@ module HexaPDF
               else
                 fill_form(doc)
               end
+              doc.acro_form.recalculate_fields
             end
             if @flatten && !doc.acro_form.flatten.empty?
               $stderr.puts "Warning: Not all form fields could be flattened"

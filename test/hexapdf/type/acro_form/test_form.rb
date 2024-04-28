@@ -342,6 +342,39 @@ describe HexaPDF::Type::AcroForm::Form do
     end
   end
 
+  describe "recalculate_fields" do
+    before do
+      @text1 = @acro_form.create_text_field('text1')
+      @text2 = @acro_form.create_text_field('text2')
+      @text3 = @acro_form.create_text_field('text3')
+    end
+
+    it "recalculates all fields listed in /CO" do
+      @text1.field_value = "10"
+      @text2.field_value = "30"
+      @text3.set_calculate_action(:sum, fields: ['text1', @text2])
+      @acro_form.recalculate_fields
+      assert_equal("40", @text3.field_value)
+    end
+
+    it "doesn't change the field's value if there is an error" do
+      @text3.set_calculate_action(:sfn, fields: 'text1 - text2')
+      @text3[:AA][:C][:JS] = @text3[:AA][:C][:JS].sub('text1', 'text4')
+      @acro_form.recalculate_fields
+      assert_nil(@text3.field_value)
+    end
+
+    it "works if fields aren't already loaded and correctly wrapped" do
+      @text1.field_value = "10"
+      @text3.set_calculate_action(:sfn, fields: 'text1')
+      @text3[:AA] = {C: HexaPDF::Reference.new(@doc.add(@text3[:AA][:C]).oid)}
+      @acro_form[:CO] = [HexaPDF::Reference.new(@text3.oid, @text3.gen)]
+      @doc.revisions.current.update(@doc.wrap(@text3, type: HexaPDF::Dictionary))
+      @acro_form.recalculate_fields
+      assert_equal("10", @text3.field_value)
+    end
+  end
+
   describe "perform_validation" do
     it "checks whether the /DR field is available when /DA is set" do
       @acro_form[:DA] = 'test'
