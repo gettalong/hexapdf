@@ -38,6 +38,15 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
         result_color ? assert_equal(result_color, text_color) : assert_nil(text_color)
       end
 
+      it "works with both commas and points as decimal separator" do
+        @value = '1234567.898'
+        assert_format('2, 2, 0, 0, "", false', "1.234.567,90", "black")
+        @value = '1234567,898'
+        assert_format('2, 2, 0, 0, "", false', "1.234.567,90", "black")
+        @value = '123,4567,898'
+        assert_format('2, 2, 0, 0, "", false', "123,46", "black")
+      end
+
       it "respects the set number of decimals" do
         assert_format('0, 2, 0, 0, "E", false', "1.234.568E", "black")
         assert_format('2, 2, 0, 0, "E", false', "1.234.567,90E", "black")

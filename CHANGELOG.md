@@ -33,6 +33,8 @@
   boxes don't have appearance subdictionaries
 * [HexaPDF::Type::AcroForm::TextField#field_value=] to call the config option
   'acro_form.on_invalid_value' when passing a non-String argument (except `nil`)
+* [HexaPDF::Type::AcroForm::JavaScriptActions#apply_af_number_format] to
+  correctly convert strings using commas or points into numbers
 
 
 ## 0.40.0 - 2024-03-23

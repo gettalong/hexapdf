@@ -290,7 +290,7 @@ module HexaPDF
         #   (+false+).
         def apply_af_number_format(value, action_string)
           return [value, nil] unless (match = AF_NUMBER_FORMAT_RE.match(action_string))
-          value = value.to_f
+          value = af_make_number(value)
           format = "%.#{match[:ndec]}f"
           text_color = 'black'
 
@@ -433,7 +433,7 @@ module HexaPDF
           function = match[:function]
           values = match[:fields].scan(/".*?"/).map do |name|
             return nil unless (field = form.field_by_name(name[1..-2]))
-            field.field_value.to_f
+            af_make_number(field.field_value)
           end
           AF_SIMPLE_CALCULATE.fetch(function)&.call(values)
         end
@@ -466,6 +466,12 @@ module HexaPDF
           return nil unless (match = /BVCALC(.*?)EVCALC/m.match(action_string))
           SimplifiedFieldNotationParser.new(form, match[1]).parse
         end
+
+        # Returns the numeric value of the string, interpreting comma as point.
+        def af_make_number(value)
+          value.to_s.tr(',', '.').to_f
+        end
+        private :af_make_number
 
         # Returns the JavaScript action string for the given action.
         def action_string(action)
