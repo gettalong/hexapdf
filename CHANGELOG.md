@@ -35,6 +35,8 @@
   'acro_form.on_invalid_value' when passing a non-String argument (except `nil`)
 * [HexaPDF::Type::AcroForm::JavaScriptActions#apply_af_number_format] to
   correctly convert strings using commas or points into numbers
+* [HexaPDF::Type::AcroForm::AppearanceGenerator] to use the field instead of the
+  widget object as the source for JavaScript format actions
 
 
 ## 0.40.0 - 2024-03-23
