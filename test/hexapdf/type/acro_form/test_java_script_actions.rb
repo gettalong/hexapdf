@@ -133,7 +133,7 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
       end
 
       it "works with floats" do
-        @field1.field_value = "10.54"
+        @field1.field_value = "10,54"
         assert_calculation('SUM', [@field1, @field2], "30.54")
       end
 
@@ -187,6 +187,11 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
 
       it "works in a more complex case" do
         assert_calculation('(text.1 + text.2)/(text.3) * text.1', "10")
+      end
+
+      it "works with floats" do
+        @field1.field_value = "10,54"
+        assert_calculation('text.1 + text.2', "30.54")
       end
 
       it "fails if a referenced field is not a terminal field" do

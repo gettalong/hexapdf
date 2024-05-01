@@ -104,7 +104,7 @@ module HexaPDF
             '-' => lambda {|l, r| l - r },
             '*' => lambda {|l, r| l * r },
             '/' => lambda {|l, r| l / r },
-            field: lambda {|field| field.field_value.to_f },
+            field: lambda {|field| JavaScriptActions.af_make_number(field.field_value) },
             parens: lambda {|expr| expr },
           }
 
@@ -471,7 +471,6 @@ module HexaPDF
         def af_make_number(value)
           value.to_s.tr(',', '.').to_f
         end
-        private :af_make_number
 
         # Returns the JavaScript action string for the given action.
         def action_string(action)
