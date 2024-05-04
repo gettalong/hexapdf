@@ -145,13 +145,14 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
 
     describe "simplified field notation calculations" do
       it "returns a correct JavaScript string" do
-        sfn = '(text.1 + text.2) * text.3 - text.1 / text.1'
+        sfn = '(text.1 + text.2) * text.3 - text.1 / text.1 + 0 + 5.43 + 7,24'
         assert_equal("/** BVCALC #{sfn} EVCALC **/ " \
                      'event.value = (AFMakeNumber(getField("text.1").value) + ' \
                      'AFMakeNumber(getField("text.2").value)) * ' \
                      'AFMakeNumber(getField("text.3").value) - ' \
                      'AFMakeNumber(getField("text.1").value) / ' \
-                     'AFMakeNumber(getField("text.1").value)',
+                     'AFMakeNumber(getField("text.1").value) ' \
+                     '+ 0.0 + 5.43 + 7.24',
                      @klass.simplified_field_notation_action(@form, sfn))
       end
 
@@ -183,6 +184,10 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
 
       it "works with parentheses" do
         assert_calculation('(text.2 + (text.1*text.3))', "320")
+      end
+
+      it "works with numbers" do
+        assert_calculation('text.1 + 10.54 - 1,54 + 3', "22")
       end
 
       it "works in a more complex case" do

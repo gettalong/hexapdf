@@ -86,7 +86,7 @@ module HexaPDF
           # notation string +sfn_string+.
           def initialize(form, sfn_string)
             @form = form
-            @tokens = sfn_string.scan(/\p{Alpha}[^()*\/+-]*|[()*\/+-]/)
+            @tokens = sfn_string.scan(/\p{Alpha}[^()*\/+-]*|\d+(?:[.,]\d*)?|[()*\/+-]/)
           end
 
           # Parses the string holding the simplified field notation.
@@ -112,6 +112,7 @@ module HexaPDF
             '*' => lambda {|l, r| l * r },
             '/' => lambda {|l, r| l / r },
             field: lambda {|field| JavaScriptActions.af_make_number(field.field_value) },
+            number: lambda {|token| JavaScriptActions.af_make_number(token) },
             parens: lambda {|expr| expr },
           }
 
@@ -122,6 +123,7 @@ module HexaPDF
             '*' => lambda {|l, r| "#{l} * #{r}" },
             '/' => lambda {|l, r| "#{l} / #{r}" },
             field: lambda {|field| "AFMakeNumber(getField(#{field.full_field_name.to_json}).value)" },
+            number: lambda {|token| JavaScriptActions.af_make_number(token).to_s },
             parens: lambda {|expr| "(#{expr})" },
           }
 
@@ -149,7 +151,7 @@ module HexaPDF
 
           # Parses the factor at the current position.
           #
-          # factor = '(' expr ')' | field_name
+          # factor = '(' expr ')' | field_name | number
           def factor(operations)
             token = @tokens.shift
             if token == '('
@@ -158,6 +160,8 @@ module HexaPDF
               operations[:parens].call(value)
             elsif (field = @form.field_by_name(token.strip.gsub('\\', ''))) && field.terminal_field?
               operations[:field].call(field)
+            elsif token.match?(/\A\d+(?:[.,]\d*)?\z/)
+              operations[:number].call(token)
             else
               raise ParseError, "Invalid token encountered: #{token}"
             end
@@ -465,7 +469,7 @@ module HexaPDF
         #
         # This notation is more powerful than AFSimple_Calculate as it allows arbitrary expressions
         # consisting of additions, substractions, multiplications and divisions, possibly grouped
-        # using parentheses, and field names (which stand in for their value).
+        # using parentheses, and field names (which stand in for their value) as well as numbers.
         #
         # Note: The implementation has been created by looking at sample documents using SFN. As
         # such this may not work for all documents that use SFN.
