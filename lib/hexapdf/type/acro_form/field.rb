@@ -155,6 +155,12 @@ module HexaPDF
           field.value[name].nil? ? nil : field[name]
         end
 
+        # Wraps the given +field+ object inside the correct field class and returns the wrapped
+        # object.
+        def self.wrap(document, field)
+          document.wrap(field, type: :XXAcroFormField, subtype: inherited_value(field, :FT))
+        end
+
         # Form fields must always be indirect objects.
         def must_be_indirect?
           true

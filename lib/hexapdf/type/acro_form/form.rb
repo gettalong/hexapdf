@@ -99,11 +99,11 @@ module HexaPDF
           document.pages.each do |page|
             page.each_annotation do |annot|
               if !annot.key?(:Parent) && annot.key?(:FT)
-                result << document.wrap(annot, type: :XXAcroFormField, subtype: annot[:FT])
+                result << Field.wrap(document, annot)
               elsif annot.key?(:Parent)
                 field = annot[:Parent]
                 field = field[:Parent] while field[:Parent]
-                result << document.wrap(field, type: :XXAcroFormField)
+                result << Field.wrap(document, field)
               end
             end
           end
@@ -129,8 +129,7 @@ module HexaPDF
             array.each_with_index do |field, index|
               next if field.nil?
               unless field.respond_to?(:type) && field.type == :XXAcroFormField
-                array[index] = field = document.wrap(field, type: :XXAcroFormField,
-                                                     subtype: Field.inherited_value(field, :FT))
+                array[index] = field = Field.wrap(document, field)
               end
               if field.terminal_field?
                 yield(field)
@@ -153,8 +152,7 @@ module HexaPDF
           name.split('.').each do |part|
             field = nil
             fields&.each do |f|
-              f = document.wrap(f, type: :XXAcroFormField,
-                                subtype: Field.inherited_value(f, :FT))
+              f = Field.wrap(document, f)
               next unless f[:T] == part
               field = f
               fields = field[:Kids] unless field.terminal_field?
@@ -433,8 +431,7 @@ module HexaPDF
         # See: JavaScriptActions
         def recalculate_fields
           self[:CO]&.each do |field|
-            field = document.wrap(field, type: :XXAcroFormField,
-                                  subtype: Field.inherited_value(field, :FT))
+            field = Field.wrap(document, field)
             next unless field && (calculation_action = field[:AA]&.[](:C))
             result = JavaScriptActions.calculate(self, calculation_action)
             field.form_field.field_value = result if result
@@ -489,8 +486,7 @@ module HexaPDF
               end
               next false unless field.key?(:T) # Skip widgets
 
-              field = document.wrap(field, type: :XXAcroFormField,
-                                    subtype: Field.inherited_value(field, :FT))
+              field = Field.wrap(document, field)
               reject = false
               if field[:Parent] != parent
                 yield("Parent entry of field (#{field.oid},#{field.gen}) invalid", true)

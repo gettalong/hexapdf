@@ -34,6 +34,13 @@ describe HexaPDF::Type::AcroForm::Field do
     assert_equal(:Ch, @field[:FT])
   end
 
+  it "wraps fields inside the correct subclass" do
+    field = HexaPDF::Type::AcroForm::Field.wrap(@doc, {FT: :Tx})
+    assert_kind_of(HexaPDF::Type::AcroForm::TextField, field)
+    field = HexaPDF::Type::AcroForm::Field.wrap(@doc, {})
+    assert_kind_of(HexaPDF::Type::AcroForm::Field, field)
+  end
+
   it "has convenience methods for accessing the field flags" do
     assert_equal([], @field.flags)
     refute(@field.flagged?(:required))
