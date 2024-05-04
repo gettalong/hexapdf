@@ -50,14 +50,21 @@ module HexaPDF
       # These JavaScript functions are not specified in the PDF specification but can be found in
       # other reference materials (e.g. from Adobe).
       #
-      # * Formatting a field's value
+      # Formatting a field's value::
       #
-      #   * +AFNumber_Format+: #apply_af_number_format
+      #   The main entry point is #apply_format which applies the format to a value. Supported
+      #   JavaScript actions are:
       #
-      # * Calculating a field's value
+      #   * +AFNumber_Format+: See #af_number_format_action and #apply_af_number_format
       #
-      #   * +AFSimple_Calculate+:: #run_af_simple_calculate
-      #   * Simplified Field Notation expressions:: #run_simplified_field_notation
+      # Calculating a field's value::
+      #
+      #   The main entry point is #calculate which calculates a field's value. Supported JavaScript
+      #   actions are:
+      #
+      #   * +AFSimple_Calculate+: See #af_simple_calculate_action and #run_af_simple_calculate
+      #   * Simplified Field Notation expressions: See #simplified_field_notation_action and
+      #     #run_simplified_field_notation
       #
       # See: PDF2.0 s12.6.4.17
       #
@@ -355,7 +362,7 @@ module HexaPDF
           result && (result == result.truncate ? result.to_i.to_s : result.to_s)
         end
 
-        AF_SIMPLE_CALCULATE_MAPPING = { #:nodoc
+        AF_SIMPLE_CALCULATE_MAPPING = { #:nodoc:
           sum: 'SUM',
           average: 'AVG',
           product: 'PRD',
