@@ -132,8 +132,12 @@ module HexaPDF
             each_field(doc) do |_, _, field, _|
               next if unsupported_fields.include?(field.concrete_field_type)
               name = field.full_field_name.gsub(':', "\\:")
-              Array(field.field_value).each do |val|
-                puts "#{name}: #{val.to_s.gsub(/(\r|\r\n|\n)/, '\1  ')}"
+              if field.field_value
+                Array(field.field_value).each do |val|
+                  puts "#{name}: #{val.to_s.gsub(/(\r|\r\n|\n)/, '\1  ')}"
+                end
+              else
+                puts "#{name}: "
               end
             end
           else
