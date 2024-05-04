@@ -71,6 +71,12 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
         assert_format('2, 3, 0, 0, "E ", true', "E 1234567,90", "black")
       end
 
+      it "allows omitting the trailing semicolon" do
+        @action[:JS] = "AFNumber_Format(2,2,0,0,\"\",false )"
+        value, = @klass.apply_format('1234.567', @action)
+        assert_equal('1.234,57', value)
+      end
+
       it "does nothing to the value if the JavasSript method could not be determined " do
         assert_format('2, 3, 0, 0, " E", false, a', "1234567.898765", nil)
       end
@@ -140,6 +146,11 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
       it "returns nil if a field cannot be resolved" do
         @action[:JS] = 'AFSimple_Calculate("SUM", ["unknown"]);'
         assert_nil(@klass.calculate(@form, @action))
+      end
+
+      it "allows omitting the trailing semicolon" do
+        @action[:JS] = 'AFSimple_Calculate("SUM", ["text.1"] )'
+        assert_equal("10", @klass.calculate(@form, @action))
       end
     end
 

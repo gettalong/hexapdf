@@ -38,6 +38,7 @@
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] to use the field instead of the
   widget object as the source for JavaScript format actions
 * CLI command `hexapdf form --generate-template` to output fields without values
+* `AFNumber_Format` JavaScript parsing to work without trailing semicolon
 
 
 ## 0.40.0 - 2024-03-23

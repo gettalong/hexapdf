@@ -251,7 +251,7 @@ module HexaPDF
             \s*0\s*,
             \s*(?<currency_string>".*?")\s*,
             \s*(?<prepend>false|true)\s*
-          \);\z
+          \);?\z
         /x
 
         # Implements the JavaScript AFNumber_Format function and returns the formatted field value.
@@ -401,7 +401,7 @@ module HexaPDF
           \AAFSimple_Calculate\(
             \s*"(?<function>AVG|SUM|PRD|MIN|MAX)"\s*,
             \s*(?<fields>.*)\s*
-          \);\z
+          \);?\z
         /x
 
         # Mapping of AFSimple_Calculate function names to implementations.
