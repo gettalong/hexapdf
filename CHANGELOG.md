@@ -24,6 +24,8 @@
 
 * CLI command `hexapdf form` to show more information in verbose mode
 * CLI command 'hexapdf form' to show the field flags "read only" and "required"
+* [HexaPDF::Type::AcroForm::AppearanceGenerator] to remove the hidden flag from
+  widgets
 
 ### Fixed
 

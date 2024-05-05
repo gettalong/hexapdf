@@ -143,6 +143,7 @@ module HexaPDF
 
           @widget[:AS] = (@field[:V] == on_name ? on_name : :Off)
           @widget.flag(:print)
+          @widget.unflag(:hidden)
 
           border_style = @widget.border_style
           marker_style = @widget.marker_style
@@ -212,6 +213,7 @@ module HexaPDF
 
           @widget[:AS] = :N
           @widget.flag(:print)
+          @widget.unflag(:hidden)
           rect = @widget[:Rect]
           rect.width = @document.config['acro_form.text_field.default_width'] if rect.width == 0
           if rect.height == 0

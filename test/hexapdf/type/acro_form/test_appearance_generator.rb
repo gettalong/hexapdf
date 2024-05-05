@@ -235,6 +235,12 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         assert(@widget.flagged?(:print))
       end
 
+      it "removes the hidden flag on the widgets" do
+        @widget.flag(:hidden)
+        @generator.create_appearances
+        refute(@widget.flagged?(:hidden))
+      end
+
       it "adjusts the /Rect if width is zero" do
         @generator.create_appearances
         assert_equal(12, @widget[:Rect].width)
@@ -382,6 +388,12 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
     it "set the print flag on the widgets" do
       @generator.create_appearances
       assert(@widget.flagged?(:print))
+    end
+
+    it "removes the hidden flag on the widgets" do
+      @widget.flag(:hidden)
+      @generator.create_appearances
+      refute(@widget.flagged?(:hidden))
     end
 
     describe "it adjusts the :Rect when necessary" do
