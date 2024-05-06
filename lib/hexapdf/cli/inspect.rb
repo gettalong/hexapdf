@@ -270,7 +270,7 @@ module HexaPDF
             if (rev_index = data.shift)
               rev_index = rev_index.to_i - 1
               if rev_index < 0 || rev_index >= @doc.revisions.count
-                $stderr.puts("Error: Invalid revision numer specified")
+                $stderr.puts("Error: Invalid revision number specified")
                 next
               end
               length = 0
