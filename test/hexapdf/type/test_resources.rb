@@ -146,6 +146,11 @@ describe HexaPDF::Type::Resources do
         @res.font(:test)
       end
     end
+
+    it "wraps the resulting object in the appropriate font class" do
+      @res[:Font] = {test: {Type: :Font, Subtype: :Type1}}
+      assert_kind_of(HexaPDF::Type::FontType1, @res.font(:test))
+    end
   end
 
   describe "add_font" do

@@ -143,7 +143,8 @@ module HexaPDF
       #
       # If the dictionary is not found, an error is raised.
       def font(name)
-        object_getter(:Font, name)
+        font = object_getter(:Font, name)
+        font.kind_of?(Hash) ? document.wrap(font) : font
       end
 
       # Adds the font dictionary to the resources and returns the name under which it is stored.

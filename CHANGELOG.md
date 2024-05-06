@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Type::Resources#font] to always return a correctly wrapped font
+  object
+
+
 ## 0.41.0 - 2024-05-05
 
 ### Added
