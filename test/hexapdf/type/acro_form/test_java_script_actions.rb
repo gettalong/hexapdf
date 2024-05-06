@@ -81,6 +81,57 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
         assert_format('2, 3, 0, 0, " E", false, a', "1234567.898765", nil)
       end
     end
+
+    describe "AFPercent_Format" do
+      before do
+        @value = '123.456789'
+        @action[:JS] = ''
+      end
+
+      it "returns a correct JavaScript string" do
+        assert_equal('AFPercent_Format(2, 0);',
+                     @klass.af_percent_format_action)
+        assert_equal('AFPercent_Format(1, 1);',
+                     @klass.af_percent_format_action(decimals: 1, separator_style: :point_no_thousands))
+      end
+
+      def assert_format(arg_string, result_value)
+        @action[:JS] = "AFPercent_Format(#{arg_string});"
+        value, text_color = @klass.apply_format(@value, @action)
+        assert_equal(result_value, value)
+        assert_nil(text_color)
+      end
+
+      it "works with both commas and points as decimal separator" do
+        @value = '123.456789'
+        assert_format('2, 2', "12.345,68%")
+        @value = '123,456789'
+        assert_format('2, 2', "12.345,68%")
+        @value = '123,4567,89'
+        assert_format('2, 2', "12.345,67%")
+      end
+
+      it "respects the set number of decimals" do
+        assert_format('0, 2', "12.346%")
+        assert_format('2, 2', "12.345,68%")
+      end
+
+      it "respects the digit separator style" do
+        ["12,345.68%", "12345.68%", "12.345,68%", "12345,68%"].each_with_index do |result, style|
+          assert_format("2, #{style}", result)
+        end
+      end
+
+      it "allows omitting the trailing semicolon" do
+        @action[:JS] = "AFPercent_Format(2,2 )"
+        value, = @klass.apply_format('1.234', @action)
+        assert_equal('123,40%', value)
+      end
+
+      it "does nothing to the value if the JavasSript method could not be determined " do
+        assert_format('2, "df"', "123.456789")
+      end
+    end
   end
 
   describe "calculate" do

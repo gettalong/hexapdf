@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* Support for the `AFPercent_Format` JavaScript method
+
 ### Fixed
 
 * [HexaPDF::Type::Resources#font] to always return a correctly wrapped font

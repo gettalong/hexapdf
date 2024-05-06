@@ -56,6 +56,7 @@ module HexaPDF
       #   JavaScript actions are:
       #
       #   * +AFNumber_Format+: See #af_number_format_action and #apply_af_number_format
+      #   * +AFPercent_Format+: See #af_percent_format_action and #apply_af_percent_format
       #
       # Calculating a field's value::
       #
@@ -184,6 +185,8 @@ module HexaPDF
           return [value, nil] unless (action_string = action_string(format_action))
           if action_string.start_with?('AFNumber_Format(')
             apply_af_number_format(value, action_string)
+          elsif action_string.start_with?('AFPercent_Format(')
+            apply_af_percent_format(value, action_string)
           else
             [value, nil]
           end
@@ -323,21 +326,64 @@ module HexaPDF
             end
           end
 
-          result = sprintf(format, value)
+          [af_format_number(value, format, match[:sep_style]), text_color]
+        end
 
-          before_decimal_point, after_decimal_point = result.split('.')
-          if match[:sep_style] == '0' || match[:sep_style] == '2'
-            separator = (match[:sep_style] == '0' ? ',' : '.')
-            before_decimal_point.gsub!(/\B(?=(\d\d\d)+(?:[^\d]|\z))/, separator)
-          end
-          result = if after_decimal_point
-                     decimal_point = (match[:sep_style] =~ /[01]/ ? '.' : ',')
-                     "#{before_decimal_point}#{decimal_point}#{after_decimal_point}"
-                   else
-                     before_decimal_point
-                   end
+        # Returns the appropriate JavaScript action string for the AFPercent_Format function.
+        #
+        # +decimals+::
+        #     The number of decimal digits to use. Default 2.
+        #
+        # +separator_style+::
+        #     Specifies the character for the decimal and thousands separator, one of:
+        #
+        #     :point:: (Default) Use point as decimal separator and comma as thousands separator.
+        #     :point_no_thousands:: Use point as decimal separator and no thousands separator.
+        #     :comma:: Use comma as decimal separator and point as thousands separator.
+        #     :comma_no_thousands:: Use comma as decimal separator and no thousands separator.
+        #
+        # See: #apply_af_percent_format
+        def af_percent_format_action(decimals: 2, separator_style: :point)
+          "AFPercent_Format(#{decimals}, #{AF_NUMBER_FORMAT_MAPPINGS[:separator][separator_style]});"
+        end
 
-          [result, text_color]
+        # Regular expression for matching the AFPercent_Format method.
+        #
+        # See: #apply_af_percent_format
+        AF_PERCENT_FORMAT_RE = /
+          \AAFPercent_Format\(
+            \s*(?<ndec>\d+)\s*,
+            \s*(?<sep_style>[0-3])\s*
+          \);?\z
+        /x
+
+        # Implements the JavaScript AFPercent_Format function and returns the formatted field value.
+        #
+        # The argument +value+ has to be the field's value (a String) and +action_string+ has to be
+        # the JavaScript action string.
+        #
+        # The AFPercent_Format function assumes that the text field's value contains a number (as a
+        # string) and formats it according to the instructions.
+        #
+        # It has the form <tt>AFPercent_Format(no_of_decimals, separator_style)</tt> where the
+        # arguments have the following meaning:
+        #
+        # +no_of_decimals+::
+        #   The number of decimal places after the decimal point, e.g. for 3 it would result in
+        #   123.456.
+        #
+        # +separator_style+::
+        #   Defines which decimal separator and whether a thousands separator should be used.
+        #
+        #   Possible values are:
+        #
+        #   +0+:: Comma for thousands separator, point for decimal separator: 12,345.67
+        #   +1+:: No thousands separator, point for decimal separator: 12345.67
+        #   +2+:: Point for thousands separator, comma for decimal separator: 12.345,67
+        #   +3+:: No thousands separator, comma for decimal separator: 12345,67
+        def apply_af_percent_format(value, action_string)
+          return value unless (match = AF_PERCENT_FORMAT_RE.match(action_string))
+          af_format_number(af_make_number(value) * 100, "%.#{match[:ndec]}f%%", match[:sep_style])
         end
 
         # Handles JavaScript calculate actions for single-line text fields.
@@ -481,6 +527,24 @@ module HexaPDF
         # Returns the numeric value of the string, interpreting comma as point.
         def af_make_number(value)
           value.to_s.tr(',', '.').to_f
+        end
+
+        # Formats the numeric value according to the format string and separator style.
+        def af_format_number(value, format, sep_style)
+          result = sprintf(format, value)
+
+          before_decimal_point, after_decimal_point = result.split('.')
+          if sep_style == '0' || sep_style == '2'
+            separator = (sep_style == '0' ? ',' : '.')
+            before_decimal_point.gsub!(/\B(?=(\d\d\d)+(?:[^\d]|\z))/, separator)
+          end
+
+          if after_decimal_point
+            decimal_point = (sep_style <= "1" ? '.' : ',')
+            "#{before_decimal_point}#{decimal_point}#{after_decimal_point}"
+          else
+            before_decimal_point
+          end
         end
 
         # Returns the JavaScript action string for the given action.

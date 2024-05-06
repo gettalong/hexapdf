@@ -210,6 +210,14 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert_equal('AFNumber_Format(0, 0, 0, 0, "", true);', @field[:AA][:F][:JS])
     end
 
+    it "applies the percent format" do
+      @doc.acro_form(create: true)
+      @field.set_format_action(:percent, decimals: 0)
+      assert(@field.key?(:AA))
+      assert(@field[:AA].key?(:F))
+      assert_equal('AFPercent_Format(0, 0);', @field[:AA][:F][:JS])
+    end
+
     it "fails if an unknown format action is specified" do
       assert_raises(ArgumentError) { @field.set_format_action(:unknown) }
     end
