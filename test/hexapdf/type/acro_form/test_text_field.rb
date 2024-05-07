@@ -218,6 +218,14 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert_equal('AFPercent_Format(0, 0);', @field[:AA][:F][:JS])
     end
 
+    it "applies the time format" do
+      @doc.acro_form(create: true)
+      @field.set_format_action(:time, time_format: :hh_mm_ss)
+      assert(@field.key?(:AA))
+      assert(@field[:AA].key?(:F))
+      assert_equal('AFTime_Format(2);', @field[:AA][:F][:JS])
+    end
+
     it "fails if an unknown format action is specified" do
       assert_raises(ArgumentError) { @field.set_format_action(:unknown) }
     end

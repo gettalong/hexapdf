@@ -132,6 +132,43 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
         assert_format('2, "df"', "123.456789")
       end
     end
+
+    describe "AFTime_Format" do
+      before do
+        @value = '15:25:37'
+        @action[:JS] = ''
+      end
+
+      it "returns a correct JavaScript string" do
+        assert_equal('AFTime_Format(0);',
+                     @klass.af_time_format_action)
+        assert_equal('AFTime_Format(1);',
+                     @klass.af_time_format_action(time_format: :hh12_mm))
+      end
+
+      def assert_format(arg_string, result_value)
+        @action[:JS] = "AFTime_Format(#{arg_string});"
+        value, text_color = @klass.apply_format(@value, @action)
+        assert_equal(result_value, value)
+        assert_nil(text_color)
+      end
+
+      it "respects the time format" do
+        ["15:25", "3:25 PM", "15:25:37", "3:25:37 PM"].each_with_index do |result, style|
+          assert_format(style, result)
+        end
+      end
+
+      it "allows omitting the trailing semicolon" do
+        @action[:JS] = "AFTime_Format(2 )"
+        value, = @klass.apply_format('15:34', @action)
+        assert_equal('15:34:00', value)
+      end
+
+      it "does nothing to the value if the JavaScript method could not be determined " do
+        assert_format('1, "df"', "15:25:37")
+      end
+    end
   end
 
   describe "calculate" do

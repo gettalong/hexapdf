@@ -35,6 +35,7 @@
 #++
 
 require 'json'
+require 'time'
 require 'hexapdf/error'
 require 'hexapdf/layout/style'
 require 'hexapdf/layout/text_fragment'
@@ -187,6 +188,8 @@ module HexaPDF
             apply_af_number_format(value, action_string)
           elsif action_string.start_with?('AFPercent_Format(')
             apply_af_percent_format(value, action_string)
+          elsif action_string.start_with?('AFTime_Format(')
+            apply_af_time_format(value, action_string)
           else
             [value, nil]
           end
@@ -384,6 +387,77 @@ module HexaPDF
         def apply_af_percent_format(value, action_string)
           return value unless (match = AF_PERCENT_FORMAT_RE.match(action_string))
           af_format_number(af_make_number(value) * 100, "%.#{match[:ndec]}f%%", match[:sep_style])
+        end
+
+        AF_TIME_FORMAT_MAPPINGS = { #:nodoc:
+          format_integers: {
+            hh_mm: 0,
+            0 => 0,
+            hh12_mm: 1,
+            1 => 1,
+            hh_mm_ss: 2,
+            2 => 2,
+            hh12_mm_ss: 3,
+            3 => 3,
+          },
+          strftime_format: {
+            '0' => '%H:%M',
+            '1' => '%l:%M %p',
+            '2' => '%H:%M:%S',
+            '3' => '%l:%M:%S %p',
+          },
+        }
+
+        # Returns the appropriate JavaScript action string for the AFTime_Format function.
+        #
+        # +time_format+::
+        #     Specifies the time format, one of:
+        #
+        #     :hh_mm:: (Default) Use 24h time format %H:%M (e.g. 15:25)
+        #     :hh12_mm:: (Default) Use 12h time format %l:%M %p (e.g. 3:25 PM)
+        #     :hh_mm_ss:: Use 24h time format with seconds %H:%M:%S (e.g. 15:25:37)
+        #     :hh12_mm_ss:: Use 24h time format with seconds %l:%M:%S %p (e.g. 3:25:37 PM)
+        #
+        # See: #apply_af_time_format
+        def af_time_format_action(time_format: :hh_mm)
+          "AFTime_Format(#{AF_TIME_FORMAT_MAPPINGS[:format_integers][time_format]});"
+        end
+
+        # Regular expression for matching the AFTime_Format method.
+        #
+        # See: #apply_af_time_format
+        AF_TIME_FORMAT_RE = /
+          \AAFTime_Format\(
+            \s*(?<time_format>[0-3])\s*
+          \);?\z
+        /x
+
+        # Implements the JavaScript AFTime_Format function and returns the formatted field value.
+        #
+        # The argument +value+ has to be the field's value (a String) and +action_string+ has to be
+        # the JavaScript action string.
+        #
+        # The AFTime_Format function assumes that the text field's value contains a valid time
+        # string (for HexaPDF that is anything Time.parse can work with) and formats it according to
+        # the instructions.
+        #
+        # It has the form <tt>AFTime_Format(time_format)</tt> where the argument has the following
+        # meaning:
+        #
+        # +time_format+::
+        #   Defines the time format which should be applied.
+        #
+        #   Possible values are:
+        #
+        #   +0+:: Use 24h time format, e.g. 15:25
+        #   +1+:: Use 12h time format, e.g. 3:25 PM
+        #   +2+:: Use 24h time format with seconds, e.g. 15:25:37
+        #   +3+:: Use 12h time format with seconds, e.g. 3:25:37 PM
+        def apply_af_time_format(value, action_string)
+          return value unless (match = AF_TIME_FORMAT_RE.match(action_string))
+          value = Time.parse(value) rescue nil
+          return "" unless value
+          value.strftime(AF_TIME_FORMAT_MAPPINGS[:strftime_format][match[:time_format]]).strip
         end
 
         # Handles JavaScript calculate actions for single-line text fields.

@@ -259,10 +259,16 @@ module HexaPDF
         #     Assumes that the field value is a number and formats it as percentage (where 1=100%
         #     and 0=0%). See JavaScriptActions.af_percent_format_action for details on the
         #     arguments.
+        #
+        # :time::
+        #     Assumes that the field value is a string with a time value and formats it according to
+        #     the given argument. See JavaScriptActions.af_time_format_action for details on the
+        #     arguments.
         def set_format_action(type, **arguments)
           action_string = case type
                           when :number then JavaScriptActions.af_number_format_action(**arguments)
                           when :percent then JavaScriptActions.af_percent_format_action(**arguments)
+                          when :time then JavaScriptActions.af_time_format_action(**arguments)
                           else
                             raise ArgumentError, "Invalid value for type argument: #{type.inspect}"
                           end

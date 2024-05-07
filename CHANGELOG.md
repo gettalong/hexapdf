@@ -3,6 +3,7 @@
 ### Added
 
 * Support for the `AFPercent_Format` JavaScript method
+* Support for the `AFTime_Format` JavaScript method
 
 ### Fixed
 
