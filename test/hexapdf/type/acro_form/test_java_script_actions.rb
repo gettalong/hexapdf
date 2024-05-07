@@ -77,7 +77,7 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
         assert_equal('1.234,57', value)
       end
 
-      it "does nothing to the value if the JavasSript method could not be determined " do
+      it "does nothing to the value if the JavaScript method could not be determined " do
         assert_format('2, 3, 0, 0, " E", false, a', "1234567.898765", nil)
       end
     end
@@ -128,7 +128,7 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
         assert_equal('123,40%', value)
       end
 
-      it "does nothing to the value if the JavasSript method could not be determined " do
+      it "does nothing to the value if the JavaScript method could not be determined " do
         assert_format('2, "df"', "123.456789")
       end
     end
