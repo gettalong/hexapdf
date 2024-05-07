@@ -241,8 +241,15 @@ module HexaPDF
         # See: #apply_af_number_format
         def af_number_format_action(decimals: 2, separator_style: :point, negative_style: :minus_black,
                                     currency_string: "", prepend_currency: true)
-          "AFNumber_Format(#{decimals}, #{AF_NUMBER_FORMAT_MAPPINGS[:separator][separator_style]}, " \
-            "#{AF_NUMBER_FORMAT_MAPPINGS[:negative][negative_style]}, 0, \"#{currency_string}\", " \
+          separator_style = AF_NUMBER_FORMAT_MAPPINGS[:separator].fetch(separator_style) do
+            raise ArgumentError, "Unsupported value for separator_style argument: #{separator_style}"
+          end
+          negative_style = AF_NUMBER_FORMAT_MAPPINGS[:negative].fetch(negative_style) do
+            raise ArgumentError, "Unsupported value for negative_style argument: #{negative_style}"
+          end
+
+          "AFNumber_Format(#{decimals}, #{separator_style}, " \
+            "#{negative_style}, 0, \"#{currency_string}\", " \
             "#{prepend_currency});"
         end
 
@@ -347,7 +354,10 @@ module HexaPDF
         #
         # See: #apply_af_percent_format
         def af_percent_format_action(decimals: 2, separator_style: :point)
-          "AFPercent_Format(#{decimals}, #{AF_NUMBER_FORMAT_MAPPINGS[:separator][separator_style]});"
+          separator_style = AF_NUMBER_FORMAT_MAPPINGS[:separator].fetch(separator_style) do
+            raise ArgumentError, "Unsupported value for separator_style argument: #{separator_style}"
+          end
+          "AFPercent_Format(#{decimals}, #{separator_style});"
         end
 
         # Regular expression for matching the AFPercent_Format method.
@@ -420,7 +430,10 @@ module HexaPDF
         #
         # See: #apply_af_time_format
         def af_time_format_action(time_format: :hh_mm)
-          "AFTime_Format(#{AF_TIME_FORMAT_MAPPINGS[:format_integers][time_format]});"
+          format = AF_TIME_FORMAT_MAPPINGS[:format_integers].fetch(time_format) do
+            raise ArgumentError, "Unsupported value for time_format argument: #{time_format}"
+          end
+          "AFTime_Format(#{format});"
         end
 
         # Regular expression for matching the AFTime_Format method.

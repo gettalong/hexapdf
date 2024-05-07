@@ -31,6 +31,11 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
                                                     prepend_currency: false))
       end
 
+      it "raise an error for invalid arguments" do
+        assert_raises(ArgumentError) { @klass.af_number_format_action(separator_style: :unknown) }
+        assert_raises(ArgumentError) { @klass.af_number_format_action(negative_style: :unknown) }
+      end
+
       def assert_format(arg_string, result_value, result_color)
         @action[:JS] = "AFNumber_Format(#{arg_string});"
         value, text_color = @klass.apply_format(@value, @action)
@@ -95,6 +100,10 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
                      @klass.af_percent_format_action(decimals: 1, separator_style: :point_no_thousands))
       end
 
+      it "raise an error for invalid arguments" do
+        assert_raises(ArgumentError) { @klass.af_percent_format_action(separator_style: :unknown) }
+      end
+
       def assert_format(arg_string, result_value)
         @action[:JS] = "AFPercent_Format(#{arg_string});"
         value, text_color = @klass.apply_format(@value, @action)
@@ -144,6 +153,10 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
                      @klass.af_time_format_action)
         assert_equal('AFTime_Format(1);',
                      @klass.af_time_format_action(time_format: :hh12_mm))
+      end
+
+      it "raise an error for invalid arguments" do
+        assert_raises(ArgumentError) { @klass.af_time_format_action(time_format: :unknown) }
       end
 
       def assert_format(arg_string, result_value)
