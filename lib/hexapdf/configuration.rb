@@ -481,7 +481,7 @@ module HexaPDF
                       'acro_form.fallback_font' => 'Helvetica',
                       'acro_form.on_invalid_value' => proc do |field, value|
                         raise HexaPDF::Error, "Invalid value #{value.inspect} for " \
-                          "#{field.concrete_field_type} field #{field.full_field_name}"
+                          "#{field.concrete_field_type} field named '#{field.full_field_name}'"
                       end,
                       'acro_form.text_field.default_width' => 100,
                       'debug' => false,
