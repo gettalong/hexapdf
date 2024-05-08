@@ -241,6 +241,53 @@ describe HexaPDF::Type::AcroForm::Form do
     end
   end
 
+  describe "fill" do
+    it "works for text field types" do
+      field = @acro_form.create_text_field('test')
+      @acro_form.fill("test" => "value")
+      assert_equal("value", field.field_value)
+    end
+
+    it "works for radio buttons" do
+      field = @acro_form.create_radio_button("test")
+      field.create_widget(@doc.pages.add, value: :name)
+      @acro_form.fill("test" => "name")
+      assert_equal(:name, field.field_value)
+    end
+
+    it "works for check boxes" do
+      field = @acro_form.create_check_box('test')
+      field.create_widget(@doc.pages.add)
+
+      ["t", "true", "y", "yes"].each do |value|
+        @acro_form.fill("test" => value)
+        assert_equal(:Yes, field.field_value)
+        field.field_value = :Off
+      end
+
+      ["f", "false", "n", "no"].each do |value|
+        @acro_form.fill("test" => value)
+        assert_nil(field.field_value)
+        field.field_value = :Yes
+      end
+
+      field.create_widget(@doc.pages.add, value: :Other)
+      @acro_form.fill("test" => "Other")
+      assert_equal(:Other, field.field_value)
+    end
+
+    it "raises an error if a field is not found" do
+      error = assert_raises(HexaPDF::Error) { @acro_form.fill("unknown" => "test") }
+      assert_match(/named 'unknown' not found/, error.message)
+    end
+
+    it "raises an error if a field type is not supported for filling in" do
+      @acro_form.create_check_box('test').initialize_as_push_button
+      error = assert_raises(HexaPDF::Error) { @acro_form.fill("test" => "test") }
+      assert_match(/push_button not yet supported/, error.message)
+    end
+  end
+
   it "returns the default resources" do
     assert_kind_of(HexaPDF::Type::Resources, @acro_form.default_resources)
   end

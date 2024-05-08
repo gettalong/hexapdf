@@ -351,6 +351,45 @@ module HexaPDF
           create_field(name, :Sig) {}
         end
 
+        # Fills form fields with the values from the given +data+ hash.
+        #
+        # The keys of the +data+ hash need to be full field names and the values are the respective
+        # values, usually in string form. It is possible to specify only some of the fields of the
+        # form.
+        #
+        # What kind of values are supported for a field depends on the field type:
+        #
+        # * For fields containing text (single/multiline/comb text fields, file select fields, combo
+        #   boxes and list boxes) the value needs to be a string and it is assigned as is.
+        #
+        # * For check boxes, the values "y"/"yes"/"t"/"true" are handled as assigning +true+ to the
+        #   field, the values "n"/"no"/"f"/"false" are handled as assigning +false+ to the field,
+        #   and every other string value is assigned as is. See ButtonField#field_value= for
+        #   details.
+        #
+        # * For radio buttons the value needs to be a String or a Symbol representing the name of
+        #   the radio button widget to select.
+        def fill(data)
+          data.each do |field_name, value|
+            field = field_by_name(field_name)
+            raise HexaPDF::Error, "AcroForm field named '#{field_name}' not found" unless field
+
+            case field.concrete_field_type
+            when :single_line_text_field, :multiline_text_field, :comb_text_field, :file_select_field,
+                :combo_box, :list_box, :editable_combo_box, :radio_button
+              field.field_value = value
+            when :check_box
+              field.field_value = case value
+                                  when /\A(?:y(es)?|t(rue)?)\z/ then true
+                                  when /\A(?:n(o)?|f(alse)?)\z/ then false
+                                  else value
+                                  end
+            else
+              raise HexaPDF::Error, "AcroForm field type #{field.concrete_field_type} not yet supported"
+            end
+          end
+        end
+
         # Returns the dictionary containing the default resources for form field appearance streams.
         def default_resources
           self[:DR] ||= document.wrap({ProcSet: [:PDF, :Text, :ImageB, :ImageC, :ImageI]},
