@@ -5,6 +5,11 @@
 * Support for the `AFPercent_Format` JavaScript method
 * Support for the `AFTime_Format` JavaScript method
 
+### Changed
+
+* [HexaPDF::Type::AcroForm::ButtonField#field_value=] to always allow using
+  `true` for check boxes
+
 ### Fixed
 
 * [HexaPDF::Type::Resources#font] to always return a correctly wrapped font

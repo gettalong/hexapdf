@@ -165,10 +165,9 @@ module HexaPDF
         #                nothing is stored for them (e.g a no-op).
         #
         # Check boxes:: Provide +nil+ or +false+ as value to toggle all check box widgets off. If
-        #               there is only one possible value, +true+ may be used for checking the box,
-        #               i.e. toggling it to the on state. Otherwise provide the value (a Symbol or
-        #               an object responding to +#to_sym+) of the check box widget that should be
-        #               toggled on.
+        #               +true+ is provided, all check box widgets with the same name as the first
+        #               one are toggled on. Otherwise provide the value (a Symbol or an object
+        #               responding to +#to_sym+) of the check box widget that should be toggled on.
         #
         # Radio buttons:: To turn all radio buttons off, provide +nil+ as value. Otherwise provide
         #                 the value (a Symbol or an object responding to +#to_sym+) of a radio
@@ -306,7 +305,7 @@ module HexaPDF
                       elsif check_box?
                         if value == false
                           :Off
-                        elsif value == true && av.size == 1
+                        elsif value == true && av.size >= 1
                           av[0]
                         elsif av.include?(value.to_sym)
                           value.to_sym

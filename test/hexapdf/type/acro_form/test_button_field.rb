@@ -93,6 +93,11 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       @field.field_value = "check"
       assert_equal(:check, @field[:V])
       assert_raises(HexaPDF::Error) { @field.field_value = :unknown }
+
+      @field.field_value = :Off
+      @field.create_widget(@doc.pages[0], value: :other)
+      @field.field_value = true
+      assert_equal(:check, @field[:V])
     end
 
     it "returns the correct concrete field type" do
