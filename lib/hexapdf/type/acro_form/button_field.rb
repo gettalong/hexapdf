@@ -173,6 +173,9 @@ module HexaPDF
         # Radio buttons:: To turn all radio buttons off, provide +nil+ as value. Otherwise provide
         #                 the value (a Symbol or an object responding to +#to_sym+) of a radio
         #                 button that should be turned on.
+        #
+        # Note that in most cases the field needs to already have widgets because the value is
+        # checked against the possibly allowed values which depend on the existing widgets.
         def field_value=(value)
           normalized_field_value_set(:V, value)
         end

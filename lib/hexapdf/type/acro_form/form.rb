@@ -272,6 +272,9 @@ module HexaPDF
         #
         # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
         # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        #
+        # Before a field value other than +false+ can be assigned to the check box, a widget needs
+        # to be created.
         def create_check_box(name)
           create_field(name, :Btn, &:initialize_as_check_box)
         end
@@ -280,6 +283,9 @@ module HexaPDF
         #
         # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
         # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        #
+        # Before a field value other than +nil+ can be assigned to the radio button, at least one
+        # widget needs to be created.
         def create_radio_button(name)
           create_field(name, :Btn, &:initialize_as_radio_button)
         end
