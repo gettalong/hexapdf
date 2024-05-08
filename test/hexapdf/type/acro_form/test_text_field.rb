@@ -114,6 +114,12 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert(widget[:AP][:N])
     end
 
+    it "calls acro_form.on_invalid_value if the provided value is not a string" do
+      @doc.config['acro_form.on_invalid_value'] = proc {|_field, value| value.to_s }
+      @field.field_value = 10
+      assert_equal("10", @field.field_value)
+    end
+
     it "fails if the :password flag is set" do
       @field.flag(:password)
       assert_raises(HexaPDF::Error) { @field.field_value = 'test' }
@@ -122,10 +128,6 @@ describe HexaPDF::Type::AcroForm::TextField do
     it "fails if it is a comb text field without a /MaxLen entry" do
       @field.initialize_as_comb_text_field
       assert_raises(HexaPDF::Error) { @field.field_value = 'test' }
-    end
-
-    it "fails if the provided value is not a string" do
-      assert_raises(HexaPDF::Error) { @field.field_value = 10 }
     end
 
     it "fails if the value exceeds the length set by /MaxLen" do

@@ -9,6 +9,8 @@
 
 * [HexaPDF::Type::Resources#font] to always return a correctly wrapped font
   object
+* [HexaPDF::Type::AcroForm::TextField#field_value=] to actually use the value
+  returned by the call to the config option 'acro_form.on_invalid_value'
 
 
 ## 0.41.0 - 2024-05-05
