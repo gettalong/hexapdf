@@ -195,6 +195,7 @@ module HexaPDF
       # Fills out the form by interactively asking the user for field values.
       def fill_form(doc)
         current_page_index = -1
+        form = doc.acro_form
         each_field(doc) do |_page, page_index, field, _widget|
           next if field.flagged?(:read_only) && !@fill_read_only_fields
           if current_page_index != page_index
@@ -224,9 +225,9 @@ module HexaPDF
             print "    └─ New value: "
             value = $stdin.readline.chomp
             next if value.empty?
-            apply_field_value(field, value)
+            form.fill(field.full_field_name => value)
           rescue HexaPDF::Error => e
-            puts "       ⚠  #{e.message}"
+            puts "       ⚠ Error while setting '#{field.full_field_name}': #{e.message}"
             retry
           end
         end
@@ -234,18 +235,20 @@ module HexaPDF
 
       # Fills out the form using the data from the provided template file.
       def fill_form_with_template(doc)
-        data = parse_template
         form = doc.acro_form
-        data.each do |name, value|
+        data = parse_template
+        data.reject! do |name, _value|
           field = form.field_by_name(name)
           raise Error, "Field '#{name}' not found in input PDF" unless field
           if field.flagged?(:read_only) && !@fill_read_only_fields
             puts "Ignoring field '#{name}' because it is read only and --fill-read-only-fields " \
-              "is no set"
-            next
+              "is not set"
+            true
+          else
+            false
           end
-          apply_field_value(field, value)
         end
+        form.fill(data)
       end
 
       # Parses the data from the given template file.
@@ -271,30 +274,6 @@ module HexaPDF
           $stderr.puts "Warning: Some template could not be parsed"
         end
         data
-      end
-
-      # Applies the given value to the field.
-      def apply_field_value(field, value)
-        case field.concrete_field_type
-        when :single_line_text_field, :multiline_text_field, :comb_text_field, :file_select_field,
-            :combo_box, :list_box, :editable_combo_box
-          field.field_value = value
-        when :check_box
-          field.field_value = case value
-                              when /y(es)?|t(rue)?/
-                                true
-                              when /n(o)?|f(alse)?/
-                                false
-                              else
-                                value
-                              end
-        when :radio_button
-          field.field_value = value.to_sym
-        else
-          raise Error, "Field type #{field.concrete_field_type} not yet supported"
-        end
-      rescue StandardError
-        raise Error, "Error while setting '#{field.full_field_name}': #{$!.message}"
       end
 
       # Iterates over all non-push button fields in page order. If a field appears on multiple
