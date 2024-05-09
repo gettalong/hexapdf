@@ -10,6 +10,7 @@
 
 * [HexaPDF::Type::AcroForm::ButtonField#field_value=] to always allow using
   `true` for check boxes
+* CLI commands to prompt whether an existing output file should be overwritten
 
 ### Fixed
 

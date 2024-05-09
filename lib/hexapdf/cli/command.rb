@@ -167,12 +167,12 @@ module HexaPDF
         end
       end
 
-      # Checks whether the given output file exists and raises an error if it does and
-      # HexaPDF::CLI#force is not set.
+      # Checks whether the given output file exists and ask whether to overwrite the output file if
+      # it does. If HexaPDF::CLI#force is set, a possibly existing output file is always overwritten.
       def maybe_raise_on_existing_file(filename)
         if !command_parser.force && File.exist?(filename)
-          raise Error, "Output file '#{filename}' already exists, not overwriting. Use --force to " \
-            "force writing"
+          response = read_from_console("Output file '#{filename}' already exists - overwrite? (y/n)")
+          exit(1) unless response =~ /y/i
         end
       end
 
@@ -377,9 +377,9 @@ module HexaPDF
       # console.
       def read_password(prompt = "Password")
         if $stdin.tty?
-          read_from_console(prompt)
+          read_from_console(prompt, noecho: true)
         else
-          ($stdin.gets || read_from_console(prompt)).chomp
+          ($stdin.gets || read_from_console(prompt, noecho: true)).chomp
         end
       end
 
@@ -407,11 +407,14 @@ module HexaPDF
       private
 
       # Displays the given prompt, reads from the console without echo and returns the read string.
-      def read_from_console(prompt)
+      def read_from_console(prompt, noecho: false)
         IO.console.write("#{prompt}: ")
-        str = IO.console.noecho {|io| io.gets.chomp }
-        puts
-        str
+        if noecho
+          IO.console.noecho {|io| io.gets.chomp }
+          puts
+        else
+          IO.console.gets.chomp
+        end
       end
 
     end
