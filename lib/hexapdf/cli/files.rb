@@ -39,19 +39,29 @@ require 'hexapdf/cli/command'
 module HexaPDF
   module CLI
 
-    # Lists or extracts embedded files from a PDF file.
+    # Lists or extracts embedded files from a PDF file or attaches them.
     #
     # See: HexaPDF::Type::EmbeddedFile
     class Files < Command
 
       def initialize #:nodoc:
         super('files', takes_commands: false)
-        short_desc("List or extract embedded files from a PDF file")
+        short_desc("List and extract embedded files from a PDF or attach files")
         long_desc(<<~EOF)
-          If the option --extract is not given, the available files are listed with their names and
-          indices. The --extract option can then be used to extract one or more files.
+          If neither the option --attach nor the option --extract is given, the available
+          files are listed with their names and indices. The --extract option can then be
+          used to extract one or more files. Or the --attach option can be used to attach
+          files to the PDF.
         EOF
 
+        options.on("--attach FILE", "-a FILE", String,
+                   "The file that should be attached. Can be used multiple times.") do |file|
+          @attach_files << [file, nil]
+        end
+        options.on("--description DESC", "-d DESC", String,
+                   "Adds a description to the last file to be attached.") do |description|
+          @attach_files[-1][1] = description
+        end
         options.on("--extract [a,b,c,...]", "-e [a,b,c,...]", Array,
                    "The indices of the files that should be extracted. Use 0 or no argument to " \
                    "extract all files.") do |indices|
@@ -66,15 +76,24 @@ module HexaPDF
           @password = (pwd == '-' ? read_password : pwd)
         end
 
+        @attach_files = []
         @indices = []
         @password = nil
         @search = false
       end
 
-      def execute(pdf) #:nodoc:
-        with_document(pdf, password: @password) do |doc|
-          if @indices.empty?
+      def execute(pdf, output = nil) #:nodoc:
+        if @indices.empty? && !@attach_files.empty?
+          raise Error, "Missing output file" unless output
+          maybe_raise_on_existing_file(output)
+        end
+        with_document(pdf, password: @password, out_file: output) do |doc|
+          if @indices.empty? && @attach_files.empty?
             list_files(doc)
+          elsif !@indices.empty? && !@attach_files.empty?
+            raise Error, "Use either --attach or --extract but not both"
+          elsif !@attach_files.empty?
+            attach_files(doc)
           else
             extract_files(doc)
           end
@@ -114,6 +133,11 @@ module HexaPDF
             end
           end
         end
+      end
+
+      # Attaches the files given on the CLI to the document.
+      def attach_files(doc)
+        @attach_files.each {|file, desc| doc.files.add(file, description: desc) }
       end
 
       # Iterates over all embedded files.

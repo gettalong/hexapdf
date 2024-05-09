@@ -235,10 +235,21 @@ executed for each input file, with all occurences of {} being replaced by the fi
 
 ### files
 
-Synopsis: `files` \[`OPTIONS`] *PDF*
+Synopsis: `files` \[`OPTIONS`] *PDF* [*OUTPUT*]
 
-This command extracts embedded files from the *PDF*. If the `--extract` option is not specified, the
-indices and names of the embedded files are just listed.
+This command can list embedded files of the *PDF*, extract them or attach new files and save the
+result to *OUTPUT*. If neither the `--attach` nor the `--extract` option is specified, the indices
+and names of the embedded files are listed.
+
+`-a` *FILE*, `--attach` *FILE*
+
+: Attaches the given *FILE* to the *PDF*. If this option is specified, the *OUTPUT* must be
+  provided. It is possible to use this option multiple times to attach multiple files in one go.
+
+`-d` *DESCRIPTION*, `--description` *DESCRIPTION*
+
+: Adds a description to the last attached file via `--attach`. This description is usually shown
+  together with the filename of the attached file.
 
 `-e` \[*A,B,C,...*], `--extract` \[*A,B,C,...*]
 
@@ -997,6 +1008,11 @@ Interactively fill out the `input_form.pdf` PDF form, flatten it and save the re
 
 Embedded files: The first command lists the embedded files in the `input.pdf`, the second one then
 extracts the embedded file with the index 1.
+
+`hexapdf files -a invoice.xml -d "Invoice data" -a custom.xml input.pdf output.pdf`
+
+Attaches the files `invoice.xml` and `custom.xml` to the `input.pdf` and stores the result in
+`output.pdf`. The first file `invoice.xml` is stored together with a short description.
 
 
 ### images

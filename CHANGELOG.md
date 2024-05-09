@@ -5,6 +5,7 @@
 * Support for the `AFPercent_Format` JavaScript method
 * Support for the `AFTime_Format` JavaScript method
 * [HexaPDF::Type::AcroForm::Form#fill] for easily filling out form fields
+* Support for attaching files via `hexapdf files` CLI command
 
 ### Changed
 
