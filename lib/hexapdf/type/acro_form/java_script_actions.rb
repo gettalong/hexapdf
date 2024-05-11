@@ -420,7 +420,7 @@ module HexaPDF
 
         # Returns the appropriate JavaScript action string for the AFTime_Format function.
         #
-        # +time_format+::
+        # +format+::
         #     Specifies the time format, one of:
         #
         #     :hh_mm:: (Default) Use 24h time format %H:%M (e.g. 15:25)
@@ -429,9 +429,9 @@ module HexaPDF
         #     :hh12_mm_ss:: Use 24h time format with seconds %l:%M:%S %p (e.g. 3:25:37 PM)
         #
         # See: #apply_af_time_format
-        def af_time_format_action(time_format: :hh_mm)
-          format = AF_TIME_FORMAT_MAPPINGS[:format_integers].fetch(time_format) do
-            raise ArgumentError, "Unsupported value for time_format argument: #{time_format}"
+        def af_time_format_action(format: :hh_mm)
+          format = AF_TIME_FORMAT_MAPPINGS[:format_integers].fetch(format) do
+            raise ArgumentError, "Unsupported value for time_format argument: #{format}"
           end
           "AFTime_Format(#{format});"
         end

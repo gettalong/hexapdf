@@ -222,7 +222,7 @@ describe HexaPDF::Type::AcroForm::TextField do
 
     it "applies the time format" do
       @doc.acro_form(create: true)
-      @field.set_format_action(:time, time_format: :hh_mm_ss)
+      @field.set_format_action(:time, format: :hh_mm_ss)
       assert(@field.key?(:AA))
       assert(@field[:AA].key?(:F))
       assert_equal('AFTime_Format(2);', @field[:AA][:F][:JS])

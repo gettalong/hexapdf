@@ -152,11 +152,11 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
         assert_equal('AFTime_Format(0);',
                      @klass.af_time_format_action)
         assert_equal('AFTime_Format(1);',
-                     @klass.af_time_format_action(time_format: :hh12_mm))
+                     @klass.af_time_format_action(format: :hh12_mm))
       end
 
       it "raise an error for invalid arguments" do
-        assert_raises(ArgumentError) { @klass.af_time_format_action(time_format: :unknown) }
+        assert_raises(ArgumentError) { @klass.af_time_format_action(format: :unknown) }
       end
 
       def assert_format(arg_string, result_value)
