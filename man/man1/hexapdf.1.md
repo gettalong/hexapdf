@@ -25,6 +25,7 @@ Using the hexapdf application the following tasks can be performed with PDF file
 * Converting images to PDF (see the `image2pdf` command)
 * Showing general information of a PDF file (see the `info` command)
 * Listing all fonts of a PDF file (see the `fonts` command)
+* Show space usage information of a PDF file (see the `usage` command)
 * Batch execution of a command on multiple PDF files (see the `batch` command)
 * Inspecting the internal structure of a PDF file (see the `inspect` command)
 
@@ -812,6 +813,40 @@ How the printf-style format string is interpreted depends on the strategy:
 
 Additionally, the **Optimization Options** and **Encryption Options** can be used. Those options are
 applied to each output file.
+
+
+### usage
+
+Synopsis: `usage` \[`OPTIONS`] *FILE*
+
+This command reads the *FILE* and shows space usage statistics, i.e. which parts of the PDF take how
+much space in the file.
+
+Each statistic line shows the space used followed by the number of indirect objects in parentheses.
+If some of those objects are in object streams, that number is displayed after a slash. Here is an
+example:
+
+~~~
+Fonts             218.6K (63/42)
+~~~
+
+This line shows that fonts take up 218.6K of space inside the file and that there are 63 indirect
+objects having to do with fonts. Furthermore, of those 63 indirect objects 42 are stored more
+compactly in object streams
+
+Objects in object streams do only count towards the size of the object streams category in the file
+but not towards a more specific category like fonts.
+
+`-p` *PASSWORD*, `--password` *PASSWORD*
+
+: The password to decrypt the PDF *FILE*. Use **-** for *PASSWORD* for reading it from standard
+  input.
+
+Notes:
+
+* Space usage and object count is only approximate and represents the lower bound for each category.
+* PDF comments, cross-reference tables and other such syntax is not represented in the statistic.
+  This means that the shown total space usage is always lower than the file size.
 
 
 ### watermark
