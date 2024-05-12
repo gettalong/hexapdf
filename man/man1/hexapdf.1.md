@@ -236,7 +236,7 @@ executed for each input file, with all occurences of {} being replaced by the fi
 
 ### files
 
-Synopsis: `files` \[`OPTIONS`] *PDF* [*OUTPUT*]
+Synopsis: `files` \[`OPTIONS`] *PDF* \[*OUTPUT*]
 
 This command can list embedded files of the *PDF*, extract them or attach new files and save the
 result to *OUTPUT*. If neither the `--attach` nor the `--extract` option is specified, the indices
