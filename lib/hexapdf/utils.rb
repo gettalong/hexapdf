@@ -39,7 +39,26 @@ require 'geom2d/utils'
 module HexaPDF
 
   # This module contains helper methods for the whole library.
+  #
+  # Furthermore, it refines Numeric to provide #mm, #cm, and #inch methods.
   module Utils
+
+    refine Numeric do
+      # Intrepeting self as millimeters returns the equivalent number of points.
+      def mm
+        self * 72 / 25.4
+      end
+
+      # Intrepeting self as centimeters returns the equivalent number of points.
+      def cm
+        self * 72 / 2.54
+      end
+
+      # Intrepeting self as inches returns the equivalent number of points.
+      def inch
+        self * 72
+      end
+    end
 
     # The precision with which to compare floating point numbers.
     #

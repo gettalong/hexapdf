@@ -6,6 +6,8 @@
 * Support for the `AFTime_Format` JavaScript method
 * [HexaPDF::Type::AcroForm::Form#fill] for easily filling out form fields
 * Support for attaching files via `hexapdf files` CLI command
+* Refinement on [HexaPDF::Utils] to support conversion of Numeric values to
+  points (e.g. `5.mm`, `5.cm`, `5.inch`)
 
 ### Changed
 

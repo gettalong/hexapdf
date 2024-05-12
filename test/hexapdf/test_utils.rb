@@ -6,6 +6,22 @@ require 'hexapdf/utils'
 describe HexaPDF::Utils do
   include HexaPDF::Utils
 
+  describe "Numeric refinement" do
+    using HexaPDF::Utils
+
+    it "converts mm to points" do
+      assert_equal(72, 25.4.mm)
+    end
+
+    it "converts cm to points" do
+      assert_equal(72, 2.54.cm)
+    end
+
+    it "converts inch to points" do
+      assert_equal(144, 2.inch)
+    end
+  end
+
   it "checks floats for equality with a certain precision" do
     assert(float_equal(1.0, 1))
     assert(float_equal(1.0, 1.0000003))
