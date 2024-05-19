@@ -252,6 +252,56 @@ describe HexaPDF::Type::AcroForm::Form do
     end
   end
 
+  describe "delete_field" do
+    before do
+      @field = @acro_form.create_signature_field("sig")
+    end
+
+    it "deletes a field via name" do
+      @acro_form.delete_field('sig')
+      assert_equal(0, @acro_form.root_fields.size)
+    end
+
+    it "deletes a field via field object" do
+      @acro_form.delete_field(@field)
+      assert_equal(0, @acro_form.root_fields.size)
+    end
+
+    it "deletes the set signature object" do
+      obj = @doc.add({})
+      @field.field_value = obj
+      @acro_form.delete_field(@field)
+      assert(obj.null?)
+    end
+
+    it "deletes all widget annotations from the document and the annotation array" do
+      widget1 = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      widget2 = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      refute(@doc.pages[1][:Annots].empty?)
+      @acro_form.delete_field(@field)
+      assert(@doc.pages[0][:Annots].empty?)
+      assert(@doc.pages[1][:Annots].empty?)
+      assert(@doc.object(widget1).null?)
+      assert(@doc.object(widget2).null?)
+    end
+
+    it "deletes the field from the field hierarchy" do
+      @acro_form.delete_field('sig')
+      refute(@acro_form.field_by_name('sig'))
+      assert(@acro_form[:Fields].empty?)
+
+      @acro_form.create_signature_field("sub.sub.sig")
+      @acro_form.delete_field("sub.sub.sig")
+      refute(@acro_form.field_by_name('sub.sub.sig'))
+      assert(@acro_form[:Fields][0][:Kids][0][:Kids].empty?)
+    end
+
+    it "deletes the field itself" do
+      @acro_form.delete_field('sig')
+      assert(@doc.object(@field).null?)
+    end
+  end
+
   describe "fill" do
     it "works for text field types" do
       field = @acro_form.create_text_field('test')

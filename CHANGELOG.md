@@ -4,6 +4,7 @@
 
 * [HexaPDF::Type::AcroForm::Form#create_namespace_field] for creating a pure
   namespace field
+* [HexaPDF::Type::AcroForm::Form#delete_field] for deleting fields
 
 ### Changed
 

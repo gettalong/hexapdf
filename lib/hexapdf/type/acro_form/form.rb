@@ -371,6 +371,33 @@ module HexaPDF
           create_field(name, :Sig)
         end
 
+        # :call-seq:
+        #    form.delete_field(name)
+        #    form.delete_field(field)
+        #
+        # Deletes the field specified by the given name or via the given field object.
+        #
+        # If the field is a signature field, the associated signature dictionary is also deleted.
+        def delete_field(name_or_field)
+          field = (name_or_field.kind_of?(String) ? field_by_name(name_or_field) : name_or_field)
+          document.delete(field[:V]) if field.field_type == :Sig
+
+          to_delete = field.each_widget(direct_only: false).to_a
+          document.pages.each do |page|
+            next unless page.key?(:Annots)
+            page_annots = page[:Annots].to_a - to_delete
+            page[:Annots].value.replace(page_annots)
+          end
+          to_delete.each {|widget| document.delete(widget) }
+
+          if field[:Parent]
+            field[:Parent][:Kids].delete(field)
+          else
+            self[:Fields].delete(field)
+          end
+          document.delete(field)
+        end
+
         # Fills form fields with the values from the given +data+ hash.
         #
         # The keys of the +data+ hash need to be full field names and the values are the respective
