@@ -163,6 +163,16 @@ module HexaPDF
           field
         end
 
+        # Creates an untyped namespace field for creating hierarchies.
+        #
+        # Example:
+        #
+        #   form.create_namespace_field('text')
+        #   form.create_text_field('text.a1')
+        def create_namespace_field(name)
+          create_field(name) {}
+        end
+
         # Creates a new text field with the given name and adds it to the form.
         #
         # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
@@ -485,16 +495,20 @@ module HexaPDF
 
         private
 
-        # Creates a new field with the full name +name+ and the field type +type+.
-        def create_field(name, type)
+        # Creates a new field with the full name +name+ and the optional field type +type+.
+        def create_field(name, type = nil)
           parent_name, _, name = name.rpartition('.')
           parent_field = parent_name.empty? ? nil : field_by_name(parent_name)
           if !parent_name.empty? && !parent_field
             raise HexaPDF::Error, "Parent field '#{parent_name}' not found"
           end
 
-          field = document.add({FT: type, T: name, Parent: parent_field},
-                               type: :XXAcroFormField, subtype: type)
+          field = if type
+                    document.add({FT: type, T: name, Parent: parent_field},
+                                 type: :XXAcroFormField, subtype: type)
+                  else
+                    document.add({T: name, Parent: parent_field}, type: :XXAcroFormField)
+                  end
           if parent_field
             (parent_field[:Kids] ||= []) << field
           else

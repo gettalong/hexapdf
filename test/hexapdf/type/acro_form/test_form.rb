@@ -128,6 +128,12 @@ describe HexaPDF::Type::AcroForm::Form do
       @acro_form = @doc.acro_form(create: true)
     end
 
+    it "creates a pure namespace field" do
+      field = @acro_form.create_namespace_field('text')
+      assert_equal('text', field.full_field_name)
+      assert_nil(field.concrete_field_type)
+    end
+
     describe "handles the general case" do
       it "works for names with a dot" do
         @acro_form[:Fields] = [{T: "root"}]

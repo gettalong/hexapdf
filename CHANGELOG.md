@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::Type::AcroForm::Form#create_namespace_field] for creating a pure
+  namespace field
+
+
 ## 0.42.0 - 2024-05-12
 
 ### Added
