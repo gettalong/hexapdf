@@ -148,8 +148,13 @@ describe HexaPDF::Type::AcroForm::Form do
         assert([field], @acro_form[:Fields])
       end
 
-      it "fails if the parent field is not found" do
-        assert_raises(HexaPDF::Error) { @acro_form.create_text_field("root.field") }
+      it "creates the parent fields as namespace fields if necessary" do
+        field = @acro_form.create_text_field("root.sub.field")
+        level1 = @acro_form.field_by_name('root')
+        assert_equal(1, level1[:Kids].size)
+        level2 = @acro_form.field_by_name('root.sub')
+        assert_equal(1, level2[:Kids].size)
+        assert_same(field, level2[:Kids][0])
       end
     end
 

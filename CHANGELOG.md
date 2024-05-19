@@ -5,6 +5,11 @@
 * [HexaPDF::Type::AcroForm::Form#create_namespace_field] for creating a pure
   namespace field
 
+### Changed
+
+* Form field creation methods of [HexaPDF::Type::AcroForm::Form] to
+  automatically create parent fields as namespace fields
+
 
 ## 0.42.0 - 2024-05-12
 

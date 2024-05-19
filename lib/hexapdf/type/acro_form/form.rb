@@ -175,8 +175,9 @@ module HexaPDF
 
         # Creates a new text field with the given name and adds it to the form.
         #
-        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        # The +name+ may contain dots to signify a field hierarchy. If the parent fields don't
+        # already exist, they are created as pure namespace fields (see #create_namespace_field). If
+        # the +name+ doesn't contain dots, a top-level field is created.
         #
         # The optional keyword arguments allow setting often used properties of the field:
         #
@@ -212,8 +213,9 @@ module HexaPDF
 
         # Creates a new multiline text field with the given name and adds it to the form.
         #
-        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        # The +name+ may contain dots to signify a field hierarchy. If the parent fields don't
+        # already exist, they are created as pure namespace fields (see #create_namespace_field). If
+        # the +name+ doesn't contain dots, a top-level field is created.
         #
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
@@ -231,8 +233,9 @@ module HexaPDF
         # The +max_chars+ argument defines the maximum number of characters the comb text field can
         # accommodate.
         #
-        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        # The +name+ may contain dots to signify a field hierarchy. If the parent fields don't
+        # already exist, they are created as pure namespace fields (see #create_namespace_field). If
+        # the +name+ doesn't contain dots, a top-level field is created.
         #
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
@@ -248,8 +251,9 @@ module HexaPDF
 
         # Creates a new file select field with the given name and adds it to the form.
         #
-        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        # The +name+ may contain dots to signify a field hierarchy. If the parent fields don't
+        # already exist, they are created as pure namespace fields (see #create_namespace_field). If
+        # the +name+ doesn't contain dots, a top-level field is created.
         #
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
@@ -264,8 +268,9 @@ module HexaPDF
 
         # Creates a new password field with the given name and adds it to the form.
         #
-        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        # The +name+ may contain dots to signify a field hierarchy. If the parent fields don't
+        # already exist, they are created as pure namespace fields (see #create_namespace_field). If
+        # the +name+ doesn't contain dots, a top-level field is created.
         #
         # The optional keyword arguments allow setting often used properties of the field, see
         # #create_text_field for details.
@@ -280,8 +285,9 @@ module HexaPDF
 
         # Creates a new check box with the given name and adds it to the form.
         #
-        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        # The +name+ may contain dots to signify a field hierarchy. If the parent fields don't
+        # already exist, they are created as pure namespace fields (see #create_namespace_field). If
+        # the +name+ doesn't contain dots, a top-level field is created.
         #
         # Before a field value other than +false+ can be assigned to the check box, a widget needs
         # to be created.
@@ -291,8 +297,9 @@ module HexaPDF
 
         # Creates a radio button with the given name and adds it to the form.
         #
-        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        # The +name+ may contain dots to signify a field hierarchy. If the parent fields don't
+        # already exist, they are created as pure namespace fields (see #create_namespace_field). If
+        # the +name+ doesn't contain dots, a top-level field is created.
         #
         # Before a field value other than +nil+ can be assigned to the radio button, at least one
         # widget needs to be created.
@@ -302,8 +309,9 @@ module HexaPDF
 
         # Creates a combo box with the given name and adds it to the form.
         #
-        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        # The +name+ may contain dots to signify a field hierarchy. If the parent fields don't
+        # already exist, they are created as pure namespace fields (see #create_namespace_field). If
+        # the +name+ doesn't contain dots, a top-level field is created.
         #
         # The optional keyword arguments allow setting often used properties of the field:
         #
@@ -329,8 +337,9 @@ module HexaPDF
 
         # Creates a list box with the given name and adds it to the form.
         #
-        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        # The +name+ may contain dots to signify a field hierarchy. If the parent fields don't
+        # already exist, they are created as pure namespace fields (see #create_namespace_field). If
+        # the +name+ doesn't contain dots, a top-level field is created.
         #
         # The optional keyword arguments allow setting often used properties of the field:
         #
@@ -355,8 +364,9 @@ module HexaPDF
 
         # Creates a signature field with the given name and adds it to the form.
         #
-        # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
-        # fields must already exist. If it doesn't contain dots, a top-level field is created.
+        # The +name+ may contain dots to signify a field hierarchy. If the parent fields don't
+        # already exist, they are created as pure namespace fields (see #create_namespace_field). If
+        # the +name+ doesn't contain dots, a top-level field is created.
         def create_signature_field(name)
           create_field(name, :Sig)
         end
@@ -500,7 +510,7 @@ module HexaPDF
           parent_name, _, name = name.rpartition('.')
           parent_field = parent_name.empty? ? nil : field_by_name(parent_name)
           if !parent_name.empty? && !parent_field
-            raise HexaPDF::Error, "Parent field '#{parent_name}' not found"
+            parent_field = create_namespace_field(parent_name)
           end
 
           field = if type
