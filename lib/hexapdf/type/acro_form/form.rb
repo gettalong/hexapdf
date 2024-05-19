@@ -170,7 +170,7 @@ module HexaPDF
         #   form.create_namespace_field('text')
         #   form.create_text_field('text.a1')
         def create_namespace_field(name)
-          create_field(name) {}
+          create_field(name)
         end
 
         # Creates a new text field with the given name and adds it to the form.
@@ -358,7 +358,7 @@ module HexaPDF
         # The +name+ may contain dots to signify a field hierarchy. If so, the referenced parent
         # fields must already exist. If it doesn't contain dots, a top-level field is created.
         def create_signature_field(name)
-          create_field(name, :Sig) {}
+          create_field(name, :Sig)
         end
 
         # Fills form fields with the values from the given +data+ hash.
@@ -515,7 +515,7 @@ module HexaPDF
             (self[:Fields] ||= []) << field
           end
 
-          yield(field)
+          yield(field) if block_given?
 
           field
         end
