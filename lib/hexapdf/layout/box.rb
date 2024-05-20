@@ -35,6 +35,7 @@
 #++
 require 'hexapdf/layout/style'
 require 'geom2d/utils'
+require 'hexapdf/utils'
 
 module HexaPDF
   module Layout
