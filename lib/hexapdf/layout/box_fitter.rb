@@ -47,8 +47,8 @@ module HexaPDF
     #
     # * Then use the #fit method to fit boxes one after the other. No drawing is done.
     #
-    # * Once all boxes have been fitted, the #fit_results, #remaining_boxes and #fit_successful?
-    #   methods can be used to get the result:
+    # * Once all boxes have been fitted, the #fit_results, #remaining_boxes and #success? methods
+    #   can be used to get the result:
     #
     #   - If there are no remaining boxes, all boxes were successfully fitted into the frames.
     #   - If there are remaining boxes but no fit results, the first box could not be fitted.
@@ -126,7 +126,7 @@ module HexaPDF
       end
 
       # Returns +true+ if all boxes were successfully fitted.
-      def fit_successful?
+      def success?
         @remaining_boxes.empty?
       end
 

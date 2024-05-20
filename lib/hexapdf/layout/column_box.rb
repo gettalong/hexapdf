@@ -186,7 +186,7 @@ module HexaPDF
 
           children.each {|box| @box_fitter.fit(box) }
 
-          fit_successful = @box_fitter.fit_successful?
+          fit_successful = @box_fitter.success?
           initial_fit_successful = fit_successful if initial_fit_successful.nil?
 
           if fit_successful
@@ -211,7 +211,7 @@ module HexaPDF
         @draw_pos_x = frame.x + reserved_width_left
         @draw_pos_y = frame.y - @height + reserved_height_bottom
 
-        @box_fitter.fit_successful?
+        @box_fitter.success?
       end
 
       private

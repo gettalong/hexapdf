@@ -8,6 +8,8 @@
 
 ### Changed
 
+* **Breaking change**: Renamed `HexaPDF::Layout::BoxFitter#fit_successful?` to
+  [HexaPDF::Layout::BoxFitter#success?]
 * Form field creation methods of [HexaPDF::Type::AcroForm::Form] to
   automatically create parent fields as namespace fields
 

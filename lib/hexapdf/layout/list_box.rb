@@ -248,14 +248,14 @@ module HexaPDF
           top -= item_result.height + item_spacing
           height -= item_result.height + item_spacing
 
-          break if !box_fitter.fit_successful? || height <= 0
+          break if !box_fitter.success? || height <= 0
         end
 
         @height = @results.sum(&:height) + (@results.count - 1) * item_spacing + reserved_height
 
         @draw_pos_x = frame.x + reserved_width_left
         @draw_pos_y = frame.y - @height + reserved_height_bottom
-        @all_items_fitted = @results.all? {|r| r.box_fitter.fit_successful? } &&
+        @all_items_fitted = @results.all? {|r| r.box_fitter.success? } &&
           @results.size == @children.size
         @fit_successful = @all_items_fitted || (@initial_height > 0 && style.overflow == :truncate)
       end

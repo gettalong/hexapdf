@@ -137,7 +137,7 @@ module HexaPDF
         @box_fitter = BoxFitter.new([my_frame])
         children.each {|box| @box_fitter.fit(box) }
 
-        if @box_fitter.fit_successful?
+        if @box_fitter.success?
           update_content_width do
             result = @box_fitter.fit_results.max_by {|r| r.mask.x + r.mask.width }
             children.empty? ? 0 : result.mask.x + result.mask.width - my_frame.left

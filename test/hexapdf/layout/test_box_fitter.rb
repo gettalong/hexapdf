@@ -20,13 +20,13 @@ describe HexaPDF::Layout::BoxFitter do
     @box_fitter.fit(HexaPDF::Layout::TextBox.new(items: [ibox] * count))
   end
 
-  def check_result(*pos, content_heights:, successful: true, boxes_remain: false)
+  def check_result(*pos, content_heights:, success: true, boxes_remain: false)
     pos.each_slice(2).with_index do |(x, y), index|
       assert_equal(x, @box_fitter.fit_results[index].x, "x #{index}")
       assert_equal(y, @box_fitter.fit_results[index].y, "y #{index}")
     end
     assert_equal(content_heights, @box_fitter.content_heights)
-    successful ? assert(@box_fitter.fit_successful?) : refute(@box_fitter.fit_successful?)
+    success ? assert(@box_fitter.success?) : refute(@box_fitter.success?)
     rboxes = @box_fitter.remaining_boxes.empty?
     boxes_remain ? refute(rboxes) : assert(rboxes)
   end
@@ -55,7 +55,7 @@ describe HexaPDF::Layout::BoxFitter do
     fit_box(70)
     fit_box(40)
     fit_box(20)
-    check_result(10, 80, 0, 10, 0, 0, 100, 100, successful: false, boxes_remain: true,
+    check_result(10, 80, 0, 10, 0, 0, 100, 100, success: false, boxes_remain: true,
                  content_heights: [90, 50])
     assert_equal(2, @box_fitter.remaining_boxes.size)
   end

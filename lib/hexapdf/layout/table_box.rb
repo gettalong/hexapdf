@@ -233,7 +233,7 @@ module HexaPDF
             @preferred_width = max_x_result.x + max_x_result.box.width + reserved_width
             @height = @preferred_height = box_fitter.content_heights[0] + reserved_height
             @fit_results = box_fitter.fit_results
-            @fit_successful = box_fitter.fit_successful?
+            @fit_successful = box_fitter.success?
           else
             @preferred_width = reserved_width
             @height = @preferred_height = reserved_height
