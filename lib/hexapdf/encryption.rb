@@ -46,6 +46,23 @@ module HexaPDF
   #
   # This module contains all encryption and security related code to facilitate PDF encryption.
   #
+  # === Working With Encrypted Documents
+  #
+  # When a PDF document is opened, an encryption password can be specified. This is necessary if a
+  # user password is set on the file and optional otherwise (because the default password is
+  # automatically tried):
+  #
+  #   HexaPDF::Document.open(filename, decryption_opts: {password: 'somepassword'}) do |doc|
+  #   end
+  #
+  # To remove the encryption from a PDF document, use the following:
+  #
+  #   document.encrypt(name: nil)
+  #
+  # To encrypt a PDF document, use the same method but specify the required encryption options:
+  #
+  #   document.encrypt(algorithm: :aes, key_length: 256)
+  #
   #
   # === Security Handlers
   #

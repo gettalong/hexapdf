@@ -617,13 +617,18 @@ module HexaPDF
     # writing the document.
     #
     # The security handler used for encrypting is selected via the +name+ argument. All other
-    # arguments are passed on the security handler.
+    # arguments are passed on to the security handler.
     #
     # If the document should not be encrypted, the +name+ argument has to be set to +nil+. This
     # removes the security handler and deletes the trailer's Encrypt dictionary.
     #
     # See: Encryption::SecurityHandler#set_up_encryption and
     # Encryption::StandardSecurityHandler::EncryptionOptions for possible encryption options.
+    #
+    # Examples:
+    #
+    #   document.encrypt(name: nil)  # remove the existing encryption
+    #   document.encrypt(algorithm: :aes, key_length: 256, permissions: [:print, :extract_content]
     def encrypt(name: :Standard, **options)
       if name.nil?
         trailer.delete(:Encrypt)
