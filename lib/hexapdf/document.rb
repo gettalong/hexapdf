@@ -278,6 +278,14 @@ module HexaPDF
     # If the same argument is provided in multiple invocations, the import is done only once and
     # the previously imported object is returned.
     #
+    # Note: If you first create a PDF document from scratch and then want to import objects from it
+    # into another PDF document, you need to run the following on the source document:
+    #
+    #   doc.dispatch_message(:complete_objects)
+    #   doc.validate
+    #
+    # This ensures that the source document has all the necessary PDF structures set-up correctly.
+    #
     # See: Importer
     def import(obj)
       source = (obj.kind_of?(HexaPDF::Object) ? obj.document : nil)
