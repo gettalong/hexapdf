@@ -192,6 +192,30 @@ describe HexaPDF::Layout::TextBox do
                                           [:restore_graphics_state]])
     end
 
+    it "correctly draws borders, backgrounds... for position :flow" do
+      @frame.remove_area(Geom2D::Rectangle(0, 0, 40, 100))
+      box = create_box([@inline_box], style: {position: :flow, border: {width: 1}})
+      box.fit(60, 100, @frame)
+      box.draw(@canvas, 0, 90)
+      assert_operators(@canvas.contents, [[:save_graphics_state],
+                                          [:append_rectangle, [40, 90, 10, 10]],
+                                          [:clip_path_non_zero],
+                                          [:end_path],
+                                          [:append_rectangle, [40.5, 90.5, 9.0, 9.0]],
+                                          [:stroke_path],
+                                          [:restore_graphics_state],
+                                          [:save_graphics_state],
+                                          [:restore_graphics_state],
+                                          [:save_graphics_state],
+                                          [:concatenate_matrix, [1, 0, 0, 1, 41, 89]],
+                                          [:save_graphics_state],
+                                          [:concatenate_matrix, [1, 0, 0, 1, 0, 0]],
+                                          [:restore_graphics_state],
+                                          [:restore_graphics_state],
+                                          [:save_graphics_state],
+                                          [:restore_graphics_state]])
+    end
+
     it "draws nothing onto the canvas if the box is empty" do
       box = create_box([])
       box.draw(@canvas, 5, 5)

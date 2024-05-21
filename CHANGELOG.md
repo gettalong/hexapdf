@@ -17,6 +17,8 @@
 
 * [HexaPDF::Layout::TextBox#fit] to correctly calculate width in case of flowing
   text around other boxes
+* [HexaPDF::Layout::TextBox#draw] to correctly draw border, background... on
+  boxes using position 'flow'
 
 
 ## 0.42.0 - 2024-05-12

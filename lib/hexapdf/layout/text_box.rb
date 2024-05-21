@@ -52,6 +52,7 @@ module HexaPDF
         @tl = TextLayouter.new(style)
         @items = items
         @result = nil
+        @x_offset = 0
       end
 
       # Returns the text that will be drawn.
@@ -80,7 +81,7 @@ module HexaPDF
           (@initial_height > 0 && @initial_height > available_height)
 
         frame = frame.child_frame(box: self)
-        @width = @height = 0
+        @width = @x_offset = @height = 0
         @result = if style.position == :flow
                     @tl.fit(@items, frame.width_specification, frame.shape.bbox.height,
                             apply_first_text_indent: !split_box?, frame: frame)
@@ -100,7 +101,7 @@ module HexaPDF
                       min_x = [min_x, line.x_offset].min
                       max_x = [max_x, line.x_offset + line.width].max
                     end
-                    min_x.finite? ? max_x - min_x : 0
+                    min_x.finite? ? (@x_offset = min_x; max_x - min_x) : 0
                   else
                     @result.lines.max_by(&:width)&.width || 0
                   end
@@ -134,6 +135,11 @@ module HexaPDF
       end
 
       # :nodoc:
+      def draw(canvas, x, y)
+        super(canvas, x + @x_offset, y)
+      end
+
+      # :nodoc:
       def empty?
         super && (!@result || @result.lines.empty?)
       end
@@ -150,7 +156,7 @@ module HexaPDF
         end
 
         return if @result.lines.empty?
-        @result.draw(canvas, x, y + content_height)
+        @result.draw(canvas, x - @x_offset, y + content_height)
       end
 
       # Creates a new TextBox instance for the items remaining after fitting the box.
