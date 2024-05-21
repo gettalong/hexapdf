@@ -50,10 +50,12 @@ describe HexaPDF::Layout::TextBox do
     end
 
     it "fits into the frame's outline" do
+      @frame.remove_area(Geom2D::Rectangle(0, 80, 20, 20))
+      @frame.remove_area(Geom2D::Rectangle(80, 70, 20, 20))
       box = create_box([@inline_box] * 20, style: {position: :flow})
       assert(box.fit(100, 100, @frame))
       assert_equal(100, box.width)
-      assert_equal(20, box.height)
+      assert_equal(30, box.height)
     end
 
     it "takes the style option last_line_gap into account" do

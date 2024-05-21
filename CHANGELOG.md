@@ -13,6 +13,11 @@
 * Form field creation methods of [HexaPDF::Type::AcroForm::Form] to
   automatically create parent fields as namespace fields
 
+### Fixed
+
+* [HexaPDF::Layout::TextBox#fit] to correctly calculate width in case of flowing
+  text around other boxes
+
 
 ## 0.42.0 - 2024-05-12
 

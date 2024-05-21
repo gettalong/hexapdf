@@ -93,6 +93,14 @@ module HexaPDF
                   end
         @width += if @initial_width > 0 || style.text_align == :center || style.text_align == :right
                     width
+                  elsif style.position == :flow
+                    min_x = +Float::INFINITY
+                    max_x = -Float::INFINITY
+                    @result.lines.each do |line|
+                      min_x = [min_x, line.x_offset].min
+                      max_x = [max_x, line.x_offset + line.width].max
+                    end
+                    min_x.finite? ? max_x - min_x : 0
                   else
                     @result.lines.max_by(&:width)&.width || 0
                   end
