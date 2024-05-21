@@ -173,6 +173,10 @@ module HexaPDF
       attr_accessor :items
 
       # An optional horizontal offset that should be taken into account when positioning the line.
+      #
+      # This offset always describes the offset from the left side (and not, for example, the offset
+      # from the right side of another line even if those two lines are actually on the same
+      # horizontal level).
       attr_accessor :x_offset
 
       # An optional vertical offset that should be taken into account when positioning the line.
