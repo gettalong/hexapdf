@@ -228,9 +228,9 @@ module HexaPDF
       value.empty?
     end
 
-    # Returns a dup of the underlying hash.
-    def to_h
-      value.dup
+    # Returns a hash containing the preprocessed values (like in #[]).
+    def to_hash
+      value.each_with_object({}) {|(k, _), h| h[k] = self[k] }
     end
 
     private

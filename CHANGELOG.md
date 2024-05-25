@@ -8,8 +8,10 @@
 
 ### Changed
 
+* Minimum Ruby version to be 3.0
 * **Breaking change**: Renamed `HexaPDF::Layout::BoxFitter#fit_successful?` to
   [HexaPDF::Layout::BoxFitter#success?]
+* **Breaking Change**: Removed HexaPDF::Dictionary#to_h
 * Form field creation methods of [HexaPDF::Type::AcroForm::Form] to
   automatically create parent fields as namespace fields
 
@@ -19,6 +21,8 @@
   text around other boxes
 * [HexaPDF::Layout::TextBox#draw] to correctly draw border, background... on
   boxes using position 'flow'
+* Comparison of Hash with [HexaPDF::Dictionary] objects by implementing
+  `#to_hash`
 
 
 ## 0.42.0 - 2024-05-12

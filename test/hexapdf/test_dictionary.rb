@@ -323,11 +323,13 @@ describe HexaPDF::Dictionary do
     end
   end
 
-  describe "to_h" do
-    it "returns a shallow copy of the value" do
-      obj = @dict.to_h
+  describe "to_hash" do
+    it "returns a copy of the value where each entry is pre-processed" do
+      @dict[:value] = HexaPDF::Reference.new(1, 0)
+      obj = @dict.to_hash
       refute_equal(obj.object_id, @dict.value.object_id)
-      assert_equal(obj, @dict.value)
+      assert_equal(:obj, obj[:Object])
+      assert_equal("deref", obj[:value])
     end
   end
 
