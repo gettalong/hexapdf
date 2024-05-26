@@ -367,6 +367,11 @@ describe HexaPDF::Parser do
       assert_equal(5, @parser.startxref_offset)
     end
 
+    it "handles the case of multiple %%EOF and the last one being invalid" do
+      create_parser("startxref\n5\n%%EOF\ntartxref\n3\n%%EOF")
+      assert_equal(5, @parser.startxref_offset)
+    end
+
     it "fails even in big files when nothing is found" do
       create_parser("\nhallo" * 5000)
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
@@ -401,6 +406,13 @@ describe HexaPDF::Parser do
       create_parser("startxref 5\n%%EOF")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
       assert_match(/startxref on same line/, exp.message)
+    end
+
+    it "fails on strict parsing if there are multiple %%EOF and the last one is invalid" do
+      @document.config['parser.on_correctable_error'] = proc { true }
+      create_parser("startxref\n5\n%%EOF\ntartxref\n3\n%%EOF")
+      exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.startxref_offset }
+      assert_match(/missing startxref keyword/, exp.message)
     end
   end
 

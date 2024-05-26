@@ -23,6 +23,8 @@
   boxes using position 'flow'
 * Comparison of Hash with [HexaPDF::Dictionary] objects by implementing
   `#to_hash`
+* Parsing of invalid files having multiple end-of-file markers with the last one
+  being invalid
 
 
 ## 0.42.0 - 2024-05-12

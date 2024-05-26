@@ -362,29 +362,32 @@ module HexaPDF
         pos = @io.pos
         lines = @io.read(step_size + 40).split(/[\r\n]+/)
 
-        eof_index = lines.rindex {|l| l.strip == '%%EOF' }
-        if !eof_index
-          eof_not_found = true
-        elsif lines[eof_index - 1].strip =~ /\Astartxref\s(\d+)\z/
-          startxref_offset = $1.to_i
-          startxref_mangled = true
-          break # we found it even if it the syntax is not entirely correct
-        elsif eof_index < 2 || lines[eof_index - 2].strip != "startxref"
-          startxref_missing = true
-        else
-          startxref_offset = lines[eof_index - 1].to_i
-          break # we found it
+        # Need to iterate through the whole lines array in case there are multiple %%EOF to try
+        eof_index = 0
+        while (eof_index = lines[0..(eof_index - 1)].rindex {|l| l.strip == '%%EOF' })
+          if lines[eof_index - 1].strip =~ /\Astartxref\s(\d+)\z/
+            startxref_offset = $1.to_i
+            startxref_mangled = true
+            break # we found it even if it the syntax is not entirely correct
+          elsif eof_index < 2 || lines[eof_index - 2].strip != "startxref"
+            startxref_missing = true
+          else
+            startxref_offset = lines[eof_index - 1].to_i
+            break # we found it
+          end
         end
+        eof_not_found ||= !eof_index
+        break if startxref_offset
       end
 
-      if eof_not_found
-        maybe_raise("PDF file trailer with end-of-file marker not found", pos: pos,
-                    force: !eof_index)
-      elsif startxref_mangled
+      if startxref_mangled
         maybe_raise("PDF file trailer keyword startxref on same line as value", pos: pos)
       elsif startxref_missing
         maybe_raise("PDF file trailer is missing startxref keyword", pos: pos,
-                    force: eof_index < 2 || lines[eof_index - 2].strip != "startxref")
+                    force: !startxref_offset)
+      elsif eof_not_found
+        maybe_raise("PDF file trailer with end-of-file marker not found", pos: pos,
+                    force: !startxref_offset)
       end
 
       @startxref_offset = startxref_offset
