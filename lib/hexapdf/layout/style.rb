@@ -1254,7 +1254,11 @@ module HexaPDF
       #     doesn't. If a box doesn't support this value, it is positioned as if the value :default
       #     was set.
       #
-      #     Note that the properties #align and #valign are not used with this value!
+      #     Notes:
+      #
+      #     * The properties #align and #valign are not used with this value.
+      #     * The rectangular area of the box is the rectangle containing all the flowed content.
+      #       That rectangle is used for drawing the border, background and so on.
       #
       #     Examples:
       #
