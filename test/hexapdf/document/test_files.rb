@@ -43,6 +43,11 @@ describe HexaPDF::Document::Files do
       assert_equal('Some file', spec[:Desc])
     end
 
+    it "optionally sets the MIME type of an embedded file" do
+      spec = @doc.files.add(@file.path, mime_type: 'application/pdf')
+      assert_equal(:'application/pdf', spec.embedded_file_stream[:Subtype])
+    end
+
     it "requires the name argument when given an IO object" do
       assert_raises(ArgumentError) { @doc.files.add(StringIO.new) }
     end

@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* Support for specifying the MIME type when embedding files
+
+
 ## 0.43.0 - 2024-05-26
 
 ### Added

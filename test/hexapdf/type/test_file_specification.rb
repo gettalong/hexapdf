@@ -97,10 +97,11 @@ describe HexaPDF::Type::FileSpecification do
     end
 
     it "embeds the given file and registers it with the global name registry" do
-      stream = @obj.embed(@file.path)
+      stream = @obj.embed(@file.path, mime_type: 'application/xml')
       assert_equal(stream, @obj[:EF][:UF])
       assert_equal(stream, @obj[:EF][:F])
       assert_equal(File.basename(@file.path), @obj.path)
+      assert_equal(:'application/xml', stream[:Subtype])
       assert_equal(@obj, @doc.catalog[:Names][:EmbeddedFiles].find_entry(@obj.path))
       assert_equal(:FlateDecode, stream[:Filter])
       assert_equal('embed-test', stream.stream)

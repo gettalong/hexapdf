@@ -158,11 +158,11 @@ module HexaPDF
       end
 
       # :call-seq:
-      #   file_spec.embed(filename, name: File.basename(filename), register: true)   -> ef_stream
-      #   file_spec.embed(io, name:, register: true)                                 -> ef_stream
+      #   file_spec.embed(filename, name: File.basename(filename), mime_type: nil, register: true)   -> ef_stream
+      #   file_spec.embed(io, name:, mime_type: nil, register: true)                                 -> ef_stream
       #
-      # Embeds the given file or IO stream into the PDF file, sets the path accordingly and returns
-      # the created stream object.
+      # Embeds the given file or IO stream into the PDF file, sets the path and MIME type
+      # accordingly and returns the created stream object.
       #
       # If a file is given, the +name+ option defaults to the basename of the file. However, if an
       # IO object is given, the +name+ argument is mandatory.
@@ -177,13 +177,16 @@ module HexaPDF
       # name::
       #     The name that should be used as path value and when registering.
       #
+      # mime_type::
+      #     Optionally specifies the MIME type of the file.
+      #
       # register::
       #     Specifies whether the embedded file will be added to the EmbeddedFiles name tree under
       #     the +name+. If the name is already taken, it's value is overwritten.
       #
       # The file has to be available until the PDF document gets written because reading and
       # writing is done lazily.
-      def embed(file_or_io, name: nil, register: true)
+      def embed(file_or_io, name: nil, mime_type: nil, register: true)
         name ||= File.basename(file_or_io) if file_or_io.kind_of?(String)
         if name.nil?
           raise ArgumentError, "The name argument is mandatory when given an IO object"
@@ -194,6 +197,7 @@ module HexaPDF
 
         self[:EF] ||= {}
         ef_stream = self[:EF][:UF] = self[:EF][:F] = document.add({Type: :EmbeddedFile})
+        ef_stream[:Subtype] = mime_type.to_sym if mime_type
         stat = if file_or_io.kind_of?(String)
                  File.stat(file_or_io)
                elsif file_or_io.respond_to?(:stat)
