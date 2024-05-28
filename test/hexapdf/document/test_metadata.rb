@@ -187,6 +187,27 @@ describe HexaPDF::Document::Metadata do
       assert_equal(metadata, @doc.catalog[:Metadata].stream.sub(/(?<=id=")\w+/, ''))
     end
 
+    it "writes the custom metadata" do
+      @metadata.delete
+      @metadata.custom_metadata("<rdf:Description>Test</rdf:Description>")
+      @metadata.custom_metadata("<rdf:Description>Test2</rdf:Description>")
+      @doc.write(StringIO.new, update_fields: false)
+      metadata = <<~XMP
+        <?xpacket begin="﻿" id=""?>
+        <x:xmpmeta xmlns:x="adobe:ns:meta/">
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
+        <pdf:Producer>HexaPDF version #{HexaPDF::VERSION}</pdf:Producer>
+        </rdf:Description>
+        <rdf:Description>Test</rdf:Description>
+        <rdf:Description>Test2</rdf:Description>
+        </rdf:RDF>
+        </x:xmpmeta>
+        <?xpacket end="r"?>
+      XMP
+      assert_equal(metadata, @doc.catalog[:Metadata].stream.sub(/(?<=id=")\w+/, ''))
+    end
+
     it "writes the XMP metadata" do
       title = HexaPDF::Document::Metadata::LocalizedString.new('Der Titel')
       title.language = 'de'

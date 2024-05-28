@@ -161,6 +161,7 @@ module HexaPDF
         @properties = PREDEFINED_PROPERTIES.transform_values(&:dup)
         @default_language = document.catalog[:Lang] || 'x-default'
         @metadata = Hash.new {|h, k| h[k] = {} }
+        @custom_metadata = []
         write_info_dict(true)
         write_metadata_stream(true)
         @document.register_listener(:complete_objects, &method(:write_metadata))
@@ -246,6 +247,16 @@ module HexaPDF
         else
           ns[property] = value
         end
+      end
+
+      # Adds the given +data+ string as custom metadata to the XMP document.
+      #
+      # The +data+ string must contain a fully valid 'rdf:Description' element.
+      #
+      # Using this method allows adding metadata like PDF/A schema definitions for which there is no
+      # direct support by HexaPDF.
+      def custom_metadata(data)
+        @custom_metadata << data
       end
 
       # :call-seq:
@@ -469,7 +480,7 @@ module HexaPDF
           <?xpacket begin="\u{FEFF}" id="#{SecureRandom.uuid.tr('-', '')}"?>
           <x:xmpmeta xmlns:x="adobe:ns:meta/">
           <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-          #{data}
+          #{data}#{@custom_metadata.empty? ? '' : "\n#{@custom_metadata.join("\n")}"}
           </rdf:RDF>
           </x:xmpmeta>
           <?xpacket end="r"?>
