@@ -253,8 +253,8 @@ module HexaPDF
 
         @height = @results.sum(&:height) + (@results.count - 1) * item_spacing + reserved_height
 
-        @draw_pos_x = frame.x + reserved_width_left
-        @draw_pos_y = frame.y - @height + reserved_height_bottom
+        @fit_x = frame.x + reserved_width_left
+        @fit_y = frame.y - @height + reserved_height_bottom
         @all_items_fitted = @results.all? {|r| r.box_fitter.success? } &&
           @results.size == @children.size
         @fit_successful = @all_items_fitted || (@initial_height > 0 && style.overflow == :truncate)
@@ -366,11 +366,11 @@ module HexaPDF
             "style property overflow is set to :error"
         end
 
-        translate = style.position != :flow && (x != @draw_pos_x || y != @draw_pos_y)
+        translate = style.position != :flow && (x != @fit_x || y != @fit_y)
 
         if translate
           canvas.save_graphics_state
-          canvas.translate(x - @draw_pos_x, y - @draw_pos_y)
+          canvas.translate(x - @fit_x, y - @fit_y)
         end
 
         @results.each do |item_result|
