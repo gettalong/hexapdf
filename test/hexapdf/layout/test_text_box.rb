@@ -105,24 +105,29 @@ describe HexaPDF::Layout::TextBox do
   describe "split" do
     it "works for an empty text box" do
       box = create_box([])
-      assert_equal([box], box.split(100, 100, @frame))
+      box.fit(100, 100, @frame)
+      assert_equal([box, nil], box.split(100, 100, @frame))
     end
 
     it "doesn't need to split the box if it completely fits" do
       box = create_box([@inline_box] * 5)
-      assert_equal([box], box.split(50, 100, @frame))
+      box.fit(50, 100, @frame)
+      assert_equal([box, nil], box.split(50, 100, @frame))
     end
 
     it "works if no item of the text box fits" do
       box = create_box([@inline_box])
+      box.fit(5, 20, @frame)
       assert_equal([nil, box], box.split(5, 20, @frame))
     end
 
     it "works if the whole text box doesn't fits" do
       box = create_box([@inline_box], width: 102)
+      box.fit(100, 100, @frame)
       assert_equal([nil, box], box.split(100, 100, @frame))
 
       box = create_box([@inline_box], height: 102)
+      box.fit(100, 100, @frame)
       assert_equal([nil, box], box.split(100, 100, @frame))
     end
 
@@ -131,11 +136,12 @@ describe HexaPDF::Layout::TextBox do
       box.fit(50, 10, @frame)
       box.instance_variable_set(:@width, 50.00000000006)
       box.instance_variable_set(:@height, 10.00000000003)
-      assert_equal([box], box.split(50, 10, @frame))
+      assert_equal([box, nil], box.split(50, 10, @frame))
     end
 
     it "splits the box if necessary when using non-flowing text" do
       box = create_box([@inline_box] * 10)
+      box.fit(50, 10, @frame)
       boxes = box.split(50, 10, @frame)
       assert_equal(2, boxes.length)
       assert_equal(box, boxes[0])
@@ -147,6 +153,7 @@ describe HexaPDF::Layout::TextBox do
     it "splits the box if necessary when using flowing text that results in a wider box" do
       @frame.remove_area(Geom2D::Polygon.new([[0, 100], [50, 100], [50, 10], [0, 10]]))
       box = create_box([@inline_box] * 60, style: {position: :flow})
+      box.fit(50, 100, @frame)
       boxes = box.split(50, 100, @frame)
       assert_equal(2, boxes.length)
       assert_equal(box, boxes[0])
@@ -156,8 +163,10 @@ describe HexaPDF::Layout::TextBox do
     it "correctly handles text indentation for split boxes" do
       [{}, {position: :flow}].each do |styles|
         box = create_box([@inline_box] * 202, style: {text_indent: 50, **styles})
+        box.fit(100, 100, @frame)
         boxes = box.split(100, 100, @frame)
         assert_equal(107, boxes[1].instance_variable_get(:@items).length)
+        boxes[1].fit(100, 100, @frame)
         boxes = boxes[1].split(100, 100, @frame)
         assert_equal(7, boxes[1].instance_variable_get(:@items).length)
       end

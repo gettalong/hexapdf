@@ -77,7 +77,8 @@ module HexaPDF
       #
       # Also see TextLayouter#style for other style properties taken into account.
       def fit(available_width, available_height, frame)
-        return false if (@initial_width > 0 && @initial_width > available_width) ||
+        @fit_successful = false
+        return @fit_successful if (@initial_width > 0 && @initial_width > available_width) ||
           (@initial_height > 0 && @initial_height > available_height)
 
         frame = frame.child_frame(box: self)
@@ -114,24 +115,8 @@ module HexaPDF
           @height += style.line_spacing.gap(@result.lines.last, @result.lines.last)
         end
 
-        @result.status == :success ||
+        @fit_successful = @result.status == :success ||
           (@result.status == :height && @initial_height > 0 && style.overflow == :truncate)
-      end
-
-      # Splits the text box into two boxes if necessary and possible.
-      def split(available_width, available_height, frame)
-        fit(available_width, available_height, frame) unless @result
-
-        if style.position != :flow && (float_compare(@width, available_width) > 0 ||
-                                       float_compare(@height, available_height) > 0)
-          [nil, self]
-        elsif @result.remaining_items.empty?
-          [self]
-        elsif @result.lines.empty?
-          [nil, self]
-        else
-          [self, create_box_for_remaining_items]
-        end
       end
 
       # :nodoc:
@@ -145,6 +130,11 @@ module HexaPDF
       end
 
       private
+
+      # Splits the text box into two boxes.
+      def split_content(_available_width, _available_height, _frame)
+        [self, create_box_for_remaining_items]
+      end
 
       # Draws the text into the box.
       def draw_content(canvas, x, y)
