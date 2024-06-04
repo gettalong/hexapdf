@@ -19,8 +19,9 @@ describe HexaPDF::Layout::ListBox do
     HexaPDF::Layout::ListBox.new(content_indentation: 10, **kwargs)
   end
 
-  def check_box(box, width, height, fit_pos = nil)
-    assert(box.fit(@frame.available_width, @frame.available_height, @frame), "box didn't fit")
+  def check_box(box, width, height, status: :success, fit_pos: nil)
+    result = box.fit(@frame.available_width, @frame.available_height, @frame)
+    assert_equal(result.status, status)
     assert_equal(width, box.width, "box width")
     assert_equal(height, box.height, "box height")
     if fit_pos
@@ -73,45 +74,44 @@ describe HexaPDF::Layout::ListBox do
         check_box(box, 100, 40)
       end
 
-      it "respects the set initial height and the property overflow=:truncate" do
-        box = create_box(children: @text_boxes[0, 2], height: 20,
-                         style: {overflow: :truncate, position: position})
-        check_box(box, 100, 20)
+      it "respects the set initial height even when it doesn't fit completely" do
+        box = create_box(children: @text_boxes[0, 2], height: 20, style: {position: position})
+        check_box(box, 100, 20, status: :overflow)
       end
 
       it "respects the border and padding around all list items, position #{position}" do
         box = create_box(children: @text_boxes[0, 2],
                          style: {border: {width: [5, 4, 3, 2]}, padding: [5, 4, 3, 2], position: position})
-        check_box(box, 100, 76, [[14, 60], [14, 30]])
+        check_box(box, 100, 76, fit_pos: [[14, 60], [14, 30]])
       end
     end
 
     it "uses the frame's current cursor position and available width/height when position=:default" do
       @frame.remove_area(Geom2D::Polygon([0, 0], [10, 0], [10, 90], [100, 90], [100, 100], [0, 100]))
       box = create_box(children: @text_boxes[0, 2])
-      check_box(box, 90, 40, [[20, 70], [20, 50]])
+      check_box(box, 90, 40, fit_pos: [[20, 70], [20, 50]])
     end
 
     it "respects the frame's shape when style position=:flow" do
       @frame.remove_area(Geom2D::Polygon([0, 0], [0, 40], [40, 40], [40, 0]))
       box = create_box(children: @text_boxes[0, 4], style: {position: :flow})
-      check_box(box, 100, 90, [[10, 80], [10, 60], [10, 40], [50, 10]])
+      check_box(box, 100, 90, fit_pos: [[10, 80], [10, 60], [10, 40], [50, 10]])
     end
 
     it "calculates the correct height if the marker is higher than the content" do
       box = create_box(children: @text_boxes[0, 1], content_indentation: 20,
                        style: {font_size: 30})
-      check_box(box, 100, 27, [[20, 80]])
+      check_box(box, 100, 27, fit_pos: [[20, 80]])
     end
 
     it "respects the content indentation" do
       box = create_box(children: @text_boxes[0, 1], content_indentation: 30)
-      check_box(box, 100, 30, [[30, 70]])
+      check_box(box, 100, 30, fit_pos: [[30, 70]])
     end
 
     it "respects the spacing between list items" do
       box = create_box(children: @text_boxes[0, 2], item_spacing: 30)
-      check_box(box, 100, 70, [[10, 80], [10, 30]])
+      check_box(box, 100, 70, fit_pos:  [[10, 80], [10, 30]])
     end
 
     it "creates a new box for each marker even if the marker is the same" do
@@ -119,6 +119,11 @@ describe HexaPDF::Layout::ListBox do
       check_box(box, 100, 40)
       results = box.instance_variable_get(:@results)
       refute_same(results[0].marker, results[1].marker)
+    end
+
+    it "fails if not even a part of the first list item fits" do
+      box = create_box(children: @text_boxes[0, 2], height: 5)
+      check_box(box, 100, 0, status: :failure)
     end
 
     it "fails for unknown marker types" do
@@ -129,9 +134,9 @@ describe HexaPDF::Layout::ListBox do
 
   describe "split" do
     it "splits before a list item if no part of it will fit" do
-      box = create_box(children: @text_boxes[0, 2], height: 20)
-      box.fit(100, 100, @frame)
-      box_a, box_b = box.split(100, 100, @frame)
+      box = create_box(children: @text_boxes[0, 2])
+      assert(box.fit(100, 20, @frame).overflow?)
+      box_a, box_b = box.split
       assert_same(box, box_a)
       assert_equal(:show_first_marker, box_b.split_box?)
       assert_equal(1, box_a.instance_variable_get(:@results)[0].box_fitter.fit_results.size)
@@ -140,9 +145,9 @@ describe HexaPDF::Layout::ListBox do
     end
 
     it "splits a list item if some part of it will fit" do
-      box = create_box(children: @text_boxes[0, 2], height: 10)
-      box.fit(100, 100, @frame)
-      box_a, box_b = box.split(100, 100, @frame)
+      box = create_box(children: @text_boxes[0, 2])
+      assert(box.fit(100, 10, @frame).overflow?)
+      box_a, box_b = box.split
       assert_same(box, box_a)
       assert_equal(:hide_first_marker, box_b.split_box?)
       assert_equal(1, box_a.instance_variable_get(:@results)[0].box_fitter.fit_results.size)
@@ -152,8 +157,8 @@ describe HexaPDF::Layout::ListBox do
 
     it "splits a list item containg multiple boxes along box lines" do
       box = create_box(children: [@text_boxes[0], @text_boxes[1, 2]])
-      box.fit(100, 40, @frame)
-      box_a, box_b = box.split(100, 40, @frame)
+      assert(box.fit(100, 40, @frame).overflow?)
+      box_a, box_b = box.split
       assert_same(box, box_a)
       assert_equal(:hide_first_marker, box_b.split_box?)
       assert_equal(1, box_a.instance_variable_get(:@results)[1].box_fitter.fit_results.size)
@@ -337,12 +342,6 @@ describe HexaPDF::Layout::ListBox do
       box.draw(@canvas, 0, 100 - box.height)
       assert_operators(@canvas.contents, [:set_font_and_size, [:F1, 5]], range: 1)
       assert_equal(:ZapfDingbats, @canvas.resources.font(:F1)[:BaseFont])
-    end
-
-    it "fails if the initial height is set and property overflow is set to :error" do
-      box = create_box(children: @fixed_size_boxes[0, 2], height: 10)
-      box.fit(100, 100, @frame)
-      assert_raises(HexaPDF::Error) { box.draw(@canvas, 0, 100 - box.height) }
     end
   end
 end

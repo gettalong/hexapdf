@@ -45,7 +45,7 @@ module HexaPDF
     #
     # == Usage
     #
-    # After a Frame object is initialized, it is ready for drawing boxes on it.
+    # After a Frame object is initialized, it is ready for fitting boxes in it and drawing them.
     #
     # The explicit way of drawing a box follows these steps:
     #
@@ -54,7 +54,7 @@ module HexaPDF
     #
     #   The method #fit is also called for absolutely positioned boxes but since these boxes are not
     #   subject to the normal constraints, the provided available width and height are the width and
-    #   height inside the frame to the right and top of the bottom-left corner of the box.
+    #   height inside the frame to the right and top of the bottom left corner of the box.
     #
     # * If the box didn't fit, call #find_next_region to determine the next region for placing the
     #   box. If a new region was found, start over with #fit. Otherwise the frame has no more space
@@ -64,10 +64,6 @@ module HexaPDF
     #   tries to split the box into two so that the first part fits into the current region. If
     #   splitting is successful, the first box can be drawn (Make sure that the second box is
     #   handled correctly). Otherwise, start over with #find_next_region.
-    #
-    # For applications where splitting is not necessary, an easier way is to just use #draw and
-    # #find_next_region together, as #draw calls #fit if the box was not fit into the current
-    # region.
     #
     # == Used Box Properties
     #
@@ -88,84 +84,10 @@ module HexaPDF
 
       include HexaPDF::Utils
 
-      # Stores the result of fitting a box in a Frame.
-      class FitResult
-
-        # The frame into which the box was fitted.
-        attr_accessor :frame
-
-        # The box that was fitted into the frame.
-        attr_accessor :box
-
-        # The horizontal position where the box will be drawn.
-        attr_accessor :x
-
-        # The vertical position where the box will be drawn.
-        attr_accessor :y
-
-        # The available width in the frame for this particular box.
-        attr_accessor :available_width
-
-        # The available height in the frame for this particular box.
-        attr_accessor :available_height
-
-        # The rectangle (a Geom2D::Rectangle object) that will be removed from the frame when
-        # drawing the box.
-        attr_accessor :mask
-
-        # Initialize the result object for the given frame and box.
-        def initialize(frame, box)
-          @frame = frame
-          @box = box
-          @available_width = 0
-          @available_height = 0
-          @success = false
-        end
-
-        # Marks the fitting status as success.
-        def success!
-          @success = true
-        end
-
-        # Returns +true+ if fitting was successful.
-        def success?
-          @success
-        end
-
-        # Draws the #box onto the canvas at (#x + *dx*, #y + *dy*).
-        #
-        # The relative offset (dx, dy) is useful when rendering results that were accumulated and
-        # then need to be moved because the container holding them changes its position.
-        #
-        # The configuration option "debug" can be used to add visual debug output with respect to
-        # box placement.
-        def draw(canvas, dx: 0, dy: 0)
-          doc = canvas.context.document
-          if doc.config['debug']
-            name = (frame.parent_boxes + [box]).map do |box|
-              box.class.to_s.sub(/.*::/, '')
-            end.join('-') << "##{box.object_id}"
-            name = "#{name} (#{(x + dx).to_i},#{(y + dy).to_i}-#{mask.width.to_i}x#{mask.height.to_i})"
-            ocg = doc.optional_content.ocg(name)
-            canvas.optional_content(ocg) do
-              canvas.translate(dx, dy) do
-                canvas.fill_color("green").stroke_color("darkgreen").
-                  opacity(fill_alpha: 0.1, stroke_alpha: 0.2).
-                  draw(:geom2d, object: mask, path_only: true).fill_stroke
-              end
-            end
-            page = "Page #{canvas.context.index + 1}" rescue "XObject"
-            doc.optional_content.default_configuration.add_ocg_to_ui(ocg, path: ['Debug', page])
-          end
-          box.draw(canvas, x + dx, y + dy)
-        end
-
-      end
-
-      # The x-coordinate of the bottom-left corner.
+      # The x-coordinate of the bottom left corner.
       attr_reader :left
 
-      # The y-coordinate of the bottom-left corner.
+      # The y-coordinate of the bottom left corner.
       attr_reader :bottom
 
       # The width of the frame.
@@ -253,16 +175,15 @@ module HexaPDF
         @context&.document
       end
 
-      # Fits the given box into the current region of available space and returns a FitResult
-      # object.
+      # Fits the given box into the current region of available space and returns the associated
+      # Box::FitResult object.
       #
       # Fitting a box takes the style properties 'position', 'align', 'valign', 'margin', and
       # 'mask_mode' into account.
       #
-      # Use the FitResult#success? method to determine whether fitting was successful.
+      # Use the Box::FitResult#success? method to determine whether fitting was successful.
       def fit(box)
-        fit_result = FitResult.new(self, box)
-        return fit_result if full?
+        return Box::FitResult.new(box, frame: self) if full?
 
         margin = box.style.margin if box.style.margin?
 
@@ -277,7 +198,7 @@ module HexaPDF
 
           aw = width - x
           ah = height - y
-          box.fit(aw, ah, self)
+          fit_result = box.fit(aw, ah, self)
           fit_result.success!
 
           x += left
@@ -294,7 +215,7 @@ module HexaPDF
             ah -= margin_top = margin.top unless float_equal(@y, @bottom + @height)
           end
 
-          fit_result.success! if box.fit(aw, ah, self)
+          fit_result = box.fit(aw, ah, self)
 
           width = box.width
           height = box.height
@@ -372,27 +293,24 @@ module HexaPDF
             create_rectangle(@x, @y - available_height, @x + available_width, @y)
           end
 
-        fit_result.available_width = aw
-        fit_result.available_height = ah
         fit_result.x = x
         fit_result.y = y
         fit_result.mask = rectangle
         fit_result
       end
 
-      # Tries to split the box of the given FitResult into two parts and returns both parts.
+      # Tries to split the box of the given Box::FitResult into two parts and returns both parts.
       #
       # See Box#split for further details.
       def split(fit_result)
-        fit_result.box.split(fit_result.available_width, fit_result.available_height, self)
+        fit_result.box.split
       end
 
-      # Draws the box of the given FitResult onto the canvas at the fitted position.
+      # Draws the box of the given Box::FitResult onto the canvas at the fitted position.
       #
       # After a box is successfully drawn, the frame's shape is adjusted to remove the occupied
       # area.
       def draw(canvas, fit_result)
-        return if fit_result.box.height == 0 || fit_result.box.width == 0
         fit_result.draw(canvas)
         remove_area(fit_result.mask)
       end

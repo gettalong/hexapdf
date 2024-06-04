@@ -143,11 +143,11 @@ module HexaPDF
             children.empty? ? 0 : result.mask.x + result.mask.width - my_frame.left
           end
           update_content_height { @box_fitter.content_heights.max }
-          true
+          fit_result.success!
         end
       end
 
-      # Draws the image onto the canvas at position [x, y].
+      # Draws the children onto the canvas at position [x, y].
       def draw_content(canvas, x, y)
         dx = x - @fit_x
         dy = y - @fit_y

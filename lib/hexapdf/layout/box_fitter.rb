@@ -111,6 +111,7 @@ module HexaPDF
               @content_heights[@frame_index] = [@content_heights[@frame_index],
                                                 @initial_frame_y[@frame_index] - result.mask.y].max
               @fit_results << result
+              break unless box
             elsif !current_frame.find_next_region
               @frame_index += 1
             end

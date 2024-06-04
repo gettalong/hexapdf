@@ -138,31 +138,29 @@ module HexaPDF
         super && (!@box_fitter || @box_fitter.fit_results.empty?)
       end
 
+      private
+
       # Fits the column box into the current region of the frame.
       #
-      # If the style property 'position' is set to :flow, the columns might not be rectangles but
-      # arbitrary (sets of) polygons since the +frame+s shape is taken into account.
-      def fit(available_width, available_height, frame)
-        return false if @initial_height > available_height || @initial_width > available_width
-
+      def fit_content(available_width, available_height, frame)
         initial_fit_successful = (@equal_height && @columns.size > 1 ? nil : false)
         tries = 0
-        @width = if style.position == :flow
-                   (@initial_width > 0 ? @initial_width : frame.width) - reserved_width
-                 else
-                   (@initial_width > 0 ? @initial_width : available_width) - reserved_width
-                 end
+        width = if style.position == :flow
+                  (@initial_width > 0 ? @initial_width : frame.width) - reserved_width
+                else
+                  (@initial_width > 0 ? @initial_width : available_width) - reserved_width
+                end
         height = if style.position == :flow
-                   (@initial_height > 0 ? @initial_height : frame.height) - reserved_height
+                   (@initial_height > 0 ? @initial_height : frame.y - frame.bottom) - reserved_height
                  else
                    (@initial_height > 0 ? @initial_height : available_height) - reserved_height
                  end
 
-        columns = calculate_columns(@width)
-        return false if columns.empty?
+        columns = calculate_columns(width)
+        return if columns.empty?
 
         left = (style.position == :flow ? frame.left : frame.x) + reserved_width_left
-        top = (style.position == :flow ? frame.bottom + frame.height : frame.y) - reserved_height_top
+        top = frame.y - reserved_height_top
         successful_height = height
         unsuccessful_height = 0
 
@@ -206,15 +204,15 @@ module HexaPDF
           tries += 1
         end
 
-        @width = columns[-1].sum + reserved_width
-        @height = (@initial_height > 0 ? @initial_height : @box_fitter.content_heights.max + reserved_height)
-        @draw_pos_x = frame.x + reserved_width_left
-        @draw_pos_y = frame.y - @height + reserved_height_bottom
+        update_content_width { columns[-1].sum }
+        update_content_height { @box_fitter.content_heights.max }
 
-        @box_fitter.success?
+        if @box_fitter.success?
+          fit_result.success!
+        elsif !@box_fitter.fit_results.empty?
+          fit_result.overflow!
+        end
       end
-
-      private
 
       # Calculates the x-coordinates and widths of all columns based on the given total available
       # width.
@@ -241,7 +239,7 @@ module HexaPDF
       end
 
       # Splits the content of the column box. This method is called from Box#split.
-      def split_content(_available_width, _available_height, _frame)
+      def split_content
         box = create_split_box
         box.instance_variable_set(:@children, @box_fitter.remaining_boxes)
         [self, box]
@@ -249,8 +247,8 @@ module HexaPDF
 
       # Draws the child boxes onto the canvas at position [x, y].
       def draw_content(canvas, x, y)
-        if style.position != :flow && (x != @draw_pos_x || y != @draw_pos_y)
-          canvas.translate(x - @draw_pos_x, y - @draw_pos_y) do
+        if style.position != :flow && (x != @fit_x || y != @fit_y)
+          canvas.translate(x - @fit_x, y - @fit_y) do
             @box_fitter.fit_results.each {|result| result.draw(canvas) }
           end
         else

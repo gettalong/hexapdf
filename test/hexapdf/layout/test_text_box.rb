@@ -36,14 +36,14 @@ describe HexaPDF::Layout::TextBox do
   describe "fit" do
     it "fits into a rectangular area" do
       box = create_box([@inline_box] * 5, style: {padding: 10})
-      assert(box.fit(100, 100, @frame))
+      assert(box.fit(100, 100, @frame).success?)
       assert_equal(70, box.width)
       assert_equal(30, box.height)
     end
 
     it "respects the set width and height" do
       box = create_box([@inline_box], width: 40, height: 50, style: {padding: 10})
-      assert(box.fit(100, 100, @frame))
+      assert(box.fit(100, 100, @frame).success?)
       assert_equal(40, box.width)
       assert_equal(50, box.height)
       assert_equal([10], box.instance_variable_get(:@result).lines.map(&:width))
@@ -53,14 +53,14 @@ describe HexaPDF::Layout::TextBox do
       @frame.remove_area(Geom2D::Rectangle(0, 80, 20, 20))
       @frame.remove_area(Geom2D::Rectangle(80, 70, 20, 20))
       box = create_box([@inline_box] * 20, style: {position: :flow})
-      assert(box.fit(100, 100, @frame))
+      assert(box.fit(100, 100, @frame).success?)
       assert_equal(100, box.width)
       assert_equal(30, box.height)
     end
 
     it "takes the style option last_line_gap into account" do
       box = create_box([@inline_box] * 5, style: {last_line_gap: true, line_spacing: :double})
-      assert(box.fit(100, 100, @frame))
+      assert(box.fit(100, 100, @frame).success?)
       assert_equal(50, box.width)
       assert_equal(20, box.height)
     end
@@ -68,7 +68,7 @@ describe HexaPDF::Layout::TextBox do
     it "uses the whole available width when aligning to the center or right" do
       [:center, :right].each do |align|
         box = create_box([@inline_box], style: {text_align: align})
-        assert(box.fit(100, 100, @frame))
+        assert(box.fit(100, 100, @frame).success?)
         assert_equal(100, box.width)
       end
     end
@@ -76,100 +76,62 @@ describe HexaPDF::Layout::TextBox do
     it "uses the whole available height when vertically aligning to the center or bottom" do
       [:center, :bottom].each do |valign|
         box = create_box([@inline_box], style: {text_valign: valign})
-        assert(box.fit(100, 100, @frame))
+        assert(box.fit(100, 100, @frame).success?)
         assert_equal(100, box.height)
       end
     end
 
-    it "respects the style property overflow when fitting too much text" do
+    it "can fit part of the box" do
       box = create_box([@inline_box] * 20, height: 15)
-      refute(box.fit(100, 100, @frame))
-      box.style.overflow = :truncate
-      assert(box.fit(100, 100, @frame))
-
-      box = create_box([@inline_box] * 20, style: {overflow: :truncate})
-      refute(box.fit(100, 15, @frame))
+      assert(box.fit(100, 100, @frame).overflow?)
     end
 
-    it "can't fit the text box if the set width is bigger than the available width" do
-      box = create_box([@inline_box], width: 101)
-      refute(box.fit(100, 100, @frame))
+    it "correctly handles text indentation for split boxes" do
+      [{}, {position: :flow}].each do |styles|
+        box = create_box([@inline_box] * 202, style: {text_indent: 50, **styles})
+        assert(box.fit(100, 100, @frame).overflow?)
+        _, box_b = box.split
+        assert_equal(107, box_b.instance_variable_get(:@items).length)
+        assert(box_b.fit(100, 100, @frame).overflow?)
+        _, box_b = box_b.split
+        assert_equal(7, box_b.instance_variable_get(:@items).length)
+      end
     end
 
-    it "can't fit the text box if the set height is bigger than the available height" do
-      box = create_box([@inline_box], height: 101)
-      refute(box.fit(100, 100, @frame))
+    it "fits an empty text box" do
+      box = create_box([])
+      assert(box.fit(100, 100, @frame).success?)
+    end
+
+    it "fails if no item of the text box fits due to the width" do
+      box = create_box([@inline_box])
+      assert(box.fit(5, 20, @frame).failure?)
+    end
+
+    it "fails if no item of the text box fits due to the height" do
+      box = create_box([@inline_box])
+      assert(box.fit(20, 5, @frame).failure?)
     end
   end
 
   describe "split" do
-    it "works for an empty text box" do
-      box = create_box([])
-      box.fit(100, 100, @frame)
-      assert_equal([box, nil], box.split(100, 100, @frame))
-    end
-
-    it "doesn't need to split the box if it completely fits" do
-      box = create_box([@inline_box] * 5)
-      box.fit(50, 100, @frame)
-      assert_equal([box, nil], box.split(50, 100, @frame))
-    end
-
-    it "works if no item of the text box fits" do
-      box = create_box([@inline_box])
-      box.fit(5, 20, @frame)
-      assert_equal([nil, box], box.split(5, 20, @frame))
-    end
-
-    it "works if the whole text box doesn't fits" do
-      box = create_box([@inline_box], width: 102)
-      box.fit(100, 100, @frame)
-      assert_equal([nil, box], box.split(100, 100, @frame))
-
-      box = create_box([@inline_box], height: 102)
-      box.fit(100, 100, @frame)
-      assert_equal([nil, box], box.split(100, 100, @frame))
-    end
-
-    it "works if the box fits exactly (+/- float divergence)" do
-      box = create_box([@inline_box] * 5)
-      box.fit(50, 10, @frame)
-      box.instance_variable_set(:@width, 50.00000000006)
-      box.instance_variable_set(:@height, 10.00000000003)
-      assert_equal([box, nil], box.split(50, 10, @frame))
-    end
-
     it "splits the box if necessary when using non-flowing text" do
       box = create_box([@inline_box] * 10)
       box.fit(50, 10, @frame)
-      boxes = box.split(50, 10, @frame)
-      assert_equal(2, boxes.length)
-      assert_equal(box, boxes[0])
-      refute(boxes[0].split_box?)
-      assert(boxes[1].split_box?)
-      assert_equal(5, boxes[1].instance_variable_get(:@items).length)
+      box_a, box_b = box.split
+      assert_same(box, box_a)
+      refute(box_a.split_box?)
+      assert(box_b.split_box?)
+      assert_equal(5, box_b.instance_variable_get(:@items).length)
     end
 
     it "splits the box if necessary when using flowing text that results in a wider box" do
       @frame.remove_area(Geom2D::Polygon.new([[0, 100], [50, 100], [50, 10], [0, 10]]))
       box = create_box([@inline_box] * 60, style: {position: :flow})
       box.fit(50, 100, @frame)
-      boxes = box.split(50, 100, @frame)
-      assert_equal(2, boxes.length)
-      assert_equal(box, boxes[0])
-      assert_equal(5, boxes[1].instance_variable_get(:@items).length)
-    end
-
-    it "correctly handles text indentation for split boxes" do
-      [{}, {position: :flow}].each do |styles|
-        box = create_box([@inline_box] * 202, style: {text_indent: 50, **styles})
-        box.fit(100, 100, @frame)
-        boxes = box.split(100, 100, @frame)
-        assert_equal(107, boxes[1].instance_variable_get(:@items).length)
-        boxes[1].fit(100, 100, @frame)
-        boxes = boxes[1].split(100, 100, @frame)
-        assert_equal(7, boxes[1].instance_variable_get(:@items).length)
-      end
+      box_a, box_b = box.split
+      assert_same(box, box_a)
+      assert_equal(5, box_b.instance_variable_get(:@items).length)
     end
   end
 
@@ -227,6 +189,7 @@ describe HexaPDF::Layout::TextBox do
 
     it "draws nothing onto the canvas if the box is empty" do
       box = create_box([])
+      box.fit(100, 100, @frame)
       box.draw(@canvas, 5, 5)
       assert_operators(@canvas.contents, [])
     end

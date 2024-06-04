@@ -50,6 +50,13 @@ describe HexaPDF::Layout::BoxFitter do
     check_result(10, 20, 0, 0, 100, 130, 100, 110, content_heights: [90, 40])
   end
 
+  it "correctly handles truncated boxes" do
+    box = HexaPDF::Layout::Box.new(height: 50) {}
+    box.define_singleton_method(:fit_content) {|*| fit_result.overflow! }
+    @box_fitter.fit(box)
+    check_result(10, 40, content_heights: [50, 0])
+  end
+
   it "fails when some boxes can't be fitted" do
     fit_box(9)
     fit_box(70)

@@ -425,6 +425,7 @@ module HexaPDF
           if draw_box
             @frame.draw(@canvas, result)
             drawn_on_page = true
+            (box = draw_box; break) unless box
           elsif !@frame.find_next_region
             unless drawn_on_page
               raise HexaPDF::Error, "Box doesn't fit on empty page"

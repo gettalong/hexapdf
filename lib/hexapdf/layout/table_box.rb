@@ -211,37 +211,6 @@ module HexaPDF
           @height = height
         end
 
-        # Fits the children of the table cell into the given rectangular area.
-        def fit(available_width, available_height, frame)
-          @width = available_width
-          width = available_width - reserved_width
-          height = available_height - reserved_height
-          return false if width <= 0 || height <= 0
-
-          frame = frame.child_frame(0, 0, width, height, box: self)
-          case children
-          when Box
-            fit_result = frame.fit(children)
-            @preferred_width = fit_result.x + fit_result.box.width + reserved_width
-            @height = @preferred_height = fit_result.box.height + reserved_height
-            @fit_results = [fit_result]
-            @fit_successful = fit_result.success?
-          when Array
-            box_fitter = BoxFitter.new([frame])
-            children.each {|box| box_fitter.fit(box) }
-            max_x_result = box_fitter.fit_results.max_by {|result| result.x + result.box.width }
-            @preferred_width = max_x_result.x + max_x_result.box.width + reserved_width
-            @height = @preferred_height = box_fitter.content_heights[0] + reserved_height
-            @fit_results = box_fitter.fit_results
-            @fit_successful = box_fitter.success?
-          else
-            @preferred_width = reserved_width
-            @height = @preferred_height = reserved_height
-            @fit_results = []
-            @fit_successful = true
-          end
-        end
-
         # :nodoc:
         def inspect
           "<Cell (#{row},#{column}) #{row_span}x#{col_span} #{Array(children).map(&:class)}>"
@@ -249,18 +218,44 @@ module HexaPDF
 
         private
 
+        # Fits the children of the table cell into the given rectangular area.
+        def fit_content(available_width, available_height, frame)
+          width = available_width - reserved_width
+          height = @used_height = available_height - reserved_height
+          return if width <= 0 || height <= 0
+
+          frame = frame.child_frame(0, 0, width, height, box: self)
+          case children
+          when Box
+            child_result = frame.fit(children)
+            @preferred_width = child_result.x + child_result.box.width + reserved_width
+            @height = @preferred_height = child_result.box.height + reserved_height
+            @fit_results = [child_result]
+            fit_result.success! if child_result.success?
+          when Array
+            box_fitter = BoxFitter.new([frame])
+            children.each {|box| box_fitter.fit(box) }
+            max_x_result = box_fitter.fit_results.max_by {|result| result.x + result.box.width }
+            @preferred_width = max_x_result.x + max_x_result.box.width + reserved_width
+            @height = @preferred_height = box_fitter.content_heights[0] + reserved_height
+            @fit_results = box_fitter.fit_results
+            fit_result.success! if box_fitter.success?
+          else
+            @preferred_width = reserved_width
+            @height = @preferred_height = reserved_height
+            @fit_results = []
+            fit_result.success!
+          end
+        end
+
         # Draws the content of the cell.
         def draw_content(canvas, x, y)
           return if @fit_results.empty?
 
           # available_width is always equal to content_width but we need to adjust for the
           # difference in the y direction between fitting and drawing
-          y -= (@fit_results[0].available_height - content_height)
-          @fit_results.each do |fit_result|
-            #fit_result.x += x
-            #fit_result.y += y
-            fit_result.draw(canvas, dx: x, dy: y)
-          end
+          y -= (@used_height - content_height)
+          @fit_results.each {|fit_result| fit_result.draw(canvas, dx: x, dy: y) }
         end
 
       end
@@ -393,7 +388,7 @@ module HexaPDF
                                      else
                                        column_info[cell.column].last
                                      end
-              unless cell.fit(available_cell_width, available_height, frame)
+              unless cell.fit(available_cell_width, available_height, frame).success?
                 row_fit = false
                 break
               end
@@ -589,24 +584,23 @@ module HexaPDF
         super && (!@last_fitted_row_index || @last_fitted_row_index < 0)
       end
 
-      # Fits the table into the current region of the frame.
-      def fit(available_width, available_height, frame)
-        return false if (@initial_width > 0 && @initial_width > available_width) ||
-          (@initial_height > 0 && @initial_height > available_height)
+      private
 
+      # Fits the table into the current region of the frame.
+      def fit_content(_available_width, _available_height, frame)
         # Adjust reserved width/height to include space used by the edge cells for their border
         # since cell borders are drawn on the bounds and not inside.
-        # This uses the top-left and bottom-right cells and so might not be correct in all cases.
+        # This uses the top left and bottom right cells and so might not be correct in all cases.
         @cell_tl_border_width = @cells[0, 0].style.border.width
         cell_br_border_width = @cells[-1, -1].style.border.width
-        rw = reserved_width + (@cell_tl_border_width.left + cell_br_border_width.right) / 2.0
-        rh = reserved_height + (@cell_tl_border_width.top + cell_br_border_width.bottom) / 2.0
+        rw = (@cell_tl_border_width.left + cell_br_border_width.right) / 2.0
+        rh = (@cell_tl_border_width.top + cell_br_border_width.bottom) / 2.0
 
-        width = (@initial_width > 0 ? @initial_width : available_width) - rw
-        height = (@initial_height > 0 ? @initial_height : available_height) - rh
+        width = @width - reserved_width - rw
+        height = @height - reserved_height - rh
         used_height = 0
         columns = calculate_column_widths(width)
-        return false if columns.empty?
+        return if columns.empty?
 
         frame = frame.child_frame(box: self)
         @special_cells_fit_not_successful = false
@@ -616,18 +610,21 @@ module HexaPDF
           height -= special_used_height
           used_height += special_used_height
           @special_cells_fit_not_successful = (last_fitted_row_index != special_cells.number_of_rows - 1)
-          return false if @special_cells_fit_not_successful
+          return nil if @special_cells_fit_not_successful
         end
 
         main_used_height, @last_fitted_row_index = @cells.fit_rows(@start_row_index, height, columns, frame)
         used_height += main_used_height
 
-        @width = (@initial_width > 0 ? @initial_width : columns[-1].sum + rw)
-        @height = (@initial_height > 0 ? @initial_height : used_height + rh)
-        @fit_successful = (@last_fitted_row_index == @cells.number_of_rows - 1)
-      end
+        update_content_width { columns[-1].sum + rw }
+        update_content_height { used_height + rh }
 
-      private
+        if @last_fitted_row_index == @cells.number_of_rows - 1
+          fit_result.success!
+        elsif @last_fitted_row_index >= 0
+          fit_result.overflow!
+        end
+      end
 
       # Calculates and returns the x-coordinates and widths of all columns based on the given total
       # available width.
@@ -649,20 +646,16 @@ module HexaPDF
       end
 
       # Splits the content of the table box. This method is called from Box#split.
-      def split_content(_available_width, _available_height, _frame)
-        if @special_cells_fit_not_successful || @last_fitted_row_index < 0
-          [nil, self]
-        else
-          box = create_split_box
-          box.instance_variable_set(:@start_row_index, @last_fitted_row_index + 1)
-          box.instance_variable_set(:@last_fitted_row_index, -1)
-          box.instance_variable_set(:@special_cells_fit_not_successful, nil)
-          header_cells = @header ? Cells.new(@header.call(self), cell_style: @cell_style) : nil
-          box.instance_variable_set(:@header_cells, header_cells)
-          footer_cells = @footer ? Cells.new(@footer.call(self), cell_style: @cell_style) : nil
-          box.instance_variable_set(:@footer_cells, footer_cells)
-          [self, box]
-        end
+      def split_content
+        box = create_split_box
+        box.instance_variable_set(:@start_row_index, @last_fitted_row_index + 1)
+        box.instance_variable_set(:@last_fitted_row_index, -1)
+        box.instance_variable_set(:@special_cells_fit_not_successful, nil)
+        header_cells = @header ? Cells.new(@header.call(self), cell_style: @cell_style) : nil
+        box.instance_variable_set(:@header_cells, header_cells)
+        footer_cells = @footer ? Cells.new(@footer.call(self), cell_style: @cell_style) : nil
+        box.instance_variable_set(:@footer_cells, footer_cells)
+        [self, box]
       end
 
       # Draws the child boxes onto the canvas at position [x, y].

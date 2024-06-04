@@ -5,6 +5,11 @@
 * Support for specifying the MIME type when embedding files
 * Support for adding custom XMP metadata
 
+### Changed
+
+* **Breaking change**: Refactored the box implementation of the document layout
+  system
+
 
 ## 0.43.0 - 2024-05-26
 

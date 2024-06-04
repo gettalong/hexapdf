@@ -79,9 +79,11 @@ module HexaPDF
         false
       end
 
+      private
+
       # Fits the image into the current region of the frame, taking the initially set width and
       # height into account (see the class description for details).
-      def fit(available_width, available_height, _frame)
+      def fit_content(available_width, available_height, _frame)
         image_width = @image.width.to_f
         image_height = @image.height.to_f
         image_ratio = image_width / image_height
@@ -103,11 +105,9 @@ module HexaPDF
           @height = image_height * ratio + rh
         end
 
-        @fit_successful = float_compare(@width, available_width) <= 0 &&
+        fit_result.success! if float_compare(@width, available_width) <= 0 &&
           float_compare(@height, available_height) <= 0
       end
-
-      private
 
       # Draws the image onto the canvas at position [x, y].
       def draw_content(canvas, x, y)

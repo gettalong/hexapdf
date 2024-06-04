@@ -186,8 +186,10 @@ module HexaPDF
         super && (!@results || @results.all? {|result| result.box_fitter.fit_results.empty? })
       end
 
+      private
+
       # Fits the list box into the current region of the frame.
-      def fit(available_width, available_height, frame)
+      def fit_content(available_width, available_height, frame)
         @width = if @initial_width > 0
                    @initial_width
                  else
@@ -253,14 +255,12 @@ module HexaPDF
 
         @height = @results.sum(&:height) + (@results.count - 1) * item_spacing + reserved_height
 
-        @fit_x = frame.x + reserved_width_left
-        @fit_y = frame.y - @height + reserved_height_bottom
-        @all_items_fitted = @results.all? {|r| r.box_fitter.success? } &&
-          @results.size == @children.size
-        @fit_successful = @all_items_fitted || (@initial_height > 0 && style.overflow == :truncate)
+        if @results.size == @children.size && @results.all? {|r| r.box_fitter.success? }
+          fit_result.success!
+        elsif !@results.empty? && !@results[0].box_fitter.fit_results.empty?
+          fit_result.overflow!
+        end
       end
-
-      private
 
       # Removes the +content_indentation+ from the left side of the given shape (a Geom2D::PolygonSet).
       def remove_indent_from_frame_shape(shape)
@@ -307,7 +307,7 @@ module HexaPDF
       end
 
       # Splits the content of the list box. This method is called from Box#split.
-      def split_content(_available_width, _available_height, _frame)
+      def split_content
         remaining_boxes = @results[-1].box_fitter.remaining_boxes
         first_is_split_box = !remaining_boxes.empty?
         children = (remaining_boxes.empty? ? [] : [remaining_boxes]) + @children[@results.size..-1]
@@ -361,17 +361,9 @@ module HexaPDF
 
       # Draws the list items onto the canvas at position [x, y].
       def draw_content(canvas, x, y)
-        if !@all_items_fitted && (@initial_height > 0 && style.overflow == :error)
-          raise HexaPDF::Error, "Some items don't fit into box with limited height and " \
-            "style property overflow is set to :error"
-        end
-
         translate = style.position != :flow && (x != @fit_x || y != @fit_y)
 
-        if translate
-          canvas.save_graphics_state
-          canvas.translate(x - @fit_x, y - @fit_y)
-        end
+        canvas.save_graphics_state.translate(x - @fit_x, y - @fit_y) if translate
 
         @results.each do |item_result|
           box_fitter = item_result.box_fitter

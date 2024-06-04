@@ -15,7 +15,7 @@ describe HexaPDF::Layout::ContainerBox do
   end
 
   def check_box(box, width, height, fit_pos = nil)
-    assert(box.fit(@frame.available_width, @frame.available_height, @frame), "box didn't fit")
+    assert(box.fit(@frame.available_width, @frame.available_height, @frame).success?, "box didn't fit")
     assert_equal(width, box.width, "box width")
     assert_equal(height, box.height, "box height")
     if fit_pos
