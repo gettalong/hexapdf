@@ -8,6 +8,7 @@
 # Usage:
 # : `ruby pdfa.rb`
 #
+
 require 'hexapdf'
 
 HexaPDF::Composer.create('pdfa.pdf') do |composer|
