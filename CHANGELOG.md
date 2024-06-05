@@ -10,6 +10,10 @@
 * **Breaking change**: Refactored the box implementation of the document layout
   system
 
+### Fixed
+
+* Parsing of invalid files with garbage bytes at the end
+
 
 ## 0.43.0 - 2024-05-26
 

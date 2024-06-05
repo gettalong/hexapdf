@@ -365,11 +365,14 @@ module HexaPDF
         # Need to iterate through the whole lines array in case there are multiple %%EOF to try
         eof_index = 0
         while (eof_index = lines[0..(eof_index - 1)].rindex {|l| l.strip == '%%EOF' })
-          if lines[eof_index - 1].strip =~ /\Astartxref\s(\d+)\z/
+          if eof_index > 0 && lines[eof_index - 1].strip =~ /\Astartxref\s(\d+)\z/
             startxref_offset = $1.to_i
             startxref_mangled = true
             break # we found it even if it the syntax is not entirely correct
-          elsif eof_index < 2 || lines[eof_index - 2].strip != "startxref"
+          elsif eof_index < 2
+            startxref_missing = true
+            break
+          elsif lines[eof_index - 2].strip != "startxref"
             startxref_missing = true
           else
             startxref_offset = lines[eof_index - 1].to_i

@@ -358,6 +358,14 @@ describe HexaPDF::Parser do
     it "finds the startxref anywhere in file" do
       create_parser("startxref\n5\n%%EOF" << "\nhallo" * 5000)
       assert_equal(5, @parser.startxref_offset)
+    end
+
+    it "handles the case where %%EOF is the on the 1. line of the 1024 byte search block" do
+      create_parser("startxref\n5\n%%EOF\n" << "h" * 1018)
+      assert_equal(5, @parser.startxref_offset)
+    end
+
+    it "handles the case where %%EOF is the on the 2. line of the 1024 byte search block" do
       create_parser("startxref\n5\n%%EOF\n" << "h" * 1017)
       assert_equal(5, @parser.startxref_offset)
     end
