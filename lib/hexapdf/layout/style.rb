@@ -393,7 +393,7 @@ module HexaPDF
       # The object resolved in this way needs to respond to #call(canvas, box) where +canvas+ is the
       # HexaPDF::Content::Canvas object on which it should be drawn and +box+ is a box-like object
       # (e.g. Box or TextFragment). The coordinate system is translated so that the origin is at the
-      # bottom left corner of the box during the drawing operations.
+      # bottom-left corner of the box during the drawing operations.
       class Layers
 
         # Creates a new Layers object popuplated with the given +layers+.
@@ -1268,8 +1268,8 @@ module HexaPDF
       #       composer.lorem_ipsum(position: :flow)
       #
       # [x, y]::
-      #     Position the box with the bottom left corner at the given absolute position relative to
-      #     the bottom left corner of the frame.
+      #     Position the box with the bottom-left corner at the given absolute position relative to
+      #     the bottom-left corner of the frame.
       #
       #     Examples:
       #

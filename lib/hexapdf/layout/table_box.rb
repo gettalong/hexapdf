@@ -590,7 +590,7 @@ module HexaPDF
       def fit_content(_available_width, _available_height, frame)
         # Adjust reserved width/height to include space used by the edge cells for their border
         # since cell borders are drawn on the bounds and not inside.
-        # This uses the top left and bottom right cells and so might not be correct in all cases.
+        # This uses the top-left and bottom-right cells and so might not be correct in all cases.
         @cell_tl_border_width = @cells[0, 0].style.border.width
         cell_br_border_width = @cells[-1, -1].style.border.width
         rw = (@cell_tl_border_width.left + cell_br_border_width.right) / 2.0

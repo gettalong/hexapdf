@@ -379,7 +379,7 @@ module HexaPDF
       # system is translated so that the origin is at the bottom left corner of the **content box**.
       #
       # Subclasses should not rely on the +@draw_block+ but implement the #draw_content method. The
-      # coordinates passed to it are also modified to represent the bottom left corner of the
+      # coordinates passed to it are also modified to represent the bottom-left corner of the
       # content box but the coordinate system is not translated.
       def draw(canvas, x, y)
         if @fit_result.overflow? && @initial_height > 0 && style.overflow == :error

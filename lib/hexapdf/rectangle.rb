@@ -48,8 +48,8 @@ module HexaPDF
   #
   #   [left, bottom, right, top]
   #
-  # where +left+ is the bottom left x-coordinate, +bottom+ is the bottom left y-coordinate, +right+
-  # is the top right x-coordinate and +top+ is the top right y-coordinate.
+  # where +left+ is the bottom-left x-coordinate, +bottom+ is the bottom-left y-coordinate, +right+
+  # is the top-right x-coordinate and +top+ is the top-right y-coordinate.
   #
   # See: PDF2.0 s7.9.5
   class Rectangle < HexaPDF::PDFArray
@@ -119,8 +119,8 @@ module HexaPDF
     #:nodoc:
     RECTANGLE_ERROR_MSG = "A PDF rectangle structure must contain an array of four numbers"
 
-    # Ensures that the value is an array containing four numbers that specify the bottom left and
-    # top right corner.
+    # Ensures that the value is an array containing four numbers that specify the bottom-left and
+    # top-right corners.
     def after_data_change
       super
       unless value.size == 4 && all? {|v| v.kind_of?(Numeric) }

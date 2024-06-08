@@ -159,8 +159,8 @@ module HexaPDF
       # retained without the need for parsing its contents.
       #
       # If the bounding box of the form XObject doesn't have its origin at (0, 0), the canvas origin
-      # is translated into the bottom left corner so that this detail doesn't matter when using the
-      # canvas. This means that the canvas' origin is always at the bottom left corner of the
+      # is translated into the bottom-left corner so that this detail doesn't matter when using the
+      # canvas. This means that the canvas' origin is always at the bottom-left corner of the
       # bounding box.
       #
       # *Note* that a canvas can only be retrieved for initially empty form XObjects!

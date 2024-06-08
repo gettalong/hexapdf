@@ -52,7 +52,7 @@ module HexaPDF
     # setting the style properties 'mask_mode', 'align' and 'valign', it is possible to lay out the
     # children bottom to top, left to right, or right to left:
     #
-    # * The standard top to bottom layout:
+    # * The standard top-to-bottom layout:
     #
     #     #>pdf-composer100
     #     composer.container do |container|
@@ -61,7 +61,7 @@ module HexaPDF
     #       container.box(:base, height: 20, style: {background_color: "hp-blue-light"})
     #     end
     #
-    # * The bottom to top layout (using valign = :bottom to fill up from the bottom and mask_mode =
+    # * The bottom-to-top layout (using valign = :bottom to fill up from the bottom and mask_mode =
     #   :fill_horizontal to only remove the area to the left and right of the box):
     #
     #     #>pdf-composer100
@@ -74,7 +74,7 @@ module HexaPDF
     #                                                mask_mode: :fill_horizontal, valign: :bottom})
     #     end
     #
-    # * The left to right layout (using mask_mode = :fill_vertical to fill the area to the top and
+    # * The left-to-right layout (using mask_mode = :fill_vertical to fill the area to the top and
     #   bottom of the box):
     #
     #     #>pdf-composer100
@@ -87,7 +87,7 @@ module HexaPDF
     #                                               mask_mode: :fill_vertical})
     #     end
     #
-    # * The right to left layout (using align = :right to fill up from the right and mask_mode =
+    # * The right-to-left layout (using align = :right to fill up from the right and mask_mode =
     #   :fill_vertical to fill the area to the top and bottom of the box):
     #
     #     #>pdf-composer100

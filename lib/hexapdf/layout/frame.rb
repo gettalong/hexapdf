@@ -54,7 +54,7 @@ module HexaPDF
     #
     #   The method #fit is also called for absolutely positioned boxes but since these boxes are not
     #   subject to the normal constraints, the provided available width and height are the width and
-    #   height inside the frame to the right and top of the bottom left corner of the box.
+    #   height inside the frame to the right and top of the bottom-left corner of the box.
     #
     # * If the box didn't fit, call #find_next_region to determine the next region for placing the
     #   box. If a new region was found, start over with #fit. Otherwise the frame has no more space
@@ -84,10 +84,10 @@ module HexaPDF
 
       include HexaPDF::Utils
 
-      # The x-coordinate of the bottom left corner.
+      # The x-coordinate of the bottom-left corner.
       attr_reader :left
 
-      # The y-coordinate of the bottom left corner.
+      # The y-coordinate of the bottom-left corner.
       attr_reader :bottom
 
       # The width of the frame.
@@ -127,7 +127,7 @@ module HexaPDF
 
       # An array of box objects representing the parent boxes.
       #
-      # The immediate parent is the last array entry, the top most parent the first one. All boxes
+      # The immediate parent is the last array entry, the top-most parent the first one. All boxes
       # that are fitted into this frame have to be child boxes of the immediate parent box.
       attr_reader :parent_boxes
 
@@ -382,7 +382,7 @@ module HexaPDF
       # Since not all text may start at the top of the frame, the offset argument can be used to
       # specify a vertical offset from the top of the frame where layouting should start.
       #
-      # To be compatible with TextLayouter, the top left corner of the bounding box of the frame's
+      # To be compatible with TextLayouter, the top-left corner of the bounding box of the frame's
       # shape is the origin of the coordinate system for the width specification, with positive
       # x-values to the right and positive y-values downwards.
       #
