@@ -7,9 +7,9 @@ rows = ARGV[0].to_i
 image = ARGV[1]
 
 HexaPDF::Composer.create(ARGV[2], page_size: :A4, margin: 72) do |pdf|
-  pdf.style(:image, position_hint: :center)
+  pdf.style(:image, align: :center)
   pdf.style(:text_col1, font: 'Helvetica', font_size: 10)
-  pdf.style(:text_col3, base: :text_col1, align: :right)
+  pdf.style(:text_col3, base: :text_col1, text_align: :right)
   data = rows.times.map do |i|
     ibox = pdf.document.layout.image(image, height: 40, style: :image)
     ["Line #{i}", ibox, i.to_s]
