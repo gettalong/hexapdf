@@ -245,7 +245,7 @@ module HexaPDF
           Array(child).each {|ibox| box_fitter.fit(ibox) }
           item_result.box_fitter = box_fitter
           item_result.height = [item_result.height.to_i, box_fitter.content_heights[0]].max
-          @results << item_result
+          @results << item_result unless box_fitter.fit_results.empty?
 
           top -= item_result.height + item_spacing
           height -= item_result.height + item_spacing

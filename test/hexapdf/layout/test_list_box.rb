@@ -134,13 +134,13 @@ describe HexaPDF::Layout::ListBox do
 
   describe "split" do
     it "splits before a list item if no part of it will fit" do
-      box = create_box(children: @text_boxes[0, 2])
-      assert(box.fit(100, 20, @frame).overflow?)
+      box = create_box(children: @text_boxes[0, 3])
+      assert(box.fit(100, 22, @frame).overflow?)
       box_a, box_b = box.split
       assert_same(box, box_a)
       assert_equal(:show_first_marker, box_b.split_box?)
       assert_equal(1, box_a.instance_variable_get(:@results)[0].box_fitter.fit_results.size)
-      assert_equal(1, box_b.children.size)
+      assert_equal(2, box_b.children.size)
       assert_equal(2, box_b.start_number)
     end
 

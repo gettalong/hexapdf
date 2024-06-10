@@ -5,6 +5,10 @@
 * [HexaPDF::Document::Layout#styles] and [HexaPDF::Composer#styles] for defining
   multiple styles at once
 
+### Fixed
+
+* Regression in [HexaPDF::Layout::ListBox] that leads to missing markers
+
 
 ## 0.44.0 - 2024-06-05
 
