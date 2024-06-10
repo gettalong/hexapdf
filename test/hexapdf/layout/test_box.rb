@@ -40,6 +40,9 @@ describe HexaPDF::Layout::Box do
     @frame = Object.new
     def @frame.x; 0; end
     def @frame.y; 100; end
+    def @frame.bottom; 40; end
+    def @frame.width; 150; end
+    def @frame.height; 150; end
   end
 
   def create_box(**args, &block)
@@ -128,6 +131,14 @@ describe HexaPDF::Layout::Box do
       assert(box.fit(100, 100, @frame).success?)
       assert_equal(50, box.width)
       assert_equal(100, box.height)
+    end
+
+    it "use the frame's width and its remaining height for position=:flow boxes" do
+      box = create_box(style: {position: :flow})
+      box.define_singleton_method(:supports_position_flow?) { true }
+      assert(box.fit(100, 100, @frame).success?)
+      assert_equal(150, box.width)
+      assert_equal(60, box.height)
     end
 
     it "uses float comparison" do

@@ -189,19 +189,9 @@ module HexaPDF
       private
 
       # Fits the list box into the current region of the frame.
-      def fit_content(available_width, available_height, frame)
-        @width = if @initial_width > 0
-                   @initial_width
-                 else
-                   (style.position == :flow ? frame.width : available_width)
-                 end
-        height = if @initial_height > 0
-                   @initial_height - reserved_height
-                 else
-                   (style.position == :flow ? frame.y - frame.bottom : available_height) - reserved_height
-                 end
-
+      def fit_content(_available_width, _available_height, frame)
         width = @width - reserved_width
+        height = @height - reserved_height
         left = (style.position == :flow ? frame.left : frame.x) + reserved_width_left
         top = frame.y - reserved_height_top
 

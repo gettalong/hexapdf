@@ -5,6 +5,11 @@
 * [HexaPDF::Document::Layout#styles] and [HexaPDF::Composer#styles] for defining
   multiple styles at once
 
+### Changed
+
+* [HexaPDF::Layout::Box#fit] to set width/height correctly for boxes with
+  position `:flow`
+
 ### Fixed
 
 * Regression in [HexaPDF::Layout::ListBox] that leads to missing markers

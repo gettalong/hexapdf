@@ -323,10 +323,12 @@ module HexaPDF
       # current region of the frame, adjusted for this box. The frame itself is provided as third
       # argument.
       #
-      # The default implementation uses the given available width and height for the box width and
-      # height if they were initially set to 0. Otherwise the intially specified dimensions are
-      # used. The method returns early if the thus configured box already doesn't fit. Otherwise,
-      # the #fit_content method is called which allows sub-classes to fit their content.
+      # If the box uses flow positioning, the width is set to the frame's width and the height to
+      # the remaining height in the frame. Otherwise the given available width and height are used
+      # for the width and height if they were initially set to 0. Otherwise the intially specified
+      # dimensions are used. The method returns early if the thus configured box already doesn't
+      # fit. Otherwise, the #fit_content method is called which allows sub-classes to fit their
+      # content.
       #
       # The following variables are set that may later be used during splitting or drawing:
       #
@@ -334,10 +336,23 @@ module HexaPDF
       #   used to adjust the drawing position in #draw_content if necessary.
       def fit(available_width, available_height, frame)
         @fit_result.reset(frame)
-        @width = (@initial_width > 0 ? @initial_width : available_width)
-        @height = (@initial_height > 0 ? @initial_height : available_height)
-        return @fit_result if style.position != :flow && (float_compare(@width, available_width) > 0 ||
-                                                          float_compare(@height, available_height) > 0)
+        position_flow = supports_position_flow? && style.position == :flow
+        @width = if @initial_width > 0
+                   @initial_width
+                 elsif position_flow
+                   frame.width
+                 else
+                   available_width
+                 end
+        @height = if @initial_height > 0
+                    @initial_height
+                  elsif position_flow
+                    frame.y - frame.bottom
+                  else
+                    available_height
+                  end
+        return @fit_result if !position_flow && (float_compare(@width, available_width) > 0 ||
+                                                 float_compare(@height, available_height) > 0)
 
         fit_content(available_width, available_height, frame)
 

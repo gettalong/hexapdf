@@ -142,19 +142,11 @@ module HexaPDF
 
       # Fits the column box into the current region of the frame.
       #
-      def fit_content(available_width, available_height, frame)
+      def fit_content(_available_width, _available_height, frame)
         initial_fit_successful = (@equal_height && @columns.size > 1 ? nil : false)
         tries = 0
-        width = if style.position == :flow
-                  (@initial_width > 0 ? @initial_width : frame.width) - reserved_width
-                else
-                  (@initial_width > 0 ? @initial_width : available_width) - reserved_width
-                end
-        height = if style.position == :flow
-                   (@initial_height > 0 ? @initial_height : frame.y - frame.bottom) - reserved_height
-                 else
-                   (@initial_height > 0 ? @initial_height : available_height) - reserved_height
-                 end
+        width = @width - reserved_width
+        height = @height - reserved_height
 
         columns = calculate_columns(width)
         return if columns.empty?
