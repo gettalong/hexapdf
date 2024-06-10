@@ -175,9 +175,6 @@ module HexaPDF
 
       end
 
-      # The mapping of style name (a Symbol) to Layout::Style instance.
-      attr_reader :styles
-
       # Creates a new Layout object for the given PDF document.
       def initialize(document)
         @document = document
@@ -217,6 +214,21 @@ module HexaPDF
         style = @styles[name] ||= (@styles.key?(base) ? @styles[base].dup : HexaPDF::Layout::Style.new)
         style.update(**properties) unless properties.empty?
         style
+      end
+
+      # :call-seq:
+      #    layout.styles            -> styles
+      #    layout.styles(**mapping)   -> styles
+      #
+      # Returns the mapping of style names to Layout::Style instances. If +mapping+ is provided,
+      # also defines the given styles using #style.
+      #
+      # The argument +mapping+ needs to be a hash mapping a style name (a Symbol) to style
+      # properties. The special key +:base+ can be used to define the base style. For details see
+      # #style.
+      def styles(**mapping)
+        mapping.each {|name, properties| style(name, **properties) } unless mapping.empty?
+        @styles
       end
 
       # Creates an inline box for use together with text fragments.

@@ -119,6 +119,13 @@ describe HexaPDF::Composer do
     end
   end
 
+  describe "styles" do
+    it "delegates to layout.styles" do
+      @composer.styles(base: {font_size: 30}, other: {font_size: 40})
+      assert_equal([:base, :other], @composer.document.layout.styles.keys)
+    end
+  end
+
   describe "page_style" do
     it "returns the page style if no argument or block is given" do
       page_style = @composer.page_style(:default)

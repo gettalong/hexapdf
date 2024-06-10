@@ -28,17 +28,18 @@ HexaPDF::Composer.create('pdfa.pdf') do |composer|
   }
 
   # Define all styles
-  composer.style(:base, font: 'Lato', font_size: 10, line_spacing: 1.3)
-  composer.style(:top, font_size: 8)
-  composer.style(:top_box, padding: [100, 0, 0], margin: [0, 0, 10], border: {width: [0, 0, 1]})
-  composer.style(:header, font: 'Lato bold', font_size: 20, margin: [50, 0, 20])
-  composer.style(:line_items, border: {width: 1, color: "eee"}, margin: [20, 0])
-  composer.style(:line_item_cell, font_size: 8)
-  composer.style(:footer, border: {width: [1, 0, 0], color: "darkgrey"},
-                 padding: [5, 0, 0], valign: :bottom)
-  composer.style(:footer_heading, font: 'Lato bold',
-                 font_size: 8, padding: [0, 0, 8])
-  composer.style(:footer_text,  font_size: 8, fill_color: "darkgrey")
+  composer.styles(
+    base: {font: 'Lato', font_size: 10, line_spacing: 1.3},
+    top: {font_size: 8},
+    top_box: {padding: [100, 0, 0], margin: [0, 0, 10], border: {width: [0, 0, 1]}},
+    header: {font: 'Lato bold', font_size: 20, margin: [50, 0, 20]},
+    line_items: {border: {width: 1, color: "eee"}, margin: [20, 0]},
+    line_item_cell: {font_size: 8},
+    footer: {border: {width: [1, 0, 0], color: "darkgrey"}, padding: [5, 0, 0],
+             valign: :bottom},
+    footer_heading: {font: 'Lato bold', font_size: 8, padding: [0, 0, 8]},
+    footer_text: {font_size: 8, fill_color: "darkgrey"},
+  )
 
   # Top part
   composer.box(:container, style: :top_box) do |container|

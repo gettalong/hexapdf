@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::Document::Layout#styles] and [HexaPDF::Composer#styles] for defining
+  multiple styles at once
+
+
 ## 0.44.0 - 2024-06-05
 
 ### Added

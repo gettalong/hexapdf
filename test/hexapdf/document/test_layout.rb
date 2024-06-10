@@ -141,6 +141,22 @@ describe HexaPDF::Document::Layout do
     end
   end
 
+  describe "styles" do
+    it "returns the existing styles" do
+      @layout.style(:test, font_size: 20)
+      assert_equal([:base, :test], @layout.styles.keys)
+    end
+
+    it "sets multiple styles at once" do
+      styles = @layout.styles(
+        test: {font_size: 20},
+        test2: {font_size: 30},
+      )
+      assert_same(styles, @layout.styles)
+      assert_equal([:base, :test, :test2], @layout.styles.keys)
+    end
+  end
+
   describe "inline_box" do
     it "takes a box as argument" do
       box = HexaPDF::Layout::Box.create(width: 10, height: 10)

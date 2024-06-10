@@ -255,6 +255,28 @@ module HexaPDF
     end
 
     # :call-seq:
+    #    composer.styles              -> styles
+    #    composer.styles(**mapping)   -> styles
+    #
+    # Creates multiple named styles at once if +mapping+ is provided, and returns the style mapping.
+    #
+    # See HexaPDF::Document::Layout#styles for details; this method is just a thin wrapper around
+    # that method.
+    #
+    # Example:
+    #
+    #   composer.styles(
+    #     base: {font_size: 12, leading: 1.2},
+    #     header: {font: 'Helvetica', fill_color: "008"},
+    #     header1: {base: :header, font_size: 30}
+    #   )
+    #
+    # See: HexaPDF::Layout::Style
+    def styles(**mapping)
+      @document.layout.styles(**mapping)
+    end
+
+    # :call-seq:
     #    composer.page_style(name)                                 -> page_style
     #    composer.page_style(name, **attributes, &template_block)  -> page_style
     #
