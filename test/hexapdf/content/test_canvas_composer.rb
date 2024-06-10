@@ -77,6 +77,12 @@ describe HexaPDF::Content::CanvasComposer do
                         [:restore_graphics_state]])
     end
 
+    it "handles truncated boxes correctly" do
+      box = create_box(height: 400, style: {overflow: :truncate})
+      box.define_singleton_method(:fit_content) {|*| fit_result.overflow! }
+      assert_same(box, @composer.draw_box(box))
+    end
+
     it "returns the last drawn box" do
       box = create_box(height: 400)
       assert_same(box, @composer.draw_box(box))

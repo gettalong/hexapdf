@@ -96,6 +96,7 @@ module HexaPDF
             draw_box, box = @frame.split(result)
             if draw_box
               @frame.draw(@canvas, result)
+              (box = draw_box; break) unless box
             elsif !@frame.find_next_region
               raise HexaPDF::Error, "Frame for canvas composer is full and box doesn't fit anymore"
             end
