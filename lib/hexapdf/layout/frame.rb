@@ -216,6 +216,7 @@ module HexaPDF
           end
 
           fit_result = box.fit(aw, ah, self)
+          return fit_result if fit_result.failure?
 
           width = box.width
           height = box.height

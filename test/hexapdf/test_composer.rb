@@ -232,8 +232,9 @@ describe HexaPDF::Composer do
       first_page_contents = @composer.canvas.contents
       @composer.draw_box(create_box(height: 400))
 
-      box = create_box(height: 400)
-      box.define_singleton_method(:split) do |*|
+      box = create_box
+      box.define_singleton_method(:fit_content) {|*| fit_result.overflow! }
+      box.define_singleton_method(:split_content) do |*|
         [box, HexaPDF::Layout::Box.new(height: 100) {}]
       end
       @composer.draw_box(box)
@@ -242,7 +243,7 @@ describe HexaPDF::Composer do
                         [:concatenate_matrix, [1, 0, 0, 1, 36, 405.889764]],
                         [:restore_graphics_state],
                         [:save_graphics_state],
-                        [:concatenate_matrix, [1, 0, 0, 1, 36, 5.889764]],
+                        [:concatenate_matrix, [1, 0, 0, 1, 36, 36]],
                         [:restore_graphics_state]])
       assert_operators(@composer.canvas.contents,
                        [[:save_graphics_state],
@@ -280,9 +281,10 @@ describe HexaPDF::Composer do
       box = create_box(height: 400)
       assert_same(box, @composer.draw_box(box))
 
-      box = create_box(height: 400)
       split_box = create_box(height: 100)
-      box.define_singleton_method(:split) {|*| [box, split_box] }
+      box = create_box
+      box.define_singleton_method(:fit_content) {|*| fit_result.overflow! }
+      box.define_singleton_method(:split_content) {|*| [box, split_box] }
       assert_same(split_box, @composer.draw_box(box))
     end
 

@@ -423,6 +423,15 @@ describe HexaPDF::Layout::Frame do
       box = HexaPDF::Layout::Box.create
       refute(@frame.fit(box).success?)
     end
+
+    it "doesn't do post-fitting tasks if fitting is a failure" do
+      box = HexaPDF::Layout::Box.create(width: 400)
+      result = @frame.fit(box)
+      assert(result.failure?)
+      assert_nil(result.x)
+      assert_nil(result.y)
+      assert_nil(result.mask)
+    end
   end
 
   describe "split" do
