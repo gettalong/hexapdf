@@ -116,7 +116,14 @@ describe HexaPDF::Layout::TableBox::Cell do
       assert_equal(12, cell.preferred_height)
     end
 
-    it "doesn't fit anything if the available width or height are too small" do
+    it "doesn't fit children that are too big" do
+      cell = create_cell(children: HexaPDF::Layout::Box.create(width: 300, height: 20))
+      assert(cell.fit(100, 100, @frame).failure?)
+      cell = create_cell(children: [HexaPDF::Layout::Box.create(width: 300, height: 20)])
+      assert(cell.fit(100, 100, @frame).failure?)
+    end
+
+    it "doesn't fit anything if the available width or height are too small even if there are no children" do
       cell = create_cell(children: nil)
       assert(cell.fit(10, 100, @frame).failure?)
       assert(cell.fit(100, 10, @frame).failure?)

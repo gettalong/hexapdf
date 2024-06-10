@@ -14,6 +14,7 @@
 
 * Regression in [HexaPDF::Layout::ListBox] that leads to missing markers
 * [HexaPDF::Content::CanvasComposer#draw_box] to handle truncated boxes
+* [HexaPDF::Layout::TableBox::Cell] to handle too-big content in all cases
 
 
 ## 0.44.0 - 2024-06-05

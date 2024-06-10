@@ -228,18 +228,22 @@ module HexaPDF
           case children
           when Box
             child_result = frame.fit(children)
-            @preferred_width = child_result.x + child_result.box.width + reserved_width
-            @height = @preferred_height = child_result.box.height + reserved_height
-            @fit_results = [child_result]
-            fit_result.success! if child_result.success?
+            if child_result.success?
+              @preferred_width = child_result.x + child_result.box.width + reserved_width
+              @height = @preferred_height = child_result.box.height + reserved_height
+              @fit_results = [child_result]
+              fit_result.success!
+            end
           when Array
             box_fitter = BoxFitter.new([frame])
             children.each {|box| box_fitter.fit(box) }
-            max_x_result = box_fitter.fit_results.max_by {|result| result.x + result.box.width }
-            @preferred_width = max_x_result.x + max_x_result.box.width + reserved_width
-            @height = @preferred_height = box_fitter.content_heights[0] + reserved_height
-            @fit_results = box_fitter.fit_results
-            fit_result.success! if box_fitter.success?
+            if box_fitter.success?
+              max_x_result = box_fitter.fit_results.max_by {|result| result.x + result.box.width }
+              @preferred_width = max_x_result.x + max_x_result.box.width + reserved_width
+              @height = @preferred_height = box_fitter.content_heights[0] + reserved_height
+              @fit_results = box_fitter.fit_results
+              fit_result.success!
+            end
           else
             @preferred_width = reserved_width
             @height = @preferred_height = reserved_height
