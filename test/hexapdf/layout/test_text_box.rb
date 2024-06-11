@@ -42,31 +42,32 @@ describe HexaPDF::Layout::TextBox do
     end
 
     it "respects the set width and height" do
-      box = create_box([@inline_box], width: 40, height: 50, style: {padding: 10})
+      box = create_box([@inline_box] * 5, width: 44, height: 50,
+                       style: {padding: 10, text_align: :right, text_valign: :bottom})
       assert(box.fit(100, 100, @frame).success?)
-      assert_equal(40, box.width)
+      assert_equal(44, box.width)
       assert_equal(50, box.height)
-      assert_equal([10], box.instance_variable_get(:@result).lines.map(&:width))
+      assert_equal([20, 20, 10], box.instance_variable_get(:@result).lines.map(&:width))
     end
 
-    it "fits into the frame's outline" do
-      @frame.remove_area(Geom2D::Rectangle(0, 80, 20, 20))
-      @frame.remove_area(Geom2D::Rectangle(80, 70, 20, 20))
-      box = create_box([@inline_box] * 20, style: {position: :flow})
-      assert(box.fit(100, 100, @frame).success?)
-      assert_equal(100, box.width)
-      assert_equal(30, box.height)
+    describe "style option last_line_gap" do
+      it "is taken into account" do
+        box = create_box([@inline_box] * 5, style: {last_line_gap: true, line_spacing: :double})
+        assert(box.fit(100, 100, @frame).success?)
+        assert_equal(50, box.width)
+        assert_equal(20, box.height)
+      end
+
+      it "will have no effect for fixed-height boxes" do
+        box = create_box([@inline_box] * 5, height: 40, style: {last_line_gap: true, line_spacing: :double})
+        assert(box.fit(100, 100, @frame).success?)
+        assert_equal(50, box.width)
+        assert_equal(40, box.height)
+      end
     end
 
-    it "takes the style option last_line_gap into account" do
-      box = create_box([@inline_box] * 5, style: {last_line_gap: true, line_spacing: :double})
-      assert(box.fit(100, 100, @frame).success?)
-      assert_equal(50, box.width)
-      assert_equal(20, box.height)
-    end
-
-    it "uses the whole available width when aligning to the center or right" do
-      [:center, :right].each do |align|
+    it "uses the whole available width when aligning to the center, right or justified" do
+      [:center, :right, :justify].each do |align|
         box = create_box([@inline_box], style: {text_align: align})
         assert(box.fit(100, 100, @frame).success?)
         assert_equal(100, box.width)
@@ -101,6 +102,33 @@ describe HexaPDF::Layout::TextBox do
     it "fits an empty text box" do
       box = create_box([])
       assert(box.fit(100, 100, @frame).success?)
+    end
+
+    describe "position :flow" do
+      it "fits into the frame's outline" do
+        @frame.remove_area(Geom2D::Rectangle(0, 80, 20, 20))
+        @frame.remove_area(Geom2D::Rectangle(80, 70, 20, 20))
+        box = create_box([@inline_box] * 20, style: {position: :flow})
+        assert(box.fit(100, 100, @frame).success?)
+        assert_equal(100, box.width)
+        assert_equal(30, box.height)
+      end
+
+      it "respects a set initial height" do
+        box = create_box([@inline_box] * 20, height: 13, style: {position: :flow})
+        assert(box.fit(100, 100, @frame).overflow?)
+        assert_equal(100, box.width)
+        assert_equal(13, box.height)
+      end
+
+      it "respects top/bottom padding/border" do
+        @frame.remove_area(Geom2D::Rectangle(0, 80, 20, 20))
+        box = create_box([@inline_box] * 20, style: {position: :flow, padding: 10, border: {width: 2}})
+        assert(box.fit(100, 100, @frame).success?)
+        assert_equal(124, box.width)
+        assert_equal(54, box.height)
+        assert_equal([80, 100, 20], box.instance_variable_get(:@result).lines.map(&:width))
+      end
     end
 
     it "fails if no item of the text box fits due to the width" do
@@ -167,12 +195,12 @@ describe HexaPDF::Layout::TextBox do
       @frame.remove_area(Geom2D::Rectangle(0, 0, 40, 100))
       box = create_box([@inline_box], style: {position: :flow, border: {width: 1}})
       box.fit(60, 100, @frame)
-      box.draw(@canvas, 0, 90)
+      box.draw(@canvas, 0, 88)
       assert_operators(@canvas.contents, [[:save_graphics_state],
-                                          [:append_rectangle, [40, 90, 10, 10]],
+                                          [:append_rectangle, [40, 88, 12, 12]],
                                           [:clip_path_non_zero],
                                           [:end_path],
-                                          [:append_rectangle, [40.5, 90.5, 9.0, 9.0]],
+                                          [:append_rectangle, [40.5, 88.5, 11.0, 11.0]],
                                           [:stroke_path],
                                           [:restore_graphics_state],
                                           [:save_graphics_state],

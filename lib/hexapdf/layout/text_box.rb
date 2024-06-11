@@ -42,12 +42,46 @@ module HexaPDF
     # A TextBox is used for drawing text, either inside a rectangular box or by flowing it around
     # objects of a Frame.
     #
+    # The standard usage is through the helper methods Document::Layout#text and
+    # Document::Layout#formatted_text.
+    #
     # This class uses TextLayouter behind the scenes to do the hard work.
     #
     # == Used Box Properties
     #
     # The spacing after the last line can be controlled via the style property +last_line_gap+. Also
     # see TextLayouter#style for other style properties taken into account.
+    #
+    # == Limitations
+    #
+    # When setting the style property 'position' to +:flow+, padding and border to the left and
+    # right as well as a predefined fixed width are not respected and the result will look wrong.
+    #
+    # == Examples
+    #
+    # Showing some text:
+    #
+    #   #>pdf-composer
+    #   composer.box(:text, items: layout.text_fragments("This is some text."))
+    #   # Or easier with the provided convenience method
+    #   composer.text("This is also some text")
+    #
+    # It is possible to flow the text around other objects by using the style property
+    # 'position' with the value +:flow+:
+    #
+    #   #>pdf-composer
+    #   composer.box(:base, width: 30, height: 30,
+    #                style: {margin: 5, position: :float, background_color: "hp-blue-light"})
+    #   composer.text("This is some text. " * 20, position: :flow)
+    #
+    # While top and bottom padding and border can be used with flow positioning, left and right
+    # padding and border are not supported and the result will look wrong:
+    #
+    #   #>pdf-composer
+    #   composer.box(:base, width: 30, height: 30,
+    #                style: {margin: 5, position: :float, background_color: "hp-blue-light"})
+    #   composer.text("This is some text. " * 20, padding: 10, position: :flow,
+    #                 text_align: :justify)
     class TextBox < Box
 
       # Creates a new TextBox object with the given inline items (e.g. TextFragment and InlineBox
@@ -89,40 +123,34 @@ module HexaPDF
       # Depending on the 'position' style property, the text is either fit into the current region
       # of the frame using +available_width+ and +available_height+, or fit to the shape of the
       # frame starting from the top (when 'position' is set to :flow).
-      def fit_content(available_width, available_height, frame)
+      def fit_content(_available_width, _available_height, frame)
         frame = frame.child_frame(box: self)
-        @width = @x_offset = @height = 0
+        @x_offset = 0
 
-        @result = if style.position == :flow
-                    @tl.fit(@items, frame.width_specification, frame.shape.bbox.height,
+        if style.position == :flow
+          height = (@initial_height > 0 ? @initial_height : frame.shape.bbox.height) - reserved_height
+          @result = @tl.fit(@items, frame.width_specification(reserved_height_top), height,
                             apply_first_text_indent: !split_box?, frame: frame)
-                  else
-                    @width = reserved_width
-                    @height = reserved_height
-                    width = (@initial_width > 0 ? @initial_width : available_width) - @width
-                    height = (@initial_height > 0 ? @initial_height : available_height) - @height
-                    @tl.fit(@items, width, height, apply_first_text_indent: !split_box?, frame: frame)
-                  end
+          min_x = +Float::INFINITY
+          max_x = -Float::INFINITY
+          @result.lines.each do |line|
+            min_x = [min_x, line.x_offset].min
+            max_x = [max_x, line.x_offset + line.width].max
+          end
+          @width = (min_x.finite? ? (@x_offset = min_x; max_x - min_x) : 0) + reserved_width
+          @height = @initial_height > 0 ? @initial_height : @result.height + reserved_height
+        else
+          @result = @tl.fit(@items, @width - reserved_width, @height - reserved_height,
+                            apply_first_text_indent: !split_box?, frame: frame)
+          if style.text_align == :left && @initial_width == 0
+            @width = (@result.lines.max_by(&:width)&.width || 0) + reserved_width
+          end
+          if style.text_valign == :top && @initial_height == 0
+            @height = @result.height + reserved_height
+          end
+        end
 
-        @width += if @initial_width > 0 || style.text_align == :center || style.text_align == :right
-                    width
-                  elsif style.position == :flow
-                    min_x = +Float::INFINITY
-                    max_x = -Float::INFINITY
-                    @result.lines.each do |line|
-                      min_x = [min_x, line.x_offset].min
-                      max_x = [max_x, line.x_offset + line.width].max
-                    end
-                    min_x.finite? ? (@x_offset = min_x; max_x - min_x) : 0
-                  else
-                    @result.lines.max_by(&:width)&.width || 0
-                  end
-        @height += if @initial_height > 0 || style.text_valign == :center || style.text_valign == :bottom
-                     height
-                   else
-                     @result.height
-                   end
-        if style.last_line_gap && @result.lines.last
+        if style.last_line_gap && @result.lines.last && @initial_height == 0
           @height += style.line_spacing.gap(@result.lines.last, @result.lines.last)
         end
 
