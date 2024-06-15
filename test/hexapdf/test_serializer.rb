@@ -89,6 +89,7 @@ describe HexaPDF::Serializer do
     assert_serialized('/ ', :"")
     assert_serialized('/H#c3#b6#c3#9fgang', :Hößgang)
     assert_serialized('/H#e8lp', "H\xE8lp".force_encoding('BINARY').intern)
+    assert_serialized('/#00#09#0a#0c#0d#20', :"\x00\t\n\f\r ")
   end
 
   it "serializes arrays" do
