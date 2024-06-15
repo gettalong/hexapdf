@@ -428,9 +428,7 @@ module HexaPDF
           end
 
           line = create_unjustified_line
-          last_line_used = true
-          last_line_used = yield(line, nil) if item.nil? && !line.items.empty?
-
+          last_line_used = (item.nil? && !line.items.empty? ? yield(line, nil) : true)
           item.nil? && last_line_used ? [] : @items[@beginning_of_line_index..-1]
         end
 
@@ -500,9 +498,7 @@ module HexaPDF
           end
 
           line = create_unjustified_line
-          last_line_used = true
-          last_line_used = yield(line, nil) if item.nil? && !line.items.empty?
-
+          last_line_used = (item.nil? && !line.items.empty? ? yield(line, nil) : true)
           item.nil? && last_line_used ? [] : @items[@beginning_of_line_index..-1]
         end
 
