@@ -218,7 +218,10 @@ module HexaPDF
 
         # Breaks are detected at: space, tab, zero-width-space, non-breaking space, hyphen,
         # soft-hypen and any valid Unicode newline separator
-        BREAK_RE = /[ \u{A}-\u{D}\u{85}\u{2028}\u{2029}\t\u{200B}\u{00AD}\u{00A0}-]/
+        BREAK_CHARS = {}
+        " \u{A}\u{B}\u{C}\u{D}\u{85}\u{2028}\u{2029}\t\u{200B}\u{00AD}\u{00A0}-".each_char do |c|
+          BREAK_CHARS[c] = true
+        end
 
         # Breaks the items (an array of InlineBox and TextFragment objects) into atomic pieces
         # wrapped by Box, Glue or Penalty items, and returns those as an array.
@@ -235,7 +238,7 @@ module HexaPDF
                 # Collect characters and kerning values until break character is encountered
                 box_items = []
                 while (glyph = item.items[i]) &&
-                    (glyph.kind_of?(Numeric) || !BREAK_RE.match?(glyph.str))
+                    (glyph.kind_of?(Numeric) || !BREAK_CHARS.key?(glyph.str))
                   box_items << glyph
                   i += 1
                 end
