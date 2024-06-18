@@ -73,6 +73,11 @@ The list of the benchmarked applications:
   CSP
   : `hexapdf optimize INPUT --compress-pages OUTPUT`
 
+  Note that a lot of time is spent deflating when recompressing pages. This is because HexaPDF uses
+  the highest deflate compression level by default. By changing the configuration option
+  'filter.flate.compression' to something lower than 9, it is possible to trade compression speed
+  with file size.
+
 **origami**
 
 : Homepage: <https://github.com/gdelugre/origami>\\
