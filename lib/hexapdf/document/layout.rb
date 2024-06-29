@@ -354,6 +354,7 @@ module HexaPDF
                                       width: width, height: height, properties: properties,
                                       style: box_style)
       end
+      alias text text_box
 
       # Creates a HexaPDF::Layout::TextBox like #text_box but allows parts of the text to be
       # formatted differently.
@@ -456,6 +457,7 @@ module HexaPDF
         box_class_for_name(:text).new(items: data, width: width, height: height,
                                       properties: properties, style: box_style)
       end
+      alias formatted_text formatted_text_box
 
       # Creates a HexaPDF::Layout::ImageBox for the given image.
       #
@@ -477,6 +479,7 @@ module HexaPDF
         box_class_for_name(:image).new(image: image, width: width, height: height,
                                        properties: properties, style: style)
       end
+      alias image image_box
 
       # This helper class is used by Layout#table_box to allow specifying the keyword arguments used
       # when converting cell data to box instances.
@@ -586,6 +589,7 @@ module HexaPDF
                                        footer: footer, cell_style: cell_style, width: width,
                                        height: height, properties: properties, style: style)
       end
+      alias table table_box
 
       LOREM_IPSUM = [ # :nodoc:
         "Lorem ipsum dolor sit amet, con\u{00AD}sectetur adipis\u{00AD}cing elit, sed " \
@@ -605,22 +609,13 @@ module HexaPDF
       def lorem_ipsum_box(sentences: 4, count: 1, **text_box_properties)
         text_box(([LOREM_IPSUM[0, sentences].join(" ")] * count).join("\n\n"), **text_box_properties)
       end
+      alias lorem_ipsum lorem_ipsum_box
 
-      BOX_METHOD_NAMES = [:text, :formatted_text, :image, :table, :lorem_ipsum] #:nodoc:
-
-      # Allows creating boxes using more convenient method names:
-      #
-      # * #text for #text_box
-      # * #formatted_text for #formatted_text_box
-      # * #image for #image_box
-      # * #lorem_ipsum for #lorem_ipsum_box
-      # * The name of a pre-defined box class like #column will invoke #box appropriately. Same if
-      #   used with a '_box' suffix.
+      # Allows creating boxes using more convenient method names: The name of a pre-defined box
+      # class like #column will invoke #box appropriately. Same if used with a '_box' suffix.
       def method_missing(name, *args, **kwargs, &block)
         name_without_box = name.to_s.sub(/_box$/, '').intern
-        if BOX_METHOD_NAMES.include?(name)
-          send("#{name}_box", *args, **kwargs, &block)
-        elsif @document.config['layout.boxes.map'].key?(name_without_box)
+        if @document.config['layout.boxes.map'].key?(name_without_box)
           box(name_without_box, *args, **kwargs, &block)
         else
           super
@@ -631,6 +626,8 @@ module HexaPDF
       def respond_to_missing?(name, _private)
         box_creation_method?(name) || super
       end
+
+      BOX_METHOD_NAMES = [:text, :formatted_text, :image, :table, :lorem_ipsum] #:nodoc:
 
       # :nodoc:
       def box_creation_method?(name)
