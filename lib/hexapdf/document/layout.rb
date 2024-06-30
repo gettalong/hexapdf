@@ -151,7 +151,9 @@ module HexaPDF
         # :nodoc:
         def method_missing(name, *args, **kwargs, &block)
           if @layout.box_creation_method?(name)
-            @children << @layout.send(name, *args, **kwargs, &block)
+            box = @layout.send(name, *args, **kwargs, &block)
+            @children << box
+            box
           else
             super
           end

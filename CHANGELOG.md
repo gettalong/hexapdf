@@ -3,6 +3,8 @@
 ### Changed
 
 * [HexaPDF::Document::Layout::CellArgumentCollector#[]=] to allow stepped ranges
+* [HexaPDF::Document::Layout::ChildrenCollector] to also return the box when
+  creating and adding one to the list
 
 
 ## 0.45.0 - 2024-06-18

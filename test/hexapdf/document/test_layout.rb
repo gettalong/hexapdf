@@ -35,11 +35,11 @@ describe HexaPDF::Document::Layout::ChildrenCollector do
   end
 
   it "allows appending boxes created by the Layout class" do
-    @collector.lorem_ipsum
-    @collector.lorem_ipsum_box
-    @collector.column
-    @collector.column_box
-    assert_equal(4, @collector.children.size)
+    box1 = @collector.lorem_ipsum
+    box2 = @collector.lorem_ipsum_box
+    box3 = @collector.column
+    box4 = @collector.column_box
+    assert_equal([box1, box2, box3, box4], @collector.children)
     assert_kind_of(HexaPDF::Layout::TextBox, @collector.children[0])
     assert_kind_of(HexaPDF::Layout::TextBox, @collector.children[1])
     assert_kind_of(HexaPDF::Layout::ColumnBox, @collector.children[2])
