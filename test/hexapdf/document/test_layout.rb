@@ -95,6 +95,11 @@ describe HexaPDF::Document::Layout::CellArgumentCollector do
       @args[-3..-1, -5..-2] = {key: :value}
       check_argument_info(@args.argument_infos.first, 17..19, 5..8, {key: :value})
     end
+
+    it "allows using stepped ranges" do
+      @args[(0..-1).step(2)] = {key: :value}
+      check_argument_info(@args.argument_infos.first, (0..19).step(2), 0..9, {key: :value})
+    end
   end
 
   describe "retrieve_arguments_for" do

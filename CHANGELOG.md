@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::Document::Layout::CellArgumentCollector#[]=] to allow stepped ranges
+
+
 ## 0.45.0 - 2024-06-18
 
 ### Added

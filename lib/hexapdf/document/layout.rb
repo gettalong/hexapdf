@@ -498,8 +498,25 @@ module HexaPDF
           @number_of_columns = number_of_columns
         end
 
-        # Stores the keyword arguments in +args+ for the given 0-based rows and columns which can
-        # either be a single number or a range of numbers.
+        # Stores the hash +args+ containing styling properties for the cells specified via the given
+        # 0-based rows and columns.
+        #
+        # Rows and columns can either be single numbers, ranges of numbers or stepped ranges (i.e.
+        # Enumerator::ArithmeticSequence instances).
+        #
+        # Examples:
+        #
+        #   # Gray background for all cells
+        #   args[] = {cell: {background_color: "gray"}}
+        #
+        #   # Cell at (2, 3) gets a bigger font size
+        #   args[2, 3] = {font_size: 50}
+        #
+        #   # First column of every row has bold font
+        #   args[0..-1, 0] = {font: 'Helvetica bold'}
+        #
+        #   # Every second row has a blue background
+        #   args[(0..-1).step(2)] = {cell: {background_color: "blue"}}
         def []=(rows = 0..-1, cols = 0..-1, args)
           rows = adjust_range(rows.kind_of?(Integer) ? rows..rows : rows, @number_of_rows)
           cols = adjust_range(cols.kind_of?(Integer) ? cols..cols : cols, @number_of_columns)
@@ -512,7 +529,7 @@ module HexaPDF
         # is merged.
         def retrieve_arguments_for(row, col)
           @argument_infos.each_with_object({}) do |arg_info, result|
-            next unless arg_info.rows.cover?(row) && arg_info.cols.cover?(col)
+            next unless arg_info.rows.include?(row) && arg_info.cols.include?(col)
             if arg_info.args[:cell]
               arg_info.args[:cell] = (result[:cell] || {}).merge(arg_info.args[:cell])
             end
@@ -525,7 +542,8 @@ module HexaPDF
         # Adjusts the +range+ so that both the begin and the end of the range are zero or positive
         # integers smaller than +max+.
         def adjust_range(range, max)
-          (range.begin % max)..(range.end % max)
+          r = (range.begin % max)..(range.end % max)
+          range.kind_of?(Range) ? r : r.step(range.step)
         end
 
       end
@@ -543,7 +561,8 @@ module HexaPDF
       # Additional arguments for the #text_box invocations can be specified using the optional block
       # that yields a CellArgumentCollector instance. This allows customization of the text boxes.
       # By specifying the special key +:cell+ it is also possible to assign style properties to the
-      # cells themselves.
+      # cells themselves, irrespective of the type of content of the cells. See
+      # CellArgumentCollector#[]= for details.
       #
       # See HexaPDF::Layout::TableBox::new for details on +column_widths+, +header+, +footer+, and
       # +cell_style+.
