@@ -89,28 +89,13 @@ module HexaPDF
     #     This method draws the box specific content and is called from #draw which already handles
     #     things like drawing the border and background. So #draw should usually not be overridden.
     #
-    # This base class provides various private helper methods for use in the above methods:
+    # This base class also provides various protected helper methods for use in the above methods:
     #
-    # +reserved_width+, +reserved_height+::
-    #     Returns the width respectively the height of the reserved space inside the box that is
-    #     used for the border and padding.
-    #
-    # +reserved_width_left+, +reserved_width_right+, +reserved_height_top+,
-    # +reserved_height_bottom+::
-    #     Returns the reserved space inside the box at the specified edge (left, right, top,
-    #     bottom).
-    #
-    # +update_content_width+, +update_content_height+::
-    #     Takes a block that should return the content width respectively height and sets the box's
-    #     width respectively height accordingly.
-    #
-    # +create_split_box+::
-    #     Creates a new box based on this one and resets the internal data back to their original
-    #     values.
-    #
-    #     The keyword argument +split_box_value+ (defaults to +true+) is used to set the
-    #     +@split_box+ variable to make the new box aware that it is a split box. This can be set to
-    #     any other truthy value to convey more meaning.
+    # * #reserved_width, #reserved_height
+    # * #reserved_width_left, #reserved_width_right, #reserved_height_top,
+    #   #reserved_height_bottom
+    # * #update_content_width, #update_content_height
+    # * #create_split_box
     class Box
 
       include HexaPDF::Utils
@@ -432,7 +417,7 @@ module HexaPDF
           (style.overlays? && !style.overlays.none?))
       end
 
-      private
+      protected
 
       # Returns the width that is reserved by the padding and border style properties.
       def reserved_width
@@ -480,12 +465,18 @@ module HexaPDF
         result
       end
 
+      # :call-seq:
+      #   update_content_width { block }
+      #
       # Updates the width of the box using the content width returned by the block.
       def update_content_width
         return if @initial_width > 0
         @width = yield + reserved_width
       end
 
+      # :call-seq:
+      #   update_content_height { block }
+      #
       # Updates the height of the box using the content height returned by the block.
       def update_content_height
         return if @initial_height > 0
@@ -525,7 +516,8 @@ module HexaPDF
         end
       end
 
-      # Creates a new box based on this one and resets the data back to their original values.
+      # Creates a new box based on this one and resets the internal data back to their original
+      # values.
       #
       # The variable +@split_box+ is set to +split_box_value+ (defaults to +true+) to make the new
       # box aware that it is a split box. If needed, subclasses can set the variable to other truthy
