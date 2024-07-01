@@ -316,10 +316,20 @@ describe HexaPDF::Layout::Frame do
 
     describe "flowing boxes" do
       it "flows inside the frame's outline" do
+        remove_area(:left)
         check_box({width: 10, height: 20, margin: 10, position: :flow},
-                  [0, 90],
+                  [10, 90],
                   [10, 80, 110, 110],
-                  [[[10, 10], [110, 10], [110, 80], [10, 80]]])
+                  [[[20, 10], [110, 10], [110, 80], [20, 80]]])
+        assert_equal(10, @box.fit_result.x)
+      end
+
+      it "doesn't overwrite fit_result.x" do
+        box = HexaPDF::Layout::Box.create(position: :flow) {}
+        box.define_singleton_method(:supports_position_flow?) { true }
+        box.define_singleton_method(:fit_content) {|*args| fit_result.x = 30; super(*args) }
+        fit_result = @frame.fit(box)
+        assert_equal(30, fit_result.x)
       end
 
       it "uses position=default if the box indicates it doesn't support flowing contents" do

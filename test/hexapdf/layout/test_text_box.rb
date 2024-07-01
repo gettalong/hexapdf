@@ -195,7 +195,7 @@ describe HexaPDF::Layout::TextBox do
       @frame.remove_area(Geom2D::Rectangle(0, 0, 40, 100))
       box = create_box([@inline_box], style: {position: :flow, border: {width: 1}})
       box.fit(60, 100, @frame)
-      box.draw(@canvas, 0, 88)
+      box.draw(@canvas, 40, 88)
       assert_operators(@canvas.contents, [[:save_graphics_state],
                                           [:append_rectangle, [40, 88, 12, 12]],
                                           [:clip_path_non_zero],

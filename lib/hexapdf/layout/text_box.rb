@@ -107,11 +107,6 @@ module HexaPDF
       end
 
       # :nodoc:
-      def draw(canvas, x, y)
-        super(canvas, x + @x_offset, y)
-      end
-
-      # :nodoc:
       def empty?
         super && (!@result || @result.lines.empty?)
       end
@@ -137,7 +132,8 @@ module HexaPDF
             min_x = [min_x, line.x_offset].min
             max_x = [max_x, line.x_offset + line.width].max
           end
-          @width = (min_x.finite? ? (@x_offset = min_x; max_x - min_x) : 0) + reserved_width
+          @width = (min_x.finite? ? max_x - min_x : 0) + reserved_width
+          fit_result.x = @x_offset = min_x
           @height = @initial_height > 0 ? @initial_height : @result.height + reserved_height
         else
           @result = @tl.fit(@items, @width - reserved_width, @height - reserved_height,

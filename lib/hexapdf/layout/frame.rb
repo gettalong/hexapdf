@@ -252,7 +252,7 @@ module HexaPDF
                   end
                 end
           when :flow
-            x = 0
+            x = fit_result.x || left
             y = @y - height
           else
             raise HexaPDF::Error, "Invalid value '#{position}' for style property position"

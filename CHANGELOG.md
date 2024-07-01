@@ -6,6 +6,10 @@
 * [HexaPDF::Document::Layout::ChildrenCollector] to also return the box when
   creating and adding one to the list
 
+### Fixed
+
+* Setting of correct x-position in fit result for boxes with flow positioning
+
 
 ## 0.45.0 - 2024-06-18
 

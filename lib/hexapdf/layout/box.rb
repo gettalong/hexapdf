@@ -69,6 +69,10 @@ module HexaPDF
     #     If the subclass supports the value :flow of the 'position' style property, this method
     #     needs to be overridden to return +true+.
     #
+    #     Additionally, if a box object uses flow positioning, #fit_result.x should be set to the
+    #     correct value since Frame#fit can't determine this and uses Frame#left in the absence of a
+    #     set value.
+    #
     # #empty?::
     #     This method should return +true+ if the subclass won't draw anything when #draw is called.
     #
