@@ -65,13 +65,13 @@ describe HexaPDF::Layout::ListBox do
   describe "fit" do
     [:default, :flow].each do |position|
       it "respects the set initial width, position #{position}" do
-        box = create_box(children: @text_boxes[0, 2], width: 50, style: {position: position})
-        check_box(box, 50, 80)
+        box = create_box(children: @text_boxes[0, 2], width: 55, style: {position: position})
+        check_box(box, 55, 80)
       end
 
       it "respects the set initial height, position #{position}" do
-        box = create_box(children: @text_boxes[0, 2], height: 50, style: {position: position})
-        check_box(box, 100, 40)
+        box = create_box(children: @text_boxes[0, 2], height: 55, style: {position: position})
+        check_box(box, 100, 55)
       end
 
       it "respects the set initial height even when it doesn't fit completely" do
@@ -123,7 +123,7 @@ describe HexaPDF::Layout::ListBox do
 
     it "fails if not even a part of the first list item fits" do
       box = create_box(children: @text_boxes[0, 2], height: 5)
-      check_box(box, 100, 0, status: :failure)
+      check_box(box, 100, 5, status: :failure)
     end
 
     it "fails for unknown marker types" do

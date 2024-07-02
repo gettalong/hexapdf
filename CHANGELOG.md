@@ -9,6 +9,7 @@
 ### Fixed
 
 * Setting of correct x-position in fit result for boxes with flow positioning
+* [HexaPDF::Layout::ListBox#fit] to respect the set height
 
 
 ## 0.45.0 - 2024-06-18

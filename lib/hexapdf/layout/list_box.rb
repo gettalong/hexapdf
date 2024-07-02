@@ -243,7 +243,7 @@ module HexaPDF
           break if !box_fitter.success? || height <= 0
         end
 
-        @height = @results.sum(&:height) + (@results.count - 1) * item_spacing + reserved_height
+        update_content_height { @results.sum(&:height) + (@results.count - 1) * item_spacing }
 
         if @results.size == @children.size && @results.all? {|r| r.box_fitter.success? }
           fit_result.success!
