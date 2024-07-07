@@ -5,6 +5,7 @@
 * [HexaPDF::Document::Layout::CellArgumentCollector#[]=] to allow stepped ranges
 * [HexaPDF::Document::Layout::ChildrenCollector] to also return the box when
   creating and adding one to the list
+* [HexaPDF::Layout::InlineBox] to allow usage without predefined width
 
 ### Fixed
 

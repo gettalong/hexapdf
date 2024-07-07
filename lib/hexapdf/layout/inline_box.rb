@@ -43,14 +43,12 @@ module HexaPDF
     # An InlineBox wraps a regular Box so that it can be used as an item for a Line. This enables
     # inline graphics.
     #
-    # Complete box auto-sizing is not possible since the available space cannot be determined
-    # beforehand! This means the box *must* have at least its width set. The height may either also
-    # be set or determined during fitting.
+    # When an inline box gets placed on a line, the method #fit_wrapped_box is called to fit the
+    # wrapped box. This allows the wrapped box to correctly set its width and height which are
+    # needed by the TextLayouter algorithm.
     #
-    # Fitting of the wrapped box via #fit_wrapped_box needs to be done before accessing any other
-    # method that uses the wrapped box. For fitting, a frame is used that has the width of the
-    # wrapped box and its height, or if not set, a practically infinite height. In the latter case
-    # the height *must* be set during fitting.
+    # Note: It is *mandatory* that the wrapped box sets its width and height without relying on the
+    # dimensions of the frame's current region.
     class InlineBox
 
       # Creates an InlineBox that wraps a basic Box. All arguments (except +valign+) and the block
@@ -74,7 +72,6 @@ module HexaPDF
       # The +valign+ argument can be used to specify the vertical alignment of the box relative to
       # other items in the Line.
       def initialize(box, valign: :baseline)
-        raise HexaPDF::Error, "Width of box not set" if box.width == 0
         @box = box
         @valign = valign
       end
@@ -102,8 +99,7 @@ module HexaPDF
       # Draws the wrapped box. If the box has margins specified, the x and y offsets are correctly
       # adjusted.
       def draw(canvas, x, y)
-        canvas.translate(x - @fit_result.x + box.style.margin.left,
-                         y - @fit_result.y + box.style.margin.bottom) { @fit_result.draw(canvas) }
+        @fit_result.draw(canvas, dx: x, dy: y)
       end
 
       # The minimum x-coordinate which is always 0.
@@ -129,19 +125,17 @@ module HexaPDF
       # Fits the wrapped box.
       #
       # If the +frame+ argument is +nil+, a custom frame is created. Otherwise the given +frame+ is
-      # used for the fitting operation.
-      def fit_wrapped_box(frame)
-        frame = if frame
-                  frame.child_frame(0, 0, box.width, box.height == 0 ? 100_000 : box.height)
-                else
-                  Frame.new(0, 0, box.width, box.height == 0 ? 100_000 : box.height)
-                end
-        @fit_result = frame.fit(box)
-        if !@fit_result.success?
-          raise HexaPDF::Error, "Box for inline use could not be fit"
-        elsif box.height > 99_000
-          raise HexaPDF::Error, "Box for inline use has no valid height set after fitting"
-        end
+      # used for creating an appropriate child frame for the fitting operation.
+      #
+      # After this operation the caller is responsible for checking the actual width and height of
+      # the inline box and whether it really fits.
+      def fit_wrapped_box(frame = nil)
+        @fit_result = box.fit(100_000, 100_000, frame || Frame.new(0, 0, 100_000, 100_000))
+        margin = box.style.margin if box.style.margin?
+        @fit_result.x = margin&.left.to_i
+        @fit_result.y = margin&.bottom.to_i
+        @fit_result.mask = Geom2D::Rectangle(0, 0, @fit_result.x + box.width + margin&.right.to_i,
+                                             @fit_result.y + box.height + margin&.top.to_i)
       end
 
     end
