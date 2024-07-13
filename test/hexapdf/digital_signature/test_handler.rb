@@ -5,6 +5,7 @@ require 'hexapdf/digital_signature'
 require 'hexapdf/document'
 require 'time'
 require 'ostruct'
+require 'openssl'
 
 describe HexaPDF::DigitalSignature::Handler do
   before do
@@ -36,7 +37,7 @@ describe HexaPDF::DigitalSignature::Handler do
     end
 
     it "can allow self-signed certificates" do
-      [OpenSSL::X509::V_ERR_SELF_SIGNED_CERT_IN_CHAIN,
+      [OpenSSL::X509::V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT,
        OpenSSL::X509::V_ERR_SELF_SIGNED_CERT_IN_CHAIN].each do |error|
         [true, false].each do |allow_self_signed|
           @result.messages.clear
