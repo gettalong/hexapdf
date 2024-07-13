@@ -59,7 +59,11 @@ module HexaPDF
 
       # Returns the time of signing.
       def signing_time
-        signer_info.signed_time rescue super
+        if embedded_tsa_signature
+          embedded_tsa_signature.signers.first.signed_time
+        else
+          signer_info.signed_time rescue super
+        end
       end
 
       # Returns the certificate chain.
@@ -76,6 +80,23 @@ module HexaPDF
       # Returns the signer information object (an instance of OpenSSL::PKCS7::SignerInfo).
       def signer_info
         @pkcs7.signers.first
+      end
+
+      # Returns the OpenSSL::PKCS7 object for the embedded TSA signature if there is one or +nil+
+      # otherwise.
+      def embedded_tsa_signature
+        return @embedded_tsa_signature if defined?(@embedded_tsa_signature)
+
+        @embedded_tsa_signature = nil
+        p7 = OpenSSL::ASN1.decode(signature_dict.contents.sub(/\x00*\z/, ''))
+        signed_data = p7.value[1].value[0]
+        signer_info = signed_data.value[-1].value[0] # first (and only) signer info
+        return unless signer_info.value[-1].tag == 1 # check for unsigned attributes
+        timestamp_token = signer_info.value[-1].value.find do |unsigned_attr|
+          unsigned_attr.value[0].value == "id-smime-aa-timeStampToken"
+        end
+        return unless timestamp_token
+        @embedded_tsa_signature = OpenSSL::PKCS7.new(timestamp_token.value[1].value[0])
       end
 
       # Verifies the signature using the provided OpenSSL::X509::Store object.
@@ -99,6 +120,10 @@ module HexaPDF
           result.log(:error, "Signer serial=#{signer_info.serial} issuer=#{signer_info.issuer} " \
                      "not found in certificates stored in PKCS7 object")
           return result
+        end
+
+        if embedded_tsa_signature
+          result.log(:info, 'Signing time comes from timestamp authority')
         end
 
         key_usage = signer_certificate.extensions.find {|ext| ext.oid == 'keyUsage' }

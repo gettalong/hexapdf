@@ -22,7 +22,7 @@ describe HexaPDF::DigitalSignature::CMSHandler do
     assert_equal("RSA signer", @handler.signer_name)
   end
 
-  it "returns the signing time" do
+  it "returns the signing time from the signed attributes" do
     assert_equal(@pkcs7.signers.first.signed_time, @handler.signing_time)
   end
 
@@ -127,6 +127,34 @@ describe HexaPDF::DigitalSignature::CMSHandler do
       result = @handler.verify(@store)
       assert_equal(:info, result.messages.last.type)
       assert_match(/Signature valid/, result.messages.last.content)
+    end
+  end
+
+  describe "with embedded TSA signature" do
+    before do
+      CERTIFICATES.start_tsa_server
+      tsh = HexaPDF::DigitalSignature::Signing::TimestampHandler.new(
+        signature_size: 10_000, tsa_url: 'http://127.0.0.1:34567'
+      )
+      cms = HexaPDF::DigitalSignature::Signing::SignedDataCreator.create(
+        @data, type: :pades, certificate: CERTIFICATES.signer_certificate,
+        key: CERTIFICATES.signer_key, timestamp_handler: tsh,
+        certificates: [CERTIFICATES.ca_certificate]
+      )
+      @dict.contents = cms.to_der
+      @dict.signed_data = @data
+      @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
+    end
+
+    it "returns the signing time from the TSA signature" do
+      assert_equal(@handler.embedded_tsa_signature.signers.first.signed_time, @handler.signing_time)
+    end
+
+    it "provides informational output if the time is from a TSA signature" do
+      store = OpenSSL::X509::Store.new
+      result = @handler.verify(store)
+      assert_equal(:info, result.messages.first.type)
+      assert_match(/Signing time.*timestamp authority/, result.messages.first.content)
     end
   end
 end

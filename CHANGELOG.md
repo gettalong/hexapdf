@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::DigitalSignature::CMSHandler#embedded_tsa_signature] to return the
+  embedded timestamp authority signature if any
+
 ### Changed
 
 * [HexaPDF::Document::Layout::CellArgumentCollector#[]=] to allow stepped ranges
@@ -8,6 +13,8 @@
 * [HexaPDF::Layout::InlineBox] to allow usage without predefined width
 * [HexaPDF::DigitalSignature::CMSHandler#verify] to recognize non-repudiation
   signatures
+* [HexaPDF::DigitalSignature::CMSHandler#signing_time] to use time from an
+  embedded timestamp authority signature if possible
 
 ### Fixed
 
