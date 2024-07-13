@@ -102,8 +102,11 @@ module HexaPDF
         end
 
         key_usage = signer_certificate.extensions.find {|ext| ext.oid == 'keyUsage' }
-        unless key_usage && key_usage.value.split(', ').include?("Digital Signature")
-          result.log(:error, "Certificate key usage is missing 'Digital Signature'")
+        key_usage = key_usage&.value&.split(', ')
+        if key_usage&.include?("Non Repudiation") && !key_usage.include?("Digital Signature")
+          result.log(:info, 'Certificate used for non-repudiation')
+        elsif !key_usage || !key_usage.include?("Digital Signature")
+          result.log(:error, "Certificate key usage is missing 'Digital Signature' or 'Non Repudiation'")
         end
 
         if signature_dict.signature_type == 'ETSI.RFC3161'

@@ -86,6 +86,18 @@ describe HexaPDF::DigitalSignature::CMSHandler do
       assert_match(/key usage is missing 'Digital Signature'/, result.messages.first.content)
     end
 
+    it "provides info for a non-repudiation signature" do
+      @pkcs7 = OpenSSL::PKCS7.sign(CERTIFICATES.non_repudiation_signer_certificate,
+                                   CERTIFICATES.signer_key,
+                                   @data, [CERTIFICATES.ca_certificate],
+                                   OpenSSL::PKCS7::DETACHED)
+      @dict.contents = @pkcs7.to_der
+      @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
+      result = @handler.verify(@store)
+      assert_equal(:info, result.messages.first.type)
+      assert_match(/Certificate used for non-repudiation/, result.messages.first.content)
+    end
+
     it "verifies the signature itself" do
       result = @handler.verify(@store)
       assert_equal(:info, result.messages.last.type)

@@ -12,26 +12,10 @@ module HexaPDF
       def ca_certificate
         @ca_certificate ||=
           begin
-            ca_name = OpenSSL::X509::Name.parse('/C=AT/O=HexaPDF/CN=HexaPDF Test Root CA')
-
-            ca_cert = OpenSSL::X509::Certificate.new
-            ca_cert.serial = 0
-            ca_cert.version = 2
-            ca_cert.not_before = Time.now - 86400
-            ca_cert.not_after = Time.now + 86400
-            ca_cert.public_key = ca_key.public_key
-            ca_cert.subject = ca_name
-            ca_cert.issuer = ca_name
-
-            extension_factory = OpenSSL::X509::ExtensionFactory.new
-            extension_factory.subject_certificate = ca_cert
-            extension_factory.issuer_certificate = ca_cert
-            ca_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
-            ca_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:TRUE', true))
-            ca_cert.add_extension(extension_factory.create_extension('keyUsage', 'cRLSign,keyCertSign', true))
-            ca_cert.sign(ca_key, OpenSSL::Digest.new('SHA1'))
-
-            ca_cert
+            cert = create_cert(name: '/C=AT/O=HexaPDF/CN=HexaPDF Test Root CA', serial: 0,
+                               public_key: ca_key.public_key)
+            add_extensions(cert, cert, ca_key, is_ca: true, key_usage: 'cRLSign,keyCertSign')
+            cert
           end
       end
 
@@ -39,87 +23,85 @@ module HexaPDF
         @signer_key ||= OpenSSL::PKey::RSA.new(2048)
       end
 
-      def dsa_signer_key
-        @dsa_signer_key ||= OpenSSL::PKey::DSA.new(2048)
-      end
-
       def signer_certificate
         @signer_certificate ||=
           begin
-            name = OpenSSL::X509::Name.parse('/CN=RSA signer/DC=gettalong')
-
-            signer_cert = OpenSSL::X509::Certificate.new
-            signer_cert.serial = 2
-            signer_cert.version = 2
-            signer_cert.not_before = Time.now - 86400
-            signer_cert.not_after = Time.now + 86400
-            signer_cert.public_key = signer_key.public_key
-            signer_cert.subject = name
-            signer_cert.issuer = ca_certificate.subject
-
-            extension_factory = OpenSSL::X509::ExtensionFactory.new
-            extension_factory.subject_certificate = signer_cert
-            extension_factory.issuer_certificate = ca_certificate
-            signer_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
-            signer_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:FALSE'))
-            signer_cert.add_extension(extension_factory.create_extension('keyUsage', 'digitalSignature'))
-            signer_cert.sign(ca_key, OpenSSL::Digest.new('SHA1'))
-
-            signer_cert
+            cert = create_cert(name: '/CN=RSA signer/DC=gettalong', serial: 2,
+                               public_key: signer_key.public_key, issuer: ca_certificate)
+            add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature')
+            cert
           end
+      end
+
+      def non_repudiation_signer_certificate
+        @non_repudiation_signer_certificate ||=
+          begin
+            cert = create_cert(name: '/CN=Non repudiation signer/DC=gettalong', serial: 2,
+                               public_key: signer_key.public_key, issuer: ca_certificate)
+            add_extensions(cert, ca_certificate, ca_key, key_usage: 'nonRepudiation')
+            cert
+          end
+      end
+
+      def dsa_signer_key
+        @dsa_signer_key ||= OpenSSL::PKey::DSA.new(2048)
       end
 
       def dsa_signer_certificate
         @dsa_signer_certificate ||=
           begin
-            signer_cert = OpenSSL::X509::Certificate.new
-            signer_cert.serial = 3
-            signer_cert.version = 2
-            signer_cert.not_before = Time.now - 86400
-            signer_cert.not_after = Time.now + 86400
-            signer_cert.public_key = dsa_signer_key.public_key
-            signer_cert.subject = OpenSSL::X509::Name.parse('/CN=DSA signer/DC=gettalong')
-            signer_cert.issuer = ca_certificate.subject
-
-            extension_factory = OpenSSL::X509::ExtensionFactory.new
-            extension_factory.subject_certificate = signer_cert
-            extension_factory.issuer_certificate = ca_certificate
-            signer_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
-            signer_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:FALSE'))
-            signer_cert.add_extension(extension_factory.create_extension('keyUsage', 'digitalSignature'))
-            signer_cert.sign(ca_key, OpenSSL::Digest.new('SHA1'))
-
-            signer_cert
+            cert = create_cert(name: '/CN=DSA signer/DC=gettalong', serial: 3,
+                               public_key: dsa_signer_key.public_key, issuer: ca_certificate)
+            add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature')
+            cert
           end
       end
 
       def timestamp_certificate
         @timestamp_certificate ||=
           begin
-            name = OpenSSL::X509::Name.parse('/CN=timestamp/DC=gettalong')
-
-            signer_cert = OpenSSL::X509::Certificate.new
-            signer_cert.serial = 3
-            signer_cert.version = 2
-            signer_cert.not_before = Time.now - 86400
-            signer_cert.not_after = Time.now + 86400
-            signer_cert.public_key = signer_key.public_key
-            signer_cert.subject = name
-            signer_cert.issuer = ca_certificate.subject
-
-            extension_factory = OpenSSL::X509::ExtensionFactory.new
-            extension_factory.subject_certificate = signer_cert
-            extension_factory.issuer_certificate = ca_certificate
-            signer_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
-            signer_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:FALSE'))
-            signer_cert.add_extension(extension_factory.create_extension('keyUsage', 'digitalSignature'))
-            signer_cert.add_extension(extension_factory.create_extension('extendedKeyUsage',
-                                                                         'timeStamping', true))
-            signer_cert.sign(ca_key, OpenSSL::Digest.new('SHA1'))
-
-            signer_cert
+            cert = create_cert(name: '/CN=timestamp/DC=gettalong', serial: 3,
+                               public_key: signer_key.public_key, issuer: ca_certificate)
+            add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature',
+                           extended_key_usage: 'timeStamping')
+            cert
           end
       end
+
+      def create_cert(name:, serial:, public_key:, issuer: nil)
+        name = OpenSSL::X509::Name.parse(name)
+        cert = OpenSSL::X509::Certificate.new
+        cert.serial = serial
+        cert.version = 2
+        cert.not_before = Time.now - 86400
+        cert.not_after = Time.now + 86400
+        cert.public_key = public_key
+        cert.subject = name
+        cert.issuer = (issuer ? issuer.subject : name)
+        cert
+      end
+
+      def add_extensions(subject_cert, issuer_cert, signing_key, is_ca: false, key_usage: nil,
+                         extended_key_usage: nil)
+        extension_factory = OpenSSL::X509::ExtensionFactory.new
+        extension_factory.subject_certificate = subject_cert
+        extension_factory.issuer_certificate = issuer_cert
+        subject_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
+        if is_ca
+          subject_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:TRUE', true))
+        else
+          subject_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:FALSE'))
+        end
+        if key_usage
+          subject_cert.add_extension(extension_factory.create_extension('keyUsage', key_usage, true))
+        end
+        if extended_key_usage
+          subject_cert.add_extension(extension_factory.create_extension('extendedKeyUsage',
+                                                                        extended_key_usage, true))
+        end
+        subject_cert.sign(signing_key, OpenSSL::Digest.new('SHA1'))
+      end
+      private :add_extensions
 
       def start_tsa_server
         return if defined?(@tsa_server)

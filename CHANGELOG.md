@@ -6,6 +6,8 @@
 * [HexaPDF::Document::Layout::ChildrenCollector] to also return the box when
   creating and adding one to the list
 * [HexaPDF::Layout::InlineBox] to allow usage without predefined width
+* [HexaPDF::DigitalSignature::CMSHandler#verify] to recognize non-repudiation
+  signatures
 
 ### Fixed
 
