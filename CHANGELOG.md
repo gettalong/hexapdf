@@ -4,6 +4,8 @@
 
 * [HexaPDF::DigitalSignature::CMSHandler#embedded_tsa_signature] to return the
   embedded timestamp authority signature if any
+* [HexaPDF::DigitalSignature::Signing::DefaultHandler#signing_time] for setting
+  a custom signing time
 
 ### Changed
 

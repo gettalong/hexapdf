@@ -214,6 +214,15 @@ describe HexaPDF::DigitalSignature::Signing::SignedDataCreator do
         assert_equal(Time.now.utc, attr.value[1].value[0].value)
       end
     end
+
+    it "can use a user-defined time as signing time" do
+      current_time = Time.now
+      @signed_data.signing_time = current_time
+      asn1 = OpenSSL::ASN1.decode(@signed_data.create("data"))
+      attr = asn1.value[1].value[0].value[4].value[0].value[3].value.
+        find {|obj| obj.value[0].value == 'signingTime' }
+      assert_equal(current_time.floor.utc, attr.value[1].value[0].value)
+    end
   end
 
   describe "pades signature" do

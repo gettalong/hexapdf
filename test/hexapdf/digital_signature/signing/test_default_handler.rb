@@ -133,6 +133,13 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
       assert_equal(['Reason', 'Location', 'Contact'], @obj.value.values_at(:Reason, :Location, :ContactInfo))
     end
 
+    it "sets the signing time" do
+      time = Time.now
+      @handler.signing_time = time
+      @handler.finalize_objects(@field, @obj)
+      assert_equal(time, @obj[:M])
+    end
+
     it "fills the build properties dictionary with appropriate application information" do
       @handler.finalize_objects(@field, @obj)
       assert_equal(:HexaPDF, @obj[:Prop_Build][:App][:Name])

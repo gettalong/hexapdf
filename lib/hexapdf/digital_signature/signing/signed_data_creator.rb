@@ -84,6 +84,9 @@ module HexaPDF
         # Allowed values: sha256, sha384, sha512.
         attr_accessor :digest_algorithm
 
+        # The signing time to use instead of Time.now.
+        attr_accessor :signing_time
+
         # The timestamp handler instance that should be used for timestamping.
         attr_accessor :timestamp_handler
 
@@ -119,9 +122,10 @@ module HexaPDF
 
         # Creates the set of signed attributes for the signer information structure.
         def create_signed_attrs(data, signing_time: true)
+          signing_time = (self.signing_time || Time.now).utc if signing_time
           set(
             attribute('content-type', oid('id-data')),
-            (attribute('id-signingTime', utc_time(Time.now.utc)) if signing_time),
+            (attribute('id-signingTime', utc_time(signing_time)) if signing_time),
             attribute(
               'message-digest',
               binary(OpenSSL::Digest.digest(@digest_algorithm, data))
