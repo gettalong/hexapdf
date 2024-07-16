@@ -117,6 +117,11 @@ module HexaPDF
 
       def execute(file, *commands) #:nodoc:
         with_document(file, password: @password) do |doc|
+          doc.config['font.on_missing_unicode_mapping'] = lambda do |code, font|
+            $stderr.puts("No Unicode mapping for code point #{code} in font #{font[:BaseFont]}, " \
+                         "using the Unicode replacement character")
+            "\u{FFFD}"
+          end
           @doc = doc
           if commands.empty?
             begin

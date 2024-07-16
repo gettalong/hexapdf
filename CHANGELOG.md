@@ -22,6 +22,7 @@
 
 * Setting of correct x-position in fit result for boxes with flow positioning
 * [HexaPDF::Layout::ListBox#fit] to respect the set height
+* CLI command `hexapdf inspect` to work in case of missing Unicde mappings
 
 
 ## 0.45.0 - 2024-06-18
