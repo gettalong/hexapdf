@@ -1369,8 +1369,8 @@ module HexaPDF
       #       composer.text('Text underneath')
       #
       # :fill_frame_horizontal::
-      #     The mask covers the box including the margin around the box and the space to the left
-      #     and right in the frame.
+      #     The mask covers the box including the margin around the box, the space to the left and
+      #     right in the frame and the space to the top of the current region.
       #
       #     Examples:
       #
