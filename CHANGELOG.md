@@ -23,6 +23,8 @@
 * Setting of correct x-position in fit result for boxes with flow positioning
 * [HexaPDF::Layout::ListBox#fit] to respect the set height
 * CLI command `hexapdf inspect` to work in case of missing Unicde mappings
+* [HexaPDF::Type::AcroForm::Form#delete_field] to correctly work for fields with
+  an embedded widget
 
 
 ## 0.45.0 - 2024-06-18

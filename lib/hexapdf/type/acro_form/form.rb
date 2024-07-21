@@ -388,13 +388,14 @@ module HexaPDF
             page_annots = page[:Annots].to_a - to_delete
             page[:Annots].value.replace(page_annots)
           end
-          to_delete.each {|widget| document.delete(widget) }
 
           if field[:Parent]
             field[:Parent][:Kids].delete(field)
           else
             self[:Fields].delete(field)
           end
+
+          to_delete.each {|widget| document.delete(widget) }
           document.delete(field)
         end
 

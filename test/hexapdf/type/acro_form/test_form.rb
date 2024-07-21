@@ -274,6 +274,15 @@ describe HexaPDF::Type::AcroForm::Form do
       assert(obj.null?)
     end
 
+    it "deletes a field with an embedded widget annotation" do
+      widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
+      assert_equal(widget, @field)
+      refute(@doc.pages[0][:Annots].empty?)
+      @acro_form.delete_field(@field)
+      assert(@doc.pages[0][:Annots].empty?)
+      assert(@field.null?)
+    end
+
     it "deletes all widget annotations from the document and the annotation array" do
       widget1 = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       widget2 = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
