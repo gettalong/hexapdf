@@ -17,6 +17,8 @@
   signatures
 * [HexaPDF::DigitalSignature::CMSHandler#signing_time] to use time from an
   embedded timestamp authority signature if possible
+* [HexaPDF::Layout::Box#fit] to return success for boxes with content width/height
+  of zero
 
 ### Fixed
 

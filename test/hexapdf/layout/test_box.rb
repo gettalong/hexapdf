@@ -148,23 +148,30 @@ describe HexaPDF::Layout::Box do
       assert_equal(49.9999996, box.height)
     end
 
-    it "fails if the box doesn't fit, position != :flow and its width is greater than the available width" do
+    it "works for boxes with no space for the content" do
+      box = create_box(height: 1, style: {border: {width: [1, 0, 0]}})
+      assert(box.fit(100, 100, @frame).success?)
+      assert_equal(1, box.height)
+      assert_equal(100, box.width)
+    end
+
+    it "fails if position != :flow and its width is greater than the available width" do
       box = create_box(width: 101)
       assert(box.fit(100, 100, @frame).failure?)
     end
 
-    it "fails if the box doesn't fit, position != :flow and its width is greater than the available width" do
+    it "fails if position != :flow and its width is greater than the available width" do
       box = create_box(height: 101)
       assert(box.fit(100, 100, @frame).failure?)
     end
 
-    it "fails if its content width is zero" do
+    it "fails if position != :flow and the reserved width is greater than the width" do
       box = create_box(height: 100)
       box.style.padding = [0, 100]
       assert(box.fit(150, 150, @frame).failure?)
     end
 
-    it "fails if its content height is zero" do
+    it "fails if position != :flow and the reserved height is greater than the height" do
       box = create_box(width: 100)
       box.style.padding = [100, 0]
       assert(box.fit(150, 150, @frame).failure?)

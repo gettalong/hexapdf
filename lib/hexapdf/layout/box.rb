@@ -341,7 +341,9 @@ module HexaPDF
                     available_height
                   end
         return @fit_result if !position_flow && (float_compare(@width, available_width) > 0 ||
-                                                 float_compare(@height, available_height) > 0)
+                                                 float_compare(@height, available_height) > 0 ||
+                                                 @width - reserved_width < 0 ||
+                                                 @height - reserved_height < 0)
 
         fit_content(available_width, available_height, frame)
 
@@ -489,13 +491,12 @@ module HexaPDF
 
       # Fits the content of the box and returns whether fitting was successful.
       #
-      # This is just a stub implementation that sets the #fit_result status to success if the
-      # content rectangle is not degenerate. Subclasses should override it to provide the box
-      # specific behaviour.
+      # This is just a stub implementation that sets the #fit_result status to success. Subclasses
+      # should override it to provide the box specific behaviour.
       #
       # See #fit for details.
       def fit_content(_available_width, _available_height, _frame)
-        fit_result.success! if content_width > 0 && content_height > 0
+        fit_result.success!
       end
 
       # Splits the content of the box.
