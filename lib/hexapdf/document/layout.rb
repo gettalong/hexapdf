@@ -666,8 +666,8 @@ module HexaPDF
         end
       end
 
-      # Retrieves the appropriate HexaPDF::Layout::Style object based on the +style+ and +properties+
-      # arguments.
+      # Retrieves the appropriate HexaPDF::Layout::Style object based on the +style+ and
+      # +properties+ arguments.
       #
       # The +style+ argument specifies the style to retrieve. It can either be a registered style
       # name (see #style), a hash with style properties or +nil+. In the latter case the registered
