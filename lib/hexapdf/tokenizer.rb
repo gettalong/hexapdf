@@ -82,6 +82,7 @@ module HexaPDF
     # correctable situations are only raised if the return value of calling the object is +true+.
     def initialize(io, on_correctable_error: nil)
       @io = io
+      @io_chunk = String.new(''.b)
       @ss = StringScanner.new(''.b)
       @original_pos = -1
       @on_correctable_error = on_correctable_error || proc { false }
@@ -439,9 +440,9 @@ module HexaPDF
       @io.seek(@next_read_pos)
       return false if @io.eof?
 
-      @ss << @io.read(8192)
+      @ss << @io.read(8192, @io_chunk)
       if @ss.pos > 8192 && @ss.string.length > 16384
-        @ss.string.slice!(0, 8192)
+        @ss.string.replace(@ss.string.byteslice(8192..-1))
         @ss.pos -= 8192
         @original_pos += 8192
       end
