@@ -293,7 +293,7 @@ module HexaPDF
             next
           elsif type == 'n'
             if pos == 0 || gen > 65535
-              maybe_raise("Invalid in use cross-reference entry",
+              maybe_raise("Invalid in use cross-reference entry for object number #{oid}",
                           pos: @tokenizer.pos)
               xref.add_free_entry(oid, gen)
             else
