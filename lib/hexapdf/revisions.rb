@@ -97,7 +97,7 @@ module HexaPDF
               merge_revision = offset
             end
 
-            if merge_revision == offset
+            if merge_revision == offset && !revisions.empty?
               xref_section.merge!(revisions.first.xref_section)
               offset = trailer[:Prev] # Get possible next offset before overwriting trailer
               trailer = revisions.first.trailer

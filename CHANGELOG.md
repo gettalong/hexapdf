@@ -27,6 +27,8 @@
 * CLI command `hexapdf inspect` to work in case of missing Unicde mappings
 * [HexaPDF::Type::AcroForm::Form#delete_field] to correctly work for fields with
   an embedded widget
+* Parsing of "linearized" PDF files where the first cross-reference section
+  isn't actually used
 
 
 ## 0.45.0 - 2024-06-18

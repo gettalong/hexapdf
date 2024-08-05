@@ -71,6 +71,10 @@ module HexaPDF
     end
 
     # Returns +true+ if the PDF file is a linearized file.
+    #
+    # Note: The method uses heuristics to determine whether a PDF file is linearized. In case of
+    # slightly invalid or damaged PDFs that HexaPDF can recover from it is possible that this method
+    # returns +true+ even though the PDF isn't actually linearized.
     def linearized?
       @linearized ||=
         begin
