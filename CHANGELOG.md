@@ -19,6 +19,8 @@
   embedded timestamp authority signature if possible
 * [HexaPDF::Layout::Box#fit] to return success for boxes with content width/height
   of zero
+* [HexaPDF::Importer::copy] to optionally allow copying the catalog and page
+  tree nodes
 
 ### Fixed
 

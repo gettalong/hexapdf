@@ -47,6 +47,13 @@ describe HexaPDF::Importer do
       refute_same(obj1, obj2)
       refute_same(obj1[:ref], obj2[:ref])
     end
+
+    it "duplicates the whole document" do
+      trailer = HexaPDF::Importer.copy(@dest, @source.trailer, allow_all: true)
+      refute_same(@source.catalog, trailer[:Root])
+      refute_same(@source.pages.root, trailer[:Root][:Pages])
+      assert_equal(90, trailer[:Root][:Pages][:Kids][0][:Rotate])
+    end
   end
 
   describe "import" do
