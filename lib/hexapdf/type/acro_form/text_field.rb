@@ -50,6 +50,8 @@ module HexaPDF
       #
       # == Type Specific Field Flags
       #
+      # See the class description for Field for the general field flags.
+      #
       # :multiline:: If set, the text field may contain multiple lines.
       #
       # :password:: The field is a password field. This changes the behaviour of the PDF reader

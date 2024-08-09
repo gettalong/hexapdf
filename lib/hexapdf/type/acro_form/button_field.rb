@@ -65,6 +65,8 @@ module HexaPDF
       #
       # == Type Specific Field Flags
       #
+      # See the class description for Field for the general field flags.
+      #
       # :no_toggle_to_off:: Only used with radio buttons fields. If this flag is set, one button
       #                     needs to be selected at all times. Otherwise, clicking on the selected
       #                     button deselects it.

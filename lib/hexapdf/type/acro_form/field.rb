@@ -76,6 +76,8 @@ module HexaPDF
       #
       # :no_export:: The field should *not* be exported by a submit-form action.
       #
+      # Also see the class description of the subclasses for additional, type specific field flags.
+      #
       # == Field Type Implementation Notes
       #
       # If an AcroForm field type adds additional inheritable dictionary fields, it has to set the
@@ -124,6 +126,8 @@ module HexaPDF
         #
         # Returns an array of flag names representing the set bit flags.
         #
+        # See the class description for a list of available flags.
+        #
 
         ##
         # :method: flagged?
@@ -133,6 +137,8 @@ module HexaPDF
         # Returns +true+ if the given flag is set. The argument can either be the flag name or the
         # bit index.
         #
+        # See the class description for a list of available flags.
+        #
 
         ##
         # :method: flag
@@ -141,6 +147,8 @@ module HexaPDF
         #
         # Sets the given flags, given as flag names or bit indices. If +clear_existing+ is +true+,
         # all prior flags will be cleared.
+        #
+        # See the class description for a list of available flags.
         #
         bit_field(:flags, {read_only: 0, required: 1, no_export: 2},
                   lister: "flags", getter: "flagged?", setter: "flag", unsetter: "unflag",

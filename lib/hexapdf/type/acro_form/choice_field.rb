@@ -51,6 +51,8 @@ module HexaPDF
       #
       # == Type Specific Field Flags
       #
+      # See the class description for Field for the general field flags.
+      #
       # :combo:: If set, the field represents a combo box.
       #
       # :edit:: If set, the combo box includes an editable text box for entering arbitrary values.
