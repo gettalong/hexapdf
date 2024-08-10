@@ -278,8 +278,9 @@ module HexaPDF
     # If the same argument is provided in multiple invocations, the import is done only once and
     # the previously imported object is returned.
     #
-    # Note: If you first create a PDF document from scratch and then want to import objects from it
-    # into another PDF document, you need to run the following on the source document:
+    # Note: If you first create a PDF document from scratch or if you modify an existing document,
+    # and then want to import objects from it into another PDF document, you need to run the
+    # following on the source document:
     #
     #   doc.dispatch_message(:complete_objects)
     #   doc.validate
@@ -699,6 +700,27 @@ module HexaPDF
         result &&= obj.validate(auto_correct: auto_correct, &block)
       end
       result
+    end
+
+    # Returns an in-memory copy of the PDF document.
+    #
+    # In the context of this method this means that the returned PDF document contains the same PDF
+    # object tree as this document, starting at the trailer. A possibly set encryption is not
+    # transferred to the returned document.
+    #
+    # Note: If this PDF document was created from scratch or if it is an existing document that was
+    # modified, the following commands need to be run on this document beforehand:
+    #
+    #   doc.dispatch_message(:complete_objects)
+    #   doc.validate
+    #
+    # This ensures that all the necessary PDF structures set-up correctly.
+    def duplicate
+      dest = HexaPDF::Document.new
+      dupped_trailer = HexaPDF::Importer.copy(dest, trailer, allow_all: true)
+      dest.revisions.current.trailer.value.replace(dupped_trailer.value)
+      dest.trailer.delete(:Encrypt)
+      dest
     end
 
     # :call-seq:

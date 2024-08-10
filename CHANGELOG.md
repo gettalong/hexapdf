@@ -6,6 +6,7 @@
   embedded timestamp authority signature if any
 * [HexaPDF::DigitalSignature::Signing::DefaultHandler#signing_time] for setting
   a custom signing time
+* [HexaPDF::Document#duplicate] for making an in-memory copy of a PDF document
 
 ### Changed
 

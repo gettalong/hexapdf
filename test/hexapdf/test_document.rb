@@ -568,4 +568,31 @@ describe HexaPDF::Document do
   it "can be inspected and the output is not too large" do
     assert_match(/HexaPDF::Document:\d+/, @doc.inspect)
   end
+
+  describe "duplicate" do
+    it "creates an in-memory copy" do
+      doc = HexaPDF::Document.new
+      doc.pages.add.canvas.line_width(10)
+      doc.trailer.info[:Author] = 'HexaPDF'
+      doc.dispatch_message(:complete_objects)
+
+      dupped = doc.duplicate
+      assert_equal('HexaPDF', dupped.trailer.info[:Author])
+      doc.pages[0].canvas.line_cap_style(:round)
+      assert_equal("10 w\n", dupped.pages[0].contents)
+    end
+
+    it "doesn't copy the encryption state" do
+      doc = HexaPDF::Document.new
+      doc.pages.add.canvas.line_width(10)
+      doc.encrypt
+      io = StringIO.new
+      doc.write(io)
+
+      doc = HexaPDF::Document.new(io: io)
+      dupped = doc.duplicate
+      assert_equal("10 w\n", dupped.pages[0].contents)
+      refute(dupped.encrypted?)
+    end
+  end
 end
