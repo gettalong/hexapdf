@@ -6,6 +6,11 @@
 # This example show-cases how to create the various form field types and their
 # possible standard appearances.
 #
+# The [HexaPDF::Type::AcroForm::Form] and [HexaPDF::Type::AcroForm::Field]
+# classes provide a plethora of convenience methods for working with forms, like
+# for creating fields and their widgets, getting field properties like the full
+# hierarchical field name or for setting the field value.
+#
 # Usage:
 # : `ruby acro_form.rb`
 #
