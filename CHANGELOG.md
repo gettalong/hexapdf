@@ -422,6 +422,8 @@
   than the item content height
 * [HexaPDF::Dictionary] setting default values on wrong classes in certain
   situations
+* [HexaPDF::Importer#import] to correctly import stream objects backed by a
+  [HexaPDF::FiberDoubleForString]
 
 
 ## 0.33.0 - 2023-08-02

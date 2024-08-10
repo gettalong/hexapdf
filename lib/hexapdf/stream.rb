@@ -51,6 +51,9 @@ module HexaPDF
   # normalized to arrays on assignment to ease further processing.
   class StreamData
 
+    # The source.
+    attr_reader :source
+
     # The filter(s) that need to be applied for getting the decoded stream data.
     attr_reader :filter
 
@@ -109,9 +112,6 @@ module HexaPDF
     end
 
     protected
-
-    # The source.
-    attr_reader :source
 
     # The optional offset into the bytes provided by source.
     attr_reader :offset

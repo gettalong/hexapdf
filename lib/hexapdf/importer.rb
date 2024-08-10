@@ -154,7 +154,12 @@ module HexaPDF
           obj.data.gen = 0
           @destination.add(obj) if object.indirect?
 
-          obj.data.stream = obj.data.stream.dup if obj.data.stream.kind_of?(String)
+          stream = obj.data.stream
+          if stream.kind_of?(String)
+            obj.data.stream = stream.dup
+          elsif stream&.source.kind_of?(FiberDoubleForString)
+            obj.data.stream = stream.fiber.resume.dup
+          end
           obj.data.value = duplicate(obj.data.value, wrapper)
           obj.data.value.update(duplicate(object.copy_inherited_values, wrapper)) if object.type == :Page
           obj
