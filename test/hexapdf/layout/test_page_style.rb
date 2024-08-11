@@ -44,8 +44,13 @@ describe HexaPDF::Layout::PageStyle do
 
     it "works when no template is set" do
       style = HexaPDF::Layout::PageStyle.new
-      page = style.create_page(@doc)
-      assert_equal("", page.contents)
+      page1 = style.create_page(@doc)
+      frame1 = style.frame
+      assert_equal("", page1.contents)
+      assert_equal(523.275591, style.frame.width)
+
+      page2 = style.create_page(@doc)
+      refute_same(frame1, style.frame)
     end
 
     it "creates a default frame if none is set beforehand or during template execution" do

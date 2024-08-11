@@ -34,6 +34,8 @@
   an embedded widget
 * Parsing of "linearized" PDF files where the first cross-reference section
   isn't actually used
+* [HexaPDF::Layout::PageStyle#create_page] to return new frame objects on each
+  invocation
 
 
 ## 0.45.0 - 2024-06-18
