@@ -277,6 +277,13 @@ module HexaPDF
   #
   #    See PDF2.0 s7.4.1, ADB sH.3 3.3
   #
+  # font.default::
+  #    This font is used by the layout engine when no font is specified but one is needed.
+  #
+  #    This is used, for example, for the font set on styles that don't have a font set.
+  #
+  #    The default value is 'Times'.
+  #
   # font.fallback::
   #    An array of fallback font names to be used when replacing invalid glyphs.
   #
@@ -518,6 +525,7 @@ module HexaPDF
                         Crypt: 'HexaPDF::Filter::Crypt',
                         Encryption: 'HexaPDF::Filter::Encryption',
                       },
+                      'font.default' => 'Times',
                       'font.fallback' => ['ZapfDingbats', 'Symbol'],
                       'font.map' => {},
                       'font.on_invalid_glyph' => method(:font_on_invalid_glyph),

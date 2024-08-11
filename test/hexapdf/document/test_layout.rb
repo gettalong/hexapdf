@@ -162,6 +162,24 @@ describe HexaPDF::Document::Layout do
     end
   end
 
+  describe "private retrieve_style" do
+    it "resolves a font name to a font wrapper" do
+      style = @layout.send(:retrieve_style, {font: 'Helvetica'})
+      assert_kind_of(HexaPDF::Font::Type1Wrapper, style.font)
+    end
+
+    it "sets the :base style's font if no font is set" do
+      @layout.style(:base, font: 'Helvetica')
+      style = @layout.send(:retrieve_style, {})
+      assert_equal('Helvetica', style.font.wrapped_font.font_name)
+    end
+
+    it "sets the font specified in the config option font.default as fallback" do
+      style = @layout.send(:retrieve_style, {})
+      assert_equal('Times-Roman', style.font.wrapped_font.font_name)
+    end
+  end
+
   describe "inline_box" do
     it "takes a box as argument" do
       box = HexaPDF::Layout::Box.create(width: 10, height: 10)

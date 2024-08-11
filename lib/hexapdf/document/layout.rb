@@ -77,9 +77,9 @@ module HexaPDF
     #
     # One style property, Layout::Style#font, is handled specially:
     #
-    # * If no font is set on a style, the font "Times" is automatically set because otherwise there
-    #   would be problems with text drawing operations (font is the only style property that has no
-    #   valid default value).
+    # * If no font is set on a style, the default font specified via the configuration option
+    #   'font.default' is automatically set because otherwise there would be problems with text
+    #   drawing operations (font is the only style property that has no valid default value).
     #
     # * Standard style objects only allow font wrapper objects to be set via the Layout::Style#font
     #   method. This class makes usage easier by allowing strings or an array [name, options_hash]
@@ -676,15 +676,18 @@ module HexaPDF
       # If the +properties+ hash is not empty, the retrieved style is duplicated and the properties
       # hash is applied to it.
       #
-      # Finally, a default font (the one from the :base style or otherwise 'Times') is set if
-      # necessary to ensure that the style object works in all cases.
+      # Finally, a default font (the one from the :base style or otherwise the one set using the
+      # configuration option 'font.default') is set if necessary to ensure that the style object
+      # works in all cases.
       def retrieve_style(style, properties = nil)
         if style.kind_of?(Symbol) && !@styles.key?(style)
           raise HexaPDF::Error, "Style #{style} not defined"
         end
         style = HexaPDF::Layout::Style.create(@styles[style] || style || @styles[:base])
         style = style.dup.update(**properties) unless properties.nil? || properties.empty?
-        style.font(@styles[:base].font? && @styles[:base].font || 'Times') unless style.font?
+        unless style.font?
+          style.font(@styles[:base].font? && @styles[:base].font || @document.config['font.default'])
+        end
         unless style.font.respond_to?(:pdf_object)
           name, options = *style.font
           style.font(@document.fonts.add(name, **(options || {})))
