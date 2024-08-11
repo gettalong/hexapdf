@@ -316,37 +316,32 @@ module HexaPDF
       def item_marker_box(document, index)
         return @marker_type.call(document, self, index) if @marker_type.kind_of?(Proc)
 
-        unless (fragment = @item_marker_fragment)
+        unless (items = @item_marker_items)
           marker_style = {
-            font: style.font? ? style.font : document.fonts.add("Times"),
-            font_size: style.font_size || 10, fill_color: style.fill_color
+            font_size: style.font_size || 10,
+            fill_color: style.fill_color,
           }
-          fragment = case @marker_type
-                     when :disc
-                       TextFragment.create("•", marker_style)
-                     when :circle
-                       unless marker_style[:font].decode_codepoint("❍".ord).valid?
-                         marker_style[:font] = document.fonts.add("ZapfDingbats")
-                       end
-                       TextFragment.create("❍", **marker_style,
-                                           font_size: style.font_size / 2.0,
-                                           text_rise: -style.font_size / 1.8)
-                     when :square
-                       unless marker_style[:font].decode_codepoint("■".ord).valid?
-                         marker_style[:font] = document.fonts.add("ZapfDingbats")
-                       end
-                       TextFragment.create("■", **marker_style,
-                                           font_size: style.font_size / 2.0,
-                                           text_rise: -style.font_size / 1.8)
-                     when :decimal
-                       text = (@start_number + index).to_s << "."
-                       TextFragment.create(text, marker_style)
-                     else
-                       raise HexaPDF::Error, "Unknown list marker type #{@marker_type.inspect}"
-                     end
-          @item_marker_fragment = fragment unless @marker_type == :decimal
+          marker_style[:font] = style.font if style.font?
+          items = case @marker_type
+                  when :disc
+                    document.layout.text_fragments("•", style: marker_style)
+                  when :circle
+                    document.layout.text_fragments("❍", style: marker_style,
+                                                   font_size: style.font_size / 2.0,
+                                                   text_rise: -style.font_size / 1.8)
+                  when :square
+                    document.layout.text_fragments("■", style: marker_style,
+                                                   font_size: style.font_size / 2.0,
+                                                   text_rise: -style.font_size / 1.8)
+                  when :decimal
+                    text = (@start_number + index).to_s << "."
+                    document.layout.text_fragments(text, style: marker_style)
+                  else
+                    raise HexaPDF::Error, "Unknown list marker type #{@marker_type.inspect}"
+                  end
+          @item_marker_items = items unless @marker_type == :decimal
         end
-        TextBox.new(items: [fragment], style: {text_align: :right, padding: [0, 5, 0, 0]})
+        TextBox.new(items: items, style: {text_align: :right, padding: [0, 5, 0, 0]})
       end
 
       # Draws the list items onto the canvas at position [x, y].
