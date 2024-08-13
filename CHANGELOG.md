@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Layout::TableBox] to correctly calculcate and distribute row
+  heights when row spans are involved
+
+
 ## 0.46.0 - 2024-08-11
 
 ### Added

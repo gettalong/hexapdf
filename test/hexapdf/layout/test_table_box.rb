@@ -511,6 +511,58 @@ describe HexaPDF::Layout::TableBox do
                  [0, 66, 39.75, 22], [39.75, 66, 39.75, 22], [79.5, 44, 39.75, 44], [119.25, 66, 39.75, 22]])
     end
 
+    describe "row spans" do
+      # ----------
+      # | a | b  |
+      # | a |    |
+      # | a |----|
+      # | a | c  |
+      # | a |    |
+      # ----------
+      it "works if content of a row span cell is larger than the rows" do
+        cells = [[{row_span: 2, content: @fixed_size_boxes[0..2]}, @fixed_size_boxes[3]],
+                 [@fixed_size_boxes[4]]]
+        check_box(create_box(cells: cells, cell_style: {padding: 0, border: {width: 0}}),
+                  :success, 160, 30,
+                  [[0, 0, 80, 30], [80, 0, 80, 15], [0, 0, 80, 30], [80, 15, 80, 15]])
+      end
+
+      # ----------
+      # | a | b  |
+      # |   |----|
+      # |   | c  |
+      # ----------
+      it "works if content of a row span cell is smaller than the rows" do
+        cells = [[{row_span: 2, content: @fixed_size_boxes[0]}, @fixed_size_boxes[3]],
+                 [@fixed_size_boxes[4]]]
+        check_box(create_box(cells: cells, cell_style: {padding: 0, border: {width: 0}}),
+                  :success, 160, 20,
+                  [[0, 0, 80, 20], [80, 0, 80, 10], [0, 0, 80, 20], [80, 10, 80, 10]])
+      end
+
+      # -----------------
+      # | a | b | c | d |
+      # | a | b |---| d |
+      # | a | b | e |   |
+      # | a |   | e |   |
+      # --------| e |   |
+      # | f | g | e |   |
+      # ----------------
+      it "works if multiple, possibly overlapping row spans are involved" do
+        cells = [[{row_span: 2, content: @fixed_size_boxes[0..2]},
+                  {row_span: 2, content: @fixed_size_boxes[3..4]},
+                  @fixed_size_boxes[5],
+                  {row_span: 3, content: @fixed_size_boxes[6..7]}],
+                 [{row_span: 2, content: @fixed_size_boxes[8, 3]}],
+                 [@fixed_size_boxes[11], @fixed_size_boxes[12]]]
+        check_box(create_box(cells: cells, cell_style: {padding: 0, border: {width: 0}}),
+                  :success, 160, 40,
+                  [[0, 0, 40, 30], [40, 0, 40, 30], [80, 0, 40, 10], [120, 0, 40, 40],
+                   [0, 0, 40, 30], [40, 0, 40, 30], [80, 10, 40, 30], [120, 0, 40, 40],
+                   [0, 30, 40, 10], [40, 30, 40, 10], [80, 10, 40, 30], [120, 0, 40, 40]])
+      end
+    end
+
     it "fits a table with header rows" do
       result = [[0, 0, 80, 10], [80, 0, 80, 10], [0, 10, 80, 10], [80, 10, 80, 10]]
       header = lambda {|_| [@fixed_size_boxes[10, 2], @fixed_size_boxes[12, 2]] }

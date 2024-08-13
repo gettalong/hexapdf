@@ -382,7 +382,14 @@ module HexaPDF
         def fit_rows(start_row, available_height, column_info, frame)
           height = available_height
           last_fitted_row_index = -1
+          row_heights = {}
+          zero_height_rows = {}
+          row_spans = []
+
           @cells[start_row..-1].each.with_index(start_row) do |columns, row_index|
+            # 1. Fit all columns of the row and record the max height of all non-row-span cells. If
+            #    a row has zero height (usually because it only has row-span cells), record that
+            #    information. Additionally store all cells with row-spans.
             row_fit = true
             row_height = 0
             columns.each_with_index do |cell, col_index|
@@ -396,24 +403,64 @@ module HexaPDF
                 row_fit = false
                 break
               end
-              cell.left = column_info[cell.column].first
-              cell.top = height - available_height
-              row_height = cell.preferred_height if row_height < cell.preferred_height
+              if row_height < cell.preferred_height && cell.row_span == 1
+                row_height = cell.preferred_height
+              end
+              row_spans << cell if cell.row_span > 1
             end
 
-            if row_fit
-              seen = {}
-              columns.each do |cell|
-                next if seen[cell]
-                cell.update_height(cell.row == row_index ? row_height : cell.height + row_height)
-                seen[cell] = true
-              end
+            zero_height_rows[row_index] = true if row_height == 0
 
+            if row_fit
+              # 2. If all cells of the row fit, we subtract the recorded row height of the
+              #    non-row-span cells from the available height for the next pass.
               last_fitted_row_index = row_index
+              row_heights[row_index] = row_height
               available_height -= row_height
+
+              # 3. We look at all row-span cells that end at the current row index. If the row-span
+              #    cell is larger than the sum of the row heights, we proportionally enlarge the
+              #    stored height of each spanned row and subtract the difference from the available
+              #    height for the next pass. If the row span contains initially zero-height rows,
+              #    only those rows are enlarged. Row-span cells themselves are not updated at this
+              #    point!
+              row_spans.each do |cell|
+                upper_row_index = cell.row + cell.row_span - 1
+                next unless upper_row_index == row_index
+
+                rows = cell.row.upto(upper_row_index)
+                row_span_height = rows.sum {|ri| row_heights[ri] }
+                if row_span_height < cell.preferred_height
+                  zero_height_rows_in_span = rows.select {|ri| zero_height_rows[ri] }
+                  rows = zero_height_rows_in_span if zero_height_rows_in_span.size > 0
+                  adjustment = (cell.preferred_height - row_span_height) / rows.size.to_f
+                  rows.each {|ri| row_heights[ri] += adjustment }
+                  available_height -= cell.preferred_height - row_span_height
+                end
+              end
             else
               last_fitted_row_index = columns.min_by(&:row).row - 1 if height != available_height
               break
+            end
+          end
+
+          if last_fitted_row_index >= 0
+            # 4. Once all possible rows have been fitted and the heights of the rows are fixed, the
+            #    final height and top-left corner of each cell needs to be set.
+            running_height = 0
+            @cells[start_row..last_fitted_row_index].each.with_index(start_row) do |columns, row_index|
+              columns.each_with_index do |cell, col_index|
+                next if cell.row != row_index || cell.column != col_index
+                cell.left = column_info[cell.column].first
+                cell.top = running_height
+                if cell.row_span == 1
+                  cell.update_height(row_heights[row_index])
+                else
+                  new_height = cell.row.upto(cell.row + cell.row_span - 1).sum {|ri| row_heights[ri] }
+                  cell.update_height(new_height)
+                end
+              end
+              running_height += row_heights[row_index]
             end
           end
 
