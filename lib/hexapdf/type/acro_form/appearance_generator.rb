@@ -227,7 +227,9 @@ module HexaPDF
           form = (@widget[:AP] ||= {})[:N] ||= @document.add({Type: :XObject, Subtype: :Form})
           # Wrap existing object in Form class in case the PDF writer didn't include the /Subtype
           # key; we can do this since we know this has to be a Form object
-          form = @document.wrap(form, type: :XObject, subtype: :Form) unless form[:Subtype] == :Form
+          unless form.type == :XObject && form[:Subtype] == :Form
+            form = @document.wrap(form, type: :XObject, subtype: :Form)
+          end
           form.value.replace({Type: :XObject, Subtype: :Form, BBox: [0, 0, width, height],
                               Matrix: matrix, Resources: HexaPDF::Object.deep_copy(default_resources)})
           form.contents = ''
