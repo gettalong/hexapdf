@@ -27,6 +27,8 @@
 * [HexaPDF::Type::AcroForm::SignatureField#field_value] to always return a
   correctly wrapped object
 * [HexaPDF::Writer] to remove /Type entry from trailer
+* [HexaPDF::Type::AcroForm::AppearanceGenerator#create_text_appearances] to
+  handle invalid appearance streams that are not correct Form XObjects
 
 
 ## 0.46.0 - 2024-08-11

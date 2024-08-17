@@ -452,6 +452,12 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
       assert_equal(form, @widget[:AP][:N])
       refute(form.key?(:key))
       assert_match(/test1/, form.contents)
+
+      form.delete(:Type)
+      @widget[:AP][:N] = @doc.wrap(form, type: HexaPDF::Type::Annotation)
+      @field[:V] = 'test2'
+      @generator.create_appearances
+      assert_match(/test2/, form.contents)
     end
 
     describe "takes the rotation into account" do
