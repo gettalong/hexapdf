@@ -1,5 +1,11 @@
 ## Unreleased
 
+### Added
+
+* Configuration option 'acro_form.fallback_default_appearance' to allow setting
+  a standard default appearance string for a variable text field if none is
+  found
+
 ### Fixed
 
 * [HexaPDF::Layout::TableBox] to correctly calculcate and distribute row

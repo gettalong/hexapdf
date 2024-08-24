@@ -102,9 +102,17 @@ describe HexaPDF::Type::AcroForm::VariableTextField do
                    @field.parse_default_appearance_string)
     end
 
-    it "fails if no /DA value is set" do
+    it "sets a standard /DA value if no other /DA is found" do
       @doc.acro_form.delete(:DA)
+      assert_equal([:F1, 0, HexaPDF::Content::ColorSpace.prenormalized_device_color([0])],
+                   @field.parse_default_appearance_string)
+    end
+
+    it "fails if no /DA value is set and no default appearance string should be set" do
+      @doc.acro_form.delete(:DA)
+      @doc.config['acro_form.fallback_default_appearance'] = nil
       assert_raises(HexaPDF::Error) { @field.parse_default_appearance_string }
     end
+
   end
 end
