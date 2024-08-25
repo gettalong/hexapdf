@@ -6,6 +6,11 @@
   a standard default appearance string for a variable text field if none is
   found
 
+### Changed
+
+* [HexaPDF::Task::Optimize] to not remove optional /Type entries containing
+  default values
+
 ### Fixed
 
 * [HexaPDF::Layout::TableBox] to correctly calculcate and distribute row

@@ -8,6 +8,7 @@ describe HexaPDF::Task::Optimize do
   class TestType < HexaPDF::Dictionary
 
     define_type :Test
+    define_field :Type, type: Symbol, default: type
     define_field :Optional, type: Symbol, default: :Optional
 
   end
@@ -46,6 +47,7 @@ describe HexaPDF::Task::Optimize do
   end
 
   def assert_default_deleted
+    assert(@doc.object(1).key?(:Type))
     refute(@doc.object(1).key?(:Optional))
   end
 
