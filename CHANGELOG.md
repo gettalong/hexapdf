@@ -15,6 +15,8 @@
 
 * [HexaPDF::Layout::TableBox] to correctly calculcate and distribute row
   heights when row spans are involved
+* [HexaPDF::Type::AcroForm::AppearanceGenerator] to work for files where check
+  boxes don't define the name of the on state
 
 
 ## 0.46.0 - 2024-08-11

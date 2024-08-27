@@ -134,11 +134,12 @@ module HexaPDF
           if !normal_appearance.kind_of?(HexaPDF::Dictionary) || normal_appearance.kind_of?(HexaPDF::Stream)
             (@widget[:AP] ||= {})[:N] = {Off: nil}
             normal_appearance = @widget[:AP][:N]
-            normal_appearance[@field[:V] == :Off ? :Yes : @field[:V]] = nil
+            normal_appearance[@field.field_value&.to_sym || :Yes] = nil
           end
           on_name = (normal_appearance.value.keys - [:Off]).first
           unless on_name
-            raise HexaPDF::Error, "Widget of button field doesn't define name for on state"
+            on_name = @field.field_value&.to_sym || :Yes
+            normal_appearance[on_name] = nil
           end
 
           @widget[:AS] = (@field[:V] == on_name ? on_name : :Off)

@@ -291,6 +291,22 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         assert_equal(:XObject, @widget[:AP][:N][:Other].type)
       end
 
+      it "uses the field's value or :Yes for the on state if the appearance dictionary doesn't contain a name for it" do
+        @widget[:AP][:N].delete(:Yes)
+        @generator.create_appearances
+        assert_equal(:XObject, @widget[:AP][:N][:Yes].type)
+
+        @widget[:AP][:N].delete(:Yes)
+        @field[:V] = nil
+        @generator.create_appearances
+        assert_equal(:XObject, @widget[:AP][:N][:Yes].type)
+
+        @widget[:AP][:N].delete(:Yes)
+        @field[:V] = "other"   # some PDFs use a string instead of the correct symbol
+        @generator.create_appearances
+        assert_equal(:XObject, @widget[:AP][:N][:other].type)
+      end
+
       it "creates the needed appearance streams" do
         @widget[:AP][:N].delete(:Off)
         @generator.create_appearances
@@ -326,11 +342,6 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:show_text, ["4"]],
                           [:end_text],
                           [:restore_graphics_state]])
-      end
-
-      it "fails if the appearance dictionary doesn't contain a name for the on state" do
-        @widget[:AP][:N].delete(:Yes)
-        assert_raises(HexaPDF::Error) { @generator.create_appearances }
       end
     end
 
