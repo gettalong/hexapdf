@@ -141,7 +141,7 @@ module HexaPDF
         internal_import(wrapper.source.object(object), wrapper)
       when HexaPDF::Object
         wrapper.source ||= object.document
-        if !@allow_all && (object.type == :Catalog || object.type == :Pages)
+        if object.null? || (!@allow_all && (object.type == :Catalog || object.type == :Pages))
           @mapper[object.data] = nil
         elsif (mapped_object = @mapper[object.data]&.__getobj__) && !mapped_object.null?
           mapped_object

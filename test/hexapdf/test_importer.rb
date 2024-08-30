@@ -147,6 +147,13 @@ describe HexaPDF::Importer do
       assert_nil(obj[:pages])
     end
 
+    it "handles null values correctly" do
+      @source.add(@hash)
+      @source.delete(@hash)
+      obj = @importer.import(@obj)
+      assert_nil(obj[:hash])
+    end
+
     it "imports Page objects correctly by copying the inherited values" do
       page = @importer.import(@source.pages[0])
       assert_equal(90, page[:Rotate])

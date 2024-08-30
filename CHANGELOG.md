@@ -18,6 +18,7 @@
   heights when row spans are involved
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] to work for files where check
   boxes don't define the name of the on state
+* [HexaPDF::Importer#import] to handle null values in all cases
 
 
 ## 0.46.0 - 2024-08-11
