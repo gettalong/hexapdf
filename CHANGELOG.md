@@ -5,6 +5,7 @@
 * Configuration option 'acro_form.fallback_default_appearance' to allow setting
   a standard default appearance string for a variable text field if none is
   found
+* Support for decrypting files with the proprietary algorithm /R 5
 
 ### Changed
 

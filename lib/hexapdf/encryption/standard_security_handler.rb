@@ -106,6 +106,10 @@ module HexaPDF
     # password is supplied. To open such an encrypted PDF file, the +decryption_opts+ provided to
     # HexaPDF::Document.new needs to contain a :password key with the password.
     #
+    # **Note**: While HexaPDF supports reading files encrypted with revision 5, it doesn't support
+    # writing such files. This is no problem in practice since revision 5 was an inofficial Adobe
+    # extension to PDF 1.7 and revision 6 specified in PDF 2.0 is practically the same.
+    #
     # See: PDF2.0 s7.6.4
     class StandardSecurityHandler < SecurityHandler
 
@@ -340,13 +344,13 @@ module HexaPDF
       # Uses the given password (or the default password if none given) to retrieve the encryption
       # key.
       #
-      # If the optional +check_permissions+ argument is +true+, the permissions for files
-      # encrypted with revision 6 are checked. Otherwise, permission changes are ignored.
+      # If the optional +check_permissions+ argument is +true+, the permissions for files encrypted
+      # with revision 5 or 6 are checked. Otherwise, permission changes are ignored.
       def prepare_decryption(password: '', check_permissions: true)
         if dict[:Filter] != :Standard
           raise(HexaPDF::UnsupportedEncryptionError,
                 "Invalid /Filter value #{dict[:Filter]} for standard security handler")
-        elsif ![2, 3, 4, 6].include?(dict[:R])
+        elsif ![2, 3, 4, 5, 6].include?(dict[:R])
           raise(HexaPDF::UnsupportedEncryptionError,
                 "Invalid /R value #{dict[:R]} for standard security handler")
         elsif dict[:R] <= 4 && !document.trailer[:ID].kind_of?(PDFArray)
@@ -369,7 +373,7 @@ module HexaPDF
           raise HexaPDF::EncryptionError, "Invalid password specified"
         end
 
-        check_perms_field(encryption_key) if check_permissions && dict[:R] == 6
+        check_perms_field(encryption_key) if check_permissions && dict[:R] >= 5
 
         encryption_key
       end
@@ -396,8 +400,8 @@ module HexaPDF
       # For revisions <= 4 this is the *only* way for generating the encryption key needed to
       # encrypt or decrypt a file.
       #
-      # For revision 6 the file encryption key is a string of random bytes that has been encrypted
-      # with the user password. If the password is the owner password,
+      # For revision 5 and 6 the file encryption key is a string of random bytes that has been
+      # encrypted with the user password. If the password is the owner password,
       # #compute_owner_encryption_key has to be used instead.
       #
       # See: PDF2.0 s7.6.4.3.2 (algorithm 2), PDF2.0 s7.6.4.3.3 (algorithm 2.A (a)-(b),(e))
@@ -416,7 +420,7 @@ module HexaPDF
           end
 
           data[0, n]
-        elsif dict[:R] == 6
+        elsif dict[:R] <= 6
           key = compute_hash(password, dict[:U][40, 8])
           aes_algorithm.new(key, "\0" * 16, :decrypt).process(dict[:UE])
         end
@@ -427,15 +431,15 @@ module HexaPDF
       # For revisions <= 4 this is done by first retrieving the user password through the use of
       # the owner password and then using the #compute_user_encryption_key method.
       #
-      # For revision 6 the file encryption key is a string of random bytes that has been encrypted
-      # with the owner password. If the password is the user password, #compute_user_encryption_key
-      # has to be used.
+      # For revisions 5 and 6 the file encryption key is a string of random bytes that has been
+      # encrypted with the owner password. If the password is the user password,
+      # #compute_user_encryption_key has to be used.
       #
       # See: PDF2.0 s7.6.4.3.2 (algorithm 2.A (a)-(d))
       def compute_owner_encryption_key(password)
         if dict[:R] <= 4
           compute_user_encryption_key(user_password_from_owner_password(password))
-        elsif dict[:R] == 6
+        elsif dict[:R] <= 6
           key = compute_hash(password, dict[:O][40, 8], dict[:U])
           aes_algorithm.new(key, "\0" * 16, :decrypt).process(dict[:OE])
         end
@@ -447,7 +451,7 @@ module HexaPDF
       # the owner password. For revision 6 the /O value is a hash computed from the password and
       # the /U value with added validation and key salts.
       #
-      # *Attention*: If revision 6 is used, the /U value has to be computed and set before this
+      # *Attention*: If revision 5 or 6 is used, the /U value has to be computed and set before this
       # method is used, otherwise the return value is incorrect!
       #
       # See: PDF2.0 s7.6.4.4.2 (algorithm 3), PDF2.0 s7.6.4.4.8 (algorithm 9 (a))
@@ -465,14 +469,14 @@ module HexaPDF
           end
 
           data
-        elsif dict[:R] == 6
+        elsif dict[:R] <= 6
           validation_salt = random_bytes(8)
           key_salt = random_bytes(8)
           compute_hash(owner_password, validation_salt, dict[:U]) << validation_salt << key_salt
         end
       end
 
-      # Computes the encryption dictionary's /OE (owner encryption key) value (for revision 6
+      # Computes the encryption dictionary's /OE (owner encryption key) value (for revisions 5 and 6
       # only).
       #
       # Short explanation: Encrypts the file encryption key with a key based on the password and
@@ -487,7 +491,7 @@ module HexaPDF
       # Computes the encryption dictionary's /U (user password) value.
       #
       # Short explanation: For revisions <= 4, the password padding string is encrypted with a key
-      # based on the user password. For revision 6 the /U value is a hash computed from the
+      # based on the user password. For revisions 5 and 6 the /U value is a hash computed from the
       # password with added validation and key salts.
       #
       # See: PDF2.0 s7.6.4.4.3 (algorithm 4 for R=2), PDF s7.6.4.4.4 (algorithm 5 for R=3 and R=4)
@@ -502,14 +506,14 @@ module HexaPDF
           data = arc4_algorithm.encrypt(key, data)
           19.times {|i| data = arc4_algorithm.encrypt(xor_key(key, i + 1), data) }
           data << "hexapdfhexapdfhe"
-        elsif dict[:R] == 6
+        elsif dict[:R] <= 6
           validation_salt = random_bytes(8)
           key_salt = random_bytes(8)
           compute_hash(password, validation_salt) << validation_salt << key_salt
         end
       end
 
-      # Computes the encryption dictionary's /UE (user encryption key) value (for revision 6
+      # Computes the encryption dictionary's /UE (user encryption key) value (for revision 5 and 6
       # only).
       #
       # Short explanation: Encrypts the file encryption key with a key based on the password and
@@ -521,7 +525,8 @@ module HexaPDF
         aes_algorithm.new(key, "\0" * 16, :encrypt).process(file_encryption_key)
       end
 
-      # Computes the encryption dictionary's /Perms (permissions) value (for revision 6 only).
+      # Computes the encryption dictionary's /Perms (permissions) value (for revisions 5 and 6
+      # only).
       #
       # Uses /P and /EncryptMetadata values, so these have to be set beforehand.
       #
@@ -543,7 +548,7 @@ module HexaPDF
           compute_u_field(password) == dict[:U]
         elsif dict[:R] <= 4
           compute_u_field(password)[0, 16] == dict[:U][0, 16]
-        elsif dict[:R] == 6
+        elsif dict[:R] <= 6
           compute_hash(password, dict[:U][32, 8]) == dict[:U][0, 32]
         end
       end
@@ -554,14 +559,14 @@ module HexaPDF
       def owner_password_valid?(password)
         if dict[:R] <= 4
           user_password_valid?(user_password_from_owner_password(password))
-        elsif dict[:R] == 6
+        elsif dict[:R] <= 6
           compute_hash(password, dict[:O][32, 8], dict[:U]) == dict[:O][0, 32]
         end
       end
 
       # Checks if the decrypted /Perms entry matches the /P and /EncryptMetadata entries.
       #
-      # This method can only be used for revision 6.
+      # This method can only be used for revisions 5 and 6.
       #
       # See: PDF2.0 s7.6.4.4.12 (algorithm 13)
       def check_perms_field(encryption_key)
@@ -596,17 +601,18 @@ module HexaPDF
       end
 
       # Computes a hash that is used extensively for all operations in security handlers of
-      # revision 6.
+      # revision 5 and 6.
       #
       # Note: The original input (as defined by the spec) is calculated as
       # "#{password}#{salt}#{user_key}" where +user_key+ has to be empty when doing operations
       # with the user password.
       #
-      # See: PDF2.0 s7.6.4.3.4 (algorithm 2.B)
+      # See: PDF2.0 s7.6.4.3.4 (algorithm 2.B) and ADB Extension Level 3 s3.5.2
       def compute_hash(password, salt, user_key = '')
         k = Digest::SHA256.digest("#{password}#{salt}#{user_key}")
-        e = ''
+        return k if dict[:R] == 5
 
+        e = ''
         i = 0
         while i < 64 || e.getbyte(-1) > i - 32
           k1 = "#{password}#{k}#{user_key}" * 64
@@ -627,7 +633,7 @@ module HexaPDF
       # * For revisions <= 4, the password is converted into ISO-8859-1 encoding, padded with
       #   PASSWORD_PADDING and truncated to a maximum of 32 bytes.
       #
-      # * For revision 6 the password is converted into UTF-8 encoding that is normalized
+      # * For revision 5 and 6 the password is converted into UTF-8 encoding that is normalized
       #   according to the PDF2.0 specification.
       #
       # See: PDF2.0 s7.6.4.3.2 (algorithm 2 step a)),
@@ -636,7 +642,7 @@ module HexaPDF
         if dict[:R] <= 4
           password.to_s[0, 32].encode(Encoding::ISO_8859_1).force_encoding(Encoding::BINARY).
             ljust(32, PASSWORD_PADDING)
-        elsif dict[:R] == 6
+        elsif dict[:R] <= 6
           password.to_s.encode(Encoding::UTF_8).force_encoding(Encoding::BINARY)[0, 127]
         end
       rescue Encoding::UndefinedConversionError => e

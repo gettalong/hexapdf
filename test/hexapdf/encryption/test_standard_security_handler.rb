@@ -228,11 +228,14 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
     end
 
     it "fails if the /R value is incorrect" do
+      HexaPDF::Encryption::StandardEncryptionDictionary.field(:R).allowed_values << 7
       exp = assert_raises(HexaPDF::UnsupportedEncryptionError) do
-        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 5, O: 't' * 32, U: 't' * 32, P: 0,
+        @handler.set_up_decryption({Filter: :Standard, V: 2, R: 7, O: 't' * 32, U: 't' * 32, P: 0,
                                     Length: 128})
       end
-      assert_match(/Invalid \/R value 5/i, exp.message)
+      assert_match(/Invalid \/R value 7/i, exp.message)
+    ensure
+      HexaPDF::Encryption::StandardEncryptionDictionary.field(:R).allowed_values.pop
     end
 
     it "fails if the supplied password is invalid" do
