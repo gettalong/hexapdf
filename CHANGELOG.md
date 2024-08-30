@@ -19,6 +19,8 @@
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] to work for files where check
   boxes don't define the name of the on state
 * [HexaPDF::Importer#import] to handle null values in all cases
+* [HexaPDF::Type::AcroForm::VariableTextField] to handle parsing of invalid PDFs
+  with symbolic appearance strings
 
 
 ## 0.46.0 - 2024-08-11

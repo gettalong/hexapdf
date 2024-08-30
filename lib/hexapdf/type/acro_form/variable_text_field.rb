@@ -106,7 +106,7 @@ module HexaPDF
               font_params[2] = HexaPDF::Content::ColorSpace.prenormalized_device_color(params)
             end
           end
-          HexaPDF::Content::Parser.parse(appearance_string.sub(/\/\//, '/'), &block)
+          HexaPDF::Content::Parser.parse(appearance_string.to_s.sub(/\/\//, '/'), &block)
           block_given? ? nil : font_params
         end
 
