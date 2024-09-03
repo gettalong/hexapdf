@@ -21,6 +21,8 @@
 * [HexaPDF::Importer#import] to handle null values in all cases
 * [HexaPDF::Type::AcroForm::VariableTextField] to handle parsing of invalid PDFs
   with symbolic appearance strings
+* [HexaPDF::Type::Annotations::Widget#marker_style] to handle invalid /DA values
+  with missing font size or color information
 
 
 ## 0.46.0 - 2024-08-11

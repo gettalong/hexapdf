@@ -259,7 +259,7 @@ module HexaPDF
         # auto-sized checkmark (i.e. :check for for check boxes) or circle (:circle for radio
         # buttons). This also means that multiple invocations will reset *all* prior values.
         #
-        # Note: The marker is called "normal caption" in the PDF 1.7 spec and the /CA entry of the
+        # Note: The marker is called "normal caption" in the PDF 2.0 spec and the /CA entry of the
         # associated appearance characteristics dictionary. The marker size and color are set using
         # the /DA key on the widget (although /DA is not defined for widget, this is how Acrobat
         # does it).
@@ -305,7 +305,9 @@ module HexaPDF
             size = 0
             color = HexaPDF::Content::ColorSpace.prenormalized_device_color([0])
             if (da = self[:DA] || field[:DA])
-              _, size, color = HexaPDF::Type::AcroForm::VariableTextField.parse_appearance_string(da)
+              _, da_size, da_color = AcroForm::VariableTextField.parse_appearance_string(da)
+              size = da_size || size
+              color = da_color || color
             end
 
             MarkerStyle.new(style, size, color)
