@@ -16,13 +16,13 @@ describe HexaPDF::DigitalSignature::Signatures do
 
   it "iterates over all signature dictionaries" do
     assert_equal([], @doc.signatures.to_a)
-    @sig1.field_value = :sig1
-    @sig2.field_value = :sig2
-    assert_equal([:sig1, :sig2], @doc.signatures.to_a)
+    @sig1.field_value = {k: :sig1}
+    @sig2.field_value = {k: :sig2}
+    assert_equal([{k: :sig1}, {k: :sig2}], @doc.signatures.to_a)
   end
 
   it "returns the number of signature dictionaries" do
-    @sig1.field_value = :sig1
+    @sig1.field_value = {k: :sig1}
     assert_equal(1, @doc.signatures.count)
   end
 

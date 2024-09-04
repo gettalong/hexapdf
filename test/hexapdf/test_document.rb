@@ -497,10 +497,10 @@ describe HexaPDF::Document do
 
     it "returns all signature fields of the document" do
       form = @doc.acro_form(create: true)
-      sig1 = @doc.add({FT: :Sig, T: 'sig1', V: :sig1})
-      sig2 = @doc.add({FT: :Sig, T: 'sig2', V: :sig2})
+      sig1 = @doc.add({FT: :Sig, T: 'sig1', V: {k: :sig1}})
+      sig2 = @doc.add({FT: :Sig, T: 'sig2', V: {k: :sig2}})
       form.root_fields << sig1 << sig2
-      assert_equal([:sig1, :sig2], @doc.signatures.to_a)
+      assert_equal([{k: :sig1}, {k: :sig2}], @doc.signatures.to_a)
     end
 
     it "allows to conveniently sign a document" do

@@ -23,6 +23,8 @@
   with symbolic appearance strings
 * [HexaPDF::Type::Annotations::Widget#marker_style] to handle invalid /DA values
   with missing font size or color information
+* [HexaPDF::Type::AcroForm::SignatureField#field_value] to always return a
+  correctly wrapped object
 
 
 ## 0.46.0 - 2024-08-11

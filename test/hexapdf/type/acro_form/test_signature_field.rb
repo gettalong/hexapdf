@@ -31,7 +31,9 @@ describe HexaPDF::Type::AcroForm::SignatureField do
 
   it "gets the field value" do
     @field[:V] = {Empty: :True}
-    assert_equal({Empty: :True}, @field.field_value.value)
+    value = @field.field_value
+    assert_kind_of(HexaPDF::DigitalSignature::Signature, value)
+    assert_equal({Empty: :True}, value)
   end
 
   it "validates the value of the /FT field" do

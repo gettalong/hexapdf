@@ -199,7 +199,8 @@ module HexaPDF
 
         # Returns the associated signature dictionary or +nil+ if the signature is not filled in.
         def field_value
-          self[:V]
+          val = self[:V]
+          val.instance_of?(Dictionary) ? document.wrap(val, type: :Sig) : val
         end
 
         # Sets the signature dictionary as value of this signature field.
