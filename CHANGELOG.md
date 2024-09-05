@@ -11,6 +11,7 @@
 
 * [HexaPDF::Task::Optimize] to not remove optional /Type entries containing
   default values
+* Validation of [HexaPDF::Type::AcroForm::Form] to not add a /DA entry
 
 ### Fixed
 

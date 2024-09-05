@@ -186,9 +186,14 @@ module HexaPDF
         #     or +font_color+ is specified but +font+ isn't, the font Helvetica is used.
         #
         #     If no font is set on the text field, the default font properties of the AcroForm form
-        #     are used. Note that field specific or form specific font properties have to be set.
-        #     Otherwise there will be an error when trying to generate a visual representation of
-        #     the field value.
+        #     are used. Note that field specific or form specific font properties have to be
+        #     set. Otherwise there might be problems when creating a visual appearance with other
+        #     PDF libraries/viewers.
+        #
+        #     If HexaPDF is used to create a visual appearance of the field value and neither field
+        #     specific nor form specific font properties are available, the configuration option
+        #     'acro_form.fallback_default_appearance' defines whether and which field specific font
+        #     properties are set and used.
         #
         # +font_options+::
         #     A hash with font options like :variant that should be used.
@@ -625,8 +630,6 @@ module HexaPDF
             if font_name && !(self[:DR][:Font] && self[:DR][:Font][font_name])
               yield("The font specified in /DA is not in the /DR resource dictionary")
             end
-          else
-            set_default_appearance_string
           end
 
           create_appearances if document.config['acro_form.create_appearances']

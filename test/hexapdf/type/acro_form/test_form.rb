@@ -507,11 +507,6 @@ describe HexaPDF::Type::AcroForm::Form do
       assert(@acro_form.validate)
     end
 
-    it "set the default appearance string, though optional, to a valid value to avoid problems" do
-      assert(@acro_form.validate)
-      assert_equal("0.0 g /F1 0 Tf", @acro_form[:DA])
-    end
-
     describe "field hierarchy validation" do
       before do
         @acro_form[:Fields] = [
