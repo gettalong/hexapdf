@@ -25,6 +25,7 @@
   with missing font size or color information
 * [HexaPDF::Type::AcroForm::SignatureField#field_value] to always return a
   correctly wrapped object
+* [HexaPDF::Writer] to remove /Type entry from trailer
 
 
 ## 0.46.0 - 2024-08-11
