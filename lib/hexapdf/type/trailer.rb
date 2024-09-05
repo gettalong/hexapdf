@@ -118,6 +118,13 @@ module HexaPDF
                                !document.security_handler.encryption_key_valid?)
           yield("Encryption key doesn't match encryption dictionary", false)
         end
+
+        valid_keys = [:Size, :Prev, :Root, :Encrypt, :Info, :ID, :XRefStm]
+        superfluous_keys = value.keys - valid_keys
+        unless superfluous_keys.empty?
+          yield("Trailer may only contain /Size, /Prev, /Root, /Encrypt, /Info, /ID & /XRefStm keys", true)
+          value.select! {|k| valid_keys.include?(k) }
+        end
       end
 
     end

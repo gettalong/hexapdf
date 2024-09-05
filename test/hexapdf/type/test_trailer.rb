@@ -112,5 +112,15 @@ describe HexaPDF::Type::Trailer do
       @obj[:Encrypt] = {}
       refute(@obj.validate)
     end
+
+    it "validates and corrects superfluous dictionary entries" do
+      @obj.set_random_id
+      @obj[:Type] = :SomeOtherObject
+      @obj.validate do |msg, correctable|
+        assert(correctable)
+        assert_match(/Trailer may only contain/, msg)
+      end
+      assert_nil(@obj[:Type])
+    end
   end
 end
