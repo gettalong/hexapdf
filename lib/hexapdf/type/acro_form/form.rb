@@ -182,29 +182,18 @@ module HexaPDF
         # The optional keyword arguments allow setting often used properties of the field:
         #
         # +font+::
-        #     The font that should be used for the text of the field. If +font_size+, +font_options+
-        #     or +font_color+ is specified but +font+ isn't, the font Helvetica is used.
-        #
-        #     If no font is set on the text field, the default font properties of the AcroForm form
-        #     are used. Note that field specific or form specific font properties have to be
-        #     set. Otherwise there might be problems when creating a visual appearance with other
-        #     PDF libraries/viewers.
-        #
-        #     If HexaPDF is used to create a visual appearance of the field value and neither field
-        #     specific nor form specific font properties are available, the configuration option
-        #     'acro_form.fallback_default_appearance' defines whether and which field specific font
-        #     properties are set and used.
+        #     The font that should be used for the text of the field. If not specified, it
+        #     defaults to Helvetica.
         #
         # +font_options+::
-        #     A hash with font options like :variant that should be used.
+        #     A hash with font options like :variant that should be used. If not specified, it
+        #     defaults to the empty hash.
         #
         # +font_size+::
-        #     The font size that should be used. If +font+, +font_options+ or +font_color+ is
-        #     specified but +font_size+ isn't, font size defaults to 0 (= auto-sizing).
+        #     The font size that should be used. If not specified, it defaults to 0 (= auto-sizing).
         #
         # +font_color+::
-        #     The font color that should be used. If +font+, +font_options+ or +font_size+ is
-        #     specified but +font_color+ isn't, font color defaults to 0 (i.e. black).
+        #     The font color that should be used. If not specified, it defaults to 0 (i.e. black).
         #
         # +align+::
         #     The alignment of the text, either :left, :center or :right.
@@ -532,7 +521,7 @@ module HexaPDF
             field = Field.wrap(document, field)
             next unless field && (calculation_action = field[:AA]&.[](:C))
             result = JavaScriptActions.calculate(self, calculation_action)
-            field.form_field.field_value = result if result
+            field.field_value = result if result
           end
         end
 
@@ -566,12 +555,10 @@ module HexaPDF
         # Applies the given variable field properties to the field.
         def apply_variable_text_properties(field, font: nil, font_options: nil, font_size: nil,
                                            font_color: nil, align: nil)
-          if font || font_options || font_size || font_color
-            field.set_default_appearance_string(font: font || 'Helvetica',
-                                                font_options: font_options || {},
-                                                font_size: font_size || 0,
-                                                font_color: font_color || 0)
-          end
+          field.set_default_appearance_string(font: font || 'Helvetica',
+                                              font_options: font_options || {},
+                                              font_size: font_size || 0,
+                                              font_color: font_color || 0)
           field.text_alignment(align) if align
         end
 

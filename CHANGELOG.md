@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::Type::AcroForm::Form] text-like field creation methods to always set
+  a default appearance string
+
+
 ## 0.47.0 - 2024-09-07
 
 ### Added
