@@ -598,6 +598,7 @@ module HexaPDF
                         optimize: 'HexaPDF::Task::Optimize',
                         dereference: 'HexaPDF::Task::Dereference',
                         pdfa: 'HexaPDF::Task::PDFA',
+                        merge_acro_form: 'HexaPDF::Task::MergeAcroForm',
                       })
 
   # The global configuration object, providing the following options:

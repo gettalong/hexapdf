@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Task::MergeAcroForm] for merging AcroForm information for imported
+  pages
+
 ### Changed
 
 * [HexaPDF::Type::AcroForm::Form] text-like field creation methods to always set
