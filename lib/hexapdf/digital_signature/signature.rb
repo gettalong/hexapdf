@@ -211,7 +211,7 @@ module HexaPDF
         data = ''.b
         self[:ByteRange]&.each_slice(2) do |offset, length|
           io.pos = offset
-          data << io.read(length)
+          data << io.read(length).to_s
         end
         data
       end

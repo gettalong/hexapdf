@@ -111,6 +111,13 @@ describe HexaPDF::DigitalSignature::Signature do
       assert_equal((MINIMAL_PDF[0, 400] << MINIMAL_PDF[500, 333]).b, @sig.signed_data)
     end
 
+    it "works for invalid offsets" do
+      doc = HexaPDF::Document.new(io: StringIO.new(MINIMAL_PDF))
+      @sig.document = doc
+      @sig[:ByteRange] = [0, 400, 9000, 333]
+      assert_equal(MINIMAL_PDF[0, 400], @sig.signed_data)
+    end
+
     it "fails if the document isn't associated with an existing PDF file" do
       assert_raises(HexaPDF::Error) { @sig.signed_data }
     end

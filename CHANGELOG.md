@@ -10,6 +10,10 @@
 * [HexaPDF::Type::AcroForm::Form] text-like field creation methods to always set
   a default appearance string
 
+### Fixed
+
+* [HexaPDF::DigitalSignature::Signature#signed_data] to work for invalid offsets
+
 
 ## 0.47.0 - 2024-09-07
 
