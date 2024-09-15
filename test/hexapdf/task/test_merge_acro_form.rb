@@ -47,6 +47,27 @@ describe HexaPDF::Task::MergeAcroForm do
     assert(@doc.acro_form.default_resources[:Font].key?(:F2))
   end
 
+  it "updates the /SigFlags if necessary" do
+    @doc.task(:merge_acro_form, source: @doc1, pages: [@pages[0]])
+    refute(@doc.acro_form.signature_flag?(:signatures_exist))
+
+    @pages[0][:Annots][0].form_field[:FT] = :Sig
+    @doc.task(:merge_acro_form, source: @doc1, pages: [@pages[0]])
+    refute(@doc.acro_form.signature_flag?(:signatures_exist))
+
+    @doc1.acro_form.signature_flag(:signatures_exist)
+    @doc.task(:merge_acro_form, source: @doc1, pages: [@pages[0]])
+    assert(@doc.acro_form.signature_flag?(:signatures_exist))
+  end
+
+  it "applies the /DA and /Q entries of the source AcroForm to the created root field" do
+    @doc1.acro_form.set_default_appearance_string
+    @doc1.acro_form[:Q] = @doc1.add(5)
+    @doc.task(:merge_acro_form, source: @doc1, pages: [@pages[0]])
+    assert_equal('0.0 g /F2 0 Tf', @root_fields[3][:DA])
+    assert_equal(5, @root_fields[3][:Q])
+  end
+
   it "merges only the fields references in the given pages" do
     @doc.task(:merge_acro_form, source: @doc1, pages: [@pages[0]])
     assert_equal('merged_1', @root_fields[3][:T])

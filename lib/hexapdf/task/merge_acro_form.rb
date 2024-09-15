@@ -84,11 +84,13 @@ module HexaPDF
         acro_form.root_fields << root_field
 
         # Merge the main AcroForm dictionary
-        font_name_mapping = merge_form_dictionary(acro_form, source.acro_form)
+        font_name_mapping = merge_form_dictionary(acro_form, source.acro_form, root_field)
         font_name_re = font_name_mapping.keys.map {|name| Regexp.escape(name) }.join('|')
+        root_field[:DA] && root_field[:DA].sub!(font_name_re, font_name_mapping)
 
         # Process all field widgets of the given pages
         process_calculate_actions = false
+        signature_field_seen = false
         pages.each do |page|
           page.each_annotation do |widget|
             next unless widget[:Subtype] == :Widget
@@ -99,6 +101,7 @@ module HexaPDF
             field[:DA] && field[:DA].sub!(font_name_re, font_name_mapping)
 
             process_calculate_actions = true if field[:AA]&.[](:C)
+            signature_field_seen = true if field.field_type == :Sig
 
             # Add to the root field
             field = field[:Parent] while field[:Parent]
@@ -111,11 +114,16 @@ module HexaPDF
 
         # Update calculation JavaScript actions with changed field names
         fix_calculate_actions(acro_form, source.acro_form, import_name) if process_calculate_actions
+
+        # Update signature flags if necessary
+        if signature_field_seen && source.acro_form.signature_flag?(:signatures_exist)
+          acro_form.signature_flag(:signatures_exist)
+        end
       end
 
       # Merges the AcroForm +source_form+ into the +target_form+ and returns a mapping of old font
       # names to new ones.
-      def self.merge_form_dictionary(target_form, source_form)
+      def self.merge_form_dictionary(target_form, source_form, root_field)
         target_resources = target_form.default_resources
         font_name_mapping = {}
         serializer = HexaPDF::Serializer.new
@@ -124,6 +132,9 @@ module HexaPDF
           new_name = target_resources.add_font(target_form.document.import(value))
           font_name_mapping[serializer.serialize(font_name)] = serializer.serialize(new_name)
         end
+
+        root_field[:DA] = target_form.document.import(source_form[:DA])
+        root_field[:Q] = target_form.document.import(source_form[:Q])
 
         font_name_mapping
       end
