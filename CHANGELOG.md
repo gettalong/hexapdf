@@ -11,6 +11,8 @@
   a default appearance string
 * Convenience methods for accessing resources to not add the deprecated /ProcSet
   entry by default
+* [HexaPDF::DigitalSignature::CMSHandler] to add informational output regarding
+  the certificate chain on verification
 
 ### Fixed
 

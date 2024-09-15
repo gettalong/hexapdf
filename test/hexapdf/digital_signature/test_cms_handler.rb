@@ -62,7 +62,7 @@ describe HexaPDF::DigitalSignature::CMSHandler do
       @dict.contents = @pkcs7.to_der
       @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
       result = @handler.verify(@store)
-      assert_equal(2, result.messages.size)
+      assert_equal(3, result.messages.size)
       assert_equal(:error, result.messages.first.type)
       assert_match(/Exactly one signer needed/, result.messages.first.content)
     end
@@ -100,13 +100,13 @@ describe HexaPDF::DigitalSignature::CMSHandler do
 
     it "verifies the signature itself" do
       result = @handler.verify(@store)
-      assert_equal(:info, result.messages.last.type)
-      assert_match(/Signature valid/, result.messages.last.content)
+      assert_equal(:info, result.messages[-2].type)
+      assert_match(/Signature valid/, result.messages[-2].content)
 
       @dict.signed_data = 'other data'
       result = @handler.verify(@store)
-      assert_equal(:error, result.messages.last.type)
-      assert_match(/Signature verification failed/, result.messages.last.content)
+      assert_equal(:error, result.messages[-2].type)
+      assert_match(/Signature verification failed/, result.messages[-2].content)
     end
 
     it "verifies a timestamp signature" do
@@ -125,8 +125,13 @@ describe HexaPDF::DigitalSignature::CMSHandler do
       @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
 
       result = @handler.verify(@store)
-      assert_equal(:info, result.messages.last.type)
-      assert_match(/Signature valid/, result.messages.last.content)
+      assert_equal(:info, result.messages[-2].type)
+      assert_match(/Signature valid/, result.messages[-2].content)
+    end
+
+    it "provides information on the certificate chain" do
+      result = @handler.verify(@store)
+      assert_match(/RSA signer -> HexaPDF Test Root CA/, result.messages.last.content)
     end
   end
 

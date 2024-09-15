@@ -155,6 +155,19 @@ module HexaPDF
           result.log(:error, "Signature verification failed")
         end
 
+        certs = [signer_certificate]
+        cur_cert = certs.first
+        while true
+          cur_cert = certificate_chain.find {|cert| cert.subject == cur_cert.issuer }
+          if cur_cert && !certs.include?(cur_cert)
+            certs << cur_cert
+          else
+            break
+          end
+        end
+        cert_subjects = certs.map {|cert| cert.subject.to_a.assoc("CN")&.[](1) }
+        result.log(:info, "Certificate chain: #{cert_subjects.join(" -> ")}")
+
         result
       end
 
