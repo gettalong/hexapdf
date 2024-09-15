@@ -289,6 +289,7 @@ module HexaPDF
           signature[:Location] = location if location
           signature[:ContactInfo] = contact_info if contact_info
           signature[:Prop_Build] = {App: {Name: :HexaPDF, REx: HexaPDF::VERSION}}
+          signature.document.version = '2.0' if signature_type == :pades
 
           if doc_mdp_permissions
             doc = signature.document

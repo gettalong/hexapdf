@@ -157,6 +157,12 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
       assert_same(@obj, @doc.catalog[:Perms][:DocMDP])
     end
 
+    it "updates the document version if :pades signing is used" do
+      @handler.signature_type = :pades
+      @handler.finalize_objects(@field, @obj)
+      assert_equal('2.0', @doc.version)
+    end
+
     it "fails if DocMDP should be set but there is already a signature" do
       @handler.doc_mdp_permissions = :no_changes
       2.times do
