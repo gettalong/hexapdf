@@ -57,7 +57,7 @@ describe HexaPDF::Type::Form do
     it "creates the resource dictionary if it is not found" do
       resources = @form.resources
       assert_equal(:XXResources, resources.type)
-      assert_equal({ProcSet: [:PDF, :Text, :ImageB, :ImageC, :ImageI]}, resources.value)
+      assert_equal({}, resources.value)
     end
 
     it "returns the already used resource dictionary" do

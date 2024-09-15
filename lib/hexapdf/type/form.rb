@@ -131,8 +131,7 @@ module HexaPDF
 
       # Returns the resource dictionary which is automatically created if it doesn't exist.
       def resources
-        self[:Resources] ||= document.wrap({ProcSet: [:PDF, :Text, :ImageB, :ImageC, :ImageI]},
-                                           type: :XXResources)
+        self[:Resources] ||= document.wrap({}, type: :XXResources)
       end
 
       # Processes the content stream of the form XObject with the given processor object.
