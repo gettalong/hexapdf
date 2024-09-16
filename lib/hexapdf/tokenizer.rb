@@ -144,6 +144,8 @@ module HexaPDF
       elsif byte == 93 # ]
         @ss.pos += 1
         TOKEN_ARRAY_END
+      elsif byte == 41 # )
+        raise HexaPDF::MalformedPDFError.new("Delimiter ')' found at invalid position", pos: pos)
       elsif byte == 123 || byte == 125 # { }
         Token.new(@ss.get_byte)
       elsif byte == 37 # %

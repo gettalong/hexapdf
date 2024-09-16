@@ -104,6 +104,11 @@ module CommonTokenizerTests
     assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
   end
 
+  it "next_token: fails on a closing parenthesis that is not part of a literal string" do
+    create_tokenizer(" )")
+    assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }
+  end
+
   it "next_token: fails on a missing greater than sign in a hex string" do
     create_tokenizer("<ABCD")
     assert_raises(HexaPDF::MalformedPDFError) { @tokenizer.next_token }

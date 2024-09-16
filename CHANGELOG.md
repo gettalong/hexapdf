@@ -19,6 +19,7 @@
 * [HexaPDF::DigitalSignature::Signature#signed_data] to work for invalid offsets
 * [HexaPDF::DigitalSignature::Signing::DefaultHandler] to update the document's
   version to 2.0 when using PAdES
+* Parsing of invalid `)` character in PDF objects and content streams
 
 
 ## 0.47.0 - 2024-09-07
