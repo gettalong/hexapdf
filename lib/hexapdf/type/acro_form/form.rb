@@ -558,7 +558,7 @@ module HexaPDF
                                               font_options: font_options || {},
                                               font_size: font_size || 0,
                                               font_color: font_color || 0)
-          field.text_alignment(align) if align
+          field.text_alignment(align || :left)
         end
 
         def perform_validation # :nodoc:

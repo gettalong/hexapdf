@@ -8,7 +8,7 @@
 ### Changed
 
 * [HexaPDF::Type::AcroForm::Form] text-like field creation methods to always set
-  a default appearance string
+  a default appearance string and the quadding
 * Convenience methods for accessing resources to not add the deprecated /ProcSet
   entry by default
 * [HexaPDF::DigitalSignature::CMSHandler] to add informational output regarding

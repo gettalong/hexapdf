@@ -164,6 +164,7 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal(:'Helvetica', @acro_form.default_resources.font(font_name)[:BaseFont])
       assert_equal(0, font_size)
       assert_equal(HexaPDF::Content::ColorSpace::DeviceGray.new.color(0), font_color)
+      assert_equal(0, field.value[:Q])
 
       field = @acro_form.send(method, "field", **args, font: 'Times')
       font_name, font_size, font_color = field.parse_default_appearance_string
