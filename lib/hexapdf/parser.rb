@@ -184,7 +184,7 @@ module HexaPDF
         length = if object[:Length].kind_of?(Integer)
                    object[:Length]
                  elsif object[:Length].kind_of?(Reference)
-                   @document.deref(object[:Length]).value
+                   @document.deref(object[:Length])&.value || 0
                  else
                    0
                  end

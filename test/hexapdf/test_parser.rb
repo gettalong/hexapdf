@@ -152,6 +152,13 @@ describe HexaPDF::Parser do
       assert_equal('12', collector(stream.fiber))
     end
 
+    it "recovers from a non-existing indirect reference to a stream length value" do
+      create_parser("1 0 obj<</Length 2 0 R>> stream\n12(ab\nendstream endobj")
+      obj, _, _, stream = @parser.parse_indirect_object
+      assert_equal(5, obj[:Length])
+      assert_equal('12(ab', collector(stream.fiber))
+    end
+
     it "works even if the keyword endobj is missing or mangled" do
       create_parser("1 0 obj<</Length 4>>5")
       object, * = @parser.parse_indirect_object

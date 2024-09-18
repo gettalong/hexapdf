@@ -20,6 +20,8 @@
 * [HexaPDF::DigitalSignature::Signing::DefaultHandler] to update the document's
   version to 2.0 when using PAdES
 * Parsing of invalid `)` character in PDF objects and content streams
+* Handling of files that contain stream length values that are indirect objects
+  that do not exist
 
 
 ## 0.47.0 - 2024-09-07
