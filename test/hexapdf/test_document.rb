@@ -595,4 +595,13 @@ describe HexaPDF::Document do
       refute(dupped.encrypted?)
     end
   end
+
+  it "writes the document to a string" do
+    doc = HexaPDF::Document.new
+    doc.trailer.info[:test] = :test
+    str = doc.write_to_string(update_fields: false)
+    assert_equal(Encoding::ASCII_8BIT, str.encoding)
+    doc = HexaPDF::Document.new(io: StringIO.new(str))
+    assert_equal(:test, doc.trailer.info[:test])
+  end
 end

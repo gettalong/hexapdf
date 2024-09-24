@@ -4,6 +4,7 @@
 
 * [HexaPDF::Task::MergeAcroForm] for merging AcroForm information for imported
   pages
+* [HexaPDF::Document#write_to_string] for easily writing a document to a String
 
 ### Changed
 

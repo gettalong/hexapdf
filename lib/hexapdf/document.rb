@@ -786,6 +786,15 @@ module HexaPDF
       end
     end
 
+    # Writes the document to a string and returns the string.
+    #
+    # See #write for further information and details on the available arguments.
+    def write_to_string(**args)
+      io = StringIO.new(''.b)
+      write(io)
+      io.string
+    end
+
     def inspect #:nodoc:
       "<#{self.class.name}:#{object_id}>"
     end
