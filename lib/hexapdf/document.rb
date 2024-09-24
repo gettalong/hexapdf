@@ -724,10 +724,12 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   doc.write(filename, incremental: false, validate: true, update_fields: true, optimize: false)
-    #   doc.write(io, incremental: false, validate: true, update_fields: true, optimize: false)
+    #   doc.write(filename, incremental: false, validate: true, update_fields: true, optimize: false) -> [start_xref, section]
+    #   doc.write(io, incremental: false, validate: true, update_fields: true, optimize: false) -> [start_xref, section]
     #
-    # Writes the document to the given file (in case +io+ is a String) or IO stream.
+    # Writes the document to the given file (in case +io+ is a String) or IO stream. Returns the
+    # file position of the start of the last cross-reference section and the last XRefSection object
+    # written.
     #
     # Before the document is written, it is validated using #validate and an error is raised if the
     # document is not valid. However, this step can be skipped if needed.
