@@ -63,6 +63,14 @@ describe HexaPDF::Composer do
     end
   end
 
+  it "writes the document to a string" do
+    pdf = HexaPDF::Composer.new
+    pdf.new_page
+    str = pdf.write_to_string
+    doc = HexaPDF::Document.new(io: StringIO.new(str))
+    assert_equal(2, doc.pages.count)
+  end
+
   describe "new_page" do
     it "creates a new page" do
       c = HexaPDF::Composer.new(page_size: [0, 0, 50, 100], margin: 10)

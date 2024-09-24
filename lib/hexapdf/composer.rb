@@ -231,6 +231,13 @@ module HexaPDF
       @document.write(output, optimize: optimize, **options)
     end
 
+    # Writes the created PDF document to a string and returns that string.
+    #
+    # See HexaPDF::Document#write for details.
+    def write_to_string(optimize: true, **options)
+      @document.write_to_string(optimize: optimize, **options)
+    end
+
     # :call-seq:
     #    composer.style(name)                              -> style
     #    composer.style(name, base: :base, **properties)   -> style
