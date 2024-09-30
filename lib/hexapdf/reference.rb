@@ -87,7 +87,7 @@ module HexaPDF
 
     # Computes the hash value based on the object and generation numbers.
     def hash
-      oid.hash ^ gen.hash
+      [oid, gen].hash
     end
 
     # Returns the object identifier as "oid,gen".
