@@ -15,6 +15,7 @@
   entry by default
 * [HexaPDF::DigitalSignature::CMSHandler] to add informational output regarding
   the certificate chain on verification
+* Validation of [HexaPDF::Type::FontType1] to ensure correct /Encoding value
 
 ### Fixed
 

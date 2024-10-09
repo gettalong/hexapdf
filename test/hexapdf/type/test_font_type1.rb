@@ -138,5 +138,10 @@ describe HexaPDF::Type::FontType1 do
       @embedded_font.delete(:FontDescriptor)
       refute(@embedded_font.validate)
     end
+
+    it "ensures a correct Symbol value for the /Encoding key" do
+      @font[:Encoding] = :Other
+      refute(@font.validate)
+    end
   end
 end

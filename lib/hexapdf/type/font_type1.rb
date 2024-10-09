@@ -170,6 +170,8 @@ module HexaPDF
         end
       end
 
+      PREDEFINED_ENCODING = [:MacRomanEncoding, :MacExpertEncoding, :WinAnsiEncoding] #:nodoc:
+
       # Validates the Type1 font dictionary.
       def perform_validation
         std_font = StandardFonts.standard_font?(self[:BaseFont])
@@ -177,6 +179,11 @@ module HexaPDF
 
         if !std_font && self[:FontDescriptor].nil?
           yield("Required field FontDescriptor is not set", false)
+        end
+
+        encoding = self[:Encoding]
+        if encoding.kind_of?(Symbol) && !PREDEFINED_ENCODING.include?(encoding)
+          yield("The /Encoding value '#{encoding}' is invalid", false)
         end
       end
 
