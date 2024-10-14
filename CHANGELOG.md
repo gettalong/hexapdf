@@ -6,6 +6,8 @@
   pages
 * [HexaPDF::Document#write_to_string] and [HexaPDF::Composer#write_to_string]
   for easily writing a document to a String
+* [HexaPDF::Font::CMap::Writer#create_cid_cmap] for creating a character code to
+  CID CMap file
 
 ### Changed
 

@@ -40,9 +40,7 @@ module HexaPDF
   module Font
     class CMap
 
-      # Creates a CMap file.
-      #
-      # Currently only ToUnicode CMaps are supported.
+      # Creates a CMap file, either a ToUnicode CMap or a CID CMap.
       class Writer
 
         # Maximum number of entries in one section.
@@ -72,6 +70,28 @@ module HexaPDF
           end
 
           to_unicode_template % result.chop!
+        end
+
+        # Returns a CID CMap for the given input code to CID mapping which needs to be sorted by
+        # input codes.
+        #
+        # Note that the returned CMap always uses a 16-bit input code space!
+        def create_cid_cmap(mapping)
+          return cid_template % '' if mapping.empty?
+
+          chars, ranges = compute_section_entries(mapping)
+
+          result = create_sections("cidchar", chars.size / 2) do |index|
+            index *= 2
+            sprintf("<%04X>", chars[index]) << " #{chars[index + 1]}\n"
+          end
+
+          result << create_sections("cidrange", ranges.size / 3) do |index|
+            index *= 3
+            sprintf("<%04X><%04X>", ranges[index], ranges[index + 1]) << " #{ranges[index + 2]}\n"
+          end
+
+          cid_template % result.chop!
         end
 
         private
@@ -146,7 +166,7 @@ module HexaPDF
           result
         end
 
-        # Returns the CMap file template for a ToUnicode CMap.
+        # Returns the template for a ToUnicode CMap.
         def to_unicode_template
           <<~TEMPLATE
             /CIDInit /ProcSet findresource begin
@@ -167,6 +187,40 @@ module HexaPDF
             CMapName currentdict /CMap defineresource pop
             end
             end
+          TEMPLATE
+        end
+
+        # Returns the template for a CID CMap.
+        def cid_template
+          <<~TEMPLATE
+            %%!PS-Adobe-3.0 Resource-CMap
+            %%%%DocumentNeededResources: ProcSet (CIDInit)
+            %%%%IncludeResource: ProcSet (CIDInit)
+            %%%%BeginResource: CMap (Custom)
+            %%%%Title: (Custom Adobe Identity 0)
+            %%%%Version: 1
+            /CIDInit /ProcSet findresource begin
+            12 dict begin
+            begincmap
+            /CIDSystemInfo 3 dict dup begin
+              /Registry (Adobe) def
+              /Ordering (Identity) def
+              /Supplement 0 def
+            end def
+            /CMapName /Custom def
+            /CMapType 1 def
+            /CMapVersion 1 def
+            /WMode 0 def
+            1 begincodespacerange
+            <0000> <FFFF>
+            endcodespacerange
+            %s
+            endcmap
+            CMapName currentdict /CMap defineresource pop
+            end
+            end
+            %%%%EndResource
+            %%%%EOF
           TEMPLATE
         end
 

@@ -85,6 +85,13 @@ module HexaPDF
         Writer.new.create_to_unicode_cmap(mapping)
       end
 
+      # Returns a string containing a CID CMap that represents the given code to CID mapping.
+      #
+      # See: Writer#create_cid_cmap
+      def self.create_cid_cmap(mapping)
+        Writer.new.create_cid_cmap(mapping)
+      end
+
       # The registry part of the CMap version.
       attr_accessor :registry
 
