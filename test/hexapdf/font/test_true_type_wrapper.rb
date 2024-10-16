@@ -71,6 +71,12 @@ describe HexaPDF::Font::TrueTypeWrapper do
                    glyph.inspect)
     end
 
+    it "caches glyphs based on the id and string" do
+      glyph = @font_wrapper.glyph(17)
+      assert_same(glyph, @font_wrapper.glyph(17))
+      refute_same(glyph, @font_wrapper.glyph(17, "1"))
+    end
+
     it "invokes font.on_missing_glyph for missing glyphs" do
       glyph = @font_wrapper.glyph(9999)
       assert_kind_of(HexaPDF::Font::InvalidGlyph, glyph)
@@ -99,14 +105,18 @@ describe HexaPDF::Font::TrueTypeWrapper do
       assert_equal([1].pack('n'), code)
       code = @font_wrapper.encode(@font_wrapper.glyph(10))
       assert_equal([2].pack('n'), code)
+      code = @font_wrapper.encode(@font_wrapper.glyph(10, "o"))
+      assert_equal([3].pack('n'), code)
     end
 
     it "returns the encoded glyph ID for fonts that are not subset" do
       @font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font, subset: false)
       code = @font_wrapper.encode(@font_wrapper.glyph(3))
-      assert_equal([3].pack('n'), code)
+      assert_equal([1].pack('n'), code)
       code = @font_wrapper.encode(@font_wrapper.glyph(10))
-      assert_equal([10].pack('n'), code)
+      assert_equal([2].pack('n'), code)
+      code = @font_wrapper.encode(@font_wrapper.glyph(10, "o"))
+      assert_equal([3].pack('n'), code)
     end
 
     it "raises an error if an InvalidGlyph is encoded" do
@@ -180,14 +190,18 @@ describe HexaPDF::Font::TrueTypeWrapper do
     it "with fonts that are not subset (only differences to other case)" do
       @font_wrapper = HexaPDF::Font::TrueTypeWrapper.new(@doc, @font, subset: false)
       @font_wrapper.encode(@font_wrapper.glyph(3))
+      @font_wrapper.encode(@font_wrapper.glyph(3, "-"))
       glyph = @font_wrapper.decode_utf8('H').first
       @font_wrapper.encode(glyph)
       @doc.dispatch_message(:complete_objects)
 
       dict = @font_wrapper.pdf_object
 
-      assert_equal(HexaPDF::Font::CMap.create_to_unicode_cmap([[3, ' '.ord], [glyph.id, 'H'.ord]]),
+      assert_equal(HexaPDF::Font::CMap.create_to_unicode_cmap([[1, ' '.ord], [2, '-'.ord],
+                                                               [3, 'H'.ord]]),
                    dict[:ToUnicode].stream)
+      assert_equal(HexaPDF::Font::CMap.create_cid_cmap([[1, 3], [2, 3], [3, glyph.id]]),
+                   dict[:Encoding].stream)
       assert_equal([glyph.id, [glyph.width]], dict[:DescendantFonts][0][:W].value)
     end
   end

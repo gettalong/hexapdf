@@ -27,6 +27,8 @@
 * Parsing of invalid `)` character in PDF objects and content streams
 * Handling of files that contain stream length values that are indirect objects
   that do not exist
+* [HexaPDF::Font::TrueTypeWrapper] to correctly handle the situation when
+  multiple codepoints refer to the same glyph ID
 
 
 ## 0.47.0 - 2024-09-07
