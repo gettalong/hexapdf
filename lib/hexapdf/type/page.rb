@@ -358,7 +358,7 @@ module HexaPDF
       def contents
         Array(self[:Contents]).each_with_object("".b) do |content_stream, content|
           content << " " unless content.empty?
-          content << content_stream.stream
+          content << content_stream.stream if content_stream.kind_of?(Stream)
         end
       end
 

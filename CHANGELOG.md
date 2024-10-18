@@ -29,6 +29,7 @@
   that do not exist
 * [HexaPDF::Font::TrueTypeWrapper] to correctly handle the situation when
   multiple codepoints refer to the same glyph ID
+* [HexaPDF::Type::Page#contents] to handle null values in /Contents array
 
 
 ## 0.47.0 - 2024-09-07

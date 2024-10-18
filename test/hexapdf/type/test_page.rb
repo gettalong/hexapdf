@@ -358,6 +358,12 @@ describe HexaPDF::Type::Page do
       page[:Contents] = [@doc.wrap({}, stream: 'q 10'), @doc.wrap({}, stream: 'w Q')]
       assert_equal('q 10 w Q', page.contents)
     end
+
+    it "handles null objects in the /Contents array" do
+      page = @doc.pages.add
+      page[:Contents] = [@doc.wrap({}, stream: 'q 10'), nil]
+      assert_equal('q 10 ', page.contents)
+    end
   end
 
   describe "contents=" do
