@@ -47,10 +47,12 @@ module HexaPDF
     # See: PDF2.0 s9.6
     class FontSimple < Font
 
+      # Only the common fields are defined here, the rest in FontType1, FontType3, FontTrueType
+      define_field :Name, type: Symbol
       define_field :FirstChar, type: Integer
       define_field :LastChar, type: Integer
       define_field :Widths, type: PDFArray
-      define_field :FontDescriptor, type: :FontDescriptor, indirect: true
+      define_field :FontDescriptor, type: :FontDescriptor
       define_field :Encoding, type: [Dictionary, Symbol]
 
       # Returns the font descriptor. May be +nil+ for a standard 14 font.

@@ -46,6 +46,19 @@ module HexaPDF
       # See: PDF2.0 s12.5.6.2, HexaPDF::Type::Annotation
       class MarkupAnnotation < Annotation
 
+        # External data dictionary used by some markup annotation types.
+        #
+        # See: PDF2.0 s12.5.6.2
+        class ExData < Dictionary
+
+          define_type :ExData
+
+          define_field :Type,    type: Symbol, required: true, default: type
+          define_field :Subtype, type: Symbol, required: true,
+                       allowed_values: [:Markup3D, :'3DM', :MarkupGeo]
+
+        end
+
         define_field :T,            type: String, version: '1.1'
         define_field :Popup,        type: :Annot, version: '1.3'
         define_field :CA,           type: Numeric, default: 1.0, version: '1.4'
@@ -56,7 +69,7 @@ module HexaPDF
         define_field :RT,           type: Symbol, default: :R, allowed_values: [:R, :Group],
                                     version: '1.6'
         define_field :IT,           type: Symbol, version: '1.6'
-        define_field :ExData,       type: Dictionary, version: '1.7'
+        define_field :ExData,       type: :ExData, version: '1.7'
 
         private
 

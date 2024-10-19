@@ -56,19 +56,20 @@ module HexaPDF
       define_field :CenterWindow,          type: Boolean, default: false
       define_field :DisplayDocTitle,       type: Boolean, default: false, version: '1.4'
       define_field :NonFullScreenPageMode, type: Symbol,  default: :UseNone,
-        allowed_values: [:UseNone, :UseOutlines, :UseThumbs, :UseOC]
+                   allowed_values: [:UseNone, :UseOutlines, :UseThumbs, :UseOC]
       define_field :Direction,             type: Symbol,  default: :L2R, version: '1.3',
-        allowed_values: [:L2R, :R2L]
+                   allowed_values: [:L2R, :R2L]
       define_field :ViewArea,              type: Symbol,  default: :CropBox, version: '1.4'
       define_field :ViewClip,              type: Symbol,  default: :CropBox, version: '1.4'
       define_field :PrintArea,             type: Symbol,  default: :CropBox, version: '1.4'
       define_field :PrintClip,             type: Symbol,  default: :CropBox, version: '1.4'
       define_field :PrintScaling,          type: Symbol,  default: :AppDefault, version: '1.6'
       define_field :Duplex,                type: Symbol,  version: '1.7',
-        allowed_values: [:Simplex, :DuplexFlipShortEdge, :DuplexFlipLongEdge]
+                   allowed_values: [:Simplex, :DuplexFlipShortEdge, :DuplexFlipLongEdge]
       define_field :PickTrayByPDFSize,     type: Boolean, version: '1.7'
       define_field :PrintPageRange,        type: PDFArray, version: '1.7'
       define_field :NumCopies,             type: Integer, version: '1.7'
+      define_field :Enforce,               type: PDFArray, version: '2.0'
 
     end
 

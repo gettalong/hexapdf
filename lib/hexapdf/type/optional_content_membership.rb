@@ -54,7 +54,7 @@ module HexaPDF
       define_field :Type, type: Symbol, required: true, default: type
       define_field :OCGs, type: [:OCG, PDFArray]
       define_field :P,    type: Symbol, default: :AnyOn,
-        allowed_values: [:AllOn, :AnyOn, :AnyOff, :AllOff]
+                   allowed_values: [:AllOn, :AnyOn, :AnyOff, :AllOff]
       define_field :VE,   type: PDFArray
 
     end

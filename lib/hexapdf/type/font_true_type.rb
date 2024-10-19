@@ -41,6 +41,8 @@ module HexaPDF
   module Type
 
     # Represents a TrueType font.
+    #
+    # See: PDF2.0 s9.6.3
     class FontTrueType < FontSimple
 
       define_field :Subtype, type: Symbol, required: true, default: :TrueType

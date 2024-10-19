@@ -48,8 +48,8 @@ module HexaPDF
       define_type :XXMarkInformation
 
       define_field :Marked,         type: Boolean, default: false
-      define_field :UserProperties, type: Boolean, default: false
-      define_field :Suspects,       type: Boolean, default: false
+      define_field :UserProperties, type: Boolean, default: false, version: '1.6'
+      define_field :Suspects,       type: Boolean, default: false, version: '1.6'
 
     end
 

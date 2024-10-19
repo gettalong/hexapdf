@@ -47,6 +47,7 @@ module HexaPDF
 
         define_field :S, type: Symbol, required: true, default: :GoTo
         define_field :D, type: [Symbol, PDFByteString, PDFArray], required: true
+        define_field :SD, type: PDFArray, version: '2.0'
 
       end
 

@@ -61,10 +61,10 @@ module HexaPDF
       define_field :ColorSpace,       type: [Symbol, PDFArray]
       define_field :BitsPerComponent, type: Integer
       define_field :Intent,           type: Symbol,          version: '1.1',
-        allowed_values: [HexaPDF::Content::RenderingIntent::ABSOLUTE_COLORIMETRIC,
-                         HexaPDF::Content::RenderingIntent::RELATIVE_COLORIMETRIC,
-                         HexaPDF::Content::RenderingIntent::SATURATION,
-                         HexaPDF::Content::RenderingIntent::PERCEPTUAL]
+                   allowed_values: [HexaPDF::Content::RenderingIntent::ABSOLUTE_COLORIMETRIC,
+                                    HexaPDF::Content::RenderingIntent::RELATIVE_COLORIMETRIC,
+                                    HexaPDF::Content::RenderingIntent::SATURATION,
+                                    HexaPDF::Content::RenderingIntent::PERCEPTUAL]
       define_field :ImageMask,        type: Boolean,         default: false
       define_field :Mask,             type: [Stream, PDFArray], version: '1.3'
       define_field :Decode,           type: PDFArray
@@ -72,11 +72,15 @@ module HexaPDF
       define_field :Alternates,       type: PDFArray,        version: '1.3'
       define_field :SMask,            type: Stream,          version: '1.4'
       define_field :SMaskInData,      type: Integer,         version: '1.5', allowed_values: [0, 1, 2]
+      define_field :Name,             type: Symbol
       define_field :StructParent,     type: Integer,         version: '1.3'
       define_field :ID,               type: PDFByteString,   version: '1.3'
       define_field :OPI,              type: Dictionary,      version: '1.2'
       define_field :Metadata,         type: Stream,          version: '1.4'
       define_field :OC,               type: Dictionary,      version: '1.5'
+      define_field :AF,               type: PDFArray,        version: '2.0'
+      define_field :Measure,          type: Dictionary,      version: '2.0'
+      define_field :PtData,           type: Dictionary,      version: '2.0'
 
       # Returns the source path that was used when creating the image object.
       #

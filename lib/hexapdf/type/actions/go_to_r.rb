@@ -48,6 +48,7 @@ module HexaPDF
         define_field :S,         type: Symbol, required: true, default: :GoToR
         define_field :F,         type: :Filespec, required: true
         define_field :D,         type: [Symbol, PDFByteString, PDFArray], required: true
+        define_field :SD,        type: PDFArray, version: '2.0'
         define_field :NewWindow, type: Boolean, version: '1.2'
 
       end

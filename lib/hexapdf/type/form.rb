@@ -89,6 +89,10 @@ module HexaPDF
       define_field :StructParents, type: Integer,      version: '1.3'
       define_field :OPI,           type: Dictionary,   version: '1.2'
       define_field :OC,            type: Dictionary,   version: '1.5'
+      define_field :Name,          type: Symbol
+      define_field :AF,            type: PDFArray,     version: '2.0'
+      define_field :Measure,       type: Dictionary,   version: '2.0'
+      define_field :PtData,        type: Dictionary,   version: '2.0'
 
       # Returns the path to the PDF file that was used when creating the form object.
       #

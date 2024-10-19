@@ -78,19 +78,22 @@ module HexaPDF
 
       define_type :Filespec
 
-      define_field :Type, type: Symbol, default: type, required: true
-      define_field :FS,   type: Symbol
-      define_field :F,    type: PDFByteString
-      define_field :UF,   type: String, version: '1.7'
-      define_field :DOS,  type: PDFByteString
-      define_field :Mac,  type: PDFByteString
-      define_field :Unix, type: PDFByteString
-      define_field :ID,   type: PDFArray
-      define_field :V,    type: Boolean, version: '1.2'
-      define_field :EF,   type: :XXFilespecEFDictionary, version: '1.7'
-      define_field :RF,   type: Dictionary, version: '1.3'
-      define_field :Desc, type: String, version: '1.6'
-      define_field :CI,   type: Dictionary, version: '1.7'
+      define_field :Type,  type: Symbol, default: type, required: true
+      define_field :FS,    type: Symbol
+      define_field :F,     type: PDFByteString
+      define_field :UF,    type: String, version: '1.7'
+      define_field :DOS,   type: PDFByteString
+      define_field :Mac,   type: PDFByteString
+      define_field :Unix,  type: PDFByteString
+      define_field :ID,    type: PDFArray
+      define_field :V,     type: Boolean, version: '1.2'
+      define_field :EF,    type: :XXFilespecEFDictionary, version: '1.7'
+      define_field :RF,    type: Dictionary, version: '1.3'
+      define_field :Desc,  type: String, version: '1.6'
+      define_field :CI,    type: Dictionary, version: '1.7'
+      define_field :Thumb, type: Stream, version: '2.0'
+      define_field :EP,    type: Dictionary, version: '2.0'
+      define_field :AF,    type: Symbol, version: '2.0', default: :Unspecified
 
       # Returns +true+ if this file specification references an URL and not a file.
       def url?
@@ -114,7 +117,7 @@ module HexaPDF
 
       # Sets the file specification string to the given filename.
       #
-      # Since the /Unix, /Mac and /DOS fields are obsolescent, only the /F and /UF fields are set.
+      # Since the /Unix, /Mac and /DOS fields are deprecated, only the /F and /UF fields are set.
       def path=(filename)
         self[:UF] = filename
         self[:F] = filename.b

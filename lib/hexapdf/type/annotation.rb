@@ -123,7 +123,7 @@ module HexaPDF
       define_field :Contents,     type: String
       define_field :P,            type: Dictionary, version: '1.3'
       define_field :NM,           type: String, version: '1.4'
-      define_field :M,            type: PDFDate, version: '1.1'
+      define_field :M,            type: [PDFDate, String], version: '1.1'
       define_field :F,            type: Integer, default: 0, version: '1.1'
       define_field :AP,           type: :XXAppearanceDictionary, version: '1.2'
       define_field :AS,           type: Symbol, version: '1.2'
@@ -131,6 +131,11 @@ module HexaPDF
       define_field :C,            type: PDFArray, version: '1.1'
       define_field :StructParent, type: Integer, version: '1.3'
       define_field :OC,           type: Dictionary, version: '1.5'
+      define_field :AF,           type: PDFArray, version: '2.0'
+      define_field :ca,           type: Numeric, default: 1.0, version: '2.0'
+      define_field :CA,           type: Numeric, default: 1.0, version: '2.0'
+      define_field :BM,           type: Symbol, version: '2.0'
+      define_field :Lang,         type: String, version: '2.0'
 
       ##
       # :method: flags

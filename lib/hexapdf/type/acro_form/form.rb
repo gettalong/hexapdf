@@ -81,6 +81,7 @@ module HexaPDF
         define_field :CO,              type: PDFArray, version: '1.3'
         define_field :DR,              type: :XXResources
         define_field :DA,              type: String
+        define_field :Q,               type: Integer
         define_field :XFA,             type: [Stream, PDFArray], version: '1.5'
 
         bit_field(:signature_flags, {signatures_exist: 0, append_only: 1},

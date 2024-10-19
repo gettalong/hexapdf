@@ -60,13 +60,17 @@ module HexaPDF
         define_field :S,         type: Symbol, required: true, default: :Launch
         define_field :F,         type: :Filespec
         define_field :Win,       type: :XXLaunchActionWinParameters
+        define_field :Mac,       type: ::Object, version: '2.0'
+        define_field :Unix,      type: ::Object, version: '2.0'
         define_field :NewWindow, type: Boolean, version: '1.2'
 
         private
 
         def perform_validation #:nodoc:
           super
-          yield("A Launch action needs a target") unless key?(:F) || key?(:Win)
+          unless key?(:Win) || key?(:Mac) || key?(:Unix) || key?(:F)
+            yield("Launch action key /F required if /Win, /Mac and /Unix are absent")
+          end
         end
 
       end

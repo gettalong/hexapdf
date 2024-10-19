@@ -51,7 +51,7 @@ module HexaPDF
       # See: PDF2.0 s12.7.4.3
       class VariableTextField < Field
 
-        define_field :DA, type: String
+        define_field :DA, type: PDFByteString
         define_field :Q, type: Integer, default: 0, allowed_values: [0, 1, 2]
         define_field :DS, type: String, version: '1.5'
         define_field :RV, type: [String, Stream], version: '1.5'

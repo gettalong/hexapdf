@@ -76,7 +76,7 @@ module HexaPDF
       define_field :AS,        type: PDFArray
       define_field :Order,     type: PDFArray
       define_field :ListMode,  type: Symbol, default: :AllPages,
-        allowed_values: [:AllPages, :VisiblePages]
+                   allowed_values: [:AllPages, :VisiblePages]
       define_field :RBGroups,  type: PDFArray
       define_field :Locked,    type: PDFArray, default: []
 

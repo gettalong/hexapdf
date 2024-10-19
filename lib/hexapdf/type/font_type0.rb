@@ -48,7 +48,7 @@ module HexaPDF
     # Composite fonts also allow for vertical writing mode and support TrueType as well as OpenType
     # fonts.
     #
-    # See: PDF2.0 s9.7
+    # See: PDF2.0 s9.7, s9.7.6.1
     class FontType0 < Font
 
       define_field :Subtype, type: Symbol, required: true, default: :Type0

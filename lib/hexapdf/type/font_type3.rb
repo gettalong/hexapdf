@@ -49,7 +49,6 @@ module HexaPDF
     class FontType3 < FontSimple
 
       define_field :Subtype,    type: Symbol, required: true, default: :Type3
-      define_field :Name,       type: Symbol
       define_field :FontBBox,   type: Rectangle, required: true
       define_field :FontMatrix, type: PDFArray, required: true
       define_field :CharProcs,  type: Dictionary, required: true

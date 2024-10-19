@@ -62,8 +62,10 @@ module HexaPDF
 
           define_field :Type,   type: Symbol, default: type
           define_field :Action, type: Symbol, required: true,
-            allowed_values: [:All, :Include, :Exclude]
+                       allowed_values: [:All, :Include, :Exclude]
           define_field :Fields, type: PDFArray
+          define_field :P, type: Numeric, version: '2.0',
+                       allowed_values: [1, 2, 3]
 
           private
 
@@ -83,8 +85,8 @@ module HexaPDF
         # If a flag is set it means that the associated entry is a required constraint. Otherwise it
         # is optional.
         #
-        # The available flags are: filter, sub_filter, v, reasons, legal_attestation, add_rev_info
-        # and digest_method.
+        # The available flags are: filter, sub_filter, v, reasons, legal_attestation, add_rev_info,
+        # digest_method, lock_document and appearance_filter.
         #
         # See: PDF2.0 s12.7.5.5
         class SeedValueDictionary < Dictionary
@@ -98,13 +100,16 @@ module HexaPDF
           define_field :Filter,           type: Symbol
           define_field :SubFilter,        type: PDFArray
           define_field :DigestMethod,     type: PDFArray, version: '1.7'
-          define_field :V,                type: Float
+          define_field :V,                type: Integer
           define_field :Cert,             type: :SVCert
           define_field :Reasons,          type: PDFArray
           define_field :MDP,              type: Dictionary, version: '1.6'
           define_field :TimeStamp,        type: Dictionary, version: '1.6'
           define_field :LegalAttestation, type: PDFArray, version: '1.6'
           define_field :AddRevInfo,       type: Boolean, version: '1.7'
+          define_field :LockDocument,     type: Symbol, version: '2.0',
+                       allowed_values: [:true, :false, :auto]
+          define_field :AppearanceFilter, type: String, version: '2.0'
 
           ##
           # :method: flags
@@ -130,7 +135,8 @@ module HexaPDF
           # all prior flags will be cleared.
           #
           bit_field(:flags, {filter: 0, sub_filter: 1, v: 2, reasons: 3, legal_attestation: 4,
-                             add_rev_info: 5, digest_method: 6},
+                             add_rev_info: 5, digest_method: 6, lock_document: 7,
+                             appearance_filter: 8},
                     lister: "flags", getter: "flagged?", setter: "flag", unsetter: "unflag",
                     value_getter: "self[:Ff]", value_setter: "self[:Ff]")
 
@@ -155,12 +161,16 @@ module HexaPDF
           define_field :Type,      type: Symbol, default: type
           define_field :Ff,        type: Integer, default: 0
           define_field :Subject,   type: PDFArray
+          define_field :SignaturePolicyOID, type: String, version: '2.0'
+          define_field :SignaturePolicyHashValue, type: String, version: '2.0'
+          define_field :SignaturePolicyHashAlgorithm, type: Symbol, version: '2.0'
+          define_field :SignaturePolicyCommitmentType, type: PDFArray, version: '2.0'
           define_field :SubjectDN, type: PDFArray, version: '1.7'
           define_field :KeyUsage,  type: PDFArray, version: '1.7'
           define_field :Issuer,    type: PDFArray
           define_field :OID,       type: PDFArray
           define_field :URL,       type: String
-          define_field :URLType,   type: Symbol, default: :Browser
+          define_field :URLType,   type: Symbol, default: :Browser, version: '1.7'
 
           ##
           # :method: flags

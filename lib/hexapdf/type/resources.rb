@@ -49,13 +49,13 @@ module HexaPDF
 
       define_type :XXResources
 
-      define_field :ExtGState, type: Dictionary
+      define_field :ExtGState,  type: Dictionary
       define_field :ColorSpace, type: Dictionary
-      define_field :Pattern, type: Dictionary
-      define_field :Shading, type: Dictionary, version: '1.3'
-      define_field :XObject, type: Dictionary
-      define_field :Font, type: Dictionary
-      define_field :ProcSet, type: PDFArray
+      define_field :Pattern,    type: Dictionary
+      define_field :Shading,    type: Dictionary, version: '1.3'
+      define_field :XObject,    type: Dictionary
+      define_field :Font,       type: Dictionary
+      define_field :ProcSet,    type: PDFArray
       define_field :Properties, type: Dictionary, version: '1.2'
 
       # Returns the color space stored under the given name.

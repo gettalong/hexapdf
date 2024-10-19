@@ -159,6 +159,9 @@ module HexaPDF
       define_field :PresSteps,            type: Dictionary, version: '1.5'
       define_field :UserUnit,             type: Numeric, version: '1.6'
       define_field :VP,                   type: PDFArray, version: '1.6'
+      define_field :AF,                   type: PDFArray, version: '2.0'
+      define_field :OutputIntents,        type: PDFArray, version: '2.0'
+      define_field :DPart,                type: Dictionary, version: '2.0'
 
       # Returns +true+ since page objects must always be indirect.
       def must_be_indirect?
