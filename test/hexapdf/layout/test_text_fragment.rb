@@ -139,7 +139,7 @@ describe HexaPDF::Layout::TextFragment do
         [:set_text_rise, [2]],
         *middle,
         [:begin_text],
-        [:set_text_matrix, [1, 0, 0, 1, 10, 15]],
+        [:move_text, [10, 15]],
         [:show_text, ['!']],
         *back,
       ].compact
@@ -156,7 +156,7 @@ describe HexaPDF::Layout::TextFragment do
       @canvas = @doc.pages.add.canvas
       @fragment.draw(@canvas, 10, 15, ignore_text_properties: true)
       assert_operators(@canvas.contents, [[:begin_text],
-                                          [:set_text_matrix, [1, 0, 0, 1, 10, 15]]])
+                                          [:move_text, [10, 15]]])
     end
 
     describe "uses an appropriate text position setter" do
@@ -188,7 +188,7 @@ describe HexaPDF::Layout::TextFragment do
       it "horizontal and vertical movement" do
         @fragment.draw(@canvas, 10, 10, ignore_text_properties: true)
         assert_operators(@canvas.contents, [[:begin_text],
-                                            [:set_text_matrix, [1, 0, 0, 1, 10, 10]]])
+                                            [:move_text, [10, 10]]])
       end
     end
 

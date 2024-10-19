@@ -235,6 +235,7 @@ module HexaPDF
           end
         end
 
+        in_text_object = (canvas.graphics_object == :text)
         canvas.begin_text
         tlm = canvas.graphics_state.tlm
         tx = x - tlm.e
@@ -248,7 +249,7 @@ module HexaPDF
         elsif ty.abs < PRECISION
           canvas.move_text_cursor(offset: [tx, 0], absolute: false)
         else
-          canvas.move_text_cursor(offset: [x, y])
+          canvas.move_text_cursor(offset: [x, y], absolute: in_text_object)
         end
         canvas.show_glyphs_only(items)
 

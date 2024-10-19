@@ -549,7 +549,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @field.text_alignment(:left)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 2, 6.41]],
+                           [:move_text, [2, 6.41]],
                            range: 7)
         end
 
@@ -557,7 +557,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @field.text_alignment(:right)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 78.55, 6.41]],
+                           [:move_text, [78.55, 6.41]],
                            range: 7)
         end
 
@@ -565,7 +565,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @field.text_alignment(:center)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 40.275, 6.41]],
+                           [:move_text, [40.275, 6.41]],
                            range: 7)
         end
 
@@ -576,7 +576,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 2, 6.41]],
+                           [:move_text, [2, 6.41]],
                            range: 7)
         ensure
           font_metrics.cap_height = cap_height
@@ -586,7 +586,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @widget[:Rect].height = 5
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 2, 3.07]],
+                           [:move_text, [2, 3.07]],
                            range: 7)
         end
       end
@@ -614,7 +614,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:set_font_and_size, [:F1, 10]],
                           [:set_device_rgb_non_stroking_color, [1.0, 0.0, 0.0]],
                           [:begin_text],
-                          [:set_text_matrix, [1, 0, 0, 1, 2, 2.035]],
+                          [:move_text, [2, 2.035]],
                           [:show_text, ["Te "]],
                           [:set_font_and_size, [:F2, 10]],
                           [:move_text, [14.45, 0]],
@@ -645,7 +645,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @field.text_alignment(:left)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 2, 16.195]],
+                           [:move_text, [2, 16.195]],
                            range: 9)
         end
 
@@ -653,7 +653,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @field.text_alignment(:right)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 78.55, 16.195]],
+                           [:move_text, [78.55, 16.195]],
                            range: 9)
         end
 
@@ -661,7 +661,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @field.text_alignment(:center)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 40.275, 16.195]],
+                           [:move_text, [40.275, 16.195]],
                            range: 9)
         end
       end
@@ -681,7 +681,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:set_font_and_size, [:F1, 10]],
                           [:set_device_rgb_non_stroking_color, [1.0, 0.0, 0.0]],
                           [:begin_text],
-                          [:set_text_matrix, [1, 0, 0, 1, 2, 16.195]],
+                          [:move_text, [2, 16.195]],
                           [:show_text, ['Test']],
                           [:move_text_next_line],
                           [:show_text, ['Value']],
@@ -703,7 +703,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:set_leading, [9.25]],
                           [:set_font_and_size, [:F1, 8]],
                           [:begin_text],
-                          [:set_text_matrix, [1, 0, 0, 1, 2, 18.556]],
+                          [:move_text, [2, 18.556]],
                           [:show_text, ['Test']],
                           [:move_text_next_line],
                           [:show_text, ['Test']],
@@ -734,7 +734,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @field.text_alignment(:left)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 2.945, 6.41]],
+                           [:move_text, [2.945, 6.41]],
                            range: 7)
         end
 
@@ -742,7 +742,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @field.text_alignment(:right)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 62.945, 6.41]],
+                           [:move_text, [62.945, 6.41]],
                            range: 7)
         end
 
@@ -750,7 +750,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @field.text_alignment(:center)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 32.945, 6.41]],
+                           [:move_text, [32.945, 6.41]],
                            range: 7)
         end
 
@@ -759,7 +759,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
           @field.text_alignment(:center)
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
-                           [:set_text_matrix, [1, 0, 0, 1, 22.39, 6.41]],
+                           [:move_text, [22.39, 6.41]],
                            range: 7)
         end
       end
@@ -777,7 +777,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                           [:set_font_and_size, [:F1, 10]],
                           [:set_device_rgb_non_stroking_color, [1.0, 0.0, 0.0]],
                           [:begin_text],
-                          [:set_text_matrix, [1, 0, 0, 1, 2.945, 6.41]],
+                          [:move_text, [2.945, 6.41]],
                           [:show_text_with_positioning, [['T', -416.5, 'e', -472, 'x', -611, 't']]],
                           [:end_text],
                           [:restore_graphics_state],
@@ -789,7 +789,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
         @generator.create_appearances
         assert_operators(@widget[:AP][:N].stream,
                          [[:begin_text],
-                          [:set_text_matrix, [1, 0, 0, 1, 2, 6.41]],
+                          [:move_text, [2, 6.41]],
                           [:end_text]], range: 6..8)
       end
 
@@ -870,7 +870,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
                             [:set_font_and_size, [:F1, 12]],
                             [:set_device_rgb_non_stroking_color, [1.0, 0.0, 0.0]],
                             [:begin_text],
-                            [:set_text_matrix, [1, 0, 0, 1, 2, 23.609]],
+                            [:move_text, [2, 23.609]],
                             [:show_text, ["a"]],
                             [:move_text_next_line],
                             [:show_text, ["b"]],
