@@ -87,7 +87,7 @@
   signatures
 * [HexaPDF::DigitalSignature::CMSHandler#signing_time] to use time from an
   embedded timestamp authority signature if possible
-* [HexaPDF::Layout::Box#fit] to return success for boxes with content
+* HexaPDF::Layout::Box#fit to return success for boxes with content
   width/height of zero
 * [HexaPDF::Importer::copy] to optionally allow copying the catalog and page
   tree nodes
@@ -95,7 +95,7 @@
 ### Fixed
 
 * Setting of correct x-position in fit result for boxes with flow positioning
-* [HexaPDF::Layout::ListBox#fit] to respect the set height
+* HexaPDF::Layout::ListBox#fit to respect the set height
 * CLI command `hexapdf inspect` to work in case of missing Unicde mappings
 * [HexaPDF::Type::AcroForm::Form#delete_field] to correctly work for fields with
   an embedded widget
@@ -114,7 +114,7 @@
 
 ### Changed
 
-* [HexaPDF::Layout::Box#fit] to set width/height correctly for boxes with
+* HexaPDF::Layout::Box#fit to set width/height correctly for boxes with
   position `:flow`
 
 ### Fixed
@@ -160,9 +160,9 @@
 
 ### Fixed
 
-* [HexaPDF::Layout::TextBox#fit] to correctly calculate width in case of flowing
+* HexaPDF::Layout::TextBox#fit to correctly calculate width in case of flowing
   text around other boxes
-* [HexaPDF::Layout::TextBox#draw] to correctly draw border, background... on
+* HexaPDF::Layout::TextBox#draw to correctly draw border, background... on
   boxes using position 'flow'
 * Comparison of Hash with [HexaPDF::Dictionary] objects by implementing
   `#to_hash`
@@ -216,7 +216,7 @@
   JavaScript action that formats the field's value
 * [HexaPDF::Type::AcroForm::TextField#set_calculate_action] for setting a
   JavaScript action that calculates the field's value
-* [HexaPDF::Type::AcroForm#recalculate_fields] for recalculating fields
+* [HexaPDF::Type::AcroForm::Form#recalculate_fields] for recalculating fields
 
 ### Changed
 
@@ -273,7 +273,7 @@
 
 ### Changed
 
-* [HexaPDF::Layout::Frame::FitResult#draw] to provide better optional content
+* HexaPDF::Layout::Frame::FitResult#draw to provide better optional content
   group names
 
 ### Fixed
@@ -352,8 +352,8 @@
 
 ### Changed
 
-* [HexaPDF::Layout::Frame::FitResult#draw] to allow drawing at an offset
-* [HexaPDF::Layout::Box#fit] to delegate the actual content fitting to the
+* HexaPDF::Layout::Frame::FitResult#draw to allow drawing at an offset
+* HexaPDF::Layout::Box#fit to delegate the actual content fitting to the
   `#fit_content` method
 * [HexaPDF::Document::Layout#box] to allow using the block as drawing block for
   the base box class
@@ -430,8 +430,8 @@
 
 ### Fixed
 
-* [HexaPDF::Layout::ColumnBox#fit] to correctly take initial height into account
-* [HexaPDF::Layout::ColumnBox#fit] to ensure correct results in case the
+* HexaPDF::Layout::ColumnBox#fit to correctly take initial height into account
+* HexaPDF::Layout::ColumnBox#fit to ensure correct results in case the
   requested dimensions are larger than the current region
 * [HexaPDF::Document::Layout#formatted_text_box] to correctly handle properties
 * [HexaPDF::Layout::Frame#fit] to raise an error if an invalid value for the
@@ -477,7 +477,7 @@
   context argument (a page or Form XObject instance)
 * [HexaPDF::Layout::ListBox] to use its 'fill_color' style property for the item
   marker color
-* [HexaPDF::Layout::Frame::FitResult#draw] to use optional content groups for
+* HexaPDF::Layout::Frame::FitResult#draw to use optional content groups for
   debug output
 
 ### Fixed
@@ -486,7 +486,7 @@
   default range starting at page 1
 * [HexaPDF::Type::Page#flatten_annotations] to correctly handle scaled
   appearances
-* Using an unknown style name in [HexaPDF:Document::Layout] method by providing
+* Using an unknown style name in [HexaPDF::Document::Layout] method by providing
   a useful error message
 * [HexaPDF::Layout::Box::new] to ensure that the properties attribute is always
   a hash
@@ -547,7 +547,7 @@
   final box positions into account
 * [HexaPDF::Content::Canvas#text] to set the leading only when multiple lines
   are drawn
-* [HexaPDF::Layout::TextBox#split] to use float comparison
+* HexaPDF::Layout::TextBox#split to use float comparison
 * Validation of standard encryption dictionary to auto-correct invalid /U and /O
   fields in case they are padded with zeros
 * [HexaPDF::Document#wrap] handling of sub-type mapping in case of missing type
@@ -964,7 +964,7 @@
 * [HexaPDF::Layout::WidthFromPolygon] to work correctly in case of very small
   floating point errors
 * HexaPDF::Layout::TextFragment#inspect to work in case of interspersed numbers
-* [HexaPDF::Layout::TextBox#split] to work for position :flow when box is wider
+* HexaPDF::Layout::TextBox#split to work for position :flow when box is wider
   than the initial available width
 * [HexaPDF::Layout::Frame#fit] to create minimally sized mask rectangles
 * [HexaPDF::Content::GraphicObject::Geom2D] to close the path when drawing
@@ -1900,7 +1900,7 @@
   objects
 * [HexaPDF::Revision#each_modified_object] for iterating over all modified
   objects of a revision
-* [HexaPDF::Layout::Box#split] and [HexaPDF::Layout::TextBox#split] for
+* [HexaPDF::Layout::Box#split] and HexaPDF::Layout::TextBox#split for
   splitting a box into two parts
 * [HexaPDF::Layout::Frame#full?] for testing whether the frame has any space
   left
