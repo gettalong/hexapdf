@@ -48,10 +48,15 @@ describe HexaPDF::Writer do
       trailer
       <</Size 4/Root<</Type/Catalog>>/Info 3 0 R/Prev 219>>
       startxref
-      349
+      #{343 + HexaPDF::VERSION.length}
       %%EOF
     EOF
 
+    xref_stream = case HexaPDF::VERSION.length
+                  when 5 then "x\xDAcbdlc``b`\xB0\x04\x93\x93\x19\x18\x00\f\x0F\x01["
+                  when 6 then "x\xDAcbdlg``b`\xB0\x04\x93\x93\x18\x18\x00\f\e\x01["
+                  else fail
+                  end
     @compressed_input_io = StringIO.new(<<~EOF.force_encoding(Encoding::BINARY))
       %PDF-1.7
       %\xCF\xEC\xFF\xE8\xD7\xCB\xCD
@@ -81,11 +86,11 @@ describe HexaPDF::Writer do
       endobj
       4 0 obj
       <</Size 7/Root<</Type/Catalog>>/Info 6 0 R/Prev 141/Type/XRef/W[1 2 2]/Index[2 1 4 1 6 1]/Filter/FlateDecode/DecodeParms<</Columns 5/Predictor 12>>/Length 22>>stream
-      x\xDAcbdlg``b`\xB0\x04\x93\x93\x18\x18\x00\f\e\x01[
+      #{xref_stream}
       endstream
       endobj
       startxref
-      448
+      #{442 + HexaPDF::VERSION.length}
       %%EOF
     EOF
   end
