@@ -3,6 +3,7 @@
 ### Fixed
 
 * Parsing of indirect objects the value of which is an indirect reference
+* Writing of the initial cross-reference section to ensure a single subsection
 
 
 ## 1.0.0 - 2024-10-26

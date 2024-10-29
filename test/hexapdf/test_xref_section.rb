@@ -57,5 +57,20 @@ describe HexaPDF::XRefSection do
       @xref_section.add_in_use_entry(20, 0, 0)
       assert_subsections([[1, 2], [10, 11], [20]])
     end
+
+    it "yields a single subsection if the section was marked as the initial one" do
+      @xref_section.mark_as_initial_section!
+      @xref_section.add_in_use_entry(6, 0, 0)
+      @xref_section.add_in_use_entry(7, 0, 0)
+      @xref_section.add_in_use_entry(9, 0, 0)
+      @xref_section.add_in_use_entry(1, 0, 0)
+      @xref_section.add_in_use_entry(2, 0, 0)
+      result = @xref_section.each_subsection.map {|s| s.map {|e| [e.oid, e.type] }}
+      assert_equal([[[1, :in_use], [2, :in_use],
+                     [3, :free], [4, :free], [5, :free],
+                     [6, :in_use], [7, :in_use],
+                     [8, :free],
+                     [9, :in_use]]], result)
+    end
   end
 end

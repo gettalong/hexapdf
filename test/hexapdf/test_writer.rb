@@ -53,8 +53,8 @@ describe HexaPDF::Writer do
     EOF
 
     xref_stream = case HexaPDF::VERSION.length
-                  when 5 then "x\xDAcbdlc``b`\xB0\x04\x93\x93\x19\x18\x00\f\x0F\x01["
-                  when 6 then "x\xDAcbdlg``b`\xB0\x04\x93\x93\x18\x18\x00\f\e\x01["
+                  when 5 then "x\xDAcbdlg``b`\xB0\x04\x93\x93\x19\x18\x00\f\x1E\x01\\"
+                  when 6 then "x\xDAcbd\xEC```b`\xB0\x04\x93\x93\x18\x18\x00\f*\x01\\"
                   else fail
                   end
     @compressed_input_io = StringIO.new(<<~EOF.force_encoding(Encoding::BINARY))
@@ -69,8 +69,8 @@ describe HexaPDF::Writer do
       20
       endobj
       3 0 obj
-      <</Size 6/Type/XRef/W[1 1 2]/Index[0 4 5 1]/Filter/FlateDecode/DecodeParms<</Columns 4/Predictor 12>>/Length 31>>stream
-      x\xDAcb`\xF8\xFF\x9F\x89\x89\x95\x91\x91\xE9\x7F\x19\x03\x03\x13\x83\x10\x88he`\x00\x00B4\x04\x1E
+      <</Size 6/Type/XRef/W[1 1 2]/Index[0 6]/Filter/FlateDecode/DecodeParms<</Columns 4/Predictor 12>>/Length 36>>stream
+      x\xDAcb`\xF8\xFF\x9F\x89\x89\x95\x91\x91\xE9\x7F\x19\x03\x03\x13\x83\x10\x90\xF8_\f\x14c\x14bd\x04\x00lk\a 
       endstream
       endobj
       startxref
@@ -90,7 +90,7 @@ describe HexaPDF::Writer do
       endstream
       endobj
       startxref
-      #{442 + HexaPDF::VERSION.length}
+      #{443 + HexaPDF::VERSION.length}
       %%EOF
     EOF
   end

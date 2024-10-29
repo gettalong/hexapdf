@@ -111,6 +111,13 @@ module HexaPDF
     # used.
     private :'[]='
 
+    # Marks this XRefSection object as being the first cross-reference section in a PDF file.
+    #
+    # This has the consequence that only a single sub-section is created.
+    def mark_as_initial_section!
+      @initial_section = true
+    end
+
     # Adds an in-use entry to the cross-reference section.
     #
     # See: ::in_use_entry
@@ -147,15 +154,24 @@ module HexaPDF
     # If this section contains no objects, a single empty array is yielded (corresponding to a
     # subsection with zero elements).
     #
-    # The subsections are dynamically generated based on the object numbers in this section.
+    # The subsections are dynamically generated based on the object numbers in this section. In case
+    # the section was marked as the initial section (see #mark_as_initial_section!) only a single
+    # subsection is yielded.
     def each_subsection
       return to_enum(__method__) unless block_given?
 
       temp = []
       oids.sort.each do |oid|
-        if !temp.empty? && temp[-1].oid + 1 != oid
-          yield(temp)
-          temp = []
+        expected_next_oid = !temp.empty? && temp[-1].oid + 1
+        if expected_next_oid && expected_next_oid != oid
+          if @initial_section
+            expected_next_oid.upto(oid - 1) do |free_oid|
+              temp << self.class.free_entry(free_oid, 0)
+            end
+          else
+            yield(temp)
+            temp = []
+          end
         end
         temp << self[oid]
       end

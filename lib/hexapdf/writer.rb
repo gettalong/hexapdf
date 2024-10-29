@@ -149,6 +149,7 @@ module HexaPDF
       obj_to_stm = object_streams.each_with_object({}) {|stm, m| m.update(stm.write_objects(rev)) }
 
       xref_section = XRefSection.new
+      xref_section.mark_as_initial_section! unless previous_xref_pos
       xref_section.add_free_entry(0, 65535) if previous_xref_pos.nil?
       rev.each do |obj|
         if obj.null?
