@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Parsing of indirect objects the value of which is an indirect reference
+
+
 ## 1.0.0 - 2024-10-26
 
 ### Added

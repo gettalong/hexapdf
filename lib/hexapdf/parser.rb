@@ -116,7 +116,11 @@ module HexaPDF
                         "the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref")
       end
 
-      @document.wrap(obj, oid: oid, gen: gen, stream: stream)
+      if obj.kind_of?(Reference)
+        @document.deref(obj)
+      else
+        @document.wrap(obj, oid: oid, gen: gen, stream: stream)
+      end
     rescue HexaPDF::MalformedPDFError
       reconstructed_revision.object(xref_entry) ||
         @document.wrap(nil, oid: xref_entry.oid, gen: xref_entry.gen)

@@ -33,18 +33,23 @@ describe HexaPDF::Parser do
       endstream
       endobj
 
+      5 0 obj
+      1 0 R
+      endobj
+
       xref
       0 4
       0000000000 65535 f 
       0000000010 00000 n 
       0000000029 00000 n 
       0000000000 65535 f 
-      3 1
+      3 2
       0000000556 00000 n 
+      0000000308 00000 n
       trailer
       << /Test (now) >>
       startxref
-      308
+      330
       %%EOF
     EOF
   end
@@ -305,6 +310,11 @@ describe HexaPDF::Parser do
       assert_equal(0, obj.gen)
     end
 
+    it "handles the case of the value of an indirect object being an indirect reference" do
+      obj = @parser.load_object(HexaPDF::XRefSection.in_use_entry(5, 0, 308))
+      assert_equal(1, obj.oid)
+    end
+
     describe "with strict parsing" do
       it "raises an error if an indirect object has an offset of 0" do
         @document.config['parser.on_correctable_error'] = proc { true }
@@ -343,13 +353,13 @@ describe HexaPDF::Parser do
 
   describe "startxref_offset" do
     it "caches the offset value" do
-      assert_equal(308, @parser.startxref_offset)
-      @parser.instance_eval { @io }.string.sub!(/308\n/, "309\n")
-      assert_equal(308, @parser.startxref_offset)
+      assert_equal(330, @parser.startxref_offset)
+      @parser.instance_eval { @io }.string.sub!(/330\n/, "309\n")
+      assert_equal(330, @parser.startxref_offset)
     end
 
     it "returns the correct offset" do
-      assert_equal(308, @parser.startxref_offset)
+      assert_equal(330, @parser.startxref_offset)
     end
 
     it "ignores garbage at the end of the file" do
