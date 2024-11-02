@@ -64,8 +64,21 @@ module HexaPDF
     rescue StandardError => e
       $stderr.puts "Problem encountered: #{e.message}"
       unless e.kind_of?(HexaPDF::Error)
+        $stderr.puts "Backtrace (last 10 lines):"
+        $stderr.puts e.backtrace[0, 10]
+        $stderr.puts
         $stderr.puts "--> The problem might indicate a faulty PDF or a bug in HexaPDF."
-        $stderr.puts "--> Please report this at https://github.com/gettalong/hexapdf/issues - thanks!"
+        $stderr.puts "--> Please report this at"
+        $stderr.puts "-->"
+        $stderr.puts "-->     https://github.com/gettalong/hexapdf/issues"
+        $stderr.puts "-->"
+        $stderr.puts "--> and include the information above as well as the output of running"
+        $stderr.puts "--> the following command on the input PDF:"
+        $stderr.puts "-->"
+        $stderr.puts "-->     hexapdf info --check INPUT.PDF"
+        $stderr.puts "-->"
+        $stderr.puts "--> If possible, please also provide the input PDF."
+        $stderr.puts "--> Thanks!"
       end
       exit(1)
     end

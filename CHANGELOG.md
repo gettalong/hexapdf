@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Changed
+
+* Informational output on errors when running CLI commands to provide more
+  details
+
 ### Fixed
 
 * Parsing of indirect objects the value of which is an indirect reference
