@@ -70,7 +70,7 @@ module HexaPDF
       define_field :W,               type: PDFArray
       define_field :DW2,             type: PDFArray, default: [880, -1100]
       define_field :W2,              type: PDFArray
-      define_field :CIDToGIDMap,     type: [Symbol, Stream]
+      define_field :CIDToGIDMap,     type: [Stream, Symbol]
 
       # Returns the unscaled width of the given CID in glyph units, or 0 if the width for the CID is
       # missing.
