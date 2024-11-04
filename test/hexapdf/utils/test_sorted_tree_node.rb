@@ -12,10 +12,12 @@ describe HexaPDF::Utils::SortedTreeNode do
   end
 
   def add_multilevel_entries
-    @kid11 = @doc.add({Limits: ['c', 'f'], Names: ['c', 1, 'f', 1]}, type: HexaPDF::NameTreeNode)
+    item = @doc.add(1)
+    @item_ref = HexaPDF::Reference.new(item.oid, item.gen)
+    @kid11 = @doc.add({Limits: ['c', 'f'], Names: ['c', @item_ref, 'f', 1]}, type: HexaPDF::NameTreeNode)
     @kid12 = @doc.add({Limits: ['i', 'm'], Names: ['i', 1, 'm', 1]}, type: HexaPDF::NameTreeNode)
     ref = HexaPDF::Reference.new(@kid11.oid, @kid11.gen)
-    @kid1 = @doc.add({Limits: ['c', 'm'], Kids: [ref, @kid12]}, type: HexaPDF::NameTreeNode)
+    @kid1 = @doc.add({Limits: ['c', 'm'], Kids: [ref, @kid12]})
     @kid21 = @doc.add({Limits: ['o', 'q'], Names: ['o', 1, 'q', 1]}, type: HexaPDF::NameTreeNode)
     @kid221 = @doc.add({Limits: ['s', 'u'], Names: ['s', 1, 'u', 1]}, type: HexaPDF::NameTreeNode)
     @kid22 = @doc.add({Limits: ['s', 'u'], Kids: [@kid221]}, type: HexaPDF::NameTreeNode)
@@ -75,7 +77,7 @@ describe HexaPDF::Utils::SortedTreeNode do
       @root.add_entry('v', 1)
       assert_equal(['a', 'm'], @kid1[:Limits].value)
       assert_equal(['a', 'f'], @kid11[:Limits].value)
-      assert_equal(['a', 1, 'c', 1, 'e', 1, 'f', 1], @kid11[:Names].value)
+      assert_equal(['a', 1, 'c', @item_ref, 'e', 1, 'f', 1], @kid11[:Names].value)
       assert_equal(['g', 'm'], @kid12[:Limits].value)
       assert_equal(['g', 1, 'i', 1, 'j', 1, 'm', 1], @kid12[:Names].value)
       assert_equal(['n', 'v'], @kid2[:Limits].value)
@@ -203,13 +205,12 @@ describe HexaPDF::Utils::SortedTreeNode do
     end
 
     it "checks that all kid objects are indirect objects" do
-      @root[:Kids][0] = ref = HexaPDF::Reference.new(@kid1.oid, @kid1.gen)
       assert(@root.validate)
 
-      @root[:Kids][0] = ref
+      @root[:Kids][0] = @kid1
       @kid1.oid = 0
       assert(@root.validate do |message, c|
-               assert_match(/must be an indirect object/, message)
+               assert_match(/children.*must be indirect/i, message)
                assert(c)
              end)
       assert(@kid1.indirect?)
