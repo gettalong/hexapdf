@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Checksum calculation for TrueType tables
+
+
 ## 1.0.1 - 2024-11-04
 
 ### Changed

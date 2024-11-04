@@ -13,6 +13,18 @@ describe HexaPDF::Font::TrueType::Table do
     @entry = HexaPDF::Font::TrueType::Table::Directory::Entry.new('tagg', 0, 0, @file.io.string.length)
   end
 
+  describe "self.calculate_checksum" do
+    it "works for data with a length divisible by four" do
+      klass = HexaPDF::Font::TrueType::Table
+      assert_equal(256, klass.calculate_checksum("\x00\x00\x00\x01\x00\x00\x00\xFF"))
+    end
+
+    it "works for data with a length not divisible by four" do
+      klass = HexaPDF::Font::TrueType::Table
+      assert_equal(512, klass.calculate_checksum("\x00\x00\x00\x01\x00\x00\x00\xFF\x00\x00\x01"))
+    end
+  end
+
   describe "initialize" do
     it "reads the data from the associated file" do
       table = TrueTypeTestTable.new(@file, @entry)
