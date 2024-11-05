@@ -1,10 +1,15 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Type::CMap] for representing CMap streams
+
 ### Fixed
 
 * Checksum calculation for TrueType tables
 * Automatic wrapping of dictionary entry /CIDToGIDMap for CID fonts
 * Performance regression when encoding char codes for TrueType fonts
+* PDF/A validation regression for PDFs using TrueType fonts
 
 
 ## 1.0.1 - 2024-11-04

@@ -722,6 +722,7 @@ module HexaPDF
                         OutputIntent: 'HexaPDF::Type::OutputIntent',
                         XXDestOutputProfileRef: 'HexaPDF::Type::OutputIntent::DestOutputProfileRef',
                         ExData: 'HexaPDF::Type::Annotations::MarkupAnnotation::ExData',
+                        CMap: 'HexaPDF::Type::CMap',
                       },
                       'object.subtype_map' => {
                         nil => {

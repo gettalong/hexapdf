@@ -381,7 +381,11 @@ module HexaPDF
           dict[:Encoding] = :'Identity-H'
         else
           stream = HexaPDF::StreamData.new { HexaPDF::Font::CMap.create_cid_cmap(mapping) }
-          stream_obj = document.add({}, stream: stream)
+          stream_obj = document.add({Type: :CMap,
+                                     CMapName: :Custom,
+                                     CIDSystemInfo: {Registry: "Adobe", Ordering: "Identity",
+                                                     Supplement: 0},
+                                    }, stream: stream)
           stream_obj.set_filter(:FlateDecode)
           dict[:Encoding] = stream_obj
         end

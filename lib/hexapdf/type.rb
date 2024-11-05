@@ -82,6 +82,7 @@ module HexaPDF
     autoload(:OptionalContentConfiguration, 'hexapdf/type/optional_content_configuration')
     autoload(:Metadata, 'hexapdf/type/metadata')
     autoload(:OutputIntent, 'hexapdf/type/output_intent')
+    autoload(:CMap, 'hexapdf/type/cmap')
 
   end
 
