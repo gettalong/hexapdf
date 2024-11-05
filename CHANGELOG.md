@@ -4,6 +4,7 @@
 
 * Checksum calculation for TrueType tables
 * Automatic wrapping of dictionary entry /CIDToGIDMap for CID fonts
+* Performance regression when encoding char codes for TrueType fonts
 
 
 ## 1.0.1 - 2024-11-04
