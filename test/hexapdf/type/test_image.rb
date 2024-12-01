@@ -171,7 +171,7 @@ describe HexaPDF::Type::Image do
 
     def assert_valid_png(filename, original = nil)
       if PNG_CHECK_AVAILABLE
-        result = `pngcheck -q #{filename}`
+        result = `pngcheck -q #{filename} 2>/dev/null`
         assert(result.empty?, "pngcheck error: #{result}")
       else
         skip("Skipping PNG output validity check because pngcheck executable is missing")
