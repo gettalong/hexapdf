@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* Offsets and lengths of revisions shown using the `inspect rev` CLI command for
+  linearized PDF files
+
+
 ## 1.0.1 - 2024-11-05
 
 ### Added

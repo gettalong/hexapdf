@@ -395,9 +395,12 @@ module HexaPDF
         end
         io = @doc.revisions.parser.io
 
-        startxrefs = @doc.revisions.map {|rev| rev.trailer[:Prev] }
         io.seek(0, IO::SEEK_END)
-        startxrefs.push(@doc.revisions.parser.startxref_offset, io.pos).shift
+        startxrefs = @doc.revisions.map {|rev| rev.trailer[:Prev] } <<
+                     @doc.revisions.parser.startxref_offset <<
+                     io.pos
+        startxrefs.sort!
+        startxrefs.shift
 
         @doc.revisions.each_with_index.map do |rev, index|
           end_index = 0
