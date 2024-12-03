@@ -494,6 +494,14 @@ describe HexaPDF::Type::AcroForm::Form do
       @acro_form.recalculate_fields
       assert_equal("10", @text3.field_value)
     end
+
+    it "ensures that only entries in /CO that are actually fields are used" do
+      @text1.field_value = "10"
+      @text3.set_calculate_action(:sfn, fields: 'text1')
+      @acro_form[:CO] = [nil, 5, [:some, :array], @doc.pages.root, @text3]
+      @acro_form.recalculate_fields
+      assert_equal("10", @text3.field_value)
+    end
   end
 
   describe "perform_validation" do

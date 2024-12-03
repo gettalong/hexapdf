@@ -517,7 +517,7 @@ module HexaPDF
         #
         # See: JavaScriptActions
         def recalculate_fields
-          self[:CO]&.each do |field|
+          (each_field.to_a & self[:CO].to_a).each do |field|
             field = Field.wrap(document, field)
             next unless field && (calculation_action = field[:AA]&.[](:C))
             result = JavaScriptActions.calculate(self, calculation_action)

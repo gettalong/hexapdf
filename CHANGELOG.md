@@ -4,6 +4,8 @@
 
 * Offsets and lengths of revisions shown using the `inspect rev` CLI command for
   linearized PDF files
+* [HexaPDF::Type::AcroForm::Form#recalculate_fields] to only consider real
+  fields
 
 
 ## 1.0.1 - 2024-11-05
