@@ -56,7 +56,7 @@ describe HexaPDF::Font::Type1Wrapper do
       glyphs = @times_wrapper.decode_utf8("😁")
       assert_equal(1, glyphs.length)
       assert_kind_of(HexaPDF::Font::InvalidGlyph, glyphs.first)
-      assert_equal('' << 128_513, glyphs.first.str)
+      assert_equal(+'' << 128_513, glyphs.first.str)
     end
   end
 

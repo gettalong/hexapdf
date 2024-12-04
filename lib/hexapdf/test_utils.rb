@@ -92,8 +92,9 @@ module HexaPDF
     # Creates a fiber that yields the given string in +len+ length parts.
     def feeder(string, len = string.length)
       Fiber.new do
+        string = string.b
         until string.empty?
-          Fiber.yield(string.slice!(0, len).force_encoding('BINARY'))
+          Fiber.yield(string.slice!(0, len))
         end
       end
     end

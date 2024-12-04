@@ -236,7 +236,7 @@ describe HexaPDF::Encryption::SecurityHandler do
         dict[:Filter] = :Test
         @enc.strf = alg
         @enc.set_up_encryption(key_length: length, algorithm: (alg == :identity ? :aes : alg))
-        @obj[:X] = @enc.encrypt_string('data', @obj)
+        @obj[:X] = @enc.encrypt_string(+'data', @obj)
         @handler.set_up_decryption(dict)
         assert_equal('data', @handler.decrypt(@obj)[:X])
       end

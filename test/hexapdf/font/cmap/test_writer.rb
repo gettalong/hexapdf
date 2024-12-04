@@ -5,7 +5,7 @@ require 'hexapdf/font/cmap/writer'
 
 describe HexaPDF::Font::CMap::Writer do
   before do
-    @to_unicode_cmap_data = <<~EOF
+    @to_unicode_cmap_data = +<<~EOF
       /CIDInit /ProcSet findresource begin
       12 dict begin
       begincmap
@@ -32,7 +32,7 @@ describe HexaPDF::Font::CMap::Writer do
       end
       end
     EOF
-    @cid_cmap_data = <<~EOF
+    @cid_cmap_data = +<<~EOF
       %!PS-Adobe-3.0 Resource-CMap
       %%DocumentNeededResources: ProcSet (CIDInit)
       %%IncludeResource: ProcSet (CIDInit)

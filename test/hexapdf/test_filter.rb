@@ -8,7 +8,7 @@ require 'tempfile'
 describe HexaPDF::Filter do
   before do
     @obj = HexaPDF::Filter
-    @str = ''
+    @str = +''
     40.times { @str << [rand(2**32)].pack('N') }
   end
 

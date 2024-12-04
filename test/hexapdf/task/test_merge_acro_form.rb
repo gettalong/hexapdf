@@ -81,7 +81,7 @@ describe HexaPDF::Task::MergeAcroForm do
   end
 
   it "updates the /DA entries of widgets and fields" do
-    @pages[0][:Annots][0][:DA] = '/F1 10 Tf'
+    @pages[0][:Annots][0][:DA] = +'/F1 10 Tf'
     @doc.task(:merge_acro_form, source: @doc1, pages: @pages)
     field = @doc.acro_form.field_by_name('merged_1.Text')
     assert_equal('0.0 g /F2 0 Tf', field[:DA])

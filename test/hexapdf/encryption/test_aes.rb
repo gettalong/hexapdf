@@ -141,7 +141,7 @@ describe HexaPDF::Encryption::AES do
         collector(@algorithm_class.decryption_fiber('some' * 4, Fiber.new { 'a' * 40 }))
       end
       assert_raises(HexaPDF::EncryptionError) do
-        collector(@algorithm_class.decryption_fiber('some' * 4, Fiber.new { 'a' * 40 })) { true }
+        collector(@algorithm_class.decryption_fiber('some' * 4, Fiber.new { 'a' * 40 }) { true })
       end
     end
   end

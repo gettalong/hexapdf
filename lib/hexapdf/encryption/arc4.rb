@@ -66,14 +66,14 @@ module HexaPDF
         # Encrypts the given +data+ with the +key+.
         #
         # See: PDF2.0 s7.6.3
-        def encrypt(key, data)
+        def encrypt(key, data, &_block)
           new(key).process(data)
         end
         alias decrypt encrypt
 
         # Returns a Fiber object that encrypts the data from the given source fiber with the
         # +key+.
-        def encryption_fiber(key, source)
+        def encryption_fiber(key, source, &_block)
           Fiber.new do
             algorithm = new(key)
             while source.alive? && (data = source.resume)

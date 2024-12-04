@@ -65,7 +65,7 @@ module CommonTokenizerTests
       :'The_Key_of_F#_Minor', :AB, :"",
       '[', 5, 6, :Name, ']', '[', 5, 6, :Name, ']',
       '<<', :Name, 5, '>>'
-    ].each {|t| t.force_encoding('BINARY') if t.respond_to?(:force_encoding) }
+    ].map {|t| t.respond_to?(:force_encoding) ? t.b : t }
 
     until expected_tokens.empty?
       expected_token = expected_tokens.shift
@@ -127,7 +127,7 @@ module CommonTokenizerTests
   end
 
   it "next_token: should not fail when reading super long numbers" do
-    create_tokenizer("1" << "0" * 10_000)
+    create_tokenizer("1" + "0" * 10_000)
     assert_equal(10**10_000, @tokenizer.next_token)
   end
 
@@ -182,7 +182,7 @@ module CommonTokenizerTests
   end
 
   it "returns the correct position on operations" do
-    create_tokenizer("hallo du" << " " * 50000 << "hallo du")
+    create_tokenizer("hallo du" + " " * 50000 + "hallo du")
     @tokenizer.next_token
     assert_equal(5, @tokenizer.pos)
 

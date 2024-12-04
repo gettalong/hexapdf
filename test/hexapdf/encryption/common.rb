@@ -67,7 +67,7 @@ module ARC4EncryptionTests
     super
     @encrypted = ['BBF316E8D940AF0AD3', '1021BF0420', '45A01F645FC35B383552544B9BF5'].
       map {|c| [c].pack('H*') }
-    @plain = ['Plaintext', 'pedia', 'Attack at dawn'].each {|s| s.force_encoding('BINARY') }
+    @plain = ['Plaintext'.b, 'pedia'.b, 'Attack at dawn'.b]
     @keys = ['Key', 'Wiki', 'Secret']
   end
 

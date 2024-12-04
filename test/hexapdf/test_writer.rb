@@ -98,7 +98,7 @@ describe HexaPDF::Writer do
   def assert_document_conversion(input_io)
     document = HexaPDF::Document.new(io: input_io)
     document.trailer.info[:Producer] = "unknown"
-    output_io = StringIO.new(''.force_encoding(Encoding::BINARY))
+    output_io = StringIO.new(''.b)
     start_xref_offset, xref_section = HexaPDF::Writer.write(document, output_io)
     assert_kind_of(HexaPDF::XRefSection, xref_section)
     assert_kind_of(Integer, start_xref_offset)
@@ -206,7 +206,7 @@ describe HexaPDF::Writer do
 
   it "doesn't create an xref stream if one was just used for an XRefStm entry" do
     # The following document's structure is built like a typical MS Word created PDF
-    input = StringIO.new(<<~EOF.force_encoding(Encoding::BINARY))
+    input = StringIO.new(<<~EOF.b)
       %PDF-1.2
       %\xCF\xEC\xFF\xE8\xD7\xCB\xCD
       1 0 obj

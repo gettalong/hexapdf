@@ -359,7 +359,7 @@ describe HexaPDF::Revisions do
 
   describe "linearzied PDFs" do
     before  do
-      @io = StringIO.new(<<~EOF)
+      @io = StringIO.new(+<<~EOF)
         %PDF-1.2
         5 0 obj
         <</Linearized 1>>

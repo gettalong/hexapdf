@@ -32,7 +32,7 @@ describe HexaPDF::Font::Encoding::GlyphList do
 
     it "maps special uXXXX[XX] names to unicode values" do
       assert_equal("A", @list.name_to_unicode(:u0041))
-      assert_equal("" << "1F000".hex, @list.name_to_unicode(:u1F000))
+      assert_equal(+'' << "1F000".hex, @list.name_to_unicode(:u1F000))
     end
 
     it "maps Zapf Dingbats glyph names to their unicode" do

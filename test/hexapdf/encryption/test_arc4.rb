@@ -11,13 +11,13 @@ describe HexaPDF::Encryption::ARC4 do
       prepend HexaPDF::Encryption::ARC4
 
       def initialize(key)
-        @data = key
+        @data = +key
       end
 
       def process(data)
         raise if data.empty?
         result = @data << data
-        @data = ''
+        @data = +''
         result
       end
     end
