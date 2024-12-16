@@ -288,7 +288,7 @@ module HexaPDF
         tmp = val.to_i
         # Handle object references, see PDF2.0 s7.3.10
         prepare_string_scanner(10)
-        if @ss.scan(REFERENCE_RE)
+        if @ss.skip(REFERENCE_RE)
           tmp = if tmp > 0
                   Reference.new(tmp, @ss[1].to_i)
                 else
