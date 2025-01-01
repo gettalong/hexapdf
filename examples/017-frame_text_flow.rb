@@ -3,6 +3,9 @@
 # This example shows how [HexaPDF::Layout::Frame] and [HexaPDF::Layout::TextBox]
 # can be used to flow text around objects.
 #
+# While it is possible to use frames and boxes in this manual way, the preferred
+# way is to use them through the [Composer class](composer.html).
+#
 # Three boxes are placed repeatedly onto the frame until it is filled: two
 # floating boxes (one left, one right) and a text box. The text box is styled to
 # flow its content around the other two boxes.

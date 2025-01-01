@@ -85,6 +85,13 @@ module HexaPDF
     #  #>pdf-composer
     #  composer.table([['A', 'B'], ['C', 'D']])
     #
+    # Each cell can hold zero or more boxes:
+    #
+    #  #>pdf-composer
+    #  cells = [[[layout.text('A'), layout.image(machu_picchu, height: 40)], layout.text('B')],
+    #           [nil, layout.text('D')]]
+    #  composer.table(cells)
+    #
     # The style of the cells can be customized, e.g. to avoid drawing borders:
     #
     #  #>pdf-composer
@@ -104,7 +111,7 @@ module HexaPDF
     # It is also possible to use row and column spans:
     #
     #  #>pdf-composer
-    #  cells = [[{content: layout.text('A'), col_span: 2}, {content: layout.text('B'), row_span: 2}],
+    #  cells = [[{content: layout.text('A'), col_span: 2}, {content: layout.text("B\nB\nB"), row_span: 2}],
     #           [{content: layout.text('C'), col_span: 2, row_span: 2}],
     #           [layout.text('D')]]
     #  composer.table(cells)

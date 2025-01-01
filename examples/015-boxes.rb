@@ -3,6 +3,9 @@
 # The [HexaPDF::Layout::Box] class is used as the basis for all document layout
 # features.
 #
+# While it is possible to use boxes in this manual way, the preferred way is to
+# use them through the [Composer class](composer.html).
+#
 # This example shows the basic properties that are available for all boxes, like
 # paddings, borders and and background color. It is also possible to use the
 # underlay and overlay callbacks with boxes.

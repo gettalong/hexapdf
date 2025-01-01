@@ -3,6 +3,10 @@
 # The [HexaPDF::Layout::TextLayouter] class can be used to easily lay out text,
 # automatically wrapping it appropriately.
 #
+# It is not advised to use the `TextLayouter` class directly but instead via the
+# [HexaPDF::Layout::TextBox] class and the general document layout
+# functionality.
+#
 # Text is broken only at certain characters:
 #
 # * The most important break points are **spaces**.

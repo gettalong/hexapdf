@@ -1,10 +1,15 @@
 # # Text Layouter - Styling
 #
 # The text used as part of a [HexaPDF::Layout::TextLayouter] class can be styled
-# using [HexaPDF::Layout::Style]. To do this [HexaPDF::Layout::TextFragment]
-# objects have to be created with the needed styling and then added to a text
-# layout object. In addition the style objects can be used for customizing the
-# text layouts themselves.
+# using [HexaPDF::Layout::Style].
+#
+# It is not advised to use the `TextLayouter` class directly but instead via the
+# [HexaPDF::Layout::TextBox] class and the general document layout
+# functionality.
+#
+# To style [HexaPDF::Layout::TextFragment] objects, they have to be created with
+# the needed styling and then added to a text layout object. In addition, the
+# style objects can be used for customizing the text layouts themselves.
 #
 # This example shows how to do this and shows off the various styling option,
 # including using callbacks to further customize the appearance.

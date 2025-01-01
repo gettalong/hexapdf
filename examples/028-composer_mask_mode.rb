@@ -1,15 +1,15 @@
-# # Frame - Mask Mode
+# # Composer - Mask Mode
 #
 # This example shows how to use the style property 'mask_mode' to achieve
 # certain effects like overlaying boxes on each other or using multiple
 # horizontal alignments on one line.
 #
 # Usage:
-# : `ruby frame_mask_mode.rb`
+# : `ruby composer_mask_mode.rb`
 #
 require 'hexapdf'
 
-HexaPDF::Composer.create('frame_mask_mode.pdf') do |composer|
+HexaPDF::Composer.create('composer_mask_mode.pdf') do |composer|
   box = composer.image(File.join(__dir__, 'machupicchu.jpg'),
                        border: {width: 1}, mask_mode: :none)
   composer.text('Text overlaid over image', height: box.height, text_align: :center,

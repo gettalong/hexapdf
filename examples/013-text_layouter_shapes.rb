@@ -5,6 +5,11 @@
 # restriction: In the case of arbitrary shapes the vertical alignment has to be
 # "top".
 #
+# Note that using [HexaPDF::Layout::TextBox] is preferred over
+# `TextLayouter`. However, it is currently not possible to flow text into
+# arbitrary shapes with `TextBox`. So if this functionality is required, the
+# `TextLayouter` class needs to be used directly.
+#
 # Arbitrary shapes boil down to varying line widths and horizontal offsets from
 # left. Imagine a circle: If text is fit in a circle, the line widths start at
 # zero, getting larger and larger until the middle of the cirle. And then they

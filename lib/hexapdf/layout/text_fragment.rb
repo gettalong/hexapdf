@@ -55,6 +55,10 @@ module HexaPDF
     # The rectangle with the bottom-left corner (#x_min, #y_min) and the top-right corner (#x_max,
     # #y_max) describes the minimum bounding box of the whole text fragment and is usually *not*
     # equal to the box (0, 0)-(#width, #height).
+    #
+    # *Note*: This class should not be used directly but via
+    # HexaPDF::Document::Layout#text_fragments. This way the whole document layout infrastructure
+    # like font fallback and such is automatically used.
     class TextFragment
 
       using NumericRefinements
@@ -64,6 +68,8 @@ module HexaPDF
       # The needed style of the text fragment is specified by the +style+ argument (see
       # Style::create for details). Note that the resulting style object needs at least the font
       # set.
+      #
+      # For internal use, see the note under TextFragment for details.
       def self.create(text, style)
         style = Style.create(style)
         fragment = new(style.font.decode_utf8(text), style)
@@ -90,6 +96,8 @@ module HexaPDF
       # The needed style of the text fragments is specified by the +style+ argument (see
       # Style::create for details). Note that the resulting style object needs at least the font
       # set.
+      #
+      # For internal use, see the note under TextFragment for details.
       def self.create_with_fallback_glyphs(text, style)
         return [create(text, style)] if !block_given? || text.empty?
 
@@ -155,6 +163,8 @@ module HexaPDF
       #
       # The argument +style+ can either be a Style object or a hash of style properties, see
       # Style::create for details.
+      #
+      # For internal use, see the note under TextFragment for details.
       def initialize(items, style, properties: nil)
         @items = items
         @style = Style.create(style)

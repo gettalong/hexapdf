@@ -4,6 +4,10 @@
 # inside a rectangular area, with various horizontal and vertical alignment
 # options.
 #
+# It is not advised to use the `TextLayouter` class directly but instead via the
+# [HexaPDF::Layout::TextBox] class and the general document layout
+# functionality.
+#
 # The text can be aligned horizontally by setting
 # [HexaPDF::Layout::Style#text_align] and vertically by
 # [HexaPDF::Layout::Style#text_valign]. In this example, a sample text is laid

@@ -3,6 +3,10 @@
 # The [HexaPDF::Layout::TextLayouter] class can be used to easily lay out text
 # mixed with inline boxes.
 #
+# It is not advised to use the `TextLayouter` class directly but instead via the
+# [HexaPDF::Layout::TextBox] class and the general document layout
+# functionality.
+#
 # Inline boxes are used for showing graphics that follow the flow of the text.
 # This means that their horizontal and their general vertical position is
 # determined by the text layout functionality. However, inline boxes may be

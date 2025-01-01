@@ -2,6 +2,9 @@
 #
 # The [HexaPDF::Layout::Frame] class is used for placing rectangular boxes.
 #
+# While it is possible to use frames in this manual way, the preferred way is to
+# use them through the [Composer class](composer.html).
+#
 # This example shows how to create a frame and how different box styles can be
 # used to specify where a box should be placed. After each box is drawn, the
 # frame's shape is drawn and then a new page is started. This is done to easily
