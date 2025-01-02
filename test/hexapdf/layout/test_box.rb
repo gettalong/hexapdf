@@ -270,8 +270,6 @@ describe HexaPDF::Layout::Box do
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
                                           [:set_line_width, [5]],
-                                          [:append_rectangle, [5, 5, 150, 130]],
-                                          [:clip_path_non_zero], [:end_path],
                                           [:append_rectangle, [7.5, 7.5, 145, 125]],
                                           [:stroke_path],
                                           [:restore_graphics_state],

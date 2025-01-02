@@ -265,7 +265,9 @@ module HexaPDF
             miter_limit(10).
             line_cap_style(line_cap_style(:top))
 
-          canvas.rectangle(x, y, w, h).clip_path.end_path
+          if width.top > w || width.top > h
+            canvas.rectangle(x, y, w, h).clip_path.end_path
+          end
           if style.top == :solid
             canvas.line_dash_pattern(0).
               rectangle(x + offset, y + offset, w - 2 * offset, h - 2 * offset).stroke

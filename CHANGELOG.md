@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+* Optimized output of simple borders to avoid unnecessary drawing operations
+
+
 ## 1.0.3 - 2024-12-04
 
 ### Fixed

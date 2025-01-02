@@ -178,9 +178,6 @@ describe HexaPDF::Layout::TextBox do
       assert_operators(@canvas.contents, [[:save_graphics_state],
                                           [:restore_graphics_state],
                                           [:save_graphics_state],
-                                          [:append_rectangle, [5, 10, 10, 10]],
-                                          [:clip_path_non_zero],
-                                          [:end_path],
                                           [:append_rectangle, [5.5, 10.5, 9.0, 9.0]],
                                           [:stroke_path],
                                           [:restore_graphics_state],
@@ -194,9 +191,6 @@ describe HexaPDF::Layout::TextBox do
       box.fit(60, 100, @frame)
       box.draw(@canvas, 40, 88)
       assert_operators(@canvas.contents, [[:save_graphics_state],
-                                          [:append_rectangle, [40, 88, 12, 12]],
-                                          [:clip_path_non_zero],
-                                          [:end_path],
                                           [:append_rectangle, [40.5, 88.5, 11.0, 11.0]],
                                           [:stroke_path],
                                           [:restore_graphics_state],
