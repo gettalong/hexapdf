@@ -84,46 +84,43 @@ module HexaPDF
       # See: HexaPDF::Tokenizer#next_token
       def next_token
         @ss.skip(WHITESPACE_MULTI_RE)
-        byte = @string.getbyte(@ss.pos) || -1
-        if (48 <= byte && byte <= 57) || byte == 45 || byte == 43 || byte == 46 # 0..9 - +  .
+        case (byte = @ss.scan_byte || -1)
+        when 43, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57 # + - . 0..9
+          @ss.pos -= 1
           parse_number
-        elsif (65 <= byte && byte <= 90) || (96 <= byte && byte <= 121)
-          parse_keyword
-        elsif byte == 47 # /
+        when 47 # /
           parse_name
-        elsif byte == 40 # (
+        when 40 # (
           parse_literal_string
-        elsif byte == 60 # <
-          if @string.getbyte(@ss.pos + 1) == 60
-            @ss.pos += 2
+        when 60 # <
+          if @ss.peek_byte == 60
+            @ss.pos += 1
             TOKEN_DICT_START
           else
             parse_hex_string
           end
-        elsif byte == 62 # >
-          unless @string.getbyte(@ss.pos + 1) == 62
-            raise HexaPDF::MalformedPDFError.new("Delimiter '>' found at invalid position", pos: pos)
+        when 62 # >
+          unless @ss.scan_byte == 62
+            raise HexaPDF::MalformedPDFError.new("Delimiter '>' found at invalid position", pos: pos - 1)
           end
-          @ss.pos += 2
           TOKEN_DICT_END
-        elsif byte == 91 # [
-          @ss.pos += 1
+        when 91 # [
           TOKEN_ARRAY_START
-        elsif byte == 93 # ]
-          @ss.pos += 1
+        when 93 # ]
           TOKEN_ARRAY_END
-        elsif byte == 41 # )
-          raise HexaPDF::MalformedPDFError.new("Delimiter ')' found at invalid position", pos: pos)
-        elsif byte == 123 || byte == 125 # { } )
-          Token.new(@ss.get_byte)
-        elsif byte == 37 # %
+        when 41 # )
+          raise HexaPDF::MalformedPDFError.new("Delimiter ')' found at invalid position", pos: pos - 1)
+        when 123, 125 # { } )
+          Token.new(byte.chr.b)
+        when 37 # %
           unless @ss.skip_until(/(?=[\r\n])/)
             (@raise_on_eos ? (raise StopIteration) : (return NO_MORE_TOKENS))
           end
           next_token
-        elsif byte == -1
+        when -1
           @raise_on_eos ? raise(StopIteration) : NO_MORE_TOKENS
         else
+          @ss.pos -= 1
           parse_keyword
         end
       end
@@ -135,7 +132,7 @@ module HexaPDF
         if (val = @ss.scan(/[+-]?(?:\d+\.\d*|\.\d+)/))
           val << '0' if val.getbyte(-1) == 46 # dot '.'
           Float(val)
-        elsif (val = @ss.scan(/[+-]?\d++/))
+        elsif (val = @ss.scan_integer)
           val.to_i
         else
           parse_keyword

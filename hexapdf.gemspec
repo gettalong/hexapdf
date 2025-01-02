@@ -39,6 +39,7 @@ Gem::Specification.new do |s|
   s.add_dependency('cmdparse', '~> 3.0', '>= 3.0.3')
   s.add_dependency('geom2d', '~> 0.4', '>= 0.4.1')
   s.add_dependency('openssl', '>= 2.2.1')
+  s.add_dependency('strscan', '>= 3.1.2')
   s.add_development_dependency('kramdown', '~> 2.3')
   s.add_development_dependency('minitest', '~> 5.16')
   s.add_development_dependency('reline', '~> 0.1')
