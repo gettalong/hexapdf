@@ -23,7 +23,7 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://prawnpdf.org>\\
   Language: Ruby\\
-  Version: 2.4.0
+  Version: 2.5.0 + prawn-table 0.2.2
 
   Prawn's table implementation is available in the separate gem `prawn-table`.
 
@@ -31,10 +31,10 @@ The list of the benchmarked libraries:
 
 : Homepage: <https://www.reportlab.com/opensource/>\\
   Language: Python\\
-  Version: 3.6.12
+  Version: 4.2.2 + accel extension
 
 **fpdf2**
 
 : Homepage: <https://pyfpdf.github.io/fpdf2/>\\
   Language: Python\\
-  Version: 2.7.4
+  Version: 2.7.9
