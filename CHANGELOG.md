@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* Basic type classes for logical structure support
+
 ### Changed
 
 * Optimized output of simple borders to avoid unnecessary drawing operations

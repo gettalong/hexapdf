@@ -83,6 +83,11 @@ module HexaPDF
     autoload(:Metadata, 'hexapdf/type/metadata')
     autoload(:OutputIntent, 'hexapdf/type/output_intent')
     autoload(:CMap, 'hexapdf/type/cmap')
+    autoload(:StructTreeRoot, 'hexapdf/type/struct_tree_root')
+    autoload(:StructElem, 'hexapdf/type/struct_elem')
+    autoload(:Namespace, 'hexapdf/type/namespace')
+    autoload(:MarkedContentReference, 'hexapdf/type/marked_content_reference')
+    autoload(:ObjectReference, 'hexapdf/type/object_reference')
 
   end
 

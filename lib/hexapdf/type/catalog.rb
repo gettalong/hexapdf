@@ -72,7 +72,7 @@ module HexaPDF
       define_field :URI,               type: Dictionary, version: '1.1'
       define_field :AcroForm,          type: :XXAcroForm, version: '1.2'
       define_field :Metadata,          type: :Metadata,  indirect: true, version: '1.4'
-      define_field :StructTreeRoot,    type: Dictionary, version: '1.3'
+      define_field :StructTreeRoot,    type: :StructTreeRoot, version: '1.3'
       define_field :MarkInfo,          type: :XXMarkInformation, version: '1.4'
       define_field :Lang,              type: String,     version: '1.4'
       define_field :SpiderInfo,        type: Dictionary, version: '1.3'

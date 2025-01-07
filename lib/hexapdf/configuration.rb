@@ -723,6 +723,11 @@ module HexaPDF
                         XXDestOutputProfileRef: 'HexaPDF::Type::OutputIntent::DestOutputProfileRef',
                         ExData: 'HexaPDF::Type::Annotations::MarkupAnnotation::ExData',
                         CMap: 'HexaPDF::Type::CMap',
+                        StructTreeRoot: 'HexaPDF::Type::StructTreeRoot',
+                        StructElem: 'HexaPDF::Type::StructElem',
+                        Namespace: 'HexaPDF::Type::Namespace',
+                        MCR: 'HexaPDF::Type::MarkedContentReference',
+                        OBJR: 'HexaPDF::Type::ObjectReference',
                       },
                       'object.subtype_map' => {
                         nil => {
