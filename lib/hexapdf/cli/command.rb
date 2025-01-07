@@ -4,7 +4,7 @@
 # This file is part of HexaPDF.
 #
 # HexaPDF - A Versatile PDF Creation and Manipulation Library For Ruby
-# Copyright (C) 2014-2024 Thomas Leitner
+# Copyright (C) 2014-2025 Thomas Leitner
 #
 # HexaPDF is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License version 3 as
@@ -53,7 +53,7 @@ module HexaPDF
       module Extensions #:nodoc:
         def help_banner #:nodoc:
           "hexapdf #{HexaPDF::VERSION} - Versatile PDF Manipulation Tool\n" \
-            "Copyright (c) 2014-2024 Thomas Leitner; licensed under the AGPLv3\n\n" \
+            "Copyright (c) 2014-2025 Thomas Leitner; licensed under the AGPLv3\n\n" \
             "#{format(usage, indent: 7)}\n\n"
         end
 
