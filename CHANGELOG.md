@@ -12,6 +12,8 @@
 
 * Type of field /DW for CIDFont which used to be Integer in PDF 1.7 but now is
   Numeric inf 2.0
+* Validation of /ProcSet entry in resources dictionary to correctly handle the
+  case of /ProcSet having a Symbol value
 
 
 ## 1.0.3 - 2024-12-04

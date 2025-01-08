@@ -217,13 +217,17 @@ module HexaPDF
 
       # Ensures that a valid procedure set is available.
       def perform_validation
-        super
-        return unless (val = self[:ProcSet])
+        val = self[:ProcSet]
 
         if val.kind_of?(Symbol)
           yield("Procedure set is a single value instead of an Array", true)
           val = value[:ProcSet] = [val]
         end
+
+        super
+
+        return unless val
+
         val.reject! do |name|
           case name
           when :PDF, :Text, :ImageB, :ImageC, :ImageI

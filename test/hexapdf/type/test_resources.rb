@@ -196,7 +196,9 @@ describe HexaPDF::Type::Resources do
   describe "validation" do
     it "handles an invalid ProcSet containing a single value instead of an array" do
       @res[:ProcSet] = :PDF
-      @res.validate
+      msg = nil
+      @res.validate {|message, *| msg = message unless msg }
+      assert_match(/single value instead of an Array/, msg)
       assert_equal([:PDF], @res[:ProcSet].value)
     end
 
