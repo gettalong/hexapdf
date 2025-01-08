@@ -8,6 +8,11 @@
 
 * Optimized output of simple borders to avoid unnecessary drawing operations
 
+### Fixed
+
+* Type of field /DW for CIDFont which used to be Integer in PDF 1.7 but now is
+  Numeric inf 2.0
+
 
 ## 1.0.3 - 2024-12-04
 

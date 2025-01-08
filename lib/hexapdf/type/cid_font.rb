@@ -66,7 +66,7 @@ module HexaPDF
       define_field :BaseFont,        type: Symbol, required: true
       define_field :CIDSystemInfo,   type: :XXCIDSystemInfo, required: true
       define_field :FontDescriptor,  type: :FontDescriptor, required: true
-      define_field :DW,              type: Integer, default: DEFAULT_WIDTH
+      define_field :DW,              type: Numeric, default: DEFAULT_WIDTH
       define_field :W,               type: PDFArray
       define_field :DW2,             type: PDFArray, default: [880, -1100]
       define_field :W2,              type: PDFArray
