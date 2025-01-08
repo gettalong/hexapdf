@@ -31,7 +31,7 @@ describe HexaPDF::Type::FontType1::StandardFonts do
     end
 
     it "returns nil if the given name doesn't belong to a standard font" do
-      refute_nil(@obj.font(:TimesNewRoman))
+      assert_nil(@obj.font(:SomeOtherFont))
     end
   end
 end
