@@ -11,6 +11,7 @@ rescue LoadError
 end
 
 gem 'minitest'
+gem 'strscan'
 require 'minitest/autorun'
 require 'fiber'
 require 'zlib'
