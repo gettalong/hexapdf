@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Missing require statements leading to problems loading type classes
+
+
 ## 1.1.0 - 2025-01-08
 
 ### Added
