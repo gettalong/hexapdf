@@ -82,6 +82,20 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
         assert_equal('1.234,57', value)
       end
 
+      it "works with the special Infinity and NaN values" do
+        @value = 'Infinity'
+        assert_format('2, 2, 0, 0, "", false', "Inf", "black")
+        @value = '-Infinity'
+        assert_format('2, 2, 0, 0, "", false', "-Inf", "black")
+        @value = 'Nan'
+        assert_format('2, 2, 0, 0, "", false', "NaN", "black")
+      end
+
+      it "works if the value is nil" do
+        @value = nil
+        assert_format('2, 2, 0, 0, "", false', "0,00", "black")
+      end
+
       it "does nothing to the value if the JavaScript method could not be determined " do
         assert_format('2, 3, 0, 0, " E", false, a', "1234567.898765", nil)
       end
@@ -242,6 +256,13 @@ describe HexaPDF::Type::AcroForm::JavaScriptActions do
       it "works with floats" do
         @field1.field_value = "10,54"
         assert_calculation('SUM', [@field1, @field2], "30.54")
+      end
+
+      it "works with the special values Infinity and NaN" do
+        @field1.field_value = "Infinity"
+        assert_calculation('SUM', [@field1, @field2], "Infinity")
+        @field1.field_value = "NaN"
+        assert_calculation('SUM', [@field1, @field2], "NaN")
       end
 
       it "returns nil if a field cannot be resolved" do

@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* AcroForm Javascript actions to gracefully handle the special values infinity
+  and NaN
+
+
 ## 1.1.1 - 2025-01-08
 
 ### Fixed

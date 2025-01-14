@@ -496,7 +496,7 @@ module HexaPDF
                    else
                      nil
                    end
-          result && (result == result.truncate ? result.to_i.to_s : result.to_s)
+          result && (result.finite? && result == result.truncate ? result.to_i.to_s : result.to_s)
         end
 
         AF_SIMPLE_CALCULATE_MAPPING = { #:nodoc:
@@ -613,7 +613,14 @@ module HexaPDF
 
         # Returns the numeric value of the string, interpreting comma as point.
         def af_make_number(value)
-          value.to_s.tr(',', '.').to_f
+          value = value.to_s
+          if value.match?(/(?:[+-])?Inf(?:inity)?/i)
+            value.start_with?('-') ? -Float::INFINITY : Float::INFINITY
+          elsif value.match?(/NaN/i)
+            Float::NAN
+          else
+            value.tr(',', '.').to_f
+          end
         end
 
         # Formats the numeric value according to the format string and separator style.
