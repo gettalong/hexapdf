@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Type::Annotations::Line] for line annotations
+
 ### Changed
 
 * **Breaking change**: Extracted `#border_style` and associated data class from

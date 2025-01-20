@@ -49,6 +49,7 @@ module HexaPDF
       autoload(:Link, 'hexapdf/type/annotations/link')
       autoload(:Widget, 'hexapdf/type/annotations/widget')
       autoload(:BorderStyling, 'hexapdf/type/annotations/border_styling')
+      autoload(:Line, 'hexapdf/type/annotations/line')
 
     end
 
