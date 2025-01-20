@@ -1,5 +1,11 @@
 ## Unreleased
 
+### Changed
+
+* **Breaking change**: Extracted `#border_style` and associated data class from
+  [HexaPDF::Type::Annotations::Widget] into
+  [HexaPDF::Type::Annotations::BorderStyling]
+
 ### Fixed
 
 * AcroForm Javascript actions to gracefully handle the special values infinity
