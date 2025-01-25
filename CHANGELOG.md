@@ -2,6 +2,9 @@
 
 ### Added
 
+* [HexaPDF::Document::Annotations], accessible via
+  [HexaPDF::Document#annotations], as convenience interface for working with
+  annotations
 * [HexaPDF::Type::Annotations::Line] for line annotations
 
 ### Changed

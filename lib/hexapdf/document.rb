@@ -123,6 +123,7 @@ module HexaPDF
     autoload(:Destinations, 'hexapdf/document/destinations')
     autoload(:Layout, 'hexapdf/document/layout')
     autoload(:Metadata, 'hexapdf/document/metadata')
+    autoload(:Annotations, 'hexapdf/document/annotations')
 
     # :call-seq:
     #   Document.open(filename, **docargs)                   -> doc
@@ -537,6 +538,12 @@ module HexaPDF
     # objects.
     def destinations
       @destinations ||= Destinations.new(self)
+    end
+
+    # Returns the Annotations object that provides convenience methods for working with annotation
+    # objects.
+    def annotations
+      @annotations ||= Annotations.new(self)
     end
 
     # Returns the Layout object that provides convenience methods for working with the
