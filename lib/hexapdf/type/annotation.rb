@@ -133,7 +133,7 @@ module HexaPDF
       define_field :OC,           type: Dictionary, version: '1.5'
       define_field :AF,           type: PDFArray, version: '2.0'
       define_field :ca,           type: Numeric, default: 1.0, version: '2.0'
-      define_field :CA,           type: Numeric, default: 1.0, version: '2.0'
+      define_field :CA,           type: Numeric, default: 1.0, version: '1.4'
       define_field :BM,           type: Symbol, version: '2.0'
       define_field :Lang,         type: String, version: '2.0'
 
@@ -257,6 +257,33 @@ module HexaPDF
         self[:AP] ||= {}
         appearance_dict.set_appearance(xobject, type: type, state_name: state_name)
         xobject
+      end
+
+      # Describes the opacity values +fill_alpha+ and +stroke_alpha+ of an annotation.
+      #
+      # See Annotation#opacity
+      Opacity = Struct.new(:fill_alpha, :stroke_alpha)
+
+      # :call-seq:
+      #   annotation.opacity                                           => current_values
+      #   annotation.opacity(fill_alpha:)                              => annotation
+      #   annotation.opacity(stroke_alpha:)                            => annotation
+      #   annotation.opacity(fill_alpha:, stroke_alpha:)               => annotation
+      #
+      # Returns an Opacity instance representing the fill and stroke alpha values when no arguments
+      # are given. Otherwise sets the provided alpha values and returns self.
+      #
+      # The fill and stroke alpha values are used when regenerating the annotation's appearance
+      # stream and determine how opaque drawn elements will be. Note that the fill alpha value
+      # applies not just to fill values but to all non-stroking operations (e.g. images, ...).
+      def opacity(fill_alpha: nil, stroke_alpha: nil)
+        if !fill_alpha.nil? || !stroke_alpha.nil?
+          self[:CA] = stroke_alpha unless stroke_alpha.nil?
+          self[:ca] = fill_alpha unless fill_alpha.nil?
+          self
+        else
+          Opacity.new(key?(:ca) ? self[:ca] : self[:CA], self[:CA])
+        end
       end
 
       private

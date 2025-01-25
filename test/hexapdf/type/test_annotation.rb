@@ -139,6 +139,38 @@ describe HexaPDF::Type::Annotation do
     end
   end
 
+  describe "opacity" do
+    it "returns the opacity values" do
+      opacity = @annot.opacity
+      assert_equal(1, opacity.fill_alpha)
+      assert_equal(1, opacity.stroke_alpha)
+
+      @annot[:CA] = 0.5
+      opacity = @annot.opacity
+      assert_equal(0.5, opacity.fill_alpha)
+      assert_equal(0.5, opacity.stroke_alpha)
+
+      @annot[:ca] = 0.3
+      opacity = @annot.opacity
+      assert_equal(0.3, opacity.fill_alpha)
+      assert_equal(0.5, opacity.stroke_alpha)
+    end
+
+    it "sets the opacity values" do
+      @annot.opacity(fill_alpha: 0.3)
+      refute(@annot.key?(:CA))
+      assert_equal(0.3, @annot[:ca])
+
+      @annot.opacity(stroke_alpha: 0.5)
+      assert_equal(0.3, @annot[:ca])
+      assert_equal(0.5, @annot[:CA])
+
+      @annot.opacity(stroke_alpha: 0.1, fill_alpha: 0.2)
+      assert_equal(0.1, @annot[:CA])
+      assert_equal(0.2, @annot[:ca])
+    end
+  end
+
   describe "validation" do
     it "makes sure that empty appearance stream dictionaries don't cause validation errors" do
       assert(@annot.validate)

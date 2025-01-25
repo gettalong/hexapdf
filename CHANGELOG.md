@@ -6,6 +6,8 @@
   [HexaPDF::Document#annotations], as convenience interface for working with
   annotations
 * [HexaPDF::Type::Annotations::Line] for line annotations
+* [HexaPDF::Type::Annotation#opacity] for setting the opacity values when
+  regenerating the appearance stream
 
 ### Changed
 
