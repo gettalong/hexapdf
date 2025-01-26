@@ -14,6 +14,8 @@
 * **Breaking change**: Extracted `#border_style` and associated data class from
   [HexaPDF::Type::Annotations::Widget] into
   [HexaPDF::Type::Annotations::BorderStyling]
+* [HexaPDF::Type::Form#canvas] to allow getting the canvas without the initial
+  translation
 
 ### Fixed
 

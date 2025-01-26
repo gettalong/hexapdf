@@ -167,14 +167,14 @@ module HexaPDF
       # bounding box.
       #
       # *Note* that a canvas can only be retrieved for initially empty form XObjects!
-      def canvas
+      def canvas(translate: true)
         cache(:canvas) do
           unless stream.empty?
             raise HexaPDF::Error, "Cannot create a canvas for a form XObjects with contents"
           end
 
           canvas = Content::Canvas.new(self)
-          if box.left != 0 || box.bottom != 0
+          if translate && (box.left != 0 || box.bottom != 0)
             canvas.save_graphics_state.translate(box.left, box.bottom)
           end
           self.stream = canvas.stream_data

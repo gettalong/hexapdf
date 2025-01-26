@@ -125,6 +125,12 @@ describe HexaPDF::Type::Form do
                                [:restore_graphics_state]])
     end
 
+    it "doesn't move the origin if translate is false" do
+      @form[:BBox] = [-10, -5, 100, 300]
+      @form.canvas(translate: false).line_width = 5
+      assert_operators(@form, [[:set_line_width, [5]]])
+    end
+
     it "fails if the form XObject already has data" do
       @form.stream = '10 w'
       assert_raises(HexaPDF::Error) { @form.canvas }
