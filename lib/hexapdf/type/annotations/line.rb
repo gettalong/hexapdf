@@ -200,6 +200,9 @@ module HexaPDF
         # value is positive, the leader lines appear in the clockwise direction, otherwise in the
         # opposite direction.
         #
+        # Note: The "line's end points" mean the actually drawn line and not the one specified with
+        # #line as those two are different when leader lines are involved.
+        #
         # A value of zero means that no leader lines are used.
         #
         # Also see: #leader_line_extension_length, #leader_line_offset
