@@ -113,6 +113,14 @@ describe HexaPDF::Type::Annotation do
     end
   end
 
+  describe "regenerate_appearance" do
+    it "regenerates the appearance using the data from the annotation object" do
+      @annot[:Subtype] = :Unknown
+      error = assert_raises(HexaPDF::Error) { @annot.regenerate_appearance }
+      assert_match(/Unknown.*not.*supported/, error.message)
+    end
+  end
+
   describe "flags" do
     it "returns all flags" do
       assert_equal([:invisible, :hidden, :no_view], @annot.flags)

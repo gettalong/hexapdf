@@ -224,6 +224,12 @@ module HexaPDF
   # acro_form.text_field.default_width::
   #    A number specifying the default width of AcroForm text fields which should be auto-sized.
   #
+  # annotation.appearance_generator::
+  #    The class that should be used for generating appearances for annotations. If the value is a
+  #    String, it should contain the name of a constant to such a class.
+  #
+  #    See HexaPDF::Type::Annotations::AppearanceGenerator
+  #
   # debug::
   #    If set to +true+, enables debug output.
   #
@@ -502,6 +508,7 @@ module HexaPDF
                           "#{field.concrete_field_type} field named '#{field.full_field_name}'"
                       end,
                       'acro_form.text_field.default_width' => 100,
+                      'annotation.appearance_generator' => 'HexaPDF::Type::Annotations::AppearanceGenerator',
                       'debug' => false,
                       'document.auto_decrypt' => true,
                       'document.on_invalid_string' => proc do |str|

@@ -259,6 +259,16 @@ module HexaPDF
         xobject
       end
 
+      # Regenerates the appearance stream of the annotation.
+      #
+      # This uses the information stored in the annotation to regenerate the appearance.
+      #
+      # See: Annotations::AppearanceGenerator
+      def regenerate_appearance
+        appearance_generator_class = document.config.constantize('annotation.appearance_generator')
+        appearance_generator_class.new(self).create_appearance
+      end
+
       # Describes the opacity values +fill_alpha+ and +stroke_alpha+ of an annotation.
       #
       # See Annotation#opacity

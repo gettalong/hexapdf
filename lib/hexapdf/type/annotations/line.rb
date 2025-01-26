@@ -70,6 +70,16 @@ module HexaPDF
         # Returns the start point and end point of the line as an array of four numbers [x0, y0, x1,
         # y1] when no argument is given. Otherwise sets the start and end point of the line and
         # returns self.
+        #
+        # This is the only required setting for a line annotation. Note, however, that without
+        # setting an appropriate color through #border_style the line will be transparent.
+        #
+        # Example:
+        #
+        #   #>pdf-small
+        #   doc.annotations.
+        #     create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #     regenerate_appearance
         def line(x0 = nil, y0 = nil, x1 = nil, y1 = nil)
           if x0.nil? && y0.nil? && x1.nil? && y1.nil?
             self[:L].to_ary
@@ -205,6 +215,15 @@ module HexaPDF
         #
         # A value of zero means that no leader lines are used.
         #
+        # Example:
+        #
+        #   #>pdf-small
+        #   doc.annotations.
+        #     create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #     leader_line_length(15).
+        #     regenerate_appearance
+        #   canvas.stroke_color("hp-orange").line(20, 20, 80, 60).stroke
+        #
         # Also see: #leader_line_extension_length, #leader_line_offset
         def leader_line_length(length = nil)
           length ? (self[:LL] = length; self) : self[:LL]
@@ -224,6 +243,16 @@ module HexaPDF
         #
         # If the leader line extension length is set to a positive value, the leader line length
         # also needs to be specified.
+        #
+        # Example:
+        #
+        #   #>pdf-small
+        #   doc.annotations.
+        #     create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #     leader_line_length(15).
+        #     leader_line_extension_length(5).
+        #     regenerate_appearance
+        #   canvas.stroke_color("hp-orange").line(20, 20, 80, 60).stroke
         #
         # Also see: #leader_line_length, #leader_line_offset
         def leader_line_extension_length(length = nil)
@@ -245,6 +274,16 @@ module HexaPDF
         #
         # The leader line offset is a non-negative number that describes the offset of the leader
         # lines from the endpoints of the line.
+        #
+        # Example:
+        #
+        #   #>pdf-small
+        #   doc.annotations.
+        #     create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #     leader_line_length(15).
+        #     leader_line_offset(5).
+        #     regenerate_appearance
+        #   canvas.stroke_color("hp-orange").line(20, 20, 80, 60).stroke
         #
         # Also see: #leader_line_length, #leader_line_extension_length
         def leader_line_offset(offset = nil)

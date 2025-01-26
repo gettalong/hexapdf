@@ -50,6 +50,7 @@ module HexaPDF
       autoload(:Widget, 'hexapdf/type/annotations/widget')
       autoload(:BorderStyling, 'hexapdf/type/annotations/border_styling')
       autoload(:Line, 'hexapdf/type/annotations/line')
+      autoload(:AppearanceGenerator, 'hexapdf/type/annotations/appearance_generator')
 
     end
 
