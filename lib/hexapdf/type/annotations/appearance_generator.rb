@@ -86,11 +86,13 @@ module HexaPDF
         def create_line_appearance
           form = (@annot[:AP] ||= {})[:N] ||=
             @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 0, 0]})
+          form.contents = ""
           @annot.flag(:print)
           @annot.unflag(:hidden)
 
           x0, y0, x1, y1 = @annot.line
           style = @annot.border_style
+          line_ending_style = @annot.line_ending_style
           opacity = @annot.opacity
           ll = @annot.leader_line_length
           lle = @annot.leader_line_extension_length
@@ -102,40 +104,115 @@ module HexaPDF
           line_length = Math.sqrt((y1 - y0) ** 2 + (x1 - x0) ** 2)
           ll_sign = (ll > 0 ? 1 : -1)
           ll_y = ll_sign * (ll.abs + lle + llo)
+          line_y = (ll != 0 ? ll_sign * (llo + ll.abs) : 0)
 
-          # Calculate annotation rectangle and form bounding box This considers the line end points
-          # as well as the end points of the leader lines when calculating the bounding box.
-          min_x, max_x = [x0, x0 - sin_angle * ll_y, x1, x1 - sin_angle * ll_y].minmax
-          min_y, max_y = [y0, y0 + cos_angle * ll_y, y1, y1 + cos_angle * ll_y].minmax
+          # Calculate annotation rectangle and form bounding box This considers the line's start and
+          # end points as well as the end points of the leader lines and the line ending style when
+          # calculating the bounding box.
+          #
+          # The result could still be improved by tailoring to the specific line ending style.
+          calculate_le_padding = lambda do |le_style|
+            case le_style
+            when :square, :circle, :diamond, :slash, :open_arrow, :closed_arrow
+              3 * style.width
+            when :ropen_arrow, :rclosed_arrow
+              10 * style.width
+            else
+              0
+            end
+          end
+          dstart = calculate_le_padding.call(line_ending_style.first)
+          dend = calculate_le_padding.call(line_ending_style.last)
+          min_x, max_x = [x0, x0 - sin_angle * ll_y, x0 - sin_angle * line_y - cos_angle * dstart,
+                          x1, x1 - sin_angle * ll_y, x1 - sin_angle * line_y + cos_angle * dend
+                         ].minmax
+          min_y, max_y = [y0, y0 + cos_angle * ll_y,
+                          y0 + cos_angle * line_y - ([cos_angle, sin_angle].max) * dstart,
+                          y1, y1 + cos_angle * ll_y,
+                          y1 + cos_angle * line_y + ([cos_angle, sin_angle].max) * dend
+                         ].minmax
 
           padding = 4 * style.width
           rect = [min_x - padding, min_y - padding, max_x + padding, max_y + padding]
           @annot[:Rect] = rect
           form[:BBox] = rect.dup
 
-          #TODO: handle line endings
+          #TODO: handle dash array
           #TODO: handle captions
-
-          return unless style.color
 
           # Set the appropriate graphics state and transform the canvas so that the line is
           # unrotated and its start point at the origin.
           canvas = form.canvas(translate: false)
           canvas.opacity(**opacity.to_h)
-          canvas.stroke_color(style.color)
+          canvas.stroke_color(style.color) if style.color
           canvas.fill_color(@annot.interior_color) if @annot.interior_color
           canvas.line_width(style.width)
           canvas.transform(cos_angle, sin_angle, -sin_angle, cos_angle, x0, y0)
 
+          stroke_op = (style.color ? :stroke : :end_path)
+          fill_op = (style.color && @annot.interior_color ? :fill_stroke :
+                       (style.color ? :stroke : :fill))
+
           # Draw leader lines and line
-          line_y = 0
           if ll != 0
             canvas.line(0, ll_sign * llo, 0, ll_y)
             canvas.line(line_length, ll_sign * llo, line_length, ll_y)
-            line_y = ll_sign * (llo + ll.abs)
           end
           canvas.line(0, line_y, line_length, line_y)
-          canvas.stroke
+          canvas.send(stroke_op)
+
+          # Draw line endings
+          if line_ending_style.first != :none
+            do_fill = draw_line_ending(canvas, line_ending_style.first, 0, line_y, style.width, 0)
+            canvas.send(do_fill ? fill_op : stroke_op)
+          end
+          if line_ending_style.last != :none
+            do_fill = draw_line_ending(canvas, line_ending_style.last, line_length, line_y,
+                                       style.width, Math::PI)
+            canvas.send(do_fill ? fill_op : stroke_op)
+          end
+        end
+
+        # Draws the line ending style +type+ at the position (+x+, +y+) and returns +true+ if the
+        # shape needs to be filled.
+        #
+        # The argument +angle+ specifies the angle at which the line ending style should be drawn.
+        #
+        # The +line_width+ is needed because the size of the line ending depends on it.
+        def draw_line_ending(canvas, type, x, y, line_width, angle)
+          lw3 = 3 * line_width
+
+          case type
+          when :square
+            canvas.rectangle(x - lw3, y - lw3, 2 * lw3, 2 * lw3)
+            true
+          when :circle
+            canvas.circle(x, y, lw3)
+            true
+          when :diamond
+            canvas.polygon(x + lw3, y, x, y + lw3, x - lw3, y, x, y - lw3)
+            true
+          when :open_arrow, :closed_arrow, :ropen_arrow, :rclosed_arrow
+            arrow_cos = Math.cos(Math::PI / 6 + angle)
+            arrow_sin = Math.sin(Math::PI / 6 + angle)
+            dir = (type == :ropen_arrow || type == :rclosed_arrow ? -1 : 1)
+            canvas.polyline(x + dir * arrow_cos * 3 * lw3, y + arrow_sin * 3 * lw3, x, y,
+                            x + dir * arrow_cos * 3 * lw3, y - arrow_sin * 3 * lw3)
+            if type == :closed_arrow || type == :rclosed_arrow
+              canvas.close_subpath
+              true
+            else
+              false
+            end
+          when :butt
+            canvas.line(x, y + lw3, x, y - lw3)
+            false
+          when :slash
+            sin_60 = Math.sin(Math::PI / 3)
+            cos_60 = Math.cos(Math::PI / 3)
+            canvas.line(x + cos_60 * lw3, y + sin_60 * lw3, x - cos_60 * lw3, y - sin_60 * lw3)
+            false
+          end
         end
 
       end

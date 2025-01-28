@@ -42,6 +42,27 @@ module HexaPDF
 
       # A line annotation is a markup annotation that displays a single straight line.
       #
+      # The style of the line annotation, like adding leader lines, changing the colors and so on,
+      # can be customized using the provided convenience methods.
+      #
+      # Note that changing the line width and color is done using the included
+      # BorderStyling#border_style. While that method allows special styling of the line (like
+      # :beveled), only a simple line dash pattern is supported by the line annotation.
+      #
+      # Example:
+      #
+      #   #>pdf-small
+      #   doc.annotations.
+      #     create_line(doc.pages[0], start_point: [30, 20], end_point: [90, 60]).
+      #     border_style(color: "hp-blue", width: 2).
+      #     leader_line_length(15).
+      #     leader_line_extension_length(10).
+      #     leader_line_offset(5).
+      #     interior_color("hp-orange").
+      #     line_ending_style(start_style: :circle, end_style: :open_arrow).
+      #     regenerate_appearance
+      #   canvas.line(30, 20, 90, 60).stroke
+      #
       # See: PDF2.0 s12.5.6.7, HexaPDF::Type::MarkupAnnotation
       class Line < MarkupAnnotation
 
@@ -123,35 +144,105 @@ module HexaPDF
         # :square or :Square::
         #     A square filled with the annotation's interior colour, if any.
         #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         interior_color("hp-orange").
+        #         line_ending_style(end_style: :square).
+        #         regenerate_appearance
+        #
         # :circle or :Circle::
         #     A circle filled with the annotation’s interior colour, if any.
+        #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         interior_color("hp-orange").
+        #         line_ending_style(end_style: :circle).
+        #         regenerate_appearance
         #
         # :diamond or :Diamond::
         #     A diamond shape filled with the annotation’s interior colour, if any.
         #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         interior_color("hp-orange").
+        #         line_ending_style(end_style: :diamond).
+        #         regenerate_appearance
+        #
         # :open_arrow or :OpenArrow::
         #     Two short lines meeting in an acute angle to form an open arrowhead.
         #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         interior_color("hp-orange").
+        #         line_ending_style(end_style: :open_arrow).
+        #         regenerate_appearance
+        #
         # :closed_arrow or :ClosedArrow::
-        #     Two short lines meeting in an acute angle as in the :open_arrow style and connected by
-        #     a third line to form a triangular closed arrowhead filled with the annotation’s
+        #     Two short lines meeting in an acute angle as in the +:open_arrow+ style and connected
+        #     by a third line to form a triangular closed arrowhead filled with the annotation’s
         #     interior colour, if any.
+        #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         interior_color("hp-orange").
+        #         line_ending_style(end_style: :closed_arrow).
+        #         regenerate_appearance
         #
         # :none or :None::
         #     No line ending.
         #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         interior_color("hp-orange").
+        #         line_ending_style(end_style: :none).
+        #         regenerate_appearance
+        #
         # :butt or :Butt::
         #     A short line at the endpoint perpendicular to the line itself.
         #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         interior_color("hp-orange").
+        #         line_ending_style(end_style: :butt).
+        #         regenerate_appearance
+        #
         # :ropen_arrow or :ROpenArrow::
-        #     Two short lines in the reverse direction from OpenArrow.
+        #     Two short lines in the reverse direction from +:open_arrow+.
+        #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         interior_color("hp-orange").
+        #         line_ending_style(end_style: :ropen_arrow).
+        #         regenerate_appearance
         #
         # :rclosed_arrow or :RClosedArrow::
-        #     A triangular closed arrowhead in the reverse direction from ClosedArrow.
+        #     A triangular closed arrowhead in the reverse direction from +:closed_arrow+.
+        #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         interior_color("hp-orange").
+        #         line_ending_style(end_style: :rclosed_arrow).
+        #         regenerate_appearance
         #
         # :slash or :Slash::
         #      A short line at the endpoint approximately 30 degrees clockwise from perpendicular to
         #      the line itself.
+        #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         interior_color("hp-orange").
+        #         line_ending_style(end_style: :slash).
+        #         regenerate_appearance
         def line_ending_style(start_style: :UNSET, end_style: :UNSET)
           if start_style == :UNSET && end_style == :UNSET
             self[:LE].map {|entry| LINE_ENDING_STYLE_REVERSE_MAP.fetch(entry, :none) }
@@ -184,6 +275,8 @@ module HexaPDF
         #
         #           If the special value +:transparent+ is used when setting the color, no color is
         #           used for filling the line endings.
+        #
+        # Also see: #line_ending_style
         def interior_color(*color)
           if color.empty?
             color = self[:IC]

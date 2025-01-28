@@ -64,7 +64,7 @@ describe HexaPDF::Type::Annotations::AppearanceGenerator do
       it "works with a transparent border" do
         @line.border_style(color: :transparent, width: 1)
         @generator.create_appearance
-        assert_operators(@line.appearance.stream, [])
+        assert_operators(@line.appearance.stream, [:end_path], range: 3)
       end
     end
 
@@ -154,6 +154,123 @@ describe HexaPDF::Type::Annotations::AppearanceGenerator do
                           [:move_to, [0, 10]],
                           [:line_to, [100.0, 10]],
                           [:stroke_path]])
+      end
+    end
+
+    describe "line ending styles" do
+      before do
+        @line.border_style(width: 2)
+        @line.interior_color("red")
+      end
+
+      it "works correctly for a transparent border" do
+        @line.line_ending_style(start_style: :square, end_style: :square)
+        @line.border_style(color: :transparent)
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:append_rectangle, [-3, -3, 6, 6]],
+                          [:fill_path_non_zero],
+                          [:append_rectangle, [97, -3, 6, 6]],
+                          [:fill_path_non_zero]], range: 5..-1)
+      end
+
+      it "works for a square" do
+        @line.line_ending_style(start_style: :square, end_style: :square)
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:append_rectangle, [-6, -6, 12, 12]],
+                          [:fill_and_stroke_path_non_zero],
+                          [:append_rectangle, [94, -6, 12, 12]],
+                          [:fill_and_stroke_path_non_zero]], range: 6..-1)
+      end
+
+      it "works for a circle" do
+        @line.line_ending_style(start_style: :circle, end_style: :circle)
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:move_to, [6.0, 0.0]],
+                          [:curve_to, [6.0, 2.140933, 4.854102, 4.125686, 3.0, 5.196152]],
+                          [:curve_to, [1.145898, 6.266619, -1.145898, 6.266619, -3.0, 5.196152]],
+                          [:curve_to, [-4.854102, 4.125686, -6.0, 2.140933, -6.0, 0.0]],
+                          [:curve_to, [-6.0, -2.140933, -4.854102, -4.125686, -3.0, -5.196152]],
+                          [:curve_to, [-1.145898, -6.266619, 1.145898, -6.266619, 3.0, -5.196152]],
+                          [:curve_to, [4.854102, -4.125686, 6.0, -2.140933, 6.0, -0.0]],
+                          [:close_subpath],
+                          [:fill_and_stroke_path_non_zero],
+                          [:move_to, [106.0, 0.0]],
+                          [:curve_to, [106.0, 2.140933, 104.854102, 4.125686, 103.0, 5.196152]],
+                          [:curve_to, [101.145898, 6.266619, 98.854102, 6.266619, 97.0, 5.196152]],
+                          [:curve_to, [95.145898, 4.125686, 94.0, 2.140933, 94.0, 0.0]],
+                          [:curve_to, [94.0, -2.140933, 95.145898, -4.125686, 97.0, -5.196152]],
+                          [:curve_to, [98.854102, -6.266619, 101.145898, -6.266619, 103.0, -5.196152]],
+                          [:curve_to, [104.854102, -4.125686, 106.0, -2.140933, 106.0, -0.0]],
+                          [:close_subpath],
+                          [:fill_and_stroke_path_non_zero]], range: 6..-1)
+      end
+
+      it "works for a diamond" do
+        @line.line_ending_style(start_style: :diamond, end_style: :diamond)
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:move_to, [6, 0]],
+                          [:line_to, [0, 6]],
+                          [:line_to, [-6, 0]],
+                          [:line_to, [0, -6]],
+                          [:close_subpath],
+                          [:fill_and_stroke_path_non_zero],
+                          [:move_to, [106.0, 0]],
+                          [:line_to, [100.0, 6]],
+                          [:line_to, [94.0, 0]],
+                          [:line_to, [100.0, -6]],
+                          [:close_subpath],
+                          [:fill_and_stroke_path_non_zero]], range: 6..-1)
+      end
+
+      it "works for open and closed as well as reversed open and closed arrows" do
+        dx = 15.588457
+        [:open_arrow, :closed_arrow, :ropen_arrow, :rclosed_arrow].each do |style|
+          @line.line_ending_style(start_style: style, end_style: style)
+          @generator.create_appearance
+          used_dx = (style == :ropen_arrow || style == :rclosed_arrow ? -dx : dx)
+          ops = [[:move_to, [used_dx, 9.0]],
+                 [:line_to, [0, 0]],
+                 [:line_to, [used_dx, -9.0]],
+                 [:move_to, [100 - used_dx, -9.0]],
+                 [:line_to, [100.0, 0]],
+                 [:line_to, [100 - used_dx, 9.0]]]
+          if style == :closed_arrow || style == :rclosed_arrow
+            ops.insert(3, [:close_subpath], [:fill_and_stroke_path_non_zero])
+            ops.insert(-1, [:close_subpath], [:fill_and_stroke_path_non_zero])
+          else
+            ops.insert(3, [:stroke_path])
+            ops.insert(-1, [:stroke_path])
+          end
+          assert_operators(@line.appearance.stream, ops, range: 6..-1)
+        end
+      end
+
+      it "works for butt" do
+        @line.line_ending_style(start_style: :butt, end_style: :butt)
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:move_to, [0, 6]],
+                          [:line_to, [0, -6]],
+                          [:stroke_path],
+                          [:move_to, [100.0, 6]],
+                          [:line_to, [100.0, -6]],
+                          [:stroke_path]], range: 6..-1)
+      end
+
+      it "works for slash" do
+        @line.line_ending_style(start_style: :slash, end_style: :slash)
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:move_to, [3, 5.196152]],
+                          [:line_to, [-3, -5.196152]],
+                          [:stroke_path],
+                          [:move_to, [103.0, 5.196152]],
+                          [:line_to, [97.0, -5.196152]],
+                          [:stroke_path]], range: 6..-1)
       end
     end
   end
