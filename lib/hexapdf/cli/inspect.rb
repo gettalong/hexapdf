@@ -396,7 +396,7 @@ module HexaPDF
         io = @doc.revisions.parser.io
 
         io.seek(0, IO::SEEK_END)
-        startxrefs = @doc.revisions.map {|rev| rev.trailer[:Prev] } <<
+        startxrefs = @doc.revisions.map {|rev| rev.trailer[:Prev].to_i } <<
                      @doc.revisions.parser.startxref_offset <<
                      io.pos
         startxrefs.sort!
