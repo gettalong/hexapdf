@@ -121,8 +121,8 @@ module HexaPDF
               0
             end
           end
-          dstart = calculate_le_padding.call(line_ending_style.first)
-          dend = calculate_le_padding.call(line_ending_style.last)
+          dstart = calculate_le_padding.call(line_ending_style.start_style)
+          dend = calculate_le_padding.call(line_ending_style.end_style)
           min_x, max_x = [x0, x0 - sin_angle * ll_y, x0 - sin_angle * line_y - cos_angle * dstart,
                           x1, x1 - sin_angle * ll_y, x1 - sin_angle * line_y + cos_angle * dend
                          ].minmax
@@ -162,12 +162,13 @@ module HexaPDF
           canvas.send(stroke_op)
 
           # Draw line endings
-          if line_ending_style.first != :none
-            do_fill = draw_line_ending(canvas, line_ending_style.first, 0, line_y, style.width, 0)
+          if line_ending_style.start_style != :none
+            do_fill = draw_line_ending(canvas, line_ending_style.start_style, 0, line_y,
+                                       style.width, 0)
             canvas.send(do_fill ? fill_op : stroke_op)
           end
-          if line_ending_style.last != :none
-            do_fill = draw_line_ending(canvas, line_ending_style.last, line_length, line_y,
+          if line_ending_style.end_style != :none
+            do_fill = draw_line_ending(canvas, line_ending_style.end_style, line_length, line_y,
                                        style.width, Math::PI)
             canvas.send(do_fill ? fill_op : stroke_op)
           end

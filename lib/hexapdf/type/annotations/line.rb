@@ -127,12 +127,19 @@ module HexaPDF
         }.freeze
         LINE_ENDING_STYLE_REVERSE_MAP = LINE_ENDING_STYLE_MAP.invert # :nodoc:
 
+
+        # Describes the line ending style for a line annotation, i.e. the +start_style+ and the
+        # +end_style+.
+        #
+        # See Line#line_ending_style for more information.
+        LineEndingStyle = Struct.new(:start_style, :end_style)
+
         # :call-seq:
-        #   line.line_ending_style                                         => array
+        #   line.line_ending_style                                         => style
         #   line.line_ending_style(start_style: :none, end_style: :none)   => line
         #
-        # Returns an array containing the start and end line ending styles when no argument is
-        # given. Otherwise sets the line ending style of the line and returns self.
+        # Returns a LineEndingStyle instance holding the current line ending styles when no argument
+        # is given. Otherwise sets the line ending style of the line and returns self.
         #
         # When returning the styles, unknown line ending styles are mapped to :none.
         #
@@ -245,7 +252,9 @@ module HexaPDF
         #         regenerate_appearance
         def line_ending_style(start_style: :UNSET, end_style: :UNSET)
           if start_style == :UNSET && end_style == :UNSET
-            self[:LE].map {|entry| LINE_ENDING_STYLE_REVERSE_MAP.fetch(entry, :none) }
+            le = self[:LE]
+            LineEndingStyle.new(LINE_ENDING_STYLE_REVERSE_MAP.fetch(le[0], :none),
+                                LINE_ENDING_STYLE_REVERSE_MAP.fetch(le[1], :none))
           else
             start_style = self[:LE][0] if start_style == :UNSET
             end_style = self[:LE][1] if end_style == :UNSET
