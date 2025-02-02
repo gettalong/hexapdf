@@ -137,7 +137,6 @@ module HexaPDF
           @annot[:Rect] = rect
           form[:BBox] = rect.dup
 
-          #TODO: handle dash array
           #TODO: handle captions
 
           # Set the appropriate graphics state and transform the canvas so that the line is
@@ -147,6 +146,7 @@ module HexaPDF
           canvas.stroke_color(style.color) if style.color
           canvas.fill_color(@annot.interior_color) if @annot.interior_color
           canvas.line_width(style.width)
+          canvas.line_dash_pattern(style.style) if style.style.kind_of?(Array)
           canvas.transform(cos_angle, sin_angle, -sin_angle, cos_angle, x0, y0)
 
           stroke_op = (style.color ? :stroke : :end_path)

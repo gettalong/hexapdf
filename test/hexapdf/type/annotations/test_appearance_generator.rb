@@ -82,6 +82,13 @@ describe HexaPDF::Type::Annotations::AppearanceGenerator do
                        [:set_line_width, [2]], range: 0)
     end
 
+    it "sets the specified line dash pattern if it is an array" do
+      @line.border_style(style: [5, 2])
+      @generator.create_appearance
+      assert_operators(@line.appearance.stream,
+                       [:set_line_dash_pattern, [[5, 2], 0]], range: 0)
+    end
+
     describe "leader lines" do
       it "works for positive leader line length values" do
         @line.leader_line_length(10)

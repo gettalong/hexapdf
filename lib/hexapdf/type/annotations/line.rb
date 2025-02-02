@@ -52,9 +52,8 @@ module HexaPDF
       # Example:
       #
       #   #>pdf-small
-      #   doc.annotations.
-      #     create_line(doc.pages[0], start_point: [30, 20], end_point: [90, 60]).
-      #     border_style(color: "hp-blue", width: 2).
+      #   doc.annotations.create_line(doc.pages[0], start_point: [30, 20], end_point: [90, 60]).
+      #     border_style(color: "hp-blue", width: 2, style: [3, 1]).
       #     leader_line_length(15).
       #     leader_line_extension_length(10).
       #     leader_line_offset(5).
