@@ -270,6 +270,7 @@ module HexaPDF
         dict.font_wrapper = self
 
         document.register_listener(:complete_objects) do
+          next if dict.null?
           min, max = @encoding.code_to_name.keys.minmax
           dict[:FirstChar] = min
           dict[:LastChar] = max

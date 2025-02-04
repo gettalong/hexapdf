@@ -23,6 +23,8 @@
 
 * AcroForm Javascript actions to gracefully handle the special values infinity
   and NaN
+* Type1 and TrueType font wrappers to handle the case where fonts are first
+  added and later deleted
 
 
 ## 1.1.1 - 2025-01-08

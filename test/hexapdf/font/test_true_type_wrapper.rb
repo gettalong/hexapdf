@@ -209,6 +209,13 @@ describe HexaPDF::Font::TrueTypeWrapper do
                    dict[:Encoding].stream)
       assert_equal([glyph.id, [glyph.width]], dict[:DescendantFonts][0][:W].value)
     end
+
+    it "handles the case where the font is added but then not used and deleted" do
+      @doc.task(:optimize, compact: true)
+      assert(@font_wrapper.pdf_object.null?)
+      @doc.dispatch_message(:complete_objects)
+      assert(@font_wrapper.pdf_object.null?)
+    end
   end
 
   describe "font file embedding" do

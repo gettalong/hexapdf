@@ -140,5 +140,12 @@ describe HexaPDF::Font::Type1Wrapper do
     it "makes sure that the PDF dictionaries are indirect" do
       assert(@times_wrapper.pdf_object.indirect?)
     end
+
+    it "handles the case where the font is added but then not used and deleted" do
+      @doc.task(:optimize, compact: true)
+      assert(@times_wrapper.pdf_object.null?)
+      @doc.dispatch_message(:complete_objects)
+      assert(@times_wrapper.pdf_object.null?)
+    end
   end
 end

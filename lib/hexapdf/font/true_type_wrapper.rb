@@ -299,6 +299,7 @@ module HexaPDF
         dict.font_wrapper = self
 
         document.register_listener(:complete_objects) do
+          next if dict.null?
           update_font_name(dict)
           embed_font(dict, document)
           complete_width_information(dict)
