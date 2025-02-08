@@ -269,6 +269,27 @@ module HexaPDF
         appearance_generator_class.new(self).create_appearance
       end
 
+      # :call-seq:
+      #   annot.contents        => contents or +nil+
+      #   annot.contents(text)  => annot
+      #
+      # Returns the text of the annotation when no argument is given. Otherwise sets the text and
+      # returns self.
+      #
+      # The contents is used differently depending on the annotation type. It is either the text
+      # that should be displayed for the annotation or an alternate description of the annotation's
+      # contents.
+      #
+      # A value of +nil+ means deleting the existing contents entry.
+      def contents(text = :UNSET)
+        if text == :UNSET
+          self[:Contents]
+        else
+          self[:Contents] = text
+          self
+        end
+      end
+
       # Describes the opacity values +fill_alpha+ and +stroke_alpha+ of an annotation.
       #
       # See Annotation#opacity

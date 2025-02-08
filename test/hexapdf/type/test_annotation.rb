@@ -147,6 +147,21 @@ describe HexaPDF::Type::Annotation do
     end
   end
 
+  describe "contents" do
+    it "returns the contents value" do
+      assert_nil(@annot.contents)
+      @annot[:Contents] = "test"
+      assert_equal("test", @annot.contents)
+    end
+
+    it "sets the contents value" do
+      assert_same(@annot, @annot.contents("Test"))
+      assert_equal("Test", @annot[:Contents])
+      @annot.contents(nil)
+      assert_nil(@annot[:Contents])
+    end
+  end
+
   describe "opacity" do
     it "returns the opacity values" do
       opacity = @annot.opacity

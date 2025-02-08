@@ -10,6 +10,7 @@
 * [HexaPDF::Type::Annotations::Line] for line annotations
 * [HexaPDF::Type::Annotation#opacity] for setting the opacity values when
   regenerating the appearance stream
+* [HexaPDF::Type::Annotation#contents] for setting the text of the annotation
 
 ### Changed
 
