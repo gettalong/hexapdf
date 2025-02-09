@@ -59,6 +59,10 @@ module HexaPDF
       #     leader_line_offset(5).
       #     interior_color("hp-orange").
       #     line_ending_style(start_style: :circle, end_style: :open_arrow).
+      #     captioned(true).
+      #     contents("Caption").
+      #     caption_position(:top).
+      #     caption_offset(0, 5).
       #     regenerate_appearance
       #   canvas.line(30, 20, 90, 60).stroke
       #
@@ -401,6 +405,14 @@ module HexaPDF
         # If a caption should be shown, the text specified by the /Contents or /RC entries is shown
         # in the appearance of the line.
         #
+        # Example:
+        #
+        #   #>pdf-small-hide
+        #   doc.annotations.
+        #     create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #     contents("Inline text").
+        #     captioned(true).
+        #     regenerate_appearance
         # Also see: #caption_position, #caption_offset
         def captioned(value = nil)
           value ? (self[:Cap] = value; self) : self[:Cap]
@@ -426,8 +438,24 @@ module HexaPDF
         # :inline or :Inline::
         #     The caption is centered inside the line (default).
         #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         contents("Inline text").
+        #         captioned(true).
+        #         caption_position(:inline).
+        #         regenerate_appearance
+        #
         # :top or :Top::
         #     The caption is on the top of the line.
+        #
+        #       #>pdf-small-hide
+        #       doc.annotations.
+        #         create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #         contents("Top text").
+        #         captioned(true).
+        #         caption_position(:top).
+        #         regenerate_appearance
         #
         # Also see: #captioned, #caption_offset
         def caption_position(value = nil)
@@ -452,6 +480,17 @@ module HexaPDF
         # The caption offset is an array of two numbers that specify the horizontal and vertical
         # offsets of the caption from its normal position. A positive horizontal offset means moving
         # the caption to the right. A positive vertical offset means shifting the caption up.
+        #
+        # Example:
+        #
+        #   #>pdf-small-hide
+        #   doc.annotations.
+        #     create_line(doc.pages[0], start_point: [20, 20], end_point: [80, 60]).
+        #     contents("Top text").
+        #     captioned(true).
+        #     caption_position(:top).
+        #     caption_offset(20, 10).
+        #     regenerate_appearance
         #
         # Also see: #captioned, #caption_position
         def caption_offset(x = nil, y = nil)

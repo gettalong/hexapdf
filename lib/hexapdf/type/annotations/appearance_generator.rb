@@ -82,14 +82,25 @@ module HexaPDF
 
         # Creates the appropriate appearance for a line annotation.
         #
+        # Nearly all the needed information can be taken from the annotation object itself. However,
+        # the PDF specification doesn't specify where to take the font related information (font,
+        # size, alignment...) from. Therefore this is currently hard-coded as left-aligned Helvetica
+        # in size 9.
+        #
+        # There are also some other decisions that are left to the implementation, like padding
+        # around the annotation or the size of the line ending shapes. Those are implemented to be
+        # similar to how viewers create the appearance.
+        #
         # See: HexaPDF::Type::Annotations::Line
         def create_line_appearance
+          # Prepare the annotation
           form = (@annot[:AP] ||= {})[:N] ||=
             @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 0, 0]})
           form.contents = ""
           @annot.flag(:print)
           @annot.unflag(:hidden)
 
+          # Get or calculate all needed values from the annotation
           x0, y0, x1, y1 = @annot.line
           style = @annot.border_style
           line_ending_style = @annot.line_ending_style
@@ -106,9 +117,28 @@ module HexaPDF
           ll_y = ll_sign * (ll.abs + lle + llo)
           line_y = (ll != 0 ? ll_sign * (llo + ll.abs) : 0)
 
-          # Calculate annotation rectangle and form bounding box This considers the line's start and
-          # end points as well as the end points of the leader lines and the line ending style when
-          # calculating the bounding box.
+          captioned = @annot.captioned
+          contents = @annot.contents.to_s
+          if captioned && !contents.empty?
+            cap_position = @annot.caption_position
+            cap_style = HexaPDF::Layout::Style.new(font: 'Helvetica', font_size: 9,
+                                                   fill_color: style.color || 'black',
+                                                   line_spacing: 1.25)
+            cap_items = @document.layout.text_fragments(contents, style: cap_style)
+            layouter = Layout::TextLayouter.new(cap_style)
+            cap_result = layouter.fit(cap_items, 2**20, 2**20)
+            cap_width = cap_result.lines.max_by(&:width).width + 2 # for padding left/right
+            cap_offset = @annot.caption_offset
+
+            cap_x = (line_length - cap_width) / 2.0 + cap_offset[0]
+            # Note that the '+ 2' is just so that there is a small gap to the line
+            cap_y = line_y + cap_offset[1] +
+                    (cap_position == :inline ? cap_result.height / 2.0 : cap_result.height + 2)
+          end
+
+          # Calculate annotation rectangle and form bounding box. This considers the line's start
+          # and end points as well as the end points of the leader lines, the line ending style and
+          # the caption when calculating the bounding box.
           #
           # The result could still be improved by tailoring to the specific line ending style.
           calculate_le_padding = lambda do |le_style|
@@ -123,21 +153,33 @@ module HexaPDF
           end
           dstart = calculate_le_padding.call(line_ending_style.start_style)
           dend = calculate_le_padding.call(line_ending_style.end_style)
+          if captioned
+            cap_ulx = x0 + cos_angle * cap_x - sin_angle * cap_y
+            cap_uly = y0 + sin_angle * cap_x + cos_angle * cap_y
+          end
           min_x, max_x = [x0, x0 - sin_angle * ll_y, x0 - sin_angle * line_y - cos_angle * dstart,
-                          x1, x1 - sin_angle * ll_y, x1 - sin_angle * line_y + cos_angle * dend
+                          x1, x1 - sin_angle * ll_y, x1 - sin_angle * line_y + cos_angle * dend,
+                          *([cap_ulx,
+                             cap_ulx + cos_angle * cap_width,
+                             cap_ulx - sin_angle * cap_result.height,
+                             cap_ulx + cos_angle * cap_width - sin_angle * cap_result.height
+                            ] if captioned)
                          ].minmax
           min_y, max_y = [y0, y0 + cos_angle * ll_y,
                           y0 + cos_angle * line_y - ([cos_angle, sin_angle].max) * dstart,
                           y1, y1 + cos_angle * ll_y,
-                          y1 + cos_angle * line_y + ([cos_angle, sin_angle].max) * dend
+                          y1 + cos_angle * line_y + ([cos_angle, sin_angle].max) * dend,
+                          *([cap_uly,
+                             cap_uly + sin_angle * cap_width,
+                             cap_uly - cos_angle * cap_result.height,
+                             cap_uly + sin_angle * cap_width - cos_angle * cap_result.height
+                            ] if captioned)
                          ].minmax
 
           padding = 4 * style.width
           rect = [min_x - padding, min_y - padding, max_x + padding, max_y + padding]
           @annot[:Rect] = rect
           form[:BBox] = rect.dup
-
-          #TODO: handle captions
 
           # Set the appropriate graphics state and transform the canvas so that the line is
           # unrotated and its start point at the origin.
@@ -158,7 +200,12 @@ module HexaPDF
             canvas.line(0, ll_sign * llo, 0, ll_y)
             canvas.line(line_length, ll_sign * llo, line_length, ll_y)
           end
-          canvas.line(0, line_y, line_length, line_y)
+          if captioned && cap_position == :inline
+            canvas.line(0, line_y, [[0, cap_x].max, line_length].min, line_y)
+            canvas.line([[cap_x + cap_width, 0].max, line_length].min, line_y, line_length, line_y)
+          else
+            canvas.line(0, line_y, line_length, line_y)
+          end
           canvas.send(stroke_op)
 
           # Draw line endings
@@ -172,6 +219,9 @@ module HexaPDF
                                        style.width, Math::PI)
             canvas.send(do_fill ? fill_op : stroke_op)
           end
+
+          # Draw caption, adding half of the padding added to cap_width
+          cap_result.draw(canvas, cap_x + 1, cap_y) if captioned
         end
 
         # Draws the line ending style +type+ at the position (+x+, +y+) and returns +true+ if the

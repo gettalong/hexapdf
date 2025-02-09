@@ -280,5 +280,119 @@ describe HexaPDF::Type::Annotations::AppearanceGenerator do
                           [:stroke_path]], range: 6..-1)
       end
     end
+
+    describe "caption" do
+      before do
+        @line.captioned(true)
+        @line.contents("Test")
+      end
+
+      it "adjusts the annotation's /Rect entry" do
+        @line.contents("This is some eeeeextra long text")
+        @generator.create_appearance
+        assert_equal([80.2225, 91.83749999999999, 219.7775, 108.1625], @line[:Rect])
+      end
+
+      it "puts the caption inline" do
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:move_to, [0, 0]],
+                          [:line_to, [40.2475, 0]],
+                          [:move_to, [59.7525, 0]],
+                          [:line_to, [100, 0]],
+                          [:stroke_path],
+                          [:save_graphics_state],
+                          [:set_font_and_size, [:F1, 9]],
+                          [:begin_text],
+                          [:move_text, [41.2475, -2.2995]],
+                          [:show_text, ["Test"]],
+                          [:end_text]], range: 1..-2)
+      end
+
+      it "puts the caption inline with an offset" do
+        @line.caption_offset(20, 5)
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:move_to, [0, 0]],
+                          [:line_to, [60.2475, 0]],
+                          [:move_to, [79.7525, 0]],
+                          [:line_to, [100, 0]],
+                          [:stroke_path],
+                          [:save_graphics_state],
+                          [:set_font_and_size, [:F1, 9]],
+                          [:begin_text],
+                          [:move_text, [61.2475, 2.7005]],
+                          [:show_text, ["Test"]],
+                          [:end_text]], range: 1..-2)
+      end
+
+      it "handles too long inline captions" do
+        @line.contents('This inline text is so long that no line is shown')
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:move_to, [0, 0]],
+                          [:line_to, [0, 0]],
+                          [:move_to, [100, 0]],
+                          [:line_to, [100, 0]],
+                          [:stroke_path],
+                          [:save_graphics_state],
+                          [:set_font_and_size, [:F1, 9]],
+                          [:begin_text],
+                          [:move_text, [-41.0395, -2.2995]],
+                          [:show_text, ["This inline text is so long that no line is shown"]],
+                          [:end_text]], range: 1..-2)
+      end
+
+      it "puts the caption on top of the line" do
+        @line.caption_position(:top)
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:move_to, [0, 0]],
+                          [:line_to, [100, 0]],
+                          [:stroke_path],
+                          [:save_graphics_state],
+                          [:set_font_and_size, [:F1, 9]],
+                          [:begin_text],
+                          [:move_text, [41.2475, 3.863]],
+                          [:show_text, ["Test"]],
+                          [:end_text]], range: 1..-2)
+      end
+
+      it "puts the caption on top of the line" do
+        @line.caption_position(:top)
+        @line.caption_offset(-20, -5)
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:move_to, [0, 0]],
+                          [:line_to, [100, 0]],
+                          [:stroke_path],
+                          [:save_graphics_state],
+                          [:set_font_and_size, [:F1, 9]],
+                          [:begin_text],
+                          [:move_text, [21.2475, -1.137]],
+                          [:show_text, ["Test"]],
+                          [:end_text]], range: 1..-2)
+      end
+
+      it "handles text with line breaks" do
+        @line.contents("This inline text\ris long")
+        @generator.create_appearance
+        assert_operators(@line.appearance.stream,
+                         [[:move_to, [0, 0]],
+                          [:line_to, [20.2405, 0]],
+                          [:move_to, [79.7595, 0]],
+                          [:line_to, [100, 0]],
+                          [:stroke_path],
+                          [:save_graphics_state],
+                          [:set_leading, [10.40625]],
+                          [:set_font_and_size, [:F1, 9]],
+                          [:begin_text],
+                          [:move_text, [21.2405, 2.903625]],
+                          [:show_text, ["This inline text"]],
+                          [:move_text_next_line],
+                          [:show_text, ["is long"]],
+                          [:end_text]], range: 1..-2)
+      end
+    end
   end
 end
