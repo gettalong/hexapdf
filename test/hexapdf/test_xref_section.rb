@@ -66,7 +66,7 @@ describe HexaPDF::XRefSection do
       @xref_section.add_in_use_entry(1, 0, 0)
       @xref_section.add_in_use_entry(2, 0, 0)
       result = @xref_section.each_subsection.map {|s| s.map {|e| [e.oid, e.type] }}
-      assert_equal([[[1, :in_use], [2, :in_use],
+      assert_equal([[[0, :free], [1, :in_use], [2, :in_use],
                      [3, :free], [4, :free], [5, :free],
                      [6, :in_use], [7, :in_use],
                      [8, :free],

@@ -150,7 +150,6 @@ module HexaPDF
 
       xref_section = XRefSection.new
       xref_section.mark_as_initial_section! unless previous_xref_pos
-      xref_section.add_free_entry(0, 65535) if previous_xref_pos.nil?
       rev.each do |obj|
         if obj.null?
           xref_section.add_free_entry(obj.oid, obj.gen)

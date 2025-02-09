@@ -113,9 +113,10 @@ module HexaPDF
 
     # Marks this XRefSection object as being the first cross-reference section in a PDF file.
     #
-    # This has the consequence that only a single sub-section is created.
+    # This has the consequence that only a single sub-section starting a zero is created.
     def mark_as_initial_section!
       @initial_section = true
+      add_free_entry(0, 65535)
     end
 
     # Adds an in-use entry to the cross-reference section.
