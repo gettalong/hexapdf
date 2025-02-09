@@ -733,8 +733,8 @@ module HexaPDF
     end
 
     # :call-seq:
-    #   doc.write(filename, incremental: false, validate: true, update_fields: true, optimize: false) -> [start_xref, section]
-    #   doc.write(io, incremental: false, validate: true, update_fields: true, optimize: false) -> [start_xref, section]
+    #   doc.write(filename, incremental: false, validate: true, update_fields: true, optimize: false, compact: true) -> [start_xref, section]
+    #   doc.write(io, incremental: false, validate: true, update_fields: true, optimize: false, compact: true) -> [start_xref, section]
     #
     # Writes the document to the given file (in case +io+ is a String) or IO stream. Returns the
     # file position of the start of the last cross-reference section and the last XRefSection object
@@ -762,7 +762,20 @@ module HexaPDF
     # optimize::
     #   Optimize the file size by using object and cross-reference streams. This will raise the PDF
     #   version to at least 1.5.
-    def write(file_or_io, incremental: false, validate: true, update_fields: true, optimize: false)
+    #
+    # compact::
+    #   Compact the document by reducing it to a single revision and removing null and unused
+    #   objects.
+    #
+    #   The initial revision of a document has to contain objects with continuous numbering. If some
+    #   object numbers refer to free entries, other PDF libraries/viewers might not work
+    #   correctly. So continuous object numbers are assigned to stay compliant with the
+    #   specification.
+    #
+    #   Only change this argument to +false+ if you run the optimization task with 'compact: true'
+    #   beforehand or if you know exactly what you do and what not compacting implies.
+    def write(file_or_io, incremental: false, validate: true, update_fields: true, optimize: false,
+              compact: true)
       if update_fields
         trailer.update_id
         if @metadata
@@ -781,10 +794,11 @@ module HexaPDF
         end
       end
 
-      if optimize
-        task(:optimize, object_streams: :generate)
-        self.version = '1.5' if version < '1.5'
-      end
+      optimize_opts = {}
+      optimize_opts[:object_streams] = :generate if optimize
+      optimize_opts[:compact] = true if compact && !incremental
+      task(:optimize, **optimize_opts) unless optimize_opts.empty?
+      self.version = '1.5' if version < '1.5' if optimize
 
       dispatch_message(:before_write)
 
