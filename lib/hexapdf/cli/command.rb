@@ -163,7 +163,7 @@ module HexaPDF
           if command_parser.verbosity_info?
             puts "Creating output document #{out_file}"
           end
-          doc.write(out_file, validate: false, incremental: incremental)
+          doc.write(out_file, validate: false, compact: false, incremental: incremental)
         end
       end
 

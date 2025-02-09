@@ -54,7 +54,7 @@ describe HexaPDF::Document do
   describe "::open" do
     before do
       @file = Tempfile.new('hexapdf-document')
-      @io_doc.write(@file)
+      @io_doc.write(@file, compact: false)
       @file.close
     end
 
@@ -370,7 +370,7 @@ describe HexaPDF::Document do
     it "writes the document to a file" do
       file = Tempfile.new('hexapdf-write')
       file.close
-      @io_doc.write(file.path)
+      @io_doc.write(file.path, compact: false)
       HexaPDF::Document.open(file.path) do |doc|
         assert_equal(200, doc.object(2).value)
       end
@@ -422,9 +422,17 @@ describe HexaPDF::Document do
 
     it "allows optimizing the file by using object streams" do
       io = StringIO.new(''.b)
-      @io_doc.write(io, optimize: true)
+      @io_doc.write(io, optimize: true, compact: false)
       doc = HexaPDF::Document.new(io: io)
       assert_equal(2, doc.each.count {|o| o.type == :ObjStm })
+    end
+
+    it "automatically compacts the file" do
+      io = StringIO.new(''.b)
+      @io_doc.write(io)
+      doc = HexaPDF::Document.new(io: io)
+      assert_equal(1, doc.revisions.count)
+      assert_equal(4, doc.each.count)
     end
   end
 

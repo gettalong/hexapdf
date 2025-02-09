@@ -2,6 +2,8 @@
 
 ### Added
 
+* **Breaking change**: Argument `compact` to [HexaPDF::Document#write] to
+  automatically run the 'compact' optimization task
 * [HexaPDF::Document::Annotations], accessible via
   [HexaPDF::Document#annotations], as convenience interface for working with
   annotations

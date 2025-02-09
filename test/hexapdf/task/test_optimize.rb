@@ -99,7 +99,7 @@ describe HexaPDF::Task::Optimize do
       objstm = @doc.add({}, type: HexaPDF::Type::ObjectStream)
       @doc.add({}, type: HexaPDF::Type::XRefStream)
       objstm.add_object(@doc.add({Type: :Test}))
-      @doc.write(io)
+      @doc.write(io, compact: false)
       io.rewind
       @doc = HexaPDF::Document.new(io: io)
     end
