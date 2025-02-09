@@ -162,9 +162,10 @@ module HexaPDF
       return to_enum(__method__) unless block_given?
 
       temp = []
-      oids.sort.each do |oid|
-        expected_next_oid = !temp.empty? && temp[-1].oid + 1
-        if expected_next_oid && expected_next_oid != oid
+      sorted_oids = oids.sort
+      expected_next_oid = sorted_oids[0]
+      sorted_oids.each do |oid|
+        if expected_next_oid != oid
           if @initial_section
             expected_next_oid.upto(oid - 1) do |free_oid|
               temp << self.class.free_entry(free_oid, 0)
@@ -175,6 +176,7 @@ module HexaPDF
           end
         end
         temp << self[oid]
+        expected_next_oid = oid + 1
       end
       yield(temp)
       self
