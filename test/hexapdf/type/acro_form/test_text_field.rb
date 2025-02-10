@@ -130,9 +130,12 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert_raises(HexaPDF::Error) { @field.field_value = 'test' }
     end
 
-    it "fails if the value exceeds the length set by /MaxLen" do
+    it "calls acro_form.text_field.on_max_len_exceeded  if the value exceeds the length set by /MaxLen" do
       @field[:MaxLen] = 5
       assert_raises(HexaPDF::Error) { @field.field_value = 'testdf' }
+      @doc.config['acro_form.text_field.on_max_len_exceeded'] = proc {|f, v| v }
+      @field.field_value = 'testdf'
+      assert_equal('testdf', @field[:V])
     end
   end
 
@@ -278,6 +281,9 @@ describe HexaPDF::Type::AcroForm::TextField do
       assert(@field.validate)
       @field[:MaxLen] = 2
       refute(@field.validate)
+      @doc.config['acro_form.text_field.on_max_len_exceeded'] = proc {|field, str| "Hello" }
+      assert(@field.validate)
+      assert_equal('Hello', @field[:V])
       @field[:V] = nil
       assert(@field.validate)
     end

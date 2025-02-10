@@ -224,6 +224,15 @@ module HexaPDF
   # acro_form.text_field.default_width::
   #    A number specifying the default width of AcroForm text fields which should be auto-sized.
   #
+  # acro_form.text_field.on_max_len_exceeded::
+  #    Callback hook when the value of a text field exceeds the set maximum length.
+  #
+  #    The value needs to be an object that responds to \#call(field, value) where +field+ is the
+  #    AcroForm text field on which the value is set and +value+ is the invalid value. The returned
+  #    value is used instead of the invalid value.
+  #
+  #    The default implementation raises an error.
+  #
   # annotation.appearance_generator::
   #    The class that should be used for generating appearances for annotations. If the value is a
   #    String, it should contain the name of a constant to such a class.
@@ -508,6 +517,9 @@ module HexaPDF
                           "#{field.concrete_field_type} field named '#{field.full_field_name}'"
                       end,
                       'acro_form.text_field.default_width' => 100,
+                      'acro_form.text_field.on_max_len_exceeded' => proc do |field, value|
+                        raise HexaPDF::Error, "Value exceeds maximum allowed length of #{field[:MaxLen]}"
+                      end,
                       'annotation.appearance_generator' => 'HexaPDF::Type::Annotations::AppearanceGenerator',
                       'debug' => false,
                       'document.auto_decrypt' => true,

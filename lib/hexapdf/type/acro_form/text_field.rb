@@ -176,7 +176,7 @@ module HexaPDF
           end
           str = str.gsub(/[[:space:]]/, ' ') if str && concrete_field_type == :single_line_text_field
           if key?(:MaxLen) && str && str.length > self[:MaxLen]
-            raise HexaPDF::Error, "Value exceeds maximum allowed length of #{self[:MaxLen]}"
+            str = @document.config['acro_form.text_field.on_max_len_exceeded'].call(self, str)
           end
           self[:V] = str
           update_widgets
@@ -348,7 +348,14 @@ module HexaPDF
             return
           end
           if (max_len = self[:MaxLen]) && field_value && field_value.length > max_len
-            yield("Text contents of field '#{full_field_name}' is too long")
+            correctable = true
+            begin
+              str = @document.config['acro_form.text_field.on_max_len_exceeded'].call(self, field_value)
+            rescue HexaPDF::Error
+              correctable = false
+            end
+            yield("Text contents of field '#{full_field_name}' is too long", correctable)
+            self.field_value = str if correctable
           end
           if comb_text_field? && !max_len
             yield("Comb text field needs a value for /MaxLen")

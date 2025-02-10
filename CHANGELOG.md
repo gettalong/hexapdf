@@ -13,6 +13,8 @@
 * [HexaPDF::Type::Annotation#opacity] for setting the opacity values when
   regenerating the appearance stream
 * [HexaPDF::Type::Annotation#contents] for setting the text of the annotation
+* Configuration option 'acro_form.text_field.on_max_len_exceeded' to allow
+  custom handling of too long values
 
 ### Changed
 
