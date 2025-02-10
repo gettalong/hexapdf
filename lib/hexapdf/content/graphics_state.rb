@@ -255,7 +255,7 @@ module HexaPDF
           array.inject(0) {|m, n| m < 0 ? m : (n < 0 ? -1 : m + n) } <= 0)
           raise ArgumentError, "Invalid line dash pattern: #{array.inspect} #{phase.inspect}"
         end
-        @array = array.freeze
+        @array = array
         @phase = phase
       end
 
