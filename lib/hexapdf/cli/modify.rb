@@ -34,7 +34,6 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
-require 'ostruct'
 require 'hexapdf/cli/command'
 
 module HexaPDF

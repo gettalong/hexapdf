@@ -2,7 +2,6 @@
 
 require 'test_helper'
 require 'hexapdf/content/graphics_state'
-require 'ostruct'
 
 # Dummy class used as wrapper so that constant lookup works correctly
 class GraphicsStateWrapper < Minitest::Spec
@@ -149,8 +148,8 @@ class GraphicsStateWrapper < Minitest::Spec
     end
 
     it "uses the correct glyph to text space scaling" do
-      font = OpenStruct.new
-      font.glyph_scaling_factor = 0.002
+      font = Object.new
+      font.define_singleton_method(:glyph_scaling_factor) { 0.002 }
       @gs.font = font
       @gs.font_size = 10
       assert_equal(0.02, @gs.scaled_font_size)

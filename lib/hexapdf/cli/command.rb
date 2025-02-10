@@ -35,7 +35,6 @@
 #++
 
 require 'io/console'
-require 'ostruct'
 require 'cmdparse'
 require 'hexapdf/document'
 require 'hexapdf/font/true_type'
@@ -68,21 +67,22 @@ module HexaPDF
 
       def initialize(*args, **kwargs, &block) #:nodoc:
         super
-        @out_options = OpenStruct.new
-        @out_options.compact = true
-        @out_options.compress_pages = false
-        @out_options.object_streams = :preserve
-        @out_options.xref_streams = :preserve
-        @out_options.streams = :preserve
-        @out_options.optimize_fonts = false
-        @out_options.prune_page_resources = false
-
-        @out_options.encryption = :preserve
-        @out_options.enc_user_pwd = @out_options.enc_owner_pwd = nil
-        @out_options.enc_key_length = 128
-        @out_options.enc_algorithm = :aes
-        @out_options.enc_force_v4 = false
-        @out_options.enc_permissions = []
+        @out_options = {
+          compact: true,
+          compress_pages: false,
+          object_streams: :preserve,
+          xref_streams: :preserve,
+          streams: :preserve,
+          optimize_fonts: false,
+          prune_page_resources: false,
+          encryption: :preserve,
+          enc_user_pwd: nil,
+          enc_owner_pwd: nil,
+          enc_key_length: 128,
+          enc_algorithm: :aes,
+          enc_force_v4: false,
+          enc_permissions: [],
+        }
       end
 
       protected
@@ -183,35 +183,35 @@ module HexaPDF
         options.separator("")
         options.separator("Optimization options:")
         options.on("--[no-]compact", "Delete unnecessary PDF objects (default: " \
-                   "#{@out_options.compact})") do |c|
-          @out_options.compact = c
+                   "#{@out_options[:compact]})") do |c|
+          @out_options[:compact] = c
         end
         options.on("--object-streams MODE", [:generate, :preserve, :delete],
                    "Handling of object streams (either generate, preserve or delete; " \
-                     "default: #{@out_options.object_streams})") do |os|
-          @out_options.object_streams = os
+                     "default: #{@out_options[:object_streams]})") do |os|
+          @out_options[:object_streams] = os
         end
         options.on("--xref-streams MODE", [:generate, :preserve, :delete],
                    "Handling of cross-reference streams (either generate, preserve or delete; " \
-                     "default: #{@out_options.xref_streams})") do |x|
-          @out_options.xref_streams = x
+                     "default: #{@out_options[:xref_streams]})") do |x|
+          @out_options[:xref_streams] = x
         end
         options.on("--streams MODE", [:compress, :preserve, :uncompress],
                    "Handling of stream data (either compress, preserve or uncompress; default: " \
-                     "#{@out_options.streams})") do |streams|
-          @out_options.streams = streams
+                     "#{@out_options[:streams]})") do |streams|
+          @out_options[:streams] = streams
         end
         options.on("--[no-]compress-pages", "Recompress page content streams (may take a long " \
-                   "time; default: #{@out_options.compress_pages})") do |c|
-          @out_options.compress_pages = c
+                   "time; default: #{@out_options[:compress_pages]})") do |c|
+          @out_options[:compress_pages] = c
         end
         options.on("--[no-]prune-page-resources", "Prunes unused objects from the page resources " \
-                   "(may take a long time; default: #{@out_options.prune_page_resources})") do |c|
-          @out_options.prune_page_resources = c
+                   "(may take a long time; default: #{@out_options[:prune_page_resources]})") do |c|
+          @out_options[:prune_page_resources] = c
         end
         options.on("--[no-]optimize-fonts", "Optimize embedded font files; " \
-                   "default: #{@out_options.optimize_fonts})") do |o|
-          @out_options.optimize_fonts = o
+                   "default: #{@out_options[:optimize_fonts]})") do |o|
+          @out_options[:optimize_fonts] = o
         end
       end
 
@@ -222,37 +222,37 @@ module HexaPDF
         options.separator("")
         options.separator("Encryption options:")
         options.on("--decrypt", "Remove any encryption") do
-          @out_options.encryption = :remove
+          @out_options[:encryption] = :remove
         end
         options.on("--encrypt", "Encrypt the output file") do
-          @out_options.encryption = :add
+          @out_options[:encryption] = :add
         end
         options.on("--owner-password PASSWORD", String, "The owner password to be set on the " \
                    "output file (use - for reading from standard input)") do |pwd|
-          @out_options.encryption = :add
-          @out_options.enc_owner_pwd = (pwd == '-' ? read_password("Owner password") : pwd)
+          @out_options[:encryption] = :add
+          @out_options[:enc_owner_pwd] = (pwd == '-' ? read_password("Owner password") : pwd)
         end
         options.on("--user-password PASSWORD", String, "The user password to be set on the " \
                    "output file (use - for reading from standard input)") do |pwd|
-          @out_options.encryption = :add
-          @out_options.enc_user_pwd = (pwd == '-' ? read_password("User password") : pwd)
+          @out_options[:encryption] = :add
+          @out_options[:enc_user_pwd] = (pwd == '-' ? read_password("User password") : pwd)
         end
         options.on("--algorithm ALGORITHM", [:aes, :arc4],
                    "The encryption algorithm: aes or arc4 (default: " \
-                     "#{@out_options.enc_algorithm})") do |a|
-          @out_options.encryption = :add
-          @out_options.enc_algorithm = a
+                     "#{@out_options[:enc_algorithm]})") do |a|
+          @out_options[:encryption] = :add
+          @out_options[:enc_algorithm] = a
         end
         options.on("--key-length BITS", Integer,
                    "The encryption key length in bits (default: " \
-                     "#{@out_options.enc_key_length})") do |i|
-          @out_options.encryption = :add
-          @out_options.enc_key_length = i
+                     "#{@out_options[:enc_key_length]})") do |i|
+          @out_options[:encryption] = :add
+          @out_options[:enc_key_length] = i
         end
         options.on("--force-V4",
                    "Force use of encryption version 4 if key length=128 and algorithm=arc4") do
-          @out_options.encryption = :add
-          @out_options.enc_force_v4 = true
+          @out_options[:encryption] = :add
+          @out_options[:enc_force_v4] = true
         end
         syms = HexaPDF::Encryption::StandardSecurityHandler::Permissions::SYMBOL_TO_PERMISSION.keys
         options.on("--permissions PERMS", Array,
@@ -264,8 +264,8 @@ module HexaPDF
             end
             perm.to_sym
           end
-          @out_options.encryption = :add
-          @out_options.enc_permissions = perms
+          @out_options[:encryption] = :add
+          @out_options[:enc_permissions] = perms
         end
       end
 
@@ -273,12 +273,12 @@ module HexaPDF
       #
       # See: #define_optimization_options
       def apply_optimization_options(doc)
-        doc.task(:optimize, compact: @out_options.compact,
-                 object_streams: @out_options.object_streams,
-                 xref_streams: @out_options.xref_streams,
-                 compress_pages: @out_options.compress_pages,
-                 prune_page_resources: @out_options.prune_page_resources)
-        if @out_options.streams != :preserve || @out_options.optimize_fonts
+        doc.task(:optimize, compact: @out_options[:compact],
+                 object_streams: @out_options[:object_streams],
+                 xref_streams: @out_options[:xref_streams],
+                 compress_pages: @out_options[:compress_pages],
+                 prune_page_resources: @out_options[:prune_page_resources])
+        if @out_options[:streams] != :preserve || @out_options[:optimize_fonts]
           doc.each do |obj|
             optimize_stream(obj)
             optimize_font(obj)
@@ -292,15 +292,15 @@ module HexaPDF
 
       # Applies the chosen stream mode to the given object.
       def optimize_stream(obj)
-        return if @out_options.streams == :preserve || !obj.respond_to?(:set_filter) ||
+        return if @out_options[:streams] == :preserve || !obj.respond_to?(:set_filter) ||
           Array(obj[:Filter]).any? {|f| IGNORED_FILTERS[f] }
 
-        obj.set_filter(@out_options.streams == :compress ? :FlateDecode : nil)
+        obj.set_filter(@out_options[:streams] == :compress ? :FlateDecode : nil)
       end
 
       # Optimize the object if it is a font object.
       def optimize_font(obj)
-        return unless @out_options.optimize_fonts && obj.kind_of?(HexaPDF::Type::Font) &&
+        return unless @out_options[:optimize_fonts] && obj.kind_of?(HexaPDF::Type::Font) &&
           (obj[:Subtype] == :TrueType ||
            (obj[:Subtype] == :Type0 && obj.descendant_font[:Subtype] == :CIDFontType2)) &&
           obj.embedded?
@@ -319,14 +319,14 @@ module HexaPDF
       #
       # See: #define_encryption_options
       def apply_encryption_options(doc)
-        case @out_options.encryption
+        case @out_options[:encryption]
         when :add
-          doc.encrypt(algorithm: @out_options.enc_algorithm,
-                      key_length: @out_options.enc_key_length,
-                      force_v4: @out_options.enc_force_v4,
-                      permissions: @out_options.enc_permissions,
-                      owner_password: @out_options.enc_owner_pwd,
-                      user_password: @out_options.enc_user_pwd)
+          doc.encrypt(algorithm: @out_options[:enc_algorithm],
+                      key_length: @out_options[:enc_key_length],
+                      force_v4: @out_options[:enc_force_v4],
+                      permissions: @out_options[:enc_permissions],
+                      owner_password: @out_options[:enc_owner_pwd],
+                      user_password: @out_options[:enc_user_pwd])
         when :remove
           doc.encrypt(name: nil)
         end
