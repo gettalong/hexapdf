@@ -4,7 +4,6 @@ require 'test_helper'
 require 'hexapdf/digital_signature'
 require 'hexapdf/document'
 require 'time'
-require 'ostruct'
 require 'openssl'
 
 describe HexaPDF::DigitalSignature::Handler do
@@ -33,7 +32,7 @@ describe HexaPDF::DigitalSignature::Handler do
 
   describe "store_verification_callback" do
     before do
-      @context = OpenStruct.new
+      @context = Struct.new(:error).new
     end
 
     it "can allow self-signed certificates" do
@@ -60,7 +59,7 @@ describe HexaPDF::DigitalSignature::Handler do
     ].each do |success, not_before, not_after|
       @result.messages.clear
       @handler.define_singleton_method(:signer_certificate) do
-        OpenStruct.new.tap do |struct|
+        Struct.new(:not_before, :not_after).new.tap do |struct|
           struct.not_before = Time.parse("2021-11-14 #{not_before}")
           struct.not_after = Time.parse("2021-11-14 #{not_after}")
         end

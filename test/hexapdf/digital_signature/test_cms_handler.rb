@@ -4,17 +4,16 @@ require 'digest'
 require 'test_helper'
 require_relative 'common'
 require 'hexapdf/digital_signature'
-require 'ostruct'
 
 describe HexaPDF::DigitalSignature::CMSHandler do
   before do
-    @data = 'Some data'
-    @dict = OpenStruct.new
-    @pkcs7 = OpenSSL::PKCS7.sign(CERTIFICATES.signer_certificate, CERTIFICATES.signer_key,
-                                 @data, [CERTIFICATES.ca_certificate],
-                                 OpenSSL::PKCS7::DETACHED)
-    @dict.contents = @pkcs7.to_der
-    @dict.signed_data = @data
+    @data = data = 'Some data'
+    @dict = Struct.new(:contents, :signed_data, :signature_type, :Reference, :M).new
+    @pkcs7 = pkcs7 = OpenSSL::PKCS7.sign(CERTIFICATES.signer_certificate, CERTIFICATES.signer_key,
+                                         @data, [CERTIFICATES.ca_certificate],
+                                         OpenSSL::PKCS7::DETACHED)
+    @dict.contents = pkcs7.to_der
+    @dict.signed_data = data
     @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
   end
 

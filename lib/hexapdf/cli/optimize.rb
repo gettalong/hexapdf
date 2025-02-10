@@ -53,11 +53,11 @@ module HexaPDF
         EOF
 
         @password = nil
-        @out_options.compact = true
-        @out_options.xref_streams = :generate
-        @out_options.object_streams = :generate
-        @out_options.streams = :compress
-        @out_options.optimize_fonts = true
+        @out_options[:compact] = true
+        @out_options[:xref_streams] = :generate
+        @out_options[:object_streams] = :generate
+        @out_options[:streams] = :compress
+        @out_options[:optimize_fonts] = true
 
         options.on("--password PASSWORD", "-p", String,
                    "The password for decryption. Use - for reading from standard input.") do |pwd|

@@ -3,12 +3,11 @@
 require 'test_helper'
 require_relative 'common'
 require 'hexapdf/digital_signature'
-require 'ostruct'
 
 describe HexaPDF::DigitalSignature::PKCS1Handler do
   before do
     @data = 'Some data'
-    @dict = OpenStruct.new
+    @dict = Struct.new(:signed_data, :contents, :Cert, :Reference, :M).new
     @dict.signed_data = @data
     encoded_data = CERTIFICATES.signer_key.sign(OpenSSL::Digest.new('SHA1'), @data)
     @dict.contents = OpenSSL::ASN1::OctetString.new(encoded_data).to_der

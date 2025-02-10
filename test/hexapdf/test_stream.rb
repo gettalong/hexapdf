@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
-require 'ostruct'
 require 'stringio'
 require 'tempfile'
 require 'hexapdf/configuration'
@@ -80,7 +79,7 @@ end
 
 describe HexaPDF::Stream do
   before do
-    @document = OpenStruct.new
+    @document = Struct.new(:config).new
     @document.config = HexaPDF::Configuration.with_defaults
     @document.instance_variable_set(:@version, '1.2')
     def (@document).unwrap(obj); obj; end
