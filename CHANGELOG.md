@@ -3,6 +3,8 @@
 ### Added
 
 * [HexaPDF::Type::Annotation::BorderEffect] type class
+* [HexaPDF::Type::Annotations::BorderEffect] module that provides convenience
+  access to the border effect dictionary
 
 
 ## 1.2.0 - 2025-02-10

@@ -51,6 +51,7 @@ module HexaPDF
       autoload(:BorderStyling, 'hexapdf/type/annotations/border_styling')
       autoload(:Line, 'hexapdf/type/annotations/line')
       autoload(:AppearanceGenerator, 'hexapdf/type/annotations/appearance_generator')
+      autoload(:BorderEffect, 'hexapdf/type/annotations/border_effect')
 
     end
 
