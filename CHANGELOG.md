@@ -6,6 +6,11 @@
 * [HexaPDF::Type::Annotations::BorderEffect] module that provides convenience
   access to the border effect dictionary
 
+### Changed
+
+* Extracted `#interior_color` from [HexaPDF::Type::Annotations::Line] into
+  [HexaPDF::Type::Annotations::InteriorColor]
+
 
 ## 1.2.0 - 2025-02-10
 

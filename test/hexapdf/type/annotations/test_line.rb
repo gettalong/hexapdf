@@ -51,26 +51,6 @@ describe HexaPDF::Type::Annotations::Line do
     end
   end
 
-  describe "interior_color" do
-    it "returns the interior color" do
-      assert_nil(@line.interior_color)
-      @line[:IC] = []
-      assert_nil(@line.interior_color)
-      @line[:IC] = [0.5]
-      assert_equal(HexaPDF::Content::ColorSpace.device_color_from_specification(0.5),
-                   @line.interior_color)
-    end
-
-    it "sets the interior color" do
-      @line.interior_color(255)
-      assert_equal([1.0], @line[:IC])
-      @line.interior_color(255, 255, 0)
-      assert_equal([1.0, 1.0, 0], @line[:IC])
-      @line.interior_color(:transparent)
-      assert_equal([], @line[:IC])
-    end
-  end
-
   describe "leader_line_length" do
     it "returns the leader line length" do
       assert_equal(0, @line.leader_line_length)

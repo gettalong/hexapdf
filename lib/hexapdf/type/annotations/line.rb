@@ -43,10 +43,10 @@ module HexaPDF
       # A line annotation is a markup annotation that displays a single straight line.
       #
       # The style of the line annotation, like adding leader lines, changing the colors and so on,
-      # can be customized using the provided convenience methods.
+      # can be customized using the provided convenience methods and those from the included
+      # modules.
       #
-      # Note that changing the line width and color is done using the included
-      # BorderStyling#border_style. While that method allows special styling of the line (like
+      # Note that while BorderStyling#border_style allows special styling of the line (like
       # :beveled), only a simple line dash pattern is supported by the line annotation.
       #
       # Example:
@@ -70,6 +70,7 @@ module HexaPDF
       class Line < MarkupAnnotation
 
         include BorderStyling
+        include InteriorColor
 
         define_field :Subtype, type: Symbol, required: true, default: :Line
         define_field :L,       type: PDFArray, required: true
@@ -268,38 +269,6 @@ module HexaPDF
               raise ArgumentError, "Invalid line ending style: #{end_style.inspect}"
             end
             self[:LE] = [start_style, end_style]
-            self
-          end
-        end
-
-        # :call-seq:
-        #   line.interior_color          => color or nil
-        #   line.interior_color(*color)   => line
-        #
-        # Returns the interior color or +nil+ (in case the interior color should be transparent)
-        # when no argument is given. Otherwise sets the interior color and returns self.
-        #
-        # The interior color is used to fill the line endings depending on the line ending styles.
-        #
-        # +color+:: The interior color. See
-        #           HexaPDF::Content::ColorSpace.device_color_from_specification for information on
-        #           the allowed arguments.
-        #
-        #           If the special value +:transparent+ is used when setting the color, no color is
-        #           used for filling the line endings.
-        #
-        # Also see: #line_ending_style
-        def interior_color(*color)
-          if color.empty?
-            color = self[:IC]
-            color && !color.empty? ?  Content::ColorSpace.prenormalized_device_color(color.value) : nil
-          else
-            color = if color.length == 1 && color.first == :transparent
-                      []
-                    else
-                      Content::ColorSpace.device_color_from_specification(color).components
-                    end
-            self[:IC] = color
             self
           end
         end

@@ -34,27 +34,51 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'hexapdf/type/annotations'
+
 module HexaPDF
   module Type
-
-    autoload(:Annotation, 'hexapdf/type/annotation')
-
-    # Namespace module for all PDF annotation dictionary types.
-    #
-    # See: PDF2.0 s12.5.6, Annotation
     module Annotations
 
-      autoload(:MarkupAnnotation, 'hexapdf/type/annotations/markup_annotation')
-      autoload(:Text, 'hexapdf/type/annotations/text')
-      autoload(:Link, 'hexapdf/type/annotations/link')
-      autoload(:Widget, 'hexapdf/type/annotations/widget')
-      autoload(:BorderStyling, 'hexapdf/type/annotations/border_styling')
-      autoload(:Line, 'hexapdf/type/annotations/line')
-      autoload(:AppearanceGenerator, 'hexapdf/type/annotations/appearance_generator')
-      autoload(:BorderEffect, 'hexapdf/type/annotations/border_effect')
-      autoload(:InteriorColor, 'hexapdf/type/annotations/interior_color')
+      # This module provides a convenience method for getting and setting the interior color for
+      # various annotations.
+      #
+      # See: PDF2.0 s12.5
+      module InteriorColor
+
+        # :call-seq:
+        #   line.interior_color           => color or nil
+        #   line.interior_color(*color)   => line
+        #
+        # Returns the interior color or +nil+ (in case the interior color should be transparent)
+        # when no argument is given. Otherwise sets the interior color and returns self.
+        #
+        # How the interior color is used depends on the concrete annotation type. For line
+        # annotations, for example, it is the color to fill the line endings
+        #
+        # +color+:: The interior color. See
+        #           HexaPDF::Content::ColorSpace.device_color_from_specification for information on
+        #           the allowed arguments.
+        #
+        #           If the special value +:transparent+ is used when setting the color, no color is
+        #           used for filling the line endings.
+        def interior_color(*color)
+          if color.empty?
+            color = self[:IC]
+            color && !color.empty? ?  Content::ColorSpace.prenormalized_device_color(color.value) : nil
+          else
+            color = if color.length == 1 && color.first == :transparent
+                      []
+                    else
+                      Content::ColorSpace.device_color_from_specification(color).components
+                    end
+            self[:IC] = color
+            self
+          end
+        end
+
+      end
 
     end
-
   end
 end
