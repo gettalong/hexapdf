@@ -94,9 +94,17 @@ module HexaPDF
     end
 
     def message # :nodoc:
-      "No glyph for #{glyph.str.inspect} in font '#{glyph.font_wrapper.wrapped_font.full_name}' " \
-        "found. \n\n" \
-        "Use the configuration option 'font.on_missing_glyph' to customize missing glyph handling."
+      str = "No glyph for #{glyph.str.inspect} in font '#{glyph.font_wrapper.wrapped_font.full_name}' " \
+            "found. \n\n"
+      str << if glyph.font_wrapper.font_type == :Type1
+               "The used Type1 font only contains a very limited number of glyphs. TrueType " \
+               "fonts usually provide a much wider array of glyphs. Use the configuration option " \
+               "'font.map' to register appropriate font files. Also have a look at the " \
+               "'font.default' and 'font.fallback' options. "
+             else
+               "Maybe register another #{glyph.font_wrapper.font_type} font that contains the " \
+               "needed glyph and use it as fallback via the configuration option 'font.fallback'."
+             end
     end
 
   end
