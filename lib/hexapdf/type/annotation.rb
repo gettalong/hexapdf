@@ -113,6 +113,18 @@ module HexaPDF
 
       end
 
+      # Border effect dictionary used by square, circle and polygon annotation types.
+      #
+      # See: PDF2.0 s12.5.4
+      class BorderEffect < Dictionary
+
+        define_type :XXBorderEffect
+
+        define_field :S,    type: Symbol, default: :S, allowed_values: [:C, :S]
+        define_field :I,    type: Numeric, default: 0, allowed_values: [0, 1, 2]
+
+      end
+
       extend Utils::BitField
 
       define_type :Annot

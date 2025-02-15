@@ -1,3 +1,10 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::Type::Annotation::BorderEffect] type class
+
+
 ## 1.2.0 - 2025-02-10
 
 ### Added

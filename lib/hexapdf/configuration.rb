@@ -709,6 +709,7 @@ module HexaPDF
                         XXAcroFormField: 'HexaPDF::Type::AcroForm::Field',
                         XXAppearanceDictionary: 'HexaPDF::Type::Annotation::AppearanceDictionary',
                         Border: 'HexaPDF::Type::Annotation::Border',
+                        XXBorderEffect: 'HexaPDF::Type::Annotation::BorderEffect',
                         SigFieldLock: 'HexaPDF::Type::AcroForm::SignatureField::LockDictionary',
                         SV: 'HexaPDF::Type::AcroForm::SignatureField::SeedValueDictionary',
                         SVCert: 'HexaPDF::Type::AcroForm::SignatureField::CertificateSeedValueDictionary',
