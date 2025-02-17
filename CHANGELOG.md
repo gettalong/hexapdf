@@ -14,6 +14,7 @@
 
 * Extracted `#interior_color` from [HexaPDF::Type::Annotations::Line] into
   [HexaPDF::Type::Annotations::InteriorColor]
+* CLI command `hexapdf inspect` to support decoding Form XObject streams
 
 
 ## 1.2.0 - 2025-02-10

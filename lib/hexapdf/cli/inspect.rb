@@ -188,12 +188,20 @@ module HexaPDF
                   end
             serialize(obj.value, recursive: true) if obj
 
-          when 's', 'stream', 'raw', 'raw-stream'
+          when 's', 'stream', 'raw', 'raw-stream', 'sd'
             if (obj = pdf_object_from_string_reference(data.shift) rescue $stderr.puts($!.message)) &&
                 obj.kind_of?(HexaPDF::Stream)
-              source = (command.start_with?('raw') ? obj.stream_source : obj.stream_decoder)
-              while source.alive? && (stream_data = source.resume)
-                $stdout.write(stream_data)
+              if command == 'sd'
+                if obj.respond_to?(:process_contents)
+                  obj.process_contents(ContentProcessor.new)
+                else
+                  $stderr.puts("Error: The object is not a Form XObject or page")
+                end
+              else
+                source = (command.start_with?('raw') ? obj.stream_source : obj.stream_decoder)
+                while source.alive? && (stream_data = source.resume)
+                  $stdout.write(stream_data)
+                end
               end
             elsif command_parser.verbosity_info?
               $stderr.puts("Note: Object has no stream data")
@@ -427,6 +435,7 @@ module HexaPDF
         ["OID[,GEN] | o[bject] OID[,GEN]", "Print object"],
         ["r[ecursive] OID[,GEN]", "Print object recursively"],
         ["s[tream] OID[,GEN]", "Print filtered stream"],
+        ["sd OID[,GEN]", "Print the decoded stream of a Form XObject or page"],
         ["raw[-stream] OID[,GEN]", "Print raw stream"],
         ["rev[ision] [NUMBER]", "Print or extract revision"],
         ["x[ref] OID[,GEN]", "Print the cross-reference entry"],
