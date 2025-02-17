@@ -396,7 +396,7 @@ describe HexaPDF::Type::Annotations::AppearanceGenerator do
     end
   end
 
-  describe "square" do
+  describe "square/circle" do
     before do
       @square = @doc.add({Type: :Annot, Subtype: :Square, Rect: [100, 100, 200, 150], C: [0],
                           BS: {W: 2}})
@@ -461,6 +461,22 @@ describe HexaPDF::Type::Annotations::AppearanceGenerator do
       @square.delete(:C)
       @generator.create_appearance
       assert_operators(@square.appearance.stream, [])
+    end
+
+    it "draws an ellipse" do
+      @square[:Subtype] = :Circle
+      @generator.create_appearance
+      assert_operators(@square.appearance.stream,
+                       [[:set_line_width, [2]],
+                        [:move_to, [101.0, 26.0]],
+                        [:curve_to, [101.0, 34.920552, 91.45085, 43.190359, 76.0, 47.650635]],
+                        [:curve_to, [60.54915, 52.110911, 41.45085, 52.110911, 26.0, 47.650635]],
+                        [:curve_to, [10.54915, 43.190359, 1.0, 34.920552, 1.0, 26.0]],
+                        [:curve_to, [1.0, 17.079448, 10.54915, 8.809641, 26.0, 4.349365]],
+                        [:curve_to, [41.45085, -0.110911, 60.54915, -0.110911, 76.0, 4.349365]],
+                        [:curve_to, [91.45085, 8.809641, 101.0, 17.079448, 101.0, 26.0]],
+                        [:close_subpath],
+                        [:stroke_path]])
     end
   end
 end

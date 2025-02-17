@@ -42,4 +42,14 @@ describe HexaPDF::Document::Annotations do
       assert_equal(annot, @page[:Annots].first)
     end
   end
+
+  describe "create_ellipse" do
+    it "creates an appropriate circle annotation object" do
+      annot = @annots.create(:ellipse, @page, 100, 100, a: 30, b: 40)
+      assert_equal(:Annot, annot[:Type])
+      assert_equal(:Circle, annot[:Subtype])
+      assert_equal([70, 60, 130, 140], annot[:Rect])
+      assert_equal(annot, @page[:Annots].first)
+    end
+  end
 end

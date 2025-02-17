@@ -73,7 +73,8 @@ module HexaPDF
         def create_appearance
           case @annot[:Subtype]
           when :Line then create_line_appearance
-          when :Square then create_square_appearance
+          when :Square then create_square_circle_appearance(:square)
+          when :Circle then create_square_circle_appearance(:circle)
           else
             raise HexaPDF::Error, "Appearance regeneration for #{@annot[:Subtype]} not yet supported"
           end
@@ -225,12 +226,13 @@ module HexaPDF
           cap_result.draw(canvas, cap_x + 1, cap_y) if captioned
         end
 
-        # Creates the appropriate appearance for a square annotation.
+        # Creates the appropriate appearance for a square or circle annotation depending on the
+        # given +type+ (which can either be +:square+ or +:circle+).
         #
         # The cloudy border effect is not supported.
         #
-        # See: HexaPDF::Type::Annotations::Square
-        def create_square_appearance
+        # See: HexaPDF::Type::Annotations::Square, HexaPDF::Type::Annotations::Circle
+        def create_square_circle_appearance(type)
           # Prepare the annotation
           form = (@annot[:AP] ||= {})[:N] ||=
             @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 0, 0]})
@@ -281,7 +283,12 @@ module HexaPDF
             canvas.line_width(border_style.width)
             canvas.line_dash_pattern(border_style.style) if border_style.style.kind_of?(Array)
 
-            canvas.rectangle(x, y, w, h)
+            if type == :square
+              canvas.rectangle(x, y, w, h)
+            else
+              canvas.ellipse(x + w / 2.0, y + h / 2.0, a: w / 2.0, b: h / 2.0)
+            end
+
             if border_style.color && interior_color
               canvas.fill_stroke
             elsif border_style.color

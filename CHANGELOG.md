@@ -4,6 +4,8 @@
 
 * [HexaPDF::Type::Annotations::Square] for rectangle annotations as well as
   [HexaPDF::Document::Annotations#create_rectangle]
+* [HexaPDF::Type::Annotations::Circle] for ellipse annotations as well as
+  [HexaPDF::Document::Annotations#create_ellipse]
 * [HexaPDF::Type::Annotation::BorderEffect] type class
 * [HexaPDF::Type::Annotations::BorderEffect] module that provides convenience
   access to the border effect dictionary

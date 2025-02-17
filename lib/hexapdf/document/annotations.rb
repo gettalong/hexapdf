@@ -123,6 +123,29 @@ module HexaPDF
         annot
       end
 
+      # :call-seq:
+      #   annotations.create_ellipse(page, cx, cy, a:, b:)  -> annotation
+      #
+      # Creates an ellipse (called "circle" in the PDF specification) annotation with the center
+      # point at (+cx+, +cy+), the semi-major axis +a+ and the semi-minor axis +b+.
+      #
+      # The ellipse uses a black stroke color, no interior color and a line width of 1pt. It can
+      # be further styled using the convenience methods on the returned annotation object.
+      #
+      # Example:
+      #
+      #   doc.annotations.create_ellipse(doc.pages[0], 100, 150, a: 60, b: 40).
+      #     border_style(color: "blue", width: 2).
+      #     regenerate_appearance
+      #
+      # See: Type::Annotations::Circle
+      def create_ellipse(page, x, y, a:, b:)
+        annot = create_and_add_to_page(:Circle, page)
+        annot[:Rect] = [x - a, y - b, x + a, y + b]
+        annot.border_style(color: 0, width: 1)
+        annot
+      end
+
       private
 
       # Returns the root of the destinations name tree.
