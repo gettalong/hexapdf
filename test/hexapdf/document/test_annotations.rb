@@ -18,6 +18,8 @@ describe HexaPDF::Document::Annotations do
     it "delegates to the actual create_TYPE implementation" do
       annot = @annots.create(:line, @page, start_point: [0, 0], end_point: [10, 10])
       assert_equal(:Line, annot[:Subtype])
+      annot = @annots.create(:rectangle, @page, 10, 20, 30, 40)
+      assert_equal(:Square, annot[:Subtype])
     end
   end
 
@@ -27,6 +29,16 @@ describe HexaPDF::Document::Annotations do
       assert_equal(:Annot, annot[:Type])
       assert_equal(:Line, annot[:Subtype])
       assert_equal([0, 5, 10, 15], annot.line)
+      assert_equal(annot, @page[:Annots].first)
+    end
+  end
+
+  describe "create_rectangle" do
+    it "creates an appropriate square annotation object" do
+      annot = @annots.create(:rectangle, @page, 10, 20, 30, 40)
+      assert_equal(:Annot, annot[:Type])
+      assert_equal(:Square, annot[:Subtype])
+      assert_equal([10, 20, 40, 60], annot[:Rect])
       assert_equal(annot, @page[:Annots].first)
     end
   end

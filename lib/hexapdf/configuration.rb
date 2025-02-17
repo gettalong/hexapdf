@@ -767,6 +767,7 @@ module HexaPDF
                           Link: 'HexaPDF::Type::Annotations::Link',
                           Widget: 'HexaPDF::Type::Annotations::Widget',
                           Line: 'HexaPDF::Type::Annotations::Line',
+                          Square: 'HexaPDF::Type::Annotations::Square',
                           XML: 'HexaPDF::Type::Metadata',
                           GTS_PDFX: 'HexaPDF::Type::OutputIntent',
                           GTS_PDFA1: 'HexaPDF::Type::OutputIntent',
@@ -796,6 +797,7 @@ module HexaPDF
                           Link: 'HexaPDF::Type::Annotations::Link',
                           Widget: 'HexaPDF::Type::Annotations::Widget',
                           Line: 'HexaPDF::Type::Annotations::Line',
+                          Square: 'HexaPDF::Type::Annotations::Square',
                         },
                         XXAcroFormField: {
                           Tx: 'HexaPDF::Type::AcroForm::TextField',

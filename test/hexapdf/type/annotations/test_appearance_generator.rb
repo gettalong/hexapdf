@@ -395,4 +395,72 @@ describe HexaPDF::Type::Annotations::AppearanceGenerator do
       end
     end
   end
+
+  describe "square" do
+    before do
+      @square = @doc.add({Type: :Annot, Subtype: :Square, Rect: [100, 100, 200, 150], C: [0],
+                          BS: {W: 2}})
+      @generator = HexaPDF::Type::Annotations::AppearanceGenerator.new(@square)
+    end
+
+    it "sets the print flag and unsets the hidden flag" do
+      @square.flag(:hidden)
+      @generator.create_appearance
+      assert(@square.flagged?(:print))
+      refute(@square.flagged?(:hidden))
+    end
+
+    it "creates the /RD entry if it doesn't exist and adjusts the /Rect" do
+      @generator.create_appearance
+      assert_equal([99, 99, 201, 151], @square[:Rect])
+      assert_equal([0, 0, 102, 52], @square.appearance[:BBox])
+      assert_operators(@square.appearance.stream,
+                       [[:set_line_width, [2]],
+                        [:append_rectangle, [1, 1, 100, 50]],
+                        [:stroke_path]])
+    end
+
+    it "uses an existing /RD entry" do
+      @square[:RD] = [2, 4, 6, 8]
+      @generator.create_appearance
+      assert_equal([100, 100, 200, 150], @square[:Rect])
+      assert_equal([0, 0, 100, 50], @square.appearance[:BBox])
+      assert_operators(@square.appearance.stream,
+                       [[:set_line_width, [2]],
+                        [:append_rectangle, [3, 9, 90, 36]],
+                        [:stroke_path]])
+    end
+
+    it "can apply just a fill color without a stroke color" do
+      @square.delete(:C)
+      @square.interior_color(255, 0, 0)
+      @generator.create_appearance
+      assert_operators(@square.appearance.stream,
+                       [[:set_device_rgb_non_stroking_color, [1, 0, 0]],
+                        [:set_line_width, [2]],
+                        [:append_rectangle, [1, 1, 100, 50]],
+                        [:fill_path_non_zero]])
+    end
+
+    it "applies all set styling options" do
+      @square.border_style(color: [255, 0, 0], width: 10, style: [2, 1])
+      @square.interior_color(0, 255, 0)
+      @square.opacity(fill_alpha: 0.5, stroke_alpha: 0.5)
+      @generator.create_appearance
+      assert_operators(@square.appearance.stream,
+                       [[:set_graphics_state_parameters, [:GS1]],
+                        [:set_device_rgb_stroking_color, [1, 0, 0]],
+                        [:set_device_rgb_non_stroking_color, [0, 1, 0]],
+                        [:set_line_width, [10]],
+                        [:set_line_dash_pattern, [[2, 1], 0]],
+                        [:append_rectangle, [5, 5, 100, 50]],
+                        [:fill_and_stroke_path_non_zero]])
+    end
+
+    it "doesn't draw anything if neither stroke nor fill color is set" do
+      @square.delete(:C)
+      @generator.create_appearance
+      assert_operators(@square.appearance.stream, [])
+    end
+  end
 end

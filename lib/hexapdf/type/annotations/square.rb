@@ -34,29 +34,32 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'hexapdf/type/annotations'
+
 module HexaPDF
   module Type
-
-    autoload(:Annotation, 'hexapdf/type/annotation')
-
-    # Namespace module for all PDF annotation dictionary types.
-    #
-    # See: PDF2.0 s12.5.6, Annotation
     module Annotations
 
-      autoload(:MarkupAnnotation, 'hexapdf/type/annotations/markup_annotation')
-      autoload(:Text, 'hexapdf/type/annotations/text')
-      autoload(:Link, 'hexapdf/type/annotations/link')
-      autoload(:Widget, 'hexapdf/type/annotations/widget')
-      autoload(:BorderStyling, 'hexapdf/type/annotations/border_styling')
-      autoload(:Line, 'hexapdf/type/annotations/line')
-      autoload(:AppearanceGenerator, 'hexapdf/type/annotations/appearance_generator')
-      autoload(:BorderEffect, 'hexapdf/type/annotations/border_effect')
-      autoload(:InteriorColor, 'hexapdf/type/annotations/interior_color')
-      autoload(:SquareCircle, 'hexapdf/type/annotations/square_circle')
-      autoload(:Square, 'hexapdf/type/annotations/square')
+      # A square annotation displays a rectangle inside the annotation rectangle (the "square" name
+      # defined by the PDF specification is a bit misleading).
+      #
+      # Also see SquareCircle for more information.
+      #
+      # Example:
+      #
+      #   #>pdf-small
+      #   doc.annotations.create_rectangle(doc.pages[0], 20, 30, 60, 40).
+      #     border_style(color: "hp-blue", width: 2, style: [3, 1]).
+      #     interior_color("hp-orange").
+      #     regenerate_appearance
+      #
+      # See: PDF2.0 s12.5.6.8, HexaPDF::Type::Annotations::SquareCircle,
+      class Square < SquareCircle
+
+        define_field :Subtype, type: Symbol, required: true, default: :Square
+
+      end
 
     end
-
   end
 end

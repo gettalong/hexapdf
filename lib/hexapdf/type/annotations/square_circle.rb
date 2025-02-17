@@ -34,29 +34,44 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'hexapdf/type/annotations'
+
 module HexaPDF
   module Type
-
-    autoload(:Annotation, 'hexapdf/type/annotation')
-
-    # Namespace module for all PDF annotation dictionary types.
-    #
-    # See: PDF2.0 s12.5.6, Annotation
     module Annotations
 
-      autoload(:MarkupAnnotation, 'hexapdf/type/annotations/markup_annotation')
-      autoload(:Text, 'hexapdf/type/annotations/text')
-      autoload(:Link, 'hexapdf/type/annotations/link')
-      autoload(:Widget, 'hexapdf/type/annotations/widget')
-      autoload(:BorderStyling, 'hexapdf/type/annotations/border_styling')
-      autoload(:Line, 'hexapdf/type/annotations/line')
-      autoload(:AppearanceGenerator, 'hexapdf/type/annotations/appearance_generator')
-      autoload(:BorderEffect, 'hexapdf/type/annotations/border_effect')
-      autoload(:InteriorColor, 'hexapdf/type/annotations/interior_color')
-      autoload(:SquareCircle, 'hexapdf/type/annotations/square_circle')
-      autoload(:Square, 'hexapdf/type/annotations/square')
+      # This is the base class for the square and circle markup annotations which display a
+      # rectangle or ellipse inside the annotation rectangle.
+      #
+      # The styling is done through methods included by various modules:
+      #
+      # * Changing the line width, line dash pattern and color is done using the method
+      #   BorderStyling#border_style.  While that method allows special styling of the line (like
+      #   :beveled), only a simple line dash pattern is supported by the square and circle
+      #   annotations.
+      #
+      # * The interior color can be changed through InteriorColor#interior_color.
+      #
+      # * The border effect can be changed through BorderEffect#border_effect. Note that cloudy
+      #   borders are not supported.
+      #
+      # See: PDF2.0 s12.5.6.8, HexaPDF::Type::Annotations::Square,
+      # HexaPDF::Type::Annotations::Circle, HexaPDF::Type::MarkupAnnotation
+      class SquareCircle < MarkupAnnotation
+
+        include BorderStyling
+        include BorderEffect
+        include InteriorColor
+
+        # Field Subtype is defined in the two subclasses
+        define_field :BS, type: :Border
+        define_field :IC, type: PDFArray, version: '1.4'
+        define_field :BE, type: :XXBorderEffect, version: '1.5'
+        # Array instead of Rectangle, see https://github.com/pdf-association/pdf-issues/issues/524
+        define_field :RD, type: PDFArray, version: '1.5'
+
+      end
 
     end
-
   end
 end

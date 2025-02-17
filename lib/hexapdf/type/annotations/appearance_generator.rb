@@ -73,6 +73,7 @@ module HexaPDF
         def create_appearance
           case @annot[:Subtype]
           when :Line then create_line_appearance
+          when :Square then create_square_appearance
           else
             raise HexaPDF::Error, "Appearance regeneration for #{@annot[:Subtype]} not yet supported"
           end
@@ -222,6 +223,73 @@ module HexaPDF
 
           # Draw caption, adding half of the padding added to cap_width
           cap_result.draw(canvas, cap_x + 1, cap_y) if captioned
+        end
+
+        # Creates the appropriate appearance for a square annotation.
+        #
+        # The cloudy border effect is not supported.
+        #
+        # See: HexaPDF::Type::Annotations::Square
+        def create_square_appearance
+          # Prepare the annotation
+          form = (@annot[:AP] ||= {})[:N] ||=
+            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 0, 0]})
+          form.contents = ""
+          @annot.flag(:print)
+          @annot.unflag(:hidden)
+
+          rect = @annot[:Rect]
+          x, y, w, h = rect.left, rect.bottom, rect.width, rect.height
+          border_style = @annot.border_style
+          interior_color = @annot.interior_color
+          opacity = @annot.opacity
+
+          # Take the differences array into account. If it exists, the boundary of the actual
+          # rectangle is the one with the differences applied to /Rect.
+          #
+          # If the differences array doesn't exist, we assume that the /Rect is the rectangle we
+          # want to draw, with the line width split on both side (like with Canvas#rectangle). In
+          # this case we need to update /Rect accordingly so that the line width on the outside is
+          # correctly shown.
+          line_width_adjustment = border_style.width / 2.0
+          if (rd = @annot[:RD])
+            x += rd[0]
+            y += rd[3]
+            w -= rd[0] + rd[2]
+            h -= rd[1] + rd[3]
+          else
+            @annot[:RD] = [0, 0, 0, 0]
+            x = rect.left -= line_width_adjustment
+            y = rect.bottom -= line_width_adjustment
+            w = rect.width += line_width_adjustment
+            h = rect.height += line_width_adjustment
+          end
+          x += line_width_adjustment
+          y += line_width_adjustment
+          w -= 2 * line_width_adjustment
+          h -= 2 * line_width_adjustment
+
+          x -= rect.left
+          y -= rect.bottom
+          form[:BBox] = [0, 0, rect.width, rect.height]
+
+          if border_style.color || interior_color
+            canvas = form.canvas
+            canvas.opacity(**opacity.to_h)
+            canvas.stroke_color(border_style.color) if border_style.color
+            canvas.fill_color(interior_color) if interior_color
+            canvas.line_width(border_style.width)
+            canvas.line_dash_pattern(border_style.style) if border_style.style.kind_of?(Array)
+
+            canvas.rectangle(x, y, w, h)
+            if border_style.color && interior_color
+              canvas.fill_stroke
+            elsif border_style.color
+              canvas.stroke
+            else
+              canvas.fill
+            end
+          end
         end
 
         # Draws the line ending style +type+ at the position (+x+, +y+) and returns +true+ if the

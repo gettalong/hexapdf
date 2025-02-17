@@ -69,12 +69,12 @@ module HexaPDF
       # +create_type+ method.
       #
       # The +options+ are passed on the specific annotation creation method.
-      def create(type, page, **options)
+      def create(type, page, *args, **options)
         method_name = "create_#{type}"
         unless respond_to?(method_name)
           raise ArgumentError, "Invalid type specified"
         end
-        send("create_#{type}", page, **options)
+        send("create_#{type}", page, *args, **options)
       end
 
       # :call-seq:
@@ -98,6 +98,29 @@ module HexaPDF
         create_and_add_to_page(:Line, page).
           line(*start_point, *end_point).
           border_style(color: 0, width: 1)
+      end
+
+      # :call-seq:
+      #   annotations.create_rectangle(page, x, y, width, height)  -> annotation
+      #
+      # Creates a rectangle (called "square" in the PDF specification) annotation with the
+      # lower-left corner at (+x+, +y+) and the given +width+ and +height+.
+      #
+      # The rectangle uses a black stroke color, no interior color and a line width of 1pt. It can
+      # be further styled using the convenience methods on the returned annotation object.
+      #
+      # Example:
+      #
+      #   doc.annotations.create_rectangle(doc.pages[0], 100, 150, 100, 200).
+      #     border_style(color: "blue", width: 2).
+      #     regenerate_appearance
+      #
+      # See: Type::Annotations::Square
+      def create_rectangle(page, x, y, w, h)
+        annot = create_and_add_to_page(:Square, page)
+        annot[:Rect] = [x, y, x + w, y + h]
+        annot.border_style(color: 0, width: 1)
+        annot
       end
 
       private
