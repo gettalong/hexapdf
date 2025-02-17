@@ -106,13 +106,19 @@ module HexaPDF
       # Creates a rectangle (called "square" in the PDF specification) annotation with the
       # lower-left corner at (+x+, +y+) and the given +width+ and +height+.
       #
-      # The rectangle uses a black stroke color, no interior color and a line width of 1pt. It can
-      # be further styled using the convenience methods on the returned annotation object.
+      # The rectangle uses a black stroke color, no interior color and a line width of 1pt by
+      # default. It can be further styled using the convenience methods on the returned annotation
+      # object.
       #
       # Example:
       #
-      #   doc.annotations.create_rectangle(doc.pages[0], 100, 150, 100, 200).
-      #     border_style(color: "blue", width: 2).
+      #   #>pdf-small
+      #   doc.annotations.create_rectangle(doc.pages[0], 20, 20, 20, 60).
+      #     regenerate_appearance
+      #
+      #   doc.annotations.create_rectangle(doc.pages[0], 60, 20, 20, 60).
+      #     border_style(color: "hp-blue", width: 2).
+      #     interior_color("hp-orange").
       #     regenerate_appearance
       #
       # See: Type::Annotations::Square
@@ -129,13 +135,19 @@ module HexaPDF
       # Creates an ellipse (called "circle" in the PDF specification) annotation with the center
       # point at (+cx+, +cy+), the semi-major axis +a+ and the semi-minor axis +b+.
       #
-      # The ellipse uses a black stroke color, no interior color and a line width of 1pt. It can
-      # be further styled using the convenience methods on the returned annotation object.
+      # The ellipse uses a black stroke color, no interior color and a line width of 1pt by
+      # default. It can be further styled using the convenience methods on the returned annotation
+      # object.
       #
       # Example:
       #
-      #   doc.annotations.create_ellipse(doc.pages[0], 100, 150, a: 60, b: 40).
-      #     border_style(color: "blue", width: 2).
+      #   #>pdf-small
+      #   doc.annotations.create_ellipse(doc.pages[0], 30, 50, a: 15, b: 20).
+      #     regenerate_appearance
+      #
+      #   doc.annotations.create_ellipse(doc.pages[0], 70, 50, a: 15, b: 20).
+      #     border_style(color: "hp-blue", width: 2).
+      #     interior_color("hp-orange").
       #     regenerate_appearance
       #
       # See: Type::Annotations::Circle
