@@ -278,6 +278,9 @@ module HexaPDF
 
     REFERENCE_RE = /[#{WHITESPACE}]+([+]?\d+)[#{WHITESPACE}]+R#{WHITESPACE_OR_DELIMITER_RE}/ # :nodoc:
 
+    WHITESPACE_OR_DELIMITER_LUT = [] # :nodoc:
+    (WHITESPACE + DELIMITER).each_byte {|x| WHITESPACE_OR_DELIMITER_LUT[x] = true }
+
     # Parses the number (integer or real) at the current position.
     #
     # See: PDF2.0 s7.3.3
@@ -285,7 +288,7 @@ module HexaPDF
       prepare_string_scanner(40)
       pos = self.pos
       if (tmp = @ss.scan_integer)
-        if @ss.eos? || @ss.match?(WHITESPACE_OR_DELIMITER_RE)
+        if @ss.eos? || WHITESPACE_OR_DELIMITER_LUT[@ss.peek_byte]
           # Handle object references, see PDF2.0 s7.3.10
           prepare_string_scanner(10)
           if @ss.scan(REFERENCE_RE)
