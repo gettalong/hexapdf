@@ -82,7 +82,7 @@ canvas.text("Hello World!", at: [20, 400])
 doc.write("hello-world.pdf")
 ~~~
 
-For detailed information have a look at the [HexaPDF website][website] where you will the API
+For detailed information have a look at the [HexaPDF website][website] where you will find the API
 documentation, example code and more.
 
 It is recommend to use the HTML API documentation provided by the HexaPDF website as it is enhanced
