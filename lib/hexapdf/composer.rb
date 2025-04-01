@@ -261,6 +261,20 @@ module HexaPDF
       @document.layout.style(name, base: base, **properties)
     end
 
+    # Returns +true+ if a style with the given +name+ exists, else +false+.
+    #
+    # See HexaPDF::Document::Layout#style for details; this method is just a thin wrapper around
+    # that method.
+    #
+    # Example:
+    #
+    #   composer.style(:header, font: 'Helvetica')
+    #   composer.style?(:header)     # => true
+    #   composer.style?(:paragraph)  # => false
+    def style?(name)
+      @document.layout.style?(name)
+    end
+
     # :call-seq:
     #    composer.styles              -> styles
     #    composer.styles(**mapping)   -> styles

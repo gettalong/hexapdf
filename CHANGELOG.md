@@ -9,6 +9,8 @@
 * [HexaPDF::Type::Annotation::BorderEffect] type class
 * [HexaPDF::Type::Annotations::BorderEffect] module that provides convenience
   access to the border effect dictionary
+* [HexaPDF::Document::Layout#style?] and [HexaPDF::Composer#style?] for checking
+  whether a given style (name) exists
 
 ### Changed
 

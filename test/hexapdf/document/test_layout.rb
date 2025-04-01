@@ -146,6 +146,16 @@ describe HexaPDF::Document::Layout do
     end
   end
 
+  describe "style?" do
+    it "returns true if a given style is defined" do
+      assert(@layout.style?(:base))
+    end
+
+    it "returns false if a given style is not defined" do
+      refute(@layout.style?(:unknown))
+    end
+  end
+
   describe "styles" do
     it "returns the existing styles" do
       @layout.style(:test, font_size: 20)

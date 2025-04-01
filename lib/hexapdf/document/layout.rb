@@ -218,6 +218,19 @@ module HexaPDF
         style
       end
 
+      # Returns +true+ if a style with the given +name+ exists, else +false+.
+      #
+      # Example:
+      #
+      #   layout.style(:header, font: 'Helvetica')
+      #   layout.style?(:header)     # => true
+      #   layout.style?(:paragraph)  # => false
+      #
+      # See: #style
+      def style?(name)
+        @styles.key?(name)
+      end
+
       # :call-seq:
       #    layout.styles            -> styles
       #    layout.styles(**mapping)   -> styles

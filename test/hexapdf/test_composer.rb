@@ -127,6 +127,13 @@ describe HexaPDF::Composer do
     end
   end
 
+  describe "style?" do
+    it "delegates to layout.style?" do
+      @composer.document.layout.style(:header, font_size: 20)
+      assert(@composer.style?(:header))
+    end
+  end
+
   describe "styles" do
     it "delegates to layout.styles" do
       @composer.styles(base: {font_size: 30}, other: {font_size: 40})
