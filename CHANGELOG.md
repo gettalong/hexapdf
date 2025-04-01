@@ -15,6 +15,8 @@
 * Extracted `#interior_color` from [HexaPDF::Type::Annotations::Line] into
   [HexaPDF::Type::Annotations::InteriorColor]
 * CLI command `hexapdf inspect` to support decoding Form XObject streams
+* [HexaPDF::Layout::Style#line_spacing] to accept a `LineSpacing` object when
+  setting the value
 
 
 ## 1.2.0 - 2025-02-10

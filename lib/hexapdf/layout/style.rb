@@ -1021,7 +1021,7 @@ module HexaPDF
       #
       # This method can set the line spacing in two ways:
       #
-      # * Using two positional arguments +type+ and +value+.
+      # * Using the positional, mandatory argument +type+ and the optional +value+.
       # * Or a hash with the keys +type+ and +value+.
       #
       # Note that the last line has no additional spacing after it by default. Set #last_line_gap
@@ -1457,8 +1457,8 @@ module HexaPDF
         [:text_valign, :top, {valid_values: [:top, :center, :bottom]}],
         [:text_indent, 0],
         [:line_spacing, "LineSpacing.new(type: :single)",
-         {setter: "LineSpacing.new(**(value.kind_of?(Symbol) || value.kind_of?(Numeric) ? " \
-           "{type: value, value: extra_arg} : value))",
+         {setter: "LineSpacing.new(**(value.kind_of?(Symbol) || value.kind_of?(Numeric) || " \
+           "value.kind_of?(LineSpacing) ? {type: value, value: extra_arg} : value))",
           extra_args: ", extra_arg = nil"}],
         [:last_line_gap, false, {valid_values: [true, false]}],
         [:fill_horizontal, nil],
