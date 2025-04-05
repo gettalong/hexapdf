@@ -749,6 +749,19 @@ describe HexaPDF::Layout::Style do
     end
   end
 
+  describe "merge" do
+    it "merges all set properties" do
+      @style.font_size = 5
+      @style.line_spacing = 1.2
+      new_style = HexaPDF::Layout::Style.new
+      new_style.update(font_size: 3, line_spacing: {type: :fixed, value: 2.5})
+      new_style.merge(@style)
+      assert_equal(5, new_style.font_size)
+      assert_equal(:proportional, new_style.line_spacing.type)
+      assert_equal(1.2, new_style.line_spacing.value)
+    end
+  end
+
   it "has several simple and dynamically generated properties with default values" do
     @style = HexaPDF::Layout::Style.new
     assert_raises(HexaPDF::Error) { @style.font }

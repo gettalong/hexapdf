@@ -12,6 +12,7 @@
 * [HexaPDF::Document::Layout#style?] and [HexaPDF::Composer#style?] for checking
   whether a given style (name) exists
 * [HexaPDF::Layout::Style#each_property] for iterating over all set properties
+* [HexaPDF::Layout::Style#merge] for merging another style instance
 
 ### Changed
 

@@ -603,6 +603,8 @@ module HexaPDF
       #   style.update(**properties)    -> style
       #
       # Updates the style's properties using the key-value pairs specified by the +properties+ hash.
+      #
+      # Also see: #merge
       def update(**properties)
         properties.each {|key, value| send(key, value) }
         self
@@ -614,6 +616,21 @@ module HexaPDF
         instance_variables.each do |iv|
           (val = PROPERTIES[iv]) && yield(val, instance_variable_get(iv))
         end
+      end
+
+      # :call-seq:
+      #   style.merge(other_style)   -> style
+      #
+      # Merges the set properties of the +other_style+ object into this one.
+      #
+      # Note that merging is done on a per-property basis. So if a complex property is set on
+      # +other_style+ and also on +self+, the +other_style+ value completely overwrites the one from
+      # +self+.
+      #
+      # Also see: #update
+      def merge(other)
+        other.each_property {|property, value| send(property, value) }
+        self
       end
 
       ##
