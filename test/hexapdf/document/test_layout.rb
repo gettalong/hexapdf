@@ -213,7 +213,8 @@ describe HexaPDF::Document::Layout do
 
   describe "box" do
     it "creates the request box" do
-      box = @layout.box(:column, columns: 3, gaps: 20, width: 15, height: 30, style: {font_size: 10},
+      box = @layout.box(:column, columns: 3, width: 15, height: 30,
+                        style: {font_size: 10, box_options: {gaps: 20}},
                         properties: {key: :value})
       assert_equal(15, box.width)
       assert_equal(30, box.height)
@@ -441,9 +442,10 @@ describe HexaPDF::Document::Layout do
 
   describe "table_box" do
     it "creates a table box" do
-      box = @layout.table_box([['m']], column_widths: [100], header: proc { [['a']] },
+      box = @layout.table_box([['m']], header: proc { [['a']] },
                               footer: proc { [['b']] }, cell_style: {background_color: "red"},
                               width: 100, height: 300, style: {background_color: "blue"},
+                              box_options: {column_widths: [100]},
                               properties: {key: :value}, border: {width: 1})
       assert_equal(100, box.width)
       assert_equal(300, box.height)

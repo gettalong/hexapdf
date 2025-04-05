@@ -804,6 +804,7 @@ describe HexaPDF::Layout::Style do
     assert_equal(:left, @style.align)
     assert_equal(:top, @style.valign)
     assert_equal(:default, @style.mask_mode)
+    assert_equal({}, @style.box_options)
   end
 
   it "allows using a non-standard setter for generated properties" do

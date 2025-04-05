@@ -1447,6 +1447,27 @@ module HexaPDF
       #   composer.text("This is some longer text that does not appear in two lines.",
       #                 height: 15, overflow: :truncate)
 
+      ##
+      # :method: box_options
+      # :call-seq:
+      #   box_options(**options)
+      #
+      # Contains initialization arguments for the box instance that is created with this
+      # style. Together with the other style properties this allows the complete specification of a
+      # box instance just via a Style instance.
+      #
+      # Note that this property is only used by the HexaPDF::Document::Layout methods when a box
+      # instance is created. If a box instance is created directly, this property has no effect.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.style(:my_list, box_options: {marker_type: :decimal, item_spacing: 15})
+      #   composer.list(style: :my_list) do |list|
+      #     list.text("This is some text.")
+      #     list.text("This is some other text.")
+      #   end
+
       PROPERTIES = [
         [:font, "raise HexaPDF::Error, 'No font set'"],
         [:font_size, 10],
@@ -1500,6 +1521,7 @@ module HexaPDF
         [:mask_mode, :default, {valid_values: [:default, :none, :box, :fill_horizontal,
                                                :fill_frame_horizontal, :fill_vertical, :fill]}],
         [:overflow, :error],
+        [:box_options, {}],
       ].each do |name, default, options = {}|
         default = default.inspect unless default.kind_of?(String)
         setter = options.delete(:setter) || "value"

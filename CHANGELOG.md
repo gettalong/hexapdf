@@ -13,6 +13,7 @@
   whether a given style (name) exists
 * [HexaPDF::Layout::Style#each_property] for iterating over all set properties
 * [HexaPDF::Layout::Style#merge] for merging another style instance
+* [HexaPDF::Layout::Style#box_options] for specifying box initialization options
 
 ### Changed
 

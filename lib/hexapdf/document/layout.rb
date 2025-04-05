@@ -299,8 +299,9 @@ module HexaPDF
             box_options[:children] = ChildrenCollector.collect(self, &block)
           end
         end
+        style = retrieve_style(style)
         box_class_for_name(name).new(width: width, height: height,
-                                     style: retrieve_style(style), **box_options, &box_block)
+                                     style: style, **style.box_options, **box_options, &box_block)
       end
 
       # Creates an array of HexaPDF::Layout::TextFragment objects for the given +text+.
@@ -367,7 +368,7 @@ module HexaPDF
         box_style = (box_style ? retrieve_style(box_style) : style)
         box_class_for_name(:text).new(items: text_fragments(text, style: style),
                                       width: width, height: height, properties: properties,
-                                      style: box_style)
+                                      style: box_style, **box_style.box_options)
       end
       alias text text_box
 
@@ -470,7 +471,8 @@ module HexaPDF
           end
         end
         box_class_for_name(:text).new(items: data, width: width, height: height,
-                                      properties: properties, style: box_style)
+                                      properties: properties, style: box_style,
+                                      **box_style.box_options)
       end
       alias formatted_text formatted_text_box
 
@@ -492,7 +494,7 @@ module HexaPDF
         style = retrieve_style(style, style_properties)
         image = file.kind_of?(HexaPDF::Stream) ? file : @document.images.add(file)
         box_class_for_name(:image).new(image: image, width: width, height: height,
-                                       properties: properties, style: style)
+                                       properties: properties, style: style, **style.box_options)
       end
       alias image image_box
 
@@ -621,7 +623,8 @@ module HexaPDF
         end
         box_class_for_name(:table).new(cells: cells, column_widths: column_widths, header: header,
                                        footer: footer, cell_style: cell_style, width: width,
-                                       height: height, properties: properties, style: style)
+                                       height: height, properties: properties, style: style,
+                                       **style.box_options)
       end
       alias table table_box
 
