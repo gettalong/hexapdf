@@ -608,6 +608,14 @@ module HexaPDF
         self
       end
 
+      # Yields all set properties.
+      def each_property # :yield: property, value
+        return to_enum(__method__) unless block_given?
+        instance_variables.each do |iv|
+          (val = PROPERTIES[iv]) && yield(val, instance_variable_get(iv))
+        end
+      end
+
       ##
       # :method: font
       # :call-seq:
@@ -1422,7 +1430,7 @@ module HexaPDF
       #   composer.text("This is some longer text that does not appear in two lines.",
       #                 height: 15, overflow: :truncate)
 
-      [
+      PROPERTIES = [
         [:font, "raise HexaPDF::Error, 'No font set'"],
         [:font_size, 10],
         [:line_height, nil],
@@ -1500,7 +1508,7 @@ module HexaPDF
           end
         EOF
         alias_method("#{name}=", name)
-      end
+      end.each_with_object({}) {|arr, hash| hash[:"@#{arr.first}"] = arr.first }
 
       ##
       # :method: text_segmentation_algorithm

@@ -11,6 +11,7 @@
   access to the border effect dictionary
 * [HexaPDF::Document::Layout#style?] and [HexaPDF::Composer#style?] for checking
   whether a given style (name) exists
+* [HexaPDF::Layout::Style#each_property] for iterating over all set properties
 
 ### Changed
 

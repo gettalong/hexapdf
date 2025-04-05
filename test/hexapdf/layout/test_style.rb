@@ -738,6 +738,17 @@ describe HexaPDF::Layout::Style do
     end
   end
 
+  describe "each_property" do
+    it "yields all set properties with their values" do
+      @style.font_size = 5
+      @style.line_spacing = 1.2
+      assert_equal(0.005, @style.scaled_font_size)
+      assert_equal([[:font, @style.font], [:font_size, 5], [:line_spacing, @style.line_spacing],
+                    [:superscript, false], [:subscript, false], [:horizontal_scaling, 100]],
+                   @style.each_property.to_a)
+    end
+  end
+
   it "has several simple and dynamically generated properties with default values" do
     @style = HexaPDF::Layout::Style.new
     assert_raises(HexaPDF::Error) { @style.font }
