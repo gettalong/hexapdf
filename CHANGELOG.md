@@ -23,6 +23,10 @@
 * [HexaPDF::Layout::Style#line_spacing] to accept a `LineSpacing` object when
   setting the value
 
+### Fixed
+
+* Text extraction with macOS Preview due a bug in Preview
+
 
 ## 1.2.0 - 2025-02-10
 
