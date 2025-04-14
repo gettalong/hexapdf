@@ -682,6 +682,22 @@ module HexaPDF
         end
       end
 
+      FONT_BOLD_VARIANT_MAPPER = { #:nodoc:
+        nil => {true => :bold, false: :none},
+        none: {true => :bold, false: :none},
+        bold: {true => :bold, false: :none},
+        italic: {true => :bold_italic, false: :italic},
+        bold_italic: {true => :bold_italic, false: :italic},
+      }
+
+      FONT_ITALIC_VARIANT_MAPPER = { #:nodoc:
+        nil => {true => :italic, false: :none},
+        none: {true => :italic, false: :none},
+        italic: {true => :italic, false: :none},
+        bold: {true => :bold_italic, false: :bold},
+        bold_italic: {true => :bold_italic, false: :bold},
+      }
+
       # Retrieves the appropriate HexaPDF::Layout::Style object based on the +style+ and
       # +properties+ arguments.
       #
@@ -706,7 +722,14 @@ module HexaPDF
         end
         unless style.font.respond_to?(:pdf_object)
           name, options = *style.font
-          style.font(@document.fonts.add(name, **(options || {})))
+          options ||= {}
+          if style.font_bold?
+            options[:variant] = FONT_BOLD_VARIANT_MAPPER.dig(options[:variant], style.font_bold)
+          end
+          if style.font_italic?
+            options[:variant] = FONT_ITALIC_VARIANT_MAPPER.dig(options[:variant], style.font_italic)
+          end
+          style.font(@document.fonts.add(name, **options))
         end
         style
       end

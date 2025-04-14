@@ -14,6 +14,8 @@
 * [HexaPDF::Layout::Style#each_property] for iterating over all set properties
 * [HexaPDF::Layout::Style#merge] for merging another style instance
 * [HexaPDF::Layout::Style#box_options] for specifying box initialization options
+* [HexaPDF::Layout::Style#font_bold] and [HexaPDF::Layout::Style#font_italic]
+  for setting bold and/or italic variants independently of the font name
 
 ### Changed
 

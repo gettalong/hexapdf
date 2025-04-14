@@ -640,8 +640,9 @@ module HexaPDF
       #
       # The font to be used, must be set to a valid font wrapper object before it can be used.
       #
-      # HexaPDF::Composer handles this property specially in that it resolves a set string or array
-      # to a font wrapper object before doing anything else with the style object.
+      # HexaPDF::Document::Layout handles this property - together with #font_bold and #font_italic
+      # - specially in that it resolves a set string or array to a font wrapper object before doing
+      # anything else with the style object.
       #
       # This is the only style property without a default value!
       #
@@ -657,6 +658,48 @@ module HexaPDF
       #   composer.text("Helvetica Bold", font: helvetica_bold)
       #   composer.text("Courier Bold", font: "Courier bold")
       #   composer.text("Courier Bold also", font: ["Courier", variant: :bold])
+
+      ##
+      # :method: font_bold
+      # :call-seq:
+      #   font_bold(bold = false)
+      #
+      # Specifies whether the bold variant of the font is used.
+      #
+      # Note that this property only has affect if #font is not already set to a font wrapper
+      # object and if it is set explicitly (i.e. #font_bold? returns +true+).
+      #
+      # See #font, #font_italic
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Helvetica bold", font: "Helvetica", font_bold: true)
+      #
+      #   helvetica_bold = composer.document.fonts.add("Helvetica", variant: :bold)
+      #   composer.text("Helvetica bold", font: helvetica_bold, font_bold: false)
+      #   composer.text("Helvetica", font: ["Helvetica", {variant: :bold}], font_bold: false)
+
+      ##
+      # :method: font_italic
+      # :call-seq:
+      #   font_italic(bold = false)
+      #
+      # Specifies whether the italic variant of the font is used.
+      #
+      # Note that this property only has affect if #font is not already set to a font wrapper
+      # object and if it is set explicitly (i.e. #font_italic? returns +true+).
+      #
+      # See #font, #font_bold.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.text("Helvetica italic", font: "Helvetica", font_italic: true)
+      #
+      #   helvetica_bold = composer.document.fonts.add("Helvetica", variant: :italic)
+      #   composer.text("Helvetica italic", font: helvetica_bold, font_italic: false)
+      #   composer.text("Helvetica", font: ["Helvetica", {variant: :italic}], font_italic: false)
 
       ##
       # :method: font_size
@@ -1470,6 +1513,8 @@ module HexaPDF
 
       PROPERTIES = [
         [:font, "raise HexaPDF::Error, 'No font set'"],
+        [:font_bold, false],
+        [:font_italic, false],
         [:font_size, 10],
         [:line_height, nil],
         [:character_spacing, 0],

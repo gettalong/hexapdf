@@ -178,6 +178,16 @@ describe HexaPDF::Document::Layout do
       assert_kind_of(HexaPDF::Font::Type1Wrapper, style.font)
     end
 
+    it "uses the font_bold property when resolving a font name to a font wrapper" do
+      style = @layout.send(:retrieve_style, {font: 'Helvetica', font_bold: true})
+      assert_equal('Helvetica-Bold', style.font.wrapped_font.font_name)
+    end
+
+    it "uses the font_italic property when resolving a font name to a font wrapper" do
+      style = @layout.send(:retrieve_style, {font: 'Helvetica', font_italic: true})
+      assert_equal('Helvetica-Oblique', style.font.wrapped_font.font_name)
+    end
+
     it "sets the :base style's font if no font is set" do
       @layout.style(:base, font: 'Helvetica')
       style = @layout.send(:retrieve_style, {})
