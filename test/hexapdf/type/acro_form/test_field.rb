@@ -193,9 +193,14 @@ describe HexaPDF::Type::AcroForm::Field do
 
     it "extracts an embedded widget into a standalone object if necessary" do
       widget1 = @field.create_widget(@page, Rect: [1, 2, 3, 4])
+      # Make sure that the field/widget looks like as if it has been loaded from a file
+      @doc.revisions.current.update(widget1)
+      assert_equal(@field, widget1)
+
       widget2 = @field.create_widget(@doc.pages.add, Rect: [2, 1, 4, 3])
       kids = @field[:Kids]
 
+      assert_kind_of(HexaPDF::Type::AcroForm::Field, @doc.object(@field.oid))
       assert_equal(2, kids.length)
       refute_same(widget1, kids[0])
       assert_same(widget2, kids[1])

@@ -29,6 +29,8 @@
 
 * Text extraction with macOS Preview due a bug in Preview
 * [HexaPDF::PDFArray#reject!] to work according to documented method signature
+* [HexaPDF::Type::AcroForm::Field#create_widget] to ensure the proper type
+  class is stored in the document in case an embedded widget is extracted
 
 
 ## 1.2.0 - 2025-02-10

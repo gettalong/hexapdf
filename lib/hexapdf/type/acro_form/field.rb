@@ -392,6 +392,7 @@ module HexaPDF
               break # Each annotation dictionary may only appear on one page, see PDF2.0 12.5.2
             end
           end
+          document.revisions.current.update(self)
           widget
         end
 
