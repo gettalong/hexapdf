@@ -305,8 +305,8 @@ module HexaPDF
       result
     rescue HexaPDF::Error
       raise
-    rescue StandardError
-      yield("Error: Unexpected value encountered", false, self) if block_given?
+    rescue StandardError => e
+      yield("Unexpected error encountered: #{e.message}", false, self) if block_given?
       false
     end
 

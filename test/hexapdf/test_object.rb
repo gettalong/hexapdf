@@ -197,7 +197,7 @@ describe HexaPDF::Object do
       @obj.define_singleton_method(:perform_validation) { raise "Unknown" }
       invoked = []
       refute(@obj.validate {|*a| invoked << a })
-      assert_equal([["Error: Unexpected value encountered", false, @obj]], invoked)
+      assert_equal([["Unexpected error encountered: Unknown", false, @obj]], invoked)
     end
   end
 
