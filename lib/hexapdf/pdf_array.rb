@@ -143,10 +143,11 @@ module HexaPDF
     #   array.reject! {|item| block }   -> array or nil
     #   array.reject!                   -> Enumerator
     #
-    # Deletes all elements from the array for which the block returns +true+. If no changes were
-    # done, returns +nil+.
+    # Deletes all elements from the array for which the block returns +true+ and returns +self+. If
+    # no changes were done, returns +nil+.
     def reject!
-      value.reject! {|item| yield(process_entry(item)) }
+      return to_enum(__method__) unless block_given?
+      value.reject! {|item| yield(process_entry(item)) } && self
     end
 
     # :call-seq:

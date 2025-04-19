@@ -131,9 +131,19 @@ describe HexaPDF::PDFArray do
     end
   end
 
-  it "allows deleting elements that are selected using a block" do
-    @array.reject! {|item| item == :data }
-    assert_equal([1, "deref", @array[2]], @array[0, 5])
+  describe "reject!" do
+    it "allows deleting elements that are selected using a block" do
+      assert_same(@array, @array.reject! {|item| item == :data })
+      assert_equal([1, "deref", @array[2]], @array.to_a)
+    end
+
+    it "returns nil if no elements were deleted" do
+      assert_nil(@array.reject! {|item| false })
+    end
+
+    it "returns an enumerator if no block is given" do
+      assert_kind_of(Enumerator, @array.reject!)
+    end
   end
 
   describe "index" do

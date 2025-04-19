@@ -28,6 +28,7 @@
 ### Fixed
 
 * Text extraction with macOS Preview due a bug in Preview
+* [HexaPDF::PDFArray#reject!] to work according to documented method signature
 
 
 ## 1.2.0 - 2025-02-10
