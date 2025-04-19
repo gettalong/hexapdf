@@ -146,6 +146,17 @@ describe HexaPDF::PDFArray do
     end
   end
 
+  describe "map!" do
+    it "maps elements in-place to the return values of the block" do
+      assert_same(@array, @array.map! {|item| 5 })
+      assert_equal([5, 5, 5, 5], @array.to_a)
+    end
+
+    it "returns an enumerator if no block is given" do
+      assert_kind_of(Enumerator, @array.reject!)
+    end
+  end
+
   describe "index" do
     it "allows getting the index of an element" do
       assert_equal(2, @array.index("deref"))

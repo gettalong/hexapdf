@@ -151,6 +151,18 @@ module HexaPDF
     end
 
     # :call-seq:
+    #   array.map! {|item| block }   -> array
+    #   array.map!                   -> Enumerator
+    #
+    # Maps all elements from the array in-place to the respective return value of the block+ and
+    # returns +self+.
+    def map!
+      return to_enum(__method__) unless block_given?
+      value.map! {|item| yield(process_entry(item)) }
+      self
+    end
+
+    # :call-seq:
     #   array.index(obj)              -> int or nil
     #   array.index {|item| block }   -> int or nil
     #   array.index                   -> Enumerator
