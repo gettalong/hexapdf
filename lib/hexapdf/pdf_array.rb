@@ -163,6 +163,15 @@ module HexaPDF
     end
 
     # :call-seq:
+    #   array.compact!   -> array or nil
+    #
+    # Removes all +nil+ elements from the array. Returns +self+ if any elements were removed, +nil+
+    # otherwise.
+    def compact!
+      value.compact! && self
+    end
+
+    # :call-seq:
     #   array.index(obj)              -> int or nil
     #   array.index {|item| block }   -> int or nil
     #   array.index                   -> Enumerator

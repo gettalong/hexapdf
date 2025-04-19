@@ -157,6 +157,18 @@ describe HexaPDF::PDFArray do
     end
   end
 
+  describe "compact!" do
+    it "removes all nil elements and returns self" do
+      @array << nil
+      assert_same(@array, @array.compact!)
+      assert_equal(4, @array.size)
+    end
+
+    it "returns nil if no elements were removed" do
+      assert_nil(@array.compact!)
+    end
+  end
+
   describe "index" do
     it "allows getting the index of an element" do
       assert_equal(2, @array.index("deref"))

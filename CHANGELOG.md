@@ -17,6 +17,7 @@
 * [HexaPDF::Layout::Style#font_bold] and [HexaPDF::Layout::Style#font_italic]
   for setting bold and/or italic variants independently of the font name
 * [HexaPDF::PDFArray#map!] for mapping elements in-place
+* [HexaPDF::PDFArray#compact!] for removing `nil` elements
 
 ### Changed
 
