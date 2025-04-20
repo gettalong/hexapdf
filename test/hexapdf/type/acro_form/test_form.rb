@@ -558,6 +558,16 @@ describe HexaPDF::Type::AcroForm::Form do
         assert_equal(:Tx4, @acro_form[:Fields][2][:Kids][0][:T])
         assert_equal(@acro_form[:Fields][2], @acro_form[:Fields][2][:Kids][0][:Parent])
       end
+
+      it "ensures that objects loaded as widget are stored as field" do
+        @acro_form[:Fields][2] = @doc.add({T: :WidgetField, Type: :Annot, Subtype: :Widget})
+        assert_kind_of(HexaPDF::Type::Annotations::Widget, @acro_form[:Fields][2])
+
+        assert(@acro_form.validate)
+        field = @acro_form[:Fields][0]
+        assert_kind_of(HexaPDF::Type::AcroForm::Field, field)
+        assert_equal(:WidgetField, field.full_field_name)
+      end
     end
 
     describe "combining fields with the same name" do

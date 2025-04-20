@@ -33,6 +33,8 @@
 * [HexaPDF::PDFArray#reject!] to work according to documented method signature
 * [HexaPDF::Type::AcroForm::Field#create_widget] to ensure the proper type
   class is stored in the document in case an embedded widget is extracted
+* [HexaPDF::Type::AcroForm::Form] validation to ensure that all field objects in
+  the field hierarchy are using a field type class
 
 
 ## 1.2.0 - 2025-02-10

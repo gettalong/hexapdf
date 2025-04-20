@@ -568,12 +568,12 @@ module HexaPDF
           seen = {} # used for combining field
 
           validate_array = lambda do |parent, container|
-            container.reject! do |field|
+            container.map! do |field|
               if !field.kind_of?(HexaPDF::Object) || !field.kind_of?(HexaPDF::Dictionary) || field.null?
                 yield("Invalid object in AcroForm field hierarchy", true)
-                next true
+                next nil
               end
-              next false unless field.key?(:T) # Skip widgets
+              next field unless field.key?(:T) # Skip widgets
 
               field = Field.wrap(document, field)
               reject = false
@@ -602,9 +602,9 @@ module HexaPDF
                 seen[name] = field
               end
 
-              validate_array.call(field, field[:Kids]) if field.key?(:Kids)
-              reject
-            end
+              validate_array.call(field, field[:Kids]) if !field.null? && field.key?(:Kids)
+              reject ? nil : field
+            end.compact!
           end
           validate_array.call(nil, root_fields)
 
