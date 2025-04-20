@@ -597,6 +597,7 @@ module HexaPDF
                   widget[:Parent] = other_field
                   kids << widget
                 end
+                document.delete(field)
                 reject = true
               elsif !reject
                 seen[name] = field

@@ -35,6 +35,7 @@
   class is stored in the document in case an embedded widget is extracted
 * [HexaPDF::Type::AcroForm::Form] validation to ensure that all field objects in
   the field hierarchy are using a field type class
+* [HexaPDF::Type::AcroForm::Form] validation to delete merged fields
 
 
 ## 1.2.0 - 2025-02-10
