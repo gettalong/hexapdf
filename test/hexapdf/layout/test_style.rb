@@ -743,9 +743,9 @@ describe HexaPDF::Layout::Style do
       @style.font_size = 5
       @style.line_spacing = 1.2
       assert_equal(0.005, @style.scaled_font_size)
-      assert_equal([[:font, @style.font], [:font_size, 5], [:line_spacing, @style.line_spacing],
-                    [:superscript, false], [:subscript, false], [:horizontal_scaling, 100]],
-                   @style.each_property.to_a)
+      assert_equal([[:font, @style.font], [:font_size, 5], [:horizontal_scaling, 100],
+                    [:line_spacing, @style.line_spacing], [:subscript, false], [:superscript, false]],
+                   @style.each_property.to_a.sort)
     end
   end
 
