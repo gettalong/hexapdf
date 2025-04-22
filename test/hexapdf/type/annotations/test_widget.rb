@@ -98,6 +98,20 @@ describe HexaPDF::Type::Annotations::Widget do
         end
       end
 
+      it "uses the correct default style" do
+        @widget.form_field.initialize_as_check_box
+        @widget.marker_style(size: 10)
+        assert_equal('4', @widget[:MK][:CA])
+
+        @widget.form_field.initialize_as_radio_button
+        @widget.marker_style(size: 10)
+        assert_equal('l', @widget[:MK][:CA])
+
+        @widget.form_field.initialize_as_push_button
+        @widget.marker_style(size: 10)
+        assert_equal('', @widget[:MK][:CA])
+      end
+
       it "fails if an invalid argument is provided" do
         assert_raises(ArgumentError) { @widget.marker_style(style: 5) }
       end
@@ -142,6 +156,27 @@ describe HexaPDF::Type::Annotations::Widget do
         assert_equal([1, 0.2, 1], @widget.marker_style.color.components)
         @widget.marker_style(color: [1.0, 20, 1.0, 1.0])
         assert_equal([1, 0.2, 1, 1], @widget.marker_style.color.components)
+      end
+    end
+
+    describe "font_name" do
+      it "returns the font_name" do
+        @widget.form_field[:DA] = "/F1 15 Tf"
+        assert_equal(:F1, @widget.marker_style.font_name)
+        @widget[:DA] = "/F2 10 Tf"
+        assert_equal(:F2, @widget.marker_style.font_name)
+      end
+
+      it "returns nil if none is set" do
+        assert_nil(@widget.marker_style.font_name)
+        @widget.form_field[:DA] = "0.0 g"
+        assert_nil(@widget.marker_style.font_name)
+      end
+
+      it "sets the given font_name" do
+        @widget.form_field.initialize_as_push_button
+        @widget.marker_style(font_name: 'Helvetica', size: 10)
+        assert_equal('/F1 10 Tf 0.0 g', @widget[:DA])
       end
     end
   end

@@ -21,6 +21,10 @@
 
 ### Changed
 
+* **Breaking change**: [HexaPDF::Type::Annotations::Widget::MarkerStyle::new]
+  got a new positional argument
+* [HexaPDF::Type::Annotations::Widget#marker_style] to allow setting and
+  retrieving the font for push buttons
 * Extracted `#interior_color` from [HexaPDF::Type::Annotations::Line] into
   [HexaPDF::Type::Annotations::InteriorColor]
 * CLI command `hexapdf inspect` to support decoding Form XObject streams

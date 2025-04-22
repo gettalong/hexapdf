@@ -124,15 +124,21 @@ module HexaPDF
           end
         end
 
-        # Describes the marker style of a check box or radio button widget.
+        # Describes the marker style of a check box, radio button or push button widget.
         class MarkerStyle
 
-          # The kind of marker that is shown inside the widget. Can either be one of the symbols
-          # +:check+, +:circle+, +:cross+, +:diamond+, +:square+ or +:star+, or a one character
-          # string. The latter is interpreted using the ZapfDingbats font.
+          # The kind of marker that is shown inside the widget.
           #
-          # If an empty string is set, it is treated as if +nil+ was set, i.e. it shows the default
-          # marker for the field type.
+          # Radion buttons and check boxes::
+          #     Can either be one of the symbols +:check+, +:circle+, +:cross+, +:diamond+,
+          #     +:square+ or +:star+, or a one character string. The latter is interpreted using the
+          #     ZapfDingbats font.
+          #
+          #     If an empty string is set, it is treated as if +nil+ was set, i.e. it shows the
+          #     default marker for the field type.
+          #
+          # Push buttons:
+          #     The caption string.
           attr_reader :style
 
           # The size of the marker in PDF points that is shown inside the widget. The special value
@@ -143,27 +149,40 @@ module HexaPDF
           # HexaPDF::Content::ColorSpace.
           attr_reader :color
 
+          # The resource name of the font that should be used for the caption.
+          #
+          # This is only used for push button widgets.
+          attr_reader :font_name
+
           # Creates a new instance with the given values.
-          def initialize(style, size, color)
+          def initialize(style, size, color, font_name)
             @style = style
             @size = size
             @color = color
+            @font_name = font_name
           end
 
         end
 
         # :call-seq:
-        #   widget.marker_style                                     => marker_style
-        #   widget.marker_style(style: nil, size: nil, color: nil)   => widget
+        #   widget.marker_style                                                      => marker_style
+        #   widget.marker_style(style: nil, size: nil, color: nil, font_name: nil)   => widget
         #
         # Returns a MarkerStyle instance representing the marker style of the widget when no
         # argument is given. Otherwise sets the button marker style of the widget and returns self.
         #
-        # This method returns valid information only for check boxes and radio buttons!
+        # This method returns valid information only for check boxes, radio buttons and push buttons!
         #
-        # When setting a marker style, arguments that are not provided will use the default: a black
-        # auto-sized checkmark (i.e. :check for for check boxes) or circle (:circle for radio
-        # buttons). This also means that multiple invocations will reset *all* prior values.
+        # When setting a marker style, arguments that are not provided will use the default:
+        #
+        # * For check boxes a black auto-sized checkmark (i.e. :check)
+        # * For radio buttons a black auto-sized circle (i.e. :circle)
+        # * For push buttons a black 9pt empty text using Helvetica
+        #
+        # This also means that multiple invocations will reset *all* prior values.
+        #
+        # Note that the +font_name+ argument must be a valid HexaPDF font name (this is in contrast
+        # to MarkerStyle#font_name which returns the resource name of the font).
         #
         # Note: The marker is called "normal caption" in the PDF 2.0 spec and the /CA entry of the
         # associated appearance characteristics dictionary. The marker size and color are set using
@@ -171,13 +190,18 @@ module HexaPDF
         # does it).
         #
         # See: PDF2.0 s12.5.6.19 and s12.7.4.3
-        def marker_style(style: nil, size: nil, color: nil)
+        def marker_style(style: nil, size: nil, color: nil, font_name: nil)
           field = form_field
-          if style || size || color
-            style ||= (field.check_box? ? :check : :cicrle)
-            size ||= 0
+          if style || size || color || font_name
+            style ||= case field.concrete_field_type
+                      when :check_box then :check
+                      when :radio_button then :circle
+                      when :push_button then ''
+                      end
+            size ||= (field.push_button? ? 9 : 0)
             color = Content::ColorSpace.device_color_from_specification(color || 0)
             serialized_color = Content::ColorSpace.serialize_device_color(color)
+            font_name ||= 'Helvetica'
 
             self[:MK] ||= {}
             self[:MK][:CA] = case style
@@ -191,7 +215,13 @@ module HexaPDF
                              else
                                raise ArgumentError, "Unknown value #{style} for argument 'style'"
                              end
-            self[:DA] = "/ZaDb #{size} Tf #{serialized_color}".strip
+            self[:DA] = if field.push_button?
+                          name = document.acro_form(create: true).default_resources.
+                            add_font(document.fonts.add(font_name).pdf_object)
+                          "/#{name} #{size} Tf #{serialized_color}".strip
+                        else
+                          "/ZaDb #{size} Tf #{serialized_color}".strip
+                        end
           else
             style = case self[:MK]&.[](:CA)
                     when '4' then :check
@@ -211,12 +241,12 @@ module HexaPDF
             size = 0
             color = HexaPDF::Content::ColorSpace.prenormalized_device_color([0])
             if (da = self[:DA] || field[:DA])
-              _, da_size, da_color = AcroForm::VariableTextField.parse_appearance_string(da)
+              font_name, da_size, da_color = AcroForm::VariableTextField.parse_appearance_string(da)
               size = da_size || size
               color = da_color || color
             end
 
-            MarkerStyle.new(style, size, color)
+            MarkerStyle.new(style, size, color, font_name)
           end
         end
 
