@@ -1511,6 +1511,8 @@ module HexaPDF
       #     list.text("This is some other text.")
       #   end
 
+
+      # :nodoc:
       PROPERTIES = [
         [:font, "raise HexaPDF::Error, 'No font set'"],
         [:font_bold, false],
