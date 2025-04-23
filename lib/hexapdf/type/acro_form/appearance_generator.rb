@@ -174,11 +174,59 @@ module HexaPDF
 
         alias create_radio_button_appearances create_check_box_appearances
 
-        # Creates the appropriate appearances for push buttons.
+        # Creates the appropriate appearances for push button fields
         #
-        # This is currently a dummy implementation raising an error.
+        # The following describes how the appearance is built:
+        #
+        # * The widget's rectangle /Rect must be defined.
+        #
+        # * If the font size (used for the caption) is zero, a font size of
+        #   +acro_form.default_font_size+ is used.
+        #
+        # * The line width, style and color of the rectangle are taken from the widget's border
+        #   style. See HexaPDF::Type::Annotations::Widget#border_style.
+        #
+        # * The background color is determined by the widget's background color. See
+        #   HexaPDF::Type::Annotations::Widget#background_color.
         def create_push_button_appearances
-          raise HexaPDF::Error, "Push button appearance generation not yet supported"
+          default_resources = @document.acro_form(create: true).default_resources
+          border_style = @widget.border_style
+          padding = border_style.width
+          marker_style = @widget.marker_style
+          font = retrieve_font_information(marker_style.font_name, default_resources)
+
+          @widget[:AS] = :N
+          @widget.flag(:print)
+          @widget.unflag(:hidden)
+          rect = @widget[:Rect]
+
+          width, height, matrix = perform_rotation(rect.width, rect.height)
+
+          form = (@widget[:AP] ||= {})[:N] ||= @document.add({Type: :XObject, Subtype: :Form})
+          # Wrap existing object in Form class in case the PDF writer didn't include the /Subtype
+          # key or the type of the object is wrong; we can do this since we know this has to be a
+          # Form object
+          unless form.type == :XObject && form[:Subtype] == :Form
+            form = @document.wrap(form, type: :XObject, subtype: :Form)
+          end
+          form.value.replace({Type: :XObject, Subtype: :Form, BBox: [0, 0, width, height],
+                              Matrix: matrix, Resources: HexaPDF::Object.deep_copy(default_resources)})
+          form.contents = ''
+
+          canvas = form.canvas
+          apply_background_and_border(border_style, canvas)
+
+          style = HexaPDF::Layout::Style.new(font: font, font_size: marker_style.size,
+                                             fill_color: marker_style.color)
+          if (text = marker_style.style) && text.kind_of?(String)
+            items = @document.layout.text_fragments(marker_style.style, style: style)
+            layouter = Layout::TextLayouter.new(style)
+            layouter.style.text_align(:center).text_valign(:center).line_spacing(:proportional, 1.25)
+            result = layouter.fit(items, width - 2 * padding, height - 2 * padding)
+            unless result.lines.empty?
+              result.draw(canvas, padding, height - padding)
+            end
+          end
         end
 
         # Creates the appropriate appearances for text fields, combo box fields and list box fields.
@@ -207,7 +255,8 @@ module HexaPDF
         # Note: Rich text fields are currently not supported!
         def create_text_appearances
           default_resources = @document.acro_form.default_resources
-          font, font_size, font_color = retrieve_font_information(default_resources)
+          font_name, font_size, font_color = @field.parse_default_appearance_string(@widget)
+          font = retrieve_font_information(font_name, default_resources)
           style = HexaPDF::Layout::Style.new(font: font, font_size: font_size, fill_color: font_color)
           border_style = @widget.border_style
           padding = [1, border_style.width].max
@@ -475,9 +524,9 @@ module HexaPDF
           end
         end
 
-        # Returns the font wrapper and font size to be used for a variable text field.
-        def retrieve_font_information(resources)
-          font_name, font_size, font_color = @field.parse_default_appearance_string(@widget)
+        # Returns the font wrapper, font size and font color to be used for variable text fields and
+        # push button captions.
+        def retrieve_font_information(font_name, resources)
           font_object = resources.font(font_name) rescue nil
           font = font_object&.font_wrapper
           unless font
@@ -493,7 +542,7 @@ module HexaPDF
               raise(HexaPDF::Error, "Font #{font_name} of the AcroForm's default resources not usable")
             end
           end
-          [font, font_size, font_color]
+          font
         end
 
         # Calculates the font size for single line text fields using auto-sizing, based on the font

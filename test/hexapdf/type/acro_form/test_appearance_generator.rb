@@ -373,12 +373,87 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
     describe "push buttons" do
       before do
         @field.initialize_as_push_button
-        @widget = @field.create_widget(@page, Rect: [0, 0, 0, 0])
+        @widget = @field.create_widget(@page, Rect: [0, 0, 100, 50])
+        @widget.marker_style(style: 'Test')
         @generator = HexaPDF::Type::AcroForm::AppearanceGenerator.new(@widget)
       end
 
-      it "fails because it is not implemented yet" do
-        assert_raises(HexaPDF::Error) { @generator.create_appearances }
+      it "set the print flag on the widgets" do
+        @generator.create_appearances
+        assert(@widget.flagged?(:print))
+      end
+
+      it "removes the hidden flag on the widgets" do
+        @widget.flag(:hidden)
+        @generator.create_appearances
+        refute(@widget.flagged?(:hidden))
+      end
+
+      it "adds an appropriate form XObject" do
+        @generator.create_appearances
+        form = @widget[:AP][:N]
+        assert_equal(:XObject, form.type)
+        assert_equal(:Form, form[:Subtype])
+        assert_equal([0, 0, 100, 50], form[:BBox])
+        assert_equal(@doc.acro_form.default_resources[:Font][:F1], form[:Resources][:Font][:F1])
+      end
+
+      it "re-uses the existing form XObject" do
+        @generator.create_appearances
+        form = @widget[:AP][:N]
+        form[:key] = :value
+        form.delete(:Subtype)
+        @widget[:AP][:N] = @doc.wrap(form, type: HexaPDF::Dictionary)
+
+        @generator.create_appearances
+        assert_equal(form, @widget[:AP][:N])
+        refute(form.key?(:key))
+      end
+
+      describe "takes the rotation into account" do
+        def check_rotation(angle, width, height, matrix)
+          @widget[:MK][:R] = angle
+          @generator.create_appearances
+          form = @widget[:AP][:N]
+          assert_equal([0, 0, width, height], form[:BBox].value)
+          assert_equal(matrix, form[:Matrix].value)
+        end
+
+        it "works for 0 degrees" do
+          check_rotation(-360, @widget[:Rect].width, @widget[:Rect].height, [1, 0, 0, 1, 0, 0])
+        end
+
+        it "works for 90 degrees" do
+          check_rotation(450, @widget[:Rect].height, @widget[:Rect].width, [0, 1, -1, 0, 0, 0])
+        end
+
+        it "works for 180 degrees" do
+          check_rotation(180, @widget[:Rect].width, @widget[:Rect].height, [0, -1, -1, 0, 0, 0])
+        end
+
+        it "works for 270 degrees" do
+          check_rotation(-90, @widget[:Rect].height, @widget[:Rect].width, [0, -1, 1, 0, 0, 0])
+        end
+      end
+
+      it "adds the button title in the center" do
+        @generator.create_appearances
+        assert_operators(@widget[:AP][:N].stream,
+                         [[:save_graphics_state],
+                          [:set_device_gray_non_stroking_color, [0.5]],
+                          [:append_rectangle, [0, 0, 100, 50]],
+                          [:fill_path_non_zero],
+                          [:append_rectangle, [0.5, 0.5, 99.0, 49.0]],
+                          [:stroke_path],
+                          [:restore_graphics_state],
+                          [:save_graphics_state],
+                          [:set_font_and_size, [:F1, 9]],
+                          [:begin_text],
+                          [:move_text, [41.2475, 22.7005]],
+                          [:show_text, ["Test"]],
+                          [:end_text],
+                          [:restore_graphics_state]],
+                         )
       end
     end
   end

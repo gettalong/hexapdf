@@ -236,6 +236,13 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       assert(widget[:AP][:N][:test])
     end
 
+    it "works for push buttons" do
+      @field.initialize_as_push_button
+      @field.create_widget(@doc.pages.add, Rect: [0, 0, 100, 50])
+      @field.create_appearances
+      assert(@field[:AP][:N])
+    end
+
     it "won't generate appearances if they already exist" do
       widget = @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
       @field.create_appearances
@@ -260,12 +267,6 @@ describe HexaPDF::Type::AcroForm::ButtonField do
       yes = widget.appearance_dict.normal_appearance[:Yes]
       @field.create_appearances(force: true)
       refute_same(yes, widget.appearance_dict.normal_appearance[:Yes])
-    end
-
-    it "fails for push buttons as they are not implemented yet" do
-      @field.flag(:push_button)
-      @field.create_widget(@doc.pages.add, Rect: [0, 0, 0, 0])
-      assert_raises(HexaPDF::Error) { @field.create_appearances }
     end
 
     it "uses the configuration option acro_form.appearance_generator" do
