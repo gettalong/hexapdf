@@ -150,14 +150,15 @@ module HexaPDF
         end
 
         # :call-seq:
-        #   quad.set(value)
-        #   quad.set(array)
-        #   quad.set(quad)
+        #   quad.set(value)     -> quad
+        #   quad.set(array)     -> quad
+        #   quad.set(hash)      -> quad
+        #   quad.set(quad)      -> quad
         #
-        # Sets all values of the quad.
+        # Sets all values of the quad and returns it.
         #
-        # * If a single value is provided that is neither a Quad nor an array, it is handled as if
-        #   an array with one value was given.
+        # * If a single value is provided that is neither a Quad nor an array nor a hash, it is
+        #   handled as if an array with one value was given.
         #
         # * If a Quad is provided, its values are used.
         #
@@ -170,6 +171,9 @@ module HexaPDF
         #     third value.
         #   * Four or more values: Top is set to the first, right to the second, bottom to the third
         #     and left to the fourth value.
+        #
+        # * If a hash is provided, the keys +:top+, +:bottom+, +:left+ and +:right+ are used to set
+        #   the respective value. All unspecified keys that have not been set before are set to 0.
         def set(obj)
           case obj
           when Quad
@@ -182,9 +186,15 @@ module HexaPDF
             @bottom = obj[2] || obj[0]
             @left = obj[3] || obj[1] || obj[0]
             @right = obj[1] || obj[0]
+          when Hash
+            @top = obj[:top] || @top || 0
+            @bottom = obj[:bottom] || @bottom || 0
+            @left = obj[:left] || @left || 0
+            @right = obj[:right] || @right || 0
           else
             @top = @bottom = @left = @right = obj
           end
+          self
         end
 
         # Returns +true+ if the quad effectively contains only one value.
@@ -1557,8 +1567,10 @@ module HexaPDF
         [:fill_horizontal, nil],
         [:background_color, nil],
         [:background_alpha, 1],
-        [:padding, "Quad.new(0)", {setter: "Quad.new(value)"}],
-        [:margin, "Quad.new(0)", {setter: "Quad.new(value)"}],
+        [:padding, "Quad.new(0)",
+         {setter: "value.kind_of?(Hash) && @name ? @name.set(value) : Quad.new(value)"}],
+        [:margin, "Quad.new(0)",
+         {setter: "value.kind_of?(Hash) && @name ? @name.set(value) : Quad.new(value)"}],
         [:border, "Border.new", {setter: "Border.new(**value)"}],
         [:overlays, "Layers.new", {setter: "Layers.new(value)"}],
         [:underlays, "Layers.new", {setter: "Layers.new(value)"}],

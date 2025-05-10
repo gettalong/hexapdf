@@ -136,6 +136,19 @@ describe HexaPDF::Layout::Style::Quad do
       assert_equal(new_quad.bottom, quad.bottom)
       assert_equal(new_quad.left, quad.left)
     end
+
+    it "works with a Hash as value" do
+      quad = create_quad(top: 5, left: 10)
+      assert_equal(5, quad.top)
+      assert_equal(0, quad.bottom)
+      assert_equal(10, quad.left)
+      assert_equal(0, quad.right)
+      quad.set(right: 7)
+      assert_equal(5, quad.top)
+      assert_equal(0, quad.bottom)
+      assert_equal(10, quad.left)
+      assert_equal(7, quad.right)
+    end
   end
 
   it "can be asked if it contains only a single value" do

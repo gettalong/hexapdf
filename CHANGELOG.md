@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::Layout::Style::Quad#set] to allow setting a subset of values using a
+  hash
+
+
 ## 1.3.0 - 2025-04-23
 
 ### Added
