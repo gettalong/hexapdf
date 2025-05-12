@@ -13,6 +13,17 @@ describe HexaPDF::Document::Metadata do
 
   it "parses the info dictionary on creation" do
     assert_equal('Title', @metadata.title)
+
+    time = Time.now
+    @doc.trailer.info[:ModDate] = ''
+    assert_nil(HexaPDF::Document::Metadata.new(@doc).modification_date)
+    @doc.trailer.info[:ModDate] = time
+    assert_equal(time, HexaPDF::Document::Metadata.new(@doc).modification_date)
+    @doc.trailer.info[:CreationDate] = ''
+    assert_nil(HexaPDF::Document::Metadata.new(@doc).creation_date)
+    @doc.trailer.info[:CreationDate] = time
+    assert_equal(time, HexaPDF::Document::Metadata.new(@doc).creation_date)
+
     @doc.trailer.info[:Trapped] = :Unknown
     assert_nil(HexaPDF::Document::Metadata.new(@doc).trapped)
     @doc.trailer.info[:Trapped] = :True
@@ -213,6 +224,7 @@ describe HexaPDF::Document::Metadata do
       title.language = 'de'
       @metadata.title(['Title', title])
       @metadata.author(['Author 1', 'Author 2'])
+      @metadata.creation_date('')
       @metadata.register_property_type('dc', 'other', 'URI')
       @metadata.property('dc', 'other', 'https://test.org/example')
       @metadata.property('pdfaid', 'part', 3)
@@ -243,7 +255,7 @@ describe HexaPDF::Document::Metadata do
         </rdf:Description>
         <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">
         <xmp:CreatorTool>Creator</xmp:CreatorTool>
-        <xmp:CreateDate>#{@metadata.send(:xmp_date, @time)}</xmp:CreateDate>
+        <xmp:CreateDate></xmp:CreateDate>
         <xmp:ModifyDate>#{@metadata.send(:xmp_date, @time)}</xmp:ModifyDate>
         </rdf:Description>
         <rdf:Description rdf:about="" xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/">

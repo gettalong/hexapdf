@@ -430,8 +430,12 @@ module HexaPDF
         @metadata[ns_dc]['creator'] = info_dict[:Author] if info_dict.key?(:Author)
         @metadata[ns_dc]['description'] = info_dict[:Subject] if info_dict.key?(:Subject)
         @metadata[ns_xmp]['CreatorTool'] = info_dict[:Creator] if info_dict.key?(:Creator)
-        @metadata[ns_xmp]['CreateDate'] = info_dict[:CreationDate] if info_dict.key?(:CreationDate)
-        @metadata[ns_xmp]['ModifyDate'] = info_dict[:ModDate] if info_dict.key?(:ModDate)
+        if info_dict.key?(:CreationDate) && !info_dict[:CreationDate].kind_of?(String)
+          @metadata[ns_xmp]['CreateDate'] = info_dict[:CreationDate]
+        end
+        if info_dict.key?(:ModDate) && !info_dict[:ModDate].kind_of?(String)
+          @metadata[ns_xmp]['ModifyDate'] = info_dict[:ModDate] if info_dict.key?(:ModDate)
+        end
         @metadata[ns_pdf]['Keywords'] = info_dict[:Keywords] if info_dict.key?(:Keywords)
         @metadata[ns_pdf]['Producer'] = info_dict[:Producer] if info_dict.key?(:Producer)
         if info_dict.key?(:Trapped) && info_dict[:Trapped] != :Unknown
@@ -528,7 +532,10 @@ module HexaPDF
       # Formats the given date-time object (Time, Date, or DateTime) to be a valid XMP date-time
       # value.
       def xmp_date(date)
-        date.strftime("%Y-%m-%dT%H:%M:%S%:z")
+        case date
+        when Time, Date, DateTime then date.strftime("%Y-%m-%dT%H:%M:%S%:z")
+        else ''
+        end
       end
 
     end

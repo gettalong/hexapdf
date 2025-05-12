@@ -12,6 +12,11 @@
 * [HexaPDF::Layout::Style::Quad#set] to allow setting a subset of values using a
   hash
 
+### Fixed
+
+* Parsing and writing the /ModDate and /CreationDate trailer info fields in case
+  of string values when using the XMP metadata handler
+
 
 ## 1.3.0 - 2025-04-23
 
