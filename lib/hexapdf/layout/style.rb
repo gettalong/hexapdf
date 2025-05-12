@@ -408,6 +408,9 @@ module HexaPDF
       # bottom-left corner of the box during the drawing operations.
       class Layers
 
+        # The array holding all raw layer definitions.
+        attr_reader :layers
+
         # Creates a new Layers object popuplated with the given +layers+.
         def initialize(layers = nil)
           @layers = []

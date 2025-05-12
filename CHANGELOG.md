@@ -4,6 +4,8 @@
 
 * [HexaPDF::Layout::ContainerBox#splitable] for specifying whether the container
   box may be split
+* [HexaPDF::Layout::Style::Layers#layers] for retrieving the list of defined
+  layers
 
 ### Changed
 
