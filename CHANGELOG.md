@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Layout::ContainerBox#splitable] for specifying whether the container
+  box may be split
+
 ### Changed
 
 * [HexaPDF::Layout::Style::Quad#set] to allow setting a subset of values using a

@@ -44,21 +44,22 @@ module HexaPDF
     # under the :container name.
     #
     # The box does not support the value :flow for the style property position, so the child boxes
-    # are laid out in the current region only. Since the boxes should be laid out together, if any
-    # box doesn't fit, the whole container doesn't fit. Splitting the container is also not possible
-    # for the same reason.
+    # are laid out in the current region only.
     #
-    # By default the child boxes are laid out from top to bottom by default. By appropriately
-    # setting the style properties 'mask_mode', 'align' and 'valign', it is possible to lay out the
-    # children bottom to top, left to right, or right to left:
+    # If #splitable is +false+ (the default) and if any box doesn't fit, the whole container doesn't
+    # fit.
+    #
+    # By default the child boxes are laid out from top to bottom. By appropriately setting the style
+    # properties 'mask_mode', 'align' and 'valign', it is possible to lay out the children bottom to
+    # top, left to right, or right to left:
     #
     # * The standard top-to-bottom layout:
     #
     #     #>pdf-composer100
     #     composer.container do |container|
-    #       container.box(:base, height: 20, style: {background_color: "hp-blue-dark"})
-    #       container.box(:base, height: 20, style: {background_color: "hp-blue"})
-    #       container.box(:base, height: 20, style: {background_color: "hp-blue-light"})
+    #       container.box(height: 20, style: {background_color: "hp-blue-dark"})
+    #       container.box(height: 20, style: {background_color: "hp-blue"})
+    #       container.box(height: 20, style: {background_color: "hp-blue-light"})
     #     end
     #
     # * The bottom-to-top layout (using valign = :bottom to fill up from the bottom and mask_mode =
@@ -66,12 +67,12 @@ module HexaPDF
     #
     #     #>pdf-composer100
     #     composer.container do |container|
-    #       container.box(:base, height: 20, style: {background_color: "hp-blue-dark",
-    #                                                mask_mode: :fill_horizontal, valign: :bottom})
-    #       container.box(:base, height: 20, style: {background_color: "hp-blue",
-    #                                                mask_mode: :fill_horizontal, valign: :bottom})
-    #       container.box(:base, height: 20, style: {background_color: "hp-blue-light",
-    #                                                mask_mode: :fill_horizontal, valign: :bottom})
+    #       container.box(height: 20, style: {background_color: "hp-blue-dark",
+    #                                         mask_mode: :fill_horizontal, valign: :bottom})
+    #       container.box(height: 20, style: {background_color: "hp-blue",
+    #                                         mask_mode: :fill_horizontal, valign: :bottom})
+    #       container.box(height: 20, style: {background_color: "hp-blue-light",
+    #                                         mask_mode: :fill_horizontal, valign: :bottom})
     #     end
     #
     # * The left-to-right layout (using mask_mode = :fill_vertical to fill the area to the top and
@@ -79,12 +80,12 @@ module HexaPDF
     #
     #     #>pdf-composer100
     #     composer.container do |container|
-    #       container.box(:base, width: 20, style: {background_color: "hp-blue-dark",
-    #                                               mask_mode: :fill_vertical})
-    #       container.box(:base, width: 20, style: {background_color: "hp-blue",
-    #                                               mask_mode: :fill_vertical})
-    #       container.box(:base, width: 20, style: {background_color: "hp-blue-light",
-    #                                               mask_mode: :fill_vertical})
+    #       container.box(width: 20, style: {background_color: "hp-blue-dark",
+    #                                        mask_mode: :fill_vertical})
+    #       container.box(width: 20, style: {background_color: "hp-blue",
+    #                                        mask_mode: :fill_vertical})
+    #       container.box(width: 20, style: {background_color: "hp-blue-light",
+    #                                        mask_mode: :fill_vertical})
     #     end
     #
     # * The right-to-left layout (using align = :right to fill up from the right and mask_mode =
@@ -92,17 +93,41 @@ module HexaPDF
     #
     #     #>pdf-composer100
     #     composer.container do |container|
-    #       container.box(:base, width: 20, style: {background_color: "hp-blue-dark",
-    #                                               mask_mode: :fill_vertical, align: :right})
-    #       container.box(:base, width: 20, style: {background_color: "hp-blue",
-    #                                               mask_mode: :fill_vertical, align: :right})
-    #       container.box(:base, width: 20, style: {background_color: "hp-blue-light",
-    #                                               mask_mode: :fill_vertical, align: :right})
+    #       container.box(width: 20, style: {background_color: "hp-blue-dark",
+    #                                        mask_mode: :fill_vertical, align: :right})
+    #       container.box(width: 20, style: {background_color: "hp-blue",
+    #                                        mask_mode: :fill_vertical, align: :right})
+    #       container.box(width: 20, style: {background_color: "hp-blue-light",
+    #                                        mask_mode: :fill_vertical, align: :right})
     #     end
     class ContainerBox < Box
 
       # The child boxes of this ContainerBox. They need to be finalized before #fit is called.
       attr_reader :children
+
+      # Specifies whether the container box allows splitting its content.
+      #
+      # If splitting is not allowed (the default), all child boxes must fit together into one
+      # region.
+      #
+      # Examples:
+      #
+      #   # Fails with an error because the content of the container box is too big
+      #   composer.column do |col|
+      #     col.container do |container|
+      #       container.lorem_ipsum
+      #     end
+      #   end
+      #
+      # ---
+      #
+      #   #>pdf-composer
+      #   composer.column do |col|
+      #     col.container(splitable: true) do |container|
+      #       container.lorem_ipsum
+      #     end
+      #   end
+      attr_reader :splitable
 
       # Creates a new container box, optionally accepting an array of child boxes.
       #
@@ -117,9 +142,10 @@ module HexaPDF
       #     container.text("here", mask_mode: :fill_vertical, valign: :bottom)
       #   end
       #   composer.text("Another paragraph")
-      def initialize(children: [], **kwargs)
+      def initialize(children: [], splitable: false, **kwargs)
         super(**kwargs)
         @children = children
+        @splitable = splitable
       end
 
       # Returns +true+ if no box was fitted into the container.
@@ -144,7 +170,16 @@ module HexaPDF
           end
           update_content_height { @box_fitter.content_heights.max }
           fit_result.success!
+        elsif !@box_fitter.fit_results.empty? && @splitable
+          fit_result.overflow!
         end
+      end
+
+      # Splits the content of the container box. This method is called from Box#split.
+      def split_content
+        box = create_split_box
+        box.instance_variable_set(:@children, @box_fitter.remaining_boxes)
+        [self, box]
       end
 
       # Draws the children onto the canvas at position [x, y].
