@@ -16,6 +16,8 @@
 
 * Parsing and writing the /ModDate and /CreationDate trailer info fields in case
   of string values when using the XMP metadata handler
+* [HexaPDF::Layout::Style] to not accidentally set subscript or superscript
+  values
 
 
 ## 1.3.0 - 2025-04-23

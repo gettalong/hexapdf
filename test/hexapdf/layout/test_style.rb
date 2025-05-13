@@ -757,7 +757,7 @@ describe HexaPDF::Layout::Style do
       @style.line_spacing = 1.2
       assert_equal(0.005, @style.scaled_font_size)
       assert_equal([[:font, @style.font], [:font_size, 5], [:horizontal_scaling, 100],
-                    [:line_spacing, @style.line_spacing], [:subscript, false], [:superscript, false]],
+                    [:line_spacing, @style.line_spacing]],
                    @style.each_property.to_a.sort)
     end
   end
@@ -900,6 +900,9 @@ describe HexaPDF::Layout::Style do
     end
 
     it "handles subscript" do
+      @style.subscript = false
+      assert_equal(10, @style.calculated_font_size)
+      assert_equal(0, @style.calculated_text_rise)
       @style.subscript = true
       assert_in_delta(5.83, @style.calculated_font_size)
       assert_in_delta(0.00583, @style.scaled_font_size, 0.000001)
@@ -907,6 +910,9 @@ describe HexaPDF::Layout::Style do
     end
 
     it "handles superscript" do
+      @style.superscript = false
+      assert_equal(10, @style.calculated_font_size)
+      assert_equal(0, @style.calculated_text_rise)
       @style.superscript = true
       assert_in_delta(5.83, @style.calculated_font_size)
       assert_in_delta(3.30, @style.calculated_text_rise)

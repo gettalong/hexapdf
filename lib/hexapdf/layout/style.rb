@@ -1540,10 +1540,10 @@ module HexaPDF
         [:text_rendering_mode, "Content::TextRenderingMode::FILL",
          {setter: "Content::TextRenderingMode.normalize(value)"}],
         [:subscript, false,
-         {setter: "value; superscript(false) if superscript",
+         {setter: "value; superscript(false) if value && superscript? && superscript",
           valid_values: [true, false]}],
         [:superscript, false,
-         {setter: "value; subscript(false) if subscript",
+         {setter: "value; subscript(false) if value && subscript? && subscript",
           valid_values: [true, false]}],
         [:underline, false, {valid_values: [true, false]}],
         [:strikeout, false, {valid_values: [true, false]}],
@@ -1656,9 +1656,9 @@ module HexaPDF
 
       # The calculated text rise, taking superscript and subscript into account.
       def calculated_text_rise
-        if superscript
+        if superscript? && superscript
           text_rise + font_size * 0.33
-        elsif subscript
+        elsif subscript? && subscript
           text_rise - font_size * 0.20
         else
           text_rise
@@ -1667,7 +1667,7 @@ module HexaPDF
 
       # The calculated font size, taking superscript and subscript into account.
       def calculated_font_size
-        (superscript || subscript ? 0.583 : 1) * font_size
+        ((superscript? && superscript) || (subscript? && subscript) ? 0.583 : 1) * font_size
       end
 
       # Returns the correct offset from the baseline for the underline.
