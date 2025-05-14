@@ -18,6 +18,8 @@
   of string values when using the XMP metadata handler
 * [HexaPDF::Layout::Style] to not accidentally set subscript or superscript
   values
+* [HexaPDF::DictionaryFields::DateConverter] to handle invalid dates with two
+  trailing apostrophes
 
 
 ## 1.3.0 - 2025-04-23
