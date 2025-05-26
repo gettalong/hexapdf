@@ -374,6 +374,11 @@ module HexaPDF
   #    The default implementation returns an object of class HexaPDF::Font::InvalidGlyph which, when
   #    not removed before encoding, will raise a HexaPDF::MissingGlyphError.
   #
+  #    Note: The 'font.on_invalid_glyph' configuration option does something similar but is used
+  #    later and only by the layout engine. If this callback hook returns an invalid glyph instance,
+  #    the 'font.on_invalid_glyph' callback hook is invoked when using the layout engine and it can
+  #    return a substitute glyph in any font.
+  #
   #    If a replacement glyph should be displayed instead of an error, the following provides a good
   #    starting implementation:
   #
