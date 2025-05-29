@@ -172,31 +172,36 @@ describe HexaPDF::Document::Layout do
     end
   end
 
-  describe "private retrieve_style" do
+  describe "resolve_font" do
     it "resolves a font name to a font wrapper" do
-      style = @layout.send(:retrieve_style, {font: 'Helvetica'})
+      style = @layout.style(:other, font: 'Helvetica')
+      @layout.resolve_font(style)
       assert_kind_of(HexaPDF::Font::Type1Wrapper, style.font)
     end
 
     it "uses the font_bold property when resolving a font name to a font wrapper" do
-      style = @layout.send(:retrieve_style, {font: 'Helvetica', font_bold: true})
+      style = @layout.style(:other, font: 'Helvetica', font_bold: true)
+      @layout.resolve_font(style)
       assert_equal('Helvetica-Bold', style.font.wrapped_font.font_name)
     end
 
     it "uses the font_italic property when resolving a font name to a font wrapper" do
-      style = @layout.send(:retrieve_style, {font: 'Helvetica', font_italic: true})
+      style = @layout.style(:other, font: 'Helvetica', font_italic: true)
+      @layout.resolve_font(style)
       assert_equal('Helvetica-Oblique', style.font.wrapped_font.font_name)
     end
 
     it "sets the :base style's font if no font is set" do
       @layout.style(:base, font: 'Helvetica')
-      style = @layout.send(:retrieve_style, {})
-      assert_equal('Helvetica', style.font.wrapped_font.font_name)
+      style = @layout.style(:other, base: nil, font_italic: true)
+      @layout.resolve_font(style)
+      assert_equal('Helvetica-Oblique', style.font.wrapped_font.font_name)
     end
 
     it "sets the font specified in the config option font.default as fallback" do
-      style = @layout.send(:retrieve_style, {})
-      assert_equal('Times-Roman', style.font.wrapped_font.font_name)
+      style = @layout.style(:other, base: nil, font_italic: true)
+      @layout.resolve_font(style)
+      assert_equal('Times-Italic', style.font.wrapped_font.font_name)
     end
   end
 

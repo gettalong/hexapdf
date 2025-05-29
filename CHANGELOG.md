@@ -6,6 +6,7 @@
   box may be split
 * [HexaPDF::Layout::Style::Layers#layers] for retrieving the list of defined
   layers
+* [HexaPDF::Document::Layout#resolve_font] for resolving the font style property
 
 ### Changed
 

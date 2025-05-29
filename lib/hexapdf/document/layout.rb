@@ -92,12 +92,22 @@ module HexaPDF
     #
     #     style.font = ['Helvetica', variant: :bold]
     #
-    #   Helvetica in bold could also be set the conventional way:
+    #   Helvetica in bold could also be set in the following ways:
     #
     #     style.font = 'Helvetica bold'
+    #     # or
+    #     style.font_bold = true
+    #     style.font = 'Helvetica'
+    #
+    #   The font_bold and font_italic style properties are always taken into account. For example,
+    #   if the font is set to 'Helvetica italic' and font_bold to +true+, the actual font would be
+    #   the bold _and_ italic Helvetica font.
     #
     #   However, using an array it is also possible to specify other options when setting a font,
     #   like the :subset option.
+    #
+    # * It is possible to resolve the font of a style object manually by using the #resolve_font
+    #   method.
     #
     class Layout
 
@@ -229,6 +239,64 @@ module HexaPDF
       # See: #style
       def style?(name)
         @styles.key?(name)
+      end
+
+      FONT_BOLD_VARIANT_MAPPER = { #:nodoc:
+        nil => {true => :bold, false: :none},
+        none: {true => :bold, false: :none},
+        bold: {true => :bold, false: :none},
+        italic: {true => :bold_italic, false: :italic},
+        bold_italic: {true => :bold_italic, false: :italic},
+      }
+
+      FONT_ITALIC_VARIANT_MAPPER = { #:nodoc:
+        nil => {true => :italic, false: :none},
+        none: {true => :italic, false: :none},
+        italic: {true => :italic, false: :none},
+        bold: {true => :bold_italic, false: :bold},
+        bold_italic: {true => :bold_italic, false: :bold},
+      }
+
+      # Resolves the font object for the given +style+ and applies the result to it.
+      #
+      # The Layout::Style#font property is the only one without a default value but is needed for
+      # many operations. This method ensures that the +style+ has a valid font object for the font
+      # property by resolving the font name.
+      #
+      # The font object is resolved in the following way:
+      #
+      # * If the font property is not set, the font value of the :base style is used and if that is
+      #   also not set, the 'font.default' configuration value is used.
+      #
+      # * Afterwards, if the font property is a valid font object, nothing needs to be done.
+      #
+      # * Otherwise, if the font property is a single font name or a [font name, options hash]
+      #   array, it is resolved to a font object, also taking the font_bold and font_italic style
+      #   properties into account.
+      #
+      # Example:
+      #
+      #   style = layout.style(:header, font: 'Helvetica')
+      #   style.font                   # => 'Helvetica'
+      #   layout.resolve_font(style)
+      #   style.font                   # => #<HexaPDF::Font::Type1Wrapper>
+      #
+      # See: The "Box Styles" section in Layout for more details.
+      def resolve_font(style)
+        unless style.font?
+          style.font(@styles[:base].font? && @styles[:base].font || @document.config['font.default'])
+        end
+        unless style.font.respond_to?(:pdf_object)
+          name, options = *style.font
+          options ||= {}
+          if style.font_bold?
+            options[:variant] = FONT_BOLD_VARIANT_MAPPER.dig(options[:variant], style.font_bold)
+          end
+          if style.font_italic?
+            options[:variant] = FONT_ITALIC_VARIANT_MAPPER.dig(options[:variant], style.font_italic)
+          end
+          style.font(@document.fonts.add(name, **options))
+        end
       end
 
       # :call-seq:
@@ -682,22 +750,6 @@ module HexaPDF
         end
       end
 
-      FONT_BOLD_VARIANT_MAPPER = { #:nodoc:
-        nil => {true => :bold, false: :none},
-        none: {true => :bold, false: :none},
-        bold: {true => :bold, false: :none},
-        italic: {true => :bold_italic, false: :italic},
-        bold_italic: {true => :bold_italic, false: :italic},
-      }
-
-      FONT_ITALIC_VARIANT_MAPPER = { #:nodoc:
-        nil => {true => :italic, false: :none},
-        none: {true => :italic, false: :none},
-        italic: {true => :italic, false: :none},
-        bold: {true => :bold_italic, false: :bold},
-        bold_italic: {true => :bold_italic, false: :bold},
-      }
-
       # Retrieves the appropriate HexaPDF::Layout::Style object based on the +style+ and
       # +properties+ arguments.
       #
@@ -717,20 +769,7 @@ module HexaPDF
         end
         style = HexaPDF::Layout::Style.create(@styles[style] || style || @styles[:base])
         style = style.dup.update(**properties) unless properties.nil? || properties.empty?
-        unless style.font?
-          style.font(@styles[:base].font? && @styles[:base].font || @document.config['font.default'])
-        end
-        unless style.font.respond_to?(:pdf_object)
-          name, options = *style.font
-          options ||= {}
-          if style.font_bold?
-            options[:variant] = FONT_BOLD_VARIANT_MAPPER.dig(options[:variant], style.font_bold)
-          end
-          if style.font_italic?
-            options[:variant] = FONT_ITALIC_VARIANT_MAPPER.dig(options[:variant], style.font_italic)
-          end
-          style.font(@document.fonts.add(name, **options))
-        end
+        resolve_font(style)
         style
       end
 
