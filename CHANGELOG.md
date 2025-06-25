@@ -21,6 +21,8 @@
   values
 * [HexaPDF::DictionaryFields::DateConverter] to handle invalid dates with two
   trailing apostrophes
+* [HexaPDF::Document::Layout::CellArgumentCollector#retrieve_arguments_for] to
+  not change the stored data
 
 
 ## 1.3.0 - 2025-04-23

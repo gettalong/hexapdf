@@ -616,9 +616,10 @@ module HexaPDF
           @argument_infos.each_with_object({}) do |arg_info, result|
             next unless arg_info.rows.include?(row) && arg_info.cols.include?(col)
             if arg_info.args[:cell]
-              arg_info.args[:cell] = (result[:cell] || {}).merge(arg_info.args[:cell])
+              result.update(arg_info.args, cell: (result[:cell] || {}).merge(arg_info.args[:cell]))
+            else
+              result.update(arg_info.args)
             end
-            result.update(arg_info.args)
           end
         end
 
