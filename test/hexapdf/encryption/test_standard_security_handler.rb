@@ -188,10 +188,11 @@ describe HexaPDF::Encryption::StandardSecurityHandler do
       refute(dict.value.key?(:Perms))
       crypt_filter.call(dict, 4, :AESV2, 16)
 
-      dict = @handler.set_up_encryption(key_length: 256, algorithm: :aes)
+      dict = @handler.set_up_encryption(key_length: 256, algorithm: :aes, owner_password: 'hexapdf')
       assert_equal(32, dict[:UE].length)
       assert_equal(32, dict[:OE].length)
       assert_equal(16, dict[:Perms].length)
+      assert(@handler.send(:owner_password_valid?, 'hexapdf'))
       crypt_filter.call(dict, 6, :AESV3, 32)
     end
 

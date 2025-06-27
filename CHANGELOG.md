@@ -23,6 +23,7 @@
   trailing apostrophes
 * [HexaPDF::Document::Layout::CellArgumentCollector#retrieve_arguments_for] to
   not change the stored data
+* Encryption when using AES with 256bits and an owner password
 
 
 ## 1.3.0 - 2025-04-23

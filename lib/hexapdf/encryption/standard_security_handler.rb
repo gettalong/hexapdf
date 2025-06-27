@@ -325,8 +325,13 @@ module HexaPDF
         options.user_password = prepare_password(options.user_password)
         options.owner_password = prepare_password(options.owner_password)
 
-        dict[:O] = compute_o_field(options.owner_password, options.user_password)
-        dict[:U] = compute_u_field(options.user_password)
+        if dict[:R] <= 4
+          dict[:O] = compute_o_field(options.owner_password, options.user_password)
+          dict[:U] = compute_u_field(options.user_password)
+        else
+          dict[:U] = compute_u_field(options.user_password)
+          dict[:O] = compute_o_field(options.owner_password, options.user_password)
+        end
 
         if dict[:R] <= 4
           encryption_key = compute_user_encryption_key(options.user_password)
