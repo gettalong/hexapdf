@@ -56,6 +56,7 @@ module HexaPDF
       autoload(:SquareCircle, 'hexapdf/type/annotations/square_circle')
       autoload(:Square, 'hexapdf/type/annotations/square')
       autoload(:Circle, 'hexapdf/type/annotations/circle')
+      autoload(:LineEndingStyling, 'hexapdf/type/annotations/line_ending_styling')
 
     end
 

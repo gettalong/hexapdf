@@ -26,31 +26,6 @@ describe HexaPDF::Type::Annotations::Line do
     end
   end
 
-  describe "line_ending_style" do
-    it "returns the current style" do
-      assert_kind_of(HexaPDF::Type::Annotations::Line::LineEndingStyle, @line.line_ending_style)
-      assert_equal([:none, :none], @line.line_ending_style.to_a)
-      @line[:LE] = [:Diamond, :OpenArrow]
-      assert_equal([:diamond, :open_arrow], @line.line_ending_style.to_a)
-      @line[:LE] = [:Diamond, :Unknown]
-      assert_equal([:diamond, :none], @line.line_ending_style.to_a)
-    end
-
-    it "sets the style" do
-      assert_same(@line, @line.line_ending_style(start_style: :OpenArrow))
-      assert_equal([:OpenArrow, :None], @line[:LE])
-      assert_same(@line, @line.line_ending_style(end_style: :open_arrow))
-      assert_equal([:OpenArrow, :OpenArrow], @line[:LE])
-      assert_same(@line, @line.line_ending_style(start_style: :circle, end_style: :ClosedArrow))
-      assert_equal([:Circle, :ClosedArrow], @line[:LE])
-    end
-
-    it "raises an error for unknown styles" do
-      assert_raises(ArgumentError) { @line.line_ending_style(start_style: :unknown) }
-      assert_raises(ArgumentError) { @line.line_ending_style(end_style: :unknown) }
-    end
-  end
-
   describe "leader_line_length" do
     it "returns the leader line length" do
       assert_equal(0, @line.leader_line_length)
