@@ -753,6 +753,7 @@ module HexaPDF
                         Namespace: 'HexaPDF::Type::Namespace',
                         MCR: 'HexaPDF::Type::MarkedContentReference',
                         OBJR: 'HexaPDF::Type::ObjectReference',
+                        Measure: 'HexaPDF::Type::Measure',
                       },
                       'object.subtype_map' => {
                         nil => {

@@ -7,6 +7,7 @@
 * [HexaPDF::Layout::Style::Layers#layers] for retrieving the list of defined
   layers
 * [HexaPDF::Document::Layout#resolve_font] for resolving the font style property
+* [HexaPDF::Type::Measure] for representing the measure dictionary
 
 ### Changed
 
