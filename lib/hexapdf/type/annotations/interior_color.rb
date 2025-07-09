@@ -61,7 +61,7 @@ module HexaPDF
         #           the allowed arguments.
         #
         #           If the special value +:transparent+ is used when setting the color, no color is
-        #           used for filling the line endings.
+        #           used for filling.
         def interior_color(*color)
           if color.empty?
             color = self[:IC]
