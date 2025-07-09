@@ -2,6 +2,10 @@
 
 ### Added
 
+* [HexaPDF::Type::Annotations::Polygon] for polygon annotations as well as
+  [HexaPDF::Document::Annotations#create_polygon]
+* [HexaPDF::Type::Annotations::Polyline] for polyline annotations as well as
+  [HexaPDF::Document::Annotations#create_polyline]
 * [HexaPDF::Layout::ContainerBox#splitable] for specifying whether the container
   box may be split
 * [HexaPDF::Layout::Style::Layers#layers] for retrieving the list of defined

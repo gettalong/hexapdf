@@ -158,6 +158,53 @@ module HexaPDF
         annot
       end
 
+      # :call-seq:
+      #   annotations.create_polyline(page, *points)  -> annotation
+      #
+      # Creates a polyline annotation for the given +points+ (alternating horizontal and vertical
+      # coordinates) on the given page and returns it.
+      #
+      # The polyline uses a black color and a width of 1pt. It can be further styled using the
+      # convenience methods on the returned annotation object.
+      #
+      # Example:
+      #
+      #   #>pdf-small
+      #   doc.annotations.create_polyline(doc.pages[0], 20, 20, 30, 70, 80, 60, 40, 30).
+      #     border_style(color: "hp-blue", width: 2, style: [3, 1]).
+      #     regenerate_appearance
+      #
+      # See: Type::Annotations::Polyline
+      def create_polyline(page, *points)
+        create_and_add_to_page(:PolyLine, page).
+          vertices(*points).
+          border_style(color: 0, width: 1)
+      end
+
+      # :call-seq:
+      #   annotations.create_polygon(page, *points)  -> annotation
+      #
+      # Creates a polygon annotation for the given +points+ (alternating horizontal and vertical
+      # coordinates) on the given page and returns it.
+      #
+      # The polygon uses a black color and a width of 1pt for the border and no interior color. It
+      # can be further styled using the convenience methods on the returned annotation object.
+      #
+      # Example:
+      #
+      #   #>pdf-small
+      #   doc.annotations.create_polygon(doc.pages[0], 20, 20, 30, 70, 80, 60, 40, 30).
+      #     border_style(color: "hp-blue", width: 2, style: [3, 1]).
+      #     interior_color("hp-orange").
+      #     regenerate_appearance
+      #
+      # See: Type::Annotations::Polygon
+      def create_polygon(page, *points)
+        create_and_add_to_page(:Polygon, page).
+          vertices(*points).
+          border_style(color: 0, width: 1)
+      end
+
       private
 
       # Returns the root of the destinations name tree.

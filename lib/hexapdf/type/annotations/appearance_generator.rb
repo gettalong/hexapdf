@@ -75,6 +75,8 @@ module HexaPDF
           when :Line then create_line_appearance
           when :Square then create_square_circle_appearance(:square)
           when :Circle then create_square_circle_appearance(:circle)
+          when :Polygon then create_polygon_polyline_appearance(:polygon)
+          when :PolyLine then create_polygon_polyline_appearance(:polyline)
           else
             raise HexaPDF::Error, "Appearance regeneration for #{@annot[:Subtype]} not yet supported"
           end
@@ -143,18 +145,8 @@ module HexaPDF
           # the caption when calculating the bounding box.
           #
           # The result could still be improved by tailoring to the specific line ending style.
-          calculate_le_padding = lambda do |le_style|
-            case le_style
-            when :square, :circle, :diamond, :slash, :open_arrow, :closed_arrow
-              3 * style.width
-            when :ropen_arrow, :rclosed_arrow
-              10 * style.width
-            else
-              0
-            end
-          end
-          dstart = calculate_le_padding.call(line_ending_style.start_style)
-          dend = calculate_le_padding.call(line_ending_style.end_style)
+          dstart = calculate_line_ending_padding(line_ending_style.start_style, style.width)
+          dend = calculate_line_ending_padding(line_ending_style.end_style, style.width)
           if captioned
             cap_ulx = x0 + cos_angle * cap_x - sin_angle * cap_y
             cap_uly = y0 + sin_angle * cap_x + cos_angle * cap_y
@@ -299,6 +291,90 @@ module HexaPDF
           end
         end
 
+        # Creates the appropriate appearance for a polygon or polyline annotation depending on the
+        # given +type+ (which can either be +:polygon+ or +:polyline+).
+        #
+        # The cloudy border effect is not supported.
+        #
+        # See: HexaPDF::Type::Annotations::Polygon, HexaPDF::Type::Annotations::Polyline
+        def create_polygon_polyline_appearance(type)
+          # Prepare the annotation
+          form = (@annot[:AP] ||= {})[:N] ||=
+            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 0, 0]})
+          form.contents = ""
+          @annot.flag(:print)
+          @annot.unflag(:hidden)
+
+          # Get all needed values from the annotation
+          vertices = @annot.vertices
+          border_style = @annot.border_style
+          line_ending_style = @annot.line_ending_style
+          opacity = @annot.opacity
+          interior_color = @annot.interior_color
+
+          # Calculate the annotation's rectangle as well as the form bounding box
+          padding_start = calculate_line_ending_padding(line_ending_style.start_style, border_style.width)
+          padding_end = calculate_line_ending_padding(line_ending_style.end_style, border_style.width)
+          x_coords, y_coords = vertices.partition.with_index {|_, index| index.even? }
+          min_x, max_x = (x_coords + [x_coords[0] + padding_start, x_coords[0] - padding_start,
+                                      x_coords[-1] + padding_end, x_coords[-1] - padding_end]).minmax
+          min_y, max_y = (y_coords + [y_coords[0] + padding_start, y_coords[0] - padding_start,
+                                      y_coords[-1] + padding_end, y_coords[-1] - padding_end]).minmax
+
+          padding = 4 * border_style.width
+          rect = [min_x - padding, min_y - padding, max_x + padding, max_y + padding]
+          @annot[:Rect] = rect
+          form[:BBox] = rect.dup
+
+          return if vertices.length < 4
+
+          # Set the appropriate graphics state
+          canvas = form.canvas(translate: false)
+          canvas.opacity(**opacity.to_h)
+          canvas.stroke_color(border_style.color) if border_style.color
+          canvas.fill_color(interior_color) if interior_color
+          canvas.line_width(border_style.width)
+          canvas.line_dash_pattern(border_style.style) if border_style.style.kind_of?(Array)
+
+          stroke_op = (border_style.color ? :stroke : :end_path)
+          fill_op = (border_style.color && interior_color ? :fill_stroke :
+                       (border_style.color ? :stroke : (interior_color ? :fill : :end_path)))
+
+          # Draw the polygon/polyline
+          canvas.send(type, *vertices)
+          canvas.send(type == :polygon ? fill_op : stroke_op)
+
+          return unless type == :polyline
+
+          # Draw line endings
+          angle_start = Math.atan2(y_coords[1] - y_coords[0], x_coords[1] - x_coords[0])
+          angle_end = Math.atan2(y_coords[-2] - y_coords[-1], x_coords[-2] - x_coords[-1])
+          if line_ending_style.start_style != :none
+            do_fill = draw_line_ending(canvas, line_ending_style.start_style,
+                                       x_coords[0], y_coords[0], border_style.width, angle_start)
+            canvas.send(do_fill ? fill_op : stroke_op)
+          end
+          if line_ending_style.end_style != :none
+            do_fill = draw_line_ending(canvas, line_ending_style.end_style,
+                                       x_coords[-1], y_coords[-1], border_style.width, angle_end)
+            canvas.send(do_fill ? fill_op : stroke_op)
+          end
+
+        end
+
+        # Calculates the padding needed around the line endings based on the line ending +style+ and
+        # the +border_width+.
+        def calculate_line_ending_padding(style, border_width)
+          case style
+          when :square, :circle, :diamond, :slash, :open_arrow, :closed_arrow
+            3 * border_width
+          when :ropen_arrow, :rclosed_arrow
+            10 * border_width
+          else
+            0
+          end
+        end
+
         # Draws the line ending style +type+ at the position (+x+, +y+) and returns +true+ if the
         # shape needs to be filled.
         #
@@ -319,11 +395,13 @@ module HexaPDF
             canvas.polygon(x + lw3, y, x, y + lw3, x - lw3, y, x, y - lw3)
             true
           when :open_arrow, :closed_arrow, :ropen_arrow, :rclosed_arrow
-            arrow_cos = Math.cos(Math::PI / 6 + angle)
-            arrow_sin = Math.sin(Math::PI / 6 + angle)
+            arrow_cos_up = Math.cos(angle + Math::PI / 6)
+            arrow_sin_up = Math.sin(angle + Math::PI / 6)
+            arrow_cos_down = Math.cos(angle - Math::PI / 6)
+            arrow_sin_down = Math.sin(angle - Math::PI / 6)
             dir = (type == :ropen_arrow || type == :rclosed_arrow ? -1 : 1)
-            canvas.polyline(x + dir * arrow_cos * 3 * lw3, y + arrow_sin * 3 * lw3, x, y,
-                            x + dir * arrow_cos * 3 * lw3, y - arrow_sin * 3 * lw3)
+            canvas.polyline(x + dir * arrow_cos_up * 3 * lw3, y + arrow_sin_up * 3 * lw3, x, y,
+                            x + dir * arrow_cos_down * 3 * lw3, y + arrow_sin_down * 3 * lw3)
             if type == :closed_arrow || type == :rclosed_arrow
               canvas.close_subpath
               true

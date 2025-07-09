@@ -479,4 +479,130 @@ describe HexaPDF::Type::Annotations::AppearanceGenerator do
                         [:stroke_path]])
     end
   end
+
+  describe "polygon/polyline" do
+    before do
+      @polyline = @doc.add({Type: :Annot, Subtype: :PolyLine, C: [0],
+                            Vertices: [100, 100, 200, 150, 210, 80]})
+      @generator = HexaPDF::Type::Annotations::AppearanceGenerator.new(@polyline)
+    end
+
+    it "sets the print flag and unsets the hidden flag" do
+      @polyline.flag(:hidden)
+      @generator.create_appearance
+      assert(@polyline.flagged?(:print))
+      refute(@polyline.flagged?(:hidden))
+    end
+
+    it "creates a simple polyline" do
+      @generator.create_appearance
+      assert_equal([96, 76, 214, 154], @polyline[:Rect])
+      assert_equal([96, 76, 214, 154], @polyline.appearance[:BBox])
+      assert_operators(@polyline.appearance.stream,
+                       [[:move_to, [100, 100]],
+                        [:line_to, [200, 150]],
+                        [:line_to, [210, 80]],
+                        [:stroke_path]])
+    end
+
+    it "creates a simple polygon" do
+      @polyline[:Subtype] = :Polygon
+      @generator.create_appearance
+      assert_operators(@polyline.appearance.stream,
+                       [[:move_to, [100, 100]],
+                        [:line_to, [200, 150]],
+                        [:line_to, [210, 80]],
+                        [:close_subpath],
+                        [:stroke_path]])
+    end
+
+    describe "stroke color" do
+      it "uses the specified border color for stroking operations" do
+        @polyline.border_style(color: "red")
+        @generator.create_appearance
+        assert_operators(@polyline.appearance.stream,
+                         [:set_device_rgb_stroking_color, [1, 0, 0]], range: 0)
+        assert_operators(@polyline.appearance.stream,
+                         [:stroke_path], range: 4)
+      end
+
+      it "works with a transparent border" do
+        @polyline.border_style(color: :transparent)
+        @generator.create_appearance
+        assert_operators(@polyline.appearance.stream, [:end_path], range: 3)
+      end
+    end
+
+    describe "interior color" do
+      it "uses the specified interior color for non-stroking operations" do
+        @polyline[:Subtype] = :Polygon
+        @polyline.border_style(color: :transparent)
+        @polyline.interior_color("red")
+        @generator.create_appearance
+        assert_operators(@polyline.appearance.stream,
+                         [:set_device_rgb_non_stroking_color, [1, 0, 0]], range: 0)
+        assert_operators(@polyline.appearance.stream,
+                         [:fill_path_non_zero], range: 5)
+      end
+
+      it "works together with the stroke color" do
+        @polyline[:Subtype] = :Polygon
+        @polyline.interior_color("red")
+        @generator.create_appearance
+        assert_operators(@polyline.appearance.stream,
+                         [:set_device_rgb_non_stroking_color, [1, 0, 0]], range: 0)
+        assert_operators(@polyline.appearance.stream,
+                         [:fill_and_stroke_path_non_zero], range: 5)
+      end
+
+      it "works if neither interior nor border color is used" do
+        @polyline[:Subtype] = :Polygon
+        @polyline.interior_color(:transparent)
+        @polyline.border_style(color: :transparent)
+        @generator.create_appearance
+        assert_operators(@polyline.appearance.stream,
+                         [:end_path], range: 4)
+      end
+    end
+
+    it "sets the specified border line width" do
+      @polyline.border_style(width: 4)
+      @generator.create_appearance
+      assert_operators(@polyline.appearance.stream,
+                       [:set_line_width, [4]], range: 0)
+    end
+
+    it "sets the specified line dash pattern if it is an array" do
+      @polyline.border_style(style: [5, 2])
+      @generator.create_appearance
+      assert_operators(@polyline.appearance.stream,
+                       [:set_line_dash_pattern, [[5, 2], 0]], range: 0)
+    end
+
+    it "sets the specified opacity" do
+      @polyline.opacity(fill_alpha: 0.5, stroke_alpha: 0.5)
+      @generator.create_appearance
+      assert_operators(@polyline.appearance.stream,
+                       [:set_graphics_state_parameters, [:GS1]], range: 0)
+    end
+
+    it "draws the specified line ending style" do
+      @polyline.line_ending_style(start_style: :open_arrow, end_style: :rclosed_arrow)
+      @polyline.border_style(width: 2)
+      @polyline.interior_color("red")
+      @generator.create_appearance
+      assert_equal([86, 52, 238, 158], @polyline[:Rect])
+      assert_equal([86, 52, 238, 158], @polyline.appearance[:BBox])
+      assert_operators(@polyline.appearance.stream,
+                       [[:move_to, [109.917818, 115.021215]],
+                        [:line_to, [100, 100]],
+                        [:line_to, [117.967662, 98.921525]],
+                        [:stroke_path],
+                        [:move_to, [221.114086, 94.158993]],
+                        [:line_to, [210, 80]],
+                        [:line_to, [203.294995, 96.704578]],
+                        [:close_subpath],
+                        [:fill_and_stroke_path_non_zero]], range: 6..-1)
+    end
+  end
 end

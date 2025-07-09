@@ -52,4 +52,24 @@ describe HexaPDF::Document::Annotations do
       assert_equal(annot, @page[:Annots].first)
     end
   end
+
+  describe "create_polyline" do
+    it "creates an appropriate polyline annotation object" do
+      annot = @annots.create(:polyline, @page, 10, 10, 20, 15)
+      assert_equal(:Annot, annot[:Type])
+      assert_equal(:PolyLine, annot[:Subtype])
+      assert_equal([10, 10, 20, 15], annot.vertices)
+      assert_equal(annot, @page[:Annots].first)
+    end
+  end
+
+  describe "create_polygon" do
+    it "creates an appropriate polygon annotation object" do
+      annot = @annots.create(:polygon, @page, 10, 10, 20, 15)
+      assert_equal(:Annot, annot[:Type])
+      assert_equal(:Polygon, annot[:Subtype])
+      assert_equal([10, 10, 20, 15], annot.vertices)
+      assert_equal(annot, @page[:Annots].first)
+    end
+  end
 end
