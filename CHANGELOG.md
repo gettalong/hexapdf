@@ -21,6 +21,8 @@
 * [HexaPDF::Layout::Style::Quad#set] to allow setting a subset of values using a
   hash
 * CLI command `hp form` to show the names of radio button widgets
+* CLI command `hp form` to show position and size of widgets in easier to
+  understand form
 
 ### Fixed
 

@@ -161,8 +161,8 @@ module HexaPDF
             (field.alternate_field_name ? " (#{field.alternate_field_name})" : '')
           concrete_field_type = field.concrete_field_type
           nice_field_type = concrete_field_type.to_s.split('_').map(&:capitalize).join(' ')
-          size = "(#{widget[:Rect].width.round(3)}x#{widget[:Rect].height.round(3)})"
-          position = "(#{widget[:Rect].left}, #{widget[:Rect].bottom})"
+          size = "#{widget[:Rect].width.round(3)}x#{widget[:Rect].height.round(3)}"
+          position = "x=#{widget[:Rect].left}, y=#{widget[:Rect].bottom}"
           field_value = if !field.field_value || concrete_field_type != :signature_field
                           field.field_value.inspect
                         else
@@ -180,7 +180,7 @@ module HexaPDF
           flags = field_flags(field)
           puts "  #{field_name}#{rb_name}" << (flags.empty? ? '' : " (#{flags.join(', ')})")
           if command_parser.verbosity_info?
-            printf("    └─ %-22s | %-20s\n", nice_field_type, "#{size} #{position}")
+            printf("    └─ %-22s | %-20s\n", nice_field_type, "#{position}, #{size} ")
           end
           puts "    └─ #{field_value}"
           if command_parser.verbosity_info?
