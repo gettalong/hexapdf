@@ -15,8 +15,8 @@
 
 ### Changed
 
-* **Breaking change**: Extracted `#line_ending_style` and associated data class from
-  [HexaPDF::Type::Annotations::Line] into
+* **Breaking change**: Extracted `#line_ending_style` and associated data class
+  from [HexaPDF::Type::Annotations::Line] into
   [HexaPDF::Type::Annotations::LineEndingStyling]
 * [HexaPDF::Layout::Style::Quad#set] to allow setting a subset of values using a
   hash
