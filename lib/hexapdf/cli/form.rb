@@ -172,8 +172,13 @@ module HexaPDF
                           temp
                         end
 
+          if concrete_field_type == :radio_button
+            rb_name = ((widget.appearance_dict&.normal_appearance&.value&.keys || []) - [:Off]).first
+            rb_name = " (#{rb_name.inspect})"
+          end
+
           flags = field_flags(field)
-          puts "  #{field_name}" << (flags.empty? ? '' : " (#{flags.join(', ')})")
+          puts "  #{field_name}#{rb_name}" << (flags.empty? ? '' : " (#{flags.join(', ')})")
           if command_parser.verbosity_info?
             printf("    └─ %-22s | %-20s\n", nice_field_type, "#{size} #{position}")
           end

@@ -20,6 +20,7 @@
   [HexaPDF::Type::Annotations::LineEndingStyling]
 * [HexaPDF::Layout::Style::Quad#set] to allow setting a subset of values using a
   hash
+* CLI command `hp form` to show the names of radio button widgets
 
 ### Fixed
 
