@@ -743,6 +743,15 @@ module HexaPDF
     # Before the document is written, it is validated using #validate and an error is raised if the
     # document is not valid. However, this step can be skipped if needed.
     #
+    # The method dispatches two messages:
+    #
+    # :complete_objects::
+    #   This message is dispatched before anything is done and should be used to finalize objects.
+    #
+    # :before_write::
+    #   This message is dispatched directly before the document gets serialized and allows, for
+    #   example, overriding automatic HexaPDF changes (e.g. forcefully setting a document version).
+    #
     # Options:
     #
     # incremental::
