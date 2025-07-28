@@ -23,6 +23,8 @@
 * CLI command `hp form` to show the names of radio button widgets
 * CLI command `hp form` to show position and size of widgets in easier to
   understand form
+* Default signing handler to not set /DigestMethod entry on signature reference
+  dictionary anymore
 
 ### Fixed
 

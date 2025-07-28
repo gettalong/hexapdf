@@ -297,8 +297,7 @@ module HexaPDF
               raise HexaPDF::Error, "Can set DocMDP access permissions only on first signature"
             end
             params = doc.add({Type: :TransformParams, V: :'1.2', P: doc_mdp_permissions})
-            sigref = doc.add({Type: :SigRef, TransformMethod: :DocMDP, DigestMethod: :SHA256,
-                              TransformParams: params})
+            sigref = doc.add({Type: :SigRef, TransformMethod: :DocMDP, TransformParams: params})
             signature[:Reference] = [sigref]
             (doc.catalog[:Perms] ||= {})[:DocMDP] = signature
           end

@@ -151,7 +151,6 @@ describe HexaPDF::DigitalSignature::Signing::DefaultHandler do
       @handler.finalize_objects(@field, @obj)
       ref = @obj[:Reference][0]
       assert_equal(:DocMDP, ref[:TransformMethod])
-      assert_equal(:SHA256, ref[:DigestMethod])
       assert_equal(1, ref[:TransformParams][:P])
       assert_equal(:'1.2', ref[:TransformParams][:V])
       assert_same(@obj, @doc.catalog[:Perms][:DocMDP])
