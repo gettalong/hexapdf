@@ -48,7 +48,7 @@ module HexaPDF
       define_type :Measure
 
       define_field :Type, type: Symbol, default: type
-      define_field :Subtype, type: :Symbol, default: :RL,
+      define_field :Subtype, type: Symbol, default: :RL,
                    allowed_values: [:RL, :GEO]
 
     end
