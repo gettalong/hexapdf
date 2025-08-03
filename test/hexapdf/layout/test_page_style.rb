@@ -49,7 +49,7 @@ describe HexaPDF::Layout::PageStyle do
       assert_equal("", page1.contents)
       assert_equal(523.275591, style.frame.width)
 
-      page2 = style.create_page(@doc)
+      style.create_page(@doc)
       refute_same(frame1, style.frame)
     end
 
