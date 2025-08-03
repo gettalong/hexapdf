@@ -20,6 +20,8 @@
 * **Breaking change**: Extracted `#line_ending_style` and associated data class
   from [HexaPDF::Type::Annotations::Line] into
   [HexaPDF::Type::Annotations::LineEndingStyling]
+* [HexaPDF::Layout::TableBox] implementation to allow setting the minimum height
+  of a table cell
 * [HexaPDF::Layout::Style::Quad#set] to allow setting a subset of values using a
   hash
 * CLI command `hp form` to show the names of radio button widgets

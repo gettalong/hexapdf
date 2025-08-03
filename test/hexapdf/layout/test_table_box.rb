@@ -116,6 +116,18 @@ describe HexaPDF::Layout::TableBox::Cell do
       assert_equal(12, cell.preferred_height)
     end
 
+    it "respects the set minimum height of the cell" do
+      cell = create_cell(children: HexaPDF::Layout::Box.create(width: 20, height: 10), min_height: 30)
+      assert(cell.fit(100, 25, @frame).failure?)
+
+      assert(cell.fit(100, 100, @frame).success?)
+      assert_equal(30, cell.height)
+
+      cell = create_cell(children: HexaPDF::Layout::Box.create(width: 20, height: 20), min_height: 2)
+      assert(cell.fit(100, 100, @frame).success?)
+      assert_equal(32, cell.height)
+    end
+
     it "doesn't fit children that are too big" do
       cell = create_cell(children: HexaPDF::Layout::Box.create(width: 300, height: 20))
       assert(cell.fit(100, 100, @frame).failure?)
@@ -262,7 +274,7 @@ describe HexaPDF::Layout::TableBox::Cells do
     end
 
     it "sets the correct information on the created cells" do
-      cells = create_cells([[:a, {col_span: 2, content: :b}],
+      cells = create_cells([[:a, {col_span: 2, content: :b, min_height: 30}],
                             [{col_span: 2, row_span: 2, content: :c}, {row_span: 2, content: :d}]])
       assert_equal(0, cells[0, 0].row)
       assert_equal(0, cells[0, 0].column)
@@ -272,6 +284,7 @@ describe HexaPDF::Layout::TableBox::Cells do
       assert_equal(1, cells[0, 1].column)
       assert_equal(1, cells[0, 1].row_span)
       assert_equal(2, cells[0, 1].col_span)
+      assert_equal(30, cells[0, 1].instance_variable_get(:@min_height))
       assert_equal(1, cells[1, 0].row)
       assert_equal(0, cells[1, 0].column)
       assert_equal(2, cells[1, 0].row_span)

@@ -126,6 +126,15 @@ module HexaPDF
     #           [layout.text('E'), layout.text('F')]]
     #  composer.column(height: 90) {|col| col.table(cells, header: header, footer: footer) }
     #
+    # While the width of a cell is determined by the #column_widths array, the height is
+    # automatically determined during fitting of the content. However, it is also possible to use a
+    # fixed height (only if the actual content is smaller or equal than it):
+    #
+    #  #>pdf-composer
+    #  cells = [[{content: layout.text('A'), height: 5}, layout.text('B')],
+    #           [{content: layout.text('C'), height: 40}, layout.text('D')]]
+    #  composer.table(cells)
+    #
     # The cells can be styled using a callable object for more complex styling:
     #
     #  #>pdf-composer
@@ -191,13 +200,14 @@ module HexaPDF
         attr_accessor :children
 
         # Creates a new Cell instance.
-        def initialize(row:, column:, children: nil, row_span: nil, col_span: nil, **kwargs)
+        def initialize(row:, column:, children: nil, min_height: nil, row_span: nil, col_span: nil, **kwargs)
           super(**kwargs, width: 0, height: 0)
           @children = children
           @row = row
           @column = column
           @row_span = row_span || 1
           @col_span = col_span || 1
+          @min_height = min_height
           style.border.width.set(1) unless style.border?
           style.border.draw_on_bounds = true
           style.padding.set(5) unless style.padding?
@@ -257,6 +267,11 @@ module HexaPDF
             @fit_results = []
             fit_result.success!
           end
+
+          if @min_height && @height < @min_height
+            @height = @preferred_height = @min_height
+            fit_result.failure! if available_height < @height
+          end
         end
 
         # Draws the content of the cell.
@@ -297,6 +312,8 @@ module HexaPDF
       #   +:row_span+:: An integer specifying the number of rows this cell should span.
       #
       #   +:col_span+:: An integer specifying the number of columsn this cell should span.
+      #
+      #   +:min_height+:: A number specifying the minimum height of the table cell.
       #
       #   +:properties+:: A hash of properties (see Box#properties) to be set on the cell itself.
       #
@@ -513,11 +530,12 @@ module HexaPDF
                 children = content.delete(:content)
                 row_span = content.delete(:row_span)
                 col_span = content.delete(:col_span)
+                min_height = content.delete(:min_height)
                 properties = content.delete(:properties)
                 style = content
               end
               cell = Cell.new(children: children, row: row_index, column: col_index,
-                              row_span: row_span, col_span: col_span)
+                              row_span: row_span, col_span: col_span, min_height: min_height)
               cell_style_block&.call(cell)
               cell.style.update(**style) if style
               cell.properties.update(properties) if properties
