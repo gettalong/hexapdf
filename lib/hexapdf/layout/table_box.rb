@@ -131,8 +131,8 @@ module HexaPDF
     # fixed height (only if the actual content is smaller or equal than it):
     #
     #  #>pdf-composer
-    #  cells = [[{content: layout.text('A'), height: 5}, layout.text('B')],
-    #           [{content: layout.text('C'), height: 40}, layout.text('D')]]
+    #  cells = [[{content: layout.text('A'), min_height: 5}, layout.text('B')],
+    #           [{content: layout.text('C'), min_height: 40}, layout.text('D')]]
     #  composer.table(cells)
     #
     # The cells can be styled using a callable object for more complex styling:
