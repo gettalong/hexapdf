@@ -166,6 +166,11 @@ module HexaPDF
           @status == :overflow
         end
 
+        # Sets the result status to failure.
+        def failure!
+          @status = :failure
+        end
+
         # Returns +true+ if fitting was a failure.
         def failure?
           @status == :failure

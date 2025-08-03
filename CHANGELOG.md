@@ -12,6 +12,8 @@
   layers
 * [HexaPDF::Document::Layout#resolve_font] for resolving the font style property
 * [HexaPDF::Type::Measure] for representing the measure dictionary
+* [HexaPDF::Layout::Box::FitResult#failure!] for setting the result status to
+  failure
 
 ### Changed
 

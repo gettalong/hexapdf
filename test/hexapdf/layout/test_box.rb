@@ -5,6 +5,14 @@ require 'hexapdf/document'
 require 'hexapdf/layout/box'
 
 describe HexaPDF::Layout::Box::FitResult do
+  it "allows setting the status to failure" do
+    result = HexaPDF::Layout::Box::FitResult.new(nil)
+    result.overflow!
+    refute(result.failure?)
+    result.failure!
+    assert(result.failure?)
+  end
+
   it "shows the box's mask area on #draw when using debug output" do
     doc = HexaPDF::Document.new(config: {'debug' => true})
     canvas = doc.pages.add.canvas
