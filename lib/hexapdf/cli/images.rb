@@ -155,6 +155,10 @@ module HexaPDF
             puts "Extracting #{path}..." if command_parser.verbosity_info?
             image.write(path)
             done << index
+            if info.color_space == :cmyk && info.type == :jpeg
+              $stderr.puts "Note (image #{path}): JPEG uses CMYK colorspace and may " \
+                           "need color post-processing"
+            end
           elsif command_parser.verbosity_warning?
             $stderr.puts "Warning (image #{index}): PDF image format not supported for writing"
           end
