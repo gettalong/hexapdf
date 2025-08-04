@@ -132,7 +132,7 @@ module HexaPDF
         printf("%5s %5s %9s %6s %6s %5s %4s %3s %5s %5s %6s %5s %8s\n",
                "index", "page", "oid", "width", "height", "color", "comp", "bpc",
                "x-ppi", "y-ppi", "size", "type", "writable")
-        puts("-" * 77)
+        puts("-" * 84)
         each_image(doc) do |image, index, pindex, (x_ppi, y_ppi)|
           info = image.info
           size = human_readable_file_size(image[:Length] + image[:SMask]&.[](:Length).to_i)
