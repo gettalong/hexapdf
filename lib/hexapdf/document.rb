@@ -823,7 +823,7 @@ module HexaPDF
     # See #write for further information and details on the available arguments.
     def write_to_string(**args)
       io = StringIO.new(''.b)
-      write(io)
+      write(io, **args)
       io.string
     end
 
