@@ -611,5 +611,6 @@ describe HexaPDF::Document do
     assert_equal(Encoding::ASCII_8BIT, str.encoding)
     doc = HexaPDF::Document.new(io: StringIO.new(str))
     assert_equal(:test, doc.trailer.info[:test])
+    assert_nil(doc.trailer.info[:ModDate])
   end
 end
