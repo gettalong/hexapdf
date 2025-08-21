@@ -183,7 +183,9 @@ module HexaPDF
 
         encoding = self[:Encoding]
         if encoding.kind_of?(Symbol) && !PREDEFINED_ENCODING.include?(encoding)
-          yield("The /Encoding value '#{encoding}' is invalid", false)
+          correctable = (self[:BaseFont] == :Symbol && encoding == :SymbolEncoding)
+          yield("The /Encoding value '#{encoding}' is invalid", correctable)
+          delete(:Encoding) if correctable
         end
       end
 

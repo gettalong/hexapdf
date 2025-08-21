@@ -143,5 +143,12 @@ describe HexaPDF::Type::FontType1 do
       @font[:Encoding] = :Other
       refute(@font.validate)
     end
+
+    it "works around certain invalid PDFs with a /SymbolEncoding value for /Encoding" do
+      @font[:Encoding] = :SymbolEncoding
+      @font[:BaseFont] = :Symbol
+      assert(@font.validate)
+      refute(@font.key?(:Encoding))
+    end
   end
 end
