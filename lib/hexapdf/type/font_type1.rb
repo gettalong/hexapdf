@@ -170,7 +170,7 @@ module HexaPDF
         end
       end
 
-      PREDEFINED_ENCODING = [:MacRomanEncoding, :MacExpertEncoding, :WinAnsiEncoding] #:nodoc:
+      PREDEFINED_ENCODING = [:MacRomanEncoding, :MacExpertEncoding, :SymbolEncoding, :WinAnsiEncoding] #:nodoc:
 
       # Validates the Type1 font dictionary.
       def perform_validation
