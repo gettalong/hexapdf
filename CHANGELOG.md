@@ -1,19 +1,15 @@
+## 1.4.1 - 2025-08-21
+
+### Proposed
+
+* [HexaPDF::Type::Annotations::Polygon] for polygon annotations as well as
+  [HexaPDF::Document::Annotations#create_polygon]
+
 ## 1.4.0 - 2025-08-03
 
 ### Added
 
-* [HexaPDF::Type::Annotations::Polygon] for polygon annotations as well as
-  [HexaPDF::Document::Annotations#create_polygon]
-* [HexaPDF::Type::Annotations::Polyline] for polyline annotations as well as
-  [HexaPDF::Document::Annotations#create_polyline]
-* [HexaPDF::Layout::ContainerBox#splitable] for specifying whether the container
-  box may be split
-* [HexaPDF::Layout::Style::Layers#layers] for retrieving the list of defined
-  layers
-* [HexaPDF::Document::Layout#resolve_font] for resolving the font style property
-* [HexaPDF::Type::Measure] for representing the measure dictionary
-* [HexaPDF::Layout::Box::FitResult#failure!] for setting the result status to
-  failure
+* [HexaPDF::Type::FontType1] support SymbolEncoding??
 
 ### Changed
 
