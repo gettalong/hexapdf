@@ -81,6 +81,33 @@ module HexaPDF
           @code_to_name.key(name)
         end
 
+        # Returns the encoding in a compact array form.
+        #
+        # If the optional +base_encoding+ argument is specified, all codes that have the same value
+        # in the base encoding are ignored.
+        #
+        # The returned array is of the form:
+        #
+        #   code1 name1 name2 ... code2 name3 name4 ...
+        #
+        # This means that name1 is associated with code1, name2 with code1 + 1 and so on.
+        #
+        # See: PDF 2.0 s9.6.5.1
+        def to_compact_array(base_encoding: nil)
+          result = []
+          last_code = -3
+          @code_to_name.sort.each do |code, name|
+            next if base_encoding&.name(code) == name
+            if last_code + 1 == code
+              result << name
+            else
+              result << code << name
+            end
+            last_code = code
+          end
+          result
+        end
+
       end
 
     end

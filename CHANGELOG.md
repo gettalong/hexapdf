@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Font::Encoding::Base#to_compact_array] for creating a compact array
+  representation of the encoding
+
 ### Fixed
 
 * [HexaPDF::Document#write_to_string] to pass on arguments to `#write`

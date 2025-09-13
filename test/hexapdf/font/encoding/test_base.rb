@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require 'hexapdf/font/encoding'
 require 'hexapdf/font/encoding/base'
 
 describe HexaPDF::Font::Encoding::Base do
@@ -40,6 +41,25 @@ describe HexaPDF::Font::Encoding::Base do
 
     it "returns nil if the glyph name is not referenced" do
       assert_nil(@base.code(:Unknown))
+    end
+  end
+
+  describe "to_compact_array" do
+    before do
+      @base.code_to_name[66] = :B
+      @base.code_to_name[67] = :C
+      @base.code_to_name[20] = :space
+      @base.code_to_name[28] = :D
+      @base.code_to_name[29] = :E
+    end
+
+    it "returns the difference array" do
+      assert_equal([20, :space, 28, :D, :E, 65, :A, :B, :C], @base.to_compact_array)
+    end
+
+    it "ignores the codes that are the same in the base encoding" do
+      std_encoding = HexaPDF::Font::Encoding.for_name(:StandardEncoding)
+      assert_equal([20, :space, 28, :D, :E, ], @base.to_compact_array(base_encoding: std_encoding))
     end
   end
 end

@@ -279,9 +279,7 @@ module HexaPDF
           if VALID_ENCODING_NAMES.include?(@encoding.encoding_name)
             dict[:Encoding] = @encoding.encoding_name
           elsif @encoding != @wrapped_font.encoding
-            differences = [min]
-            (min..max).each {|code| differences << @encoding.name(code) }
-            dict[:Encoding] = {Differences: differences}
+            dict[:Encoding] = {Differences: @encoding.to_compact_array}
           end
         end
 
