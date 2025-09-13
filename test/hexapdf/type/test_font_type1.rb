@@ -150,5 +150,12 @@ describe HexaPDF::Type::FontType1 do
       assert(@font.validate)
       refute(@font.key?(:Encoding))
     end
+
+    it "works around certain invalid PDFs with a /StandardEncoding value for /Encoding" do
+      @font[:Encoding] = :StandardEncoding
+      assert(@font.validate)
+      assert(:WinAnsiEncoding, @font[:Encoding][:BaseEncoding])
+      assert_equal([39, :quoteright, 96, :quoteleft], @font[:Encoding][:Differences][0, 4])
+    end
   end
 end

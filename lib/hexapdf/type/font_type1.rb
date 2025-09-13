@@ -183,9 +183,18 @@ module HexaPDF
 
         encoding = self[:Encoding]
         if encoding.kind_of?(Symbol) && !PREDEFINED_ENCODING.include?(encoding)
-          correctable = (self[:BaseFont] == :Symbol && encoding == :SymbolEncoding)
+          correctable = (self[:BaseFont] == :Symbol && encoding == :SymbolEncoding) ||
+                        (!symbolic? && encoding == :StandardEncoding)
           yield("The /Encoding value '#{encoding}' is invalid", correctable)
-          delete(:Encoding) if correctable
+          if correctable
+            if encoding == :SymbolEncoding
+              delete(:Encoding)
+            else
+              diffs = HexaPDF::Font::Encoding.for_name(:StandardEncoding).
+                to_compact_array(base_encoding: HexaPDF::Font::Encoding.for_name(:WinAnsiEncoding))
+              self[:Encoding] = {BaseEncoding: :WinAnsiEncoding, Differences: diffs}
+            end
+          end
         end
       end
 

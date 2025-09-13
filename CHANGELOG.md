@@ -10,6 +10,8 @@
 * [HexaPDF::Document#write_to_string] to pass on arguments to `#write`
 * [HexaPDF::Type::FontType1] validation to handle PDFs with an invalid value of
   /SymbolEncoding for the /Encoding key
+* [HexaPDF::Type::FontType1] validation to handle PDFs with an invalid value of
+  /StandardEncoding for the /Encoding key
 
 
 ## 1.4.0 - 2025-08-03
