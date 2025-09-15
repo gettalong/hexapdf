@@ -181,7 +181,8 @@ describe HexaPDF::Serializer do
 
     it "encrypts strings in indirect PDF objects" do
       assert_serialized("(enc:1:test)", HexaPDF::Object.new("test", oid: 1))
-      assert_serialized("<</x[(enc:1:test)]>>", HexaPDF::Object.new({x: ["test"]}, oid: 1))
+      assert_serialized("<</x[(enc:1:\xFE\xFF\x00t\x00e\x00s\x00t\x00\xF6)]>>".b,
+                        HexaPDF::Object.new({x: ["testö"]}, oid: 1))
     end
 
     it "doesn't encrypt strings in direct PDF objects" do

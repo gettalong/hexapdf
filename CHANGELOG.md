@@ -7,6 +7,7 @@
 
 ### Fixed
 
+* Serialization of strings that need to be UTF-16 encoded when using encryption
 * [HexaPDF::Document#write_to_string] to pass on arguments to `#write`
 * [HexaPDF::Type::FontType1] validation to handle PDFs with an invalid value of
   /SymbolEncoding for the /Encoding key
