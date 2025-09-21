@@ -52,6 +52,14 @@ describe HexaPDF::Type::Annotations::Widget do
       assert_kind_of(HexaPDF::Type::AcroForm::TextField, result)
       refute_same(@widget.data, result.data)
     end
+
+    it "works when the type of the field is defined higher up in the field hierarchy" do
+      @widget[:Parent] = {T: 'parent', Kids: [@widget]}
+      @widget[:Parent][:Parent] = {FT: :Tx, Kids: [@widget[:Parent]]}
+      result = @widget.form_field
+      assert_kind_of(HexaPDF::Type::AcroForm::TextField, result)
+      refute_same(@widget.data, result.data)
+    end
   end
 
   describe "background_color" do
