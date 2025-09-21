@@ -13,6 +13,7 @@
   /SymbolEncoding for the /Encoding key
 * [HexaPDF::Type::FontType1] validation to handle PDFs with an invalid value of
   /StandardEncoding for the /Encoding key
+* CLI command `hexapdf form` to ignore widgets that don't belong to any field
 
 
 ## 1.4.0 - 2025-08-03

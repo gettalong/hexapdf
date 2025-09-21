@@ -290,7 +290,7 @@ module HexaPDF
           page.each_annotation do |annotation|
             next unless annotation[:Subtype] == :Widget
             field = annotation.form_field
-            next if field.concrete_field_type == :push_button
+            next if !field.concrete_field_type || field.concrete_field_type == :push_button
             if with_seen || !seen[field.full_field_name]
               yield(page, page_index, field, annotation)
               seen[field.full_field_name] = true
