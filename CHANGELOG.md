@@ -42,8 +42,8 @@
   of a table cell
 * [HexaPDF::Layout::Style::Quad#set] to allow setting a subset of values using a
   hash
-* CLI command `hp form` to show the names of radio button widgets
-* CLI command `hp form` to show position and size of widgets in easier to
+* CLI command `hexapdf form` to show the names of radio button widgets
+* CLI command `hexapdf form` to show position and size of widgets in easier to
   understand form
 * Default signing handler to not set /DigestMethod entry on signature reference
   dictionary anymore
