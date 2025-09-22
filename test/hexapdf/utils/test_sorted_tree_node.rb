@@ -219,9 +219,19 @@ describe HexaPDF::Utils::SortedTreeNode do
     it "checks that leaf node containers have an even number of entries" do
       @kid11[:Names].delete_at(0)
       refute(@kid11.validate do |message, c|
-               assert_match(/odd number/, message)
+               assert_match(/leaf.*odd number/, message)
                refute(c)
              end)
+    end
+
+    it "corrects a root node container with an odd number of entries" do
+      @root.value.clear
+      @root[:Names] = ['Test']
+      assert(@root.validate do |message, c|
+        assert_match(/root.*odd number/, message)
+        assert(c)
+      end)
+      assert(@root[:Names].empty?)
     end
 
     it "checks that the keys are of the correct type" do

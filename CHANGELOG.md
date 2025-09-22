@@ -18,6 +18,7 @@
 * [HexaPDF::Type::FontType1] validation to handle PDFs with an invalid value of
   /StandardEncoding for the /Encoding key
 * CLI command `hexapdf form` to ignore widgets that don't belong to any field
+* Validation of invalid sorted tree root nodes with odd number of direct entries
 
 
 ## 1.4.0 - 2025-08-03

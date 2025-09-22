@@ -322,7 +322,10 @@ module HexaPDF
         if key?(container_name)
           container = self[container_name]
           if container.length.odd?
-            yield("Sorted tree leaf node contains odd number of entries", false)
+            root_node = !key?(:Limits)
+            yield("Sorted tree #{root_node ? 'root' : 'leaf'} node contains odd number of entries",
+                  root_node)
+            container.value.clear if root_node
             return
           end
           index = 0
