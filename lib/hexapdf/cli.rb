@@ -61,6 +61,9 @@ module HexaPDF
     # Runs the CLI application.
     def self.run(args = ARGV)
       Application.new.parse(args)
+    rescue Errno::ENOENT => e
+      path = e.message.scan(/(?<= - ).*?$/).first
+      $stderr.puts "Problem encountered: No such file - #{path}"
     rescue StandardError => e
       $stderr.puts "Problem encountered: #{e.message}"
       unless e.kind_of?(HexaPDF::Error)

@@ -5,6 +5,10 @@
 * [HexaPDF::Font::Encoding::Base#to_compact_array] for creating a compact array
   representation of the encoding
 
+### Changed
+
+- CLI to handle missing file errors better
+
 ### Fixed
 
 * Serialization of strings that need to be UTF-16 encoded when using encryption
