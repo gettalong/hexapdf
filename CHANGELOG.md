@@ -3,6 +3,8 @@
 ### Changed
 
 - CLI command `hexapdf images` to create directories specified in the `--prefix`
+- CLI command `hexapdf images` to omit the dash in the file names if `--prefix`
+  points to a directory
 
 
 ## 1.4.1 - 2025-09-23

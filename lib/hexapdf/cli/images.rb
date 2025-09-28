@@ -147,12 +147,14 @@ module HexaPDF
       # Extracts the images with the given indices.
       def extract_images(doc)
         FileUtils.mkdir_p(File.dirname("#{@prefix}filename"))
+        prefix = File.directory?(@prefix) ? @prefix : "@{prefix}-"
+
         done = Set.new
         each_image(doc) do |image, index, _|
           next unless (@indices.include?(index) || @indices.include?(0)) && !done.include?(index)
           info = image.info
           if info.writable
-            path = "#{@prefix}-#{index}.#{image.info.extension}"
+            path = "#{@prefix}#{index}.#{image.info.extension}"
             maybe_raise_on_existing_file(path)
             puts "Extracting #{path}..." if command_parser.verbosity_info?
             image.write(path)
