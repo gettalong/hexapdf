@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+- CLI command `hexapdf images` to create directories specified in the `--prefix`
+
+
 ## 1.4.1 - 2025-09-23
 
 ### Added

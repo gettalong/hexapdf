@@ -35,6 +35,7 @@
 #++
 
 require 'set'
+require 'fileutils'
 require 'hexapdf/cli/command'
 
 module HexaPDF
@@ -145,6 +146,7 @@ module HexaPDF
 
       # Extracts the images with the given indices.
       def extract_images(doc)
+        FileUtils.mkdir_p(File.dirname("#{@prefix}filename"))
         done = Set.new
         each_image(doc) do |image, index, _|
           next unless (@indices.include?(index) || @indices.include?(0)) && !done.include?(index)

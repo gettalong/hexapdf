@@ -418,7 +418,8 @@ image is used multiple times on a page, only the first occurence of it will be i
 
 The `--extract` option can then be used to extract one or more images, saving them to files called
 `PREFIX-N.EXT` where the prefix can be set via `--prefix`, *N* is the image index and *EXT* is
-either png, jpg or jpx.
+either png, jpg or jpx. If the prefix contains directory components, these directories are created
+if they don't exist yet.
 
 `-e` \[*A,B,C,...*], `--extract` \[*A,B,C,...*]
 
