@@ -150,13 +150,19 @@ module HexaPDF
         prefix = File.directory?(@prefix) ? @prefix : "@{prefix}-"
 
         done = Set.new
+        count = total = 0
         each_image(doc) do |image, index, _|
           next unless (@indices.include?(index) || @indices.include?(0)) && !done.include?(index)
+          total += 1
           info = image.info
           if info.writable
+            count += 1
             path = "#{@prefix}#{index}.#{image.info.extension}"
             maybe_raise_on_existing_file(path)
-            puts "Extracting #{path}..." if command_parser.verbosity_info?
+            if command_parser.verbosity_info?
+              puts "Extracting image #{index} (#{image.width}x#{image.height}, " \
+                   "#{info.color_space}, #{info.type}) to #{path}..."
+            end
             image.write(path)
             done << index
             if info.color_space == :cmyk && info.type == :jpeg
@@ -167,6 +173,7 @@ module HexaPDF
             $stderr.puts "Warning (image #{index}): PDF image format not supported for writing"
           end
         end
+        puts "Created #{count} image files (out of #{total} selected)" if command_parser.verbosity_info?
       end
 
       # Iterates over all images.
