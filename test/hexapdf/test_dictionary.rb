@@ -251,7 +251,7 @@ describe HexaPDF::Dictionary do
       refute(@obj.validate(auto_correct: false))
       assert(@obj.validate(auto_correct: true))
       @obj.value[:NameField] = "string"
-      assert(@obj.validate(auto_correct: true))
+      refute(@obj.validate(auto_correct: false))
       assert(@obj.validate(auto_correct: true))
     end
 
