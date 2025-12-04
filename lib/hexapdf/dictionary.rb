@@ -301,7 +301,13 @@ module HexaPDF
             yield(msg, true)
             self[name] = obj.intern
           else
-            yield(msg, false)
+            yield(msg, !field.required? || field.default?)
+            if field.required? && field.default?
+              self[name] = obj = field.default
+            else
+              delete(name)
+              next
+            end
           end
         end
 

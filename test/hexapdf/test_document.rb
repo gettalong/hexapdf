@@ -347,7 +347,7 @@ describe HexaPDF::Document do
 
     it "validates the trailer object" do
       @doc.trailer[:ID] = :Symbol
-      refute(@doc.validate {|_, _, obj| assert_same(@doc.trailer, obj) })
+      assert(@doc.validate {|_a, _b, obj| assert_same(@doc.trailer, obj) })
     end
 
     it "validates only loaded objects" do
@@ -391,7 +391,7 @@ describe HexaPDF::Document do
     end
 
     it "fails if the document is not valid" do
-      @doc.trailer[:Size] = :Symbol
+      @doc.catalog[:PageLayout] = :invalid_value
       assert_raises(HexaPDF::Error) { @doc.write(StringIO.new(''.b)) }
     end
 

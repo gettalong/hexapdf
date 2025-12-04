@@ -253,6 +253,21 @@ describe HexaPDF::Dictionary do
       @obj.value[:NameField] = "string"
       refute(@obj.validate(auto_correct: false))
       assert(@obj.validate(auto_correct: true))
+
+      @test_class.define_field(:RequiredDefault, type: String, required: true, default: 'str')
+      @obj.value[:RequiredDefault] = 20
+      refute(@obj.validate(auto_correct: false))
+      assert_equal(20, @obj.value[:RequiredDefault])
+      assert(@obj.validate(auto_correct: true))
+      assert_equal("str", @obj.value[:RequiredDefault])
+
+      @obj.value[:AllowedValues] = '20'
+      assert(@obj.validate(auto_correct: true))
+      refute(@obj.key?(:AllowedValues))
+
+      @obj.value[:Inherited] = 20
+      refute(@obj.validate(auto_correct: true))
+      refute(@obj.key?(:Inherited))
     end
 
     it "checks whether the value is an allowed one" do
