@@ -243,7 +243,7 @@ module HexaPDF
       # The appearance state in /AS or the one provided via +state_name+ is taken into account if
       # necessary.
       def appearance(type: :normal, state_name: self[:AS])
-        entry = appearance_dict&.send("#{type}_appearance")
+        entry = appearance_dict&.send("#{type}_appearance") rescue nil
         if entry.kind_of?(HexaPDF::Dictionary) && !entry.kind_of?(HexaPDF::Stream)
           entry = entry[state_name]
         end

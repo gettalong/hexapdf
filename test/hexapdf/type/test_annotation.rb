@@ -67,6 +67,9 @@ describe HexaPDF::Type::Annotation do
   it "returns the appearance stream of the given type" do
     assert_nil(@annot.appearance)
 
+    @annot[:AP] = 'some invalid type'
+    assert_nil(@annot.appearance)
+
     @annot[:AP] = {N: {}}
     assert_nil(@annot.appearance)
 

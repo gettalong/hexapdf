@@ -6,6 +6,11 @@
 - CLI command `hexapdf images` to omit the dash in the file names if `--prefix`
   points to a directory
 
+## Fixed
+
+* [HexaPDF::Type::Annotation#appearance] to work in case /AP contains a value of
+  an invalid type
+
 
 ## 1.4.1 - 2025-09-23
 
