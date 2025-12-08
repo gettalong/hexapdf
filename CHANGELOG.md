@@ -7,9 +7,9 @@
 
 ### Changed
 
-- Dictionary validation to delete field entries that have an invalid type
-- CLI command `hexapdf images` to create directories specified in the `--prefix`
-- CLI command `hexapdf images` to omit the dash in the file names if `--prefix`
+* Dictionary validation to delete field entries that have an invalid type
+* CLI command `hexapdf images` to create directories specified in the `--prefix`
+* CLI command `hexapdf images` to omit the dash in the file names if `--prefix`
   points to a directory
 
 ## Fixed
