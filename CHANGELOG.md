@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* Support for basic authentication to
+  [HexaPDF::DigitalSignature::Signing::TimestampHandler]
+
 ### Changed
 
 - Dictionary validation to delete field entries that have an invalid type

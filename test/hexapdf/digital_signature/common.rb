@@ -112,7 +112,12 @@ module HexaPDF
         @tsa_server.mount_proc('/') do |request, response|
           @tsr = OpenSSL::Timestamp::Request.new(request.body)
           case @tsr.policy_id || '1.2.3.4.0'
-          when '1.2.3.4.0', '1.2.3.4.2'
+          when '1.2.3.4.0', '1.2.3.4.2', '1.2.3.4.3'
+            if @tsr.policy_id == '1.2.3.4.3'
+              WEBrick::HTTPAuth.basic_auth(request, response, 'HexaPDF Auth') do |username, password|
+                username == 'hexatest' && password == 'hexapwd'
+              end
+            end
             fac = OpenSSL::Timestamp::Factory.new
             fac.gen_time = Time.now
             fac.serial_number = 1

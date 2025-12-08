@@ -67,6 +67,18 @@ describe HexaPDF::DigitalSignature::Signing::TimestampHandler do
       assert_equal("1.2.3.4.2", policy_id)
     end
 
+    it "allows using basic authentication on the server" do
+      @handler.tsa_policy_id = '1.2.3.4.3'
+      @handler.tsa_username = 'hexatest'
+      @handler.tsa_password = 'invalid'
+      msg = assert_raises(HexaPDF::Error) { @handler.sign(@data, @range) }
+      assert_match(/Basic authentication/, msg.message)
+
+      @handler.tsa_password = 'hexapwd'
+      token = OpenSSL::PKCS7.new(@handler.sign(@data, @range))
+      assert_equal(CERTIFICATES.ca_certificate.subject, token.signers[0].issuer)
+    end
+
     it "returns the serialized timestamp token" do
       token = OpenSSL::PKCS7.new(@handler.sign(@data, @range))
       assert_equal(CERTIFICATES.ca_certificate.subject, token.signers[0].issuer)

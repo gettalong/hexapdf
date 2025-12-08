@@ -53,8 +53,8 @@ module HexaPDF
       # == Usage
       #
       # It is necessary to provide at least the URL of the timestamp authority server (TSA) via
-      # #tsa_url, everything else is optional and uses default values. The TSA server must not use
-      # authentication to be usable.
+      # #tsa_url, everything else is optional and uses default values. The TSA server can optionally
+      # use HTTP basic authentication.
       #
       # Example:
       #
@@ -65,6 +65,18 @@ module HexaPDF
         #
         # This value is required.
         attr_accessor :tsa_url
+
+        # The username for basic authentication to the TSA server.
+        #
+        # If the username is not set, no basic authentication is done.
+        #
+        # See: #tsa_password
+        attr_accessor :tsa_username
+
+        # The password for basic authentication to the TSA server.
+        #
+        # See: #tsa_username
+        attr_accessor :tsa_password
 
         # The hash algorithm to use for timestamping. Defaults to SHA512.
         attr_accessor :tsa_hash_algorithm
@@ -127,8 +139,14 @@ module HexaPDF
           req.message_imprint = digest.digest
           req.policy_id = tsa_policy_id if tsa_policy_id
 
-          http_response = Net::HTTP.post(URI(tsa_url), req.to_der,
-                                         'content-type' => 'application/timestamp-query')
+          url = URI(tsa_url)
+          http_request = Net::HTTP::Post.new(url, 'Content-Type' => 'application/timestamp-query')
+          http_request.body = req.to_der
+          http_request.basic_auth(tsa_username, tsa_password) if tsa_username
+          http_response = Net::HTTP.start(url.hostname, url.port, use_ssl: (url.scheme == 'https')) do |http|
+            http.request(http_request)
+          end
+
           if http_response.kind_of?(Net::HTTPOK)
             response = OpenSSL::Timestamp::Response.new(http_response.body)
             if response.status == 0
@@ -136,6 +154,8 @@ module HexaPDF
             else
               raise HexaPDF::Error, "Timestamp token could not be created: #{response.failure_info}"
             end
+          elsif http_response.kind_of?(Net::HTTPUnauthorized)
+            raise HexaPDF::Error, "Basic authentication to the server failed: #{http_response.body}"
           else
             raise HexaPDF::Error, "Invalid TSA server response: #{http_response.body}"
           end
