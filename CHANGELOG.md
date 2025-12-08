@@ -16,6 +16,8 @@
 
 * [HexaPDF::Type::Annotation#appearance] to work in case /AP contains a value of
   an invalid type
+* [HexaPDF::DigitalSignature::CMSHandler] to throw an appropriate error when
+  encountering invalid signature contents
 
 
 ## 1.4.1 - 2025-09-23

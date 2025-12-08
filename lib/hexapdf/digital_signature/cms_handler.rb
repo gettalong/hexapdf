@@ -49,7 +49,11 @@ module HexaPDF
       # Creates a new signature handler for the given signature dictionary.
       def initialize(signature_dict)
         super
-        @pkcs7 = OpenSSL::PKCS7.new(signature_dict.contents)
+        begin
+          @pkcs7 = OpenSSL::PKCS7.new(signature_dict.contents)
+        rescue
+          raise HexaPDF::Error, "Signature contents is invalid"
+        end
       end
 
       # Returns the common name of the signer.

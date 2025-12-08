@@ -17,6 +17,12 @@ describe HexaPDF::DigitalSignature::CMSHandler do
     @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
   end
 
+  it "fails with an appropriate error if the the signature contents is invalid" do
+    @dict.contents = :Unknown
+    msg = assert_raises(HexaPDF::Error) { HexaPDF::DigitalSignature::CMSHandler.new(@dict) }
+    assert_match(/contents is invalid/, msg.message)
+  end
+
   it "returns the signer name" do
     assert_equal("RSA signer", @handler.signer_name)
   end
