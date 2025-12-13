@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* CLI command `hexapdf inspect rev` to show whether the cross-reference table
+  was reconstructed
+
+
 ## 1.5.0 - 2025-12-08
 
 ### Added

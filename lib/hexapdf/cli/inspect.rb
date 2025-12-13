@@ -293,6 +293,10 @@ module HexaPDF
               IO.copy_stream(@doc.revisions.parser.io, $stdout, length, 0)
             else
               puts "Document has #{@doc.revisions.count} revision#{@doc.revisions.count == 1 ? '' : 's'}"
+              if @doc.revisions.parser.reconstructed? && @doc.revisions.count == 1 &&
+                 @doc.revisions.current == @doc.revisions.parser.reconstructed_revision
+                puts "Document cross-reference table has been reconstructed"
+              end
               revision_information do |rev, index, count, signature, end_offset|
                 type = if rev.trailer[:XRefStm]
                          "xref table + stream"
@@ -415,7 +419,7 @@ module HexaPDF
           sig = signatures[rev]
           if sig
             end_index = sig[:ByteRange][-2] + sig[:ByteRange][-1]
-          else
+          elsif rev != @doc.revisions.parser.reconstructed_revision
             io.seek(startxrefs[index], IO::SEEK_SET)
             buffer = ''.b
             while io.pos < startxrefs[index + 1]
