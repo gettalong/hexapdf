@@ -13,6 +13,8 @@
 ### Fixed
 
 * Path generation for image extraction in CLI command `hexapdf images`
+* Handling of certain invalid PDFs where the generation number for object
+  identifiers don't match their cross-reference section value
 
 
 ## 1.5.0 - 2025-12-08

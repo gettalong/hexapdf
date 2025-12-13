@@ -128,6 +128,11 @@ module HexaPDF
         @objects[oid, gen]
       elsif (xref_entry = @xref_section[oid, gen])
         load_object(xref_entry)
+      elsif (xref_entry = @xref_section[oid]) && (obj = load_object(xref_entry))&.gen == gen
+        # This branch handles invalid PDFs with a single revision containing xref entries where the
+        # gen doesn't match the gen of the indirect object. Also see the special handling in
+        # Parser#load_object.
+        obj
       else
         nil
       end
