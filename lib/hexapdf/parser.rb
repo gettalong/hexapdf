@@ -112,8 +112,18 @@ module HexaPDF
         end
 
       if xref_entry.oid != 0 && (oid != xref_entry.oid || gen != xref_entry.gen)
-        raise_malformed("The oid,gen (#{oid},#{gen}) values of the indirect object don't match " \
-                        "the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref")
+        msg = "The oid,gen (#{oid},#{gen}) values of the indirect object don't match " \
+              "the values (#{xref_entry.oid},#{xref_entry.gen}) from the xref"
+        # Some invalid PDFs contain entries where the generation number in the xref is different
+        # from the one found in the indirect object. If the file were reconstructed the generation
+        # number from the indirect object itself would be used.
+        # To gracefully handle such invalid PDFs they need to have a single revision.
+        # The other code part that handles this is in Revision#object.
+        if oid == xref_entry.oid && @document.revisions.count == 1
+          maybe_raise(msg, pos: xref_entry.pos)
+        else
+          raise_malformed(msg)
+        end
       end
 
       if obj.kind_of?(Reference)
