@@ -147,7 +147,7 @@ module HexaPDF
       # Extracts the images with the given indices.
       def extract_images(doc)
         FileUtils.mkdir_p(File.dirname("#{@prefix}filename"))
-        prefix = File.directory?(@prefix) ? @prefix : "@{prefix}-"
+        prefix = File.directory?(@prefix) ? @prefix : "#{@prefix}-"
 
         done = Set.new
         count = total = 0
@@ -157,7 +157,7 @@ module HexaPDF
           info = image.info
           if info.writable
             count += 1
-            path = "#{@prefix}#{index}.#{image.info.extension}"
+            path = "#{prefix}#{index}.#{image.info.extension}"
             maybe_raise_on_existing_file(path)
             if command_parser.verbosity_info?
               puts "Extracting image #{index} (#{image.width}x#{image.height}, " \

@@ -5,6 +5,10 @@
 * CLI command `hexapdf inspect rev` to show whether the cross-reference table
   was reconstructed
 
+### Fixed
+
+* Path generation for image extraction in CLI command `hexapdf images`
+
 
 ## 1.5.0 - 2025-12-08
 
