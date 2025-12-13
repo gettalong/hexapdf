@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* CLI command `hexapdf debug-info` for creating debugging information,
+  especially for malformed files
+
 ### Changed
 
 * CLI command `hexapdf inspect rev` to show whether the cross-reference table
