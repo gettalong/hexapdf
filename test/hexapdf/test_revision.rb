@@ -175,6 +175,19 @@ describe HexaPDF::Revision do
       assert_equal([@obj, *(2..7).map {|i| @rev.object(i) }], @rev.each.to_a)
     end
 
+    it "ensures no object is loaded multiple times" do
+      obj_2_data = nil
+      @rev.add(@obj) # ensures this is yielded first
+      @rev.each do |obj|
+        if obj == @obj
+          obj_2_data = @rev.object(2).data
+        elsif obj.oid == 2
+          assert_same(obj_2_data, obj.data)
+          break
+        end
+      end
+    end
+
     it "iterates only over loaded objects" do
       obj = @rev.object(2)
       assert_equal([obj], @rev.each(only_loaded: true).to_a)
