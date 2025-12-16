@@ -455,6 +455,14 @@ describe HexaPDF::Document do
       assert_equal('1.4', @doc.version)
     end
 
+    it "allows setting forcing a lower version than from catalog's version entry" do
+      @doc.version = '1.7'
+      @doc.use_document_version = true
+
+      (@doc.trailer[:Root] ||= {})[:Version] = '2.0'
+      assert_equal('1.7', @doc.version)
+    end
+
     it "fails setting a version with an invalid format" do
       assert_raises(ArgumentError) { @doc.version = 'bla' }
     end
