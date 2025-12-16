@@ -148,6 +148,15 @@ describe HexaPDF::Writer do
       doc.encrypt(owner_password: 'test')
       assert_raises(HexaPDF::Error) { doc.write('notused', incremental: true) }
     end
+
+    it 'uses pdf_header_version if provided regardless of document version' do
+      doc = HexaPDF::Document.new(io: @std_input_io)
+      doc.version = '2.0'
+      doc.pdf_header_version = '1.7'
+      output_io = StringIO.new
+      HexaPDF::Writer.write(doc, output_io, incremental: true)
+      assert_match(/^%PDF-1.7/, output_io.string)
+    end
   end
 
   it "moves modified objects into the last revision" do

@@ -623,6 +623,17 @@ module HexaPDF
       @version = value.to_s
     end
 
+    def pdf_header_version
+      @pdf_header_version
+    end
+
+    # The are certain cases in which we want to use a certain PDF version.
+    # For example Mustang project requires version 1.7
+    def pdf_header_version=(value)
+      raise ArgumentError, "PDF version must follow format M.N" unless value.to_s.match?(/\A\d\.\d\z/)
+      @pdf_header_version = value.to_s
+    end
+
     # Returns +true+ if the document is encrypted.
     def encrypted?
       !trailer[:Encrypt].nil?

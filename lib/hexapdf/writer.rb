@@ -126,7 +126,7 @@ module HexaPDF
     #
     # See: PDF2.0 s7.5.2
     def write_file_header
-      @io << "%PDF-#{@document.version}\n%\xCF\xEC\xFF\xE8\xD7\xCB\xCD\n"
+      @io << "%PDF-#{@document.pdf_header_version || @document.version}\n%\xCF\xEC\xFF\xE8\xD7\xCB\xCD\n"
     end
 
     # Moves all modified objects into the current revision to avoid invalid references and such.
