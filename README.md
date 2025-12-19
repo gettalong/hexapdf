@@ -117,7 +117,7 @@ Prawn is a **library for generating content**.
 
 To be more specific, it is easily possible to read an existing PDF with HexaPDF and modify parts of
 it before writing it out again. The modifications can be to the PDF object structure like removing
-superfluous annotations or the the content itself.
+superfluous annotations or the content itself.
 
 Prawn has no such functionality. There is basic support for using a PDF as a template using the
 `pdf-reader` and `prawn-template` gems but support is very limited. However, Prawn has a very
