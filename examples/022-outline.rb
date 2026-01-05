@@ -10,7 +10,11 @@
 require 'hexapdf'
 
 doc = HexaPDF::Document.new
-6.times { doc.pages.add }
+6.times do |i|
+  doc.pages.add.canvas.
+    font("Helvetica", size: 150).
+    text("Page #{i + 1}", at: [10, 660])
+end
 
 doc.outline.add_item("Main") do |main|
   main.add_item("Page 1", destination: 0)
