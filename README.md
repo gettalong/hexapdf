@@ -13,7 +13,7 @@ In short, it allows
 * **securing** PDF files by encrypting or signing them and
 * **optimizing** PDF files for smaller file size or other criteria.
 
-HexaPDF is available under two license, the AGPL and a commercial license, see the [License
+HexaPDF is available under two licenses, the AGPL and a commercial license, see the [License
 section](#License) for details.
 
 
