@@ -17,6 +17,7 @@ describe HexaPDF::Revision do
     @xref_section.add_in_use_entry(5, 0, 1000)
     @xref_section.add_in_use_entry(6, 0, 5000)
     @xref_section.add_in_use_entry(7, 0, 5000)
+    @xref_section.add_in_use_entry(8, 2, 5000)
     @obj = HexaPDF::Object.new(:val, oid: 1, gen: 0)
     @ref = HexaPDF::Reference.new(1, 0)
 
@@ -30,6 +31,7 @@ describe HexaPDF::Revision do
         when 5 then HexaPDF::Dictionary.new({Type: :ObjStm}, oid: entry.oid, gen: entry.gen)
         when 7 then HexaPDF::Type::Catalog.new({Type: :Catalog}, oid: entry.oid, gen: entry.gen,
                                               document: self)
+        when 8 then HexaPDF::Object.new(:DifferentGen, oid: entry.oid, gen: 0)
         when 6 then HexaPDF::Dictionary.new({Array: HexaPDF::PDFArray.new([1, 2])},
                                             oid: entry.oid, gen: entry.gen)
         else HexaPDF::Object.new(:Test, oid: entry.oid, gen: entry.gen)
@@ -50,10 +52,10 @@ describe HexaPDF::Revision do
   end
 
   it "returns the next free object number" do
-    assert_equal(8, @rev.next_free_oid)
-    @obj.oid = 8
-    @rev.add(@obj)
     assert_equal(9, @rev.next_free_oid)
+    @obj.oid = 9
+    @rev.add(@obj)
+    assert_equal(10, @rev.next_free_oid)
   end
 
   describe "add" do
@@ -111,6 +113,12 @@ describe HexaPDF::Revision do
     it "loads an object that is defined in the cross-reference section using the object number" do
       obj = @rev.object(2)
       refute_nil(obj)
+    end
+
+    it "loads an object that is defined in the cross-reference section with an invalid generation number" do
+      obj = @rev.object(HexaPDF::Reference.new(8, 0))
+      assert_equal(0, obj.gen)
+      assert_equal(:DifferentGen, obj.value)
     end
 
     it "loads free entries in the cross-reference section as special PDF null objects" do
@@ -172,7 +180,7 @@ describe HexaPDF::Revision do
   describe "object iteration" do
     it "iterates over all objects via each" do
       @rev.add(@obj)
-      assert_equal([@obj, *(2..7).map {|i| @rev.object(i) }], @rev.each.to_a)
+      assert_equal([@obj, *(2..8).map {|i| @rev.object(i) }], @rev.each.to_a)
     end
 
     it "ensures no object is loaded multiple times" do
@@ -229,8 +237,8 @@ describe HexaPDF::Revision do
     end
 
     it "handles object and xref streams that were added appropriately depending on the 'all' arg" do
-      xref = @rev.add(HexaPDF::Dictionary.new({Type: :XRef}, oid: 8))
-      objstm = @rev.add(HexaPDF::Dictionary.new({Type: :ObjStm}, oid: 9))
+      xref = @rev.add(HexaPDF::Dictionary.new({Type: :XRef}, oid: 20))
+      objstm = @rev.add(HexaPDF::Dictionary.new({Type: :ObjStm}, oid: 21))
       assert_equal([], @rev.each_modified_object.to_a)
       assert_equal([xref, objstm], @rev.each_modified_object(all: true).to_a)
     end

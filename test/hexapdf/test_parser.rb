@@ -315,13 +315,31 @@ describe HexaPDF::Parser do
       assert_equal(1, obj.oid)
     end
 
+    it "handles the case when generation numbers don't match with a single revision" do
+      @entry.gen = 2
+      obj = @parser.load_object(@entry)
+      assert_equal(2, obj.oid)
+      assert_equal(5, obj[0])
+    end
+
     describe "with strict parsing" do
-      it "raises an error if an indirect object has an offset of 0" do
+      before do
         @document.config['parser.on_correctable_error'] = proc { true }
+      end
+
+      it "raises an error if an indirect object has an offset of 0" do
         exp = assert_raises(HexaPDF::MalformedPDFError) do
           @parser.load_object(HexaPDF::XRefSection.in_use_entry(2, 0, 0))
         end
         assert_match(/has offset 0/, exp.message)
+      end
+
+      it "fails if the generation numbers don't match with a single revision" do
+        exp = assert_raises(HexaPDF::MalformedPDFError) do
+          @entry.gen = 2
+          @parser.load_object(@entry)
+        end
+        assert_match(/oid,gen.*don't match/, exp.message)
       end
     end
 
@@ -342,9 +360,18 @@ describe HexaPDF::Parser do
       assert_match(/invalid cross-reference type/i, exp.message)
     end
 
-    it "fails if the object/generation numbers don't match" do
+    it "fails if the object numbers don't match" do
       exp = assert_raises(HexaPDF::MalformedPDFError) do
-        @entry.gen = 2
+        @entry.oid = 5
+        @parser.load_object(@entry)
+      end
+      assert_match(/oid,gen.*don't match/, exp.message)
+    end
+
+    it "fails if the generation numbers don't match for multiple revisions" do
+      @document.revisions.add
+      exp = assert_raises(HexaPDF::MalformedPDFError) do
+        @entry.gen = 5
         @parser.load_object(@entry)
       end
       assert_match(/oid,gen.*don't match/, exp.message)
