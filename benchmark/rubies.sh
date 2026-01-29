@@ -30,6 +30,9 @@ for RUBY_VERSION in $RUBY_VERSIONS; do
   elif [[ ${RUBY_VERSION: -1} = m ]]; then
     rbenv shell ${RUBY_VERSION%m}
     export RUBYOPT=--mjit
+  elif [[ ${RUBY_VERSION: -1} = z ]]; then
+    rbenv shell ${RUBY_VERSION%z}
+    export RUBYOPT=--zjit
   else
     rbenv shell $RUBY_VERSION
     unset RUBYOPT
