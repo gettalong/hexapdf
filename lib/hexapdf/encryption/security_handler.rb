@@ -363,7 +363,9 @@ module HexaPDF
             raise(HexaPDF::UnsupportedEncryptionError,
                   "Invalid key length #{key_length} specified")
           end
-        dict[:Length] = key_length if dict[:V] == 4 || dict[:V] == 2
+        # /Length should only be set for V=2 as per the spec. However, software like Adobe Reader
+        # fails if this is not set for V=5 or V=4.
+        dict[:Length] = key_length if dict[:V] == 5 || dict[:V] == 4 || dict[:V] == 2
 
         if ![:aes, :arc4].include?(algorithm)
           raise(HexaPDF::UnsupportedEncryptionError,

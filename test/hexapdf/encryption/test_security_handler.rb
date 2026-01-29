@@ -129,16 +129,18 @@ describe HexaPDF::Encryption::SecurityHandler do
     end
 
     it "sets the correct /Length value for the given key length" do
-      [[40, nil], [48, 48], [128, 128], [256, nil]].each do |key_length, result|
-        algorithm = (key_length == 256 ? :aes : :arc4)
-        @handler.set_up_encryption(key_length: key_length, algorithm: algorithm)
-        assert(result == @handler.dict[:Length])
+      [[40, nil], [48, 48], [128, 128]].each do |key_length, result|
+        @handler.set_up_encryption(key_length: key_length, algorithm: :arc4)
+        result.nil? ? assert_nil(@handler.dict[:Length]) : assert_equal(result, @handler.dict[:Length])
       end
 
-      # Work-around buggy software
+      # Work-around for buggy software needing the /Length key
       @handler.set_up_encryption(key_length: 128, algorithm: :aes)
       assert_equal(4, @handler.dict[:V])
       assert_equal(128, @handler.dict[:Length])
+      @handler.set_up_encryption(key_length: 256, algorithm: :aes)
+      assert_equal(5, @handler.dict[:V])
+      assert_equal(256, @handler.dict[:Length])
     end
 
     it "calls the prepare_encryption method" do
