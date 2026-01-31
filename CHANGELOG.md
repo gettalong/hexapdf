@@ -7,6 +7,8 @@
 
 ### Changed
 
+* Optimized decoding character codes with a CMap to drastically lower memory
+  usage
 * CLI command `hexapdf inspect rev` to show whether the cross-reference table
   was reconstructed
 

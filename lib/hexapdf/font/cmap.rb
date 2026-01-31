@@ -143,10 +143,13 @@ module HexaPDF
       # An error is raised if the string contains invalid bytes.
       def read_codes(string)
         codes = []
-        bytes = string.each_byte
+        bytes = string.bytes
+        length = bytes.length
+        i = 0
 
-        loop do
-          byte = bytes.next
+        while i < length
+          byte = bytes[i]
+          i += 1
           code = 0
 
           found = @codespace_ranges.any? do |first_byte_range, rest_ranges|
@@ -154,9 +157,10 @@ module HexaPDF
 
             code = (code << 8) + byte
             valid = rest_ranges.all? do |range|
-              begin
-                byte = bytes.next
-              rescue StopIteration
+              if i < length
+                byte = bytes[i]
+                i += 1
+              else
                 raise HexaPDF::Error, "Missing bytes while reading codes via CMap"
               end
               code = (code << 8) + byte
