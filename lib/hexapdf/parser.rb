@@ -219,9 +219,24 @@ module HexaPDF
         tok = @tokenizer.next_token
 
         object[:Length] = length
+        if object.key?(:Filter)
+          begin
+            object[:Filter] = @document.unwrap(object[:Filter])
+          rescue HexaPDF::Error
+            maybe_raise("Invalid /Filter entry for stream", pos: @tokenizer.pos)
+            object.delete(:Filter)
+          end
+        end
+        if object.key?(:DecodeParms)
+          begin
+            object[:DecodeParms] = @document.unwrap(object[:DecodeParms])
+          rescue HexaPDF::Error
+            maybe_raise("Invalid /DecodeParms entry for stream", pos: @tokenizer.pos)
+            object.delete(:DecodeParms)
+          end
+        end
         stream = StreamData.new(@tokenizer.io, offset: pos, length: length,
-                                filter: @document.unwrap(object[:Filter]),
-                                decode_parms: @document.unwrap(object[:DecodeParms]))
+                                filter: object[:Filter], decode_parms: object[:DecodeParms])
       end
 
       unless tok.kind_of?(Tokenizer::Token) && tok == 'endobj'

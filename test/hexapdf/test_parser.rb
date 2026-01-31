@@ -10,6 +10,7 @@ describe HexaPDF::Parser do
     @document = HexaPDF::Document.new
     @document.config['parser.try_xref_reconstruction'] = false
     @document.add(@document.wrap(10, oid: 1, gen: 0))
+    @document.add(@document.wrap({Recurse: HexaPDF::Reference.new(3)}, oid: 3))
 
     create_parser(+<<~EOF)
       %PDF-1.7
@@ -173,6 +174,18 @@ describe HexaPDF::Parser do
       assert_equal({Length: 4}, object)
     end
 
+    it "recovers in case of an invalid /Filter leading to indirect object recursion" do
+      create_parser("1 0 obj<</Length 1/Filter 3 0 R>>stream\n1\nendstream endobj")
+      object, * = @parser.parse_indirect_object
+      assert_equal({Length: 1}, object)
+    end
+
+    it "recovers in case of an invalid /DecodeParms leading to indirect object recursion" do
+      create_parser("1 0 obj<</Length 1/DecodeParms 3 0 R>>stream\n1\nendstream endobj")
+      object, * = @parser.parse_indirect_object
+      assert_equal({Length: 1}, object)
+    end
+
     it "fails if the oid, gen or 'obj' keyword is invalid" do
       create_parser("a 0 obj\n5\nendobj")
       exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
@@ -266,6 +279,18 @@ describe HexaPDF::Parser do
         create_parser("1 0 obj\n<< >>\nstream\nendstream\ntest\nendobj\n")
         exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object(0) }
         assert_match(/keyword endobj/, exp.message)
+      end
+
+      it "fails if an invalid /Filter leads to indirect object recursion" do
+        create_parser("1 0 obj<</Length 1/Filter 3 0 R>>stream\n1\nendstream endobj")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+        assert_match(/Invalid \/Filter/, exp.message)
+      end
+
+      it "fails if an invalid /DecodeParms leads to indirect object recursion" do
+        create_parser("1 0 obj<</Length 1/DecodeParms 3 0 R>>stream\n1\nendstream endobj")
+        exp = assert_raises(HexaPDF::MalformedPDFError) { @parser.parse_indirect_object }
+        assert_match(/Invalid \/DecodeParms/, exp.message)
       end
     end
   end

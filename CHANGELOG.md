@@ -17,6 +17,8 @@
   identifiers don't match their cross-reference section value
 * AES 256bit encryption to include unnecessary field /Length in encryption
   dictionary to work around buggy PDF libraries
+* Parsing of invalid /Filter and /DecodeParms stream keys in case they resolve
+  to a recursive structure
 
 
 ## 1.5.0 - 2025-12-08
