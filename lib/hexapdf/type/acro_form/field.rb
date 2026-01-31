@@ -291,7 +291,10 @@ module HexaPDF
           if embedded_widget?
             yield(document.wrap(self))
           elsif terminal_field?
-            self[:Kids]&.each {|kid| yield(document.wrap(kid)) }
+            self[:Kids]&.each do |kid|
+              kid = document.wrap(kid)
+              yield(kid) if kid.type == :Annot && kid[:Subtype] == :Widget
+            end
           end
 
           unless direct_only

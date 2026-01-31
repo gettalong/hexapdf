@@ -147,6 +147,11 @@ describe HexaPDF::Type::AcroForm::Field do
     it "yields nothing if no widgets are defined" do
       assert_equal([], @field.each_widget.to_a)
     end
+
+    it "ignores entries in the /Kids array that are not widgets" do
+      @field[:Kids] = [{Subtype: :Widget, Rect: [0, 0, 0, 0], X: 1}, {FT: :Tx, Kids: []}]
+      assert_equal(1, @field.each_widget.to_a.size)
+    end
   end
 
   describe "create_widget" do

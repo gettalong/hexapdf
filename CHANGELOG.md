@@ -19,6 +19,7 @@
   dictionary to work around buggy PDF libraries
 * Parsing of invalid /Filter and /DecodeParms stream keys in case they resolve
   to a recursive structure
+* [HexaPDF::Type::AcroForm::Field#each_widget] to only yield widget objects
 
 
 ## 1.5.0 - 2025-12-08
