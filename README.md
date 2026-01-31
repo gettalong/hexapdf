@@ -93,12 +93,13 @@ with example graphics and PDF files and tightly integrated into the rest of the 
 
 ## Requirements and Installation
 
-Since HexaPDF is written in Ruby, a working Ruby installation is needed - see the
-[official installation documentation][rbinstall] for details. Note that you need Ruby version 2.6 or
-higher as prior versions are not supported!
+Since HexaPDF is written in Ruby, a working Ruby installation is needed - see the [official
+installation documentation][rbinstall] for details. Note that you need Ruby version 3.0 or higher as
+prior versions are not supported!
 
-HexaPDF works on all Ruby implementations that are CRuby compatible, e.g. TruffleRuby, and on any
-platform supported by Ruby (Linux, macOS, Windows, ...).
+HexaPDF works on all Ruby implementations that are CRuby compatible and on any platform supported by
+Ruby (Linux, macOS, Windows, ...). Implementations like JRuby and TruffleRuby should work but
+HexaPDF is not actively tested against them.
 
 Apart from Ruby itself the HexaPDF library has only one external dependency `geom2d` which is
 written and provided by the HexaPDF authors. The `hexapdf` application has an additional dependency
