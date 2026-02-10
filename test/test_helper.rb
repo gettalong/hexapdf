@@ -11,9 +11,13 @@ rescue LoadError
 end
 
 gem 'minitest'
-gem 'minitest-mock'
+begin
+  gem 'minitest-mock'
+  require 'minitest/mock'
+rescue Gem::MissingSpecError
+  # Assume Minitest < 6 is in use for older Rubies
+end
 gem 'strscan'
-require 'minitest/mock'
 require 'minitest/autorun'
 require 'fiber'
 require 'zlib'
