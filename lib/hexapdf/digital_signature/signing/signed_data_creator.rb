@@ -121,7 +121,7 @@ module HexaPDF
         private
 
         # Creates the set of signed attributes for the signer information structure.
-        def create_signed_attrs(data, signing_time: true)
+        def create_signed_attrs(data, ess_cert_hash: 'sha256', signing_time: true)
           signing_time = (self.signing_time || Time.now).utc if signing_time
           set(
             attribute('content-type', oid('id-data')),
@@ -132,12 +132,13 @@ module HexaPDF
             ),
             attribute(
               'id-aa-signingCertificateV2',
-              sequence( # SigningCertificateV2
+              sequence( # SigningCertificateV2, see RFC5035
                 sequence( # Seq of ESSCertIDv2
                   sequence( # ESSCertIDv2
-                    #TODO: Does not validate on ETSI checker if used, doesn't matter if SHA256 or 512
-                    #oid('sha512'),
-                    binary(OpenSSL::Digest.digest('sha256', @certificate.to_der)), # certHash
+                    (sequence( # AlgorithmIdentifier RFC3280 4.1.1.2
+                      oid(ess_cert_hash) # algorithm
+                    ) unless ess_cert_hash == 'sha256'),
+                    binary(OpenSSL::Digest.digest(ess_cert_hash, @certificate.to_der)), # certHash
                     sequence(                                      # issuerSerial
                       sequence(                                    #  issuer
                         implicit(4, sequence(@certificate.issuer)) #   choice 4 directoryName
