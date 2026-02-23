@@ -172,10 +172,17 @@ describe HexaPDF::DigitalSignature::Signing::SignedDataCreator do
       end
     end
 
-    it "fails if the signature algorithm is not supported" do
-      @signed_data.certificate = CERTIFICATES.ecdsa_signer_certificate
-      @signed_data.key = CERTIFICATES.ecdsa_signer_key
-      assert_raises(HexaPDF::Error) { @signed_data.create("data") }
+    describe "ECDSA key pair" do
+      before do
+        @signed_data.certificate = CERTIFICATES.ecdsa_signer_certificate
+        @signed_data.key = CERTIFICATES.ecdsa_signer_key
+      end
+
+      it "works with an ECDSA key pair" do
+        structure = @signed_data.create("data").value[1].value[4].value[0]
+        assert_equal('1.2.840.10045.4.3.2', structure.value[4].value[0].value)
+        assert_nil(structure.value[4].value[1].value)
+      end
     end
 
     it "can use a different digest algorithm" do

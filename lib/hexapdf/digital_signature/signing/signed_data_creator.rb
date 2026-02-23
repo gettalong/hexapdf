@@ -196,9 +196,8 @@ module HexaPDF
                                     raise HexaPDF::Error, "Only SHA256 supported with DSA"
                                   end
                                   sequence(oid('id-dsa-with-sha256'), null)
-                                else
-                                  raise HexaPDF::Error, "Unsupported key type/signature algorithm: " \
-                                                        "#{certificate_pkey_algorithm}"
+                                when 'id-ecPublicKey'
+                                  sequence(oid("ecdsa-with-#{@digest_algorithm.upcase}"), null)
                                 end
 
           sequence(
