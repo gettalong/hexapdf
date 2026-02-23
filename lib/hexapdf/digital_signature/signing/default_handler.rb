@@ -52,9 +52,6 @@ module HexaPDF
       # The signing handler is used by default by all methods that need a signing handler. Therefore
       # it is usually only necessary to provide the actual attribute values.
       #
-      # *Note*: Currently only RSA is supported, DSA and ECDSA are not. See the examples below for
-      # how to handle them using external signing.
-      #
       #
       # == CMS and PAdES Signatures
       #
@@ -130,17 +127,6 @@ module HexaPDF
       #   end
       #   document.sign("output.pdf", certificate: my_cert, certificate_chain: my_chain,
       #                 external_signing: signing_proc)
-      #
-      #   # Signing with DSA or ECDSA certificate/keys
-      #   signing_proc = lambda do |io, byte_range|
-      #     io.pos = byte_range[0]
-      #     data = io.read(byte_range[1])
-      #     io.pos = byte_range[2]
-      #     data << io.read(byte_range[3])
-      #     OpenSSL::PKCS7.sign(certificate, key, data, certificate_chain,
-      #                         OpenSSL::PKCS7::DETACHED | OpenSSL::PKCS7::BINARY).to_der
-      #   end
-      #   document.sign("output.pdf", signature_size: 10_000, external_signing: signing_proc)
       #
       #
       # == Implementing a Signing Handler
