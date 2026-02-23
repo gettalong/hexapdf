@@ -13,7 +13,7 @@ module HexaPDF
         @ca_certificate ||=
           begin
             cert = create_cert(name: '/C=AT/O=HexaPDF/CN=HexaPDF Test Root CA', serial: 0,
-                               public_key: ca_key.public_key)
+                               public_key: ca_key)
             add_extensions(cert, cert, ca_key, is_ca: true, key_usage: 'cRLSign,keyCertSign')
             cert
           end
@@ -27,7 +27,7 @@ module HexaPDF
         @signer_certificate ||=
           begin
             cert = create_cert(name: '/CN=RSA signer/DC=gettalong', serial: 2,
-                               public_key: signer_key.public_key, issuer: ca_certificate)
+                               public_key: signer_key, issuer: ca_certificate)
             add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature')
             cert
           end
@@ -37,7 +37,7 @@ module HexaPDF
         @non_repudiation_signer_certificate ||=
           begin
             cert = create_cert(name: '/CN=Non repudiation signer/DC=gettalong', serial: 2,
-                               public_key: signer_key.public_key, issuer: ca_certificate)
+                               public_key: signer_key, issuer: ca_certificate)
             add_extensions(cert, ca_certificate, ca_key, key_usage: 'nonRepudiation')
             cert
           end
@@ -51,7 +51,7 @@ module HexaPDF
         @dsa_signer_certificate ||=
           begin
             cert = create_cert(name: '/CN=DSA signer/DC=gettalong', serial: 3,
-                               public_key: dsa_signer_key.public_key, issuer: ca_certificate)
+                               public_key: dsa_signer_key, issuer: ca_certificate)
             add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature')
             cert
           end
@@ -61,7 +61,7 @@ module HexaPDF
         @timestamp_certificate ||=
           begin
             cert = create_cert(name: '/CN=timestamp/DC=gettalong', serial: 3,
-                               public_key: signer_key.public_key, issuer: ca_certificate)
+                               public_key: signer_key, issuer: ca_certificate)
             add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature',
                            extended_key_usage: 'timeStamping')
             cert
