@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+* Automatic detection of digital signature size to account for small deviations
+
+
 ## 1.6.0 - 2026-02-10
 
 ### Added

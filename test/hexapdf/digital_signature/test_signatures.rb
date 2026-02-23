@@ -70,7 +70,7 @@ describe HexaPDF::DigitalSignature::Signatures do
       end
       @doc.signatures.add(@io, @handler, write_options: {update_fields: false})
       sig = @doc.signatures.first
-      assert_equal([0, 925, 925 + sig[:Contents].size * 2 + 2, 2455 + HexaPDF::VERSION.length],
+      assert_equal([0, 925, 925 + (sig[:Contents].size + 5) * 2 + 2, 2455 + HexaPDF::VERSION.length],
                    sig[:ByteRange].value)
       assert_equal(:sig, sig[:key])
       assert_equal(:sig_field, @doc.acro_form.each_field.first[:key])
@@ -134,7 +134,7 @@ describe HexaPDF::DigitalSignature::Signatures do
       @doc.delete(7)
       sig = @doc.signatures.add(@io, @handler, write_options: {update_fields: false})
       l1 = 1030 + HexaPDF::VERSION.length
-      assert_equal([0, l1, l1 + sig[:Contents].size * 2 + 2, 2437 + HexaPDF::VERSION.length],
+      assert_equal([0, l1, l1 + (sig[:Contents].size + 5) * 2 + 2, 2437 + HexaPDF::VERSION.length],
                    sig[:ByteRange].value)
     end
 
@@ -143,7 +143,7 @@ describe HexaPDF::DigitalSignature::Signatures do
       field.create_widget(@doc.pages[0], Rect: [0, 0, 0, 0])
       sig = @doc.signatures.add(@io, @handler, signature: field, write_options: {update_fields: false})
       l1 = 3097 + HexaPDF::VERSION.length
-      assert_equal([0, l1, l1 + sig[:Contents].size * 2 + 2, 374 + HexaPDF::VERSION.length],
+      assert_equal([0, l1, l1 + (sig[:Contents].size + 5) * 2 + 2, 374 + HexaPDF::VERSION.length],
                    sig[:ByteRange].value)
     end
 

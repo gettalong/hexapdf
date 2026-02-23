@@ -277,7 +277,7 @@ module HexaPDF
         # If a custom size is set using #signature_size=, it used. Otherwise the size is determined
         # by using #sign to sign an empty string.
         def signature_size
-          @signature_size || sign(StringIO.new, [0, 0, 0, 0]).size
+          @signature_size || sign(StringIO.new, [0, 0, 0, 0]).size + 5
         end
 
         # Finalizes the signature field as well as the signature dictionary before writing.
