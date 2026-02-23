@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* Support for digitally signing with DSA keys
+
 ### Changed
 
 * Automatic detection of digital signature size to account for small deviations

@@ -154,9 +154,27 @@ describe HexaPDF::DigitalSignature::Signing::SignedDataCreator do
       assert_equal(CERTIFICATES.signer_key.sign('SHA256', to_sign), @structure.value[5].value)
     end
 
+    describe "DSA key pair" do
+      before do
+        @signed_data.certificate = CERTIFICATES.dsa_signer_certificate
+        @signed_data.key = CERTIFICATES.dsa_signer_key
+      end
+
+      it "works with a DSA key pair" do
+        @structure = @signed_data.create("data").value[1].value[4].value[0]
+        assert_equal('2.16.840.1.101.3.4.3.2', @structure.value[4].value[0].value)
+        assert_nil(@structure.value[4].value[1].value)
+      end
+
+      it "fails if the digest algorithm is not SHA256" do
+        @signed_data.digest_algorithm = 'sha512'
+        assert_raises { @signed_data.create("data") }
+      end
+    end
+
     it "fails if the signature algorithm is not supported" do
-      @signed_data.certificate = CERTIFICATES.dsa_signer_certificate
-      @signed_data.key = CERTIFICATES.dsa_signer_key
+      @signed_data.certificate = CERTIFICATES.ecdsa_signer_certificate
+      @signed_data.key = CERTIFICATES.ecdsa_signer_key
       assert_raises(HexaPDF::Error) { @signed_data.create("data") }
     end
 

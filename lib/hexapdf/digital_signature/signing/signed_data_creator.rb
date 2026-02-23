@@ -185,13 +185,20 @@ module HexaPDF
         # Creates a signer information structure containing the actual meat of the whole CMS object.
         def create_signer_info(signature, signed_attrs, unsigned_attrs = nil)
           certificate_pkey_algorithm = @certificate.public_key.oid
-          signature_algorithm = if certificate_pkey_algorithm == 'rsaEncryption'
+          signature_algorithm = case certificate_pkey_algorithm
+                                when 'rsaEncryption'
                                   sequence(               # signatureAlgorithm
                                     oid('rsaEncryption'), #   algorithmID
                                     null                  #   params
                                   )
+                                when 'DSA'
+                                  unless @digest_algorithm == 'sha256'
+                                    raise HexaPDF::Error, "Only SHA256 supported with DSA"
+                                  end
+                                  sequence(oid('id-dsa-with-sha256'), null)
                                 else
-                                  raise HexaPDF::Error, "Unsupported key type/signature algorithm"
+                                  raise HexaPDF::Error, "Unsupported key type/signature algorithm: " \
+                                                        "#{certificate_pkey_algorithm}"
                                 end
 
           sequence(
@@ -274,6 +281,12 @@ module HexaPDF
           'sha384' => '2.16.840.1.101.3.4.2.2',
           'sha512' => '2.16.840.1.101.3.4.2.3',
           'rsaEncryption' => '1.2.840.113549.1.1.1',
+          'id-dsa-with-sha1' => '1.2.840.10040.4.3',
+          'id-dsa-with-sha256' => '2.16.840.1.101.3.4.3.2',
+          'ecdsa-with-SHA1' => '1.2.840.10045.4.1',
+          'ecdsa-with-SHA256' => '1.2.840.10045.4.3.2',
+          'ecdsa-with-SHA384' => '1.2.840.10045.4.3.3',
+          'ecdsa-with-SHA512' => '1.2.840.10045.4.3.4',
           'id-aa-signingCertificate' => '1.2.840.113549.1.9.16.2.12',
           'id-aa-timeStampToken' => '1.2.840.113549.1.9.16.2.14',
           'id-aa-signingCertificateV2' => '1.2.840.113549.1.9.16.2.47',

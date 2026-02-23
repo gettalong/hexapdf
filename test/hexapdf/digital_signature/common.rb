@@ -57,6 +57,20 @@ module HexaPDF
           end
       end
 
+      def ecdsa_signer_key
+        @ecdsa_signer_key ||= OpenSSL::PKey::EC.generate('sect163k1')
+      end
+
+      def ecdsa_signer_certificate
+        @ecdsa_signer_certificate ||=
+          begin
+            cert = create_cert(name: '/CN=ECDSA signer/DC=gettalong', serial: 4,
+                               public_key: ecdsa_signer_key, issuer: ca_certificate)
+            add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature')
+            cert
+          end
+      end
+
       def timestamp_certificate
         @timestamp_certificate ||=
           begin
