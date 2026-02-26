@@ -559,6 +559,7 @@ module HexaPDF
                         JPXDecode: 'HexaPDF::Filter::PassThrough',
                         Crypt: 'HexaPDF::Filter::Crypt',
                         Encryption: 'HexaPDF::Filter::Encryption',
+                        BrotliDecode: 'HexaPDF::Filter::BrotliDecode',
                       },
                       'font.default' => 'Times',
                       'font.fallback' => ['ZapfDingbats', 'Symbol'],
@@ -635,6 +636,11 @@ module HexaPDF
   #    Classes for the most often used color space families are implemented and readily available.
   #
   #    See PDF2.0 s8.6
+  #
+  # filter.brotli.compression::
+  #    Specifies the compression level that should be used with the BrotliDecode filter. The level
+  #    can range from 0 (no compression), 1 (best speed) to 11 (best compression). The default
+  #    value is 8 which is a good compromise between speed and resulting size.
   #
   # filter.flate.compression::
   #    Specifies the compression level that should be used with the FlateDecode filter. The level

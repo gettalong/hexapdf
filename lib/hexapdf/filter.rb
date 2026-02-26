@@ -134,6 +134,7 @@ module HexaPDF
     autoload(:FlateDecode, 'hexapdf/filter/flate_decode')
     autoload(:LZWDecode, 'hexapdf/filter/lzw_decode')
     autoload(:RunLengthDecode, 'hexapdf/filter/run_length_decode')
+    autoload(:BrotliDecode, 'hexapdf/filter/brotli_decode')
 
     autoload(:Predictor, 'hexapdf/filter/predictor')
 

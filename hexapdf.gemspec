@@ -40,6 +40,7 @@ Gem::Specification.new do |s|
   s.add_dependency('geom2d', '~> 0.4', '>= 0.4.1')
   s.add_dependency('openssl', '>= 2.2.1')
   s.add_dependency('strscan', '>= 3.1.2')
+  s.add_development_dependency('brotli', '~> 0.7')
   s.add_development_dependency('kramdown', '~> 2.3')
   s.add_development_dependency('minitest', '~> 6.0')
   s.add_development_dependency('minitest-mock', '~> 5.27')
