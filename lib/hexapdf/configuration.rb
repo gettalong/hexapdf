@@ -760,6 +760,8 @@ module HexaPDF
                         MCR: 'HexaPDF::Type::MarkedContentReference',
                         OBJR: 'HexaPDF::Type::ObjectReference',
                         Measure: 'HexaPDF::Type::Measure',
+                        DSS: 'HexaPDF::Type::DocumentSecurityStore',
+                        VRI: 'HexaPDF::Type::DocumentSecurityStore::ValidationRelatedInformation',
                       },
                       'object.subtype_map' => {
                         nil => {

@@ -5,6 +5,8 @@
 * Support for digitally signing with ECDSA keys
 * Support for digitally signing with DSA keys
 * Support for BrotliDecode filter
+* [HexaPDF::Type::DocumentSecurityStore] and
+  [HexaPDF::Type::ValidationRelatedInformation]
 
 ### Changed
 

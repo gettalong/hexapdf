@@ -89,6 +89,7 @@ module HexaPDF
     autoload(:MarkedContentReference, 'hexapdf/type/marked_content_reference')
     autoload(:ObjectReference, 'hexapdf/type/object_reference')
     autoload(:Measure, 'hexapdf/type/measure')
+    autoload(:DocumentSecurityStore, 'hexapdf/type/document_security_store')
 
   end
 
