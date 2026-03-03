@@ -413,6 +413,12 @@ describe HexaPDF::Document do
       assert(@doc.trailer.info.key?(:Author))
     end
 
+    it "works even in case of invalid PDFs with a non-dictionary value for trailer.info" do
+      @doc.trailer[:Info] = :something_else
+      @doc.write(StringIO.new)
+      assert(@doc.trailer.info.key?(:ModDate))
+    end
+
     it "it doesn't optimize the file by default" do
       io = StringIO.new(''.b)
       @io_doc.write(io)

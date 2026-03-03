@@ -12,6 +12,10 @@
 
 * Automatic detection of digital signature size to account for small deviations
 
+### Fixed
+
+* Writing of PDF documents with an invalid value for the /Info dictionary
+
 
 ## 1.6.0 - 2026-02-10
 

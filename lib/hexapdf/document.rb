@@ -790,6 +790,7 @@ module HexaPDF
         if @metadata
           metadata.modification_date(Time.now)
         else
+          trailer.delete(:Info) unless trailer.info.kind_of?(HexaPDF::Dictionary)
           trailer.info[:ModDate] = Time.now
         end
       end
