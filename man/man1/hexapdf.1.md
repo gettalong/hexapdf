@@ -233,6 +233,17 @@ The first argument *COMMAND* is used as a hexapdf command line and must not cont
 just everything else. The rest of the arguments are the input files. The specified command will be
 executed for each input file, with all occurences of {} being replaced by the file name.
 
+Examples:
+
+* `hexapdf batch 'info {}' input1.pdf input2.pdf input3.pdf`
+
+  Executes the `info` command for all input files.
+
+* `hexapdf batch 'optimize --object-streams delete {} done-{}' input1.pdf input2.pdf input3.pdf`
+
+  Optimizes the given input files, creating the three output files `done-input1.pdf`,
+  `done-input2.pdf` and `done-input3.pdf`.
+
 
 ### files
 
@@ -249,7 +260,7 @@ and names of the embedded files are listed.
 
 `-d` *DESCRIPTION*, `--description` *DESCRIPTION*
 
-: Adds a description to the last attached file via `--attach`. This description is usually shown
+: Adds a description to the last file attached via `--attach`. This description is usually shown
   together with the filename of the attached file.
 
 `-e` \[*A,B,C,...*], `--extract` \[*A,B,C,...*]
@@ -265,6 +276,21 @@ and names of the embedded files are listed.
 `-p` *PASSWORD*, `--password` *PASSWORD*
 
 : The password to decrypt the *PDF*. Use **-** for *PASSWORD* for reading it from standard input.
+
+Examples:
+
+* `hexapdf files input.pdf`
+
+  Lists the embedded files in the `input.pdf`.
+
+* `hexapdf files input.pdf -e 1`
+
+  Extracts the embedded file with index 1 from `input.pdf`.
+
+* `hexapdf files -a invoice.xml -d "Invoice data" -a custom.xml input.pdf output.pdf`
+
+  Attaches the files `invoice.xml` and `custom.xml` to the `input.pdf` and stores the result in
+  `output.pdf`. The first file `invoice.xml` is stored together with a short description.
 
 
 ### fonts
@@ -398,6 +424,26 @@ features are not supported, the result may not be correct.
 
 : The password to decrypt the *INPUT*. Use **-** for *PASSWORD* for reading it from standard input.
 
+Examples:
+
+* `hexapdf form input_form.pdf -v`
+
+  Lists all form fields of the `input_form.pdf` with additional information.
+
+* `hexapdf form input_form.pdf output.pdf`
+
+  Starts the interactive mode for filling out the `input_form.pdf` PDF form and saves the result to
+  `output.pdf`.
+
+* `hexapdf form --template values.txt input_form.pdf output.pdf`
+
+  Uses the data from `values.txt` to fill the respective form fields of `input_form.pdf` and saves
+  the result to `output.pdf`.
+
+* `hexapdf form --flatten input_form.pdf output.pdf`
+
+  Flattens the form fields of `input_form.pdf` and saves the result to `output.pdf`.
+
 
 ### help
 
@@ -483,6 +529,20 @@ The following information is shown for each image when listing images:
 > **writable**
 > : Either true or false depending on whether hexapdf supports the image format.
 
+Examples:
+
+* `hexapdf images input.pdf`
+
+  Lists all images of the `input.pdf`.
+
+* `hexapdf images input.pdf -e --prefix images/image`
+
+  Extracts all images into the subdirectory `images` with the prefix `image`.
+
+* `hexapdf images input.pdf -e 1,3`
+
+  Extracts the images with the indices 1 and 3, using the default naming scheme.
+
 
 ### image2pdf
 
@@ -528,6 +588,17 @@ to the way they are stored inside a PDF.
 
 Additionally, the **Optimization Options** and **Encryption Options** can be used.
 
+Examples:
+
+* `hexapdf image2pdf image1.jpg image2.pdf image3.png output.pdf`
+
+  Creates a PDF file `output.pdf` containing three pages, each with one image fitted to the page.
+
+* `hexapdf image2pdf -p A4 -m 36 image1.jpg image2.pdf image3.png output.pdf`
+
+  Like the example above but creates a PDF with A4 sized pages and a margin of 36pt around each
+  image.
+
 
 ### info
 
@@ -546,6 +617,16 @@ version used, encryption information and so on.
 
 : The password to decrypt the PDF *FILE*. Use **-** for *PASSWORD* for reading it from standard
   input.
+
+Examples:
+
+* `hexapdf info input.pdf`
+
+  Shows general information about the PDF file.
+
+* `hexapdf info --check input.pdf`
+
+  Checks the PDF for validity and shows the general information.
 
 
 ### inspect
@@ -688,6 +769,20 @@ The available commands are:
 
 : Quit the interactive mode.
 
+Examples:
+
+* `hexapdf inspect input.pdf -o 3`
+
+  Shows the object with the object number 3 of the given PDF file.
+
+* `hexapdf inspect input.pdf po 1 psd 1`
+
+  Shows the page object for the first page as well as the decoded content stream of the first page.
+
+* `hexapdf inspect input.pdf`
+
+  Starts the interactive inspection mode.
+
 
 ### merge
 
@@ -729,6 +824,26 @@ An input file can be specified multiple times, using a different `--pages` optio
 
 Additionally, the **Optimization Options** and **Encryption Options** can be used.
 
+Examples:
+
+* `hexapdf merge input1.pdf input2.pdf input3.pdf output.pdf`
+
+  The file `input1.pdf` is used as primary input file and the pages from `input2.pdf` and
+  `input3.pdf` are merged into it.
+
+* `hexapdf merge -e input1.pdf input2.pdf input3.pdf output.pdf`
+
+  Here, an empty PDF file is used for merging the pages from the three given input files into it.
+  The resulting output file will not have any meta data or other additional data from the first
+  input file.
+
+* `hexapdf merge odd.pdf even.pdf --interleave combined.pdf`
+
+  This alternately takes a page from `odd.pdf` and `even.pdf` to create the output file.  This is
+  very useful if you only have a simplex scanner: First you scan the front sides, creating
+  `odd.pdf`, and then you scan the back sides, creating `even.pdf`. With the command the pages can
+  be ordered in the correct way.
+
 
 ### modify
 
@@ -760,6 +875,52 @@ ways.
 
 Additionally, the **Optimization Options** and **Encryption Options** can be used.
 
+Examples:
+
+* Page modification (selection, removal, rotation)
+
+  * `hexapdf modify input.pdf -i 1,7-10 output.pdf`
+
+    Selects the pages 1 and 7 to 10 from `input.pdf` and saves them to `output.pdf`.
+
+  * `hexapdf modify input.pdf -i 1-5,7-10,12-e output.pdf`
+
+    Removes pages 6 and 11 from `input.pdf`.
+
+  * `hexapdf modify input.pdf -i e-1 output.pdf`
+
+    Reverses the pages from `input.pdf`.
+
+  * `hexapdf modify input.pdf -i 1-er output.pdf`
+
+    Rotates all pages from `input.pdf` to the right, that is 90 degrees clockwise.
+
+  * `hexapdf modify input.pdf -i 1r,2-ed output.pdf`
+
+    Rotates the first page to the right and all other pages 180 degrees.
+
+* Encryption and decryption
+
+  * `hexapdf modify input.pdf --user-password my_pwd output.pdf`
+
+    Sets a user password on `input.pdf`, which means a password is needed to open it, and saves the
+    result to `output.pdf`.
+
+  * `hexapdf modify input.pdf --owner-password testpwd --permissions print,high_quality_print output.pdf`
+
+    Restricts the allowed operations to printing and sets an owner password.
+
+  * `hexapdf modify input.pdf -p input_password --decrypt output.pdf`
+
+    Decrypts `input.pdf` and saves it as `output.pdf`.
+
+* Other operations
+
+  * `hexapdf modify input.pdf --annotations flatten output.pdf`
+
+    Flattens all annotations (including form fields) of `input.pdf` and saves the result to
+    `output.pdf`.
+
 
 ### optimize
 
@@ -776,6 +937,16 @@ long time without much benefit.
 
 The **Optimization Options** can be used with this command. Note that the defaults are changed to
 provide good compression out of the box.
+
+Examples:
+
+* `hexapdf optimize input.pdf output.pdf`
+
+  Optimizes the `input.pdf` to get a smaller file size.
+
+* `hexapdf optimize --compress-pages --no-optimize-fonts input.pdf output.pdf`
+
+  Specifies custom optimization options for optimizing `input.pdf`.
 
 
 ### split
@@ -816,6 +987,18 @@ How the printf-style format string is interpreted depends on the strategy:
 
 Additionally, the **Optimization Options** and **Encryption Options** can be used. Those options are
 applied to each output file.
+
+Examples:
+
+* `hexapdf split input.pdf out_%02d.pdf`
+
+  Splits the `input.pdf` into individual pages, naming the output files `out_01.pdf`, `out_02.pdf`,
+  and so on.
+
+* `hexapdf split input.pdf --strategy page_size`
+
+  Splits the `input.pdf` into files based on their page size, with output file names like
+  `input_A4.pdf` or `input_Letter.pdf`.
 
 
 ### usage
@@ -886,8 +1069,23 @@ watermark PDF, the `--repeat` option can be used to specify how they should be a
 
 : The password to decrypt the *INPUT*. Use **-** for *PASSWORD* for reading it from standard input.
 
-
 Additionally, the **Optimization Options** and **Encryption Options** can be used.
+
+Examples:
+
+* `hexapdf watermark -w watermark.pdf input.pdf output.pdf`
+
+  Uses the first page of `watermark.pdf` as background for all pages of `input.pdf` and saves the
+  result to `output.pdf`.
+
+* `hexapdf watermark -w watermark.pdf -i 1,2 -t stamp input.pdf output.pdf`
+
+  Applies as stamp the first page of `watermark.pdf` to the first page of `input.pdf` and the second
+  page of `watermark.pdf` to all other pages of `input.pdf`.
+
+* `hexapdf watermark -w watermark.pdf -i 2-5 -r all input.pdf output.pdf`
+
+  Cyclically uses the pages 2 to 5 of `watermark.pdf` as background for the pages of `input.pdf`.
 
 
 ### version
@@ -934,7 +1132,7 @@ the `modify` command).
 Examples:
 
 * **1,2,3**: The pages 1, 2 and 3.
-  * **11,4-9,1,e,r3**: The pages 11, 4 to 9, 1, the last page and the third last page, in exactly
+* **11,4-9,1,e,r3**: The pages 11, 4 to 9, 1, the last page and the third last page, in exactly
   this order.
 * **1-e**: All pages of the document.
 * **1-r1**: Same as above.
@@ -944,161 +1142,6 @@ Examples:
 * **10-1/3**: The pages 10, 7, 4 and 1.
 * **1l,2r,3-5d,6n**: The pages 1 (rotated left), 2 (rotated right), 3 to 5 (all rotated 180 degrees)
   and 6 (any possibly set rotation removed).
-
-
-## EXAMPLES
-
-### merge
-
-`hexapdf merge input1.pdf input2.pdf input3.pdf output.pdf`  
-`hexapdf merge -e input1.pdf input2.pdf input3.pdf output.pdf`
-
-Merging: In the first case use `input1.pdf` as primary input file and merge the pages from
-`input2.pdf` and `input3.pdf` into it. In the second case an empty PDF file is used for merging the
-pages from the three given input files into it; the resulting output file will not have an meta data
-or other additional data from the first input file.
-
-`hexapdf merge odd.pdf even.pdf --interleave combined.pdf`
-
-Page interleaving: Takes alternately a page from `odd.pdf` and `even.pdf` to create the output file.
-This is very useful if you only have a simplex scanner: First you scan the front sides, creating
-`odd.pdf`, and then you scan the back sides, creating `even.pdf`. With the command the pages can be
-ordered in the correct way.
-
-
-### modify
-
-`hexapdf modify input.pdf -i 1,7-10 output.pdf`
-
-Page selection: Select only the pages 1 and 7 to 10 from the `input.pdf`.
-
-`hexapdf modify input.pdf -i 1-5,7-10,12-e output.pdf`
-
-Page removal: Remove the pages 6 and 11 from the `input.pdf`.
-
-`hexapdf modify input.pdf -i 1r,2-ed output.pdf`
-
-Page rotation: Rotate the first page to the right, that is 90 degrees clockwise, and all other pages
-180 degrees.
-
-`hexapdf modify input.pdf --user-password my_pwd --permissions print output.pdf`
-
-Encryption: Create the `output.pdf` from the `input.pdf` so that a password is needed to open it,
-and only allow printing.
-
-`hexapdf modify input.pdf -p input_password --decrypt output.pdf`
-
-Encryption removal: Create the `output.pdf` as copy of `input.pdf` but with the encryption removed.
-If the `--decrypt` was not used, the output file would retain the encryption specification of the
-input file.
-
-
-### optimize
-
-`hexapdf optimize input.pdf output.pdf`
-
-Optimization: Compress the `input.pdf` to get a smaller file size.
-
-
-### split
-
-`hexapdf split input.pdf out_%02d.pdf`
-
-Split the `input.pdf` into individual pages, naming the output files `out_01.pdf`, `out_02.pdf`, and
-so on.
-
-`hexapdf split input.pdf --strategy page_size`
-
-Split the `input.pdf` into files based on their page size, with output file names like
-`input_A4.pdf` or `input_Letter.pdf`.
-
-
-### watermark
-
-`hexapdf watermark -w watermark.pdf -t stamp input.pdf output.pdf`
-
-Applies the first page of the `watermark.pdf` as stamp on `input.pdf`.
-
-`hexapdf watermark -w watermark.pdf -i 2-5 -r all input.pdf output.pdf`
-
-Cyclically applies the pages 2 to 5 of the `watermark.pdf` as background on `input.pdf`.
-
-
-### form
-
-`hexapdf form input_form.pdf -v`
-
-List all form fields of the `input_form.pdf` with additional information.
-
-`hexapdf form input_form.pdf output.pdf`
-
-Interactively fill out the `input_form.pdf` PDF form and save the result in `output.pdf`.
-
-`hexapdf form --flatten --fill input_form.pdf output.pdf`
-
-Interactively fill out the `input_form.pdf` PDF form, flatten it and save the result in `output.pdf`.
-
-
-### files
-
-`hexapdf files input.pdf`  
-`hexapdf files input.pdf -e 1`
-
-Embedded files: The first command lists the embedded files in the `input.pdf`, the second one then
-extracts the embedded file with the index 1.
-
-`hexapdf files -a invoice.xml -d "Invoice data" -a custom.xml input.pdf output.pdf`
-
-Attaches the files `invoice.xml` and `custom.xml` to the `input.pdf` and stores the result in
-`output.pdf`. The first file `invoice.xml` is stored together with a short description.
-
-
-### images
-
-`hexapdf images input.pdf`  
-`hexapdf images input.pdf -e --prefix images/image`
-
-Image info and extraction: The first command lists the images of the `input.pdf`, the second one
-then extracts the images into the subdirectory `images` with the prefix `image`.
-
-
-### image2pdf
-
-`hexapdf image2pdf image1.jpg image2.pdf image3.png output.pdf`
-
-Create a PDF file `output.pdf` containing three pages with one image per page and the image fitted
-to the page.
-
-
-### info
-
-`hexapdf info input.pdf`
-
-File information: Show general information about the PDF file, like PDF version, number of pages,
-creator, creation date and encryption related information.
-
-
-### inspect
-
-`hexapdf inspect input.pdf -o 3`
-
-Show the object with the object number 3 of the given PDF file.
-
-`hexapdf inspect input.pdf`
-
-Start the interactive inspection mode.
-
-
-### batch
-
-`hexapdf batch 'info {}' input1.pdf input2.pdf input3.pdf`
-
-Execute the info command for all input files.
-
-`hexapdf batch 'optimize --object-streams delete {} done-{}' input1.pdf input2.pdf input3.pdf`
-
-Optimize the given input files, creating the three output files `done-input1.pdf`, `done-input2.pdf`
-and `done-input3.pdf`.
 
 
 ## EXIT STATUS
