@@ -322,6 +322,12 @@ describe HexaPDF::Type::AcroForm::Form do
       assert_equal("value", field.field_value)
     end
 
+    it "ignores values for password fields" do
+      field = @acro_form.create_password_field('test')
+      @acro_form.fill("test" => "value")
+      assert_nil(field.field_value)
+    end
+
     it "works for radio buttons" do
       field = @acro_form.create_radio_button("test")
       field.create_widget(@doc.pages.add, value: :name)

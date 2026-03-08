@@ -11,6 +11,7 @@
 ### Changed
 
 * Automatic detection of digital signature size to account for small deviations
+* [HexaPDF::Type::AcroForm::Form#fill] to ignore password fields
 
 ### Fixed
 

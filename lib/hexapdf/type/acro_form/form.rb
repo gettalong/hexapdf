@@ -412,6 +412,8 @@ module HexaPDF
         #
         # * For radio buttons the value needs to be a String or a Symbol representing the name of
         #   the radio button widget to select.
+        #
+        # * Values for password fields are ignored as they should not be stored in the PDF.
         def fill(data)
           data.each do |field_name, value|
             field = field_by_name(field_name)
@@ -427,6 +429,8 @@ module HexaPDF
                                   when /\A(?:n(o)?|f(alse)?)\z/ then false
                                   else value
                                   end
+            when :password_field
+              # Ignore the value
             else
               raise HexaPDF::Error, "AcroForm field type #{field.concrete_field_type} not yet supported"
             end
