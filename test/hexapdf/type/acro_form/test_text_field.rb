@@ -272,8 +272,14 @@ describe HexaPDF::Type::AcroForm::TextField do
 
     it "checks that the field value has a valid type" do
       assert(@field.validate) # no field value
-      @field[:V] = :sym
+      @field[:V] = [5]
       refute(@field.validate)
+    end
+
+    it "converts an invalid Symbol value to string" do
+      @field[:V] = :sym
+      assert(@field.validate)
+      assert_equal('sym', @field[:V])
     end
 
     it "checks the field value against /MaxLen" do

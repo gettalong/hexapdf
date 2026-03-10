@@ -12,6 +12,8 @@
 
 * Automatic detection of digital signature size to account for small deviations
 * [HexaPDF::Type::AcroForm::Form#fill] to ignore password fields
+* [HexaPDF::Type::AcroForm::TextField] validation to convert invalid Symbol
+  values to String
 
 ### Fixed
 

@@ -344,8 +344,10 @@ module HexaPDF
           super
 
           if self[:V] && !(self[:V].kind_of?(String) || self[:V].kind_of?(HexaPDF::Stream))
-            yield("Text field doesn't contain text but #{self[:V].class} object")
-            return
+            correctable = self[:V].kind_of?(Symbol)
+            yield("Text field doesn't contain text but an object of type #{self[:V].class}", correctable)
+            return unless correctable
+            self[:V] = self[:V].to_s
           end
           if (max_len = self[:MaxLen]) && field_value && field_value.length > max_len
             correctable = true
