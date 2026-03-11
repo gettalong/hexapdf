@@ -188,4 +188,15 @@ describe HexaPDF::Type::Annotations::Widget do
       end
     end
   end
+
+  describe "perform_validation" do
+    it "validates the widget as form field if they are the same" do
+      @widget[:Rect] = [0, 0, 0, 0]
+      @widget[:FT] = :Tx
+      @widget[:T] = 'field'
+      @widget[:V] = :Sym
+      assert(@widget.validate)
+      assert_equal('Sym', @widget[:V]) # this auto-correct is part of TextField
+    end
+  end
 end

@@ -14,6 +14,8 @@
 * [HexaPDF::Type::AcroForm::Form#fill] to ignore password fields
 * [HexaPDF::Type::AcroForm::TextField] validation to convert invalid Symbol
   values to String
+* [HexaPDF::Type::Annotations::Widget] validation to also validate a widget as a
+  field if necessary
 
 ### Fixed
 

@@ -250,6 +250,15 @@ module HexaPDF
           end
         end
 
+        private
+
+        def perform_validation(&block) #:nodoc:
+          super
+          if !key?(:Parent) && (field = form_field) == self
+            field.validate(&block)
+          end
+        end
+
       end
 
     end
