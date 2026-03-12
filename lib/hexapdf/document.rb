@@ -394,11 +394,12 @@ module HexaPDF
     # :call-seq:
     #   document.unwrap(obj)   -> unwrapped_obj
     #
-    # Recursively unwraps the object to get native Ruby objects (i.e. Hash, Array, Integer, ...
-    # instead of HexaPDF::Reference and HexaPDF::Object).
+    # Recursively unwraps the object to get native Ruby objects (i.e. Hash, Array, Integer, ...)
+    # instead of HexaPDF::Reference and HexaPDF::Object. Only HexaPDF::Stream objects are retained
+    # as they are not representable by native Ruby objects.
     def unwrap(object, seen = {})
       object = deref(object)
-      object = object.data if object.kind_of?(HexaPDF::Object)
+      object = object.data if object.kind_of?(HexaPDF::Object) && !object.kind_of?(HexaPDF::Stream)
       if seen.key?(object)
         raise HexaPDF::Error, "Can't unwrap a recursive structure"
       end
@@ -413,6 +414,11 @@ module HexaPDF
       when HexaPDF::PDFData
         seen[object] = true
         unwrap(object.value, seen.dup)
+      when HexaPDF::Stream
+        seen[object] = true
+        object = HexaPDF::Stream.new(object.data.dup)
+        object.data.value = unwrap(object.data.value, seen.dup)
+        object
       else
         object
       end

@@ -286,6 +286,14 @@ describe HexaPDF::Document do
       assert_equal({a: {b: 10}}, @doc.unwrap(value))
     end
 
+    it "doesn't unwrap PDF stream objects but their contents" do
+      stream = @io_doc.wrap({a: HexaPDF::Reference.new(1, 0)}, stream: 'data')
+      result = @io_doc.unwrap(stream)
+      assert_kind_of(HexaPDF::Stream, result)
+      assert_equal({a: 10}, result.value)
+      assert_equal(HexaPDF::Reference.new(1, 0), stream.value[:a])
+    end
+
     it "fails to unwrap recursive structures" do
       obj1 = @doc.add({})
       obj2 = @doc.add({})

@@ -10,6 +10,7 @@
 
 ### Changed
 
+* **Breaking change**: [HexaPDF::Document#unwrap] to not unwrap streams
 * Automatic detection of digital signature size to account for small deviations
 * [HexaPDF::Type::AcroForm::Form#fill] to ignore password fields
 * [HexaPDF::Type::AcroForm::TextField] validation to convert invalid Symbol
