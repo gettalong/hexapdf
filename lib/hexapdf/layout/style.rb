@@ -211,6 +211,8 @@ module HexaPDF
         attr_reader :width
 
         # The colors of each edge. See Quad.
+        #
+        # See: HexaPDF::Content::ColorSpace.device_color_from_specification
         attr_reader :color
 
         # The styles of each edge. See Quad.
@@ -897,7 +899,7 @@ module HexaPDF
       #
       # The color used for filling (e.g. text), defaults to black.
       #
-      # See: HexaPDF::Content::Canvas#fill_color
+      # See: HexaPDF::Content::ColorSpace.device_color_from_specification
       #
       # Examples:
       #
@@ -926,7 +928,7 @@ module HexaPDF
       #
       # The color used for stroking (e.g. text outlines), defaults to black.
       #
-      # See: HexaPDF::Content::Canvas#stroke_color
+      # See: HexaPDF::Content::ColorSpace.device_color_from_specification
       #
       # Examples:
       #
@@ -1174,6 +1176,8 @@ module HexaPDF
       #   background_color(color = nil)
       #
       # The color used for backgrounds, defaults to +nil+ (i.e. no background).
+      #
+      # See: HexaPDF::Content::ColorSpace.device_color_from_specification
       #
       # Examples:
       #

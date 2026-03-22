@@ -895,7 +895,7 @@ module HexaPDF
       #
       # * Any other string is treated as a color name. HexaPDF supports CSS Color Module Level 3
       #   color names (see https://www.w3.org/TR/css-color-3/#svg-color) as well as HexaPDF design
-      #   colors.
+      #   colors. See ColorSpace::COLOR_NAMES for the list of supported names.
       #
       # * Four numeric arguments specify a CMYK color (see ColorSpace::DeviceCMYK::Color).
       #
