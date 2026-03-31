@@ -415,9 +415,6 @@ module HexaPDF
         seen[object] = true
         unwrap(object.value, seen.dup)
       when HexaPDF::Stream
-        seen[object] = true
-        object = HexaPDF::Stream.new(object.data.dup)
-        object.data.value = unwrap(object.data.value, seen.dup)
         object
       else
         object
