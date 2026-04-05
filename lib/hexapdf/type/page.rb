@@ -395,6 +395,17 @@ module HexaPDF
         Content::Parser.parse(contents, processor)
       end
 
+      # Extracts the layouted text from the page.
+      #
+      # See HexaPDF::Content::SmartTextExtractor.layout_text_runs for the available +options+.
+      def extract_text(**options)
+        processor = Content::SmartTextExtractor::TextRunProcessor.new
+        process_contents(processor)
+        box = box(:media)
+        Content::SmartTextExtractor.layout_text_runs(processor.text_runs, box.width, box.height,
+                                                     **options)
+      end
+
       # Returns the index of the page in the page tree.
       def index
         idx = 0

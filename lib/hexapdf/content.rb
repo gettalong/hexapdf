@@ -44,6 +44,7 @@ module HexaPDF
   #
   # * The Canvas class which provides an interface for drawing graphics and text.
   # * The Parser and Processor classes for processing an existing content stream.
+  # * SmartTextExtractor for extracting layouted text from a page.
   module Content
 
     autoload(:Canvas, 'hexapdf/content/canvas')
@@ -52,6 +53,7 @@ module HexaPDF
     autoload(:ColorSpace, 'hexapdf/content/color_space')
     autoload(:Operator, 'hexapdf/content/operator')
     autoload(:CanvasComposer, 'hexapdf/content/canvas_composer')
+    autoload(:SmartTextExtractor, 'hexapdf/content/smart_text_extractor')
 
   end
 

@@ -416,6 +416,14 @@ describe HexaPDF::Type::Page do
     end
   end
 
+  describe "extract_text" do
+    it "extracts the layouted text from the page" do
+      page = @doc.pages.add
+      page.canvas.font('Helvetica', size: 10).text('Hello', at: [10, 10])
+      assert_equal('Hello', page.extract_text(line_tolerance_factor: 5))
+    end
+  end
+
   describe "index" do
     it "returns the index of the page in the page tree" do
       kid1 = @doc.add({Type: :Pages, Parent: @doc.pages.root, Count: 4})
