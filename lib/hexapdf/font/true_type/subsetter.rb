@@ -176,9 +176,14 @@ module HexaPDF
         # Adds the components of compound glyphs to the subset.
         def add_glyph_components
           glyf = @font[:glyf]
+          process_glyph_components = lambda do |gid|
+            glyf[gid].components&.each do |cgid|
+              use_glyph(cgid)
+              process_glyph_components.call(cgid) if glyf[cgid].compound?
+            end
+          end
           @glyph_map.keys.each do |gid|
-            next if gid.kind_of?(Symbol)
-            glyf[gid].components&.each {|cgid| use_glyph(cgid) }
+            process_glyph_components.call(gid) unless gid.kind_of?(Symbol)
           end
         end
 

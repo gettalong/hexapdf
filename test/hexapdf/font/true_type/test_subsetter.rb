@@ -54,18 +54,19 @@ describe HexaPDF::Font::TrueType::Subsetter do
   end
 
   it "correctly subsets compound glyphs" do
-    font_file = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    font_file = "/usr/share/fonts/truetype/noto/NotoSansMono-Regular.ttf"
     skip unless File.exist?(font_file)
 
     begin
       @font = HexaPDF::Font::TrueType::Font.new(File.open(font_file))
       @subsetter = HexaPDF::Font::TrueType::Subsetter.new(@font)
 
-      @subsetter.use_glyph(@font[:cmap].preferred_table['À'.ord])
+      @subsetter.use_glyph(@font[:cmap].preferred_table['ë'.ord])
       subset = HexaPDF::Font::TrueType::Font.new(StringIO.new(@subsetter.build_font))
 
-      assert_equal(4, subset[:maxp].num_glyphs)
+      assert_equal(5, subset[:maxp].num_glyphs)
       assert_equal([2, 3], subset[:glyf][1].components)
+      assert_equal([4], subset[:glyf][3].components)
     ensure
       @font.io.close
     end

@@ -22,6 +22,7 @@
 ### Fixed
 
 * Writing of PDF documents with an invalid value for the /Info dictionary
+* Subsetting of TrueType fonts in case compound glyphs are themselves compound
 
 
 ## 1.6.0 - 2026-02-10
