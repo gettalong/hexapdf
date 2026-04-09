@@ -69,6 +69,11 @@ module HexaPDF
             @tables[tag]
           end
 
+          # Returns an array with all the table names (in string form) in the directory.
+          def table_names
+            @tables.keys
+          end
+
           private
 
           def load_from_io #:nodoc:
