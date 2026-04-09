@@ -49,6 +49,7 @@ module HexaPDF
       autoload(:Font, 'hexapdf/font/true_type/font')
       autoload(:Subsetter, 'hexapdf/font/true_type/subsetter')
       autoload(:Optimizer, 'hexapdf/font/true_type/optimizer')
+      autoload(:Builder, 'hexapdf/font/true_type/builder')
 
     end
 
