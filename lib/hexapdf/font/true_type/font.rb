@@ -35,6 +35,7 @@
 #++
 
 require 'hexapdf/font/true_type/table'
+require 'hexapdf/font/true_type/builder'
 require 'set'
 
 module HexaPDF
@@ -82,6 +83,18 @@ module HexaPDF
           @io = io
           @config = DEFAULT_CONFIG.merge(config)
           @tables = {}
+        end
+
+        # Uses Builder to build a font file for this font.
+        #
+        # The +table_overrides+ argument can be used to supply mappings from table names (in string
+        # form) to raw table data that should override the respective font's tables.
+        def build(table_overrides = {})
+          tables = directory.table_names.each_with_object({}) do |name, hash|
+            hash[name] = self[name.to_sym].raw_data
+          end
+          tables.merge!(table_overrides)
+          Builder.build(tables)
         end
 
         # Returns the table instance for the given tag (a symbol), or +nil+ if no such table exists.

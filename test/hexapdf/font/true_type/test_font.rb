@@ -7,16 +7,29 @@ require_relative 'common'
 
 describe HexaPDF::Font::TrueType::Font do
   before do
-    @io = StringIO.new("TEST\x00\x01\x00\x00\x00\x00\x00\x00" \
-                       "TEST----\x00\x00\x00\x1C\x00\x00\x00\x05ENTRY".b)
+    @io = StringIO.new("\x00\x01\x00\x00\x00\x02\x00 \x00\x01\x00\x00" \
+                       "TESTDATA\x00\x00\x00\x2C\x00\x00\x00\x04" \
+                       "head`\x11?\xFA\x00\x00\x00\x30\x00\x00\x00\x36" \
+                       "DATA" \
+                       "\x00\x00\x00\x01\x01\x02\x03\x04\xAC\\\xD1\xD4_\x0F<\xF5#{"\x00" * 38}\x00\x00".b)
     @font = HexaPDF::Font::TrueType::Font.new(@io)
     @font.config['font.true_type.table_mapping'][:TEST] = TrueTypeTestTable.name
+  end
+
+  describe "build" do
+    it "creates a font file from the tables" do
+      assert_equal(@io.string, @font.build)
+      result = @io.string.dup
+      result[16, 4] = result[44, 4] = 'OTHR'
+      result[56, 4] = "\x966\xE9\xB2".b
+      assert_equal(result, @font.build('TEST' => 'OTHR'))
+    end
   end
 
   describe "[]" do
     it "returns a named table" do
       table = @font[:TEST]
-      assert_equal('ENTRY', table.data)
+      assert_equal('DATA', table.data)
     end
 
     it "always returns the same table instance" do
