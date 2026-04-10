@@ -48,7 +48,7 @@ module HexaPDF
           entry_selector = tables.length.bit_length - 1
           range_shift = tables.length * 16 - search_range
 
-          font_data = "\x0\x1\x0\x0".b +
+          font_data = (tables.key?('glyf') ? "\x0\x1\x0\x0" : "OTTO").b +
             [tables.length, search_range, entry_selector, range_shift].pack('n4')
 
           offset = font_data.length + tables.length * 16

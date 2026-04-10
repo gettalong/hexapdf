@@ -39,4 +39,13 @@ describe HexaPDF::Font::TrueType::Builder do
     tables = built_font.directory.instance_variable_get(:@tables)
     assert_equal(tables.keys.sort, tables.keys)
   end
+
+  it "allows setting the font version to OTTO for OpenType CFF fonts" do
+    tables = {
+      "head" => @font[:head].raw_data,
+      "maxp" => @font[:maxp].raw_data,
+    }
+    font_data = HexaPDF::Font::TrueType::Builder.build(tables)
+    assert_equal('OTTO', font_data[0, 4])
+  end
 end

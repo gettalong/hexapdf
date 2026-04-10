@@ -7,11 +7,11 @@ require_relative 'common'
 
 describe HexaPDF::Font::TrueType::Font do
   before do
-    @io = StringIO.new("\x00\x01\x00\x00\x00\x02\x00 \x00\x01\x00\x00" \
+    @io = StringIO.new("OTTO\x00\x02\x00 \x00\x01\x00\x00" \
                        "TESTDATA\x00\x00\x00\x2C\x00\x00\x00\x04" \
                        "head`\x11?\xFA\x00\x00\x00\x30\x00\x00\x00\x36" \
                        "DATA" \
-                       "\x00\x00\x00\x01\x01\x02\x03\x04\xAC\\\xD1\xD4_\x0F<\xF5#{"\x00" * 38}\x00\x00".b)
+                       "\x00\x00\x00\x01\x01\x02\x03\x04]\t}\x85_\x0F<\xF5#{"\x00" * 38}\x00\x00".b)
     @font = HexaPDF::Font::TrueType::Font.new(@io)
     @font.config['font.true_type.table_mapping'][:TEST] = TrueTypeTestTable.name
   end
@@ -19,9 +19,10 @@ describe HexaPDF::Font::TrueType::Font do
   describe "build" do
     it "creates a font file from the tables" do
       assert_equal(@io.string, @font.build)
+
       result = @io.string.dup
       result[16, 4] = result[44, 4] = 'OTHR'
-      result[56, 4] = "\x966\xE9\xB2".b
+      result[56, 4] = "F\xE3\x95c".b
       assert_equal(result, @font.build('TEST' => 'OTHR'))
     end
   end
