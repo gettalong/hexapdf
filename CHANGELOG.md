@@ -18,6 +18,7 @@
   values to String
 * [HexaPDF::Type::Annotations::Widget] validation to also validate a widget as a
   field if necessary
+* PDF/A task to include a fix for mismatching glyph widths for Type 2 CID fonts
 
 ### Fixed
 

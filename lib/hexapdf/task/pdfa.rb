@@ -40,6 +40,7 @@ require 'hexapdf/content/parser'
 require 'hexapdf/content/operator'
 require 'hexapdf/type/xref_stream'
 require 'hexapdf/type/object_stream'
+require 'hexapdf/font/true_type'
 
 module HexaPDF
   module Task
@@ -51,6 +52,13 @@ module HexaPDF
     # * prevents the Standard 14 PDF fonts to be used.
     # * adds an appropriate output intent if none is set.
     # * adds the necessary PDF/A metadata properties.
+    #
+    # Additionally, it applies fixes to the document so that the structures and content of
+    # non-conforming PDFs are corrected. See ::call for more information on the available fixes.
+    #
+    # Note that you should use a PDF/A validation tool like veraPDF (https://verapdf.org/) to ensure
+    # that the resulting files confirm to the PDF/A specification because not all documents can be
+    # fixed at the moment.
     module PDFA
 
       # Performs the necessary tasks to make the document PDF/A compatible.
@@ -58,7 +66,13 @@ module HexaPDF
       # +level+::
       #     Specifies the PDF/A conformance level that should be used. Can be one of the following
       #     strings: 2b, 2u, 3b, 3u.
-      def self.call(doc, level: '3u')
+      #
+      # +fixes+::
+      #     Specifies the fixes that should be applied when converting a non-conforming PDF. Can
+      #     either be +:all+ for applying all fixes or an array with one or more of the following:
+      #
+      #     +:glyph_widths+:: Corrects mismatching width information in fonts.
+      def self.call(doc, level: '3u', fixes: :all)
         unless level.match?(/\A[23][bu]\z/)
           raise ArgumentError, "The given PDF/A conformance level '#{level}' is not supported"
         end
@@ -68,6 +82,8 @@ module HexaPDF
           doc.metadata.property('pdfaid', 'part', part)
           doc.metadata.property('pdfaid', 'conformance', conformance.upcase)
           add_srgb_icc_output_intent(doc) unless doc.catalog.key?(:OutputIntents)
+
+          (fixes == :all ? ALL_FIXES : fixes).each {|fix| send(fix, doc) }
         end
       end
 
@@ -80,6 +96,79 @@ module HexaPDF
                    RegistryName: 'https://www.color.org', DestOutputProfile: icc}),
         ]
       end
+
+      ALL_FIXES = [:fix_glyph_widths] # :nodoc:
+
+      # Makes the glyph widths stored in the embedded fonts the same as the ones specified in the
+      # PDF font data structures.
+      #
+      # Note: Currently only handles Type 2 CIDFonts.
+      def self.fix_glyph_widths(doc) # :nodoc:
+        # Step 1: Collect all CIDs together with their respective fonts
+        processor = CIDCollector.new
+        doc.pages.each do |page|
+          page.process_contents(processor)
+          page.each_annotation do |annotation|
+            next unless (appearance = annotation.appearance)
+            appearance.process_contents(processor, original_resources: page.resources)
+          end
+        end
+
+        # Step 2: Process all found fonts
+        processor.map.each do |font_object, all_cids|
+          next if all_cids.empty?
+          font = HexaPDF::Font::TrueType::Font.new(StringIO.new(font_object.font_file.stream))
+          cid_to_gid = cid_to_gid_mapping(font_object)
+
+          # Process all found CIDs by comparing their width with the ones defined in the font and
+          # correcting the font if necessary.
+          raw_hmtx = font[:hmtx].raw_data
+          width_conversion_factor = 1000.0 / font[:head].units_per_em
+          all_cids.each do |cid|
+            cid_width = font_object.width(cid)
+            gid = cid_to_gid[cid]
+            gid_width = font[:hmtx][gid].advance_width * width_conversion_factor
+            next if (cid_width - gid_width).abs.round <= 1
+            raw_hmtx[4 * gid, 2] = [(cid_width / width_conversion_factor).round].pack('n')
+          end
+
+          font_object.font_file.stream = font.build('hmtx' => raw_hmtx)
+        end
+      end
+
+      # Processes the contents of a stream and collects the CIDs for each composite font.
+      class CIDCollector < HexaPDF::Content::Processor
+
+        # The mapping from the composite font's descendant font to the set of used CIDs.
+        attr_reader :map
+
+        def initialize(*) # :nodoc:
+          super
+          @map = Hash.new {|h, k| h[k] = Set.new }
+        end
+
+        def show_text(data) # :nodoc:
+          font = graphics_state.font
+          return unless font[:Subtype] == :Type0 && font.descendant_font[:Subtype] == :CIDFontType2
+
+          Array(data).each do |item|
+            next if item.kind_of?(Numeric)
+            @map[font.descendant_font].merge(font.decode(item))
+          end
+        end
+        alias show_text_with_positioning show_text
+
+      end
+
+      # Returns an object responding to #[] that maps CIDs to GIDs for Type 2 CIDFonts.
+      def self.cid_to_gid_mapping(font)
+        if font[:CIDToGIDMap] == :Identity
+          proc {|cid| cid }
+        else
+          font[:CIDToGIDMap].stream.unpack('n*')
+        end
+      end
+      private_class_method :cid_to_gid_mapping
 
     end
 
