@@ -137,6 +137,8 @@ module HexaPDF
             end
           elsif doc.encrypted?
             output_line("Encrypted", "yes (no or wrong password given)")
+          else
+            output_line("Encrypted", "no")
           end
 
           if doc.revisions.parser.linearized?
