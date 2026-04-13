@@ -88,13 +88,19 @@ module HexaPDF
           # superscript.
           #
           # Using this "fake" baseline works well enough and avoids additional calculations.
-          def baseline = bottom
+          def baseline
+            bottom
+          end
 
           # The height of the text run's bounding box.
-          def height = top - bottom
+          def height
+            top - bottom
+          end
 
           # The width of the text run's bounding box.
-          def width = right - left
+          def width
+            right - left
+          end
         end
 
         # Array with all collected TextRun instances.
