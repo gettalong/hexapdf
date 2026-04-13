@@ -68,11 +68,20 @@ module HexaPDF
       #     strings: 2b, 2u, 3b, 3u.
       #
       # +fixes+::
-      #     Specifies the fixes that should be applied when converting a non-conforming PDF. Can
-      #     either be +:all+ for applying all fixes or an array with one or more of the following:
+      #     Specifies the fixes that should be applied when converting a non-conforming PDF. If a
+      #     document is created with HexaPDF but also includes parts of loaded documents, this
+      #     argument hast to be set to +:all+.
+      #
+      #     Can be +:default+ (which is also the default value), +:all+ or an array with one or more
+      #     fix names.
+      #
+      #     +:default+:: Applies all fixes if the document was loaded from a file. Otherwise applies
+      #         only those fixes necessary for files created with HexaPDF.
+      #
+      #     +:all+: Applies all available fixes.
       #
       #     +:glyph_widths+:: Corrects mismatching width information in fonts.
-      def self.call(doc, level: '3u', fixes: :all)
+      def self.call(doc, level: '3u', fixes: :default)
         unless level.match?(/\A[23][bu]\z/)
           raise ArgumentError, "The given PDF/A conformance level '#{level}' is not supported"
         end
@@ -83,7 +92,14 @@ module HexaPDF
           doc.metadata.property('pdfaid', 'conformance', conformance.upcase)
           add_srgb_icc_output_intent(doc) unless doc.catalog.key?(:OutputIntents)
 
-          (fixes == :all ? ALL_FIXES : fixes).each {|fix| send(fix, doc) }
+          fixes = if fixes == :all || (fixes == :default && doc.revisions.parser)
+                    ALL_FIXES
+                  elsif fixes == :default
+                    ALL_FIXES - FIXES_FOR_LOADED_DOCUMENTS
+                  else
+                    fixes
+                  end
+          fixes.each {|fix| send(fix, doc) }
         end
       end
 
@@ -98,6 +114,8 @@ module HexaPDF
       end
 
       ALL_FIXES = [:fix_glyph_widths] # :nodoc:
+
+      FIXES_FOR_LOADED_DOCUMENTS = [:fix_glyph_widths] # :nodoc:
 
       # Makes the glyph widths stored in the embedded fonts the same as the ones specified in the
       # PDF font data structures.
