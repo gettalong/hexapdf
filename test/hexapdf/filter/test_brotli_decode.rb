@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require_relative 'common'
-require 'hexapdf/filter/flate_decode'
+require 'hexapdf/filter/brotli_decode'
 
 describe HexaPDF::Filter::BrotliDecode do
   include CommonFilterTests
