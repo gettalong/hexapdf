@@ -270,7 +270,7 @@ module HexaPDF
       str << ">>"
     end
 
-    STRING_ESCAPE_MAP = {"(" => "\\(", ")" => "\\)", "\\" => "\\\\", "\r" => "\\r"}.freeze # :nodoc:
+    STRING_ESCAPE_MAP = {"(" => "\\(", ")" => "\\)", "\\" => "\\\\", "\r" => "\\r", "\n" => "\\n"}.freeze # :nodoc:
 
     # Serializes a String object.
     #
@@ -287,7 +287,7 @@ module HexaPDF
             else
               obj.b
             end
-      obj.gsub!(/[()\\\r]/n, STRING_ESCAPE_MAP)
+      obj.gsub!(/[()\\\r\n]/n, STRING_ESCAPE_MAP)
       "(#{obj})"
     end
 

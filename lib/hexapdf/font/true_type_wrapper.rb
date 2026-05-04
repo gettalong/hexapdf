@@ -239,9 +239,9 @@ module HexaPDF
             raise HexaPDF::MissingGlyphError.new(glyph) if glyph.kind_of?(InvalidGlyph)
             @subsetter.use_glyph(glyph.id) if @subsetter
             @last_char_code += 1
-            # Handle codes for ASCII characters \r (13), (, ) (40, 41) and \ (92) specially so that
+            # Handle codes for ASCII characters \n (10), \r (13), (, ) (40, 41) and \ (92) specially so that
             # they never appear in the output (PDF serialization would need to escape them)
-            if @last_char_code == 13 || @last_char_code == 40 || @last_char_code == 92
+            if @last_char_code == 10 || @last_char_code == 13 || @last_char_code == 40 || @last_char_code == 92
               @last_char_code += (@last_char_code == 40 ? 2 : 1)
             end
             [[@last_char_code].pack('n'), @last_char_code]

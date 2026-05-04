@@ -119,9 +119,9 @@ describe HexaPDF::Font::TrueTypeWrapper do
       assert_equal([3].pack('n'), code)
     end
 
-    it "doesn't use char codes 13, 40, 41 and 92 because they would need to be escaped" do
+    it "doesn't use char codes 10, 13, 40, 41 and 92 because they would need to be escaped" do
       codes = 1.upto(93).map {|i| @font_wrapper.encode(@font_wrapper.glyph(i)) }.join
-      assert_equal([1..12, 14..39, 42..91, 93..97].flat_map(&:to_a).pack('n*'), codes)
+      assert_equal([1..9, 11..12, 14..39, 42..91, 93..98].flat_map(&:to_a).pack('n*'), codes)
     end
 
     it "raises an error if an InvalidGlyph is encoded" do

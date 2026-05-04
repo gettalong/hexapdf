@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+* Serialization of strings to avoid problems with buggy Ghostscript versions
+
+
 ## 1.7.0 - 2026-04-13
 
 ### Added
