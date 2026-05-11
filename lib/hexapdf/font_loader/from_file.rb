@@ -69,6 +69,10 @@ module HexaPDF
         return nil unless is_font || File.file?(name)
 
         font = is_font ? name : HexaPDF::Font::TrueType::Font.new(File.open(name, 'rb'))
+        unless font[:glyf]
+          raise HexaPDF::Error, "The font '#{name}' does not contain TrueType but CFF outlines " \
+            "which are not supported, yet"
+        end
         HexaPDF::Font::TrueTypeWrapper.new(document, font, subset: subset)
       end
 

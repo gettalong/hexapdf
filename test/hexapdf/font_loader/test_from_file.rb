@@ -30,6 +30,13 @@ describe HexaPDF::FontLoader::FromFile do
     refute(wrapper.subset?)
   end
 
+  it "raises an error if the provided font does not contain TrueType outlines" do
+    font = HexaPDF::Font::TrueType::Font.new(File.open(@font_file, 'rb'))
+    font.directory.instance_variable_get(:@tables).delete('glyf')
+    exception = assert_raises(HexaPDF::Error) { @klass.call(@doc, font) }
+    assert_match(/does not contain TrueType but CFF/, exception.message)
+  end
+
   it "returns nil if the given name doesn't represent a file" do
     assert_nil(@klass.call(@doc, "Unknown"))
   end

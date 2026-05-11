@@ -7,6 +7,8 @@
 ### Changed
 
 * Serialization of strings to avoid problems with buggy Ghostscript versions
+* [HexaPDF::FontLoader::FromFile] to raise an error when loading a non-TrueType
+  font
 
 ### Fixed
 
