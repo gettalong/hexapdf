@@ -8,6 +8,10 @@
 
 * Serialization of strings to avoid problems with buggy Ghostscript versions
 
+### Fixed
+
+* CLI command `hexapdf fonts` to work for Type 3 fonts
+
 
 ## 1.7.0 - 2026-04-13
 

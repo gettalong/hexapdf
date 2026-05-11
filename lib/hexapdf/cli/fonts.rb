@@ -96,11 +96,13 @@ module HexaPDF
                        else
                          "Built-in"
                        end
-            size = human_readable_file_size(font.embedded? ? font.font_file[:Length] : 0)
+            size = human_readable_file_size(font.embedded? && font_type != 'Type 3' ?
+                                              font.font_file[:Length] : 0)
+            font_name = font[:BaseFont] || font[:FontDescriptor][:FontName]
             embedded = (font.embedded? ? "yes" : "no")
-            subset = (font[:BaseFont].match?(/\A[A-Z]{6}\+/) ? "yes" : "no")
+            subset = font_name.match?(/\A[A-Z]{6}\+/) ? "yes" : "no"
             printf("%5s %-40s %-12s %-10s %-3s %-3s %8s %9s\n",
-                   pindex, font[:BaseFont], font_type, encoding,
+                   pindex, font_name, font_type, encoding,
                    embedded, subset, size, "#{font.oid},#{font.gen}")
           end
         end
