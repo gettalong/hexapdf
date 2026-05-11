@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Type::FontType3#embedded?] as Type 3 fonts are always embedded
+
 ### Changed
 
 * Serialization of strings to avoid problems with buggy Ghostscript versions

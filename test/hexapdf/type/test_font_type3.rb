@@ -28,6 +28,10 @@ describe HexaPDF::Type::FontType3 do
     assert_equal(0.002, @font.glyph_scaling_factor)
   end
 
+  it "always returns true for embedded?" do
+    assert(@font.embedded?)
+  end
+
   describe "validation" do
     it "works for valid objects" do
       assert(@font.validate)

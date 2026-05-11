@@ -70,6 +70,11 @@ module HexaPDF
         self[:FontMatrix][0]
       end
 
+      # Returns +true+ because Type3 fonts are always inherently embedded.
+      def embedded?
+        true
+      end
+
       private
 
       def perform_validation
