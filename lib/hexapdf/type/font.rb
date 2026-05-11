@@ -89,13 +89,13 @@ module HexaPDF
 
       # Returns +true+ if the font is embedded.
       def embedded?
-        dict = self[:FontDescriptor]
-        dict && (dict[:FontFile] || dict[:FontFile2] || dict[:FontFile3])
+        font_file
       end
 
       # Returns the embeeded font file object or +nil+ if the font is not embedded.
       def font_file
-        embedded?
+        dict = self[:FontDescriptor]
+        dict && (dict[:FontFile] || dict[:FontFile2] || dict[:FontFile3])
       end
 
       # Returns the glyph scaling factor for transforming from glyph space to text space.
