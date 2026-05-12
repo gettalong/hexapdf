@@ -2,6 +2,8 @@
 
 ### Added
 
+* [HexaPDF::Task::ImportPages] for importing pages while preserving the optional
+  content configuration and interactive form fields
 * [HexaPDF::Type::FontType3#embedded?] as Type 3 fonts are always embedded
 
 ### Changed

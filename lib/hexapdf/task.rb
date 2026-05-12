@@ -66,6 +66,7 @@ module HexaPDF
     autoload(:Dereference, 'hexapdf/task/dereference')
     autoload(:PDFA, 'hexapdf/task/pdfa')
     autoload(:MergeAcroForm, 'hexapdf/task/merge_acro_form')
+    autoload(:ImportPages, 'hexapdf/task/import_pages')
 
   end
 
