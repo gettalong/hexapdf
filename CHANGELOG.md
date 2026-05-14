@@ -17,6 +17,7 @@
 ### Fixed
 
 * CLI command `hexapdf fonts` to work for Type 3 fonts
+* CLI command `hexapdf images` to correctly show images nested in Form XObjects
 
 
 ## 1.7.0 - 2026-04-13

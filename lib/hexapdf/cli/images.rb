@@ -52,11 +52,10 @@ module HexaPDF
         # The mapping of XObject name to [x_ppi, y_ppi].
         attr_reader :result
 
-        # Initialize the processor with the names of the images for which the PPI should be
-        # determined.
-        def initialize(names, user_unit)
+        # Initialize the processor with the image XObjects for which the PPI should be determined.
+        def initialize(images, user_unit)
           super()
-          @names = names
+          @images = images
           @user_unit = user_unit
           @result = {}
         end
@@ -64,9 +63,8 @@ module HexaPDF
         # Determine the PPI in x- and y-directions of the specified images.
         def paint_xobject(name)
           super
-          return unless @names.delete(name)
           xobject = resources.xobject(name)
-          return unless xobject[:Subtype] == :Image
+          return unless @images.delete(xobject) && xobject[:Subtype] == :Image
 
           w, h = xobject.width, xobject.height
           llx, lly = graphics_state.ctm.evaluate(0, 0).map {|i| i * @user_unit }
@@ -75,8 +73,8 @@ module HexaPDF
 
           x_ppi = 72.0 * w / Math.sqrt((lrx - llx)**2 + (lry - lly)**2)
           y_ppi = 72.0 * h / Math.sqrt((ulx - llx)**2 + (uly - lly)**2)
-          @result[name] = [x_ppi.round, y_ppi.round]
-          raise StopIteration if @names.empty?
+          @result[xobject] = [x_ppi.round, y_ppi.round]
+          raise StopIteration if @images.empty?
         end
 
       end
@@ -182,17 +180,19 @@ module HexaPDF
         seen = {}
 
         doc.pages.each_with_index do |page, pindex|
-          image_names = []
-          xobjects = page.resources[:XObject]
-
-          xobjects&.each&.map do |name, xobject|
-            image_names << name if xobject[:Subtype] == :Image && !xobject[:ImageMask]
+          images = []
+          process_xobject_entry = lambda do |name, xobject|
+            if xobject[:Subtype] == :Image && !xobject[:ImageMask]
+              images << xobject
+            elsif xobject[:Subtype] == :Form
+              xobject.resources[:XObject]&.each(&process_xobject_entry)
+            end
           end
+          page.resources[:XObject]&.each(&process_xobject_entry)
 
-          processor = ImageLocationProcessor.new(image_names, page[:UserUnit] || 1)
+          processor = ImageLocationProcessor.new(images, page[:UserUnit] || 1)
           page.process_contents(processor)
-          processor.result.each do |name, ppi|
-            xobject = xobjects[name]
+          processor.result.each do |xobject, ppi|
             if seen[xobject]
               yield(xobject, seen[xobject], pindex + 1, ppi)
             else
