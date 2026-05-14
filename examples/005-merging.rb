@@ -8,7 +8,8 @@
 #
 # For example, named destinations are not properly handled by the code.
 # Sometimes other things like attached files or a document outline
-# should also be preserved.
+# should also be preserved. For more advanced importing of pages see
+# [HexaPDF::Task::ImportPages].
 #
 # The hexapdf binary provides a command for merging files which does
 # the merging in a more sophisticated way.
