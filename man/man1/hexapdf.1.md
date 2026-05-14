@@ -822,6 +822,22 @@ An input file can be specified multiple times, using a different `--pages` optio
   with the second, third, ... specified pages. If fewer pages were specified for an input file, the
   input file is just skipped for the rest of the rounds.
 
+`--acro-form` *MODE*
+
+: Handle interactive form fields by either merging the fields of the imported pages (**merge**, the
+  default) or by ignoring them (**ignore**).
+
+  If the fields are ignored, they might appear on the pages but are not fully usable and functional.
+
+`--optional-content` *MODE*
+
+: Handle optional content by preserving its state configuration (**preserve**, the default) or by
+  ignoring it (**ignore**).
+
+  If optional content is ignored, the default state depends on the configuration of optional content
+  in the primary file. This means that all optional content on merged pages might be visible or
+  hidden.
+
 Additionally, the **Optimization Options** and **Encryption Options** can be used.
 
 Examples:

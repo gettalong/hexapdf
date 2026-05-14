@@ -80,6 +80,14 @@ module HexaPDF
                    "false)") do |c|
           @interleave = c
         end
+        options.on("--acro-form MODE", [:merge, :ignore], "Handling of interactive forms (either " \
+                   "merge or ignore; default: merge)") do |mode|
+          @acro_form_mode = mode
+        end
+        options.on("--optional-content MODE", [:preserve, :ignore], "Handling of optional " \
+                   "content (either preserve or ignore; default: preserve)") do |mode|
+          @optional_content_mode = mode
+        end
 
         options.separator("")
         options.separator("Output related options")
@@ -89,6 +97,8 @@ module HexaPDF
         @files = []
         @initial_empty = false
         @interleave = false
+        @acro_form_mode = :merge
+        @optional_content_mode = :preserve
       end
 
       def execute #:nodoc:
@@ -179,7 +189,9 @@ module HexaPDF
           page.value.update(page.copy_inherited_values)
           page = page.deep_copy unless source_index == 0
         else
-          page = page_tree.document.import(page).deep_copy
+          page = page_tree.document.task(:import_pages, source: page.document, append: false,
+                                         pages: [page], ocgs: @optional_content_mode,
+                                         acro_form: @acro_form_mode)[0].deep_copy
         end
         if rotation == :none
           page.delete(:Rotate)
