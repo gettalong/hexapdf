@@ -815,7 +815,7 @@ module HexaPDF
       #
       # Each feature to be applied is indicated by a key with a truthy value.
       #
-      # See: HexaPDF::Layout::TextShaper#shape_text for available features.
+      # See: #shaping_engine
       #
       # Examples:
       #
@@ -823,6 +823,53 @@ module HexaPDF
       #   composer.style(:base, font: ["Times", custom_encoding: true], font_size: 30)
       #   composer.text("Test flight")
       #   composer.text("Test flight", font_features: {kern: true, liga: true})
+
+      ##
+      # :method: font_script
+      # :call-seq:
+      #   font_script(script = nil)
+      #
+      # The script in which the text is written, defaults to +nil+.
+      #
+      # This is used by the shaping engine to select the correct shaping implementation. If not set,
+      # the script is guessed from the text.
+      #
+      # See: #shaping_engine
+
+      ##
+      # :method: language
+      # :call-seq:
+      #   language(lang = nil)
+      #
+      # The language in which the text is written, defaults to +nil+.
+      #
+      # This is used, for example, by the shaping engine to correctly shape the text.
+      #
+      # See: #shaping_engine
+
+      ##
+      # :method: direction
+      # :call-seq:
+      #   direction(dir = nil)
+      #
+      # The direction of text, defaults to +:ltr+ (possible values are +:ltr+ and +:rtl+).
+      #
+      # This is used by the shaping engine to correctly shape the text.
+      #
+      # See: #shaping_engine
+
+      ##
+      # :method: shaping_engine
+      # :call-seq:
+      #   shaping_engine(engine = nil)
+      #
+      # The shaping engine that should be used, defaults to +:internal+. The other possible value is
+      # +:harfbuzz+.
+      #
+      # If the needed Rubygem for HarfBuzz is not available, it automatically falls back to the
+      # internal engine.
+      #
+      # See: HexaPDF::Layout::TextShaper for details.
 
       ##
       # :method: text_rendering_mode
@@ -1541,6 +1588,10 @@ module HexaPDF
         [:horizontal_scaling, 100],
         [:text_rise, 0],
         [:font_features, {}],
+        [:font_script, nil],
+        [:language, nil],
+        [:direction, :ltr, {valid_values: [:ltr, :rtl]}],
+        [:shaping_engine, :internal, {valid_values: [:internal, :harfbuzz]}],
         [:text_rendering_mode, "Content::TextRenderingMode::FILL",
          {setter: "Content::TextRenderingMode.normalize(value)"}],
         [:subscript, false,

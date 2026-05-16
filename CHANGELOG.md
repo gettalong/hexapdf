@@ -1,3 +1,13 @@
+## Unreleased
+
+### Added
+
+* [HexaPDF::Layout::Style#shaping_engine] for specifying the used shaping engine
+* [HexaPDF::Layout::Style#font_script] for specifying the script of text
+* [HexaPDF::Layout::Style#language] for specifying the language of text
+* [HexaPDF::Layout::Style#direction] for specifying the direction of text
+
+
 ## 1.8.0 - 2026-05-14
 
 ### Added

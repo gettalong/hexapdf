@@ -15,7 +15,7 @@ describe HexaPDF::Layout::TextShaper do
   end
 
   def setup_fragment(items, **options)
-    style = HexaPDF::Layout::Style.new(font: @font, font_size: 20, font_features: options)
+    style = HexaPDF::Layout::Style.new(font: @font, font_size: 20, **options)
     HexaPDF::Layout::TextFragment.new(items, style)
   end
 
@@ -26,14 +26,15 @@ describe HexaPDF::Layout::TextShaper do
 
     it "handles ligatures" do
       fragment = setup_fragment(@font.decode_utf8('fish fish fi').insert(1, 100).
-        insert(0, 100), liga: true)
+        insert(0, 100), font_features: {liga: true})
       @shaper.shape_text(fragment)
       assert_equal([100, :fi, :s, :h, :space, :fi, :s, :h, :space, :fi],
                    fragment.items.map {|item| item.kind_of?(Numeric) ? item : item.id })
     end
 
     it "handles kerning" do
-      fragment = setup_fragment(@font.decode_utf8('fish fish wow').insert(1, 100), kern: true)
+      fragment = setup_fragment(@font.decode_utf8('fish fish wow').insert(1, 100),
+                                font_features: {kern: true})
       @shaper.shape_text(fragment)
       assert_equal([:f, 100, :i, :s, :h, :space, :f, 20, :i, :s, :h, :space, :w, 10, :o, 25, :w],
                    fragment.items.map {|item| item.kind_of?(Numeric) ? item : item.id })
@@ -53,7 +54,8 @@ describe HexaPDF::Layout::TextShaper do
         [2, 0, 0, 0, 53, 80, -20, 80, 81, -10].pack('n4n2s>n2s>')
       table = create_table(:Kern, data, standalone: true)
       @wrapped_font.instance_eval { @tables[:kern] = table }
-      fragment = setup_fragment(@font.decode_utf8('Top Top').insert(1, 100), kern: true)
+      fragment = setup_fragment(@font.decode_utf8('Top Top').insert(1, 100),
+                                shaping_engine: :internal, font_features: {kern: true})
       @shaper.shape_text(fragment)
       assert_equal([53, [100], 80, [10], 81, 3, 53, [20], 80, [10], 81],
                    fragment.items.map {|item| item.kind_of?(Numeric) ? [item] : item.id })
