@@ -177,6 +177,9 @@ Some included files have a different license:
 
 * The file `test/data/fonts/Ubuntu-Title.ttf` is licensed under the SIL Open Font License.
 
+* The files in `data/hexapdf/fonts` are licensed under SIL Open Font License, Version 1.1, see the
+  file `data/hexapdf/fonts/OFL.txt`.
+
 * The AES test vector files in `test/data/aes-test-vectors` have been created using the test vector
   file available from <http://csrc.nist.gov/groups/STM/cavp/block-ciphers.html#test-vectors>.
 

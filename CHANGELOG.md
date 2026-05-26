@@ -8,6 +8,7 @@
 * [HexaPDF::Layout::Style#direction] for specifying the direction of text
 * [HexaPDF::Font::TrueTypeWrapper#filename] for retrieving the filename from
   which the wrapped font was created
+* Inter as bundled font in variants regular, bold, italic and bold italic
 
 
 ## 1.8.0 - 2026-05-14

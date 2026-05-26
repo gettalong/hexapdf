@@ -36,6 +36,7 @@
 
 require 'hexapdf/font/invalid_glyph'
 require 'hexapdf/error'
+require 'hexapdf/data_dir'
 
 module HexaPDF
 
@@ -333,6 +334,8 @@ module HexaPDF
   #    [italic] For the italic or oblique variant of the font
   #    [bold_italic] For the bold and italic/oblique variant of the font
   #
+  #    The default value registers the bundled Inter font (see the files in data/hexapdf/fonts).
+  #
   # font.on_invalid_glyph::
   #    Callback hook when a character cannot be mapped to a glyph and one or more glyphs from a
   #    different font should be used. Only applies when using high-level text creation facilities.
@@ -563,7 +566,14 @@ module HexaPDF
                       },
                       'font.default' => 'Times',
                       'font.fallback' => ['ZapfDingbats', 'Symbol'],
-                      'font.map' => {},
+                      'font.map' => {
+                        'Inter' => {
+                          none: File.join(HexaPDF.data_dir, 'fonts', 'Inter-Regular.ttf'),
+                          bold: File.join(HexaPDF.data_dir, 'fonts', 'Inter-Bold.ttf'),
+                          italic: File.join(HexaPDF.data_dir, 'fonts', 'Inter-Italic.ttf'),
+                          bold_italic: File.join(HexaPDF.data_dir, 'fonts', 'Inter-BoldItalic.ttf'),
+                        },
+                      },
                       'font.on_invalid_glyph' => method(:font_on_invalid_glyph),
                       'font.on_missing_glyph' => proc do |char, font_wrapper|
                         HexaPDF::Font::InvalidGlyph.new(font_wrapper, char)
