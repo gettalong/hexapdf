@@ -4,7 +4,8 @@
 # fields. HexaPDF supports the creation and processing of these forms.
 #
 # This example show-cases how to create the various form field types and their
-# possible standard appearances.
+# possible standard appearances (e.g. setting the background color and border
+# style).
 #
 # The [HexaPDF::Type::AcroForm::Form] and [HexaPDF::Type::AcroForm::Field]
 # classes provide a plethora of convenience methods for working with forms, like
@@ -52,6 +53,7 @@ canvas.text("Text fields", at: [50, 480])
 canvas.text("Single line", at: [70, 450])
 tx = form.create_text_field("Single Line", font_size: 16)
 widget = tx.create_widget(page, Rect: [200, 445, 500, 465])
+widget.background_color("lightyellow").border_style(color: "black", style: [2])
 tx.field_value = "A sample test string!"
 
 canvas.text("Multiline", at: [70, 420])
