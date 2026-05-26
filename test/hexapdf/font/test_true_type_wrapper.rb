@@ -37,6 +37,10 @@ describe HexaPDF::Font::TrueTypeWrapper do
     refute(HexaPDF::Font::TrueTypeWrapper.new(@doc, @font, subset: false).subset?)
   end
 
+  it "can be asked for the filename from which the wrapped font was created" do
+    assert_equal(@font_file, @font_wrapper.filename)
+  end
+
   describe "decode_*" do
     it "decode_utf8 returns an array of glyph objects" do
       assert_equal("Test",

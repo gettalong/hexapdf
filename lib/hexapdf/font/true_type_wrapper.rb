@@ -184,6 +184,11 @@ module HexaPDF
         !@subsetter.nil?
       end
 
+      # The filename of the wrapped TrueType font object if it was loaded from a file.
+      def filename
+        wrapped_font.io.path
+      end
+
       # Returns a Glyph object for the given glyph ID and +str+ pair.
       #
       # The optional argument +str+ should be the string representation of the glyph. It is possible

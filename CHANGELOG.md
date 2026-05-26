@@ -6,6 +6,8 @@
 * [HexaPDF::Layout::Style#font_script] for specifying the script of text
 * [HexaPDF::Layout::Style#language] for specifying the language of text
 * [HexaPDF::Layout::Style#direction] for specifying the direction of text
+* [HexaPDF::Font::TrueTypeWrapper#filename] for retrieving the filename from
+  which the wrapped font was created
 
 
 ## 1.8.0 - 2026-05-14
