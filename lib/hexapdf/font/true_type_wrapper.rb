@@ -363,9 +363,7 @@ module HexaPDF
       def create_to_unicode_cmap(dict, document)
         stream = HexaPDF::StreamData.new do
           mapping = @encoded_glyphs.map do |glyph, (_, char_code)|
-            # Using 0xFFFD as mentioned in Adobe #5411, last line before section 1.5
-            # TODO: glyph.str assumed to consist of single char, No support for multiple chars
-            [char_code, glyph.str.ord || 0xFFFD]
+            [char_code, glyph.str.length == 1 ? glyph.str.ord : glyph.str]
           end.sort_by!(&:first)
           HexaPDF::Font::CMap.create_to_unicode_cmap(mapping)
         end
