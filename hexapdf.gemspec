@@ -8,9 +8,9 @@ PKG_FILES = Dir.glob([
 description = 'HexaPDF local development version only'
 
 if ENV['REAL_GEM']
-  PKG_FILES.concat(Dir.glob(['Rakefile', 'LICENSE', 'agpl-3.0.txt', 'README.md', 'CHANGELOG.md',
+  PKG_FILES.concat(Dir.glob(['LICENSE', 'agpl-3.0.txt', 'README.md', 'CHANGELOG.md',
                              'VERSION', 'CONTRIBUTERS', 'man/man1/hexapdf.1',
-                             'examples/*', 'test/**/*']))
+                             'examples/*']))
   description = <<~DESC
     HexaPDF is a pure Ruby library with an accompanying application for working with PDF
     files.
