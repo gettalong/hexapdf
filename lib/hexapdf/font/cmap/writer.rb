@@ -46,8 +46,8 @@ module HexaPDF
         # Maximum number of entries in one section.
         MAX_ENTRIES_IN_SECTION = 100
 
-        # Returns a ToUnicode CMap for the given input code to Unicode codepoint mapping which needs
-        # to be sorted by input codes.
+        # Returns a ToUnicode CMap for the given mapping of input codes to Unicode codepoints and/or
+        # Strings. The mapping needs to be sorted by input codes.
         #
         # Note that the returned CMap always uses a 16-bit input code space!
         def create_to_unicode_cmap(mapping)
@@ -57,9 +57,13 @@ module HexaPDF
 
           result = create_sections("bfchar", chars.size / 2) do |index|
             index *= 2
-            sprintf("<%04X>", chars[index]) << "<" <<
-              ((+'').force_encoding(::Encoding::UTF_16BE) << chars[index + 1]).unpack1('H*') <<
-              ">\n"
+            value = chars[index + 1]
+            value = if value.kind_of?(Integer)
+                      (+'').force_encoding(::Encoding::UTF_16BE) << value
+                    else
+                      value.encode(::Encoding::UTF_16BE)
+                    end
+            sprintf("<%04X>", chars[index]) << "<#{value.unpack1('H*')}>\n"
           end
 
           result << create_sections("bfrange", ranges.size / 3) do |index|
@@ -113,7 +117,9 @@ module HexaPDF
           last_code, last_value = *mapping[0]
           is_range = false
           mapping.slice(1..-1).each do |code, value|
-            if last_code + 1 == code && last_value + 1 == value && code % 256 != 0
+            if last_value.kind_of?(String)
+              chars << last_code << last_value
+            elsif last_code + 1 == code && last_value + 1 == value && code % 256 != 0
               ranges << last_code << nil << last_value unless is_range
               is_range = true
             elsif is_range
@@ -127,10 +133,10 @@ module HexaPDF
           end
 
           # Handle last remaining mapping
-          if is_range
-            ranges[-2] = last_code
-          else
+          if last_value.kind_of?(String) || !is_range
             chars << last_code << last_value
+          else
+            ranges[-2] = last_code
           end
 
           [chars, ranges]

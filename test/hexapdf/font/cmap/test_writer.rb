@@ -19,8 +19,9 @@ describe HexaPDF::Font::CMap::Writer do
       1 begincodespacerange
       <0000> <FFFF>
       endcodespacerange
-      2 beginbfchar
+      3 beginbfchar
       <0060><0090>
+      <00A0><00410042>
       <3A51><d840dc3e>
       endbfchar
       2 beginbfrange
@@ -79,6 +80,7 @@ describe HexaPDF::Font::CMap::Writer do
     0x1379.upto(0x137B) do |i|
       @to_unicode_mapping << [i, 0x90FE + i - 0x1379]
     end
+    @to_unicode_mapping << [0x00A0, "AB"]
     @to_unicode_mapping << [0x3A51, 0x2003E]
   end
 
@@ -89,17 +91,17 @@ describe HexaPDF::Font::CMap::Writer do
     end
 
     it "works if the last item is a range" do
-      @to_unicode_mapping.pop
-      @to_unicode_cmap_data.sub!(/2 beginbfchar/, '1 beginbfchar')
-      @to_unicode_cmap_data.sub!(/<3A51><d840dc3e>\n/, '')
+      @to_unicode_mapping[-2, 2] = []
+      @to_unicode_cmap_data.sub!(/3 beginbfchar/, '1 beginbfchar')
+      @to_unicode_cmap_data.sub!(/<00A0>.*<d840dc3e>\n/m, '')
       assert_equal(@to_unicode_cmap_data,
                    HexaPDF::Font::CMap.create_to_unicode_cmap(@to_unicode_mapping))
     end
 
     it "works with only ranges" do
-      @to_unicode_mapping.delete_at(-1)
+      @to_unicode_mapping[-2, 2] = []
       @to_unicode_mapping.delete_at(0x5f)
-      @to_unicode_cmap_data.sub!(/\n2 beginbfchar.*endbfchar/m, '')
+      @to_unicode_cmap_data.sub!(/\n3 beginbfchar.*endbfchar/m, '')
       assert_equal(@to_unicode_cmap_data,
                    HexaPDF::Font::CMap.create_to_unicode_cmap(@to_unicode_mapping))
     end

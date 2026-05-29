@@ -10,6 +10,11 @@
   which the wrapped font was created
 * Inter as bundled font in variants regular, bold, italic and bold italic
 
+### Changed
+
+* [HexaPDF::Font::CMap::Writer] to support ToUnicode CMaps with mappings from
+  one input code to multiple codepoints
+
 
 ## 1.8.0 - 2026-05-14
 
