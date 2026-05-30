@@ -251,7 +251,9 @@ module HexaPDF
         tx = x - tlm.e
         ty = y - tlm.f
         if tx.abs < PRECISION
-          if (ty + canvas.graphics_state.leading).abs < PRECISION
+          if ty.abs < PRECISION
+            # do nothing
+          elsif (ty + canvas.graphics_state.leading).abs < PRECISION
             canvas.move_text_cursor
           else
             canvas.move_text_cursor(offset: [0, ty], absolute: false)

@@ -173,6 +173,11 @@ describe HexaPDF::Layout::TextFragment do
                                             [:move_text_next_line]])
       end
 
+      it "without any horizontal or vertical movement" do
+        @fragment.draw(@canvas, 0, 0, ignore_text_properties: true)
+        assert_operators(@canvas.contents, [[:begin_text]])
+      end
+
       it "only horizontal movement" do
         @fragment.draw(@canvas, 20, 0, ignore_text_properties: true)
         assert_operators(@canvas.contents, [[:begin_text],
