@@ -114,17 +114,17 @@ module HexaPDF
           if glyph.valid? || glyph.control_char?
             items << glyph
           else
-            unless items.empty?
-              result << shaper.shape_text(new(items, style))
-              items = []
-            end
             fallback = yield(codepoint, glyph)
             unless fallback.empty?
-              result << shaper.shape_text(new(fallback, styles[fallback.first.font_wrapper]))
+              unless items.empty?
+                result.append(*shaper.shape_text(new(items, style)))
+                items = []
+              end
+              result.append(*shaper.shape_text(new(fallback, styles[fallback.first.font_wrapper])))
             end
           end
         end
-        result << shaper.shape_text(new(items, style)) unless items.empty?
+        result.append(*shaper.shape_text(new(items, style))) unless items.empty?
         result
       end
 

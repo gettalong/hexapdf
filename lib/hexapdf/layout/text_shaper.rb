@@ -36,6 +36,68 @@
 
 require 'hexapdf/layout/numeric_refinements'
 
+HARFBUZZ_AVAILABLE = begin
+                       require 'harfbuzz'
+                       true
+                     rescue LoadError
+                     end
+
+if HARFBUZZ_AVAILABLE
+  class HarfBuzz::Buffer #:nodoc:
+
+    GLYPH_INFO_SIZE = HarfBuzz::C::HbGlyphInfoT.size
+    GLYPH_INFO_CODEPOINT_OFFSET = HarfBuzz::C::HbGlyphInfoT.offset_of(:codepoint)
+    GLYPH_INFO_CLUSTER_OFFSET = HarfBuzz::C::HbGlyphInfoT.offset_of(:cluster)
+    GLYPH_POS_SIZE  = HarfBuzz::C::HbGlyphPositionT.size
+    GLYPH_POS_XADVANCE_OFFSET = HarfBuzz::C::HbGlyphPositionT.offset_of(:x_advance)
+    GLYPH_POS_YADVANCE_OFFSET = HarfBuzz::C::HbGlyphPositionT.offset_of(:y_advance)
+    GLYPH_POS_XOFFSET_OFFSET = HarfBuzz::C::HbGlyphPositionT.offset_of(:x_offset)
+    GLYPH_POS_YOFFSET_OFFSET = HarfBuzz::C::HbGlyphPositionT.offset_of(:y_offset)
+
+    # Iterates efficiently over the shaping result without creating intermediary objects.
+    def each_result
+      return enum_for(__method__) unless block_given?
+
+      length_ptr = FFI::MemoryPointer.new(:uint)
+      infos_ptr = HarfBuzz::C.hb_buffer_get_glyph_infos(@ptr, length_ptr)
+      length_ptr = FFI::MemoryPointer.new(:uint)
+      positions_ptr = HarfBuzz::C.hb_buffer_get_glyph_positions(@ptr, length_ptr)
+      length = length_ptr.read_uint
+
+      return if infos_ptr.null? || positions_ptr.null? || length.zero?
+
+      last_info_cluster_offset = (length - 1) * GLYPH_INFO_SIZE + GLYPH_INFO_CLUSTER_OFFSET
+      i = 0
+      while i < length
+        info_offset = i * GLYPH_INFO_SIZE
+        pos_offset  = i * GLYPH_POS_SIZE
+
+        glyph_id = infos_ptr.get_uint32(info_offset + GLYPH_INFO_CODEPOINT_OFFSET)
+        cluster  = infos_ptr.get_uint32(info_offset + GLYPH_INFO_CLUSTER_OFFSET)
+
+        next_cluster = nil
+        tmp_offset = info_offset + GLYPH_INFO_CLUSTER_OFFSET + GLYPH_INFO_SIZE
+        while tmp_offset <= last_info_cluster_offset &&
+              (next_cluster = infos_ptr.get_uint32(tmp_offset)) == cluster
+          tmp_offset += GLYPH_INFO_SIZE
+          next_cluster = nil
+        end
+
+        x_advance = positions_ptr.get_int32(pos_offset + GLYPH_POS_XADVANCE_OFFSET)
+        y_advance = positions_ptr.get_int32(pos_offset + GLYPH_POS_YADVANCE_OFFSET)
+        x_offset = positions_ptr.get_int32(pos_offset + GLYPH_POS_XOFFSET_OFFSET)
+        y_offset = positions_ptr.get_int32(pos_offset + GLYPH_POS_YOFFSET_OFFSET)
+
+        yield(glyph_id, cluster, next_cluster, x_advance, y_advance, x_offset, y_offset)
+
+        i += 1
+      end
+
+      self
+    end
+  end
+end
+
 module HexaPDF
   module Layout
 
@@ -44,23 +106,28 @@ module HexaPDF
     # This class is used to perform text shaping, i.e. changing the position of glyphs (e.g. for
     # kerning) or substituting one or more glyphs for other glyphs (e.g. for ligatures).
     #
-    # Status of the implementation:
+    # The class contains two shaping engines: A very limited custom one and one based on
+    # HarfBuzz. Which one is used for shaping can be selected via the Style#shaping_engine property.
     #
-    # * All text shaping functionality possible for Type1 fonts is implemented, i.e. kerning and
-    #   ligature substitution.
+    # The custom implementation is always used for Type1 fonts and supports kerning and ligature
+    # substitution. It also supports the 'kern' table for TrueType fonts if HarfBuzz is not used.
     #
-    # * For TrueType fonts only kerning via the 'kern' table is implemented.
+    # For complex scripts or the need of special font features it is recommended to use the shaping
+    # engine based on HarfBuzz, even though it is slightly slower.
     class TextShaper
 
-      # Shapes the given text fragment in-place.
+      # Shapes the given text fragment. Returns either the in-place modified fragment or, for
+      # complex shaping, an array of fragments.
       #
-      # The following shaping options, retrieved from the text fragment's Style#font_features, are
-      # supported:
-      #
-      # :kern:: Pair-wise kerning.
-      # :liga:: Ligature substitution.
+      # The style properties Style#shaping_engine, Style#font_features, Style#font_script,
+      # Style#language and Style#direction are used for shaping.
       def shape_text(text_fragment)
         font = text_fragment.style.font
+        if HARFBUZZ_AVAILABLE && text_fragment.style.shaping_engine == :harfbuzz &&
+           font.font_type == :TrueType
+          return harfbuzz_shape_text(text_fragment)
+        end
+
         if text_fragment.style.font_features[:liga] && font.wrapped_font.features.include?(:liga)
           if font.font_type == :Type1
             process_type1_ligatures(text_fragment)
@@ -76,10 +143,89 @@ module HexaPDF
           end
           text_fragment.clear_cache
         end
+
         text_fragment
       end
 
       private
+
+      # Shapes the text fragment with HarfBuzz.
+      def harfbuzz_shape_text(text_fragment, text = nil)
+        text ||= text_fragment.items.map(&:str).join
+        style = text_fragment.style
+
+        # Cache the used main Harfbuzz font objects
+        hb_font = style.font.pdf_object.document.cache('harfbuzz', style.font.filename) do
+          blob = HarfBuzz::Blob.from_file!(style.font.filename)
+          face = HarfBuzz::Face.new(blob, 0)
+          HarfBuzz::Font.new(face)
+        end
+
+        # Prepare the buffer and then shape the text. We are using cluster level 1 as this is the
+        # recommended level.
+        buffer = HarfBuzz::Buffer.new
+        buffer.add_utf8(text)
+        buffer.cluster_level = 1
+        buffer.direction = style.direction
+        buffer.script = style.font_script if style.font_script?
+        buffer.language = style.language if style.language?
+        buffer.guess_segment_properties
+        HarfBuzz.shape(hb_font, buffer, HarfBuzz::Feature.from_hash(style.font_features))
+
+        # Prepare the iteration over the shaping result. The final output will either be
+        # +text_fragment+ (no non-zero y_offsets) or +result+ containing at least two TextFragment
+        # instances.
+        result = nil
+        font = style.font
+        fragment = text_fragment
+        fragment.clear_cache
+        items = text_fragment.items.clear
+        last_cluster = nil
+        last_y_offset = 0
+        buffer.each_result do |glyph_id, cluster, next_cluster, x_advance, y_advance, x_offset, y_offset|
+          advance = (x_advance - x_offset) * font.scaling_factor
+
+          # 1. Determine the source characters for each glyph via their cluster numbers. If two or
+          # more glyphs have the same cluster number, the first gets the resulting string while the
+          # rest map to an empty string. Otherwise copying from the PDF would result in multiple
+          # copies of the resulting string.
+          str = (cluster == last_cluster ? '' : text.byteslice(cluster...(next_cluster || text.bytesize)))
+
+          # 2. Handle invalid glyphs with id=0 by mapping them to an InvalidGlyph instance
+          if glyph_id.zero?
+            glyph = font.decode_codepoint(str.ord)
+            advance = glyph.width
+          else
+            glyph = font.glyph(glyph_id, str)
+          end
+
+          # 3. Handle differing y_offsets by creating TextFragment instances with appropriate text
+          # rise properties.
+          if y_offset != last_y_offset
+            (result ||= []) << fragment
+            items = []
+            if y_offset.zero?
+              fragment = text_fragment.dup_attributes(items)
+            else
+              fragment = TextFragment.new(items, style.dup, properties: text_fragment.properties)
+              fragment.style.text_rise += y_offset * font.scaling_factor * fragment.style.font_size *
+                                          fragment.style.font.pdf_object.glyph_scaling_factor
+            end
+          end
+
+          # 4. Handle the correct x-positioning using x_offset. Also addjust the horizontal advance
+          # based on the glyph's fixed advance width as well as x_advance and x_offset (via
+          # +advance+).
+          items << -x_offset * font.scaling_factor unless x_offset.zero?
+          items << glyph
+          items << glyph.width - advance if glyph.width - advance != 0
+
+          last_cluster = cluster
+          last_y_offset = y_offset
+        end
+
+        result ? result.append(fragment) : text_fragment
+      end
 
       # Processes the text fragment and substitutes ligatures.
       def process_type1_ligatures(text_fragment)

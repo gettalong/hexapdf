@@ -50,24 +50,26 @@ describe HexaPDF::Layout::TextFragment do
     it "replaces invalid glyphs with the result of the block" do
       zapf_dingbats = @doc.fonts.add('ZapfDingbats')
       i = 0
-      fallback = lambda do |codepoint, _invalid_glyph|
-        case (i += 1) % 3
+      fallback = lambda do |codepoint, invalid_glyph|
+        case (i += 1) % 4
         when 0 then []
         when 1 then [zapf_dingbats.decode_codepoint(codepoint)]
         when 2 then @font.decode_utf8("Tom")
+        when 3 then [invalid_glyph]
         end
       end
       style = HexaPDF::Layout::Style.new(font: @font, font_size: 20, font_features: {kern: true})
 
-      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("✂Tom✂✂Tom✂", style, &fallback)
-      assert_equal(5, frags.size)
+      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("✂Tom✂Tom✂Tom✂Tom", style, &fallback)
+      assert_equal(6, frags.size)
       assert_equal(zapf_dingbats, frags[0].style.font)
       assert_equal(:a2, frags[0].items[0].name)
+      assert_equal("Tom", frags[1].text)
+      assert_equal("Tom", frags[2].text)
       assert_equal(@font, frags[2].style.font)
-
-      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("Tom✂Tom", style, &fallback)
-      assert_equal(3, frags.size)
-      assert_equal(frags[0].width, frags[1].width)
+      assert_equal("Tom", frags[3].text)
+      assert_equal(:'.notdef', frags[4].items[0].name)
+      assert_equal("TomTom", frags[5].text)
     end
   end
 

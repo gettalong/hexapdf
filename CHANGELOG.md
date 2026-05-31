@@ -2,6 +2,7 @@
 
 ### Added
 
+* Support for HarfBuzz based text shaping
 * [HexaPDF::Layout::Style#shaping_engine] for specifying the used shaping engine
 * [HexaPDF::Layout::Style#font_script] for specifying the script of text
 * [HexaPDF::Layout::Style#language] for specifying the language of text

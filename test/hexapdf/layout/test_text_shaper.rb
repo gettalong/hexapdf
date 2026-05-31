@@ -48,7 +48,7 @@ describe HexaPDF::Layout::TextShaper do
       @font = HexaPDF::Font::TrueTypeWrapper.new(@doc, @wrapped_font)
     end
 
-    it "handles kerning" do
+    it "handles kerning via the kern table" do
       data = [0, 1].pack('n2') <<
         [0, 6 + 8 + 12, 0x1].pack('n3') <<
         [2, 0, 0, 0, 53, 80, -20, 80, 81, -10].pack('n4n2s>n2s>')
@@ -59,6 +59,40 @@ describe HexaPDF::Layout::TextShaper do
       @shaper.shape_text(fragment)
       assert_equal([53, [100], 80, [10], 81, 3, 53, [20], 80, [10], 81],
                    fragment.items.map {|item| item.kind_of?(Numeric) ? [item] : item.id })
+    end
+
+    describe "HarfBuzz OpenType shaper" do
+      it "performs the shaping" do
+        @font = @doc.fonts.add('Inter')
+        # Test composition of o+diaresis, invalid char \n, kerning WA, x/y offsets with marks
+        fragment = setup_fragment(@font.decode_utf8("ö\nWAď̄"), shaping_engine: :harfbuzz,
+                                  font_features: {kern: true})
+        assert_equal(8, fragment.items.size)
+        result = @shaper.shape_text(fragment)
+        assert_equal(2, result.size)
+        [[791, 0, 459, [56.640625], 2, 603],
+         [[664.55078125], 1773, [-664.55078125]]].each_with_index do |expected, index|
+          assert_equal(expected,
+                       result[index].items.map {|item| item.kind_of?(Numeric) ? [item] : item.id })
+        end
+        assert_equal("\n", result[0].items[1].str)
+      end
+
+      it "handles glyphs with the same cluster number" do
+        # Force Harfbuzz into cluster level 0 to force the same cluster numbers
+        cluster_level_method = HarfBuzz::Buffer.instance_method(:cluster_level=)
+        HarfBuzz::Buffer.remove_method(:cluster_level=)
+        HarfBuzz::Buffer.define_method(:cluster_level=) {|val| }
+
+        @font = @doc.fonts.add('Inter')
+        fragment = setup_fragment(@font.decode_utf8("ď̄aď̄"), shaping_engine: :harfbuzz)
+        result = @shaper.shape_text(fragment)
+        assert_equal("ď̄", result[0].items[0].str)
+        assert_equal("", result[1].items[1].str)
+      ensure
+        HarfBuzz::Buffer.remove_method(:cluster_level=)
+        HarfBuzz::Buffer.define_method(:cluster_level=, cluster_level_method)
+      end
     end
   end
 end
