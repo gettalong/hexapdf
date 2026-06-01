@@ -34,6 +34,7 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'hexapdf/error'
 require 'hexapdf/layout/numeric_refinements'
 
 HARFBUZZ_AVAILABLE = begin
@@ -123,8 +124,11 @@ module HexaPDF
       # Style#language and Style#direction are used for shaping.
       def shape_text(text_fragment)
         font = text_fragment.style.font
-        if HARFBUZZ_AVAILABLE && text_fragment.style.shaping_engine == :harfbuzz &&
-           font.font_type == :TrueType
+        if text_fragment.style.shaping_engine == :harfbuzz && font.font_type == :TrueType
+          unless HARFBUZZ_AVAILABLE
+            raise HexaPDF::Error, "Shaping engine harfbuzz required but the needed Rubygem " \
+              "harfbuzz-ruby is not available"
+          end
           return harfbuzz_shape_text(text_fragment)
         end
 

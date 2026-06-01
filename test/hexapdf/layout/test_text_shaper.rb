@@ -62,8 +62,11 @@ describe HexaPDF::Layout::TextShaper do
     end
 
     describe "HarfBuzz OpenType shaper" do
-      it "performs the shaping" do
+      before do
         @font = @doc.fonts.add('Inter')
+      end
+
+      it "performs the shaping" do
         # Test composition of o+diaresis, invalid char \n, kerning WA, x/y offsets with marks
         fragment = setup_fragment(@font.decode_utf8("ö\nWAď̄"), shaping_engine: :harfbuzz,
                                   font_features: {kern: true})
@@ -84,7 +87,6 @@ describe HexaPDF::Layout::TextShaper do
         HarfBuzz::Buffer.remove_method(:cluster_level=)
         HarfBuzz::Buffer.define_method(:cluster_level=) {|val| }
 
-        @font = @doc.fonts.add('Inter')
         fragment = setup_fragment(@font.decode_utf8("ď̄aď̄"), shaping_engine: :harfbuzz)
         result = @shaper.shape_text(fragment)
         assert_equal("ď̄", result[0].items[0].str)
@@ -92,6 +94,17 @@ describe HexaPDF::Layout::TextShaper do
       ensure
         HarfBuzz::Buffer.remove_method(:cluster_level=)
         HarfBuzz::Buffer.define_method(:cluster_level=, cluster_level_method)
+      end
+
+      it "raises an error if the harfbuzz-ruby gem is not available" do
+        Object.send(:remove_const, :HARFBUZZ_AVAILABLE)
+        Object.const_set(:HARFBUZZ_AVAILABLE, false)
+        fragment = setup_fragment(@font.decode_utf8('test'), shaping_engine: :harfbuzz)
+        error = assert_raises(HexaPDF::Error) { @shaper.shape_text(fragment) }
+        assert_match(/harfbuzz-ruby/, error.message)
+      ensure
+        Object.send(:remove_const, :HARFBUZZ_AVAILABLE)
+        Object.const_set(:HARFBUZZ_AVAILABLE, true)
       end
     end
   end
