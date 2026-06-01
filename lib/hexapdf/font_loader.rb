@@ -45,6 +45,53 @@ module HexaPDF
   # needs to be usable by the PDF canvas. See below for details.
   #
   #
+  # == Available Font Loaders
+  #
+  # The following font loaders are available:
+  #
+  # HexaPDF::FontLoader::Standard14::
+  #     This one makes the standard 14 PDF fonts (Helvetica in variants none, italic, bold and bold
+  #     italic; Times in variants none, italic, bold and bold italic; Symbol; and ZapfDingbats)
+  #     available.
+  #
+  #     Usage:
+  #
+  #       canvas.font('Times', variant: :bold)
+  #
+  # HexaPDF::FontLoader::FromFile::
+  #     Interprets the font name as filename and tries to load the font from there. In this case a
+  #     +:variant+ argument cannot be used as the font file is directly specified.
+  #
+  #     Usage:
+  #
+  #       canvas.font('/usr/share/fonts/truetype/hack/Hack-Regular.ttf')
+  #
+  # HexaPDF::FontLoader::VariantFromName:
+  #     This one doesn't really load a font itself but makes it possible to append the variant name
+  #     to the font name. So it resolves e.g. 'Times bold' to the font 'Times' in variant :bold.
+  #
+  #     Usage:
+  #
+  #       canvas.font('Times bold')
+  #
+  # HexaPDF::FontLoader::FromConfiguration
+  #     This font loader defers to FromFile when loading the actual fonts. It allows defining font
+  #     mappings using the configuration option 'font.map' where a font name is mapped to a hash
+  #     that maps variant names to font file names.
+  #
+  #     Usage:
+  #
+  #       doc.config['font.map'] = {
+  #         'Hack' => {
+  #            none: '/usr/share/fonts/ttf/Hack-Regular.ttf',
+  #            bold: '/usr/share/fonts/ttf/Hack-Bold.ttf',
+  #            italic: '/usr/share/fonts/ttf/Hack-Italic.ttf',
+  #            bold_italic: '/usr/share/fonts/ttf/Hack-BoldItalic.ttf',
+  #          },
+  #        }
+  #        canvas.font('Hack', variant: :italic)
+  #
+  #
   # == Implementation of a Font Loader
   #
   # Each font loader is a (stateless) object (normally a module) that has to be callable, i.e. it
