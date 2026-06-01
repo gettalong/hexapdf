@@ -513,19 +513,22 @@ describe HexaPDF::Document::Layout do
       assert_equal(10, box.width)
       assert_equal(15, box.height)
       items = box.instance_variable_get(:@items)
-      assert_equal(HexaPDF::Document::Layout::LOREM_IPSUM.join(" ").size, items[0].items.length)
+      assert_equal(HexaPDF::Document::Layout::LOREM_IPSUM.join(" ").size,
+                   items.sum {|i| i.items.length })
     end
 
     it "can use just some sentences from the lorem ipsum text" do
       box = @layout.lorem_ipsum_box(sentences: 1)
       items = box.instance_variable_get(:@items)
-      assert_equal(HexaPDF::Document::Layout::LOREM_IPSUM[0].size, items[0].items.length)
+      assert_equal(HexaPDF::Document::Layout::LOREM_IPSUM[0].size,
+                   items.sum {|i| i.items.length })
     end
 
     it "can use multiple of the selected sentences" do
       box = @layout.lorem_ipsum_box(sentences: 2, count: 2)
       items = box.instance_variable_get(:@items)
-      assert_equal(HexaPDF::Document::Layout::LOREM_IPSUM[0, 2].join(" ").size * 2 + 2, items[0].items.length)
+      assert_equal(HexaPDF::Document::Layout::LOREM_IPSUM[0, 2].join(" ").size * 2 + 2,
+                   items.sum {|i| i.items.length })
     end
   end
 

@@ -60,8 +60,9 @@ describe HexaPDF::Layout::TextFragment do
       end
       style = HexaPDF::Layout::Style.new(font: @font, font_size: 20, font_features: {kern: true})
 
-      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("✂Tom✂Tom✂Tom✂Tom", style, &fallback)
-      assert_equal(6, frags.size)
+      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("✂Tom✂Tom✂Tom✂Tom\u{ad}",
+                                                                        style, &fallback)
+      assert_equal(8, frags.size)
       assert_equal(zapf_dingbats, frags[0].style.font)
       assert_equal(:a2, frags[0].items[0].name)
       assert_equal("Tom", frags[1].text)
@@ -69,7 +70,9 @@ describe HexaPDF::Layout::TextFragment do
       assert_equal(@font, frags[2].style.font)
       assert_equal("Tom", frags[3].text)
       assert_equal(:'.notdef', frags[4].items[0].name)
-      assert_equal("TomTom", frags[5].text)
+      assert_equal("Tom", frags[5].text)
+      assert_equal("Tom", frags[6].text)
+      assert_equal("\u{ad}", frags[7].text)
     end
   end
 

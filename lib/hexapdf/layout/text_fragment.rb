@@ -111,16 +111,20 @@ module HexaPDF
         font = style.font
         text.each_codepoint do |codepoint|
           glyph = font.decode_codepoint(codepoint)
-          if glyph.valid? || glyph.control_char?
+          if glyph.valid?
             items << glyph
           else
-            fallback = yield(codepoint, glyph)
-            unless fallback.empty?
-              unless items.empty?
-                result.append(*shaper.shape_text(new(items, style)))
-                items = []
+            unless items.empty?
+              result.append(*shaper.shape_text(new(items, style)))
+              items = []
+            end
+            if glyph.control_char?
+              result.append(new([glyph], style))
+            else
+              fallback = yield(codepoint, glyph)
+              unless fallback.empty?
+                result.append(*shaper.shape_text(new(fallback, styles[fallback.first.font_wrapper])))
               end
-              result.append(*shaper.shape_text(new(fallback, styles[fallback.first.font_wrapper])))
             end
           end
         end
