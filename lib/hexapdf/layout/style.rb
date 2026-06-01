@@ -811,9 +811,11 @@ module HexaPDF
       #   font_features(features = nil)
       #
       # The font features (e.g. kerning, ligatures, ...) that should be applied by the shaping
-      # engine, defaults to {} (i.e. no font features are applied).
+      # engine, defaults to the empty hash {} (i.e. no font features are applied).
       #
-      # Each feature to be applied is indicated by a key with a truthy value.
+      # Each feature can either be activated using `true` as value, deactivated using `false` as
+      # value or set to a specific mode using an integer. What is actually supported depends on the
+      # used shaping engine.
       #
       # See: #shaping_engine
       #
@@ -822,7 +824,7 @@ module HexaPDF
       #   #>pdf-composer100
       #   composer.style(:base, font: ["Times", custom_encoding: true], font_size: 30)
       #   composer.text("Test flight")
-      #   composer.text("Test flight", font_features: {kern: true, liga: true})
+      #   composer.text("Test flight", font_features: {kern: true, liga: false})
 
       ##
       # :method: font_script
@@ -866,10 +868,19 @@ module HexaPDF
       # The shaping engine that should be used, defaults to +:internal+. The other possible value is
       # +:harfbuzz+.
       #
-      # If the needed Rubygem for HarfBuzz is not available, it automatically falls back to the
-      # internal engine.
+      # When set to +:harfbuzz+, the Rubygem +harfbuzz-ruby+ needs to be installed. If it is not
+      # available, HexaPDF will raise an error.
       #
       # See: HexaPDF::Layout::TextShaper for details.
+      #
+      # Examples:
+      #
+      #   #>pdf-composer100
+      #   composer.style(:base, font: 'Inter')
+      #   composer.text("Incoming WAVE!")
+      #   composer.formatted_text(["Incoming WAVE!",
+      #                            {text: " Take Cover!", font_features: {ss06: true}}],
+      #                            shaping_engine: :harfbuzz)
 
       ##
       # :method: text_rendering_mode

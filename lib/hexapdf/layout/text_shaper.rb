@@ -114,7 +114,9 @@ module HexaPDF
     # substitution. It also supports the 'kern' table for TrueType fonts if HarfBuzz is not used.
     #
     # For complex scripts or the need of special font features it is recommended to use the shaping
-    # engine based on HarfBuzz, even though it is slightly slower.
+    # engine based on HarfBuzz, even though it is slightly slower. For it to work the
+    # +harfbuzz-ruby+ gem needs to be installed. OpenType features can be activated and deactivated
+    # using Style#font_features.
     class TextShaper
 
       # Shapes the given text fragment. Returns either the in-place modified fragment or, for
