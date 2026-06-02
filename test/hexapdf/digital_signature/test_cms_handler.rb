@@ -43,7 +43,7 @@ describe HexaPDF::DigitalSignature::CMSHandler do
   it "allows access to the signer information" do
     info = @handler.signer_info
     assert(info)
-    assert_equal(2, info.serial)
+    assert_equal(1, info.serial)
     assert_equal(CERTIFICATES.signer_certificate.issuer, info.issuer)
   end
 

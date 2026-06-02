@@ -26,7 +26,7 @@ module HexaPDF
       def signer_certificate
         @signer_certificate ||=
           begin
-            cert = create_cert(name: '/CN=RSA signer/DC=gettalong', serial: 2,
+            cert = create_cert(name: '/CN=RSA signer', serial: 1,
                                public_key: signer_key, issuer: ca_certificate)
             add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature')
             cert
@@ -36,7 +36,7 @@ module HexaPDF
       def non_repudiation_signer_certificate
         @non_repudiation_signer_certificate ||=
           begin
-            cert = create_cert(name: '/CN=Non repudiation signer/DC=gettalong', serial: 2,
+            cert = create_cert(name: '/CN=Non repudiation signer', serial: 2,
                                public_key: signer_key, issuer: ca_certificate)
             add_extensions(cert, ca_certificate, ca_key, key_usage: 'nonRepudiation')
             cert
@@ -50,7 +50,7 @@ module HexaPDF
       def dsa_signer_certificate
         @dsa_signer_certificate ||=
           begin
-            cert = create_cert(name: '/CN=DSA signer/DC=gettalong', serial: 3,
+            cert = create_cert(name: '/CN=DSA signer', serial: 3,
                                public_key: dsa_signer_key, issuer: ca_certificate)
             add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature')
             cert
@@ -64,7 +64,7 @@ module HexaPDF
       def ecdsa_signer_certificate
         @ecdsa_signer_certificate ||=
           begin
-            cert = create_cert(name: '/CN=ECDSA signer/DC=gettalong', serial: 4,
+            cert = create_cert(name: '/CN=ECDSA signer', serial: 4,
                                public_key: ecdsa_signer_key, issuer: ca_certificate)
             add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature')
             cert
@@ -74,7 +74,7 @@ module HexaPDF
       def timestamp_certificate
         @timestamp_certificate ||=
           begin
-            cert = create_cert(name: '/CN=timestamp/DC=gettalong', serial: 3,
+            cert = create_cert(name: '/CN=timestamp', serial: 5,
                                public_key: signer_key, issuer: ca_certificate)
             add_extensions(cert, ca_certificate, ca_key, key_usage: 'digitalSignature',
                            extended_key_usage: 'timeStamping')
