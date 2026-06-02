@@ -205,6 +205,31 @@ module HexaPDF
           border_style(color: 0, width: 1)
       end
 
+      # :call-seq:
+      #   annotations.create_scribble(page, *points)  -> annotation
+      #
+      # Creates an ink annotation on the given page and returns it.
+      #
+      # If +points+ (alternating horizontal and vertical coordinates) are given, the path created
+      # from them is added to the annotation.
+      #
+      # The ink annotation uses a black color and a width of 1pt for the stroke style. It can be
+      # further styled using the convenience methods on the returned annotation object.
+      #
+      # Example:
+      #
+      #   #>pdf-small
+      #   doc.annotations.create_scribble(doc.pages[0], 20, 20, 30, 70, 80, 60, 40, 30).
+      #     border_style(color: "hp-blue", width: 2, style: [3, 1]).
+      #     regenerate_appearance
+      #
+      # See: Type::Annotations::Ink
+      def create_scribble(page, *points)
+        annot = create_and_add_to_page(:Ink, page)
+        annot.add_path(*points) unless points.empty?
+        annot.border_style(color: 0, width: 1)
+      end
+
       private
 
       # Returns the root of the destinations name tree.

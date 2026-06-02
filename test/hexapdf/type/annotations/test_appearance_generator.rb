@@ -605,4 +605,67 @@ describe HexaPDF::Type::Annotations::AppearanceGenerator do
                         [:fill_and_stroke_path_non_zero]], range: 6..-1)
     end
   end
+
+  describe "ink" do
+    before do
+      @ink = @doc.add({Type: :Annot, Subtype: :Ink, C: [0],
+                       InkList: [[100, 100, 200, 150], [210, 80, 110, 160]]})
+      @generator = HexaPDF::Type::Annotations::AppearanceGenerator.new(@ink)
+    end
+
+    it "sets the print flag and unsets the hidden flag" do
+      @ink.flag(:hidden)
+      @generator.create_appearance
+      assert(@ink.flagged?(:print))
+      refute(@ink.flagged?(:hidden))
+    end
+
+    it "creates the appearance" do
+      @generator.create_appearance
+      assert_equal([96, 76, 214, 164], @ink[:Rect])
+      assert_equal([96, 76, 214, 164], @ink.appearance[:BBox])
+      assert_operators(@ink.appearance.stream,
+                       [[:move_to, [100, 100]],
+                        [:line_to, [200, 150]],
+                        [:move_to, [210, 80]],
+                        [:line_to, [110, 160]],
+                        [:stroke_path]])
+    end
+
+    describe "stroke color" do
+      it "uses the specified border color for stroking operations" do
+        @ink.border_style(color: "red")
+        @generator.create_appearance
+        assert_operators(@ink.appearance.stream,
+                         [:set_device_rgb_stroking_color, [1, 0, 0]], range: 0)
+      end
+
+      it "works with a transparent border" do
+        @ink.border_style(color: :transparent)
+        @generator.create_appearance
+        assert_operators(@ink.appearance.stream, [:end_path], range: 4)
+      end
+    end
+
+    it "sets the specified border line width" do
+      @ink.border_style(width: 4)
+      @generator.create_appearance
+      assert_operators(@ink.appearance.stream,
+                       [:set_line_width, [4]], range: 0)
+    end
+
+    it "sets the specified line dash pattern if it is an array" do
+      @ink.border_style(style: [5, 2])
+      @generator.create_appearance
+      assert_operators(@ink.appearance.stream,
+                       [:set_line_dash_pattern, [[5, 2], 0]], range: 0)
+    end
+
+    it "sets the specified opacity" do
+      @ink.opacity(fill_alpha: 0.5, stroke_alpha: 0.5)
+      @generator.create_appearance
+      assert_operators(@ink.appearance.stream,
+                       [:set_graphics_state_parameters, [:GS1]], range: 0)
+    end
+  end
 end

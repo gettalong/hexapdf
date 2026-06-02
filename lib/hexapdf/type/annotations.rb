@@ -60,6 +60,7 @@ module HexaPDF
       autoload(:PolygonPolyline, 'hexapdf/type/annotations/polygon_polyline')
       autoload(:Polygon, 'hexapdf/type/annotations/polygon')
       autoload(:Polyline, 'hexapdf/type/annotations/polyline')
+      autoload(:Ink, 'hexapdf/type/annotations/ink')
 
     end
 

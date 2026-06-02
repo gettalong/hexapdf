@@ -77,6 +77,7 @@ module HexaPDF
           when :Circle then create_square_circle_appearance(:circle)
           when :Polygon then create_polygon_polyline_appearance(:polygon)
           when :PolyLine then create_polygon_polyline_appearance(:polyline)
+          when :Ink then create_ink_appearance
           else
             raise HexaPDF::Error, "Appearance regeneration for #{@annot[:Subtype]} not yet supported"
           end
@@ -360,6 +361,47 @@ module HexaPDF
             canvas.send(do_fill ? fill_op : stroke_op)
           end
 
+        end
+
+        # Creates the appropriate appearance for an ink annotation.
+        #
+        # See: HexaPDF::Type::Annotations::Ink
+        def create_ink_appearance
+          # Prepare the annotation
+          form = (@annot[:AP] ||= {})[:N] ||=
+            @document.add({Type: :XObject, Subtype: :Form, BBox: [0, 0, 0, 0]})
+          form.contents = ""
+          @annot.flag(:print)
+          @annot.unflag(:hidden)
+
+          # Get all needed values from the annotation
+          paths = @annot.paths
+          border_style = @annot.border_style
+          opacity = @annot.opacity
+
+          # Calculate the annotation's rectangle as well as the form bounding box
+          x_coords = []
+          y_coords = []
+          paths.each do |path|
+            path.each_with_index {|coord, index| (index.even? ? x_coords : y_coords) << coord }
+          end
+          min_x, max_x = x_coords.minmax
+          min_y, max_y = y_coords.minmax
+          padding = 4 * border_style.width
+          rect = [min_x - padding, min_y - padding, max_x + padding, max_y + padding]
+          @annot[:Rect] = rect
+          form[:BBox] = rect.dup
+
+          # Set the appropriate graphics state
+          canvas = form.canvas(translate: false)
+          canvas.opacity(**opacity.to_h)
+          canvas.stroke_color(border_style.color) if border_style.color
+          canvas.line_width(border_style.width)
+          canvas.line_dash_pattern(border_style.style) if border_style.style.kind_of?(Array)
+
+          # Draw the polylines
+          paths.each {|path| canvas.polyline(*path) }
+          border_style.color ? canvas.stroke : canvas.end_path
         end
 
         # Calculates the padding needed around the line endings based on the line ending +style+ and

@@ -10,6 +10,8 @@
 * [HexaPDF::Font::TrueTypeWrapper#filename] for retrieving the filename from
   which the wrapped font was created
 * Inter as bundled font in variants regular, bold, italic and bold italic
+* [HexaPDF::Type::Annotations::Ink] for ink annotations as well as
+  [HexaPDF::Document::Annotations#create_scribble]
 
 ### Changed
 

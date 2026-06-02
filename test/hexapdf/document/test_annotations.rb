@@ -72,4 +72,14 @@ describe HexaPDF::Document::Annotations do
       assert_equal(annot, @page[:Annots].first)
     end
   end
+
+  describe "create_scribble" do
+    it "creates an appropriate ink annotation object" do
+      annot = @annots.create(:scribble, @page, 10, 10, 20, 15)
+      assert_equal(:Annot, annot[:Type])
+      assert_equal(:Ink, annot[:Subtype])
+      assert_equal([[10, 10, 20, 15]], annot.paths)
+      assert_equal(annot, @page[:Annots].first)
+    end
+  end
 end
