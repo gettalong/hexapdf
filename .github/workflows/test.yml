@@ -14,7 +14,7 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
-    - run: sudo apt install netpbm pngcheck
+    - run: sudo apt install netpbm pngcheck libharfbuzz-dev libharfbuzz-subset0
       if: matrix.os == 'ubuntu-latest'
     - run: bundle exec rake
       if: matrix.os == 'ubuntu-latest' && matrix.ruby == 'head'
