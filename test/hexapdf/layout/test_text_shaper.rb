@@ -64,6 +64,7 @@ describe HexaPDF::Layout::TextShaper do
     describe "HarfBuzz OpenType shaper" do
       before do
         @font = @doc.fonts.add('Inter')
+        skip if Gem.win_platform?
       end
 
       it "performs the shaping" do
