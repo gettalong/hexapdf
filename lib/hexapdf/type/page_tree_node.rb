@@ -103,10 +103,12 @@ module HexaPDF
             else
               index -= 1
             end
-          elsif index < kid[:Count]
-            return kid.page(index)
-          else
-            index -= kid[:Count]
+          elsif kid.type == :Pages
+            if index < kid[:Count]
+              return kid.page(index)
+            else
+              index -= kid[:Count]
+            end
           end
         end
       end
@@ -241,7 +243,7 @@ module HexaPDF
         self[:Kids].each do |kid|
           if kid.type == :Page
             yield(kid)
-          else
+          elsif kid.type == :Pages
             kid.each_page(&block)
           end
         end

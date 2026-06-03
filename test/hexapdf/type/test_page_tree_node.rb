@@ -77,6 +77,13 @@ describe HexaPDF::Type::PageTreeNode do
       assert_nil(@root.page(20))
       assert_nil(@root.page(-20))
     end
+
+    it "skips invalid objects in the Kids array" do
+      font = @doc.add({Type: :Font, Subtype: :Type1, BaseFont: :Helvetica})
+      @root[:Kids].insert(1, font)
+      assert_equal(@pages[0], @root.page(0))
+      assert_equal(@pages[5], @root.page(5))
+    end
   end
 
   describe "insert_page" do
@@ -280,6 +287,12 @@ describe HexaPDF::Type::PageTreeNode do
     end
 
     it "iterates over a multilevel page tree" do
+      assert_equal(@pages, @root.each_page.to_a)
+    end
+
+    it "skips invalid objects in the Kids array" do
+      font = @doc.add({Type: :Font, Subtype: :Type1, BaseFont: :Helvetica})
+      @kid12[:Kids] << font
       assert_equal(@pages, @root.each_page.to_a)
     end
   end
