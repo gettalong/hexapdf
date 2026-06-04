@@ -18,6 +18,11 @@
 * [HexaPDF::Font::CMap::Writer] to support ToUnicode CMaps with mappings from
   one input code to multiple codepoints
 
+### Fixed
+
+* [HexaPDF::Layout::ContainerBox#fit] to correctly set width and height when
+  splitting
+
 
 ## 1.8.0 - 2026-05-14
 

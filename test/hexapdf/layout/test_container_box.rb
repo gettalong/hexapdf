@@ -71,9 +71,11 @@ describe HexaPDF::Layout::ContainerBox do
     end
 
     it "splits the box if splitting is allowed and the content is too big" do
-      box = create_box([child_box(height: 80), child_box(height: 30)], splitable: true)
+      box = create_box([child_box(width: 30, height: 80), child_box(height: 30)], splitable: true)
       box.fit(@frame.available_width, @frame.available_height, @frame)
       assert(box.fit_result.overflow?)
+      assert_equal(100, box.width)
+      assert_equal(80, box.height)
     end
   end
 
