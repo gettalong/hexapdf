@@ -108,6 +108,17 @@ module HexaPDF
     #           [layout.text('E'), layout.text('F')]]
     #  composer.column(height: 50) {|col| col.table(cells) }
     #
+    # If a cell doesn't completely fit, it is split. Non-split cells in the same continuation row
+    # retain their style but are empty:
+    #
+    #  #>pdf-composer
+    #  cells = [[layout.text('A'), layout.text('B')],
+    #           [layout.text('C'), layout.text("D1\nD2")],
+    #           [layout.text('E'), layout.text('F')]]
+    #  composer.column(height: 50) {|col| col.table(cells) }
+    #
+    # Note that the above is only true for cells in rows that are not part of a row-span.
+    #
     # It is also possible to use row and column spans:
     #
     #  #>pdf-composer
@@ -237,6 +248,7 @@ module HexaPDF
 
         # Fits the children of the table cell into the given rectangular area.
         def fit_content(available_width, available_height, frame)
+          @remaining_boxes = nil
           width = available_width - reserved_width
           height = @used_height = available_height - reserved_height
           return if width <= 0 || height <= 0
@@ -245,21 +257,27 @@ module HexaPDF
           case children
           when Box
             child_result = frame.fit(children)
-            if child_result.success?
+            box, @remaining_boxes = children.split if child_result.overflow?
+            if child_result.success? || box
               @preferred_width = child_result.x + child_result.box.width + reserved_width
               @height = @preferred_height = child_result.box.height + reserved_height
               @fit_results = [child_result]
-              fit_result.success!
+              box ? fit_result.overflow! : fit_result.success!
             end
           when Array
             box_fitter = BoxFitter.new([frame])
             children.each {|box| box_fitter.fit(box) }
-            if box_fitter.success?
+            if box_fitter.success? || !box_fitter.fit_results.empty?
               max_x_result = box_fitter.fit_results.max_by {|result| result.x + result.box.width }
               @preferred_width = max_x_result.x + max_x_result.box.width + reserved_width
               @height = @preferred_height = box_fitter.content_heights[0] + reserved_height
               @fit_results = box_fitter.fit_results
-              fit_result.success!
+              if box_fitter.success?
+                fit_result.success!
+              else
+                @remaining_boxes = box_fitter.remaining_boxes
+                fit_result.overflow!
+              end
             end
           else
             @preferred_width = reserved_width
@@ -272,6 +290,14 @@ module HexaPDF
             @height = @preferred_height = @min_height
             fit_result.failure! if available_height < @height
           end
+        end
+
+        # Splits the content of the cell.
+        def split_content
+          box = create_split_box
+          box.instance_variable_set(:@children, @remaining_boxes)
+          box.instance_variable_set(:@remaining_boxes, nil)
+          [self, box]
         end
 
         # Draws the content of the cell.
@@ -363,7 +389,7 @@ module HexaPDF
         # Note that the same cell instance may be returned for different (row, column) arguments if
         # the cell spans more than one row and/or column.
         def [](row, column)
-          @cells[row]&.[](column)
+          row == @overridden_row_index ? @overridden_row_cells[column] : @cells[row]&.[](column)
         end
 
         # Returns the number of rows.
@@ -378,7 +404,15 @@ module HexaPDF
 
         # Iterates over each row.
         def each_row(&block)
-          @cells.each(&block)
+          return to_enum(__method__) unless block_given?
+
+          if @overridden_row_index
+            @cells[0...@overridden_row_index].each(&block)
+            block&.call(@overridden_row_cells)
+            @cells[(@overridden_row_index + 1)..-1].each(&block)
+          else
+            @cells.each(&block)
+          end
         end
 
         # Applies the given style properties to all cells and optionally yields all cells for more
@@ -409,12 +443,19 @@ module HexaPDF
           row_heights = {}
           zero_height_rows = {}
           row_spans = []
+          split_row_cells = nil
 
           @cells[start_row..-1].each.with_index(start_row) do |columns, row_index|
+            columns = @overridden_row_cells if row_index == @overridden_row_index
+
+            # Rows containing row-spanning cells aren't supported for cell-splitting
+            row_has_row_spans = columns.any? {|cell| cell.row != row_index || cell.row_span > 1 }
+
             # 1. Fit all columns of the row and record the max height of all non-row-span cells. If
             #    a row has zero height (usually because it only has row-span cells), record that
             #    information. Additionally store all cells with row-spans.
             row_fit = true
+            row_has_split_cells = false
             row_height = 0
             columns.each_with_index do |cell, col_index|
               next if cell.row != row_index || cell.column != col_index
@@ -423,9 +464,14 @@ module HexaPDF
                                      else
                                        column_info[cell.column].last
                                      end
-              unless cell.fit(available_cell_width, available_height, frame).success?
-                row_fit = false
-                break
+              cell_fit_result = cell.fit(available_cell_width, available_height, frame)
+              unless cell_fit_result.success?
+                if !row_has_row_spans && cell_fit_result.overflow?
+                  row_has_split_cells = true
+                else
+                  row_fit = false
+                  break
+                end
               end
               if row_height < cell.preferred_height && cell.row_span == 1
                 row_height = cell.preferred_height
@@ -462,6 +508,11 @@ module HexaPDF
                   available_height -= cell.preferred_height - row_span_height
                 end
               end
+
+              if row_has_split_cells
+                split_row_cells = create_split_row_cells(columns)
+                break
+              end
             else
               last_fitted_row_index = columns.min_by(&:row).row - 1 if height != available_height
               break
@@ -473,6 +524,7 @@ module HexaPDF
             #    final height and top-left corner of each cell needs to be set.
             running_height = 0
             @cells[start_row..last_fitted_row_index].each.with_index(start_row) do |columns, row_index|
+              columns = @overridden_row_cells if row_index == @overridden_row_index
               columns.each_with_index do |cell, col_index|
                 next if cell.row != row_index || cell.column != col_index
                 cell.left = column_info[cell.column].first
@@ -488,13 +540,15 @@ module HexaPDF
             end
           end
 
-          [height - available_height, last_fitted_row_index < start_row ? -1 : last_fitted_row_index]
+          [height - available_height, last_fitted_row_index < start_row ? -1 : last_fitted_row_index,
+           split_row_cells]
         end
 
         # Draws the rows from +start_row+ to +end_row+ on the given +canvas+, with the top-left
         # corner of the resulting table being at (+x+, +y+).
         def draw_rows(start_row, end_row, canvas, x, y)
           @cells[start_row..end_row].each.with_index(start_row) do |columns, row_index|
+            columns = @overridden_row_cells if row_index == @overridden_row_index
             columns.each_with_index do |cell, col_index|
               next if cell.row != row_index || cell.column != col_index
               cell.draw(canvas, x + cell.left, y - cell.top - cell.height)
@@ -554,6 +608,22 @@ module HexaPDF
             end
 
             @number_of_columns = col_index if @number_of_columns < col_index
+          end
+        end
+
+        # Splits all cells in +columns+ and returns the new array.
+        def create_split_row_cells(columns)
+          columns.map.with_index do |cell, col_index|
+            next cell unless cell.column == col_index
+            _, split_box = cell.split
+            if split_box
+              split_box
+            else
+              # Create an empty clone of the fully fit cell
+              empty_cell = cell.send(:create_split_box)
+              empty_cell.instance_variable_set(:@children, nil)
+              empty_cell
+            end
           end
         end
 
@@ -682,6 +752,7 @@ module HexaPDF
         @special_cells_fit_not_successful = false
         [@header_cells, @footer_cells].each do |special_cells|
           next unless special_cells
+          # Ignore split-cells (3rd result element) as not fully-fit headers/footers lead to failure
           special_used_height, last_fitted_row_index = special_cells.fit_rows(0, height, columns, frame)
           height -= special_used_height
           used_height += special_used_height
@@ -689,13 +760,14 @@ module HexaPDF
           return nil if @special_cells_fit_not_successful
         end
 
-        main_used_height, @last_fitted_row_index = @cells.fit_rows(@start_row_index, height, columns, frame)
+        main_used_height, @last_fitted_row_index, @split_row_cells =
+          @cells.fit_rows(@start_row_index, height, columns, frame)
         used_height += main_used_height
 
         update_content_width { columns[-1].sum + rw }
         update_content_height { used_height + rh }
 
-        if @last_fitted_row_index == @cells.number_of_rows - 1
+        if @last_fitted_row_index == @cells.number_of_rows - 1 && !@split_row_cells
           fit_result.success!
         elsif @last_fitted_row_index >= 0
           fit_result.overflow!
@@ -724,8 +796,19 @@ module HexaPDF
       # Splits the content of the table box. This method is called from Box#split.
       def split_content
         box = create_split_box
-        box.instance_variable_set(:@start_row_index, @last_fitted_row_index + 1)
+
+        if @split_row_cells
+          cells = @cells.clone
+          cells.instance_variable_set(:@overridden_row_cells, @split_row_cells)
+          cells.instance_variable_set(:@overridden_row_index, @last_fitted_row_index)
+          box.instance_variable_set(:@cells, cells)
+          box.instance_variable_set(:@start_row_index, @last_fitted_row_index)
+        else
+          box.instance_variable_set(:@start_row_index, @last_fitted_row_index + 1)
+        end
+
         box.instance_variable_set(:@last_fitted_row_index, -1)
+        box.instance_variable_set(:@split_row_cells, nil)
         box.instance_variable_set(:@special_cells_fit_not_successful, nil)
         header_cells = @header ? Cells.new(@header.call(self), cell_style: @cell_style) : nil
         box.instance_variable_set(:@header_cells, header_cells)

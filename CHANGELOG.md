@@ -15,6 +15,7 @@
 
 ### Changed
 
+* [HexaPDF::Layout::TableBox] to support splitting cells
 * [HexaPDF::Font::CMap::Writer] to support ToUnicode CMaps with mappings from
   one input code to multiple codepoints
 

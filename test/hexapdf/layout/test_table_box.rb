@@ -128,6 +128,20 @@ describe HexaPDF::Layout::TableBox::Cell do
       assert_equal(32, cell.height)
     end
 
+    it "can split a cell if necessary" do
+      children = [HexaPDF::Layout::Box.create(width: 70, height: 60),
+                  HexaPDF::Layout::Box.create(width: 70, height: 60)]
+      container = HexaPDF::Layout::ContainerBox.new(children: children, splitable: true)
+      [container, container.children].each do |used_children|
+        cell = create_cell(children: used_children)
+        assert(cell.fit(100, 100, @frame).overflow?)
+        assert_equal(100, cell.width)
+        assert_equal(72, cell.height)
+        assert_equal(used_children == container ? 100 : 82, cell.preferred_width)
+        assert_equal(72, cell.preferred_height)
+      end
+    end
+
     it "doesn't fit children that are too big" do
       cell = create_cell(children: HexaPDF::Layout::Box.create(width: 300, height: 20))
       assert(cell.fit(100, 100, @frame).failure?)
@@ -139,6 +153,18 @@ describe HexaPDF::Layout::TableBox::Cell do
       cell = create_cell(children: nil)
       assert(cell.fit(10, 100, @frame).failure?)
       assert(cell.fit(100, 10, @frame).failure?)
+    end
+  end
+
+  describe "split" do
+    it "assigns the overflown boxes to the split box" do
+      children = [HexaPDF::Layout::Box.create(width: 70, height: 60),
+                  HexaPDF::Layout::Box.create(width: 70, height: 60)]
+      cell = create_cell(children: children)
+      assert(cell.fit(100, 100, @frame).overflow?)
+      box, overflow_box = cell.split
+      assert_same(cell, box)
+      assert_equal([children[1]], overflow_box.children)
     end
   end
 
@@ -348,6 +374,13 @@ describe HexaPDF::Layout::TableBox::Cells do
     it "allows iterating over rows" do
       cells = create_cells([[:a, :b], [:c], [:d, :e]])
       assert_equal([[:a, :b], [:c], [:d, :e]], cells.each_row.map {|cols| cols.map(&:children) })
+    end
+
+    it "allows iterating over rows containing an overridden one" do
+      cells = create_cells([[:a, :b], [:c], [:d, :e]])
+      cells.instance_variable_set(:@overridden_row_index, 1)
+      cells.instance_variable_set(:@overridden_row_cells, [cells[2, 1], cells[2, 0]])
+      assert_equal([[:a, :b], [:e, :d], [:d, :e]], cells.each_row.map {|cols| cols.map(&:children) })
     end
   end
 
@@ -612,6 +645,29 @@ describe HexaPDF::Layout::TableBox do
       check_box(box, :overflow, 160, 10,
                 [[0, 0, 80, 10], [80, 0, 80, 10], [nil, nil, 80, 0], [nil, nil, 0, 0]])
     end
+
+    it "fails if not even enough height for the first row is available" do
+      check_box(create_box(height: 10), :failure, 160, 10)
+    end
+
+    describe "last row splitting" do
+      before do
+        @boxes = [[80, 50], [80, 40], [80, 70]].map do |w, h|
+          HexaPDF::Layout::Box.new(width: w, height: h, &@draw_block)
+        end
+      end
+
+      it "splits the last row if necessary" do
+        box = create_box(cells: [[@boxes[0], @boxes[1, 2]]], cell_style: {padding: 0, border: {width: 0}})
+        check_box(box, :overflow, 160, 50, [[0, 0, 80, 50], [80, 0, 80, 50]])
+      end
+
+      it "doesn't split the last row if it is part of a row span" do
+        cells = [[@boxes[0], {content: @boxes[1, 2], row_span: 2}]]
+        box = create_box(cells: cells, cell_style: {padding: 0, border: {width: 0}})
+        check_box(box, :failure, 160, 0)
+      end
+    end
   end
 
   describe "split" do
@@ -672,6 +728,23 @@ describe HexaPDF::Layout::TableBox do
         end
       end
     end
+
+    it "splits the last row of a table" do
+      box = create_box(cells: [[@fixed_size_boxes[0], @fixed_size_boxes[1, 3]]],
+                       cell_style: {padding: 0, border: {width: 0}})
+      assert(box.fit(100, 15, @frame).overflow?)
+      box_a, box_b = box.split
+      assert_same(box_a, box)
+
+      assert_equal(0, box_a.start_row_index)
+      assert_equal(0, box_a.last_fitted_row_index)
+      assert_equal(0, box_b.start_row_index)
+      assert_equal(-1, box_b.last_fitted_row_index)
+
+      assert_nil(box_b.cells[0, 0].children)
+      assert_same(box_a.cells[0, 0].style, box_b.cells[0, 0].style)
+      assert_equal(@fixed_size_boxes[2, 2], box_b.cells[0, 1].children)
+    end
   end
 
   describe "draw_content" do
@@ -722,7 +795,7 @@ describe HexaPDF::Layout::TableBox do
       assert_operators(@canvas.contents, operators)
     end
 
-    it "correctly works for split boxes" do
+    it "correctly works for split tables" do
       box = create_box(cell_style: {padding: 0, border: {width: 0}})
       assert(box.fit(100, 10, @frame).overflow?)
       _, split_box = box.split
@@ -747,6 +820,49 @@ describe HexaPDF::Layout::TableBox do
                    [:restore_graphics_state],
                    [:save_graphics_state],
                    [:concatenate_matrix, [1, 0, 0, 1, 50.0, 50]],
+                   [:move_to, [0, 0]],
+                   [:end_path],
+                   [:restore_graphics_state]]
+      assert_operators(@canvas.contents, operators)
+    end
+
+    it "correctly works for split cells" do
+      box = create_box(cells: [[@fixed_size_boxes[0], @fixed_size_boxes[1, 3]]],
+                       cell_style: {padding: 0, border: {width: 0}})
+      box.cells[0, 0].style.background_color = 'red'
+      assert(box.fit(100, 10, @frame).overflow?)
+      _, split_box = box.split
+      assert(split_box.fit(100, 100, @frame).success?)
+
+      box.draw(@canvas, 20, 10)
+      split_box.draw(@canvas, 0, 50)
+      operators = [[:save_graphics_state],
+                   [:set_device_rgb_non_stroking_color, [1, 0, 0]],
+                   [:append_rectangle, [20, 10, 50, 10]],
+                   [:fill_path_non_zero],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 20, 10]],
+                   [:move_to, [0, 0]],
+                   [:end_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 70, 10]],
+                   [:move_to, [0, 0]],
+                   [:end_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:set_device_rgb_non_stroking_color, [1, 0, 0]],
+                   [:append_rectangle, [0, 50, 50, 20]],
+                   [:fill_path_non_zero],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 50, 60]],
+                   [:move_to, [0, 0]],
+                   [:end_path],
+                   [:restore_graphics_state],
+                   [:save_graphics_state],
+                   [:concatenate_matrix, [1, 0, 0, 1, 50, 50]],
                    [:move_to, [0, 0]],
                    [:end_path],
                    [:restore_graphics_state]]
