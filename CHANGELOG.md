@@ -21,7 +21,7 @@
 
 ### Fixed
 
-* [HexaPDF::Layout::ContainerBox#fit] to correctly set width and height when
+* [HexaPDF::Layout::ContainerBox] to correctly set width and height when
   splitting
 
 
