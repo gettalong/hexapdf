@@ -75,6 +75,8 @@ module HexaPDF
     # provided. Both can directly be invoked from the 'show_text' and 'show_text_with_positioning'
     # methods.
     #
+    # There is a default implementation of 'move_text_next_line_and_show_text' and
+    # 'set_spacing_move_text_next_line_and_show_text' that just defers to 'show_text'.
     class Processor
 
       # Represents an (immutable) glyph box with positioning information.
@@ -364,6 +366,18 @@ module HexaPDF
       end
 
       protected
+
+      # Provides a default implementation for the ' operator which just invokes #show_text if it is
+      # available. All other processing is already done by the operator implementation.
+      def move_text_next_line_and_show_text(text)
+        show_text(text) if respond_to?(:show_text, true)
+      end
+
+      # Provides a default implementation for the " operator which just invokes #show_text if it is
+      # available. All other processing is already done by the operator implementation.
+      def set_spacing_move_text_next_line_and_show_text(_word_space, _char_space, text)
+        show_text(text) if respond_to?(:show_text, true)
+      end
 
       # Provides a default implementation for the 'Do' operator.
       #

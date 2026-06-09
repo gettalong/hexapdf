@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* [HexaPDF::Content::Processor] to delegate processing of the `'` and `"`
+  operators to the 'Tj' operator
+
+
 ## 1.9.0 - 2026-06-07
 
 ### Added

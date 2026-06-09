@@ -87,6 +87,23 @@ describe HexaPDF::Content::Processor do
     end
   end
 
+  describe "(set_spacing_)move_text_next_line_and_show_text" do
+    it "invokes show_text if it exists" do
+      @processor.process(:BT)
+
+      # nothing should happen here as no show_text is yet defined
+      @processor.process(:"'", ['Text'])
+      @processor.process(:'"', [10, 5, 'Text'])
+
+      value = nil
+      @processor.define_singleton_method(:show_text) {|text| value = text }
+      @processor.process(:"'", ['Text1'])
+      assert_equal('Text1', value)
+      @processor.process(:'"', [10, 5, 'Text2'])
+      assert_equal('Text2', value)
+    end
+  end
+
   describe "paint_xobject" do
     it "processes the contents of a Form xobject" do
       test_case = self
