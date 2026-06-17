@@ -1,3 +1,13 @@
+## HEAD
+
+### Fixed
+
+* [HexaPDF::Type::FontTrueType] to extract text from TrueType fonts that have
+  no ToUnicode CMap and no Encoding entry by reading the encoding from the
+  embedded font's cmap table (Unicode cmaps yield a direct code-point lookup;
+  a Mac Roman cmap falls back to MacRomanEncoding)
+
+
 ## 1.9.1 - 2026-06-09
 
 ### Fixed
