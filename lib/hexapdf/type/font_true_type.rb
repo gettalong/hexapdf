@@ -63,6 +63,54 @@ module HexaPDF
 
       private
 
+      # Returns an encoding backed by the cmap table of the embedded TrueType font.
+      #
+      # If the font has a Unicode cmap (platform 0 or Microsoft/BMP), a +BuiltInUnicodeEncoding+
+      # that maps character codes directly to Unicode via that cmap is returned. If the font only
+      # has a Mac Roman cmap (platform 1, encoding 0), +MacRomanEncoding+ is returned since Mac
+      # Roman character codes map to that encoding.
+      #
+      # Raises HexaPDF::Error if the font is not embedded or has no usable cmap table.
+      #
+      # See: PDF2.0 s9.6.6.4
+      def encoding_from_font
+        ff = font_file
+        raise HexaPDF::Error, "No encoding and TrueType font '#{self[:BaseFont]}' is not embedded" unless ff
+        cmap = HexaPDF::Font::TrueType::Font.new(StringIO.new(ff.stream))[:cmap]
+        raise HexaPDF::Error, "No cmap table in embedded TrueType font '#{self[:BaseFont]}'" unless cmap
+        if (table = cmap.preferred_table)
+          BuiltInUnicodeEncoding.new(table)
+        elsif cmap.tables.any? {|t| t.platform_id == 1 && t.encoding_id == 0 }
+          HexaPDF::Font::Encoding.for_name(:MacRomanEncoding)
+        else
+          raise HexaPDF::Error, "No usable cmap in embedded TrueType font '#{self[:BaseFont]}'"
+        end
+      end
+
+      # An encoding backed directly by a Unicode cmap subtable of an embedded TrueType font.
+      #
+      # Used when the font dictionary has no +Encoding+ entry and the embedded font provides a
+      # Unicode cmap (platform 0 or Microsoft BMP). Character codes in the content stream are
+      # looked up in the cmap as Unicode code points; the resolved glyph ID is then reverse-mapped
+      # back to a code point and returned as a UTF-8 character.
+      class BuiltInUnicodeEncoding < HexaPDF::Font::Encoding::Base
+
+        def initialize(cmap_table) #:nodoc:
+          super()
+          @cmap = cmap_table
+        end
+
+        # Returns the Unicode character for +code+, or +nil+ if no mapping exists.
+        def unicode(code)
+          gid = @cmap[code]
+          return nil if !gid || gid.zero?
+          cp = @cmap.gid_to_code(gid)
+          cp ? +'' << cp : nil
+        end
+
+      end
+      private_constant :BuiltInUnicodeEncoding
+
       def perform_validation
         std_font = FontType1::StandardFonts.standard_font?(self[:BaseFont])
         super(ignore_missing_font_fields: std_font)
