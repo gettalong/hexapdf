@@ -82,7 +82,7 @@ module HexaPDF
         class SimplifiedFieldNotationParser
 
           # Raised if there was an error during parsing.
-          class ParseError < StandardError; end
+          class ParseError < HexaPDF::Error; end
 
           # Creates a new instance for the given AcroForm +form+ instance and simplified field
           # notation string +sfn_string+.

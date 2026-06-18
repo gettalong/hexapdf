@@ -1,3 +1,11 @@
+## HEAD
+
+### Fixed
+
+* [HexaPDF::Type::AcroForm::JavaScriptActions] ParseError to inherit from
+  HexaPDF::Error instead of StandardError
+
+
 ## 1.9.1 - 2026-06-09
 
 ### Fixed
