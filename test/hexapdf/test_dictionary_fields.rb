@@ -129,6 +129,11 @@ describe HexaPDF::DictionaryFields do
       str = @field.convert("\xfe\xff\x00t\x00e\x00s\x00t".b, self)
       assert_equal('test', str)
       assert_equal(Encoding::UTF_8, str.encoding)
+
+      str = @field.convert("\xef\xbb\xbfHall\xC3\xB6".b, self)
+      assert_equal('Hallö', str)
+      assert_equal(Encoding::UTF_8, str.encoding)
+
       str = @field.convert("Testing\x9c\x92".b, self)
       assert_equal("Testing\u0153\u2122", str)
       assert_equal(Encoding::UTF_8, str.encoding)
@@ -141,6 +146,9 @@ describe HexaPDF::DictionaryFields do
     it "calls document.on_invalid_string if the provided string is invalid" do
       str = "\xfe\xff\xD8\x00\x00s\x00t".b
       assert_equal("st", @field.convert(str, self))
+
+      str = "\xef\xbb\xbfHall\xFF\xC3".b
+      assert_equal("Hall", @field.convert(str, self))
     end
   end
 

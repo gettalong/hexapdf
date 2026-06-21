@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+* Support for PDF 2.0 UTF-8 strings to
+  [HexaPDF::DictionaryFields::StringConverter]
+
+
 ## 1.9.1 - 2026-06-09
 
 ### Fixed

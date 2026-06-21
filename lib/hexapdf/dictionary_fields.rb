@@ -262,6 +262,13 @@ module HexaPDF
           else
             document.config['document.on_invalid_string'].call(str)
           end
+        elsif str.getbyte(0) == 239 && str.getbyte(1) == 187 && str.getbyte(2) == 191
+          str = str[3..-1].force_encoding(Encoding::UTF_8)
+          if str.valid_encoding?
+            str
+          else
+            document.config['document.on_invalid_string'].call(str)
+          end
         else
           Utils::PDFDocEncoding.convert_to_utf8(str)
         end

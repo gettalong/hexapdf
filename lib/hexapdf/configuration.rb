@@ -254,8 +254,8 @@ module HexaPDF
   #    In nearly all cases this option should not be changed from its default setting!
   #
   # document.on_invalid_string::
-  #    A callable object that takes the invalid UTF-16BE encoded string and returns a valid UTF-8
-  #    encoded string.
+  #    A callable object that takes the invalid UTF-16BE or UTF-8 encoded string and returns a valid
+  #    UTF-8 encoded string.
   #
   #    The default is to remove all invalid characters.
   #
