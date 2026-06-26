@@ -69,10 +69,6 @@ module HexaPDF
       define_field :Certs, type: PDFArray
       define_field :OCSPs, type: PDFArray
       define_field :CRLs,  type: PDFArray
-      define_field :SW, type: Symbol,   default: :A, allowed_values: [:A, :B, :S, :N]
-      define_field :S,  type: Symbol,   default: :P, allowed_values: [:A, :P]
-      define_field :A,  type: PDFArray, default: [0.5, 0.5]
-      define_field :FB, type: Boolean,  default: false, version: '1.5'
 
     end
 

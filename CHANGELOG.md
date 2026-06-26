@@ -5,6 +5,10 @@
 * Support for PDF 2.0 UTF-8 strings to
   [HexaPDF::DictionaryFields::StringConverter]
 
+### Fixed
+
+* Removed invalid dictionary fields from [HexaPDF::Type::DocumentSecurityStore]
+
 
 ## 1.9.1 - 2026-06-09
 
