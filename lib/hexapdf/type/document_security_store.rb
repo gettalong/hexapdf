@@ -54,21 +54,21 @@ module HexaPDF
         define_type :VRI
 
         define_field :Type, type: Symbol, default: type
-        define_field :Cert, type: PDFArray
-        define_field :CRL,  type: PDFArray
-        define_field :OCSP, type: PDFArray
-        define_field :TU,   type: PDFDate
-        define_field :TS,   type: Stream
+        define_field :Cert, type: PDFArray, version: '2.0'
+        define_field :CRL,  type: PDFArray, version: '2.0'
+        define_field :OCSP, type: PDFArray, version: '2.0'
+        define_field :TU,   type: PDFDate, version: '2.0'
+        define_field :TS,   type: Stream, version: '2.0'
 
       end
 
       define_type :DSS
 
       define_field :Type,  type: Symbol, default: type
-      define_field :VRI,   type: Dictionary
-      define_field :Certs, type: PDFArray
-      define_field :OCSPs, type: PDFArray
-      define_field :CRLs,  type: PDFArray
+      define_field :VRI,   type: Dictionary, version: '2.0'
+      define_field :Certs, type: PDFArray, version: '2.0'
+      define_field :OCSPs, type: PDFArray, version: '2.0'
+      define_field :CRLs,  type: PDFArray, version: '2.0'
 
     end
 
