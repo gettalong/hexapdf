@@ -59,6 +59,11 @@ module HexaPDF
         certificate_chain.first
       end
 
+      # Returns +nil+.
+      def embedded_tsa_signature
+        nil
+      end
+
       # Verifies the signature using the provided OpenSSL::X509::Store object.
       def verify(store, allow_self_signed: false)
         result = super

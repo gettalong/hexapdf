@@ -28,6 +28,10 @@ describe HexaPDF::DigitalSignature::PKCS1Handler do
     assert_equal(CERTIFICATES.signer_certificate, @handler.signer_certificate)
   end
 
+  it "returns nil for the embedded timestamp signature" do
+    assert_nil(@handler.embedded_tsa_signature)
+  end
+
   describe "verify" do
     before do
       @store = OpenSSL::X509::Store.new

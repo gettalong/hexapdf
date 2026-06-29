@@ -5,6 +5,7 @@
 * Support for PDF 2.0 UTF-8 strings to
   [HexaPDF::DictionaryFields::StringConverter]
 * [HexaPDF::Type::Catalog#dss] for returning the document security store
+* [HexaPDF::DigitalSignature::PKCS1Handler#embedded_tsa_signature]
 
 ### Fixed
 
