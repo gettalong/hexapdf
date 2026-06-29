@@ -92,7 +92,7 @@ module HexaPDF
         return @embedded_tsa_signature if defined?(@embedded_tsa_signature)
 
         @embedded_tsa_signature = nil
-        p7 = OpenSSL::ASN1.decode(signature_dict.contents.sub(/\x00*\z/, ''))
+        p7 = decode_asn1(signature_dict.contents)
         signed_data = p7.value[1].value[0]
         signer_info = signed_data.value[-1].value[0] # first (and only) signer info
         return unless signer_info.value[-1].tag == 1 # check for unsigned attributes
@@ -140,7 +140,7 @@ module HexaPDF
 
         if signature_dict.signature_type == 'ETSI.RFC3161'
           # Getting the needed values is not directly supported by Ruby OpenSSL
-          p7 = OpenSSL::ASN1.decode(signature_dict.contents.sub(/\x00*\z/, ''))
+          p7 = decode_asn1(signature_dict.contents)
           signed_data = p7.value[1].value[0]
           content_info = signed_data.value[2]
           content = OpenSSL::ASN1.decode(content_info.value[1].value[0].value)
@@ -173,6 +173,31 @@ module HexaPDF
         result.log(:info, "Certificate chain: #{cert_subjects.join(" -> ")}")
 
         result
+      end
+
+      private
+
+      # Decode the first data structure in the given +data+ binary string.
+      #
+      # Since ASN1.decode raises an error if there are trailing bytes in +data+, we need to try
+      # several things to get the first data structure out of +data+ that is possibly zero-padded
+      # (due to definite and indefinite encodings; \x00\x00 is the EOD marker for indefinite
+      # encodings complicating things).
+      def decode_asn1(data)
+        length = OpenSSL::ASN1.traverse(data) do |_depth, _offset, header_length, length, *|
+          break length > 0 ? header_length + length : 0
+        end
+        if length > 0
+          OpenSSL::ASN1.decode(data[0, length])
+        else
+          begin
+            OpenSSL::ASN1.decode(data)
+          rescue OpenSSL::ASN1::ASN1Error => e
+            length = e.message.scan(/Total bytes read: (\d+)/)&.first&.first.to_i
+            data = data[0, length]
+            retry
+          end
+        end
       end
 
     end

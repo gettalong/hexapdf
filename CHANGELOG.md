@@ -10,6 +10,8 @@
 ### Fixed
 
 * Removed invalid dictionary fields from [HexaPDF::Type::DocumentSecurityStore]
+* [HexaPDF::DigitalSignature::CMSHandler] to handle padding of /Contents
+  correctly
 
 
 ## 1.9.1 - 2026-06-09

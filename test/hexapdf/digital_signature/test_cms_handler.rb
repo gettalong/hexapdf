@@ -125,7 +125,9 @@ describe HexaPDF::DigitalSignature::CMSHandler do
       fac.serial_number = 1
       fac.allowed_digests = ["sha256", "sha512"]
       res = fac.create_timestamp(CERTIFICATES.signer_key, CERTIFICATES.timestamp_certificate, req)
-      @dict.contents = res.token.to_der
+      der_form = res.token.to_der
+      # Convert DER to BER with indefinite length encoding as variation
+      @dict.contents = der_form[0] << "\x80".b << der_form[4..-1] << "\x00\x00".b << "\x00\x00\x00\x00".b
       @dict.signature_type = 'ETSI.RFC3161'
       @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
 
@@ -151,7 +153,7 @@ describe HexaPDF::DigitalSignature::CMSHandler do
         key: CERTIFICATES.signer_key, timestamp_handler: tsh,
         certificates: [CERTIFICATES.ca_certificate]
       )
-      @dict.contents = cms.to_der
+      @dict.contents = cms.to_der << "\x00\x00\x00\x00"
       @dict.signed_data = @data
       @handler = HexaPDF::DigitalSignature::CMSHandler.new(@dict)
     end
