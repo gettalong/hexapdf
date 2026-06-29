@@ -84,7 +84,7 @@ module HexaPDF
       define_field :Requirements,      type: PDFArray,   version: '1.7'
       define_field :Collection,        type: Dictionary, version: '1.7'
       define_field :NeedsRendering,    type: Boolean,    version: '1.7'
-      define_field :DSS,               type: Dictionary, version: '2.0'
+      define_field :DSS,               type: :DSS,       version: '2.0'
       define_field :AF,                type: PDFArray,   version: '2.0'
       define_field :DPartRoot,         type: Dictionary, version: '2.0'
 
@@ -122,6 +122,13 @@ module HexaPDF
       # See: OptionalContentProperties
       def optional_content
         self[:OCProperties] ||= document.add({OCGs: [], D: {Creator: 'HexaPDF'}}, type: :XXOCProperties)
+      end
+
+      # Returns the document security store, creating it if needed.
+      #
+      # See: DocumentSecurityStore
+      def dss
+        self[:DSS] ||= document.add({}, type: :DSS)
       end
 
       # Returns the main AcroForm object.

@@ -50,6 +50,16 @@ describe HexaPDF::Type::Catalog do
     assert_equal(:XXOCConfiguration, oc[:D].type)
   end
 
+  it "uses or creates the document security store on access" do
+    @catalog[:DSS] = {}
+    assert_equal(:DSS, @catalog.dss.type)
+
+    @catalog.delete(:DSS)
+    dss = @catalog.dss
+    assert_equal(:DSS, dss.type)
+    assert_same(dss, @catalog.dss)
+  end
+
   describe "acro_form" do
     it "returns an existing form object" do
       @catalog[:AcroForm] = :test
