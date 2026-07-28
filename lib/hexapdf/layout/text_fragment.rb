@@ -119,7 +119,11 @@ module HexaPDF
               items = []
             end
             if glyph.control_char?
-              result.append(new([glyph], style))
+              if result.last&.style == style
+                result.last.items << glyph
+              else
+                result.append(new([glyph], style))
+              end
             else
               fallback = yield(codepoint, glyph)
               unless fallback.empty?
