@@ -43,8 +43,16 @@ describe HexaPDF::Layout::TextFragment do
 
     it "allows using a style object instead of directly specifying style properties" do
       style = HexaPDF::Layout::Style.new(font: @font, font_size: 20)
-      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("Tom", style)
+      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("Tom", style) {}
       assert_equal(37.78, frags[0].width)
+    end
+
+    it "handles control characters separately by not running them through the text shaper" do
+      frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("\tA\nB\rC\r\nD", font: @font) {}
+      assert_equal(5, frags.size)
+      assert_equal("\t", frags[0].text)
+      assert_equal("A\n", frags[1].text)
+      assert_equal("C\r\n", frags[3].text)
     end
 
     it "replaces invalid glyphs with the result of the block" do
@@ -62,7 +70,7 @@ describe HexaPDF::Layout::TextFragment do
 
       frags = HexaPDF::Layout::TextFragment.create_with_fallback_glyphs("✂Tom✂Tom✂Tom✂Tom\u{ad}",
                                                                         style, &fallback)
-      assert_equal(8, frags.size)
+      assert_equal(7, frags.size)
       assert_equal(zapf_dingbats, frags[0].style.font)
       assert_equal(:a2, frags[0].items[0].name)
       assert_equal("Tom", frags[1].text)
@@ -71,8 +79,7 @@ describe HexaPDF::Layout::TextFragment do
       assert_equal("Tom", frags[3].text)
       assert_equal(:'.notdef', frags[4].items[0].name)
       assert_equal("Tom", frags[5].text)
-      assert_equal("Tom", frags[6].text)
-      assert_equal("\u{ad}", frags[7].text)
+      assert_equal("Tom\u{ad}", frags[6].text)
     end
   end
 
