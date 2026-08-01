@@ -14,6 +14,7 @@
   correctly
 * Regression in [HexaPDF::Layout::TextFragment::create_with_fallback_glyphs]
   with respect to handling `\r\n` as a single newline
+* Double decryption when reconstructing invalid files
 
 
 ## 1.9.1 - 2026-06-09

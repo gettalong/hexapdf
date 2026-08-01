@@ -531,8 +531,7 @@ module HexaPDF
 
       loader = lambda do |xref_entry|
         obj, oid, gen, stream = parse_indirect_object(xref_entry.pos)
-        obj = @document.wrap(obj, oid: oid, gen: gen, stream: stream)
-        @document.security_handler ? @document.security_handler.decrypt(obj) : obj
+        @document.wrap(obj, oid: oid, gen: gen, stream: stream)
       end
 
       @in_reconstruct_revision = false

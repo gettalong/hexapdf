@@ -702,15 +702,6 @@ describe HexaPDF::Parser do
       assert_equal(6, @parser.load_object(@xref).value)
     end
 
-    it "uses a security handler for decrypting indirect objects if necessary" do
-      handler = Minitest::Mock.new
-      handler.expect(:decrypt, HexaPDF::Object.new(:result, oid: 1), [HexaPDF::Object])
-      @document.instance_variable_set(:@security_handler, handler)
-      create_parser("1 0 obj\n6\nendobj\ntrailer\n<</Size 1>>")
-      assert_equal(:result, @parser.load_object(@xref).value)
-      assert(handler.verify)
-    end
-
     it "ignores parts where the starting line is split across lines" do
       create_parser("1 0 obj\n5\nendobj\n1 0\nobj\n6\nendobj\ntrailer\n<</Size 1>>")
       assert_equal(5, @parser.load_object(@xref).value)
@@ -772,6 +763,31 @@ describe HexaPDF::Parser do
     it "constructs a trailer with a /Root entry if no valid trailer was found" do
       create_parser("1 0 obj\n<</Type /Catalog/Pages 2 0 R>>\nendobj\nxref trailer <</Size 1/Prev 5\n%%EOF")
       assert_equal({Root: HexaPDF::Reference.new(1, 0)}, @parser.reconstructed_revision.trailer.value)
+    end
+
+    it "decrypts strings and streams correctly in case of whole/part document recovery" do
+      io = StringIO.new
+      doc = HexaPDF::Document.new
+      doc.catalog[:XXTest] = doc.add({Data: "string"}, stream: "stream")
+      doc.encrypt
+      xref_section = doc.write(io)[1]
+      test_oid = doc.catalog[:XXTest].oid
+
+      # whole document corruption
+      invalid_doc = io.string.sub(/xref\n0 #{xref_section.max_oid + 1}/, "xref\n0 1")
+      doc = HexaPDF::Document.new(io: StringIO.new(invalid_doc))
+      assert(doc.revisions.parser.reconstructed?)
+      assert_equal('string', doc.catalog[:XXTest][:Data])
+      assert_equal('stream', doc.catalog[:XXTest].stream)
+
+      # part document corruption
+      invalid_doc = io.string.sub(xref_section[test_oid].pos.to_s.rjust(10, '0'),
+                                  (xref_section[test_oid].pos + 5).to_s.rjust(10, '0'))
+      doc = HexaPDF::Document.new(io: StringIO.new(invalid_doc))
+      refute(doc.revisions.parser.reconstructed?)
+      assert_equal('string', doc.catalog[:XXTest][:Data])
+      assert_equal('stream', doc.catalog[:XXTest].stream)
+      assert(doc.revisions.parser.reconstructed?)
     end
 
     it "fails if no valid trailer is found and couldn't be constructed" do
