@@ -6,6 +6,7 @@
   [HexaPDF::DictionaryFields::StringConverter]
 * [HexaPDF::Type::Catalog#dss] for returning the document security store
 * [HexaPDF::DigitalSignature::PKCS1Handler#embedded_tsa_signature]
+* [HexaPDF::Type::DocumentSecurityStore] convenience methods for adding entries
 
 ### Fixed
 
