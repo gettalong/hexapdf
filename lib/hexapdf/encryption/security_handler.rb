@@ -276,7 +276,9 @@ module HexaPDF
           str.replace(string_algorithm.decrypt(key, str, &error_proc))
         end
 
-        if obj.kind_of?(HexaPDF::Stream) && obj.raw_stream.filter[0] != :Crypt
+        # The (obj.raw_stream == '') case may occur for PDFs where a typed object that should be a
+        # stream isn't one. For example, if a /Type /Form object doesn't have stream ... endstream.
+        if obj.kind_of?(HexaPDF::Stream) && obj.raw_stream != '' && obj.raw_stream.filter[0] != :Crypt
           unless string_algorithm == stream_algorithm
             key = object_key(obj.oid, obj.gen, stream_algorithm)
           end
