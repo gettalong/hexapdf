@@ -302,6 +302,18 @@ describe HexaPDF::Encryption::SecurityHandler do
       assert_equal('string', obj.stream)
     end
 
+    it "handles decryption of should-be stream objects without actual streams" do
+      doc = HexaPDF::Document.new
+      obj = doc.add({}) # Create XObject as Dictionary and not as Stream
+      obj[:Type] = :XObject
+      obj[:Subtype] = :Form
+      doc.catalog[:Test] = obj
+      doc.encrypt
+      doc = HexaPDF::Document.new(io: StringIO.new(doc.write_to_string))
+      assert_kind_of(HexaPDF::Stream, doc.catalog[:Test])
+      assert_equal('', doc.catalog[:Test].raw_stream)
+    end
+
     it "doesn't decrypt a document's Encrypt dictionaries" do
       @document = HexaPDF::Document.new
       @document.trailer[:Encrypt] = @document.add({Key: "Something"})
