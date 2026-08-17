@@ -101,6 +101,13 @@ describe HexaPDF::Content::SmartTextExtractor do
                               ['Foot', 50, 10, 66, 20]]))
   end
 
+
+  it "works in case the majority of text runs have zero height" do
+    assert_equal(["Hello", "World News"].join("\n"*17), layout_runs([['World', 50, 80, 70, 80],
+                                                                     ['News', 75, 80, 100, 80],
+                                                                     ['Hello', 50, 100, 70, 100]]))
+  end
+
   it "ignores outliers when calculating the normal line spacing" do
     assert_equal("Hello\nWorld\n\n\n\nHere",
                  layout_runs([['Hello', 50, 100, 70, 110],
