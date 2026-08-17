@@ -206,7 +206,7 @@ module HexaPDF
       if -0.0001 < obj && obj < 0.0001 && obj != 0
         sprintf("%.6f", obj)
       elsif obj.finite?
-        obj.round(6).to_s
+        obj.clamp(-999999999999999, 999999999999999).round(6).to_s
       else
         raise HexaPDF::Error, "Can't serialize special floating point number #{obj}"
       end
