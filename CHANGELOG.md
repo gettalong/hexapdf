@@ -17,6 +17,7 @@
   with respect to handling `\r\n` as a single newline
 * Double decryption when reconstructing invalid files
 * Parsing encrypted indirect objects that should be streams but aren't
+* Serializing of large floats that used scientific notation
 
 
 ## 1.9.1 - 2026-06-09

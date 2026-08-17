@@ -58,7 +58,7 @@ describe HexaPDF::Serializer do
     assert_serialized("1208925819614629174706176", 1_208_925_819_614_629_174_706_176)
   end
 
-  it "serializes floats with a precision of 4" do
+  it "serializes floats with a precision of 6" do
     assert_serialized("1.5", 1.5)
     assert_serialized("-1.5", -1.5)
     assert_serialized("9.123456", 9.123456)
@@ -66,6 +66,12 @@ describe HexaPDF::Serializer do
     assert_serialized("0.000005", 0.000005)
     assert_serialized("-0.000005", -0.000005)
     assert_serialized("0.0", 0.0)
+    assert_serialized("123456789012345.0", 1.23456789012345e14)
+    assert_serialized("123456789012345.34", 1.2345678901234534e14)
+    assert_serialized("-123456789012345.0", -1.23456789012345e14)
+    assert_serialized("-123456789012345.34", -1.2345678901234534e14)
+    assert_serialized("999999999999999", 1.23456789012345e15)
+    assert_serialized("-999999999999999", -1.23456789012345e15)
     assert_raises(HexaPDF::Error) { @serializer.serialize(0.0 / 0) }
     assert_raises(HexaPDF::Error) { @serializer.serialize(1.0 / 0) }
     assert_raises(HexaPDF::Error) { @serializer.serialize(-1.0 / 0) }
