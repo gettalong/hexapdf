@@ -172,8 +172,9 @@ module HexaPDF
         return '' if text_runs.empty?
 
         # Use the median height of all text runs as an approximation of the main font size used on
-        # the page. The line tolerance uses a hard floor for small fonts.
-        median_height = median(text_runs.map(&:height).sort)
+        # the page. In case the majority of text runs have a height of 0, use a non-zero height
+        # value. The line tolerance uses a hard floor for small fonts.
+        median_height = [median(text_runs.map(&:height).sort), 1].max
         line_tolerance = [median_height * line_tolerance_factor, 2].max
 
         # Group the text runs into lines which are sorted top to bottom. Text runs are pre-sorted by

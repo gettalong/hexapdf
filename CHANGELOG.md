@@ -19,6 +19,8 @@
 * Parsing encrypted indirect objects that should be streams but aren't
 * Serializing of large floats that used scientific instead of fixed-point
   notation
+* [HexaPDF::Content::SmartTextExtractor::layout_text_runs] to work in case of
+  degenerate input where the majority of text runs have zero height
 
 
 ## 1.9.1 - 2026-06-09
