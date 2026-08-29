@@ -410,8 +410,7 @@ module HexaPDF
       def read_from_console(prompt, noecho: false)
         IO.console.write("#{prompt}: ")
         if noecho
-          IO.console.noecho {|io| io.gets.chomp }
-          puts
+          IO.console.noecho {|io| io.gets.chomp }.tap { puts }
         else
           IO.console.gets.chomp
         end

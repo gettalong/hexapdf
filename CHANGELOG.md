@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixed
+
+* Reading password from standard input for the hexapdf CLI
+
+
 ## 1.10.0 - 2026-08-21
 
 ### Added
