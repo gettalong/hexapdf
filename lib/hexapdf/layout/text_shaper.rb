@@ -43,62 +43,6 @@ HARFBUZZ_AVAILABLE = begin
                      rescue LoadError
                      end
 
-if HARFBUZZ_AVAILABLE
-  class HarfBuzz::Buffer #:nodoc:
-
-    GLYPH_INFO_SIZE = HarfBuzz::C::HbGlyphInfoT.size
-    GLYPH_INFO_CODEPOINT_OFFSET = HarfBuzz::C::HbGlyphInfoT.offset_of(:codepoint)
-    GLYPH_INFO_CLUSTER_OFFSET = HarfBuzz::C::HbGlyphInfoT.offset_of(:cluster)
-    GLYPH_POS_SIZE  = HarfBuzz::C::HbGlyphPositionT.size
-    GLYPH_POS_XADVANCE_OFFSET = HarfBuzz::C::HbGlyphPositionT.offset_of(:x_advance)
-    GLYPH_POS_YADVANCE_OFFSET = HarfBuzz::C::HbGlyphPositionT.offset_of(:y_advance)
-    GLYPH_POS_XOFFSET_OFFSET = HarfBuzz::C::HbGlyphPositionT.offset_of(:x_offset)
-    GLYPH_POS_YOFFSET_OFFSET = HarfBuzz::C::HbGlyphPositionT.offset_of(:y_offset)
-
-    # Iterates efficiently over the shaping result without creating intermediary objects.
-    def each_result
-      return enum_for(__method__) unless block_given?
-
-      length_ptr = FFI::MemoryPointer.new(:uint)
-      infos_ptr = HarfBuzz::C.hb_buffer_get_glyph_infos(@ptr, length_ptr)
-      length_ptr = FFI::MemoryPointer.new(:uint)
-      positions_ptr = HarfBuzz::C.hb_buffer_get_glyph_positions(@ptr, length_ptr)
-      length = length_ptr.read_uint
-
-      return if infos_ptr.null? || positions_ptr.null? || length.zero?
-
-      last_info_cluster_offset = (length - 1) * GLYPH_INFO_SIZE + GLYPH_INFO_CLUSTER_OFFSET
-      i = 0
-      while i < length
-        info_offset = i * GLYPH_INFO_SIZE
-        pos_offset  = i * GLYPH_POS_SIZE
-
-        glyph_id = infos_ptr.get_uint32(info_offset + GLYPH_INFO_CODEPOINT_OFFSET)
-        cluster  = infos_ptr.get_uint32(info_offset + GLYPH_INFO_CLUSTER_OFFSET)
-
-        next_cluster = nil
-        tmp_offset = info_offset + GLYPH_INFO_CLUSTER_OFFSET + GLYPH_INFO_SIZE
-        while tmp_offset <= last_info_cluster_offset &&
-              (next_cluster = infos_ptr.get_uint32(tmp_offset)) == cluster
-          tmp_offset += GLYPH_INFO_SIZE
-          next_cluster = nil
-        end
-
-        x_advance = positions_ptr.get_int32(pos_offset + GLYPH_POS_XADVANCE_OFFSET)
-        y_advance = positions_ptr.get_int32(pos_offset + GLYPH_POS_YADVANCE_OFFSET)
-        x_offset = positions_ptr.get_int32(pos_offset + GLYPH_POS_XOFFSET_OFFSET)
-        y_offset = positions_ptr.get_int32(pos_offset + GLYPH_POS_YOFFSET_OFFSET)
-
-        yield(glyph_id, cluster, next_cluster, x_advance, y_advance, x_offset, y_offset)
-
-        i += 1
-      end
-
-      self
-    end
-  end
-end
-
 module HexaPDF
   module Layout
 
@@ -188,7 +132,7 @@ module HexaPDF
         items = text_fragment.items.clear
         last_cluster = nil
         last_y_offset = 0
-        buffer.each_result do |glyph_id, cluster, next_cluster, x_advance, y_advance, x_offset, y_offset|
+        buffer.each_glyph_with_clusters do |glyph_id, cluster, next_cluster, x_advance, y_advance, x_offset, y_offset|
           advance = (x_advance - x_offset) * font.scaling_factor
 
           # 1. Determine the source characters for each glyph via their cluster numbers. If two or
