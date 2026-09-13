@@ -852,8 +852,10 @@ describe HexaPDF::Layout::Style do
   end
 
   it "has several dynamically generated properties with default values that take blocks" do
+    refute(@style.text_segmentation_algorithm?)
     assert_equal(HexaPDF::Layout::TextLayouter::SimpleTextSegmentation,
                  @style.text_segmentation_algorithm)
+    refute(@style.text_line_wrapping_algorithm?)
     assert_equal(HexaPDF::Layout::TextLayouter::SimpleLineWrapping,
                  @style.text_line_wrapping_algorithm)
 
