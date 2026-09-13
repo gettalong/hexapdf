@@ -3,7 +3,11 @@
 begin
   require 'simplecov'
   SimpleCov.start do
-    minimum_coverage line: 100 unless ENV['NO_SIMPLECOV']
+    enable_coverage(:method)
+    unless ENV['NO_SIMPLECOV']
+      coverage(:line) { minimum 100 }
+      coverage(:method) { minimum 100 }
+    end
     skip '/test/'
     skip '/fast_arc4.rb'
   end
