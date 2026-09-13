@@ -34,8 +34,10 @@
 # commercial licenses are available at <https://gettalong.at/hexapdf/>.
 #++
 
+require 'net/http'
 require 'openssl'
 require 'stringio'
+require 'uri'
 require 'hexapdf/digital_signature'
 require 'hexapdf/error'
 
@@ -175,6 +177,41 @@ module HexaPDF
         io.close if io && io != file_or_io
       end
 
+      # Adds long-term validation information to the document.
+      #
+      # For each certificate OCSP is tried as it is smaller. If OCSP is not available, the CRL is
+      # used. If a problem is encountered, an error is thrown.
+      def add_ltv_information
+        dss = @document.catalog.dss
+
+        each do |signature|
+          certificates = signature.signature_handler.certificate_chain.dup
+          if (tsa_token = signature.signature_handler.embedded_tsa_signature)
+            certificates.concat(tsa_token.certificates)
+          end
+          cert_from_subject = certificates.each_with_object({}) {|c, h| h[c.subject] = c }
+
+          certs = []
+          ocsps = []
+          crls  = []
+          certificates.each do |cert|
+            certs << cert.to_der
+            next if cert.issuer == cert.subject  # skip self-signed root CA
+
+            issuer = cert_from_subject[cert.issuer]
+            if issuer && (ocsp_der = fetch_ocsp_response(cert, issuer))
+              ocsps << ocsp_der
+            elsif (crl_der = fetch_crl(cert))
+              crls << crl_der
+            else
+              raise HexaPDF::Error, "No OCSP and CRL response could be fetched for #{cert.subject}"
+            end
+          end
+
+          dss.add_vri(signature, certs: certs, ocsps: ocsps, crls: crls)
+        end
+      end
+
       # :call-seq:
       #   signatures.each {|signature| block }   -> signatures
       #   signatures.each                        -> Enumerator
@@ -203,6 +240,74 @@ module HexaPDF
                  map {|field| field.full_field_name.scan(/\ASignature(\d+)/).first&.first.to_i }.
                  max || 0) + 1
         "Signature#{index}"
+      end
+
+      # Fetches an OCSP response for +cert+ issued by +issuer+. Returns the DER-encoded response, or
+      # +nil+ if no URL is found or the request fails.
+      def fetch_ocsp_response(cert, issuer)
+        url = cert.ocsp_uris&.first
+        return nil unless url
+
+        certificate_id = OpenSSL::OCSP::CertificateId.new(cert, issuer)
+        req = OpenSSL::OCSP::Request.new
+        req.add_certid(certificate_id)
+        req.add_nonce
+
+        url = URI(url)
+        http_request = Net::HTTP::Post.new(url, 'Content-Type' => 'application/ocsp-request')
+        http_request.body = req.to_der
+        http_response = Net::HTTP.start(url.hostname, url.port, use_ssl: (url.scheme == 'https')) do |http|
+          http.request(http_request)
+        end
+
+        if http_response.kind_of?(Net::HTTPOK)
+          ocsp_der = http_response.body
+          response = OpenSSL::OCSP::Response.new(ocsp_der)
+          basic_response = response.basic
+          if response.status != OpenSSL::OCSP::RESPONSE_STATUS_SUCCESSFUL ||
+             req.check_nonce(basic_response) == 0
+            return nil
+          end
+          single_response = basic_response.find_response(certificate_id)
+          return nil unless single_response && single_response.check_validity
+          if single_response.cert_status != OpenSSL::OCSP::V_CERTSTATUS_GOOD
+            raise HexaPDF::Error, "OCSP response indicates that the certificate is not valid"
+          end
+          ocsp_der
+        else
+          nil
+        end
+      rescue HexaPDF::Error
+        raise
+      rescue
+        nil
+      end
+
+      # Fetches a CRL for +cert+. Returns the DER-encoded CRL, or +nil+ if no URL is found or the
+      # request fails.
+      def fetch_crl(cert)
+        url = cert.crl_uris&.first
+        return nil unless url
+
+        http_response = Net::HTTP.get_response(URI(url))
+        if http_response.kind_of?(Net::HTTPOK)
+          crl_der = http_response.body
+          cert_serial = cert.serial
+          crl = OpenSSL::X509::CRL.new(crl_der)
+          if crl_der.include?(OpenSSL::ASN1::Integer.new(cert_serial).to_der)
+            crl = OpenSSL::X509::CRL.new(crl_der)
+            if crl.revoked.find {|r| r.serial == cert_serial }
+              raise HexaPDF::Error, "CRL response indicates that the certificate is revoked"
+            end
+          end
+          crl_der
+        else
+          nil
+        end
+      rescue HexaPDF::Error
+        raise
+      rescue
+        nil
       end
 
     end

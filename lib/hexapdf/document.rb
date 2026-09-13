@@ -693,8 +693,8 @@ module HexaPDF
     # If not changed, the default signing handler is DigitalSignature::Signing::DefaultHandler.
     #
     # *Note*: Once signing is done the document cannot be changed anymore since it was written
-    # during the signing process. If a document needs to be signed multiple times, it needs to be
-    # loaded again afterwards.
+    # during the signing process. If a document needs to be signed multiple times or if LTV
+    # information needs to be added, it needs to be loaded again afterwards.
     def sign(file_or_io, handler: :default, signature: nil, write_options: {}, **handler_options)
       handler = signatures.signing_handler(name: handler, **handler_options)
       signatures.add(file_or_io, handler, signature: signature, write_options: write_options)

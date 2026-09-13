@@ -161,4 +161,135 @@ describe HexaPDF::DigitalSignature::Signatures do
       assert(signed_doc.signatures.first.verify)
     end
   end
+
+  describe "add_ltv_information" do
+    before do
+      CERTIFICATES.start_ocsp_crl_server
+      @doc = HexaPDF::Document.new(io: StringIO.new(MINIMAL_PDF))
+      @io = StringIO.new(''.b)
+    end
+
+    # Signs @doc and returns a new HexaPDF::Document instance for the signed document.
+    def sign_with(certificate, key: CERTIFICATES.signer_key, certificate_chain: [CERTIFICATES.ca_certificate])
+      io = StringIO.new(''.b)
+      @doc.sign(io, certificate: certificate, key: key, certificate_chain: certificate_chain)
+      HexaPDF::Document.new(io: io)
+    end
+
+    it "adds all certificates to the DSS" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_ocsp)
+      doc.signatures.add_ltv_information
+      dss = doc.catalog.dss
+      assert_equal([CERTIFICATES.signer_certificate_with_ocsp, CERTIFICATES.ca_certificate],
+                   dss.certificates)
+    end
+
+    it "fails if one of the certificates has no OCSP or CRL URL" do
+      doc = sign_with(CERTIFICATES.signer_certificate)
+      e = assert_raises(HexaPDF::Error) { doc.signatures.add_ltv_information }
+      assert_match(/No OCSP and CRL/, e.message)
+    end
+
+    it "adds a VRI entry for all non-root certificates" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_ocsp)
+      doc.signatures.add_ltv_information
+      dss = doc.catalog.dss
+      assert_equal(1, dss[:VRI].value.length)
+      assert(dss.vri_for(doc.signatures.first))
+    end
+
+    it "embeds OCSP validation data for a certificate that has an AIA OCSP URL" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_ocsp)
+      doc.signatures.add_ltv_information
+      dss = doc.catalog.dss
+      vri = dss.vri_for(doc.signatures.first)
+      assert_equal(dss[:OCSPs].value, vri[:OCSP].value)
+      assert_equal(dss[:Certs].value, vri[:Cert].value)
+      assert_nil(dss[:CRLs])
+      assert_nil(vri[:CRL])
+    end
+
+    it "handles a connection failure to the OCSP server" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_bad_ocsp)
+      e = assert_raises(HexaPDF::Error) { doc.signatures.add_ltv_information }
+      assert_match(/No OCSP and CRL/, e.message)
+    end
+
+    it "handles unsuccessful OCSP validation" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_unsuccessful_ocsp)
+      e = assert_raises(HexaPDF::Error) { doc.signatures.add_ltv_information }
+      assert_match(/No OCSP and CRL/, e.message)
+    end
+
+    it "handles successful OCSP validation but with a non-good certificate status" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_revoked_ocsp)
+      e = assert_raises(HexaPDF::Error) { doc.signatures.add_ltv_information }
+      assert_match(/OCSP response.*not valid/, e.message)
+    end
+
+    it "handles non-OK HTTP response codes when fetching the OCSP response" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_http_error_ocsp)
+      e = assert_raises(HexaPDF::Error) { doc.signatures.add_ltv_information }
+      assert_match(/No OCSP and CRL/, e.message)
+    end
+
+    it "doesn't use the OCSP information if the issuer certificate is not embedded" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_ocsp, certificate_chain: [])
+      e = assert_raises(HexaPDF::Error) { doc.signatures.add_ltv_information }
+      assert_match(/No OCSP and CRL/, e.message)
+    end
+
+    it "embeds CRL validation data when no OCSP URL is present in the certificate" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_crl)
+      doc.signatures.add_ltv_information
+      dss = doc.catalog.dss
+      vri = dss.vri_for(doc.signatures.first)
+      assert_equal(dss[:CRLs].value, vri[:CRL].value)
+      assert_equal(dss[:Certs].value, vri[:Cert].value)
+      assert_nil(dss[:OCSPs])
+      assert_nil(vri[:OCSP])
+    end
+
+    it "handles a connection failure to the CRL server" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_bad_crl)
+      # CRL URL available but bad endpoint
+      e = assert_raises(HexaPDF::Error) { doc.signatures.add_ltv_information }
+      assert_match(/No OCSP and CRL/, e.message)
+    end
+
+    it "handles a certificate that is revoked via CRL" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_revoked_crl)
+      e = assert_raises(HexaPDF::Error) { doc.signatures.add_ltv_information }
+      assert_match(/CRL.*certificate is revoked/, e.message)
+    end
+
+    it "handles non-OK HTTP response codes when fetching the CRL response" do
+      doc = sign_with(CERTIFICATES.signer_certificate_with_http_error_crl)
+      e = assert_raises(HexaPDF::Error) { doc.signatures.add_ltv_information }
+      assert_match(/No OCSP and CRL/, e.message)
+    end
+
+    it "embeds validation data for an embedded timestamp signature" do
+      CERTIFICATES.start_tsa_server
+      ts_handler = @doc.signatures.signing_handler(name: :timestamp, signature_size: 20_000,
+                                                   tsa_url: "http://127.0.0.1:34567")
+      io = StringIO.new(''.b)
+      @doc.sign(io, certificate: CERTIFICATES.signer_certificate_with_ocsp,
+                key: CERTIFICATES.signer_key, certificate_chain: [CERTIFICATES.ca_certificate],
+                timestamp_handler: ts_handler)
+      doc = HexaPDF::Document.new(io: io)
+      doc.signatures.add_ltv_information
+      dss = doc.catalog.dss
+      vri = dss.vri_for(doc.signatures.first)
+      assert_equal(3, vri[:Cert].value.size)
+    end
+
+    it "creates VRI entries for all signatures" do
+      @doc = sign_with(CERTIFICATES.signer_certificate_with_ocsp)
+      doc = sign_with(CERTIFICATES.signer_certificate_with_crl)
+      doc.signatures.add_ltv_information
+      dss = doc.catalog.dss
+      assert_equal(2, dss[:VRI].value.size)
+    end
+  end
 end

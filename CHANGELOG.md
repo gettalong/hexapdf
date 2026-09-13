@@ -2,6 +2,8 @@
 
 ### Added
 
+* [HexaPDF::DigitalSignature::Signatures#add_ltv_information] for adding
+  long term validation information to signed documents
 * [HexaPDF::Type::DocumentSecurityStore] convenience methods for accessing
   entries
 
