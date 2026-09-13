@@ -94,6 +94,11 @@ module HexaPDF
         (self[:VRI] ||= {})[key] = document.add(vri)
       end
 
+      # Returns the VRI dictionary for the given signature if it exists or else +nil+.
+      def vri_for(signature)
+        self[:VRI] && self[:VRI][OpenSSL::Digest::SHA1.hexdigest(signature.contents).upcase.to_sym]
+      end
+
       # Adds the DER-encoded certificate to the /Certs array if not already present and returns
       # the stream object containing it.
       def add_cert(cert_der)
@@ -110,6 +115,15 @@ module HexaPDF
       # object containing it.
       def add_crl(crl_der)
         add_data_as_stream_to_field(crl_der, :CRLs)
+      end
+
+      # Returns all certificates in the /Certs array as OpenSSL::X509::Certificate objects.
+      def certificates
+        if key?(:Certs)
+          self[:Certs].length.times.map {|i| OpenSSL::X509::Certificate.new(self[:Certs][i].stream) }
+        else
+          []
+        end
       end
 
       private

@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 require 'test_helper'
+require_relative '../digital_signature/common'
 require 'hexapdf/document'
 require 'hexapdf/type/document_security_store'
 
@@ -85,6 +86,35 @@ describe HexaPDF::Type::DocumentSecurityStore do
       refute(vri.key?(:Cert))
       refute(vri.key?(:OCSP))
       refute(vri.key?(:CRL))
+    end
+  end
+
+  describe "vri_for" do
+    before do
+      @signature = @doc.add({Type: :Sig, Contents: 'signature bytes'})
+    end
+
+    it "returns nil if no /VRI entry exists" do
+      assert_nil(@dss.vri_for(@signature))
+    end
+
+    it "returns the VRI entry for the signature if it exists" do
+      @dss[:VRI] = {}
+      assert_nil(@dss.vri_for(@signature))
+      @dss.add_vri(@signature)
+      assert_equal(@dss[:VRI].value.first[1], @dss.vri_for(@signature))
+    end
+  end
+
+  describe "certificates" do
+    it "returns an empty array if no /Certs entry exists" do
+      assert_equal([], @dss.certificates)
+    end
+
+    it "returns an array with certificate instances" do
+      cert = CERTIFICATES.signer_certificate
+      @dss[:Certs] = [@doc.add({}, stream: cert.to_der)]
+      assert_equal([cert], @dss.certificates)
     end
   end
 end

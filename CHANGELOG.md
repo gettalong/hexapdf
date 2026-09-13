@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Type::DocumentSecurityStore] convenience methods for accessing
+  entries
+
 ### Fixed
 
 * Reading password from standard input for the hexapdf CLI
