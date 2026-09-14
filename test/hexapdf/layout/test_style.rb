@@ -616,7 +616,7 @@ describe HexaPDF::Layout::Style::LinkLayer do
       annot = call_link(dest: true)
       assert_equal(:Link, annot[:Subtype])
       assert_equal([10, 10, 25, 20], annot[:Rect].value)
-      assert_equal([10, 10, 25, 10, 25, 20, 10, 20], annot[:QuadPoints].value)
+      assert_equal([10, 20, 25, 20, 10, 10, 25, 10], annot[:QuadPoints].value)
     end
 
     it "removes the border by default" do

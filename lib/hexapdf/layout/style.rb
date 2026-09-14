@@ -541,8 +541,8 @@ module HexaPDF
 
           page = canvas.context
           matrix = canvas.graphics_state.ctm
-          quad_points = [*matrix.evaluate(0, 0), *matrix.evaluate(box.width, 0),
-                         *matrix.evaluate(box.width, box.height), *matrix.evaluate(0, box.height)]
+          quad_points = [*matrix.evaluate(0, box.height), *matrix.evaluate(box.width, box.height),
+                         *matrix.evaluate(0, 0), *matrix.evaluate(box.width, 0)]
           x_minmax = quad_points.values_at(0, 2, 4, 6).minmax
           y_minmax = quad_points.values_at(1, 3, 5, 7).minmax
           border_color = case @border_color

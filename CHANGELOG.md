@@ -10,6 +10,8 @@
 ### Fixed
 
 * Reading password from standard input for the hexapdf CLI
+* Use Adobe (not PDF spec) order for link annotation's /QuadPoints value to
+  ensure compatibility with most major PDF viewers/software
 
 
 ## 1.10.0 - 2026-08-21
