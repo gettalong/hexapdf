@@ -103,6 +103,11 @@ describe HexaPDF::Type::AcroForm::ChoiceField do
         @field.option_items = [1, 2, 3, 4]
         @field.list_box_top_index = 2
         assert_equal(2, @field.list_box_top_index)
+
+        @field[:TI] = 100
+        assert_equal(0, @field.list_box_top_index)
+        @field[:TI] = "other"
+        assert_equal(0, @field.list_box_top_index)
       end
 
       it "fails if mulitple values are provided but the list box is not a multi-select" do

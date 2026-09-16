@@ -199,7 +199,9 @@ module HexaPDF
 
         # Returns the index of the first visible option item of a list box.
         def list_box_top_index
-          self[:TI]
+          prepare_option_items
+          ti = self[:TI]
+          ti.kind_of?(Integer) && self[:Opt] && ti.between?(0, self[:Opt].length - 1) ? ti : 0
         end
 
         # Makes the option item referred to via the given +index+ the first visible option item of a

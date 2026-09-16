@@ -7,6 +7,11 @@
 * [HexaPDF::Type::DocumentSecurityStore] convenience methods for accessing
   entries
 
+### Changed
+
+* [HexaPDF::Type::AcroForm::ChoiceField#list_box_top_index] to always return a
+  valid index
+
 ### Fixed
 
 * Reading password from standard input for the hexapdf CLI
