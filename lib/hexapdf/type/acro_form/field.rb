@@ -260,7 +260,7 @@ module HexaPDF
 
         # Returns +true+ if the field contains an embedded widget.
         def embedded_widget?
-          key?(:Subtype)
+          self[:Subtype] == :Widget
         end
 
         # :call-seq:

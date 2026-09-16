@@ -19,6 +19,8 @@
   ensure compatibility with most major PDF viewers/software
 * [HexaPDF::Type::AcroForm::AppearanceGenerator] to work for files where one or
   more values are not in the set of available list box options
+* [HexaPDF::Type::AcroForm::Field#embedded_widget?] to only return if the
+  /Subtype entry is actually /Widget
 
 
 ## 1.10.0 - 2026-08-21

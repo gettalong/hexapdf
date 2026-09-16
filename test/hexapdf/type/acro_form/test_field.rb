@@ -113,7 +113,9 @@ describe HexaPDF::Type::AcroForm::Field do
 
   it "can check whether a widget is embedded in the field" do
     refute(@field.embedded_widget?)
-    @field[:Subtype] = :Wdiget
+    @field[:Subtype] = :Link
+    refute(@field.embedded_widget?)
+    @field[:Subtype] = :Widget
     assert(@field.embedded_widget?)
   end
 
