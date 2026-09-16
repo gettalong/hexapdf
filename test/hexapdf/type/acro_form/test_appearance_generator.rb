@@ -928,7 +928,7 @@ describe HexaPDF::Type::AcroForm::AppearanceGenerator do
 
         it "creates the /N appearance stream" do
           @field[:I] = [1, 2]
-          @field[:V] = ['b', 'c']
+          @field[:V] = ['b', 'c', 'd']
           @field.set_default_appearance_string(font_size: 12, font_color: "red")
           @generator.create_appearances
           assert_operators(@widget[:AP][:N].stream,
