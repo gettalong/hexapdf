@@ -53,8 +53,6 @@ module HexaPDF
       # As the created CMS object is only meant to be used in the context of PDF signing, it also
       # restricts certain things, like allowing only a single signer.
       #
-      # Additionally, only RSA signatures are currently supported!
-      #
       # See: PDF2.0 s12.8.3.3, PDF2.0 s12.8.3.4, RFC5652, ETSI TS 102 778 Parts 1-4
       class SignedDataCreator
 
