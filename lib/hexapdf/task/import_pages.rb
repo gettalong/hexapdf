@@ -128,17 +128,19 @@ module HexaPDF
             ocgs.merge(obj[:OCGs].to_ary)
           end
         end
+        process_page_or_form = lambda do |page_or_form|
+          page_or_form.resources[:Properties]&.each do |name, obj|
+            process_ocg_or_ocmd.call(obj) if obj
+          end
+          page_or_form.resources[:XObject]&.each do |name, obj|
+            process_ocg_or_ocmd.call(obj[:OC]) if obj.key?(:OC)
+            process_page_or_form.call(obj) if obj[:Subtype] == :Form
+          end
+        end
         seen_resources = {}
         pages.each do |page|
           unless seen_resources[page.resources] # handle case when pages share the resources dict
-            page.resources[:Properties]&.each do |name, obj|
-              next unless obj
-              process_ocg_or_ocmd.call(obj)
-            end
-
-            page.resources[:XObject]&.each do |name, obj|
-              process_ocg_or_ocmd.call(obj[:OC]) if obj.key?(:OC)
-            end
+            process_page_or_form.call(page)
           end
 
           page.each_annotation do |annot|

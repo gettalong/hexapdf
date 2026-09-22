@@ -23,6 +23,8 @@
   more values are not in the set of available list box options
 * [HexaPDF::Type::AcroForm::Field#embedded_widget?] to only return if the
   /Subtype entry is actually /Widget
+* [HexaPDF::Task::ImportPages] to take optional content groups in Form XObjects
+  into account
 
 
 ## 1.10.0 - 2026-08-21

@@ -99,9 +99,10 @@ describe HexaPDF::Task::ImportPages do
       canvas = @doc.pages[0].canvas
       form = canvas.form
       form[:OC] = @ocg1
+      form.canvas.optional_content(@ocmd)
       canvas.xobject(form, at: [0, 0])
       @target.task(:import_pages, source: @doc)
-      assert_equal(['OCG'], @target.optional_content.ocgs.map(&:name))
+      assert_equal(['OCG', 'OCMD'], @target.optional_content.ocgs.map(&:name))
     end
 
     it "preserves OCGs/OCMDs associated with annotations" do
