@@ -124,4 +124,44 @@ describe HexaPDF::Task::ImportPages do
       assert_equal(['OCG'], rb_groups[0].map(&:name))
     end
   end
+
+  describe "resize_to argument" do
+    before do
+      @doc.annotations.create_line(@pages[0], start_point: [10, 10], end_point: [100, 100]).
+        regenerate_appearance
+    end
+
+    it "works when given a symbolic page size" do
+      @target.task(:import_pages, source: @doc, resize_to: :A4)
+      assert_equal(2, @doc.each.select {|obj| obj.type == :Page }.size)
+      assert_operators(@target.pages[0].contents, [[:paint_xobject, [:XO1]]])
+      assert_operators(@target.pages[1].contents, [[:paint_xobject, [:XO1]]])
+    end
+
+    it "works when given a media box directly" do
+      @target.task(:import_pages, source: @doc, pages: 0, resize_to: [5, 5, 100, 100])
+      assert_equal(1, @target.each.select {|obj| obj.type == :Page }.size)
+      assert_operators(@target.pages[0].contents,
+                       [[:concatenate_matrix, [1, 0, 0, 1, 5, 5]],
+                        [:save_graphics_state],
+                        [:concatenate_matrix, [0.15959, 0, 0, 0.112841, 0.0, 0.0]],
+                        [:paint_xobject, [:XO1]],
+                        [:restore_graphics_state]])
+    end
+
+    it "flattens the annotations" do
+      @target.task(:import_pages, source: @doc, pages: 0, resize_to: [5, 5, 100, 100])
+      assert_operators(@target.pages[0].resources.xobject(:XO1).contents,
+                       [[:save_graphics_state],
+                        [:restore_graphics_state],
+                        [:save_graphics_state],
+                        [:restore_graphics_state],
+                        [:save_graphics_state],
+                        [:save_graphics_state],
+                        [:concatenate_matrix, [1.0, 0, 0, 1.0, 0.0, 0.0]],
+                        [:paint_xobject, [:XO1]],
+                        [:restore_graphics_state],
+                        [:restore_graphics_state]])
+    end
+  end
 end

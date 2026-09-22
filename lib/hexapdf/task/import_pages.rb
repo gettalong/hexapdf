@@ -51,6 +51,9 @@ module HexaPDF
     # Note that the /Order, /AS and /Locked fields of the default optional content configuration
     # dictionary are not preserved.
     #
+    # The imported page can optionally be resized to a given page size. Note, however, that this
+    # will make all interactive elements (e.g. annotation widgets and form fields) static.
+    #
     # Example:
     #
     #   doc.task(:import_pages, source: source_doc, pages: [1..-2])
@@ -87,7 +90,20 @@ module HexaPDF
       #
       #     +:merge+:: Merge AcroForm fields using the MergeAcroForm task.
       #     +:ignore+:: Ignore AcroForm fields.
-      def self.call(doc, source:, pages: :all, append: true, ocgs: :preserve, acro_form: :merge)
+      #
+      # +:resize_to+::
+      #     Resizes the pages to the given page size (either a pre-defined name or an array
+      #     specifying the media box), potentially deforming it. This is done by converting the page
+      #     to a Form XObject and then painting it.
+      #
+      #     Note 1: By specifying this argument, the argument +acro_form+ is handled as if it were
+      #     :ignore.
+      #
+      #     Note 2: Annotations without an appearance stream are ignored. If that is something that
+      #     needs to be considered, +page.flatten_annotations+ should be called beforehand for each
+      #     source page and the results handled.
+      def self.call(doc, source:, pages: :all, append: true, ocgs: :preserve, acro_form: :merge,
+                    resize_to: nil)
         # Retrieve all specified source pages
         pages = if pages == :all
                   source.pages.each.to_a
@@ -106,6 +122,7 @@ module HexaPDF
         # Import the source pages and optionally append them to the target page tree
         pages = pages.map do |page|
           imported_page = doc.import(page)
+          imported_page = resize_page(doc, imported_page, resize_to) if resize_to
           doc.pages << imported_page if append
           imported_page
         end
@@ -180,6 +197,19 @@ module HexaPDF
           (target_config[:RBGroups] ||= []) << result
         end
       end
+      private_class_method :preserve_ocgs
+
+      # Resizes the +page+ to the given +media_box+ exactly, potentially deforming it.
+      def self.resize_page(doc, page, media_box)
+        page.flatten_annotations
+        form = page.to_form_xobject
+        doc.delete(page)
+        page = doc.pages.create(media_box: media_box)
+        media_box = page.box(:media) # needed because before media_box could be e.g. :A4
+        page.canvas.xobject(form, at: [0, 0], width: media_box.width, height: media_box.height)
+        page
+      end
+      private_class_method :resize_page
 
     end
 

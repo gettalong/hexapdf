@@ -11,6 +11,7 @@
 
 * [HexaPDF::Type::AcroForm::ChoiceField#list_box_top_index] to always return a
   valid index
+* [HexaPDF::Task::ImportPages] to allow resizing the pages to a target media box
 
 ### Fixed
 
