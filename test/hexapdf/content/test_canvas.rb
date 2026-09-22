@@ -942,7 +942,7 @@ describe HexaPDF::Content::Canvas do
     it "correctly serializes the form with just the width given" do
       @canvas.image(@form, at: [1, 2], width: 50)
       assert_operators(@page.contents, [[:save_graphics_state],
-                                        [:concatenate_matrix, [0.5, 0, 0, 0.5, -99, -48]],
+                                        [:concatenate_matrix, [0.5, 0, 0, 0.5, -49, -23]],
                                         [:paint_xobject, [:XO1]],
                                         [:restore_graphics_state]])
     end
@@ -950,7 +950,7 @@ describe HexaPDF::Content::Canvas do
     it "correctly serializes the form with just the height given" do
       @canvas.image(@form, at: [1, 2], height: 10)
       assert_operators(@page.contents, [[:save_graphics_state],
-                                        [:concatenate_matrix, [0.2, 0, 0, 0.2, -99, -48]],
+                                        [:concatenate_matrix, [0.2, 0, 0, 0.2, -19, -8]],
                                         [:paint_xobject, [:XO1]],
                                         [:restore_graphics_state]])
     end
@@ -958,7 +958,7 @@ describe HexaPDF::Content::Canvas do
     it "correctly serializes the form with both width and height given" do
       @canvas.image(@form, at: [1, 2], width: 50, height: 10)
       assert_operators(@page.contents, [[:save_graphics_state],
-                                        [:concatenate_matrix, [0.5, 0, 0, 0.2, -99, -48]],
+                                        [:concatenate_matrix, [0.5, 0, 0, 0.2, -49, -8]],
                                         [:paint_xobject, [:XO1]],
                                         [:restore_graphics_state]])
     end

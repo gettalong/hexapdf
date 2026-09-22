@@ -14,6 +14,8 @@
 
 ### Fixed
 
+* [HexaPDF::Content::Canvas#xobject] to correctly position the bottom-left
+  corner of Form XObjects in case of scaling
 * Reading password from standard input for the hexapdf CLI
 * Use Adobe (not PDF spec) order for link annotation's /QuadPoints value to
   ensure compatibility with most major PDF viewers/software

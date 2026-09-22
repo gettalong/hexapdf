@@ -1763,8 +1763,8 @@ module HexaPDF
         if obj[:Subtype] != :Image
           width /= obj.box.width.to_f
           height /= obj.box.height.to_f
-          left -= obj.box.left
-          bottom -= obj.box.bottom
+          left -= obj.box.left * width
+          bottom -= obj.box.bottom * height
         end
 
         if left == 0 && bottom == 0 && width == 1 && height == 1
