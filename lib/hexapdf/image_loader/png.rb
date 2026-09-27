@@ -346,33 +346,49 @@ module HexaPDF
       def separate_alpha_channel(offset, decode_parms)
         bytes_per_colors = (decode_parms[:BitsPerComponent] * decode_parms[:Colors] + 7) / 8
         bytes_per_alpha = (decode_parms[:BitsPerComponent] + 7) / 8
+        bytes_per_pixel = bytes_per_colors + bytes_per_alpha
         bytes_per_row = (decode_parms[:Columns] * decode_parms[:BitsPerComponent] *
           (decode_parms[:Colors] + 1) + 7) / 8 + 1
-        image_data = ''.b
-        mask_data = ''.b
 
         flate_decode = @document.config.constantize('filter.map', :FlateDecode)
         source = flate_decode.decoder(Fiber.new(&image_data_proc(offset)))
 
+        image_deflate = Zlib::Deflate.new(HexaPDF::GlobalConfiguration['filter.flate_compression'],
+                                          Zlib::MAX_WBITS,
+                                          HexaPDF::GlobalConfiguration['filter.flate_memory'])
+        mask_deflate = Zlib::Deflate.new(HexaPDF::GlobalConfiguration['filter.flate_compression'],
+                                         Zlib::MAX_WBITS,
+                                         HexaPDF::GlobalConfiguration['filter.flate_memory'])
+
+        image_data = ''.b
+        mask_data = ''.b
+        image_temp = ''.b
+        mask_temp = ''.b
         data = ''.b
         while source.alive? && (new_data = source.resume)
           data << new_data
-          while data.length >= bytes_per_row
-            i = 1
-            image_data << data.getbyte(0)
-            mask_data << data.getbyte(0)
-            while i < bytes_per_row
-              bytes_per_colors.times {|j| image_data << data.getbyte(i + j) }
-              i += bytes_per_colors
-              bytes_per_alpha.times {|j| mask_data << data.getbyte(i + j) }
-              i += bytes_per_alpha
+          i = 0
+          image_temp.clear
+          mask_temp.clear
+          while i + bytes_per_row <= data.length
+            image_temp << data.getbyte(i)
+            mask_temp << data.getbyte(i)
+            i += 1
+            row_loop_end_index = i + bytes_per_row - 1
+            while i < row_loop_end_index
+              image_temp << data.byteslice(i, bytes_per_colors)
+              mask_temp << data.byteslice(i + bytes_per_colors, bytes_per_alpha)
+              i += bytes_per_pixel
             end
-            data = data[bytes_per_row..-1]
           end
+          image_data << image_deflate.deflate(image_temp)
+          mask_data << mask_deflate.deflate(mask_temp)
+          data = data[i..-1]
         end
-
-        image_data = Filter.string_from_source(flate_decode.encoder(Fiber.new { image_data }))
-        mask_data = Filter.string_from_source(flate_decode.encoder(Fiber.new { mask_data }))
+        image_data << image_deflate.finish
+        mask_data << mask_deflate.finish
+        image_deflate.close
+        mask_deflate.close
 
         [image_data, mask_data]
       end
