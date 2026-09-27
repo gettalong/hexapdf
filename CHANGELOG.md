@@ -1,3 +1,11 @@
+## Unreleased
+
+### Changed
+
+* [HexaPDF::Type::OptionalContentGroup] methods `#apply_intent`, `#on!`,
+  `#off!`, `#add_to_ui` to return self
+
+
 ## 1.11.0 - 2026-09-22
 
 ### Added

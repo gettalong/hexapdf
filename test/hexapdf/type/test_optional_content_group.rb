@@ -69,7 +69,8 @@ describe HexaPDF::Type::OptionalContentGroup do
     end
 
     it "can apply one or more intents" do
-      @ocg.apply_intent(:View)
+      ocg = @ocg.apply_intent(:View)
+      assert_same(@ocg, ocg)
       @ocg.apply_intent(:Design)
       assert(@ocg.intent_view?)
       assert(@ocg.intent_design?)
@@ -85,17 +86,20 @@ describe HexaPDF::Type::OptionalContentGroup do
 
     it "can set its default state to on" do
       @doc.optional_content.default_configuration[:OFF] = [@ocg]
-      @ocg.on!
+      ocg = @ocg.on!
+      assert_same(@ocg, ocg)
       assert(@ocg.on?)
     end
 
     it "can set its default state to off" do
-      @ocg.off!
+      ocg = @ocg.off!
+      assert_same(@ocg, ocg)
       refute(@ocg.on?)
     end
 
     it "can add itself to the UI" do
-      @ocg.add_to_ui(path: 'Test')
+      ocg = @ocg.add_to_ui(path: 'Test')
+      assert_same(@ocg, ocg)
       assert_equal([['Test', @ocg]], @doc.optional_content.default_configuration[:Order].value)
     end
   end

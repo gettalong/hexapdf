@@ -187,10 +187,14 @@ module HexaPDF
         end
       end
 
-      # Applies the given intent (:View, :Design or a custom intent) to the OCG.
+      # :call-seq:
+      #   ocg.apply_intent(intent)   -> ocg
+      #
+      # Applies the given intent (:View, :Design or a custom intent) to the OCG and returns +self+.
       def apply_intent(intent)
         self[:Intent] = key?(:Intent) ? Array(self[:Intent]) : []
         self[:Intent] << intent
+        self
       end
 
       # Returns +true+ if this OCG has an intent of :View.
@@ -209,23 +213,35 @@ module HexaPDF
         document.optional_content.default_configuration.ocg_on?(self)
       end
 
+      # :call-seq:
+      #   ocg.on!   -> ocg
+      #
       # Sets the state of the OCG to on in the default configuration (see
-      # OptionalContentProperties#default_configuration).
+      # OptionalContentProperties#default_configuration) and returns +self+.
       def on!
         document.optional_content.default_configuration.ocg_state(self, :on)
+        self
       end
 
+      # :call-seq:
+      #   ocg.off!   -> ocg
+      #
       # Sets the state of the OCG to off in the default configuration (see
-      # OptionalContentProperties#default_configuration).
+      # OptionalContentProperties#default_configuration) and returns +self+.
       def off!
         document.optional_content.default_configuration.ocg_state(self, :off)
+        self
       end
 
+      # :call-seq:
+      #   ocg.add_to_ui(path: nil)    -> ocg
+      #
       # Adds the OCG to the PDF processor's user interface in the default configuration (see
       # OptionalContentProperties#default_configuration), either at the top-level or under the given
-      # hierarchical +path+ but always as the last item.
+      # hierarchical +path+ but always as the last item, and returns +self+.
       def add_to_ui(path: nil)
         document.optional_content.default_configuration.add_ocg_to_ui(self, path: path)
+        self
       end
 
       # :call-seq:
