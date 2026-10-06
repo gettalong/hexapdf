@@ -54,7 +54,7 @@ module HexaPDF
       define_field :ParentTreeNextKey,     type: Integer
       define_field :RoleMap,               type: Dictionary
       define_field :ClassMap,              type: Dictionary
-      define_field :Namespaces,            type: PDFArray
+      define_field :Namespaces,            type: PDFArray, version: '2.0'
       define_field :PronounciationLexicon, type: PDFArray, version: '2.0'
       define_field :AF,                    type: PDFArray, version: '2.0'
 
