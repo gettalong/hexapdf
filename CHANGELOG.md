@@ -5,6 +5,11 @@
 * [HexaPDF::Type::OptionalContentGroup] methods `#apply_intent`, `#on!`,
   `#off!`, `#add_to_ui` to return self
 
+### Fixed
+
+* [HexaPDF::Type::AcroForm::Form] validation to also remove objects with an
+  invalid /Type field
+
 
 ## 1.11.0 - 2026-09-22
 

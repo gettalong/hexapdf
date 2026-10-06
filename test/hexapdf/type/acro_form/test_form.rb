@@ -537,6 +537,7 @@ describe HexaPDF::Type::AcroForm::Form do
           @doc.add({T: :Tx3, FT: :Tx, Kids: [@doc.add({T: :Tx4}),
                                              [:nothing],
                                              @doc.add({T: :Tx5, Kids: [@doc.add({T: :Tx6})]})]}),
+          @doc.wrap({Type: :Page}),
         ]
         @acro_form[:Fields][6][:Kids][0][:Parent] = @acro_form[:Fields][6]
         @acro_form[:Fields][6][:Kids][2][:Parent] = @acro_form[:Fields][6]

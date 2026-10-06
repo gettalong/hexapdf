@@ -573,7 +573,8 @@ module HexaPDF
 
           validate_array = lambda do |parent, container|
             container.map! do |field|
-              if !field.kind_of?(HexaPDF::Object) || !field.kind_of?(HexaPDF::Dictionary) || field.null?
+              if !field.kind_of?(HexaPDF::Object) || !field.kind_of?(HexaPDF::Dictionary) ||
+                 field.null? || (field.key?(:Type) && field[:Type] != :Annot)
                 yield("Invalid object in AcroForm field hierarchy", true)
                 next nil
               end
