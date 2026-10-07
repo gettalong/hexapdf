@@ -410,6 +410,14 @@ module HexaPDF
         # Available height can be determined by finding the segment with the highest y-coordinate
         # which lies (maybe only partly) between the vertical lines @x and x_right.
         segments.select! {|s| s.max.x > @x && s.min.x < x_right }
+        # Nothing left below the chosen top edge. A flat polygon still has other
+        # horizontal edges, but select! drops them when they do not overlap that
+        # edge. A triangle has none left after its base is popped, and that empty
+        # array is truthy, so the return unless above does not catch it.
+        if segments.empty?
+          @available_height = 0
+          return
+        end
         @available_height = @y - segments.last.start_point.y
       end
 
@@ -420,6 +428,10 @@ module HexaPDF
         # Find segment with maximum y-coordinate directly below (@x,@y), this determines the
         # available height
         index = segments.rindex {|s| s.min.x <= @x && @x < s.max.x }
+        unless index
+          @available_height = 0
+          return
+        end
         y1 = segments[index].start_point.y
         @available_height = @y - y1
 
@@ -438,6 +450,10 @@ module HexaPDF
         # Just use the second top-most segment
         # TODO: not the optimal solution!
         index = segments.rindex {|s| s.start_point.y < @y }
+        unless index
+          @x = @y = @available_width = @available_height = 0
+          return
+        end
         segment = segments[index]
         y = segment.start_point.y
         polygon = if segment.min.x == @x
