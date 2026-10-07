@@ -58,7 +58,11 @@ describe HexaPDF::Layout::Frame do
 
     triangle = Geom2D::Polygon([10, 10], [50, 10], [30, 40])
     frame = HexaPDF::Layout::Frame.new(0, 0, 50, 40, shape: triangle)
+    assert_equal(10, frame.x)
+    assert_equal(10, frame.y)
+    assert_equal(40, frame.available_width)
     assert_equal(0, frame.available_height)
+    refute(frame.full?)
     frame.find_next_region
     assert_equal(0, frame.x)
     assert_equal(0, frame.y)
