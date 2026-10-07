@@ -47,6 +47,25 @@ describe HexaPDF::Layout::Frame do
     assert_equal(90, frame.available_height)
   end
 
+  it "does not fail when the shape has no horizontal segment below its top edge" do
+    zero_height = Geom2D::Polygon([0, 10], [20, 10], [20, 10], [0, 10])
+    frame = HexaPDF::Layout::Frame.new(0, 0, 20, 10, shape: zero_height)
+    assert_equal(0, frame.available_height)
+
+    zero_width = Geom2D::Polygon([10, 0], [10, 0], [10, 20], [10, 20])
+    frame = HexaPDF::Layout::Frame.new(0, 0, 0, 20, shape: zero_width)
+    assert_equal(0, frame.available_height)
+
+    triangle = Geom2D::Polygon([10, 10], [50, 10], [30, 40])
+    frame = HexaPDF::Layout::Frame.new(0, 0, 50, 40, shape: triangle)
+    assert_equal(0, frame.available_height)
+    frame.find_next_region
+    assert_equal(0, frame.x)
+    assert_equal(0, frame.y)
+    assert_equal(0, frame.available_width)
+    assert_equal(0, frame.available_height)
+  end
+
   describe "child_frame" do
     before do
       @frame = HexaPDF::Layout::Frame.new(10, 10, 100, 100, parent_boxes: [:a])
