@@ -138,6 +138,7 @@ module HexaPDF
       def self.preserve_ocgs(doc, source, pages)
         # Find all OCGs used on all pages
         ocgs = Set.new
+        seen_resources = Set.new
         process_ocg_or_ocmd = lambda do |obj|
           if obj.type == :OCG
             ocgs << obj
@@ -146,6 +147,7 @@ module HexaPDF
           end
         end
         process_page_or_form = lambda do |page_or_form|
+          next unless seen_resources.add?(page_or_form.resources.data) # handle shared resources dict
           page_or_form.resources[:Properties]&.each do |name, obj|
             process_ocg_or_ocmd.call(obj) if obj
           end
@@ -154,17 +156,11 @@ module HexaPDF
             process_page_or_form.call(obj) if obj[:Subtype] == :Form
           end
         end
-        seen_resources = {}
         pages.each do |page|
-          unless seen_resources[page.resources] # handle case when pages share the resources dict
-            process_page_or_form.call(page)
-          end
-
+          process_page_or_form.call(page)
           page.each_annotation do |annot|
             process_ocg_or_ocmd.call(annot[:OC]) if annot.key?(:OC)
           end
-
-          seen_resources[page.resources] = true
         end
 
         return if ocgs.empty?

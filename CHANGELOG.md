@@ -1,3 +1,11 @@
+## Unreleased
+
+### Fixed
+
+* Regression in [HexaPDF::Task::ImportPages] concerning files with shared
+  resources
+
+
 ## 1.11.1 - 2026-10-06
 
 ### Changed

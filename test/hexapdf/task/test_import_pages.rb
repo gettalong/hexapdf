@@ -100,6 +100,7 @@ describe HexaPDF::Task::ImportPages do
       form = canvas.form
       form[:OC] = @ocg1
       form.canvas.optional_content(@ocmd)
+      form.resources.add_xobject(form)
       canvas.xobject(form, at: [0, 0])
       @target.task(:import_pages, source: @doc)
       assert_equal(['OCG', 'OCMD'], @target.optional_content.ocgs.map(&:name))
