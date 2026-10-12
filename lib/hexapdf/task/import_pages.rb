@@ -143,7 +143,7 @@ module HexaPDF
           if obj.type == :OCG
             ocgs << obj
           elsif obj.type == :OCMD
-            ocgs.merge(obj[:OCGs].to_ary)
+            ocgs.merge(obj.ocgs)
           end
         end
         process_page_or_form = lambda do |page_or_form|
