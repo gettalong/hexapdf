@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Added
+
+* [HexaPDF::Type::OptionalContentMembership#ocgs] for retrieving the list of
+  optional content groups referenced by the membership dictionary
+
 ### Fixed
 
 * Regression in [HexaPDF::Task::ImportPages] concerning files with shared

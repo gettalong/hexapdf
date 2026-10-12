@@ -57,6 +57,19 @@ module HexaPDF
                    allowed_values: [:AllOn, :AnyOn, :AnyOff, :AllOff]
       define_field :VE,   type: PDFArray
 
+      # Returns an array of OCGs whose states determine the visibility of content controlled by this
+      # membership dictionary.
+      def ocgs
+        if (ve = self[:VE])
+          ocgs = ve.to_ary.flatten.map! {|entry| document.deref(entry) }
+          ocgs.reject! {|entry| entry.kind_of?(Symbol) || entry.nil? || entry.null? }
+          ocgs.uniq!
+          ocgs
+        else
+          Array(self[:OCGs]).compact.uniq
+        end
+      end
+
     end
 
   end
