@@ -498,8 +498,14 @@ describe HexaPDF::Document do
   describe "acro_form" do
     it "returns the main AcroForm object" do
       assert_nil(@doc.acro_form)
+
+      @doc.acro_form(create: true)
+      refute_nil(@doc.acro_form)
+    end
+
+    it "treats a malformed /AcroForm value like a missing AcroForm" do
       @doc.catalog[:AcroForm] = 5
-      assert_equal(5, @doc.acro_form)
+      assert_nil(@doc.acro_form)
     end
 
     it "create the AcroForm object if instructed" do

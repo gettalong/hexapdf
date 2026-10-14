@@ -9,6 +9,8 @@
 
 * Regression in [HexaPDF::Task::ImportPages] concerning files with shared
   resources
+* [HexaPDF::Type::Catalog#acro_form] to treat a malformed /AcroForm value
+  like a missing AcroForm
 
 
 ## 1.11.1 - 2026-10-06

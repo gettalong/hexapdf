@@ -62,19 +62,32 @@ describe HexaPDF::Type::Catalog do
 
   describe "acro_form" do
     it "returns an existing form object" do
-      @catalog[:AcroForm] = :test
-      assert_equal(:test, @catalog.acro_form)
-    end
-
-    it "returns an existing form object even if create: true" do
-      @catalog[:AcroForm] = :test
-      assert_equal(:test, @catalog.acro_form(create: true))
+      @catalog[:AcroForm] = {}
+      form = @catalog[:AcroForm]
+      assert_same(form, @catalog.acro_form)
     end
 
     it "creates a new AcroForm object with defaults if create: true" do
       form = @catalog.acro_form(create: true)
       assert_kind_of(HexaPDF::Type::AcroForm::Form, form)
       assert(form[:DA])
+    end
+
+    it "returns an existing form object even if create: true" do
+      form = @catalog.acro_form(create: true)
+      assert_same(form, @catalog.acro_form(create: true))
+    end
+
+    it "treats an invalid /AcroForm value like a missing AcroForm" do
+      @catalog[:AcroForm] = :test
+      assert_nil(@catalog.acro_form)
+    end
+
+    it "replaces an invalid /AcroForm value if create: true" do
+      @catalog[:AcroForm] = :test
+      form = @catalog.acro_form(create: true)
+      assert_kind_of(HexaPDF::Type::AcroForm::Form, form)
+      assert_same(form, @catalog.acro_form)
     end
   end
 
