@@ -128,7 +128,7 @@ module HexaPDF
         font_name_mapping = {}
         serializer = HexaPDF::Serializer.new
 
-        source_form.default_resources[:Font].each do |font_name, value|
+        source_form.default_resources[:Font]&.each do |font_name, value|
           new_name = target_resources.add_font(target_form.document.import(value))
           font_name_mapping[serializer.serialize(font_name)] = serializer.serialize(new_name)
         end

@@ -47,6 +47,12 @@ describe HexaPDF::Task::MergeAcroForm do
     assert(@doc.acro_form.default_resources[:Font].key?(:F2))
   end
 
+  it "handles AcroForm dictionaries without /DR entry" do
+    @doc1.acro_form.delete(:DR)
+    @doc.task(:merge_acro_form, source: @doc1, pages: @pages)
+    refute(@doc.acro_form.default_resources[:Font].key?(:F2))
+  end
+
   it "updates the /SigFlags if necessary" do
     @doc.task(:merge_acro_form, source: @doc1, pages: [@pages[0]])
     refute(@doc.acro_form.signature_flag?(:signatures_exist))
