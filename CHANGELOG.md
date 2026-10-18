@@ -12,6 +12,7 @@
 * [HexaPDF::Type::Catalog#acro_form] to treat a malformed /AcroForm value
   like a missing AcroForm
 * [HexaPDF::Task::MergeAcroForm] for PDFs with no default resource dictionary
+* [HexaPDF::Layout::Frame] to work when degenerate polygons are in play
 
 
 ## 1.11.1 - 2026-10-06

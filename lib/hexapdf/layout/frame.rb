@@ -438,6 +438,11 @@ module HexaPDF
         # Just use the second top-most segment
         # TODO: not the optimal solution!
         index = segments.rindex {|s| s.start_point.y < @y }
+        unless index # degenerate case where all segments are on the same horizontal line
+          @x = @y = @available_width = @available_height = 0
+          return
+        end
+
         segment = segments[index]
         y = segment.start_point.y
         polygon = if segment.min.x == @x
@@ -477,7 +482,7 @@ module HexaPDF
       # Returns the horizontal segments of the frame's shape, sorted by maximum y-, then minimum
       # x-coordinate.
       def sorted_horizontal_segments
-        @shape.each_segment.select(&:horizontal?).sort! do |a, b|
+        @shape.each_segment.select {|s| s.horizontal? && !s.degenerate? }.sort! do |a, b|
           if a.start_point.y == b.start_point.y
             b.start_point.x <=> a.start_point.x
           else

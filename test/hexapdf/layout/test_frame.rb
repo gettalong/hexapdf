@@ -502,6 +502,22 @@ describe HexaPDF::Layout::Frame do
       check_regions(frame, [[0, 100, 30, 100], [0, 60, 100, 60]])
     end
 
+    # o--------+
+    #
+    # Such a degenerate case can occur under special circumstances with e.g. a ListBox:
+    #
+    #   composer.list(height: 10, style: {padding: 5}) do |list|
+    #     list.text('test')
+    #   end
+    #
+    # Padding exactly fills the box, leaving zero height, and the algorithm in ListBox creates a
+    # degenerate Polygon.
+    it "works for a flat region with no height" do
+      shape = Geom2D::Polygon([0, 0], [100, 0], [100, 0], [0, 0])
+      frame = HexaPDF::Layout::Frame.new(0, 0, 100, 0, shape: shape)
+      check_regions(frame, [[0, 0, 100, 0]])
+    end
+
     # o---+     +--+
     # |   |  +--+  |
     # |   +--+     |
